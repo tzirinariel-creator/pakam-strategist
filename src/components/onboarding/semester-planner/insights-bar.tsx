@@ -18,6 +18,7 @@ import {
   Gauge,
   Weight,
   Flame,
+  X,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { calculateWorkload, getWorkloadColor } from "@/lib/workload-calculator";
@@ -79,8 +80,8 @@ function generateWorkloadExplanation(
   // Difficulty-aware warnings take highest priority
   if (hardCourseCount >= 3) {
     return isHe
-      ? `⚠️ ${hardCourseCount} קורסים קשים באותו סמסטר — שקלו להחליף אחד בקל יותר`
-      : `⚠️ ${hardCourseCount} hard courses in one semester — consider swapping one for an easier option`;
+      ? `${hardCourseCount} קורסים קשים באותו סמסטר — שקלו להחליף אחד בקל יותר`
+      : `${hardCourseCount} hard courses in one semester — consider swapping one for an easier option`;
   }
   if (hasSeminar && hardCourseCount >= 2) {
     return isHe
@@ -120,8 +121,8 @@ function generateWorkloadExplanation(
   // Positive: no hard courses at all
   if (hardCourseCount === 0 && courses.length >= 3 && courses.some((c) => c.difficultyLevel)) {
     return isHe
-      ? "✅ סמסטר מאוזן — אין קורסים קשים במיוחד"
-      : "✅ Balanced semester — no particularly hard courses";
+      ? "סמסטר מאוזן — אין קורסים קשים במיוחד"
+      : "Balanced semester — no particularly hard courses";
   }
   if (credits > 0 && credits <= 10) {
     return isHe
@@ -590,7 +591,7 @@ export function InsightsBar({
                 <div className="text-[10px] text-foreground/60 leading-relaxed">
                   <span className="font-medium text-foreground/80">{nameA}</span>
                   {" "}
-                  <span className="text-red-400">✕</span>
+                  <X className="inline h-2.5 w-2.5 text-red-400" />
                   {" "}
                   <span className="font-medium text-foreground/80">{nameB}</span>
                   <span className="text-foreground/30 ms-1.5" dir="ltr">

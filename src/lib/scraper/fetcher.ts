@@ -28,8 +28,8 @@ const REQUEST_DELAY_MS = SCRAPINGBEE_API_KEY ? 500 : 1500;
  * Falls back to direct URL when no API key (e.g., local sync).
  *
  * Credit costs (free tier: 1000/month):
- * - regular proxy: 1 credit/request → ~1000 requests/month ✅
- * - premium_proxy=true: 10 credits/request → ~100 requests/month ❌
+ * - regular proxy: 1 credit/request → ~1000 requests/month
+ * - premium_proxy=true: 10 credits/request → ~100 requests/month
  *
  * We start with regular proxies to maximize budget.
  * If TAU blocks them too, set SCRAPINGBEE_PREMIUM=true in env.

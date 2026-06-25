@@ -9,7 +9,7 @@ import {
   PopoverClose,
 } from "@/components/ui/popover";
 import { DISCIPLINE_CONFIG, FILTERABLE_DISCIPLINE_IDS } from "@/lib/constants";
-import { Clock, Calendar, BookOpen, Lock, Users, X } from "lucide-react";
+import { Clock, Calendar, BookOpen, Lock, Users, X, Pencil } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { CourseWithSchedule } from "@/lib/plan-generator";
 
@@ -111,7 +111,7 @@ export function CourseDetailPopover({ course, children, onDisciplineOverride }: 
             title={onDisciplineOverride ? (isHe ? "לחץ לשנות שיוך" : "Click to change") : undefined}
           >
             {isHe ? cfg?.nameHe : cfg?.nameEn}
-            {onDisciplineOverride && <span className="opacity-40">✎</span>}
+            {onDisciplineOverride && <Pencil className="inline h-2.5 w-2.5 opacity-40" />}
           </button>
           {course.submissionType !== "NONE" && (
             <span className="inline-flex items-center gap-1 rounded-full bg-foreground/5 border border-foreground/10 px-2 py-0.5 text-[10px] text-foreground/50">

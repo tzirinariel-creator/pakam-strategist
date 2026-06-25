@@ -2,7 +2,7 @@
 
 import { useState, useMemo } from "react";
 import { useTranslations, useLocale } from "next-intl";
-import { Shield, ChevronDown, HelpCircle, Swords } from "lucide-react";
+import { Shield, ChevronDown, HelpCircle, Swords, Check } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { MILUIM_CONFIG, AMIRNET_CONFIG, DISCIPLINE_CONFIG, FOCUS_DISCIPLINE_IDS } from "@/lib/constants";
 import type { OnboardingData } from "./onboarding-wizard";
@@ -725,9 +725,6 @@ export function StepProfile({ data, onUpdate }: StepProfileProps) {
                 </div>
               )}
 
-              {/* 3010 Form upload — coming soon (server endpoint not yet implemented) */}
-              {/* Removed for pilot: file was stored in local state only and never uploaded */}
-
               {/* Show benefits for selected miluim group */}
               {data.miluimGroup !== "NONE" && MILUIM_CONFIG.GROUPS[data.miluimGroup as MiluimGroupKey]?.benefits?.length > 0 && (
                 <div className="mt-3 rounded-xl border border-emerald-500/20 bg-emerald-500/5 p-3 animate-in fade-in duration-200">
@@ -745,7 +742,7 @@ export function StepProfile({ data, onUpdate }: StepProfileProps) {
                   <ul className="space-y-1">
                     {(MILUIM_CONFIG.GROUPS[data.miluimGroup as MiluimGroupKey]?.benefits ?? []).map((benefit: string, idx: number) => (
                       <li key={idx} className="flex items-start gap-1.5 text-[11px] text-foreground/50">
-                        <span className="text-emerald-400 mt-0.5 shrink-0">✓</span>
+                        <Check className="h-3 w-3 text-emerald-400 mt-0.5 shrink-0" />
                         {benefit}
                       </li>
                     ))}

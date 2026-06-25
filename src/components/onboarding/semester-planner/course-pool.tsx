@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { useTranslations, useLocale } from "next-intl";
-import { BookOpen, Plus, Search } from "lucide-react";
+import { BookOpen, Plus, Search, Star } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { canTakeCourse, type CourseWithSchedule, type GeneratedPlanCourse } from "@/lib/plan-generator";
 import { CourseBubble, type BubbleState } from "./course-bubble";
@@ -233,7 +233,7 @@ export function CoursePool({
       {/* Star legend */}
       {focusArea && (
         <div className="mt-2 flex items-center gap-1 text-[10px] text-foreground/30">
-          <span>★</span>
+          <Star className="h-2.5 w-2.5 fill-current" />
           <span>{t("starLegend")}</span>
         </div>
       )}

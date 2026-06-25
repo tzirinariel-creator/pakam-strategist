@@ -103,8 +103,8 @@ export function CourseBubble({
 
         {/* English-taught badge */}
         {course.courseType === "ENGLISH" && (
-          <span className="shrink-0 text-[9px]" title={isHe ? "נלמד באנגלית" : "Taught in English"}>
-            🇬🇧
+          <span className="shrink-0 rounded bg-foreground/8 px-1 text-[8px] font-medium text-foreground/50" title={isHe ? "נלמד באנגלית" : "Taught in English"}>
+            EN
           </span>
         )}
 
