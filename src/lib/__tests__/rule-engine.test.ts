@@ -13,19 +13,23 @@ function course(over: {
   courseType?: string;
   status?: string;
   grade?: number | null;
+  courseId?: string;
+  attemptNumber?: number;
 }): UserCourseWithCourse {
   seq += 1;
+  const courseId = over.courseId ?? `c-${seq}`;
   return {
     id: `uc-${seq}`,
+    courseId,
     status: over.status ?? "COMPLETED",
     grade: over.grade ?? 85,
     submissionType: null,
     submissionGrade: null,
-    attemptNumber: 1,
+    attemptNumber: over.attemptNumber ?? 1,
     plannedYear: 1,
     disciplineOverride: null,
     course: {
-      id: `c-${seq}`,
+      id: courseId,
       code: `000${seq}`,
       nameHe: "קורס",
       nameEn: "Course",
@@ -98,5 +102,34 @@ describe("runRegulationEngine — responds to course data", () => {
     expect(withCredits.complianceScore).toBeGreaterThanOrEqual(
       empty.complianceScore
     );
+  });
+});
+
+describe("runRegulationEngine — regression: verified review fixes", () => {
+  it("PKM-001 counts the miluim/reserve exemption toward the total (reservist parity with dashboard)", () => {
+    // 142 completed credits + 8 reserve-duty exemption = 150 → requirement met.
+    const courses = [course({ credits: 100 }), course({ credits: 42 })];
+    const summary = runRegulationEngine(courses, null, 8);
+    const pkm001 = summary.results.find((r) => r.ruleId === "PKM-001");
+    expect(pkm001?.passed).toBe(true);
+
+    // Without the exemption the same plan must fall short.
+    const noExemption = runRegulationEngine(courses, null, 0);
+    expect(noExemption.results.find((r) => r.ruleId === "PKM-001")?.passed).toBe(
+      false
+    );
+  });
+
+  it("PKM-014 counts a failed-then-passed course as 0 failures, not 50%", () => {
+    const courses = [
+      course({ courseId: "RETAKE", status: "FAILED", attemptNumber: 1 }),
+      course({ courseId: "RETAKE", status: "COMPLETED", attemptNumber: 2 }),
+      course({ courseId: "OTHER", status: "COMPLETED" }),
+    ];
+    const summary = runRegulationEngine(courses, null);
+    const pkm014 = summary.results.find((r) => r.ruleId === "PKM-014");
+    expect(pkm014?.passed).toBe(true); // 0 distinct failed courses
+    expect(pkm014?.details?.failedCount).toBe(0);
+    expect(pkm014?.details?.totalAttempted).toBe(2); // RETAKE + OTHER, deduped by course
   });
 });

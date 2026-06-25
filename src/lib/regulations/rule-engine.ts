@@ -59,7 +59,12 @@ export function runRegulationEngine(
   const programDef = program ?? getActiveProgram();
 
   // 1. Pre-compute credit and grade breakdowns (used by multiple rules).
-  const creditCalc = calculateCredits(userCourses, focusArea, miluimExemption);
+  const creditCalc = calculateCredits(
+    userCourses,
+    focusArea,
+    miluimExemption,
+    programDef
+  );
   const gradeBreakdown = calculateGrades(userCourses);
   const seminars = extractSeminars(userCourses);
 

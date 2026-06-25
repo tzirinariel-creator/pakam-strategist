@@ -46,7 +46,9 @@ function result(
 // -------------------------------------------------------------------
 
 export const ruleTotalCredits: RegulationRule = (ctx: RuleContext) => {
-  const current = ctx.creditBreakdown.total;
+  // Use effectiveTotal (includes the miluim/reserve-duty credit exemption) so this
+  // matches the dashboard progress bar — the exemption counts toward the 150-credit total.
+  const current = ctx.creditBreakdown.effectiveTotal;
   const required = ctx.programDefinition.creditRequirements.total;
   const passed = current >= required;
 
@@ -427,12 +429,40 @@ export const ruleGraduationScore: RegulationRule = (ctx: RuleContext) => {
 
 export const ruleFailureRate: RegulationRule = (ctx: RuleContext) => {
   const maxFailureRate = ctx.programDefinition.creditRequirements.maxFailureRate;
-  const allCourses = ctx.userCourses.filter(
-    (uc) => uc.status === "COMPLETED" || uc.status === "FAILED"
-  );
-  const failedCourses = ctx.userCourses.filter((uc) => uc.status === "FAILED");
-  const totalAttempted = allCourses.length;
-  const failedCount = failedCourses.length;
+
+  // Retakes are stored as separate UserCourse rows (attemptNumber), so count distinct
+  // COURSES, not attempts. A course is "failed" only if none of its attempts passed —
+  // otherwise a failed-then-passed course would register as a 50% failure rate by itself.
+  const byCourse = new Map<
+    string,
+    { passed: boolean; failed: boolean; failedIds: string[] }
+  >();
+  for (const uc of ctx.userCourses) {
+    if (
+      uc.status !== "COMPLETED" &&
+      uc.status !== "FAILED" &&
+      uc.status !== "EXEMPT"
+    ) {
+      continue;
+    }
+    const entry = byCourse.get(uc.courseId) ?? {
+      passed: false,
+      failed: false,
+      failedIds: [],
+    };
+    if (uc.status === "COMPLETED" || uc.status === "EXEMPT") entry.passed = true;
+    if (uc.status === "FAILED") {
+      entry.failed = true;
+      entry.failedIds.push(uc.id);
+    }
+    byCourse.set(uc.courseId, entry);
+  }
+
+  const distinctCourses = [...byCourse.values()];
+  const totalAttempted = distinctCourses.length;
+  const failedOnly = distinctCourses.filter((c) => c.failed && !c.passed);
+  const failedCount = failedOnly.length;
+  const failedCourses = failedOnly.flatMap((c) => c.failedIds);
 
   if (totalAttempted === 0) {
     return result(
@@ -464,7 +494,7 @@ export const ruleFailureRate: RegulationRule = (ctx: RuleContext) => {
       ? `שיעור כישלון ${ratePercent}% (${failedCount}/${totalAttempted}), בטווח המותר של ${Math.round(maxFailureRate * 100)}%.`
       : `שיעור כישלון ${ratePercent}% (${failedCount}/${totalAttempted}), חורג מהמגבלה של ${Math.round(maxFailureRate * 100)}%.`,
     { failedCount, totalAttempted, failureRate: ratePercent, maxFailureRate: Math.round(maxFailureRate * 100) },
-    failedCourses.map((uc) => uc.id)
+    failedCourses
   );
 };
 
