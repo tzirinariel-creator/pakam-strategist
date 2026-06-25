@@ -129,11 +129,18 @@ function calculateCurrentWeek(semesterKey: "FALL" | "SPRING" | "SUMMER"): number
   return cal.totalWeeks + Math.min(examWeek, cal.examWeeks);
 }
 
-/** Calculate days until exam period. */
+/** Calculate days until exam period (only while the semester is actually active). */
 function daysToExams(semesterKey: "FALL" | "SPRING" | "SUMMER"): number {
   const now = new Date();
+  const cal = ACADEMIC_CALENDAR[semesterKey];
+
+  // Gate on the semester being active, mirroring calculateCurrentWeek — otherwise a
+  // non-active semester (e.g. viewing a Spring plan in October) shows a bogus countdown
+  // with no corresponding "NOW" marker.
+  if (now < cal.start || now > cal.examEnd) return 0;
+
   now.setHours(0, 0, 0, 0);
-  const examStart = new Date(ACADEMIC_CALENDAR[semesterKey].examStart);
+  const examStart = new Date(cal.examStart);
   examStart.setHours(0, 0, 0, 0);
   const diff = examStart.getTime() - now.getTime();
   return Math.max(0, Math.ceil(diff / (1000 * 60 * 60 * 24)));

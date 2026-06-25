@@ -18,16 +18,17 @@ const DAY_MAP: Record<string, string> = {
   SATURDAY: "SA",
 };
 
-// Approximate academic semester date ranges
-// Fall: October to January; Spring: March to June
+// Academic semester teaching ranges — aligned with the app's academic calendar
+// (see gantt-view ACADEMIC_CALENDAR), TAU 2025-2026. Fixed dates rather than
+// `new Date().getFullYear()` so the export year matches the plan, not the run year.
 const SEMESTER_DATES: Record<string, { start: Date; end: Date }> = {
   FALL: {
-    start: new Date(new Date().getFullYear(), 9, 20), // Oct 20
-    end: new Date(new Date().getFullYear() + 1, 0, 25), // Jan 25
+    start: new Date(2025, 9, 19), // Oct 19 2025
+    end: new Date(2026, 0, 16), // Jan 16 2026 (teaching end)
   },
   SPRING: {
-    start: new Date(new Date().getFullYear(), 2, 10), // Mar 10
-    end: new Date(new Date().getFullYear(), 5, 20), // Jun 20
+    start: new Date(2026, 2, 8), // Mar 8 2026
+    end: new Date(2026, 5, 12), // Jun 12 2026
   },
 };
 
@@ -41,6 +42,20 @@ function formatICSDate(date: Date): string {
   return (
     `${date.getFullYear()}${pad(date.getMonth() + 1)}${pad(date.getDate())}T` +
     `${pad(date.getHours())}${pad(date.getMinutes())}00`
+  );
+}
+
+/**
+ * RFC 5545 §3.3.10: when DTSTART uses a TZID (local + time-zone), the recurrence
+ * UNTIL must be in UTC (trailing "Z"). Use end-of-day so the final in-range weekly
+ * occurrence is retained rather than truncated.
+ */
+function formatICSUntilUTC(date: Date): string {
+  const end = new Date(date);
+  end.setHours(23, 59, 59, 0);
+  return (
+    `${end.getUTCFullYear()}${pad(end.getUTCMonth() + 1)}${pad(end.getUTCDate())}T` +
+    `${pad(end.getUTCHours())}${pad(end.getUTCMinutes())}${pad(end.getUTCSeconds())}Z`
   );
 }
 
@@ -93,8 +108,8 @@ export function generateICS(
   const range = SEMESTER_DATES[semester];
   if (!range) return "";
 
-  // Use local time with TZID instead of mixing local DTSTART with UTC UNTIL
-  const untilDate = formatICSDate(range.end);
+  // UNTIL must be in UTC (trailing Z) per RFC 5545 when DTSTART uses a TZID.
+  const untilDate = formatICSUntilUTC(range.end);
 
   for (const course of courses) {
     const sessions = course.scheduleSessions ?? [];

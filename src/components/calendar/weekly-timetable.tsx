@@ -176,7 +176,13 @@ export function WeeklyTimetable({ sessions }: WeeklyTimetableProps) {
   const locale = useLocale();
   const isRTL = locale === "he";
 
-  const slots = useMemo(() => sessionsToSlots(sessions, locale), [sessions, locale]);
+  // Only keep the days the grid actually renders (Sun–Thu). Friday/Saturday slots
+  // are excluded from conflicts AND stats so the counts can't disagree with the view.
+  const slots = useMemo(
+    () =>
+      sessionsToSlots(sessions, locale).filter((s) => s.day >= 0 && s.day <= 4),
+    [sessions, locale]
+  );
   const conflictIds = useMemo(() => detectConflicts(slots), [slots]);
   const layoutSlots = useMemo(() => computeOverlapLayout(slots), [slots]);
 
@@ -192,9 +198,9 @@ export function WeeklyTimetable({ sessions }: WeeklyTimetableProps) {
   const dayOrder: TimeSlot["day"][] = [0, 1, 2, 3, 4];
   const gridHeight = TOTAL_HOURS * ROW_HEIGHT;
 
-  // Stats
-  const totalSessions = sessions.length;
-  const uniqueCourses = new Set(sessions.map((s) => s.courseCode)).size;
+  // Stats — derived from the rendered slots so counts match what's shown.
+  const totalSessions = slots.length;
+  const uniqueCourses = new Set(slots.map((s) => s.courseCode)).size;
   const totalHours = slots.reduce((sum, s) => sum + (s.endHour - s.startHour), 0);
 
   return (
