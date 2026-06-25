@@ -32,7 +32,7 @@ export const metadata: Metadata = {
     title: "Pakamon | פכמון",
     description:
       "תכנון אקדמי חכם לתואר פילוסופיה, כלכלה ומדע המדינה — אוניברסיטת תל אביב",
-    images: [{ url: "/og-image.svg", width: 1200, height: 630, alt: "Pakamon" }],
+    images: [{ url: "/og-image.png", width: 1200, height: 630, alt: "Pakamon" }],
     locale: "he_IL",
     type: "website",
   },
@@ -41,7 +41,7 @@ export const metadata: Metadata = {
     title: "Pakamon | פכמון",
     description:
       "תכנון אקדמי חכם לתואר פילוסופיה, כלכלה ומדע המדינה — אוניברסיטת תל אביב",
-    images: ["/og-image.svg"],
+    images: ["/og-image.png"],
   },
 };
 
