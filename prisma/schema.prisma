@@ -1,0 +1,400 @@
+// =========================================
+// Pakam Strategist — Prisma Schema
+// =========================================
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+}
+
+// =========================================
+// Enums
+// =========================================
+
+// Discipline was an enum — now a plain String to support any program's disciplines.
+// Valid values come from ProgramDefinition at runtime (e.g. "PHILOSOPHY", "ECONOMICS", etc.)
+
+enum CourseType {
+  MANDATORY
+  ELECTIVE
+  SEMINAR
+  PRACTICE
+  ENGLISH
+  LAW_FOUNDATION
+}
+
+enum CourseStatus {
+  PLANNED
+  IN_PROGRESS
+  COMPLETED
+  FAILED
+  EXEMPT
+}
+
+enum SubmissionType {
+  PAPER
+  REFERAT
+  EXAM
+  NONE
+}
+
+enum Semester {
+  FALL
+  SPRING
+  SUMMER
+}
+
+enum CalendarEventType {
+  LECTURE
+  EXAM
+  ASSIGNMENT_DUE
+  STUDY_BLOCK
+  OFFICE_HOURS
+  CUSTOM
+  GOOGLE_SYNCED
+}
+
+enum RuleSeverity {
+  ERROR
+  WARNING
+  INFO
+}
+
+enum DayOfWeek {
+  SUNDAY
+  MONDAY
+  TUESDAY
+  WEDNESDAY
+  THURSDAY
+  FRIDAY
+}
+
+enum MiluimGroup {
+  NONE
+  GROUP_A // Single reserve duty of 14+ days
+  GROUP_B // Cumulative 14+ days across multiple duties
+  GROUP_C // Reserve soldiers not in A/B
+  GROUP_G // Fallen soldiers' families
+}
+
+// =========================================
+// Models
+// =========================================
+
+model User {
+  id                     String    @id @default(uuid())
+  supabaseId             String    @unique
+  email                  String    @unique
+  displayName            String?
+  avatarUrl              String?
+  focusArea              String?
+  currentYear            Int       @default(1)
+  currentSemester        Semester  @default(FALL)
+  startYear              Int?
+  encryptedClaudeKey     String?
+  programId              String?
+  encryptedGoogleToken   String?
+  googleRefreshToken     String?
+  locale                 String    @default("he")
+  theme                  String    @default("dark")
+  miluimGroup            MiluimGroup @default(NONE)
+  miluimCreditsUsed      Int       @default(0) // max 10 across the degree
+  amiramScore            Int?      // Amiram English proficiency score
+  role                   String    @default("user") // "user" | "admin"
+
+  program                Program?      @relation(fields: [programId], references: [id])
+  courses                UserCourse[]
+  syllabi                Syllabus[]
+  synthesisNotes         SynthesisNote[]
+  studyMaterials         StudyMaterial[]
+  calendarEvents         CalendarEvent[]
+  chatSessions           ChatSession[]
+  studyTasks             StudyTask[]
+
+  createdAt              DateTime  @default(now())
+  updatedAt              DateTime  @updatedAt
+
+  @@map("users")
+}
+
+model Course {
+  id                String        @id @default(uuid())
+  code              String        @unique
+  universityId      String?
+  nameHe            String
+  nameEn            String?
+  discipline        String
+  courseType         CourseType
+  credits           Float
+  yearOffered       Int[]
+  semesterOffered   Semester[]
+  prerequisites     String[]      // Course codes (not IDs)
+  canCountAs        String[]      // Alternative discipline attributions
+  description       String?
+  isMandatory       Boolean       @default(false)
+  attendanceMandatory Boolean     @default(true)
+  submissionType    SubmissionType @default(EXAM)
+  weeklyHours       Float?
+
+  examDateA         DateTime?     // מועד א'
+  examDateB         DateTime?     // מועד ב'
+
+  // Grade statistics (from Arazim Project historical data)
+  averageGrade      Float?                          // historical mean grade
+  medianGrade       Float?                          // historical median grade
+  gradeStdDev       Float?                          // grade standard deviation
+  failRate          Float?                          // percentage of students failing (0-100)
+  difficultyLevel   String?                         // "easy" | "moderate" | "hard" | "very_hard"
+  gradeDataSource   String?                         // "arazim" | "manual" | "estimated"
+  gradeDataYear     String?                         // e.g. "2024b" — which semester the grade data is from
+
+  isActive          Boolean       @default(true)    // soft delete — false hides from catalog
+  lastSyncedAt      DateTime?                       // last successful Yedion sync
+  yedionUrl         String?                         // direct link to syllabus page
+
+  university        University?   @relation(fields: [universityId], references: [id])
+  userCourses       UserCourse[]
+  syllabi           Syllabus[]
+  scheduleSessions  ScheduleSession[]
+
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
+
+  @@map("courses")
+}
+
+model UserCourse {
+  id                  String        @id @default(uuid())
+  userId              String
+  courseId             String
+  status              CourseStatus  @default(PLANNED)
+  grade               Float?
+  plannedYear         Int
+  plannedSemester     Semester
+  attemptNumber       Int           @default(1)
+  isGradeImproved     Boolean       @default(false)
+  disciplineOverride  String?       // Override: which discipline this counts toward
+  submissionType      SubmissionType?
+  submissionGrade     Float?
+  notes               String?
+  selectedGroups      Json?         // { "tutorial": "B", "lab": "01" } — persists session group selections
+
+  user                User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  course              Course        @relation(fields: [courseId], references: [id])
+
+  createdAt           DateTime      @default(now())
+  updatedAt           DateTime      @updatedAt
+
+  @@unique([userId, courseId, attemptNumber])
+  @@index([userId])
+  @@map("user_courses")
+}
+
+model Syllabus {
+  id              String    @id @default(uuid())
+  userId          String
+  courseId         String
+  fileName        String
+  fileUrl         String
+  parsedContent   Json?     // AI-parsed structured data
+  deadlines       Json?     // Extracted deadlines array
+  topics          String[]
+  gradingBreakdown Json?    // { component: string, weight: number }[]
+
+  user            User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  course          Course    @relation(fields: [courseId], references: [id])
+
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  @@index([userId])
+  @@map("syllabi")
+}
+
+model SynthesisNote {
+  id                String       @id @default(uuid())
+  userId            String
+  title             String
+  content           String
+  disciplines       String[]
+  courseConnections  String[]     // Course codes
+  tags              String[]
+  aiGenerated       Boolean      @default(false)
+
+  user              User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  createdAt         DateTime     @default(now())
+  updatedAt         DateTime     @updatedAt
+
+  @@index([userId])
+  @@map("synthesis_notes")
+}
+
+model StudyMaterial {
+  id              String   @id @default(uuid())
+  userId          String
+  courseCode       String
+  title           String
+  content         Json     // Quiz questions, flashcards, summaries
+  materialType    String   // "quiz" | "flashcard" | "summary" | "mock_exam"
+  aiGenerated     Boolean  @default(true)
+
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@index([userId])
+  @@map("study_materials")
+}
+
+model CalendarEvent {
+  id              String            @id @default(uuid())
+  userId          String
+  title           String
+  description     String?
+  startTime       DateTime
+  endTime         DateTime
+  eventType       CalendarEventType
+  courseCode       String?
+  googleEventId   String?
+  isAiSuggested   Boolean           @default(false)
+  color           String?
+  recurrence      String?
+
+  user            User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+
+  @@index([userId])
+  @@index([googleEventId])
+  @@map("calendar_events")
+}
+
+model ChatSession {
+  id              String   @id @default(uuid())
+  userId          String
+  title           String?
+  persona         String   @default("mentor")
+  messages        Json[]   // Array of { role: string, content: string, timestamp: string }
+  context         Json?    // Attached course/plan context snapshot
+
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@index([userId])
+  @@map("chat_sessions")
+}
+
+model StudyTask {
+  id              String    @id @default(uuid())
+  userId          String
+  title           String
+  startDate       DateTime
+  endDate         DateTime
+  taskType        String    // "study" | "assignment" | "exam" | "custom"
+  courseCode      String?   // optional link to course
+  completed       Boolean   @default(false)
+  color           String?
+  notes           String?
+
+  user            User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  @@index([userId])
+  @@index([userId, startDate])
+  @@map("study_tasks")
+}
+
+model ScheduleSession {
+  id              String    @id @default(uuid())
+  courseCode      String
+  dayOfWeek       DayOfWeek
+  startTime       String    // "HH:MM" format, e.g. "10:00"
+  endTime         String    // "HH:MM" format, e.g. "12:00"
+  room            String?
+  building        String?
+  sessionType     String    @default("lecture") // "lecture" | "tutorial" | "lab"
+  semester        Semester
+  academicYear    Int       @default(2025)
+  groupCode       String?   // "A", "B", "01" — identifies which section/group this session belongs to
+  lecturerName    String?   // Lecturer/TA name for display
+  lecturerEmail   String?   // Lecturer email from Yedion
+
+  course          Course    @relation(fields: [courseCode], references: [code])
+
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  @@index([courseCode])
+  @@index([semester, academicYear])
+  @@index([courseCode, groupCode])
+  @@map("schedule_sessions")
+}
+
+// =========================================
+// University / Program
+// =========================================
+
+model University {
+  id        String    @id @default(uuid())
+  code      String    @unique              // "tau"
+  nameHe    String
+  nameEn    String
+  yedionUrl String?                        // e.g. "https://ims.tau.ac.il/tal"
+  programs  Program[]
+  courses   Course[]
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  @@map("universities")
+}
+
+model Program {
+  id             String     @id @default(uuid())
+  code           String                     // "PPE"
+  universityId   String
+  university     University @relation(fields: [universityId], references: [id])
+  nameHe         String
+  nameEn         String
+  academicYear   Int
+  definition     Json                       // Full ProgramDefinition JSON
+  users          User[]
+
+  createdAt      DateTime   @default(now())
+  updatedAt      DateTime   @updatedAt
+
+  @@unique([universityId, code, academicYear])
+  @@map("programs")
+}
+
+// =========================================
+// Sync / Admin
+// =========================================
+
+model SyncLog {
+  id              String    @id @default(uuid())
+  startedAt       DateTime  @default(now())
+  completedAt     DateTime?
+  status          String    // "running" | "success" | "failed"
+  coursesChecked  Int       @default(0)
+  changesFound    Int       @default(0)
+  changesApplied  Int       @default(0)
+  errorMessage    String?
+  diffJson        Json?     // snapshot of the computed diff for audit
+
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  @@index([status])
+  @@map("sync_logs")
+}

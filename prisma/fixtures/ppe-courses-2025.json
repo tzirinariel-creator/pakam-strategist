@@ -1,0 +1,3686 @@
+{
+  "_meta": {
+    "exportedAt": "2026-03-03T19:26:45.897Z",
+    "courseCount": 117,
+    "sessionCount": 62,
+    "academicYear": "2025/2026 (תשפ\"ו)"
+  },
+  "courses": [
+    {
+      "code": "0608-1110",
+      "nameHe": "מבוא לפילוסופיה פמיניסטית",
+      "nameEn": "Introduction to Feminist Philosophy",
+      "discipline": "PHILOSOPHY",
+      "courseType": "ELECTIVE",
+      "credits": 2,
+      "yearOffered": [
+        1,
+        2,
+        3
+      ],
+      "semesterOffered": [
+        "FALL"
+      ],
+      "prerequisites": [],
+      "canCountAs": [],
+      "description": null,
+      "isMandatory": false,
+      "attendanceMandatory": false,
+      "submissionType": "EXAM",
+      "weeklyHours": 2,
+      "examDateA": "2026-01-29T00:00:00.000Z",
+      "examDateB": "2026-03-06T00:00:00.000Z"
+    },
+    {
+      "code": "0616-6035",
+      "nameHe": "The Jewish Political Tradition",
+      "nameEn": "The Jewish Political Tradition",
+      "discipline": "PHILOSOPHY",
+      "courseType": "ENGLISH",
+      "credits": 2,
+      "yearOffered": [
+        1,
+        2
+      ],
+      "semesterOffered": [
+        "SPRING"
+      ],
+      "prerequisites": [],
+      "canCountAs": [
+        "POLITICAL_SCIENCE"
+      ],
+      "description": null,
+      "isMandatory": false,
+      "attendanceMandatory": false,
+      "submissionType": "PAPER",
+      "weeklyHours": 2,
+      "examDateA": null,
+      "examDateB": null
+    },
+    {
+      "code": "0618-1012",
+      "nameHe": "מבוא ללוגיקה + תרגיל",
+      "nameEn": "Introduction to Logic + Tutorial",
+      "discipline": "PHILOSOPHY",
+      "courseType": "MANDATORY",
+      "credits": 4,
+      "yearOffered": [
+        1
+      ],
+      "semesterOffered": [
+        "FALL"
+      ],
+      "prerequisites": [],
+      "canCountAs": [],
+      "description": null,
+      "isMandatory": true,
+      "attendanceMandatory": true,
+      "submissionType": "EXAM",
+      "weeklyHours": 4,
+      "examDateA": "2026-02-08T00:00:00.000Z",
+      "examDateB": "2026-03-15T00:00:00.000Z"
+    },
+    {
+      "code": "0618-1015",
+      "nameHe": "מבוא לפילוסופיה של השפה",
+      "nameEn": "Introduction to Philosophy of Language",
+      "discipline": "PHILOSOPHY",
+      "courseType": "ELECTIVE",
+      "credits": 2,
+      "yearOffered": [
+        1
+      ],
+      "semesterOffered": [
+        "FALL"
+      ],
+      "prerequisites": [],
+      "canCountAs": [],
+      "description": null,
+      "isMandatory": false,
+      "attendanceMandatory": true,
+      "submissionType": "EXAM",
+      "weeklyHours": 2,
+      "examDateA": null,
+      "examDateB": null
+    },
+    {
+      "code": "0618-1016",
+      "nameHe": "מבוא לפילוסופיה של הדת",
+      "nameEn": "Introduction to Philosophy of Religion",
+      "discipline": "PHILOSOPHY",
+      "courseType": "ELECTIVE",
+      "credits": 2,
+      "yearOffered": [
+        1
+      ],
+      "semesterOffered": [
+        "FALL"
+      ],
+      "prerequisites": [],
+      "canCountAs": [],
+      "description": null,
+      "isMandatory": false,
+      "attendanceMandatory": true,
+      "submissionType": "EXAM",
+      "weeklyHours": 2,
+      "examDateA": null,
+      "examDateB": null
+    },
+    {
+      "code": "0618-1018",
+      "nameHe": "מבוא לפילוסופיה של המוסר",
+      "nameEn": "Introduction to Moral Philosophy",
+      "discipline": "PHILOSOPHY",
+      "courseType": "MANDATORY",
+      "credits": 2,
+      "yearOffered": [
+        1
+      ],
+      "semesterOffered": [
+        "FALL"
+      ],
+      "prerequisites": [],
+      "canCountAs": [],
+      "description": null,
+      "isMandatory": true,
+      "attendanceMandatory": true,
+      "submissionType": "EXAM",
+      "weeklyHours": 2,
+      "examDateA": "2026-02-13T00:00:00.000Z",
+      "examDateB": "2026-03-20T00:00:00.000Z"
+    },
+    {
+      "code": "0618-1019",
+      "nameHe": "מבוא לפילוסופיה פוליטית",
+      "nameEn": "Introduction to Political Philosophy",
+      "discipline": "PHILOSOPHY",
+      "courseType": "MANDATORY",
+      "credits": 2,
+      "yearOffered": [
+        1
+      ],
+      "semesterOffered": [
+        "FALL"
+      ],
+      "prerequisites": [],
+      "canCountAs": [
+        "POLITICAL_SCIENCE"
+      ],
+      "description": null,
+      "isMandatory": true,
+      "attendanceMandatory": true,
+      "submissionType": "EXAM",
+      "weeklyHours": 2,
+      "examDateA": "2026-01-29T00:00:00.000Z",
+      "examDateB": "2026-03-04T00:00:00.000Z"
+    },
+    {
+      "code": "0618-1030",
+      "nameHe": "מבוא לפילוסופיה יוונית",
+      "nameEn": "Introduction to Greek Philosophy",
+      "discipline": "PHILOSOPHY",
+      "courseType": "ELECTIVE",
+      "credits": 2,
+      "yearOffered": [
+        2,
+        3
+      ],
+      "semesterOffered": [
+        "FALL"
+      ],
+      "prerequisites": [],
+      "canCountAs": [],
+      "description": null,
+      "isMandatory": false,
+      "attendanceMandatory": true,
+      "submissionType": "EXAM",
+      "weeklyHours": 2,
+      "examDateA": null,
+      "examDateB": null
+    },
+    {
+      "code": "0618-1032",
+      "nameHe": "מבוא לפילוסופיה חדשה",
+      "nameEn": "Introduction to Modern Philosophy",
+      "discipline": "PHILOSOPHY",
+      "courseType": "MANDATORY",
+      "credits": 2,
+      "yearOffered": [
+        1
+      ],
+      "semesterOffered": [
+        "SPRING"
+      ],
+      "prerequisites": [],
+      "canCountAs": [],
+      "description": null,
+      "isMandatory": true,
+      "attendanceMandatory": true,
+      "submissionType": "EXAM",
+      "weeklyHours": 2,
+      "examDateA": "2026-07-26T00:00:00.000Z",
+      "examDateB": "2026-09-03T00:00:00.000Z"
+    },
+    {
+      "code": "0618-1037",
+      "nameHe": "מבוא לתורת ההכרה ומטאפיזיקה",
+      "nameEn": "Introduction to Epistemology and Metaphysics",
+      "discipline": "PHILOSOPHY",
+      "courseType": "MANDATORY",
+      "credits": 2,
+      "yearOffered": [
+        1
+      ],
+      "semesterOffered": [
+        "FALL"
+      ],
+      "prerequisites": [],
+      "canCountAs": [],
+      "description": null,
+      "isMandatory": true,
+      "attendanceMandatory": true,
+      "submissionType": "EXAM",
+      "weeklyHours": 2,
+      "examDateA": "2026-02-19T00:00:00.000Z",
+      "examDateB": "2026-03-27T00:00:00.000Z"
+    },
+    {
+      "code": "0618-1042",
+      "nameHe": "מבוא לפילוסופיה הודית",
+      "nameEn": "Introduction to Indian Philosophy",
+      "discipline": "PHILOSOPHY",
+      "courseType": "ELECTIVE",
+      "credits": 2,
+      "yearOffered": [
+        1
+      ],
+      "semesterOffered": [
+        "SPRING"
+      ],
+      "prerequisites": [],
+      "canCountAs": [],
+      "description": null,
+      "isMandatory": false,
+      "attendanceMandatory": true,
+      "submissionType": "EXAM",
+      "weeklyHours": 2,
+      "examDateA": null,
+      "examDateB": null
+    },
+    {
+      "code": "0618-1043",
+      "nameHe": "מבוא לפילוסופיה סינית",
+      "nameEn": "Introduction to Chinese Philosophy",
+      "discipline": "PHILOSOPHY",
+      "courseType": "ELECTIVE",
+      "credits": 2,
+      "yearOffered": [
+        2,
+        3
+      ],
+      "semesterOffered": [
+        "SPRING"
+      ],
+      "prerequisites": [],
+      "canCountAs": [],
+      "description": null,
+      "isMandatory": false,
+      "attendanceMandatory": true,
+      "submissionType": "EXAM",
+      "weeklyHours": 2,
+      "examDateA": null,
+      "examDateB": null
+    },
+    {
+      "code": "0618-1059",
+      "nameHe": "מבוא לאסתטיקה ופילוסופיה של האמנות",
+      "nameEn": "Introduction to Aesthetics and Philosophy of Art",
+      "discipline": "PHILOSOPHY",
+      "courseType": "ELECTIVE",
+      "credits": 2,
+      "yearOffered": [
+        2,
+        3
+      ],
+      "semesterOffered": [
+        "SPRING"
+      ],
+      "prerequisites": [],
+      "canCountAs": [],
+      "description": null,
+      "isMandatory": false,
+      "attendanceMandatory": true,
+      "submissionType": "EXAM",
+      "weeklyHours": 2,
+      "examDateA": null,
+      "examDateB": null
+    },
+    {
+      "code": "0618-2200",
+      "nameHe": "מבוא לפילוסופיה של המאה ה-19",
+      "nameEn": "Introduction to 19th Century Philosophy",
+      "discipline": "PHILOSOPHY",
+      "courseType": "MANDATORY",
+      "credits": 2,
+      "yearOffered": [
+        2
+      ],
+      "semesterOffered": [
+        "FALL"
+      ],
+      "prerequisites": [],
+      "canCountAs": [],
+      "description": null,
+      "isMandatory": true,
+      "attendanceMandatory": true,
+      "submissionType": "EXAM",
+      "weeklyHours": 2,
+      "examDateA": "2026-02-06T00:00:00.000Z",
+      "examDateB": "2026-03-06T00:00:00.000Z"
+    },
+    {
+      "code": "0618-2209",
+      "nameHe": "פילוסופיה של הדת — שיעור המשך",
+      "nameEn": "Philosophy of Religion — Advanced",
+      "discipline": "PHILOSOPHY",
+      "courseType": "ELECTIVE",
+      "credits": 2,
+      "yearOffered": [
+        2,
+        3
+      ],
+      "semesterOffered": [
+        "FALL"
+      ],
+      "prerequisites": [],
+      "canCountAs": [],
+      "description": null,
+      "isMandatory": false,
+      "attendanceMandatory": true,
+      "submissionType": "EXAM",
+      "weeklyHours": 2,
+      "examDateA": null,
+      "examDateB": null
+    },
+    {
+      "code": "0618-2350",
+      "nameHe": "אפיסטמולוגיה ומטפיזיקה — שיעור המשך",
+      "nameEn": "Epistemology and Metaphysics — Advanced",
+      "discipline": "PHILOSOPHY",
+      "courseType": "ELECTIVE",
+      "credits": 2,
+      "yearOffered": [
+        2,
+        3
+      ],
+      "semesterOffered": [
+        "SPRING"
+      ],
+      "prerequisites": [],
+      "canCountAs": [],
+      "description": null,
+      "isMandatory": false,
+      "attendanceMandatory": true,
+      "submissionType": "EXAM",
+      "weeklyHours": 2,
+      "examDateA": null,
+      "examDateB": null
+    },
+    {
+      "code": "0618-2401",
+      "nameHe": "פילוסופיה של השפה — שיעור המשך",
+      "nameEn": "Philosophy of Language — Advanced",
+      "discipline": "PHILOSOPHY",
+      "courseType": "ELECTIVE",
+      "credits": 2,
+      "yearOffered": [
+        2,
+        3
+      ],
+      "semesterOffered": [
+        "FALL"
+      ],
+      "prerequisites": [],
+      "canCountAs": [],
+      "description": null,
+      "isMandatory": false,
+      "attendanceMandatory": true,
+      "submissionType": "EXAM",
+      "weeklyHours": 2,
+      "examDateA": null,
+      "examDateB": null
+    },
+    {
+      "code": "0618-2601",
+      "nameHe": "פילוסופיה של המוסר - שיעור המשך",
+      "nameEn": "Moral Philosophy - Continuation",
+      "discipline": "PHILOSOPHY",
+      "courseType": "MANDATORY",
+      "credits": 2,
+      "yearOffered": [
+        2
+      ],
+      "semesterOffered": [
+        "SPRING"
+      ],
+      "prerequisites": [
+        "0618-1018"
+      ],
+      "canCountAs": [],
+      "description": null,
+      "isMandatory": true,
+      "attendanceMandatory": true,
+      "submissionType": "EXAM",
+      "weeklyHours": 2,
+      "examDateA": "2026-07-07T00:00:00.000Z",
+      "examDateB": "2026-08-07T00:00:00.000Z"
+    },
+    {
+      "code": "0618-2741",
+      "nameHe": "צדק חלוקתי — תיאוריה ומעשה",
+      "nameEn": "Distributive Justice - Theory and Practice",
+      "discipline": "PHILOSOPHY",
+      "courseType": "ENGLISH",
+      "credits": 2,
+      "yearOffered": [
+        2,
+        3
+      ],
+      "semesterOffered": [
+        "FALL"
+      ],
+      "prerequisites": [],
+      "canCountAs": [
+        "POLITICAL_SCIENCE"
+      ],
+      "description": null,
+      "isMandatory": false,
+      "attendanceMandatory": true,
+      "submissionType": "EXAM",
+      "weeklyHours": 2,
+      "examDateA": "2026-01-30T00:00:00.000Z",
+      "examDateB": "2026-03-05T00:00:00.000Z"
+    },
+    {
+      "code": "0618-2998",
+      "nameHe": "שיעור יסוד: ניטשה",
+      "nameEn": "Elementary Course: Nietzsche",
+      "discipline": "PHILOSOPHY",
+      "courseType": "ELECTIVE",
+      "credits": 2,
+      "yearOffered": [
+        2,
+        3
+      ],
+      "semesterOffered": [
+        "SPRING"
+      ],
+      "prerequisites": [],
+      "canCountAs": [],
+      "description": null,
+      "isMandatory": false,
+      "attendanceMandatory": true,
+      "submissionType": "EXAM",
+      "weeklyHours": 2,
+      "examDateA": "2026-07-15T00:00:00.000Z",
+      "examDateB": "2026-08-16T00:00:00.000Z"
+    },
+    {
+      "code": "0618-3886",
+      "nameHe": "אידיאולוגיה וביקורת האידיאולוגיה",
+      "nameEn": "Ideology and the Critique of Ideology",
+      "discipline": "PHILOSOPHY",
+      "courseType": "SEMINAR",
+      "credits": 4,
+      "yearOffered": [
+        2,
+        3
+      ],
+      "semesterOffered": [
+        "FALL"
+      ],
+      "prerequisites": [],
+      "canCountAs": [],
+      "description": null,
+      "isMandatory": false,
+      "attendanceMandatory": true,
+      "submissionType": "PAPER",
+      "weeklyHours": 2,
+      "examDateA": null,
+      "examDateB": null
+    },
+    {
+      "code": "0618-3921",
+      "nameHe": "עמנואל לוינס: אתיקה של אחרות",
+      "nameEn": "Emmanuel Levinas: Ethics of Otherness",
+      "discipline": "PHILOSOPHY",
+      "courseType": "SEMINAR",
+      "credits": 4,
+      "yearOffered": [
+        2,
+        3
+      ],
+      "semesterOffered": [
+        "SPRING"
+      ],
+      "prerequisites": [],
+      "canCountAs": [],
+      "description": null,
+      "isMandatory": false,
+      "attendanceMandatory": true,
+      "submissionType": "PAPER",
+      "weeklyHours": 2,
+      "examDateA": null,
+      "examDateB": null
+    },
+    {
+      "code": "0618-4981",
+      "nameHe": "אתיקה סביבתית",
+      "nameEn": "Environmental Ethics",
+      "discipline": "PHILOSOPHY",
+      "courseType": "SEMINAR",
+      "credits": 4,
+      "yearOffered": [
+        2,
+        3
+      ],
+      "semesterOffered": [
+        "SPRING"
+      ],
+      "prerequisites": [],
+      "canCountAs": [],
+      "description": null,
+      "isMandatory": false,
+      "attendanceMandatory": true,
+      "submissionType": "PAPER",
+      "weeklyHours": 2,
+      "examDateA": null,
+      "examDateB": null
+    },
+    {
+      "code": "0618-7175",
+      "nameHe": "מבוא עכשווי לפילוסופיה של התודעה",
+      "nameEn": "Contemporary Introduction to Philosophy of Mind",
+      "discipline": "PHILOSOPHY",
+      "courseType": "ELECTIVE",
+      "credits": 2,
+      "yearOffered": [
+        2,
+        3
+      ],
+      "semesterOffered": [
+        "SPRING"
+      ],
+      "prerequisites": [],
+      "canCountAs": [],
+      "description": null,
+      "isMandatory": false,
+      "attendanceMandatory": true,
+      "submissionType": "EXAM",
+      "weeklyHours": 2,
+      "examDateA": null,
+      "examDateB": null
+    },
+    {
+      "code": "0618-8006",
+      "nameHe": "שיעור יסוד: סוגיות במטא-אתיקה",
+      "nameEn": "Foundation: Topics in Meta-Ethics",
+      "discipline": "PHILOSOPHY",
+      "courseType": "ELECTIVE",
+      "credits": 2,
+      "yearOffered": [
+        2,
+        3
+      ],
+      "semesterOffered": [
+        "FALL"
+      ],
+      "prerequisites": [],
+      "canCountAs": [],
+      "description": null,
+      "isMandatory": false,
+      "attendanceMandatory": true,
+      "submissionType": "EXAM",
+      "weeklyHours": 2,
+      "examDateA": null,
+      "examDateB": null
+    },
+    {
+      "code": "0618-8008",
+      "nameHe": "שיעור יסוד: חירות כמושג פוליטי",
+      "nameEn": "Foundation: Freedom as a Political Concept",
+      "discipline": "PHILOSOPHY",
+      "courseType": "ELECTIVE",
+      "credits": 2,
+      "yearOffered": [
+        2,
+        3
+      ],
+      "semesterOffered": [
+        "SPRING"
+      ],
+      "prerequisites": [],
+      "canCountAs": [
+        "POLITICAL_SCIENCE"
+      ],
+      "description": null,
+      "isMandatory": false,
+      "attendanceMandatory": true,
+      "submissionType": "EXAM",
+      "weeklyHours": 2,
+      "examDateA": null,
+      "examDateB": null
+    },
+    {
+      "code": "0651-1003",
+      "nameHe": "פילוסופיה של מדעי החברה",
+      "nameEn": "Philosophy of Social Sciences",
+      "discipline": "PHILOSOPHY",
+      "courseType": "MANDATORY",
+      "credits": 4,
+      "yearOffered": [
+        1
+      ],
+      "semesterOffered": [
+        "SPRING"
+      ],
+      "prerequisites": [],
+      "canCountAs": [
+        "POLITICAL_SCIENCE"
+      ],
+      "description": null,
+      "isMandatory": true,
+      "attendanceMandatory": true,
+      "submissionType": "EXAM",
+      "weeklyHours": 2,
+      "examDateA": null,
+      "examDateB": null
+    },
+    {
+      "code": "PHIL-READING",
+      "nameHe": "שיעור קריאה או יסוד בפילוסופיה",
+      "nameEn": "Reading Course or Philosophy Foundations",
+      "discipline": "PHILOSOPHY",
+      "courseType": "MANDATORY",
+      "credits": 2,
+      "yearOffered": [
+        2
+      ],
+      "semesterOffered": [
+        "FALL",
+        "SPRING"
+      ],
+      "prerequisites": [],
+      "canCountAs": [],
+      "description": null,
+      "isMandatory": true,
+      "attendanceMandatory": true,
+      "submissionType": "EXAM",
+      "weeklyHours": 2,
+      "examDateA": null,
+      "examDateB": null
+    },
+    {
+      "code": "0651-1005",
+      "nameHe": "סטטיסטיקה לפכ\"מ + תרגיל",
+      "nameEn": "Statistics for PPE + Tutorial",
+      "discipline": "ECONOMICS",
+      "courseType": "MANDATORY",
+      "credits": 5,
+      "yearOffered": [
+        1
+      ],
+      "semesterOffered": [
+        "SPRING"
+      ],
+      "prerequisites": [
+        "0651-1007"
+      ],
+      "canCountAs": [],
+      "description": null,
+      "isMandatory": true,
+      "attendanceMandatory": true,
+      "submissionType": "EXAM",
+      "weeklyHours": 4,
+      "examDateA": "2026-07-06T00:00:00.000Z",
+      "examDateB": "2026-08-20T00:00:00.000Z"
+    },
+    {
+      "code": "0651-1007",
+      "nameHe": "מתמטיקה לפכ\"מ",
+      "nameEn": "Mathematics for PPE",
+      "discipline": "ECONOMICS",
+      "courseType": "MANDATORY",
+      "credits": 5,
+      "yearOffered": [
+        1
+      ],
+      "semesterOffered": [
+        "FALL"
+      ],
+      "prerequisites": [],
+      "canCountAs": [],
+      "description": null,
+      "isMandatory": true,
+      "attendanceMandatory": true,
+      "submissionType": "EXAM",
+      "weeklyHours": 4,
+      "examDateA": "2026-02-01T00:00:00.000Z",
+      "examDateB": "2026-03-01T00:00:00.000Z"
+    },
+    {
+      "code": "1011-2101",
+      "nameHe": "מאקרו כלכלה + תרגיל",
+      "nameEn": "Macroeconomics + Tutorial",
+      "discipline": "ECONOMICS",
+      "courseType": "MANDATORY",
+      "credits": 6,
+      "yearOffered": [
+        2
+      ],
+      "semesterOffered": [
+        "FALL"
+      ],
+      "prerequisites": [
+        "1011-2103"
+      ],
+      "canCountAs": [],
+      "description": null,
+      "isMandatory": true,
+      "attendanceMandatory": true,
+      "submissionType": "EXAM",
+      "weeklyHours": 5,
+      "examDateA": "2026-01-28T00:00:00.000Z",
+      "examDateB": "2026-03-05T00:00:00.000Z"
+    },
+    {
+      "code": "1011-2103",
+      "nameHe": "מיקרו כלכלה א' - החלטות כלכליות + תרגול",
+      "nameEn": "Microeconomics A - Economic Decisions + Tutorial",
+      "discipline": "ECONOMICS",
+      "courseType": "MANDATORY",
+      "credits": 5,
+      "yearOffered": [
+        1
+      ],
+      "semesterOffered": [
+        "SPRING"
+      ],
+      "prerequisites": [
+        "0651-1007"
+      ],
+      "canCountAs": [],
+      "description": null,
+      "isMandatory": true,
+      "attendanceMandatory": true,
+      "submissionType": "EXAM",
+      "weeklyHours": 5,
+      "examDateA": "2026-07-15T00:00:00.000Z",
+      "examDateB": "2026-09-01T00:00:00.000Z"
+    },
+    {
+      "code": "1011-2104",
+      "nameHe": "מיקרו כלכלה ג' + תרגיל",
+      "nameEn": "Microeconomics C + Tutorial",
+      "discipline": "ECONOMICS",
+      "courseType": "MANDATORY",
+      "credits": 5,
+      "yearOffered": [
+        3
+      ],
+      "semesterOffered": [
+        "FALL",
+        "SPRING"
+      ],
+      "prerequisites": [
+        "1011-2109"
+      ],
+      "canCountAs": [],
+      "description": null,
+      "isMandatory": true,
+      "attendanceMandatory": true,
+      "submissionType": "EXAM",
+      "weeklyHours": 4,
+      "examDateA": null,
+      "examDateB": null
+    },
+    {
+      "code": "1011-2106",
+      "nameHe": "מבוא לאקונומטריקה + תרגיל",
+      "nameEn": "Introduction to Econometrics + Tutorial",
+      "discipline": "ECONOMICS",
+      "courseType": "MANDATORY",
+      "credits": 6,
+      "yearOffered": [
+        2
+      ],
+      "semesterOffered": [
+        "FALL"
+      ],
+      "prerequisites": [
+        "0651-1005"
+      ],
+      "canCountAs": [],
+      "description": null,
+      "isMandatory": true,
+      "attendanceMandatory": true,
+      "submissionType": "EXAM",
+      "weeklyHours": 5,
+      "examDateA": "2026-02-09T00:00:00.000Z",
+      "examDateB": "2026-03-27T00:00:00.000Z"
+    },
+    {
+      "code": "1011-2109",
+      "nameHe": "מיקרו כלכלה ב' + תרגיל",
+      "nameEn": "Microeconomics B + Tutorial",
+      "discipline": "ECONOMICS",
+      "courseType": "MANDATORY",
+      "credits": 5,
+      "yearOffered": [
+        2
+      ],
+      "semesterOffered": [
+        "FALL"
+      ],
+      "prerequisites": [
+        "1011-2103"
+      ],
+      "canCountAs": [],
+      "description": null,
+      "isMandatory": true,
+      "attendanceMandatory": true,
+      "submissionType": "EXAM",
+      "weeklyHours": 5,
+      "examDateA": "2026-02-04T00:00:00.000Z",
+      "examDateB": "2026-03-13T00:00:00.000Z"
+    },
+    {
+      "code": "1011-2500",
+      "nameHe": "חשבונאות לכלכלנים",
+      "nameEn": "Accounting for Economists",
+      "discipline": "ECONOMICS",
+      "courseType": "ELECTIVE",
+      "credits": 2,
+      "yearOffered": [
+        1,
+        2
+      ],
+      "semesterOffered": [
+        "SPRING"
+      ],
+      "prerequisites": [],
+      "canCountAs": [],
+      "description": null,
+      "isMandatory": false,
+      "attendanceMandatory": false,
+      "submissionType": "EXAM",
+      "weeklyHours": 2,
+      "examDateA": null,
+      "examDateB": null
+    },
+    {
+      "code": "1011-3166",
+      "nameHe": "תיאוריה כלכלית בעידן הכלכלה ההתנהגותית",
+      "nameEn": "Economic Theory in the Age of Behavioral Economics",
+      "discipline": "ECONOMICS",
+      "courseType": "ELECTIVE",
+      "credits": 2,
+      "yearOffered": [
+        2,
+        3
+      ],
+      "semesterOffered": [
+        "SPRING"
+      ],
+      "prerequisites": [],
+      "canCountAs": [],
+      "description": null,
+      "isMandatory": false,
+      "attendanceMandatory": false,
+      "submissionType": "EXAM",
+      "weeklyHours": 2,
+      "examDateA": null,
+      "examDateB": null
+    },
+    {
+      "code": "1011-3190",
+      "nameHe": "כלכלת חינוך",
+      "nameEn": "Economics of Education",
+      "discipline": "ECONOMICS",
+      "courseType": "ELECTIVE",
+      "credits": 2,
+      "yearOffered": [
+        2,
+        3
+      ],
+      "semesterOffered": [
+        "FALL"
+      ],
+      "prerequisites": [],
+      "canCountAs": [],
+      "description": null,
+      "isMandatory": false,
+      "attendanceMandatory": false,
+      "submissionType": "EXAM",
+      "weeklyHours": 2,
+      "examDateA": null,
+      "examDateB": null
+    },
+    {
+      "code": "1011-3310",
+      "nameHe": "כלכלה בינלאומית",
+      "nameEn": "International Economics",
+      "discipline": "ECONOMICS",
+      "courseType": "ENGLISH",
+      "credits": 2,
+      "yearOffered": [
+        2,
+        3
+      ],
+      "semesterOffered": [
+        "FALL"
+      ],
+      "prerequisites": [],
+      "canCountAs": [],
+      "description": null,
+      "isMandatory": false,
+      "attendanceMandatory": false,
+      "submissionType": "EXAM",
+      "weeklyHours": 2,
+      "examDateA": "2026-02-09T00:00:00.000Z",
+      "examDateB": "2026-03-13T00:00:00.000Z"
+    },
+    {
+      "code": "1011-3359",
+      "nameHe": "ארגון תעשייתי",
+      "nameEn": "Industrial Organization",
+      "discipline": "ECONOMICS",
+      "courseType": "ENGLISH",
+      "credits": 2,
+      "yearOffered": [
+        2,
+        3
+      ],
+      "semesterOffered": [
+        "SPRING"
+      ],
+      "prerequisites": [],
+      "canCountAs": [],
+      "description": null,
+      "isMandatory": false,
+      "attendanceMandatory": false,
+      "submissionType": "EXAM",
+      "weeklyHours": 2,
+      "examDateA": "2026-07-20T00:00:00.000Z",
+      "examDateB": "2026-09-18T00:00:00.000Z"
+    },
+    {
+      "code": "1011-3450",
+      "nameHe": "כלכלת פיתוח",
+      "nameEn": "Development Economics",
+      "discipline": "ECONOMICS",
+      "courseType": "ENGLISH",
+      "credits": 2,
+      "yearOffered": [
+        2,
+        3
+      ],
+      "semesterOffered": [
+        "SPRING"
+      ],
+      "prerequisites": [],
+      "canCountAs": [],
+      "description": null,
+      "isMandatory": false,
+      "attendanceMandatory": false,
+      "submissionType": "PAPER",
+      "weeklyHours": 2,
+      "examDateA": null,
+      "examDateB": null
+    },
+    {
+      "code": "1011-3483",
+      "nameHe": "מדיניות מוניטרית: תיאוריה ומעשה",
+      "nameEn": "Monetary Policy: Theory and Practice",
+      "discipline": "ECONOMICS",
+      "courseType": "ELECTIVE",
+      "credits": 2,
+      "yearOffered": [
+        2,
+        3
+      ],
+      "semesterOffered": [
+        "SPRING"
+      ],
+      "prerequisites": [
+        "1011-2101"
+      ],
+      "canCountAs": [],
+      "description": null,
+      "isMandatory": false,
+      "attendanceMandatory": false,
+      "submissionType": "EXAM",
+      "weeklyHours": 2,
+      "examDateA": null,
+      "examDateB": null
+    },
+    {
+      "code": "1011-3509",
+      "nameHe": "אופציות ושווקים פיננסיים",
+      "nameEn": "Options and Financial Markets",
+      "discipline": "ECONOMICS",
+      "courseType": "ENGLISH",
+      "credits": 2,
+      "yearOffered": [
+        2,
+        3
+      ],
+      "semesterOffered": [
+        "FALL"
+      ],
+      "prerequisites": [],
+      "canCountAs": [],
+      "description": null,
+      "isMandatory": false,
+      "attendanceMandatory": false,
+      "submissionType": "EXAM",
+      "weeklyHours": 2,
+      "examDateA": "2026-01-29T00:00:00.000Z",
+      "examDateB": "2026-03-01T00:00:00.000Z"
+    },
+    {
+      "code": "1221-4325",
+      "nameHe": "כלכלה התנהגותית לניהול",
+      "nameEn": "Behavioral Economics for Management",
+      "discipline": "ECONOMICS",
+      "courseType": "ELECTIVE",
+      "credits": 2,
+      "yearOffered": [
+        3
+      ],
+      "semesterOffered": [
+        "SPRING"
+      ],
+      "prerequisites": [],
+      "canCountAs": [],
+      "description": null,
+      "isMandatory": false,
+      "attendanceMandatory": false,
+      "submissionType": "EXAM",
+      "weeklyHours": 2,
+      "examDateA": null,
+      "examDateB": null
+    },
+    {
+      "code": "1411-9240",
+      "nameHe": "משפט וכלכלה",
+      "nameEn": "Law and Economics",
+      "discipline": "ECONOMICS",
+      "courseType": "MANDATORY",
+      "credits": 2,
+      "yearOffered": [
+        3
+      ],
+      "semesterOffered": [
+        "FALL"
+      ],
+      "prerequisites": [],
+      "canCountAs": [
+        "LAW"
+      ],
+      "description": null,
+      "isMandatory": true,
+      "attendanceMandatory": true,
+      "submissionType": "EXAM",
+      "weeklyHours": 2,
+      "examDateA": null,
+      "examDateB": null
+    },
+    {
+      "code": "1031-0908",
+      "nameHe": "טכנולוגיה ודמוקרטיה",
+      "nameEn": "Technology and Democracy",
+      "discipline": "POLITICAL_SCIENCE",
+      "courseType": "ELECTIVE",
+      "credits": 2,
+      "yearOffered": [
+        2,
+        3
+      ],
+      "semesterOffered": [
+        "SPRING"
+      ],
+      "prerequisites": [],
+      "canCountAs": [],
+      "description": null,
+      "isMandatory": false,
+      "attendanceMandatory": false,
+      "submissionType": "PAPER",
+      "weeklyHours": 2,
+      "examDateA": null,
+      "examDateB": null
+    },
+    {
+      "code": "1031-0910",
+      "nameHe": "לאומיות, זהות ופופוליזם",
+      "nameEn": "Nationalism, Identity, and Populism",
+      "discipline": "POLITICAL_SCIENCE",
+      "courseType": "ELECTIVE",
+      "credits": 3,
+      "yearOffered": [
+        2,
+        3
+      ],
+      "semesterOffered": [
+        "SPRING"
+      ],
+      "prerequisites": [],
+      "canCountAs": [],
+      "description": null,
+      "isMandatory": false,
+      "attendanceMandatory": false,
+      "submissionType": "PAPER",
+      "weeklyHours": 3,
+      "examDateA": null,
+      "examDateB": null
+    },
+    {
+      "code": "1031-0916",
+      "nameHe": "חזרה ונורמליזציה של פשיזם",
+      "nameEn": "The Return and Normalization of Fascism",
+      "discipline": "POLITICAL_SCIENCE",
+      "courseType": "ELECTIVE",
+      "credits": 3,
+      "yearOffered": [
+        2,
+        3
+      ],
+      "semesterOffered": [
+        "FALL"
+      ],
+      "prerequisites": [],
+      "canCountAs": [],
+      "description": null,
+      "isMandatory": false,
+      "attendanceMandatory": false,
+      "submissionType": "PAPER",
+      "weeklyHours": 3,
+      "examDateA": null,
+      "examDateB": null
+    },
+    {
+      "code": "1031-0917",
+      "nameHe": "פוליטיקה של המזרח התיכון",
+      "nameEn": "Middle East Politics",
+      "discipline": "POLITICAL_SCIENCE",
+      "courseType": "ENGLISH",
+      "credits": 3,
+      "yearOffered": [
+        2,
+        3
+      ],
+      "semesterOffered": [
+        "FALL"
+      ],
+      "prerequisites": [],
+      "canCountAs": [],
+      "description": null,
+      "isMandatory": false,
+      "attendanceMandatory": false,
+      "submissionType": "PAPER",
+      "weeklyHours": 3,
+      "examDateA": null,
+      "examDateB": null
+    },
+    {
+      "code": "1031-1002",
+      "nameHe": "פוליטיקה ומשטר בישראל + תרגיל",
+      "nameEn": "Politics and Government in Israel + Tutorial",
+      "discipline": "POLITICAL_SCIENCE",
+      "courseType": "MANDATORY",
+      "credits": 4,
+      "yearOffered": [
+        1
+      ],
+      "semesterOffered": [
+        "FALL"
+      ],
+      "prerequisites": [],
+      "canCountAs": [],
+      "description": null,
+      "isMandatory": true,
+      "attendanceMandatory": true,
+      "submissionType": "EXAM",
+      "weeklyHours": 4,
+      "examDateA": "2026-02-13T00:00:00.000Z",
+      "examDateB": "2026-04-17T00:00:00.000Z"
+    },
+    {
+      "code": "1031-1100",
+      "nameHe": "כתיבה ומחקר במדע המדינה",
+      "nameEn": "Writing and Research in Political Science",
+      "discipline": "POLITICAL_SCIENCE",
+      "courseType": "MANDATORY",
+      "credits": 4,
+      "yearOffered": [
+        1
+      ],
+      "semesterOffered": [
+        "FALL"
+      ],
+      "prerequisites": [],
+      "canCountAs": [],
+      "description": null,
+      "isMandatory": true,
+      "attendanceMandatory": true,
+      "submissionType": "PAPER",
+      "weeklyHours": 4,
+      "examDateA": null,
+      "examDateB": null
+    },
+    {
+      "code": "1031-1108",
+      "nameHe": "פוליטיקה השוואתית + תרגיל",
+      "nameEn": "Comparative Politics + Tutorial",
+      "discipline": "POLITICAL_SCIENCE",
+      "courseType": "MANDATORY",
+      "credits": 4,
+      "yearOffered": [
+        2
+      ],
+      "semesterOffered": [
+        "SPRING"
+      ],
+      "prerequisites": [],
+      "canCountAs": [],
+      "description": null,
+      "isMandatory": true,
+      "attendanceMandatory": true,
+      "submissionType": "EXAM",
+      "weeklyHours": 4,
+      "examDateA": null,
+      "examDateB": null
+    },
+    {
+      "code": "1031-1800",
+      "nameHe": "מנהל ציבורי ומדיניות ציבורית",
+      "nameEn": "Public Administration and Public Policy",
+      "discipline": "POLITICAL_SCIENCE",
+      "courseType": "ELECTIVE",
+      "credits": 3,
+      "yearOffered": [
+        1,
+        2
+      ],
+      "semesterOffered": [
+        "FALL"
+      ],
+      "prerequisites": [],
+      "canCountAs": [],
+      "description": null,
+      "isMandatory": false,
+      "attendanceMandatory": false,
+      "submissionType": "EXAM",
+      "weeklyHours": 3,
+      "examDateA": null,
+      "examDateB": null
+    },
+    {
+      "code": "1031-2108",
+      "nameHe": "אסטרטגיה בעידן המודרני + תרגול",
+      "nameEn": "Strategy in the Modern Era + Tutorial",
+      "discipline": "POLITICAL_SCIENCE",
+      "courseType": "MANDATORY",
+      "credits": 3,
+      "yearOffered": [
+        1
+      ],
+      "semesterOffered": [
+        "SPRING"
+      ],
+      "prerequisites": [],
+      "canCountAs": [],
+      "description": null,
+      "isMandatory": true,
+      "attendanceMandatory": true,
+      "submissionType": "EXAM",
+      "weeklyHours": 3,
+      "examDateA": "2026-07-16T00:00:00.000Z",
+      "examDateB": "2026-09-07T00:00:00.000Z"
+    },
+    {
+      "code": "1031-3688",
+      "nameHe": "זכויות אזרח וחירויות בארה\"ב",
+      "nameEn": "Civil Rights and Liberties in the United States",
+      "discipline": "POLITICAL_SCIENCE",
+      "courseType": "ELECTIVE",
+      "credits": 3,
+      "yearOffered": [
+        2,
+        3
+      ],
+      "semesterOffered": [
+        "SPRING"
+      ],
+      "prerequisites": [],
+      "canCountAs": [],
+      "description": null,
+      "isMandatory": false,
+      "attendanceMandatory": false,
+      "submissionType": "EXAM",
+      "weeklyHours": 3,
+      "examDateA": null,
+      "examDateB": null
+    },
+    {
+      "code": "1031-3821",
+      "nameHe": "אירופה במשבר",
+      "nameEn": "Europe in Crisis",
+      "discipline": "POLITICAL_SCIENCE",
+      "courseType": "ELECTIVE",
+      "credits": 3,
+      "yearOffered": [
+        1,
+        2
+      ],
+      "semesterOffered": [
+        "SPRING"
+      ],
+      "prerequisites": [],
+      "canCountAs": [],
+      "description": null,
+      "isMandatory": false,
+      "attendanceMandatory": false,
+      "submissionType": "EXAM",
+      "weeklyHours": 3,
+      "examDateA": null,
+      "examDateB": null
+    },
+    {
+      "code": "1031-3854",
+      "nameHe": "דילמות בלוחמה מודרנית",
+      "nameEn": "Dilemmas in Modern Warfare",
+      "discipline": "POLITICAL_SCIENCE",
+      "courseType": "SEMINAR",
+      "credits": 3,
+      "yearOffered": [
+        2,
+        3
+      ],
+      "semesterOffered": [
+        "FALL"
+      ],
+      "prerequisites": [],
+      "canCountAs": [],
+      "description": null,
+      "isMandatory": false,
+      "attendanceMandatory": true,
+      "submissionType": "PAPER",
+      "weeklyHours": 3,
+      "examDateA": null,
+      "examDateB": null
+    },
+    {
+      "code": "1031-3890",
+      "nameHe": "לאומיות וסכסוכים אתניים",
+      "nameEn": "Nationalism and Ethnic Conflicts",
+      "discipline": "POLITICAL_SCIENCE",
+      "courseType": "ELECTIVE",
+      "credits": 2,
+      "yearOffered": [
+        2,
+        3
+      ],
+      "semesterOffered": [
+        "FALL"
+      ],
+      "prerequisites": [],
+      "canCountAs": [],
+      "description": null,
+      "isMandatory": false,
+      "attendanceMandatory": false,
+      "submissionType": "EXAM",
+      "weeklyHours": 2,
+      "examDateA": null,
+      "examDateB": null
+    },
+    {
+      "code": "1031-3939",
+      "nameHe": "סוגיות בביטחון לאומי של ישראל",
+      "nameEn": "Issues in Israel's National Security",
+      "discipline": "POLITICAL_SCIENCE",
+      "courseType": "ELECTIVE",
+      "credits": 2,
+      "yearOffered": [
+        2,
+        3
+      ],
+      "semesterOffered": [
+        "SPRING"
+      ],
+      "prerequisites": [],
+      "canCountAs": [],
+      "description": null,
+      "isMandatory": false,
+      "attendanceMandatory": false,
+      "submissionType": "PAPER",
+      "weeklyHours": 2,
+      "examDateA": null,
+      "examDateB": null
+    },
+    {
+      "code": "1031-3965",
+      "nameHe": "אתגרים חברתיים ומדיניות",
+      "nameEn": "Social Challenges and Policy",
+      "discipline": "POLITICAL_SCIENCE",
+      "courseType": "SEMINAR",
+      "credits": 4,
+      "yearOffered": [
+        2,
+        3
+      ],
+      "semesterOffered": [
+        "SPRING"
+      ],
+      "prerequisites": [],
+      "canCountAs": [],
+      "description": null,
+      "isMandatory": false,
+      "attendanceMandatory": true,
+      "submissionType": "PAPER",
+      "weeklyHours": 4,
+      "examDateA": null,
+      "examDateB": null
+    },
+    {
+      "code": "1031-3983",
+      "nameHe": "מומחים בפוליטיקה",
+      "nameEn": "Experts in Politics",
+      "discipline": "POLITICAL_SCIENCE",
+      "courseType": "SEMINAR",
+      "credits": 4,
+      "yearOffered": [
+        2,
+        3
+      ],
+      "semesterOffered": [
+        "SPRING"
+      ],
+      "prerequisites": [],
+      "canCountAs": [],
+      "description": null,
+      "isMandatory": false,
+      "attendanceMandatory": true,
+      "submissionType": "PAPER",
+      "weeklyHours": 2,
+      "examDateA": null,
+      "examDateB": null
+    },
+    {
+      "code": "1031-3994",
+      "nameHe": "סוגיות מתקדמות בפוליטיקה ישראלית",
+      "nameEn": "Advanced Issues in Israeli Politics",
+      "discipline": "POLITICAL_SCIENCE",
+      "courseType": "ELECTIVE",
+      "credits": 3,
+      "yearOffered": [
+        2,
+        3
+      ],
+      "semesterOffered": [
+        "SPRING"
+      ],
+      "prerequisites": [],
+      "canCountAs": [],
+      "description": null,
+      "isMandatory": false,
+      "attendanceMandatory": false,
+      "submissionType": "EXAM",
+      "weeklyHours": 3,
+      "examDateA": null,
+      "examDateB": null
+    },
+    {
+      "code": "1031-3996",
+      "nameHe": "בין שוק למדינה: שירותים ציבוריים",
+      "nameEn": "Between Market and State: Public Services",
+      "discipline": "POLITICAL_SCIENCE",
+      "courseType": "ELECTIVE",
+      "credits": 3,
+      "yearOffered": [
+        2,
+        3
+      ],
+      "semesterOffered": [
+        "FALL"
+      ],
+      "prerequisites": [],
+      "canCountAs": [],
+      "description": null,
+      "isMandatory": false,
+      "attendanceMandatory": false,
+      "submissionType": "EXAM",
+      "weeklyHours": 3,
+      "examDateA": null,
+      "examDateB": null
+    },
+    {
+      "code": "1082-6440",
+      "nameHe": "מדיניות סביבתית",
+      "nameEn": "Environmental Policy",
+      "discipline": "POLITICAL_SCIENCE",
+      "courseType": "ELECTIVE",
+      "credits": 3,
+      "yearOffered": [
+        2,
+        3
+      ],
+      "semesterOffered": [
+        "FALL"
+      ],
+      "prerequisites": [],
+      "canCountAs": [],
+      "description": null,
+      "isMandatory": false,
+      "attendanceMandatory": false,
+      "submissionType": "PAPER",
+      "weeklyHours": 3,
+      "examDateA": null,
+      "examDateB": null
+    },
+    {
+      "code": "1099-7000",
+      "nameHe": "מבוא לאיחוד האירופי",
+      "nameEn": "Introduction to the European Union",
+      "discipline": "POLITICAL_SCIENCE",
+      "courseType": "ELECTIVE",
+      "credits": 2,
+      "yearOffered": [
+        1,
+        2
+      ],
+      "semesterOffered": [
+        "FALL"
+      ],
+      "prerequisites": [],
+      "canCountAs": [],
+      "description": null,
+      "isMandatory": false,
+      "attendanceMandatory": false,
+      "submissionType": "PAPER",
+      "weeklyHours": 2,
+      "examDateA": null,
+      "examDateB": null
+    },
+    {
+      "code": "1099-7006",
+      "nameHe": "מדיניות חוץ וביטחון של האיחוד האירופי",
+      "nameEn": "EU Common Foreign and Security Policy",
+      "discipline": "POLITICAL_SCIENCE",
+      "courseType": "ELECTIVE",
+      "credits": 2,
+      "yearOffered": [
+        1,
+        2
+      ],
+      "semesterOffered": [
+        "SPRING"
+      ],
+      "prerequisites": [],
+      "canCountAs": [],
+      "description": null,
+      "isMandatory": false,
+      "attendanceMandatory": false,
+      "submissionType": "PAPER",
+      "weeklyHours": 2,
+      "examDateA": null,
+      "examDateB": null
+    },
+    {
+      "code": "0910-1000",
+      "nameHe": "דיני איכות סביבה",
+      "nameEn": "Environmental Quality Law",
+      "discipline": "LAW",
+      "courseType": "ELECTIVE",
+      "credits": 2,
+      "yearOffered": [
+        1,
+        2
+      ],
+      "semesterOffered": [
+        "FALL"
+      ],
+      "prerequisites": [],
+      "canCountAs": [],
+      "description": null,
+      "isMandatory": false,
+      "attendanceMandatory": false,
+      "submissionType": "PAPER",
+      "weeklyHours": 2,
+      "examDateA": null,
+      "examDateB": null
+    },
+    {
+      "code": "1099-7003",
+      "nameHe": "משפט האיחוד האירופי",
+      "nameEn": "European Union Law",
+      "discipline": "LAW",
+      "courseType": "ELECTIVE",
+      "credits": 2,
+      "yearOffered": [
+        1,
+        2
+      ],
+      "semesterOffered": [
+        "FALL"
+      ],
+      "prerequisites": [],
+      "canCountAs": [],
+      "description": null,
+      "isMandatory": false,
+      "attendanceMandatory": false,
+      "submissionType": "PAPER",
+      "weeklyHours": 2,
+      "examDateA": null,
+      "examDateB": null
+    },
+    {
+      "code": "1411-6604",
+      "nameHe": "נגזרים, סיכון ומשברים פיננסיים",
+      "nameEn": "Derivatives, Risk and Financial Crises",
+      "discipline": "LAW",
+      "courseType": "ENGLISH",
+      "credits": 2,
+      "yearOffered": [
+        2,
+        3
+      ],
+      "semesterOffered": [
+        "FALL"
+      ],
+      "prerequisites": [],
+      "canCountAs": [
+        "ECONOMICS"
+      ],
+      "description": null,
+      "isMandatory": false,
+      "attendanceMandatory": false,
+      "submissionType": "EXAM",
+      "weeklyHours": 2,
+      "examDateA": null,
+      "examDateB": null
+    },
+    {
+      "code": "1411-7071",
+      "nameHe": "הסכסוך הישראלי-פלסטיני — שתי נקודות מבט",
+      "nameEn": "The Israeli-Palestinian Conflict - Two Points of View",
+      "discipline": "LAW",
+      "courseType": "ENGLISH",
+      "credits": 2,
+      "yearOffered": [
+        2,
+        3
+      ],
+      "semesterOffered": [
+        "SPRING"
+      ],
+      "prerequisites": [],
+      "canCountAs": [],
+      "description": null,
+      "isMandatory": false,
+      "attendanceMandatory": false,
+      "submissionType": "EXAM",
+      "weeklyHours": 2,
+      "examDateA": "2026-05-19T00:00:00.000Z",
+      "examDateB": "2026-06-09T00:00:00.000Z"
+    },
+    {
+      "code": "1411-7609",
+      "nameHe": "AI, משפט ואתיקה",
+      "nameEn": "AI, Law, and Ethics",
+      "discipline": "LAW",
+      "courseType": "ELECTIVE",
+      "credits": 3,
+      "yearOffered": [
+        2,
+        3
+      ],
+      "semesterOffered": [
+        "SPRING"
+      ],
+      "prerequisites": [],
+      "canCountAs": [
+        "PHILOSOPHY"
+      ],
+      "description": null,
+      "isMandatory": false,
+      "attendanceMandatory": false,
+      "submissionType": "PAPER",
+      "weeklyHours": 3,
+      "examDateA": null,
+      "examDateB": null
+    },
+    {
+      "code": "1411-9107",
+      "nameHe": "חקיקה ורגולציה",
+      "nameEn": "Legislation and Regulation",
+      "discipline": "LAW",
+      "courseType": "MANDATORY",
+      "credits": 4,
+      "yearOffered": [
+        1
+      ],
+      "semesterOffered": [
+        "SPRING"
+      ],
+      "prerequisites": [],
+      "canCountAs": [],
+      "description": null,
+      "isMandatory": true,
+      "attendanceMandatory": true,
+      "submissionType": "EXAM",
+      "weeklyHours": 2,
+      "examDateA": "2026-07-20T00:00:00.000Z",
+      "examDateB": "2026-08-13T00:00:00.000Z"
+    },
+    {
+      "code": "1411-9241",
+      "nameHe": "משפט ופילוסופיה",
+      "nameEn": "Law and Philosophy",
+      "discipline": "LAW",
+      "courseType": "ELECTIVE",
+      "credits": 2,
+      "yearOffered": [
+        2,
+        3
+      ],
+      "semesterOffered": [
+        "FALL"
+      ],
+      "prerequisites": [],
+      "canCountAs": [
+        "PHILOSOPHY"
+      ],
+      "description": null,
+      "isMandatory": false,
+      "attendanceMandatory": true,
+      "submissionType": "EXAM",
+      "weeklyHours": 2,
+      "examDateA": null,
+      "examDateB": null
+    },
+    {
+      "code": "1411-9358",
+      "nameHe": "דיני עבודה בינלאומיים",
+      "nameEn": "The International Law of Work",
+      "discipline": "LAW",
+      "courseType": "ENGLISH",
+      "credits": 2,
+      "yearOffered": [
+        2,
+        3
+      ],
+      "semesterOffered": [
+        "FALL"
+      ],
+      "prerequisites": [],
+      "canCountAs": [],
+      "description": null,
+      "isMandatory": false,
+      "attendanceMandatory": false,
+      "submissionType": "EXAM",
+      "weeklyHours": 2,
+      "examDateA": null,
+      "examDateB": null
+    },
+    {
+      "code": "1411-9224",
+      "nameHe": "משפט מנהלי",
+      "nameEn": "Administrative Law",
+      "discipline": "LAW",
+      "courseType": "LAW_FOUNDATION",
+      "credits": 4,
+      "yearOffered": [
+        2,
+        3
+      ],
+      "semesterOffered": [
+        "FALL",
+        "SPRING"
+      ],
+      "prerequisites": [],
+      "canCountAs": [],
+      "description": null,
+      "isMandatory": false,
+      "attendanceMandatory": true,
+      "submissionType": "EXAM",
+      "weeklyHours": 4,
+      "examDateA": null,
+      "examDateB": null
+    },
+    {
+      "code": "1411-9102",
+      "nameHe": "משפט חוקתי",
+      "nameEn": "Constitutional Law",
+      "discipline": "LAW",
+      "courseType": "LAW_FOUNDATION",
+      "credits": 4,
+      "yearOffered": [
+        2,
+        3
+      ],
+      "semesterOffered": [
+        "FALL",
+        "SPRING"
+      ],
+      "prerequisites": [],
+      "canCountAs": [],
+      "description": null,
+      "isMandatory": false,
+      "attendanceMandatory": true,
+      "submissionType": "EXAM",
+      "weeklyHours": 4,
+      "examDateA": null,
+      "examDateB": null
+    },
+    {
+      "code": "1411-9101",
+      "nameHe": "דיני חוזים",
+      "nameEn": "Contract Law",
+      "discipline": "LAW",
+      "courseType": "LAW_FOUNDATION",
+      "credits": 4,
+      "yearOffered": [
+        2,
+        3
+      ],
+      "semesterOffered": [
+        "FALL",
+        "SPRING"
+      ],
+      "prerequisites": [],
+      "canCountAs": [],
+      "description": null,
+      "isMandatory": false,
+      "attendanceMandatory": true,
+      "submissionType": "EXAM",
+      "weeklyHours": 4,
+      "examDateA": null,
+      "examDateB": null
+    },
+    {
+      "code": "1411-9109",
+      "nameHe": "דיני עונשין",
+      "nameEn": "Criminal Law",
+      "discipline": "LAW",
+      "courseType": "LAW_FOUNDATION",
+      "credits": 4,
+      "yearOffered": [
+        2,
+        3
+      ],
+      "semesterOffered": [
+        "FALL",
+        "SPRING"
+      ],
+      "prerequisites": [],
+      "canCountAs": [],
+      "description": null,
+      "isMandatory": false,
+      "attendanceMandatory": true,
+      "submissionType": "EXAM",
+      "weeklyHours": 4,
+      "examDateA": null,
+      "examDateB": null
+    },
+    {
+      "code": "1411-9223",
+      "nameHe": "משפט בינלאומי פומבי",
+      "nameEn": "Public International Law",
+      "discipline": "LAW",
+      "courseType": "LAW_FOUNDATION",
+      "credits": 4,
+      "yearOffered": [
+        2,
+        3
+      ],
+      "semesterOffered": [
+        "FALL",
+        "SPRING"
+      ],
+      "prerequisites": [],
+      "canCountAs": [],
+      "description": null,
+      "isMandatory": false,
+      "attendanceMandatory": true,
+      "submissionType": "EXAM",
+      "weeklyHours": 4,
+      "examDateA": null,
+      "examDateB": null
+    },
+    {
+      "code": "1411-9103",
+      "nameHe": "משפט ישראלי",
+      "nameEn": "Israeli Law",
+      "discipline": "LAW",
+      "courseType": "LAW_FOUNDATION",
+      "credits": 4,
+      "yearOffered": [
+        2,
+        3
+      ],
+      "semesterOffered": [
+        "FALL",
+        "SPRING"
+      ],
+      "prerequisites": [],
+      "canCountAs": [],
+      "description": null,
+      "isMandatory": false,
+      "attendanceMandatory": true,
+      "submissionType": "EXAM",
+      "weeklyHours": 4,
+      "examDateA": null,
+      "examDateB": null
+    },
+    {
+      "code": "1411-9225",
+      "nameHe": "דיני עבודה",
+      "nameEn": "Labor Law",
+      "discipline": "LAW",
+      "courseType": "LAW_FOUNDATION",
+      "credits": 4,
+      "yearOffered": [
+        2,
+        3
+      ],
+      "semesterOffered": [
+        "FALL",
+        "SPRING"
+      ],
+      "prerequisites": [],
+      "canCountAs": [],
+      "description": null,
+      "isMandatory": false,
+      "attendanceMandatory": true,
+      "submissionType": "EXAM",
+      "weeklyHours": 4,
+      "examDateA": null,
+      "examDateB": null
+    },
+    {
+      "code": "1411-9221",
+      "nameHe": "דיני קניין",
+      "nameEn": "Property Law",
+      "discipline": "LAW",
+      "courseType": "LAW_FOUNDATION",
+      "credits": 4,
+      "yearOffered": [
+        2,
+        3
+      ],
+      "semesterOffered": [
+        "FALL",
+        "SPRING"
+      ],
+      "prerequisites": [],
+      "canCountAs": [],
+      "description": null,
+      "isMandatory": false,
+      "attendanceMandatory": true,
+      "submissionType": "EXAM",
+      "weeklyHours": 4,
+      "examDateA": null,
+      "examDateB": null
+    },
+    {
+      "code": "1411-9111",
+      "nameHe": "תיאוריה משפטית",
+      "nameEn": "Legal Theory",
+      "discipline": "LAW",
+      "courseType": "LAW_FOUNDATION",
+      "credits": 4,
+      "yearOffered": [
+        2,
+        3
+      ],
+      "semesterOffered": [
+        "FALL",
+        "SPRING"
+      ],
+      "prerequisites": [],
+      "canCountAs": [],
+      "description": null,
+      "isMandatory": false,
+      "attendanceMandatory": true,
+      "submissionType": "EXAM",
+      "weeklyHours": 4,
+      "examDateA": null,
+      "examDateB": null
+    },
+    {
+      "code": "1411-9104",
+      "nameHe": "דיני נזיקין",
+      "nameEn": "Tort Law",
+      "discipline": "LAW",
+      "courseType": "LAW_FOUNDATION",
+      "credits": 4,
+      "yearOffered": [
+        2,
+        3
+      ],
+      "semesterOffered": [
+        "FALL",
+        "SPRING"
+      ],
+      "prerequisites": [],
+      "canCountAs": [],
+      "description": null,
+      "isMandatory": false,
+      "attendanceMandatory": true,
+      "submissionType": "EXAM",
+      "weeklyHours": 4,
+      "examDateA": null,
+      "examDateB": null
+    },
+    {
+      "code": "0651-1001",
+      "nameHe": "קריאה מודרכת א'",
+      "nameEn": "Guided Reading A",
+      "discipline": "PPE_CORE",
+      "courseType": "MANDATORY",
+      "credits": 2,
+      "yearOffered": [
+        1
+      ],
+      "semesterOffered": [
+        "FALL"
+      ],
+      "prerequisites": [],
+      "canCountAs": [
+        "PHILOSOPHY"
+      ],
+      "description": "קריאה מודרכת בטקסטים יסודיים בפכ\"מ",
+      "isMandatory": true,
+      "attendanceMandatory": true,
+      "submissionType": "PAPER",
+      "weeklyHours": 2,
+      "examDateA": null,
+      "examDateB": null
+    },
+    {
+      "code": "0651-1002",
+      "nameHe": "קריאה מודרכת ב'",
+      "nameEn": "Guided Reading B",
+      "discipline": "PPE_CORE",
+      "courseType": "MANDATORY",
+      "credits": 2,
+      "yearOffered": [
+        1
+      ],
+      "semesterOffered": [
+        "SPRING"
+      ],
+      "prerequisites": [
+        "0651-1001"
+      ],
+      "canCountAs": [
+        "PHILOSOPHY"
+      ],
+      "description": "קריאה מודרכת בטקסטים מתקדמים בפכ\"מ",
+      "isMandatory": true,
+      "attendanceMandatory": true,
+      "submissionType": "PAPER",
+      "weeklyHours": 2,
+      "examDateA": null,
+      "examDateB": null
+    },
+    {
+      "code": "0651-1010",
+      "nameHe": "כלכלה פוליטית בינלאומית (קורס אינטגרטיבי)",
+      "nameEn": "International Political Economy (Integrative Course)",
+      "discipline": "PPE_CORE",
+      "courseType": "MANDATORY",
+      "credits": 3,
+      "yearOffered": [
+        2
+      ],
+      "semesterOffered": [
+        "SPRING"
+      ],
+      "prerequisites": [],
+      "canCountAs": [
+        "ECONOMICS",
+        "POLITICAL_SCIENCE"
+      ],
+      "description": null,
+      "isMandatory": true,
+      "attendanceMandatory": true,
+      "submissionType": "EXAM",
+      "weeklyHours": 3,
+      "examDateA": "2026-07-13T00:00:00.000Z",
+      "examDateB": "2026-08-13T00:00:00.000Z"
+    },
+    {
+      "code": "0651-1014",
+      "nameHe": "תיאוריה דמוקרטית ובחירה חברתית",
+      "nameEn": "Democratic Theory and Social Choice",
+      "discipline": "PPE_CORE",
+      "courseType": "ENGLISH",
+      "credits": 2,
+      "yearOffered": [
+        2,
+        3
+      ],
+      "semesterOffered": [
+        "FALL"
+      ],
+      "prerequisites": [],
+      "canCountAs": [
+        "POLITICAL_SCIENCE",
+        "PHILOSOPHY"
+      ],
+      "description": null,
+      "isMandatory": false,
+      "attendanceMandatory": true,
+      "submissionType": "EXAM",
+      "weeklyHours": 2,
+      "examDateA": "2026-02-16T00:00:00.000Z",
+      "examDateB": "2026-03-08T00:00:00.000Z"
+    },
+    {
+      "code": "0651-1015",
+      "nameHe": "סוגיות מרכזיות בתולדות הכלכלה",
+      "nameEn": "Key Issues in the History of Economics",
+      "discipline": "PPE_CORE",
+      "courseType": "ELECTIVE",
+      "credits": 2,
+      "yearOffered": [
+        2,
+        3
+      ],
+      "semesterOffered": [
+        "SPRING"
+      ],
+      "prerequisites": [],
+      "canCountAs": [
+        "ECONOMICS"
+      ],
+      "description": null,
+      "isMandatory": false,
+      "attendanceMandatory": true,
+      "submissionType": "PAPER",
+      "weeklyHours": 2,
+      "examDateA": null,
+      "examDateB": null
+    },
+    {
+      "code": "0651-1019",
+      "nameHe": "תרגיל צמוד לפילוסופיה פוליטית פכ\"מ",
+      "nameEn": "Tutorial: Political Philosophy for PPE",
+      "discipline": "PPE_CORE",
+      "courseType": "MANDATORY",
+      "credits": 2,
+      "yearOffered": [
+        1
+      ],
+      "semesterOffered": [
+        "FALL"
+      ],
+      "prerequisites": [],
+      "canCountAs": [
+        "PHILOSOPHY"
+      ],
+      "description": null,
+      "isMandatory": true,
+      "attendanceMandatory": true,
+      "submissionType": "PAPER",
+      "weeklyHours": 2,
+      "examDateA": null,
+      "examDateB": null
+    },
+    {
+      "code": "0651-2033",
+      "nameHe": "הון במאה ה-21: כלכלה פוליטית עכשווית",
+      "nameEn": "Capital in the 21st Century: Contemporary Political Economy",
+      "discipline": "PPE_CORE",
+      "courseType": "ELECTIVE",
+      "credits": 4,
+      "yearOffered": [
+        2,
+        3
+      ],
+      "semesterOffered": [
+        "FALL"
+      ],
+      "prerequisites": [],
+      "canCountAs": [
+        "ECONOMICS",
+        "POLITICAL_SCIENCE"
+      ],
+      "description": null,
+      "isMandatory": false,
+      "attendanceMandatory": true,
+      "submissionType": "PAPER",
+      "weeklyHours": 4,
+      "examDateA": null,
+      "examDateB": null
+    },
+    {
+      "code": "0651-3001",
+      "nameHe": "סמינר פכ\"מ",
+      "nameEn": "PPE Seminar",
+      "discipline": "PPE_CORE",
+      "courseType": "SEMINAR",
+      "credits": 4,
+      "yearOffered": [
+        3
+      ],
+      "semesterOffered": [
+        "FALL",
+        "SPRING"
+      ],
+      "prerequisites": [],
+      "canCountAs": [],
+      "description": null,
+      "isMandatory": true,
+      "attendanceMandatory": true,
+      "submissionType": "PAPER",
+      "weeklyHours": 2,
+      "examDateA": null,
+      "examDateB": null
+    },
+    {
+      "code": "0651-3007",
+      "nameHe": "סמינר פכ\"מ ב'",
+      "nameEn": "PPE Seminar B",
+      "discipline": "PPE_CORE",
+      "courseType": "SEMINAR",
+      "credits": 4,
+      "yearOffered": [
+        3
+      ],
+      "semesterOffered": [
+        "SPRING"
+      ],
+      "prerequisites": [
+        "0651-1001",
+        "0651-1002"
+      ],
+      "canCountAs": [],
+      "description": "סמינר אינטגרטיבי שני בתוכנית פכ\"מ. גישה בין-תחומית לסוגיות עכשוויות בפילוסופיה, כלכלה ומדע המדינה.",
+      "isMandatory": false,
+      "attendanceMandatory": true,
+      "submissionType": "PAPER",
+      "weeklyHours": 4,
+      "examDateA": null,
+      "examDateB": null
+    },
+    {
+      "code": "0651-3009",
+      "nameHe": "כסף, חוב וסיכון: שורשים כלכליים וחברתיים של השוק",
+      "nameEn": "Money, Debt, and Risk: Economic and Social Roots of the Market",
+      "discipline": "PPE_CORE",
+      "courseType": "SEMINAR",
+      "credits": 4,
+      "yearOffered": [
+        2,
+        3
+      ],
+      "semesterOffered": [
+        "FALL"
+      ],
+      "prerequisites": [],
+      "canCountAs": [
+        "ECONOMICS"
+      ],
+      "description": null,
+      "isMandatory": false,
+      "attendanceMandatory": true,
+      "submissionType": "PAPER",
+      "weeklyHours": 2,
+      "examDateA": null,
+      "examDateB": null
+    },
+    {
+      "code": "0651-3010",
+      "nameHe": "Topics in the Philosophy of Economics",
+      "nameEn": "Topics in the Philosophy of Economics",
+      "discipline": "PPE_CORE",
+      "courseType": "SEMINAR",
+      "credits": 4,
+      "yearOffered": [
+        2,
+        3
+      ],
+      "semesterOffered": [
+        "SPRING"
+      ],
+      "prerequisites": [],
+      "canCountAs": [
+        "PHILOSOPHY",
+        "ECONOMICS"
+      ],
+      "description": null,
+      "isMandatory": false,
+      "attendanceMandatory": true,
+      "submissionType": "PAPER",
+      "weeklyHours": 2,
+      "examDateA": null,
+      "examDateB": null
+    },
+    {
+      "code": "0608-1122",
+      "nameHe": "פמיניזמים, משפט וחברה בישראל",
+      "nameEn": "Feminisms, Law, and Society in Israel",
+      "discipline": "GENERAL",
+      "courseType": "ELECTIVE",
+      "credits": 2,
+      "yearOffered": [
+        1,
+        2,
+        3
+      ],
+      "semesterOffered": [
+        "FALL"
+      ],
+      "prerequisites": [],
+      "canCountAs": [],
+      "description": null,
+      "isMandatory": false,
+      "attendanceMandatory": false,
+      "submissionType": "EXAM",
+      "weeklyHours": 2,
+      "examDateA": null,
+      "examDateB": null
+    },
+    {
+      "code": "0621-1823",
+      "nameHe": "אל התהום ובחזרה: היסטוריה של אירופה במאה ה-20",
+      "nameEn": "To the Abyss and Back: Europe in the 20th Century",
+      "discipline": "GENERAL",
+      "courseType": "ELECTIVE",
+      "credits": 4,
+      "yearOffered": [
+        2,
+        3
+      ],
+      "semesterOffered": [
+        "SPRING"
+      ],
+      "prerequisites": [],
+      "canCountAs": [],
+      "description": null,
+      "isMandatory": false,
+      "attendanceMandatory": false,
+      "submissionType": "EXAM",
+      "weeklyHours": 4,
+      "examDateA": null,
+      "examDateB": null
+    },
+    {
+      "code": "0621-1974",
+      "nameHe": "וצדק לכולם? ארה\"ב במאות ה-19 וה-20",
+      "nameEn": "And Justice for All? The USA in the 19th and 20th Centuries",
+      "discipline": "GENERAL",
+      "courseType": "ELECTIVE",
+      "credits": 4,
+      "yearOffered": [
+        2,
+        3
+      ],
+      "semesterOffered": [
+        "SPRING"
+      ],
+      "prerequisites": [],
+      "canCountAs": [],
+      "description": null,
+      "isMandatory": false,
+      "attendanceMandatory": false,
+      "submissionType": "EXAM",
+      "weeklyHours": 4,
+      "examDateA": "2026-07-05T00:00:00.000Z",
+      "examDateB": "2026-08-16T00:00:00.000Z"
+    },
+    {
+      "code": "0651-2030",
+      "nameHe": "התכנית לכלכלת חברה וסביבה (משלב עשייה)",
+      "nameEn": "Social Economy and Environment (Practice)",
+      "discipline": "GENERAL",
+      "courseType": "PRACTICE",
+      "credits": 4,
+      "yearOffered": [
+        2,
+        3
+      ],
+      "semesterOffered": [
+        "FALL",
+        "SPRING"
+      ],
+      "prerequisites": [],
+      "canCountAs": [],
+      "description": null,
+      "isMandatory": false,
+      "attendanceMandatory": true,
+      "submissionType": "PAPER",
+      "weeklyHours": 4,
+      "examDateA": null,
+      "examDateB": null
+    },
+    {
+      "code": "0662-1180",
+      "nameHe": "זהות בעולם המודרני",
+      "nameEn": "Identity in the Modern World",
+      "discipline": "GENERAL",
+      "courseType": "ELECTIVE",
+      "credits": 2,
+      "yearOffered": [
+        1,
+        2
+      ],
+      "semesterOffered": [
+        "FALL"
+      ],
+      "prerequisites": [],
+      "canCountAs": [],
+      "description": null,
+      "isMandatory": false,
+      "attendanceMandatory": false,
+      "submissionType": "PAPER",
+      "weeklyHours": 2,
+      "examDateA": null,
+      "examDateB": null
+    },
+    {
+      "code": "0662-2632",
+      "nameHe": "אתיקה בעידן הדיגיטלי",
+      "nameEn": "Ethics in the Digital Age",
+      "discipline": "GENERAL",
+      "courseType": "ELECTIVE",
+      "credits": 2,
+      "yearOffered": [
+        1,
+        2
+      ],
+      "semesterOffered": [
+        "SPRING"
+      ],
+      "prerequisites": [],
+      "canCountAs": [],
+      "description": null,
+      "isMandatory": false,
+      "attendanceMandatory": false,
+      "submissionType": "PAPER",
+      "weeklyHours": 2,
+      "examDateA": null,
+      "examDateB": null
+    },
+    {
+      "code": "0662-2642",
+      "nameHe": "צדק בעידן המודרני והדיגיטלי",
+      "nameEn": "Justice in the Modern and Digital Age",
+      "discipline": "GENERAL",
+      "courseType": "ELECTIVE",
+      "credits": 2,
+      "yearOffered": [
+        1,
+        2
+      ],
+      "semesterOffered": [
+        "SPRING"
+      ],
+      "prerequisites": [],
+      "canCountAs": [],
+      "description": null,
+      "isMandatory": false,
+      "attendanceMandatory": false,
+      "submissionType": "PAPER",
+      "weeklyHours": 2,
+      "examDateA": null,
+      "examDateB": null
+    },
+    {
+      "code": "0662-2663",
+      "nameHe": "מעבר למכונה: שאלות יסוד סביב AI",
+      "nameEn": "Beyond the Machine: AI Fundamental Questions",
+      "discipline": "GENERAL",
+      "courseType": "ELECTIVE",
+      "credits": 2,
+      "yearOffered": [
+        1,
+        2
+      ],
+      "semesterOffered": [
+        "FALL"
+      ],
+      "prerequisites": [],
+      "canCountAs": [],
+      "description": null,
+      "isMandatory": false,
+      "attendanceMandatory": false,
+      "submissionType": "PAPER",
+      "weeklyHours": 2,
+      "examDateA": null,
+      "examDateB": null
+    },
+    {
+      "code": "1221-4563",
+      "nameHe": "פרויקט Growth (משלב עשייה)",
+      "nameEn": "Growth Project (Practice)",
+      "discipline": "GENERAL",
+      "courseType": "PRACTICE",
+      "credits": 4,
+      "yearOffered": [
+        2,
+        3
+      ],
+      "semesterOffered": [
+        "SPRING"
+      ],
+      "prerequisites": [],
+      "canCountAs": [],
+      "description": null,
+      "isMandatory": false,
+      "attendanceMandatory": true,
+      "submissionType": "PAPER",
+      "weeklyHours": 4,
+      "examDateA": null,
+      "examDateB": null
+    },
+    {
+      "code": "1662-1108",
+      "nameHe": "היסטוריה פוליטית של הכלכלה",
+      "nameEn": "A Political History of the Economy",
+      "discipline": "GENERAL",
+      "courseType": "ENGLISH",
+      "credits": 4,
+      "yearOffered": [
+        1,
+        2
+      ],
+      "semesterOffered": [
+        "SPRING"
+      ],
+      "prerequisites": [],
+      "canCountAs": [
+        "ECONOMICS",
+        "POLITICAL_SCIENCE"
+      ],
+      "description": null,
+      "isMandatory": false,
+      "attendanceMandatory": false,
+      "submissionType": "EXAM",
+      "weeklyHours": 4,
+      "examDateA": "2026-07-06T00:00:00.000Z",
+      "examDateB": "2026-08-07T00:00:00.000Z"
+    },
+    {
+      "code": "1662-1158",
+      "nameHe": "Digital Capitalism",
+      "nameEn": "Digital Capitalism",
+      "discipline": "GENERAL",
+      "courseType": "ENGLISH",
+      "credits": 4,
+      "yearOffered": [
+        1,
+        2
+      ],
+      "semesterOffered": [
+        "SPRING"
+      ],
+      "prerequisites": [],
+      "canCountAs": [],
+      "description": null,
+      "isMandatory": false,
+      "attendanceMandatory": false,
+      "submissionType": "PAPER",
+      "weeklyHours": 4,
+      "examDateA": null,
+      "examDateB": null
+    },
+    {
+      "code": "1662-1219",
+      "nameHe": "חוק ומוסר במקרא",
+      "nameEn": "Law and Morality in the Bible",
+      "discipline": "GENERAL",
+      "courseType": "ELECTIVE",
+      "credits": 2,
+      "yearOffered": [
+        1,
+        2
+      ],
+      "semesterOffered": [
+        "SPRING"
+      ],
+      "prerequisites": [],
+      "canCountAs": [],
+      "description": null,
+      "isMandatory": false,
+      "attendanceMandatory": false,
+      "submissionType": "EXAM",
+      "weeklyHours": 2,
+      "examDateA": null,
+      "examDateB": null
+    },
+    {
+      "code": "1662-1228",
+      "nameHe": "פילוסופיה פוליטית יהודית: ציונות ומבקריה",
+      "nameEn": "Jewish Political Philosophy: Zionism and Its Discontents",
+      "discipline": "GENERAL",
+      "courseType": "ELECTIVE",
+      "credits": 2,
+      "yearOffered": [
+        1,
+        2
+      ],
+      "semesterOffered": [
+        "SPRING"
+      ],
+      "prerequisites": [],
+      "canCountAs": [
+        "PHILOSOPHY",
+        "POLITICAL_SCIENCE"
+      ],
+      "description": null,
+      "isMandatory": false,
+      "attendanceMandatory": false,
+      "submissionType": "PAPER",
+      "weeklyHours": 2,
+      "examDateA": null,
+      "examDateB": null
+    },
+    {
+      "code": "1662-1231",
+      "nameHe": "המיעוט הפלסטיני-ערבי בישראל",
+      "nameEn": "The Palestinian-Arab Minority in Israel",
+      "discipline": "GENERAL",
+      "courseType": "ELECTIVE",
+      "credits": 2,
+      "yearOffered": [
+        1,
+        2
+      ],
+      "semesterOffered": [
+        "SPRING"
+      ],
+      "prerequisites": [],
+      "canCountAs": [
+        "POLITICAL_SCIENCE"
+      ],
+      "description": null,
+      "isMandatory": false,
+      "attendanceMandatory": false,
+      "submissionType": "PAPER",
+      "weeklyHours": 2,
+      "examDateA": null,
+      "examDateB": null
+    },
+    {
+      "code": "1662-1300",
+      "nameHe": "מבוא למחשבה יהודית מודרנית",
+      "nameEn": "Introduction to Modern Jewish Thought",
+      "discipline": "GENERAL",
+      "courseType": "ELECTIVE",
+      "credits": 4,
+      "yearOffered": [
+        1,
+        2
+      ],
+      "semesterOffered": [
+        "SPRING"
+      ],
+      "prerequisites": [],
+      "canCountAs": [],
+      "description": null,
+      "isMandatory": false,
+      "attendanceMandatory": false,
+      "submissionType": "EXAM",
+      "weeklyHours": 4,
+      "examDateA": null,
+      "examDateB": null
+    },
+    {
+      "code": "1662-1311",
+      "nameHe": "פסיכולוגיה חברתית",
+      "nameEn": "Social Psychology",
+      "discipline": "GENERAL",
+      "courseType": "ENGLISH",
+      "credits": 2,
+      "yearOffered": [
+        1,
+        2
+      ],
+      "semesterOffered": [
+        "SPRING"
+      ],
+      "prerequisites": [],
+      "canCountAs": [],
+      "description": null,
+      "isMandatory": false,
+      "attendanceMandatory": false,
+      "submissionType": "EXAM",
+      "weeklyHours": 2,
+      "examDateA": "2026-07-12T00:00:00.000Z",
+      "examDateB": "2026-08-13T00:00:00.000Z"
+    },
+    {
+      "code": "1662-1400",
+      "nameHe": "מבוא לפילוסופיה יוונית",
+      "nameEn": "Introduction to Greek Philosophy",
+      "discipline": "GENERAL",
+      "courseType": "ENGLISH",
+      "credits": 2,
+      "yearOffered": [
+        1,
+        2
+      ],
+      "semesterOffered": [
+        "SPRING"
+      ],
+      "prerequisites": [],
+      "canCountAs": [
+        "PHILOSOPHY"
+      ],
+      "description": null,
+      "isMandatory": false,
+      "attendanceMandatory": false,
+      "submissionType": "EXAM",
+      "weeklyHours": 2,
+      "examDateA": "2026-07-08T00:00:00.000Z",
+      "examDateB": "2026-08-09T00:00:00.000Z"
+    },
+    {
+      "code": "1662-1412",
+      "nameHe": "דת ולאומיות: פילוסופים יהודים על טבע העם היהודי",
+      "nameEn": "Religion and Nationality",
+      "discipline": "GENERAL",
+      "courseType": "ELECTIVE",
+      "credits": 2,
+      "yearOffered": [
+        1,
+        2
+      ],
+      "semesterOffered": [
+        "FALL"
+      ],
+      "prerequisites": [],
+      "canCountAs": [],
+      "description": null,
+      "isMandatory": false,
+      "attendanceMandatory": false,
+      "submissionType": "PAPER",
+      "weeklyHours": 2,
+      "examDateA": null,
+      "examDateB": null
+    },
+    {
+      "code": "1662-2526",
+      "nameHe": "אהבה: נקודות מבט מפסיכולוגיה ופילוסופיה",
+      "nameEn": "Love: Perspectives from Psychology and Philosophy",
+      "discipline": "GENERAL",
+      "courseType": "ENGLISH",
+      "credits": 2,
+      "yearOffered": [
+        1,
+        2
+      ],
+      "semesterOffered": [
+        "FALL"
+      ],
+      "prerequisites": [],
+      "canCountAs": [],
+      "description": null,
+      "isMandatory": false,
+      "attendanceMandatory": false,
+      "submissionType": "EXAM",
+      "weeklyHours": 2,
+      "examDateA": null,
+      "examDateB": null
+    },
+    {
+      "code": "1880-0901",
+      "nameHe": "משבר האקלים וקיימות: מבט רב-תחומי",
+      "nameEn": "Climate Crisis and Sustainability",
+      "discipline": "GENERAL",
+      "courseType": "ELECTIVE",
+      "credits": 2,
+      "yearOffered": [
+        1,
+        2,
+        3
+      ],
+      "semesterOffered": [
+        "FALL"
+      ],
+      "prerequisites": [],
+      "canCountAs": [],
+      "description": null,
+      "isMandatory": false,
+      "attendanceMandatory": false,
+      "submissionType": "EXAM",
+      "weeklyHours": 2,
+      "examDateA": "2026-02-08T00:00:00.000Z",
+      "examDateB": "2026-03-08T00:00:00.000Z"
+    },
+    {
+      "code": "1882-0301",
+      "nameHe": "צעדים ראשונים במדעי המחשב ופייתון",
+      "nameEn": "First Steps in Computer Science and Python",
+      "discipline": "GENERAL",
+      "courseType": "ELECTIVE",
+      "credits": 2,
+      "yearOffered": [
+        1,
+        2,
+        3
+      ],
+      "semesterOffered": [
+        "FALL"
+      ],
+      "prerequisites": [],
+      "canCountAs": [],
+      "description": null,
+      "isMandatory": false,
+      "attendanceMandatory": false,
+      "submissionType": "EXAM",
+      "weeklyHours": 2,
+      "examDateA": null,
+      "examDateB": null
+    },
+    {
+      "code": "1882-1002",
+      "nameHe": "פוליטיקה אנושית: מוות, חירות והחיפוש אחר משמעות",
+      "nameEn": "Human Politics: Death, Freedom, and the Search for Meaning",
+      "discipline": "GENERAL",
+      "courseType": "ELECTIVE",
+      "credits": 2,
+      "yearOffered": [
+        1,
+        2
+      ],
+      "semesterOffered": [
+        "SPRING"
+      ],
+      "prerequisites": [],
+      "canCountAs": [
+        "PHILOSOPHY",
+        "POLITICAL_SCIENCE"
+      ],
+      "description": null,
+      "isMandatory": false,
+      "attendanceMandatory": false,
+      "submissionType": "PAPER",
+      "weeklyHours": 2,
+      "examDateA": null,
+      "examDateB": null
+    }
+  ],
+  "scheduleSessions": [
+    {
+      "courseCode": "0618-1012",
+      "dayOfWeek": "SUNDAY",
+      "startTime": "12:00",
+      "endTime": "14:00",
+      "room": null,
+      "building": null,
+      "sessionType": "lecture",
+      "semester": "FALL",
+      "academicYear": 2026,
+      "groupCode": "A",
+      "lecturerName": null
+    },
+    {
+      "courseCode": "0618-1012",
+      "dayOfWeek": "TUESDAY",
+      "startTime": "14:00",
+      "endTime": "16:00",
+      "room": null,
+      "building": null,
+      "sessionType": "tutorial",
+      "semester": "FALL",
+      "academicYear": 2026,
+      "groupCode": "A",
+      "lecturerName": null
+    },
+    {
+      "courseCode": "0618-1018",
+      "dayOfWeek": "TUESDAY",
+      "startTime": "12:00",
+      "endTime": "14:00",
+      "room": null,
+      "building": null,
+      "sessionType": "lecture",
+      "semester": "FALL",
+      "academicYear": 2026,
+      "groupCode": "A",
+      "lecturerName": null
+    },
+    {
+      "courseCode": "0618-1018",
+      "dayOfWeek": "TUESDAY",
+      "startTime": "16:00",
+      "endTime": "18:00",
+      "room": null,
+      "building": null,
+      "sessionType": "lecture",
+      "semester": "SPRING",
+      "academicYear": 2026,
+      "groupCode": "A",
+      "lecturerName": null
+    },
+    {
+      "courseCode": "0618-1019",
+      "dayOfWeek": "MONDAY",
+      "startTime": "16:00",
+      "endTime": "18:00",
+      "room": null,
+      "building": null,
+      "sessionType": "lecture",
+      "semester": "FALL",
+      "academicYear": 2026,
+      "groupCode": "A",
+      "lecturerName": null
+    },
+    {
+      "courseCode": "0618-1032",
+      "dayOfWeek": "TUESDAY",
+      "startTime": "12:00",
+      "endTime": "14:00",
+      "room": null,
+      "building": null,
+      "sessionType": "lecture",
+      "semester": "SPRING",
+      "academicYear": 2026,
+      "groupCode": "A",
+      "lecturerName": null
+    },
+    {
+      "courseCode": "0618-1037",
+      "dayOfWeek": "TUESDAY",
+      "startTime": "16:00",
+      "endTime": "18:00",
+      "room": null,
+      "building": null,
+      "sessionType": "lecture",
+      "semester": "FALL",
+      "academicYear": 2026,
+      "groupCode": "A",
+      "lecturerName": null
+    },
+    {
+      "courseCode": "0618-2200",
+      "dayOfWeek": "TUESDAY",
+      "startTime": "16:00",
+      "endTime": "18:00",
+      "room": null,
+      "building": null,
+      "sessionType": "lecture",
+      "semester": "FALL",
+      "academicYear": 2026,
+      "groupCode": "A",
+      "lecturerName": null
+    },
+    {
+      "courseCode": "0618-2601",
+      "dayOfWeek": "THURSDAY",
+      "startTime": "14:00",
+      "endTime": "16:00",
+      "room": null,
+      "building": null,
+      "sessionType": "lecture",
+      "semester": "SPRING",
+      "academicYear": 2026,
+      "groupCode": "A",
+      "lecturerName": null
+    },
+    {
+      "courseCode": "0651-1001",
+      "dayOfWeek": "SUNDAY",
+      "startTime": "14:00",
+      "endTime": "16:00",
+      "room": "102",
+      "building": "דן דוד",
+      "sessionType": "lecture",
+      "semester": "FALL",
+      "academicYear": 2026,
+      "groupCode": "A",
+      "lecturerName": null
+    },
+    {
+      "courseCode": "0651-1001",
+      "dayOfWeek": "SUNDAY",
+      "startTime": "16:00",
+      "endTime": "18:00",
+      "room": "102",
+      "building": "דן דוד",
+      "sessionType": "lecture",
+      "semester": "FALL",
+      "academicYear": 2026,
+      "groupCode": "B",
+      "lecturerName": null
+    },
+    {
+      "courseCode": "0651-1001",
+      "dayOfWeek": "SUNDAY",
+      "startTime": "16:00",
+      "endTime": "18:00",
+      "room": "455",
+      "building": "גילמן",
+      "sessionType": "lecture",
+      "semester": "FALL",
+      "academicYear": 2026,
+      "groupCode": "C",
+      "lecturerName": null
+    },
+    {
+      "courseCode": "0651-1002",
+      "dayOfWeek": "THURSDAY",
+      "startTime": "14:00",
+      "endTime": "16:00",
+      "room": "210",
+      "building": "דן דוד",
+      "sessionType": "lecture",
+      "semester": "SPRING",
+      "academicYear": 2026,
+      "groupCode": "A",
+      "lecturerName": null
+    },
+    {
+      "courseCode": "0651-1002",
+      "dayOfWeek": "THURSDAY",
+      "startTime": "16:00",
+      "endTime": "18:00",
+      "room": "210",
+      "building": "דן דוד",
+      "sessionType": "lecture",
+      "semester": "SPRING",
+      "academicYear": 2026,
+      "groupCode": "B",
+      "lecturerName": null
+    },
+    {
+      "courseCode": "0651-1002",
+      "dayOfWeek": "THURSDAY",
+      "startTime": "18:00",
+      "endTime": "20:00",
+      "room": "210",
+      "building": "דן דוד",
+      "sessionType": "lecture",
+      "semester": "SPRING",
+      "academicYear": 2026,
+      "groupCode": "C",
+      "lecturerName": null
+    },
+    {
+      "courseCode": "0651-1003",
+      "dayOfWeek": "WEDNESDAY",
+      "startTime": "12:00",
+      "endTime": "14:00",
+      "room": "280",
+      "building": "גילמן",
+      "sessionType": "lecture",
+      "semester": "SPRING",
+      "academicYear": 2026,
+      "groupCode": "A",
+      "lecturerName": null
+    },
+    {
+      "courseCode": "0651-1005",
+      "dayOfWeek": "SUNDAY",
+      "startTime": "12:00",
+      "endTime": "13:30",
+      "room": null,
+      "building": null,
+      "sessionType": "tutorial",
+      "semester": "SPRING",
+      "academicYear": 2026,
+      "groupCode": "T1",
+      "lecturerName": null
+    },
+    {
+      "courseCode": "0651-1005",
+      "dayOfWeek": "SUNDAY",
+      "startTime": "13:30",
+      "endTime": "15:00",
+      "room": null,
+      "building": null,
+      "sessionType": "tutorial",
+      "semester": "SPRING",
+      "academicYear": 2026,
+      "groupCode": "T2",
+      "lecturerName": null
+    },
+    {
+      "courseCode": "0651-1005",
+      "dayOfWeek": "TUESDAY",
+      "startTime": "08:00",
+      "endTime": "10:00",
+      "room": null,
+      "building": null,
+      "sessionType": "lecture",
+      "semester": "SPRING",
+      "academicYear": 2026,
+      "groupCode": "ALL",
+      "lecturerName": null
+    },
+    {
+      "courseCode": "0651-1005",
+      "dayOfWeek": "WEDNESDAY",
+      "startTime": "14:30",
+      "endTime": "16:00",
+      "room": null,
+      "building": null,
+      "sessionType": "tutorial",
+      "semester": "SPRING",
+      "academicYear": 2026,
+      "groupCode": "T3",
+      "lecturerName": null
+    },
+    {
+      "courseCode": "0651-1007",
+      "dayOfWeek": "SUNDAY",
+      "startTime": "10:00",
+      "endTime": "12:00",
+      "room": null,
+      "building": null,
+      "sessionType": "lecture",
+      "semester": "FALL",
+      "academicYear": 2026,
+      "groupCode": "ALL",
+      "lecturerName": null
+    },
+    {
+      "courseCode": "0651-1007",
+      "dayOfWeek": "MONDAY",
+      "startTime": "13:00",
+      "endTime": "14:30",
+      "room": null,
+      "building": null,
+      "sessionType": "tutorial",
+      "semester": "FALL",
+      "academicYear": 2026,
+      "groupCode": "T1",
+      "lecturerName": null
+    },
+    {
+      "courseCode": "0651-1007",
+      "dayOfWeek": "MONDAY",
+      "startTime": "14:30",
+      "endTime": "16:00",
+      "room": null,
+      "building": null,
+      "sessionType": "tutorial",
+      "semester": "FALL",
+      "academicYear": 2026,
+      "groupCode": "T2",
+      "lecturerName": null
+    },
+    {
+      "courseCode": "0651-1010",
+      "dayOfWeek": "MONDAY",
+      "startTime": "09:00",
+      "endTime": "12:00",
+      "room": null,
+      "building": null,
+      "sessionType": "lecture",
+      "semester": "SPRING",
+      "academicYear": 2026,
+      "groupCode": "A",
+      "lecturerName": null
+    },
+    {
+      "courseCode": "0651-1019",
+      "dayOfWeek": "WEDNESDAY",
+      "startTime": "14:00",
+      "endTime": "16:00",
+      "room": null,
+      "building": null,
+      "sessionType": "tutorial",
+      "semester": "FALL",
+      "academicYear": 2026,
+      "groupCode": "A",
+      "lecturerName": null
+    },
+    {
+      "courseCode": "0651-3001",
+      "dayOfWeek": "MONDAY",
+      "startTime": "14:00",
+      "endTime": "16:00",
+      "room": null,
+      "building": null,
+      "sessionType": "lecture",
+      "semester": "FALL",
+      "academicYear": 2026,
+      "groupCode": "A",
+      "lecturerName": null
+    },
+    {
+      "courseCode": "1011-2101",
+      "dayOfWeek": "SUNDAY",
+      "startTime": "14:00",
+      "endTime": "16:00",
+      "room": null,
+      "building": null,
+      "sessionType": "tutorial",
+      "semester": "FALL",
+      "academicYear": 2026,
+      "groupCode": "T1",
+      "lecturerName": null
+    },
+    {
+      "courseCode": "1011-2101",
+      "dayOfWeek": "MONDAY",
+      "startTime": "12:00",
+      "endTime": "14:00",
+      "room": null,
+      "building": null,
+      "sessionType": "tutorial",
+      "semester": "FALL",
+      "academicYear": 2026,
+      "groupCode": "T2",
+      "lecturerName": null
+    },
+    {
+      "courseCode": "1011-2101",
+      "dayOfWeek": "TUESDAY",
+      "startTime": "12:00",
+      "endTime": "14:00",
+      "room": null,
+      "building": null,
+      "sessionType": "tutorial",
+      "semester": "FALL",
+      "academicYear": 2026,
+      "groupCode": "T3",
+      "lecturerName": null
+    },
+    {
+      "courseCode": "1011-2101",
+      "dayOfWeek": "TUESDAY",
+      "startTime": "14:00",
+      "endTime": "16:00",
+      "room": null,
+      "building": null,
+      "sessionType": "tutorial",
+      "semester": "FALL",
+      "academicYear": 2026,
+      "groupCode": "T4",
+      "lecturerName": null
+    },
+    {
+      "courseCode": "1011-2101",
+      "dayOfWeek": "WEDNESDAY",
+      "startTime": "14:00",
+      "endTime": "17:00",
+      "room": null,
+      "building": null,
+      "sessionType": "lecture",
+      "semester": "FALL",
+      "academicYear": 2026,
+      "groupCode": "A",
+      "lecturerName": null
+    },
+    {
+      "courseCode": "1011-2101",
+      "dayOfWeek": "THURSDAY",
+      "startTime": "09:00",
+      "endTime": "12:00",
+      "room": null,
+      "building": null,
+      "sessionType": "lecture",
+      "semester": "FALL",
+      "academicYear": 2026,
+      "groupCode": "B",
+      "lecturerName": null
+    },
+    {
+      "courseCode": "1011-2103",
+      "dayOfWeek": "SUNDAY",
+      "startTime": "10:00",
+      "endTime": "12:00",
+      "room": null,
+      "building": null,
+      "sessionType": "tutorial",
+      "semester": "SPRING",
+      "academicYear": 2026,
+      "groupCode": "T1",
+      "lecturerName": null
+    },
+    {
+      "courseCode": "1011-2103",
+      "dayOfWeek": "SUNDAY",
+      "startTime": "16:00",
+      "endTime": "19:00",
+      "room": null,
+      "building": null,
+      "sessionType": "lecture",
+      "semester": "SPRING",
+      "academicYear": 2026,
+      "groupCode": "A",
+      "lecturerName": null
+    },
+    {
+      "courseCode": "1011-2103",
+      "dayOfWeek": "TUESDAY",
+      "startTime": "10:00",
+      "endTime": "12:00",
+      "room": null,
+      "building": null,
+      "sessionType": "tutorial",
+      "semester": "SPRING",
+      "academicYear": 2026,
+      "groupCode": "T2",
+      "lecturerName": null
+    },
+    {
+      "courseCode": "1011-2103",
+      "dayOfWeek": "WEDNESDAY",
+      "startTime": "08:00",
+      "endTime": "11:00",
+      "room": null,
+      "building": null,
+      "sessionType": "lecture",
+      "semester": "SPRING",
+      "academicYear": 2026,
+      "groupCode": "B",
+      "lecturerName": null
+    },
+    {
+      "courseCode": "1011-2103",
+      "dayOfWeek": "THURSDAY",
+      "startTime": "11:00",
+      "endTime": "14:00",
+      "room": null,
+      "building": null,
+      "sessionType": "lecture",
+      "semester": "SPRING",
+      "academicYear": 2026,
+      "groupCode": "C",
+      "lecturerName": null
+    },
+    {
+      "courseCode": "1011-2104",
+      "dayOfWeek": "SUNDAY",
+      "startTime": "14:00",
+      "endTime": "16:00",
+      "room": null,
+      "building": null,
+      "sessionType": "lecture",
+      "semester": "FALL",
+      "academicYear": 2026,
+      "groupCode": "A",
+      "lecturerName": null
+    },
+    {
+      "courseCode": "1011-2104",
+      "dayOfWeek": "WEDNESDAY",
+      "startTime": "14:00",
+      "endTime": "16:00",
+      "room": null,
+      "building": null,
+      "sessionType": "lecture",
+      "semester": "SPRING",
+      "academicYear": 2026,
+      "groupCode": "A",
+      "lecturerName": null
+    },
+    {
+      "courseCode": "1011-2104",
+      "dayOfWeek": "THURSDAY",
+      "startTime": "11:00",
+      "endTime": "13:00",
+      "room": null,
+      "building": null,
+      "sessionType": "lecture",
+      "semester": "SPRING",
+      "academicYear": 2026,
+      "groupCode": "B",
+      "lecturerName": null
+    },
+    {
+      "courseCode": "1011-2106",
+      "dayOfWeek": "SUNDAY",
+      "startTime": "12:00",
+      "endTime": "14:00",
+      "room": null,
+      "building": null,
+      "sessionType": "lecture",
+      "semester": "FALL",
+      "academicYear": 2026,
+      "groupCode": "B",
+      "lecturerName": null
+    },
+    {
+      "courseCode": "1011-2106",
+      "dayOfWeek": "MONDAY",
+      "startTime": "14:00",
+      "endTime": "16:00",
+      "room": null,
+      "building": null,
+      "sessionType": "tutorial",
+      "semester": "FALL",
+      "academicYear": 2026,
+      "groupCode": "T1",
+      "lecturerName": null
+    },
+    {
+      "courseCode": "1011-2106",
+      "dayOfWeek": "TUESDAY",
+      "startTime": "08:00",
+      "endTime": "10:00",
+      "room": null,
+      "building": null,
+      "sessionType": "tutorial",
+      "semester": "FALL",
+      "academicYear": 2026,
+      "groupCode": "T2",
+      "lecturerName": null
+    },
+    {
+      "courseCode": "1011-2106",
+      "dayOfWeek": "WEDNESDAY",
+      "startTime": "10:00",
+      "endTime": "12:00",
+      "room": null,
+      "building": null,
+      "sessionType": "lecture",
+      "semester": "FALL",
+      "academicYear": 2026,
+      "groupCode": "A",
+      "lecturerName": null
+    },
+    {
+      "courseCode": "1011-2109",
+      "dayOfWeek": "SUNDAY",
+      "startTime": "16:00",
+      "endTime": "19:00",
+      "room": null,
+      "building": null,
+      "sessionType": "lecture",
+      "semester": "FALL",
+      "academicYear": 2026,
+      "groupCode": "A",
+      "lecturerName": null
+    },
+    {
+      "courseCode": "1011-2109",
+      "dayOfWeek": "MONDAY",
+      "startTime": "08:00",
+      "endTime": "11:00",
+      "room": null,
+      "building": null,
+      "sessionType": "lecture",
+      "semester": "FALL",
+      "academicYear": 2026,
+      "groupCode": "B",
+      "lecturerName": null
+    },
+    {
+      "courseCode": "1011-2109",
+      "dayOfWeek": "TUESDAY",
+      "startTime": "10:00",
+      "endTime": "12:00",
+      "room": null,
+      "building": null,
+      "sessionType": "tutorial",
+      "semester": "FALL",
+      "academicYear": 2026,
+      "groupCode": "T1",
+      "lecturerName": null
+    },
+    {
+      "courseCode": "1011-2109",
+      "dayOfWeek": "WEDNESDAY",
+      "startTime": "10:00",
+      "endTime": "12:00",
+      "room": null,
+      "building": null,
+      "sessionType": "tutorial",
+      "semester": "FALL",
+      "academicYear": 2026,
+      "groupCode": "T2",
+      "lecturerName": null
+    },
+    {
+      "courseCode": "1031-1002",
+      "dayOfWeek": "MONDAY",
+      "startTime": "10:00",
+      "endTime": "13:00",
+      "room": null,
+      "building": null,
+      "sessionType": "lecture",
+      "semester": "FALL",
+      "academicYear": 2026,
+      "groupCode": "ALL",
+      "lecturerName": null
+    },
+    {
+      "courseCode": "1031-1002",
+      "dayOfWeek": "WEDNESDAY",
+      "startTime": "09:00",
+      "endTime": "10:00",
+      "room": null,
+      "building": null,
+      "sessionType": "tutorial",
+      "semester": "FALL",
+      "academicYear": 2026,
+      "groupCode": "T1",
+      "lecturerName": null
+    },
+    {
+      "courseCode": "1031-1002",
+      "dayOfWeek": "WEDNESDAY",
+      "startTime": "13:00",
+      "endTime": "14:00",
+      "room": null,
+      "building": null,
+      "sessionType": "tutorial",
+      "semester": "FALL",
+      "academicYear": 2026,
+      "groupCode": "T2",
+      "lecturerName": null
+    },
+    {
+      "courseCode": "1031-1100",
+      "dayOfWeek": "WEDNESDAY",
+      "startTime": "09:00",
+      "endTime": "10:00",
+      "room": null,
+      "building": null,
+      "sessionType": "tutorial",
+      "semester": "FALL",
+      "academicYear": 2026,
+      "groupCode": "T1",
+      "lecturerName": null
+    },
+    {
+      "courseCode": "1031-1100",
+      "dayOfWeek": "WEDNESDAY",
+      "startTime": "10:00",
+      "endTime": "13:00",
+      "room": null,
+      "building": null,
+      "sessionType": "lecture",
+      "semester": "FALL",
+      "academicYear": 2026,
+      "groupCode": "ALL",
+      "lecturerName": null
+    },
+    {
+      "courseCode": "1031-1100",
+      "dayOfWeek": "WEDNESDAY",
+      "startTime": "13:00",
+      "endTime": "14:00",
+      "room": null,
+      "building": null,
+      "sessionType": "tutorial",
+      "semester": "FALL",
+      "academicYear": 2026,
+      "groupCode": "T2",
+      "lecturerName": null
+    },
+    {
+      "courseCode": "1031-1108",
+      "dayOfWeek": "TUESDAY",
+      "startTime": "10:00",
+      "endTime": "13:00",
+      "room": null,
+      "building": null,
+      "sessionType": "lecture",
+      "semester": "SPRING",
+      "academicYear": 2026,
+      "groupCode": "ALL",
+      "lecturerName": null
+    },
+    {
+      "courseCode": "1031-1108",
+      "dayOfWeek": "TUESDAY",
+      "startTime": "13:00",
+      "endTime": "14:00",
+      "room": null,
+      "building": null,
+      "sessionType": "tutorial",
+      "semester": "SPRING",
+      "academicYear": 2026,
+      "groupCode": "ALL",
+      "lecturerName": null
+    },
+    {
+      "courseCode": "1031-2108",
+      "dayOfWeek": "MONDAY",
+      "startTime": "10:00",
+      "endTime": "12:00",
+      "room": null,
+      "building": null,
+      "sessionType": "lecture",
+      "semester": "SPRING",
+      "academicYear": 2026,
+      "groupCode": "ALL",
+      "lecturerName": null
+    },
+    {
+      "courseCode": "1031-2108",
+      "dayOfWeek": "WEDNESDAY",
+      "startTime": "11:00",
+      "endTime": "12:00",
+      "room": null,
+      "building": null,
+      "sessionType": "tutorial",
+      "semester": "SPRING",
+      "academicYear": 2026,
+      "groupCode": "ALL",
+      "lecturerName": null
+    },
+    {
+      "courseCode": "1221-4325",
+      "dayOfWeek": "TUESDAY",
+      "startTime": "10:00",
+      "endTime": "12:00",
+      "room": null,
+      "building": null,
+      "sessionType": "lecture",
+      "semester": "SPRING",
+      "academicYear": 2026,
+      "groupCode": "A",
+      "lecturerName": null
+    },
+    {
+      "courseCode": "1411-9107",
+      "dayOfWeek": "THURSDAY",
+      "startTime": "08:30",
+      "endTime": "10:00",
+      "room": null,
+      "building": null,
+      "sessionType": "lecture",
+      "semester": "SPRING",
+      "academicYear": 2026,
+      "groupCode": "B",
+      "lecturerName": null
+    },
+    {
+      "courseCode": "1411-9107",
+      "dayOfWeek": "THURSDAY",
+      "startTime": "12:00",
+      "endTime": "14:00",
+      "room": null,
+      "building": null,
+      "sessionType": "lecture",
+      "semester": "SPRING",
+      "academicYear": 2026,
+      "groupCode": "A",
+      "lecturerName": null
+    },
+    {
+      "courseCode": "1411-9240",
+      "dayOfWeek": "MONDAY",
+      "startTime": "10:00",
+      "endTime": "12:00",
+      "room": null,
+      "building": null,
+      "sessionType": "lecture",
+      "semester": "FALL",
+      "academicYear": 2026,
+      "groupCode": "A",
+      "lecturerName": null
+    }
+  ]
+}
