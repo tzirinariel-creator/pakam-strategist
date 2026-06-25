@@ -212,8 +212,14 @@ export const scheduleRouter = createTRPCRouter({
    */
   getGoogleStatus: protectedProcedure.query(async ({ ctx }) => {
     const tokens = await getDecryptedTokens(ctx.userId!);
+    // Whether Google OAuth is configured on the server — the UI hides the
+    // integration entirely when it isn't, so the button can't reach an error page.
+    const configured = Boolean(
+      process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET
+    );
     return {
       connected: tokens !== null,
+      configured,
     };
   }),
 

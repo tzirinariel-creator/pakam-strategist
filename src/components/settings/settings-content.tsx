@@ -477,6 +477,12 @@ function GoogleCalendarSection() {
     ? { all: "הכול", lectures: "שיעורים בלבד", exams: "בחינות בלבד" }
     : { all: "All", lectures: "Lectures only", exams: "Exams only" };
 
+  // Hide the whole section when Google Calendar isn't configured on the server,
+  // so the "Connect" button can never lead to an error page.
+  if (googleStatus.data && googleStatus.data.configured === false) {
+    return null;
+  }
+
   return (
     <SectionCard
       icon={Calendar}
