@@ -134,7 +134,7 @@ export const planRouter = createTRPCRouter({
         status: z
           .enum(["PLANNED", "IN_PROGRESS", "COMPLETED", "FAILED", "EXEMPT"])
           .optional(),
-        grade: z.number().min(0).max(100).optional(),
+        grade: z.number().min(0).max(100).nullable().optional(), // null clears the grade
         disciplineOverride: disciplineEnum.optional(),
         attempt: z.number().int().min(1).optional(),
         selectedGroups: z.record(z.string(), z.string()).nullable().optional(), // { "tutorial": "B" } or null to clear

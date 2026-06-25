@@ -37,11 +37,12 @@ export async function POST(request: NextRequest) {
   try {
     // 1. Auth check
     const supabase = await createServerSupabase();
+    // Validate the JWT against the auth server (not just the cookie) for authorization.
     const {
-      data: { session },
-    } = await supabase.auth.getSession();
+      data: { user: authUser },
+    } = await supabase.auth.getUser();
 
-    if (!session?.user) {
+    if (!authUser) {
       return NextResponse.json(
         { error: "Unauthorized" },
         { status: 401 }
@@ -49,7 +50,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Rate limit: 20 requests per minute per user
-    const rateLimit = checkRateLimit(`chat:${session.user.id}`, {
+    const rateLimit = checkRateLimit(`chat:${authUser.id}`, {
       maxRequests: 20,
       windowSeconds: 60,
     });
@@ -75,7 +76,7 @@ export async function POST(request: NextRequest) {
 
     // 3. Get user
     const user = await prisma.user.findUnique({
-      where: { supabaseId: session.user.id },
+      where: { supabaseId: authUser.id },
     });
 
     if (!user) {
@@ -161,16 +162,19 @@ export async function POST(request: NextRequest) {
     const mentorContext = await buildUserContext(prisma, user);
     const systemPrompt = buildMentorSystemPrompt(mentorContext, getProgramById(user.programId));
 
-    // 8. Stream from Claude
-    const stream = client.messages.stream({
-      model: CLAUDE_MODEL,
-      max_tokens: MAX_TOKENS,
-      system: systemPrompt,
-      messages: chatHistory.map((m) => ({
-        role: m.role,
-        content: m.content,
-      })),
-    });
+    // 8. Stream from Claude — abort the upstream generation if the client disconnects.
+    const stream = client.messages.stream(
+      {
+        model: CLAUDE_MODEL,
+        max_tokens: MAX_TOKENS,
+        system: systemPrompt,
+        messages: chatHistory.map((m) => ({
+          role: m.role,
+          content: m.content,
+        })),
+      },
+      { signal: request.signal }
+    );
 
     // 9. Create a ReadableStream that forwards events
     let fullResponse = "";
@@ -180,6 +184,13 @@ export async function POST(request: NextRequest) {
     const encoder = new TextEncoder();
     const readable = new ReadableStream({
       async start(controller) {
+        let closed = false;
+        const safeClose = () => {
+          if (!closed) {
+            closed = true;
+            controller.close();
+          }
+        };
         try {
           // Send session metadata first
           controller.enqueue(
@@ -201,16 +212,8 @@ export async function POST(request: NextRequest) {
           // Wait for the stream to finish
           await stream.finalMessage();
 
-          // Send done event
-          controller.enqueue(
-            encoder.encode(
-              `data: ${JSON.stringify({ type: "done" })}\n\n`
-            )
-          );
-
-          controller.close();
-
-          // 10. Save messages to session (after streaming is done)
+          // Persist BEFORE closing the stream, so a DB failure is surfaced to the
+          // user instead of silently losing a reply they already saw on screen.
           const now = new Date().toISOString();
           const newMessages: StoredMessage[] = [
             ...storedMessages,
@@ -218,14 +221,29 @@ export async function POST(request: NextRequest) {
             { role: "assistant", content: fullResponse, timestamp: now },
           ];
 
-          await prisma.chatSession.update({
-            where: { id: sessionIdForClient },
-            data: {
-              messages: newMessages as unknown as object[],
-              title: titleForClient,
-              context: mentorContext as object,
-            },
-          });
+          try {
+            await prisma.chatSession.update({
+              where: { id: sessionIdForClient },
+              data: {
+                messages: newMessages as unknown as object[],
+                title: titleForClient,
+                context: mentorContext as object,
+              },
+            });
+          } catch (dbErr) {
+            console.error("Failed to persist chat session:", dbErr);
+            controller.enqueue(
+              encoder.encode(
+                `data: ${JSON.stringify({ type: "error", error: "Reply could not be saved — it may disappear on refresh." })}\n\n`
+              )
+            );
+          }
+
+          // Send done event, then close.
+          controller.enqueue(
+            encoder.encode(`data: ${JSON.stringify({ type: "done" })}\n\n`)
+          );
+          safeClose();
         } catch (err: unknown) {
           const apiError = err as { status?: number };
           const errorMessage =
@@ -237,12 +255,15 @@ export async function POST(request: NextRequest) {
                   ? "Claude is overloaded. Please try again shortly."
                   : "Failed to get response";
 
-          controller.enqueue(
-            encoder.encode(
-              `data: ${JSON.stringify({ type: "error", error: errorMessage })}\n\n`
-            )
-          );
-          controller.close();
+          // Guard against a controller that may already be closed.
+          if (!closed) {
+            controller.enqueue(
+              encoder.encode(
+                `data: ${JSON.stringify({ type: "error", error: errorMessage })}\n\n`
+              )
+            );
+          }
+          safeClose();
         }
       },
     });

@@ -96,7 +96,7 @@ export async function parseSyllabusContent(
   text: string,
   apiKey: string
 ): Promise<ParsedSyllabus> {
-  const client = new Anthropic({ apiKey });
+  const client = new Anthropic({ apiKey, timeout: 120_000, maxRetries: 1 });
 
   const response = await client.messages.create({
     model: CLAUDE_MODEL,

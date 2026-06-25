@@ -62,7 +62,9 @@ export function createClaudeClient(encryptedKey: string): Anthropic {
     );
   }
 
-  return new Anthropic({ apiKey });
+  // Cap request time so a stalled upstream call can't hang the function for the
+  // SDK default (10 min); one retry smooths transient blips.
+  return new Anthropic({ apiKey, timeout: 120_000, maxRetries: 1 });
 }
 
 /**

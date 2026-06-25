@@ -24,6 +24,7 @@ import {
   type StoredMessage,
 } from "@/lib/ai/context-builder";
 import { getProgramById } from "@/lib/programs/registry";
+import { checkRateLimit } from "@/lib/rate-limit";
 
 // -------------------------------------------------------------------
 // Helpers
@@ -134,6 +135,18 @@ export const aiRouter = createTRPCRouter({
     )
     .mutation(async ({ ctx, input }) => {
       const user = await getUser(ctx.db, ctx.userId);
+
+      // Rate limit: 20 messages per minute per user (mirrors the streaming route).
+      const rateLimit = checkRateLimit(`ai-chat:${ctx.userId}`, {
+        maxRequests: 20,
+        windowSeconds: 60,
+      });
+      if (!rateLimit.allowed) {
+        throw new TRPCError({
+          code: "TOO_MANY_REQUESTS",
+          message: "Too many requests. Please wait a moment.",
+        });
+      }
 
       // --- Ensure the user has an API key ---
       if (!user.encryptedClaudeKey) {
@@ -397,6 +410,18 @@ export const aiRouter = createTRPCRouter({
     )
     .mutation(async ({ ctx, input }) => {
       const user = await getUser(ctx.db, ctx.userId);
+
+      // Rate limit: 10 recommendations per minute per user.
+      const rateLimit = checkRateLimit(`ai-recommend:${ctx.userId}`, {
+        maxRequests: 10,
+        windowSeconds: 60,
+      });
+      if (!rateLimit.allowed) {
+        throw new TRPCError({
+          code: "TOO_MANY_REQUESTS",
+          message: "Too many requests. Please wait a moment.",
+        });
+      }
 
       // Ensure the user has an API key.
       if (!user.encryptedClaudeKey) {

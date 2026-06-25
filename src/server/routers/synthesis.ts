@@ -10,6 +10,7 @@ import { createTRPCRouter, protectedProcedure } from "../trpc/init";
 import { createClaudeClient, CLAUDE_MODEL, MAX_TOKENS } from "@/lib/ai/claude-client";
 import { DISCIPLINE_CONFIG } from "@/lib/constants";
 import { getAllDisciplineIds, getProgramById } from "@/lib/programs/registry";
+import { checkRateLimit } from "@/lib/rate-limit";
 
 // -------------------------------------------------------------------
 // Shared schema helpers
@@ -259,8 +260,29 @@ export const synthesisRouter = createTRPCRouter({
 
       const messageContent = `הצע חיבור בין-דיסציפלינרי בין הדיסציפלינות: ${disciplineNames}${courseContext}${userPrompt}`;
 
-      // Create client and call Claude
-      const claude = createClaudeClient(user.encryptedClaudeKey);
+      // Rate limit: 20 AI suggestions per minute per user (these call Claude + write the DB).
+      const rateLimit = checkRateLimit(`ai-synth:${ctx.userId}`, {
+        maxRequests: 20,
+        windowSeconds: 60,
+      });
+      if (!rateLimit.allowed) {
+        throw new TRPCError({
+          code: "TOO_MANY_REQUESTS",
+          message: "Too many requests. Please wait a moment.",
+        });
+      }
+
+      // Create client and call Claude (guard key decrypt/validation, like the other AI routes).
+      let claude;
+      try {
+        claude = createClaudeClient(user.encryptedClaudeKey);
+      } catch {
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message:
+            "Failed to initialize Claude client. Your API key may be invalid — please re-enter it in Settings.",
+        });
+      }
 
       let response;
       try {
@@ -290,9 +312,13 @@ export const synthesisRouter = createTRPCRouter({
         });
       }
 
-      // Parse the JSON response
+      // Parse the JSON response (strip markdown fences the model sometimes adds).
       try {
-        const parsed = JSON.parse(textBlock.text) as {
+        const cleaned = textBlock.text
+          .replace(/^```(?:json)?\s*/i, "")
+          .replace(/\s*```$/i, "")
+          .trim();
+        const parsed = JSON.parse(cleaned) as {
           title: string;
           content: string;
           suggestedTags: string[];

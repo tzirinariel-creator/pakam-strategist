@@ -18,12 +18,13 @@ import { checkRateLimit } from "@/lib/rate-limit";
 const USERS = [
   {
     email: (process.env.NEXT_PUBLIC_DEMO_USER_EMAIL ?? "demo@pakamon.dev").trim(),
-    password: (process.env.DEMO_USER_PASSWORD ?? "demo123456").trim(),
+    // No hardcoded fallback — a strong password MUST be provided via env (fail-closed check below).
+    password: (process.env.DEMO_USER_PASSWORD ?? "").trim(),
     label: "demo",
   },
   {
     email: (process.env.NEXT_PUBLIC_TEST_USER_EMAIL ?? "test@pakamon.dev").trim(),
-    password: (process.env.TEST_USER_PASSWORD ?? "test123456").trim(),
+    password: (process.env.TEST_USER_PASSWORD ?? "").trim(),
     label: "test",
   },
 ];
@@ -136,6 +137,14 @@ export async function POST(request: Request) {
   if (!supabaseUrl || !serviceRoleKey) {
     return NextResponse.json(
       { error: "Missing SUPABASE_URL or SERVICE_ROLE_KEY" },
+      { status: 500 }
+    );
+  }
+
+  // Fail closed if demo/test passwords aren't configured — never provision a weak default.
+  if (USERS.some((u) => !u.password)) {
+    return NextResponse.json(
+      { error: "DEMO_USER_PASSWORD and TEST_USER_PASSWORD must be set" },
       { status: 500 }
     );
   }

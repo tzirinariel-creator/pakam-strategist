@@ -8,15 +8,17 @@ import { createServerSupabase } from "@/lib/supabase/server";
  */
 export const createTRPCContext = async (opts: { headers: Headers }) => {
   const supabase = await createServerSupabase();
+  // getUser() validates the JWT against the Supabase auth server, unlike getSession()
+  // which only decodes the cookie — the documented-safe choice for server authorization.
   const {
-    data: { session },
-  } = await supabase.auth.getSession();
+    data: { user },
+  } = await supabase.auth.getUser();
 
   return {
     db: prisma,
-    session,
+    session: user ? { user } : null,
     supabase,
-    userId: session?.user?.id ?? null,
+    userId: user?.id ?? null,
     headers: opts.headers,
   };
 };

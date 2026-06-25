@@ -108,10 +108,18 @@ export const courseRouter = createTRPCRouter({
       })
     )
     .query(async ({ ctx, input }) => {
+      // Resolve the internal User.id from the Supabase auth id — ctx.userId is
+      // the Supabase UUID, while UserCourse.userId references the Prisma User.id.
+      const user = await ctx.db.user.findUnique({
+        where: { supabaseId: ctx.userId },
+        select: { id: true },
+      });
+      if (!user) return [];
+
       // Get course IDs the user already has (any status except FAILED)
       const userCourses = await ctx.db.userCourse.findMany({
         where: {
-          userId: ctx.userId,
+          userId: user.id,
           status: { not: "FAILED" },
         },
         select: { courseId: true },
