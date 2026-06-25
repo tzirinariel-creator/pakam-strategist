@@ -1,0 +1,362 @@
+// =========================================
+// iCalendar (.ics) Export Utility
+// =========================================
+// Generates an .ics file from course schedule data
+// for import into Google Calendar, Apple Calendar, etc.
+
+import type { CourseWithSchedule } from "./plan-generator";
+
+// ─── Constants ─────────────────────────────────────────────────────
+
+const DAY_MAP: Record<string, string> = {
+  SUNDAY: "SU",
+  MONDAY: "MO",
+  TUESDAY: "TU",
+  WEDNESDAY: "WE",
+  THURSDAY: "TH",
+  FRIDAY: "FR",
+  SATURDAY: "SA",
+};
+
+// Approximate academic semester date ranges
+// Fall: October to January; Spring: March to June
+const SEMESTER_DATES: Record<string, { start: Date; end: Date }> = {
+  FALL: {
+    start: new Date(new Date().getFullYear(), 9, 20), // Oct 20
+    end: new Date(new Date().getFullYear() + 1, 0, 25), // Jan 25
+  },
+  SPRING: {
+    start: new Date(new Date().getFullYear(), 2, 10), // Mar 10
+    end: new Date(new Date().getFullYear(), 5, 20), // Jun 20
+  },
+};
+
+// ─── Helpers ─────────────────────────────────────────────────────
+
+function pad(n: number): string {
+  return String(n).padStart(2, "0");
+}
+
+function formatICSDate(date: Date): string {
+  return (
+    `${date.getFullYear()}${pad(date.getMonth() + 1)}${pad(date.getDate())}T` +
+    `${pad(date.getHours())}${pad(date.getMinutes())}00`
+  );
+}
+
+function escapeICS(text: string): string {
+  return text
+    .replace(/\\/g, "\\\\")
+    .replace(/;/g, "\\;")
+    .replace(/,/g, "\\,")
+    .replace(/\n/g, "\\n");
+}
+
+function getFirstDayOfWeek(
+  startDate: Date,
+  targetDay: string
+): Date {
+  const dayIndex: Record<string, number> = {
+    SUNDAY: 0,
+    MONDAY: 1,
+    TUESDAY: 2,
+    WEDNESDAY: 3,
+    THURSDAY: 4,
+    FRIDAY: 5,
+    SATURDAY: 6,
+  };
+
+  const target = dayIndex[targetDay] ?? 0;
+  const current = startDate.getDay();
+  const diff = (target - current + 7) % 7;
+  const result = new Date(startDate);
+  result.setDate(result.getDate() + diff);
+  return result;
+}
+
+// ─── Main Export Function ────────────────────────────────────────
+
+export function generateICS(
+  courses: CourseWithSchedule[],
+  semester: "FALL" | "SPRING",
+): string {
+  const lines: string[] = [
+    "BEGIN:VCALENDAR",
+    "VERSION:2.0",
+    "PRODID:-//Pakamon//Course Schedule//EN",
+    "CALSCALE:GREGORIAN",
+    "METHOD:PUBLISH",
+    "X-WR-CALNAME:Pakamon Schedule",
+    "X-WR-TIMEZONE:Asia/Jerusalem",
+  ];
+
+  const range = SEMESTER_DATES[semester];
+  if (!range) return "";
+
+  // Use local time with TZID instead of mixing local DTSTART with UTC UNTIL
+  const untilDate = formatICSDate(range.end);
+
+  for (const course of courses) {
+    const sessions = course.scheduleSessions ?? [];
+
+    for (const session of sessions) {
+      const icsDay = DAY_MAP[session.dayOfWeek];
+      if (!icsDay) continue;
+
+      // Parse start/end times
+      const [startH, startM] = (session.startTime ?? "08:00").split(":").map(Number);
+      const [endH, endM] = (session.endTime ?? "09:00").split(":").map(Number);
+
+      // Find the first occurrence of this day of week within the semester
+      const firstOccurrence = getFirstDayOfWeek(range.start, session.dayOfWeek);
+      const dtStart = new Date(firstOccurrence);
+      dtStart.setHours(startH ?? 8, startM ?? 0, 0);
+      const dtEnd = new Date(firstOccurrence);
+      dtEnd.setHours(endH ?? 9, endM ?? 0, 0);
+
+      const uid = `${course.id}-${session.dayOfWeek}-${session.startTime}@pakamon`;
+      const summary = course.nameHe;
+      const location = [session.building, session.room]
+        .filter(Boolean)
+        .join(", ");
+
+      lines.push("BEGIN:VEVENT");
+      lines.push(`UID:${uid}`);
+      lines.push(`DTSTART;TZID=Asia/Jerusalem:${formatICSDate(dtStart)}`);
+      lines.push(`DTEND;TZID=Asia/Jerusalem:${formatICSDate(dtEnd)}`);
+      lines.push(
+        `RRULE:FREQ=WEEKLY;BYDAY=${icsDay};UNTIL=${untilDate}`
+      );
+      lines.push(`SUMMARY:${escapeICS(summary)}`);
+      if (location) {
+        lines.push(`LOCATION:${escapeICS(location)}`);
+      }
+      lines.push(
+        `DESCRIPTION:${escapeICS(
+          `${course.code} | ${course.credits} credits`
+        )}`
+      );
+      lines.push("END:VEVENT");
+    }
+  }
+
+  lines.push("END:VCALENDAR");
+  return lines.join("\r\n");
+}
+
+// ─── Download Helper ─────────────────────────────────────────────
+
+export function downloadICS(
+  courses: CourseWithSchedule[],
+  semester: "FALL" | "SPRING",
+  filename = "pakamon-schedule.ics",
+): void {
+  const content = generateICS(courses, semester);
+  const blob = new Blob([content], { type: "text/calendar;charset=utf-8" });
+  const url = URL.createObjectURL(blob);
+
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+// ─── Alternative export from ScheduleSessionData[] ─────────────────
+// Used in the calendar page where session data is already fetched
+
+interface SessionForExport {
+  id: string;
+  courseCode: string;
+  dayOfWeek: string;
+  startTime: string;
+  endTime: string;
+  room: string | null;
+  building: string | null;
+  sessionType: string;
+  course: {
+    code: string;
+    nameHe: string;
+    nameEn: string | null;
+    credits: number;
+  };
+}
+
+export function generateICSFromSessions(
+  sessions: SessionForExport[],
+  semester: "FALL" | "SPRING",
+): string {
+  const lines: string[] = [
+    "BEGIN:VCALENDAR",
+    "VERSION:2.0",
+    "PRODID:-//Pakamon//Course Schedule//EN",
+    "CALSCALE:GREGORIAN",
+    "METHOD:PUBLISH",
+    "X-WR-CALNAME:Pakamon Schedule",
+    "X-WR-TIMEZONE:Asia/Jerusalem",
+  ];
+
+  const range = SEMESTER_DATES[semester];
+  if (!range) return "";
+
+  const untilDate = formatICSDate(range.end);
+
+  for (const session of sessions) {
+    const icsDay = DAY_MAP[session.dayOfWeek];
+    if (!icsDay) continue;
+
+    const [startH, startM] = (session.startTime ?? "08:00").split(":").map(Number);
+    const [endH, endM] = (session.endTime ?? "09:00").split(":").map(Number);
+
+    const firstOccurrence = getFirstDayOfWeek(range.start, session.dayOfWeek);
+    const dtStart = new Date(firstOccurrence);
+    dtStart.setHours(startH ?? 8, startM ?? 0, 0);
+    const dtEnd = new Date(firstOccurrence);
+    dtEnd.setHours(endH ?? 9, endM ?? 0, 0);
+
+    const uid = `${session.id}@pakamon`;
+    const summary = session.course.nameHe;
+    const location = [session.building, session.room]
+      .filter(Boolean)
+      .join(", ");
+
+    lines.push("BEGIN:VEVENT");
+    lines.push(`UID:${uid}`);
+    lines.push(`DTSTART;TZID=Asia/Jerusalem:${formatICSDate(dtStart)}`);
+    lines.push(`DTEND;TZID=Asia/Jerusalem:${formatICSDate(dtEnd)}`);
+    lines.push(`RRULE:FREQ=WEEKLY;BYDAY=${icsDay};UNTIL=${untilDate}`);
+    lines.push(`SUMMARY:${escapeICS(summary)}`);
+    if (location) {
+      lines.push(`LOCATION:${escapeICS(location)}`);
+    }
+    lines.push(
+      `DESCRIPTION:${escapeICS(
+        `${session.course.code} | ${session.course.credits} credits`
+      )}`
+    );
+    lines.push("END:VEVENT");
+  }
+
+  lines.push("END:VCALENDAR");
+  return lines.join("\r\n");
+}
+
+export function downloadICSFromSessions(
+  sessions: SessionForExport[],
+  semester: "FALL" | "SPRING",
+  filename = "pakamon-schedule.ics",
+): void {
+  const content = generateICSFromSessions(sessions, semester);
+  if (!content) return;
+  const blob = new Blob([content], { type: "text/calendar;charset=utf-8" });
+  const url = URL.createObjectURL(blob);
+
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+// ─── Exam ICS Export ─────────────────────────────────────────────
+// Generates .ics file for exam dates (Moed A and Moed B)
+
+interface ExamForExport {
+  userCourseId: string;
+  courseCode: string;
+  courseName: string;
+  credits: number;
+  examDateA: Date | null;
+  examDateB: Date | null;
+}
+
+function formatICSAllDay(date: Date): string {
+  return `${date.getFullYear()}${pad(date.getMonth() + 1)}${pad(date.getDate())}`;
+}
+
+export function generateExamICS(exams: ExamForExport[]): string {
+  const lines: string[] = [
+    "BEGIN:VCALENDAR",
+    "VERSION:2.0",
+    "PRODID:-//Pakamon//Exam Schedule//EN",
+    "CALSCALE:GREGORIAN",
+    "METHOD:PUBLISH",
+    "X-WR-CALNAME:Pakamon Exams",
+    "X-WR-TIMEZONE:Asia/Jerusalem",
+  ];
+
+  for (const exam of exams) {
+    // Moed A
+    if (exam.examDateA) {
+      const dateA = new Date(exam.examDateA);
+      const nextDay = new Date(dateA);
+      nextDay.setDate(nextDay.getDate() + 1);
+
+      lines.push("BEGIN:VEVENT");
+      lines.push(`UID:exam-a-${exam.userCourseId}@pakamon`);
+      lines.push(`DTSTART;VALUE=DATE:${formatICSAllDay(dateA)}`);
+      lines.push(`DTEND;VALUE=DATE:${formatICSAllDay(nextDay)}`);
+      lines.push(`SUMMARY:${escapeICS(`${exam.courseName} — מועד א׳`)}`);
+      lines.push(
+        `DESCRIPTION:${escapeICS(
+          `${exam.courseCode} | ${exam.credits} ש״ס | מועד א׳`
+        )}`
+      );
+      lines.push("BEGIN:VALARM");
+      lines.push("TRIGGER:-P1D");
+      lines.push("ACTION:DISPLAY");
+      lines.push(`DESCRIPTION:${escapeICS(`מחר בחינה: ${exam.courseName}`)}`);
+      lines.push("END:VALARM");
+      lines.push("END:VEVENT");
+    }
+
+    // Moed B
+    if (exam.examDateB) {
+      const dateB = new Date(exam.examDateB);
+      const nextDay = new Date(dateB);
+      nextDay.setDate(nextDay.getDate() + 1);
+
+      lines.push("BEGIN:VEVENT");
+      lines.push(`UID:exam-b-${exam.userCourseId}@pakamon`);
+      lines.push(`DTSTART;VALUE=DATE:${formatICSAllDay(dateB)}`);
+      lines.push(`DTEND;VALUE=DATE:${formatICSAllDay(nextDay)}`);
+      lines.push(`SUMMARY:${escapeICS(`${exam.courseName} — מועד ב׳`)}`);
+      lines.push(
+        `DESCRIPTION:${escapeICS(
+          `${exam.courseCode} | ${exam.credits} ש״ס | מועד ב׳`
+        )}`
+      );
+      lines.push("BEGIN:VALARM");
+      lines.push("TRIGGER:-P1D");
+      lines.push("ACTION:DISPLAY");
+      lines.push(`DESCRIPTION:${escapeICS(`מחר בחינה: ${exam.courseName}`)}`);
+      lines.push("END:VALARM");
+      lines.push("END:VEVENT");
+    }
+  }
+
+  lines.push("END:VCALENDAR");
+  return lines.join("\r\n");
+}
+
+export function downloadExamICS(
+  exams: ExamForExport[],
+  filename = "pakamon-exams.ics",
+): void {
+  const content = generateExamICS(exams);
+  if (!content) return;
+  const blob = new Blob([content], { type: "text/calendar;charset=utf-8" });
+  const url = URL.createObjectURL(blob);
+
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
