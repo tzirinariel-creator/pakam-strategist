@@ -46,6 +46,10 @@ const nextConfig: NextConfig = {
             key: "Content-Security-Policy",
             value: [
               "default-src 'self'",
+              // 'unsafe-inline' is currently required: Next injects inline hydration/RSC
+              // scripts and the app uses an inline theme-flash script. Removing it safely
+              // requires a strict nonce-based CSP (per-request nonce via middleware) —
+              // tracked in the README roadmap.
               `script-src 'self' 'unsafe-inline' ${isDev ? "'unsafe-eval'" : ""} https://accounts.google.com`,
               "style-src 'self' 'unsafe-inline'",
               "img-src 'self' data: blob: https://*.supabase.co https://lh3.googleusercontent.com",

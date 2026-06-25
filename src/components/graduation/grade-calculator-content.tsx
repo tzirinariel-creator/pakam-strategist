@@ -88,7 +88,12 @@ function GradeInput({
       const num = parseInt(value, 10);
 
       if (value === "" || isNaN(num)) {
-        // If cleared, keep status as-is but remove grade
+        // Cleared — remove the saved grade (revert a completed course to in-progress).
+        if (initialGrade !== null) {
+          const revertedStatus: CourseStatus =
+            initialStatus === "COMPLETED" ? "IN_PROGRESS" : initialStatus;
+          onSave(userCourseId, null, revertedStatus);
+        }
         return;
       }
 
@@ -102,7 +107,7 @@ function GradeInput({
       setSaved(true);
       setTimeout(() => setSaved(false), 1500);
     }, 300);
-  }, [value, userCourseId, initialStatus, onSave]);
+  }, [value, userCourseId, initialStatus, initialGrade, onSave]);
 
   return (
     <div className="relative">
@@ -794,7 +799,7 @@ export function GradeCalculatorContent() {
   // Handle grade save
   const handleSaveGrade = useCallback(
     (userCourseId: string, grade: number | null, status: CourseStatus) => {
-      if (grade === null) return;
+      // grade === null clears the grade (backend accepts a nullable grade).
       updateCourseMutation.mutate({
         userCourseId,
         grade,

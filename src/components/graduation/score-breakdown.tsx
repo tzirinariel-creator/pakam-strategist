@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { useTranslations } from "next-intl";
 import { ChevronDown } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -98,6 +98,22 @@ export function ScoreBreakdown({ breakdown, enableWhatIf, className }: ScoreBrea
   const [referatGrade, setReferatGrade] = useState<string>(
     breakdown.referatGrade?.toFixed(1) ?? ""
   );
+
+  // Re-seed the inputs from real data when it loads (the breakdown is the all-null
+  // fallback until grade data arrives) — but only while the panel is closed, so we
+  // never clobber values the user is actively simulating.
+  useEffect(() => {
+    if (!whatIfOpen) {
+      setCourseAvg(breakdown.courseAverage?.toFixed(1) ?? "");
+      setSeminarAvg(breakdown.seminarPaperAverage?.toFixed(1) ?? "");
+      setReferatGrade(breakdown.referatGrade?.toFixed(1) ?? "");
+    }
+  }, [
+    breakdown.courseAverage,
+    breakdown.seminarPaperAverage,
+    breakdown.referatGrade,
+    whatIfOpen,
+  ]);
 
   const courseContribution =
     breakdown.courseAverage !== null

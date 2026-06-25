@@ -124,6 +124,7 @@ Being honest about what this is and isn't:
 
 ### Roadmap
 - Component + E2E tests (Playwright) for onboarding and the planner
+- Strict nonce-based Content-Security-Policy (drop `'unsafe-inline'` from `script-src`)
 - Retry/backoff on Claude `529` overload during streaming
 - Generalize the course catalog beyond PPE
 - Optimistic UI for drag-and-drop planning

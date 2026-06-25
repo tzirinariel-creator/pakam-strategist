@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import { CalendarDays } from "lucide-react";
 import {
@@ -60,6 +60,19 @@ export function AddTaskModal({
   const [taskType, setTaskType] = useState<TaskType>(initialData?.taskType as TaskType ?? "study");
   const [courseCode, setCourseCode] = useState(initialData?.courseCode ?? "");
   const [notes, setNotes] = useState(initialData?.notes ?? "");
+
+  // Reset the form each time the modal opens (or the edit target changes) — the modal
+  // is never unmounted, so otherwise it keeps the previous task's values.
+  useEffect(() => {
+    if (!open) return;
+    const todayStr = new Date().toISOString().slice(0, 10);
+    setTitle(initialData?.title ?? "");
+    setStartDate(initialData?.startDate ?? todayStr);
+    setEndDate(initialData?.endDate ?? todayStr);
+    setTaskType((initialData?.taskType as TaskType) ?? "study");
+    setCourseCode(initialData?.courseCode ?? "");
+    setNotes(initialData?.notes ?? "");
+  }, [open, initialData]);
 
   const canSubmit = title.trim().length > 0 && startDate && endDate && endDate >= startDate;
 

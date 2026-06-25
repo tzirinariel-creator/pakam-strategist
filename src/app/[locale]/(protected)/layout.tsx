@@ -17,9 +17,13 @@ import { DemoBanner } from "@/components/layout/demo-banner";
  */
 export default async function ProtectedLayout({
   children,
+  params,
 }: {
   children: React.ReactNode;
+  params: Promise<{ locale: string }>;
 }) {
+  const { locale } = await params;
+
   // Server-side auth guard (defense-in-depth alongside middleware)
   try {
     const supabase = await createServerSupabase();
@@ -28,7 +32,7 @@ export default async function ProtectedLayout({
     } = await supabase.auth.getSession();
 
     if (!session) {
-      redirect("/he/login");
+      redirect(`/${locale}/login`);
     }
   } catch (e) {
     // redirect() throws a special Next.js error — let it propagate
