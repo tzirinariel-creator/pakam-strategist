@@ -1,0 +1,579 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+@plugin "@tailwindcss/typography";
+
+@custom-variant dark (&:is(.dark *));
+
+/* =========================================
+   PAKAM STRATEGIST — Clean Monochrome Design
+   ========================================= */
+
+/* ------- Default (Light) ------- */
+:root {
+  --background-secondary: #F6F6F6;
+  --card: oklch(1 0 0);
+  --card-hover: oklch(0.97 0 0);
+  --foreground-secondary: #8B949E;
+  --muted: oklch(0.97 0 0);
+  --muted-foreground: oklch(0.556 0 0);
+  --border: oklch(0.922 0 0);
+  --border-subtle: #E8E8E8;
+  --input: oklch(0.922 0 0);
+  --ring: oklch(0.708 0 0);
+  --radius: 0.625rem;
+
+  /* Accent Colors — clean monochrome */
+  --accent-gold: #1a1a1a;
+  --accent-gold-hover: #333333;
+  --accent-gold-muted: rgba(0, 0, 0, 0.06);
+
+  /* Discipline Colors — PPE program */
+  --discipline-philosophy: #4A90D9;
+  --discipline-economics: #2ECC71;
+  --discipline-polsci: #E74C3C;
+  --discipline-law: #F39C12;
+  --discipline-ppe: #6B7280;
+  /* Discipline Colors — Law (LLB) program */
+  --discipline-law-core: #8B5CF6;
+  --discipline-private: #F59E0B;
+  --discipline-public: #3B82F6;
+  --discipline-commercial: #10B981;
+  --discipline-criminal: #EF4444;
+  --discipline-intl: #6366F1;
+
+  /* Alert Colors */
+  --alert-red: #EF4444;
+  --alert-amber: #F59E0B;
+  --alert-green: #22C55E;
+  --alert-blue: #3B82F6;
+
+  /* Status Colors */
+  --status-passed: #22C55E;
+  --status-failed: #EF4444;
+  --status-warning: #F59E0B;
+  --status-info: #3B82F6;
+
+  /* Sidebar */
+  --sidebar: oklch(0.985 0 0);
+  --sidebar-foreground: oklch(0.145 0 0);
+  --sidebar-border: oklch(0.922 0 0);
+  --sidebar-accent: oklch(0.97 0 0);
+  --sidebar-accent-foreground: oklch(0.205 0 0);
+
+  /* shadcn/ui mappings */
+  --primary: oklch(0.205 0 0);
+  --primary-foreground: oklch(0.985 0 0);
+  --secondary: oklch(0.97 0 0);
+  --secondary-foreground: oklch(0.205 0 0);
+  --destructive: oklch(0.577 0.245 27.325);
+  --destructive-foreground: #FFFFFF;
+  --accent: oklch(0.97 0 0);
+  --accent-foreground: oklch(0.205 0 0);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.145 0 0);
+  --background: oklch(1 0 0);
+  --foreground: oklch(0.145 0 0);
+  --card-foreground: oklch(0.145 0 0);
+  --chart-1: oklch(0.646 0.222 41.116);
+  --chart-2: oklch(0.6 0.118 184.704);
+  --chart-3: oklch(0.398 0.07 227.392);
+  --chart-4: oklch(0.828 0.189 84.429);
+  --chart-5: oklch(0.769 0.188 70.08);
+  --sidebar-primary: oklch(0.205 0 0);
+  --sidebar-primary-foreground: oklch(0.985 0 0);
+  --sidebar-ring: oklch(0.708 0 0);
+}
+
+/* ------- Light Mode (explicit) ------- */
+.light,
+[data-theme="light"] {
+  --background: #FAFAFA;
+  --background-secondary: #F0F0F0;
+  --card: #FFFFFF;
+  --card-hover: #F8F8F8;
+  --foreground: #111111;
+  --foreground-secondary: #6B6B7B;
+  --muted: #F0F0F0;
+  --muted-foreground: #6B6B7B;
+  --border: #E0E0E0;
+  --border-subtle: #F0F0F0;
+  --input: #F0F0F0;
+  --ring: #333333;
+
+  --accent-gold: #111111;
+  --accent-gold-hover: #333333;
+  --accent-gold-muted: rgba(0, 0, 0, 0.06);
+
+  --sidebar: #FFFFFF;
+  --sidebar-foreground: #111111;
+  --sidebar-border: #E0E0E0;
+  --sidebar-accent: rgba(0, 0, 0, 0.04);
+  --sidebar-accent-foreground: #111111;
+
+  --primary: #111111;
+  --primary-foreground: #FFFFFF;
+  --secondary: #F0F0F0;
+  --secondary-foreground: #111111;
+  --destructive: #DC3545;
+  --destructive-foreground: #FFFFFF;
+  --accent: #F0F0F0;
+  --accent-foreground: #111111;
+  --popover: #FFFFFF;
+  --popover-foreground: #111111;
+}
+
+/* =========================================
+   Tailwind Theme Overrides
+   ========================================= */
+
+@theme inline {
+  --color-background: var(--background);
+  --color-background-secondary: var(--background-secondary);
+  --color-foreground: var(--foreground);
+  --color-foreground-secondary: var(--foreground-secondary);
+  --color-card: var(--card);
+  --color-card-hover: var(--card-hover);
+  --color-card-foreground: var(--foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-border: var(--border);
+  --color-border-subtle: var(--border-subtle);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-accent-gold: var(--accent-gold);
+  --color-accent-gold-hover: var(--accent-gold-hover);
+  --color-accent-gold-muted: var(--accent-gold-muted);
+  --color-discipline-philosophy: var(--discipline-philosophy);
+  --color-discipline-economics: var(--discipline-economics);
+  --color-discipline-polsci: var(--discipline-polsci);
+  --color-discipline-law: var(--discipline-law);
+  --color-discipline-ppe: var(--discipline-ppe);
+  --color-discipline-law-core: var(--discipline-law-core);
+  --color-discipline-private: var(--discipline-private);
+  --color-discipline-public: var(--discipline-public);
+  --color-discipline-commercial: var(--discipline-commercial);
+  --color-discipline-criminal: var(--discipline-criminal);
+  --color-discipline-intl: var(--discipline-intl);
+  --color-alert-red: var(--alert-red);
+  --color-alert-amber: var(--alert-amber);
+  --color-alert-green: var(--alert-green);
+  --color-alert-blue: var(--alert-blue);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+
+  /* Fonts — unified: Inter + Heebo + JetBrains Mono */
+  --font-heading: "Inter", "Heebo", system-ui, sans-serif;
+  --font-body: "Inter", "Heebo", system-ui, sans-serif;
+  --font-hebrew: "Heebo", "Inter", system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", "Fira Code", monospace;
+
+  /* Radii */
+  --radius-sm: 0.25rem;
+  --radius-md: 0.375rem;
+  --radius-lg: 0.5rem;
+  --radius-xl: 0.75rem;
+  --color-sidebar-ring: var(--sidebar-ring);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-chart-5: var(--chart-5);
+  --color-chart-4: var(--chart-4);
+  --color-chart-3: var(--chart-3);
+  --color-chart-2: var(--chart-2);
+  --color-chart-1: var(--chart-1);
+  --radius-2xl: calc(var(--radius) + 8px);
+  --radius-3xl: calc(var(--radius) + 12px);
+  --radius-4xl: calc(var(--radius) + 16px);
+}
+
+/* =========================================
+   Base Styles
+   ========================================= */
+
+* {
+  border-color: var(--border);
+}
+
+body {
+  background-color: var(--background);
+  font-family: var(--font-body);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Hebrew text */
+[dir="rtl"] body,
+:lang(he) body {
+  font-family: var(--font-hebrew);
+}
+
+/* =========================================
+   Typography
+   ========================================= */
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-heading);
+  color: var(--foreground);
+  letter-spacing: -0.01em;
+}
+
+[dir="rtl"] h1,
+[dir="rtl"] h2,
+[dir="rtl"] h3,
+[dir="rtl"] h4,
+[dir="rtl"] h5,
+[dir="rtl"] h6 {
+  font-family: var(--font-hebrew);
+  letter-spacing: 0;
+}
+
+/* Override font-serif to match body font — no Playfair Display */
+.font-serif {
+  font-family: var(--font-heading);
+}
+
+[dir="rtl"] .font-serif {
+  font-family: var(--font-hebrew);
+  letter-spacing: 0;
+}
+
+/* Monospace data display */
+.font-data {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.02em;
+}
+
+/* =========================================
+   Card & Component Styles
+   ========================================= */
+
+/* Ticker counter animation */
+.ticker-number {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Gauge color zones */
+.gauge-red { color: var(--alert-red); }
+.gauge-amber { color: var(--alert-amber); }
+.gauge-green { color: var(--alert-green); }
+.gauge-gold { color: var(--foreground); }
+
+/* Data card — clean minimal style */
+.data-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 1rem;
+  position: relative;
+  overflow: hidden;
+  transition: all 0.2s ease;
+}
+
+.data-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  inset-inline-start: 0;
+  width: 3px;
+  height: 100%;
+  background: linear-gradient(180deg, var(--foreground) 0%, transparent 100%);
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.data-card:hover {
+  background: var(--card-hover);
+  border-color: var(--border);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08), 0 1px 2px rgba(0, 0, 0, 0.04);
+}
+
+.data-card:hover::before {
+  opacity: 1;
+}
+
+/* =========================================
+   Scrollbar
+   ========================================= */
+
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--background);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--muted-foreground);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--foreground);
+}
+
+/* =========================================
+   RTL Utilities
+   ========================================= */
+
+[dir="rtl"] .rtl-flip {
+  transform: scaleX(-1);
+}
+
+/* =========================================
+   Animations
+   ========================================= */
+
+@keyframes fade-in {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes slide-in-right {
+  from { opacity: 0; transform: translateX(16px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes slide-in-left {
+  from { opacity: 0; transform: translateX(-16px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes pulse-subtle {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(0, 0, 0, 0.1); }
+  50% { box-shadow: 0 0 0 6px rgba(0, 0, 0, 0); }
+}
+
+.animate-fade-in {
+  animation: fade-in 0.3s ease-out;
+}
+
+.animate-slide-in {
+  animation: slide-in-right 0.3s ease-out;
+}
+
+[dir="rtl"] .animate-slide-in {
+  animation: slide-in-left 0.3s ease-out;
+}
+
+.animate-pulse-gold {
+  animation: pulse-subtle 2s ease-in-out infinite;
+}
+
+/* =========================================
+   Gradient Utilities
+   ========================================= */
+
+/* Primary gradient for buttons and accents */
+.gradient-gold {
+  background: var(--foreground);
+  color: var(--background);
+}
+
+/* Glass morphism backdrop */
+.glass {
+  background: rgba(var(--card), 0.6);
+  backdrop-filter: blur(16px) saturate(180%);
+  -webkit-backdrop-filter: blur(16px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+/* Subtle background mesh */
+.bg-mesh {
+  background-image:
+    radial-gradient(at 20% 20%, rgba(0, 0, 0, 0.02) 0%, transparent 50%),
+    radial-gradient(at 80% 80%, rgba(59, 130, 246, 0.02) 0%, transparent 50%),
+    radial-gradient(at 50% 50%, rgba(34, 197, 94, 0.01) 0%, transparent 50%);
+}
+
+/* =========================================
+   Shadow Effects
+   ========================================= */
+
+/* Subtle elevation glow */
+.shadow-gold-glow {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08), 0 1px 2px rgba(0, 0, 0, 0.04);
+}
+
+/* Discipline colored glows — PPE program */
+.shadow-philosophy-glow { box-shadow: 0 0 20px rgba(74, 144, 217, 0.15); }
+.shadow-economics-glow { box-shadow: 0 0 20px rgba(46, 204, 113, 0.15); }
+.shadow-polsci-glow { box-shadow: 0 0 20px rgba(231, 76, 60, 0.15); }
+.shadow-law-glow { box-shadow: 0 0 20px rgba(243, 156, 18, 0.15); }
+.shadow-ppe-glow { box-shadow: 0 0 20px rgba(107, 114, 128, 0.15); }
+/* Discipline colored glows — Law program */
+.shadow-law-core-glow { box-shadow: 0 0 20px rgba(139, 92, 246, 0.15); }
+.shadow-private-glow { box-shadow: 0 0 20px rgba(245, 158, 11, 0.15); }
+.shadow-public-glow { box-shadow: 0 0 20px rgba(59, 130, 246, 0.15); }
+.shadow-commercial-glow { box-shadow: 0 0 20px rgba(16, 185, 129, 0.15); }
+.shadow-criminal-glow { box-shadow: 0 0 20px rgba(239, 68, 68, 0.15); }
+.shadow-intl-glow { box-shadow: 0 0 20px rgba(99, 102, 241, 0.15); }
+
+/* Elevation system */
+.elevation-1 {
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08), 0 1px 2px rgba(0, 0, 0, 0.04);
+}
+.elevation-2 {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1), 0 2px 4px rgba(0, 0, 0, 0.06);
+}
+.elevation-3 {
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12), 0 4px 8px rgba(0, 0, 0, 0.06);
+}
+
+/* =========================================
+   Staggered Entrance Animations
+   ========================================= */
+
+@keyframes stagger-fade-in {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-stagger-1 { animation: stagger-fade-in 0.4s ease-out 0.05s both; }
+.animate-stagger-2 { animation: stagger-fade-in 0.4s ease-out 0.1s both; }
+.animate-stagger-3 { animation: stagger-fade-in 0.4s ease-out 0.15s both; }
+.animate-stagger-4 { animation: stagger-fade-in 0.4s ease-out 0.2s both; }
+.animate-stagger-5 { animation: stagger-fade-in 0.4s ease-out 0.25s both; }
+.animate-stagger-6 { animation: stagger-fade-in 0.4s ease-out 0.3s both; }
+
+/* =========================================
+   Skeleton Shimmer
+   ========================================= */
+
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+.skeleton {
+  background: linear-gradient(
+    90deg,
+    var(--muted) 25%,
+    var(--muted-foreground)/10 50%,
+    var(--muted) 75%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+  border-radius: var(--radius-md);
+}
+
+/* =========================================
+   Counter Tick Animation
+   ========================================= */
+
+@keyframes count-up {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-count {
+  animation: count-up 0.5s ease-out both;
+}
+
+/* =========================================
+   Gradient Text
+   ========================================= */
+
+.text-gradient-gold {
+  color: var(--foreground);
+  font-weight: 800;
+}
+
+/* =========================================
+   Interactive Utilities
+   ========================================= */
+
+.press-scale:active {
+  transform: scale(0.97);
+  transition: transform 0.1s ease;
+}
+
+/* Progress bar */
+.progress-gradient {
+  background: var(--foreground);
+}
+
+/* =========================================
+   Confetti Float Animation (Onboarding)
+   ========================================= */
+
+@keyframes confetti-float {
+  from {
+    transform: translateY(0) rotate(0deg) scale(1);
+  }
+  to {
+    transform: translateY(-20px) rotate(180deg) scale(0.8);
+  }
+}
+
+/* =========================================
+   Dark Mode Overrides
+   ========================================= */
+
+.dark {
+  --background: oklch(0.145 0 0);
+  --foreground: oklch(0.985 0 0);
+  --card: oklch(0.205 0 0);
+  --card-hover: oklch(0.24 0 0);
+  --card-foreground: oklch(0.985 0 0);
+  --popover: oklch(0.205 0 0);
+  --popover-foreground: oklch(0.985 0 0);
+  --primary: oklch(0.922 0 0);
+  --primary-foreground: oklch(0.205 0 0);
+  --secondary: oklch(0.269 0 0);
+  --secondary-foreground: oklch(0.985 0 0);
+  --muted: oklch(0.269 0 0);
+  --muted-foreground: oklch(0.708 0 0);
+  --accent: oklch(0.269 0 0);
+  --accent-foreground: oklch(0.985 0 0);
+  --destructive: oklch(0.704 0.191 22.216);
+  --border: oklch(1 0 0 / 10%);
+  --input: oklch(1 0 0 / 15%);
+  --ring: oklch(0.556 0 0);
+
+  /* Dark mode accent = white/light instead of dark */
+  --accent-gold: oklch(0.95 0 0);
+  --accent-gold-hover: oklch(0.85 0 0);
+  --accent-gold-muted: rgba(255, 255, 255, 0.08);
+
+  --chart-1: oklch(0.488 0.243 264.376);
+  --chart-2: oklch(0.696 0.17 162.48);
+  --chart-3: oklch(0.769 0.188 70.08);
+  --chart-4: oklch(0.627 0.265 303.9);
+  --chart-5: oklch(0.645 0.246 16.439);
+  --sidebar: oklch(0.205 0 0);
+  --sidebar-foreground: oklch(0.985 0 0);
+  --sidebar-primary: oklch(0.488 0.243 264.376);
+  --sidebar-primary-foreground: oklch(0.985 0 0);
+  --sidebar-accent: oklch(0.269 0 0);
+  --sidebar-accent-foreground: oklch(0.985 0 0);
+  --sidebar-border: oklch(1 0 0 / 10%);
+  --sidebar-ring: oklch(0.556 0 0);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+}

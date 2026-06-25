@@ -1,0 +1,13 @@
+{
+  "regions": ["fra1"],
+  "crons": [
+    {
+      "path": "/api/cron/sync-courses",
+      "schedule": "0 3 * * *"
+    },
+    {
+      "path": "/api/cron/sync-arazim",
+      "schedule": "0 4 * * 0"
+    }
+  ]
+}
