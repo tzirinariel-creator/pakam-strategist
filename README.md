@@ -8,12 +8,6 @@ Built in Hebrew (RTL) and English, fully internationalized.
 
 > Built largely with **Claude Code** as a hands-on exercise in shipping a real, deployed product end-to-end — schema, API, UI, and AI integration.
 
-## Screenshots
-
-| Semester planner | Grade calculator | Regulation engine |
-|---|---|---|
-| ![Planner](docs/planner.png) | ![Grades](docs/grades.png) | ![Regulations](docs/regulations.png) |
-
 ---
 
 ## Why it exists
