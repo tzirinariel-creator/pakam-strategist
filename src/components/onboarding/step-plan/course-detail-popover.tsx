@@ -1,0 +1,239 @@
+"use client";
+
+import { useState } from "react";
+import { useLocale, useTranslations } from "next-intl";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+  PopoverClose,
+} from "@/components/ui/popover";
+import { DISCIPLINE_CONFIG, FILTERABLE_DISCIPLINE_IDS } from "@/lib/constants";
+import { Clock, Calendar, BookOpen, Lock, Users, X } from "lucide-react";
+import { cn } from "@/lib/utils";
+import type { CourseWithSchedule } from "@/lib/plan-generator";
+
+const DAY_LABELS_HE: Record<string, string> = {
+  SUNDAY: "א׳",
+  MONDAY: "ב׳",
+  TUESDAY: "ג׳",
+  WEDNESDAY: "ד׳",
+  THURSDAY: "ה׳",
+};
+
+const DAY_LABELS_EN: Record<string, string> = {
+  SUNDAY: "Sun",
+  MONDAY: "Mon",
+  TUESDAY: "Tue",
+  WEDNESDAY: "Wed",
+  THURSDAY: "Thu",
+};
+
+interface CourseDetailPopoverProps {
+  course: CourseWithSchedule;
+  children: React.ReactNode;
+  onDisciplineOverride?: (courseId: string, discipline: string) => void;
+}
+
+export function CourseDetailPopover({ course, children, onDisciplineOverride }: CourseDetailPopoverProps) {
+  const locale = useLocale();
+  const t = useTranslations("onboarding");
+  const isHe = locale === "he";
+  const cfg = DISCIPLINE_CONFIG[course.discipline];
+  const dayLabels = isHe ? DAY_LABELS_HE : DAY_LABELS_EN;
+  const [showDisciplineSelect, setShowDisciplineSelect] = useState(false);
+
+  return (
+    <Popover>
+      <PopoverTrigger asChild>{children}</PopoverTrigger>
+      <PopoverContent className="w-80 space-y-3 p-4" side="top" sideOffset={8}>
+        {/* Close button */}
+        <PopoverClose className="absolute top-2 end-2 rounded-md p-1 text-foreground/30 hover:text-foreground/60 hover:bg-foreground/5 transition-all">
+          <X className="h-3.5 w-3.5" />
+        </PopoverClose>
+
+        {/* Header */}
+        <div>
+          <div className="flex items-center gap-2 pe-6">
+            <div
+              className="h-2.5 w-2.5 rounded-full shrink-0"
+              style={{ backgroundColor: cfg?.color ?? "gray" }}
+            />
+            <span className="text-sm font-semibold text-foreground/90 leading-tight">
+              {isHe ? course.nameHe : (course.nameEn ?? course.nameHe)}
+            </span>
+          </div>
+          <div className="mt-1 flex items-center gap-2 text-[10px] text-foreground/40">
+            <span className="font-mono">{course.code}</span>
+            <span>·</span>
+            <span>{course.credits} {t("nz")}</span>
+            {course.weeklyHours && (
+              <>
+                <span>·</span>
+                <span>{course.weeklyHours} {isHe ? "ש״ס" : "hrs/wk"}</span>
+              </>
+            )}
+          </div>
+        </div>
+
+        {/* Description */}
+        {course.description && (
+          <p className="text-[11px] leading-relaxed text-foreground/50">
+            {course.description}
+          </p>
+        )}
+
+        {/* Badges */}
+        <div className="flex flex-wrap gap-1.5">
+          {course.isMandatory && (
+            <span className="inline-flex items-center gap-1 rounded-full bg-foreground/10 border border-foreground/30 px-2 py-0.5 text-[10px] font-medium text-foreground/80">
+              <Lock className="h-2.5 w-2.5" />
+              {t("mandatory")}
+            </span>
+          )}
+          {course.attendanceMandatory && (
+            <span className="inline-flex items-center gap-1 rounded-full bg-foreground/5 border border-foreground/10 px-2 py-0.5 text-[10px] text-foreground/50">
+              <Users className="h-2.5 w-2.5" />
+              {t("attendanceRequired")}
+            </span>
+          )}
+          <button
+            onClick={() => onDisciplineOverride ? setShowDisciplineSelect((v) => !v) : undefined}
+            className={cn(
+              "inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[10px]",
+              onDisciplineOverride && "cursor-pointer hover:opacity-80"
+            )}
+            style={{
+              borderColor: `${cfg?.color ?? "gray"}40`,
+              color: cfg?.color ?? "gray",
+              backgroundColor: `${cfg?.color ?? "gray"}10`,
+            }}
+            title={onDisciplineOverride ? (isHe ? "לחץ לשנות שיוך" : "Click to change") : undefined}
+          >
+            {isHe ? cfg?.nameHe : cfg?.nameEn}
+            {onDisciplineOverride && <span className="opacity-40">✎</span>}
+          </button>
+          {course.submissionType !== "NONE" && (
+            <span className="inline-flex items-center gap-1 rounded-full bg-foreground/5 border border-foreground/10 px-2 py-0.5 text-[10px] text-foreground/50">
+              <BookOpen className="h-2.5 w-2.5" />
+              {course.submissionType === "EXAM" ? t("exam") : course.submissionType === "PAPER" ? t("paper") : t("referat")}
+            </span>
+          )}
+          {/* Discipline override selector */}
+          {showDisciplineSelect && onDisciplineOverride && (
+            <div className="mt-1.5 flex flex-wrap gap-1 animate-in fade-in duration-150">
+              {FILTERABLE_DISCIPLINE_IDS
+                .map((key) => {
+                  const d = DISCIPLINE_CONFIG[key];
+                  if (!d) return null;
+                  const isActive = course.discipline === key;
+                  return (
+                    <button
+                      key={key}
+                      onClick={() => {
+                        onDisciplineOverride(course.id, key);
+                        setShowDisciplineSelect(false);
+                      }}
+                      className={cn(
+                        "rounded-full border px-2 py-0.5 text-[9px] transition-all",
+                        isActive
+                          ? "font-medium"
+                          : "opacity-60 hover:opacity-100"
+                      )}
+                      style={{
+                        borderColor: `${d.color}40`,
+                        color: d.color,
+                        backgroundColor: isActive ? `${d.color}20` : `${d.color}08`,
+                      }}
+                    >
+                      {isHe ? d.nameHe : d.nameEn}
+                    </button>
+                  );
+                })}
+            </div>
+          )}
+        </div>
+
+        {/* Schedule */}
+        {course.scheduleSessions && course.scheduleSessions.length > 0 && (
+          <div className="space-y-1">
+            <div className="text-[10px] font-medium text-foreground/40 uppercase tracking-wider">
+              {t("schedule")}
+            </div>
+            {course.scheduleSessions.map((session, i) => (
+              <div key={i} className="flex items-center gap-2 text-xs text-foreground/60">
+                <Clock className="h-3 w-3 text-foreground/30" />
+                <span className="font-medium">{dayLabels[session.dayOfWeek] ?? session.dayOfWeek}</span>
+                <span className="font-mono text-[10px]">
+                  {session.startTime}–{session.endTime}
+                </span>
+                <span className="text-[10px] text-foreground/30">
+                  {session.sessionType === "lecture" ? (isHe ? "הרצאה" : "Lecture") : session.sessionType === "tutorial" ? (isHe ? "תרגול" : "Tutorial") : session.sessionType}
+                </span>
+                {session.room && (
+                  <span className="text-[10px] text-foreground/20">
+                    {session.building ? `${session.building} ` : ""}{session.room}
+                  </span>
+                )}
+              </div>
+            ))}
+          </div>
+        )}
+
+        {/* Exam dates */}
+        {(course.examDateA || course.examDateB) && (
+          <div className="space-y-1">
+            <div className="text-[10px] font-medium text-foreground/40 uppercase tracking-wider">
+              {t("examDates")}
+            </div>
+            <div className="flex gap-3 text-xs text-foreground/60">
+              {course.examDateA && (
+                <div className="flex items-center gap-1.5">
+                  <Calendar className="h-3 w-3 text-red-400/60" />
+                  <span>{isHe ? "א׳:" : "A:"}</span>
+                  <span className="font-mono text-[10px]">
+                    {new Date(course.examDateA).toLocaleDateString(isHe ? "he-IL" : "en-GB", {
+                      day: "2-digit",
+                      month: "2-digit",
+                    })}
+                  </span>
+                </div>
+              )}
+              {course.examDateB && (
+                <div className="flex items-center gap-1.5">
+                  <Calendar className="h-3 w-3 text-amber-400/60" />
+                  <span>{isHe ? "ב׳:" : "B:"}</span>
+                  <span className="font-mono text-[10px]">
+                    {new Date(course.examDateB).toLocaleDateString(isHe ? "he-IL" : "en-GB", {
+                      day: "2-digit",
+                      month: "2-digit",
+                    })}
+                  </span>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* Prerequisites */}
+        {course.prerequisites.length > 0 && (
+          <div className="space-y-1">
+            <div className="text-[10px] font-medium text-foreground/40 uppercase tracking-wider">
+              {t("prerequisites")}
+            </div>
+            <div className="flex flex-wrap gap-1">
+              {course.prerequisites.map((code) => (
+                <span
+                  key={code}
+                  className="rounded bg-foreground/5 px-1.5 py-0.5 font-mono text-[10px] text-foreground/50"
+                >
+                  {code}
+                </span>
+              ))}
+            </div>
+          </div>
+        )}
+      </PopoverContent>
+    </Popover>
+  );
+}

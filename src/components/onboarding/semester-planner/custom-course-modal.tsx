@@ -1,0 +1,250 @@
+"use client";
+
+import { useState, useCallback } from "react";
+import { useTranslations, useLocale } from "next-intl";
+import { Plus } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { DISCIPLINE_CONFIG, ALL_DISCIPLINE_IDS } from "@/lib/constants";
+import type { CourseWithSchedule } from "@/lib/plan-generator";
+
+// ─── Types ─────────────────────────────────────────────────────────
+
+interface CustomCourseModalProps {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  onAdd: (course: CourseWithSchedule) => void;
+}
+
+const DISCIPLINE_OPTIONS = ALL_DISCIPLINE_IDS.map((id) => {
+  const cfg = DISCIPLINE_CONFIG[id]!;
+  return { value: id, labelHe: cfg.nameHe, labelEn: cfg.nameEn };
+});
+
+const DAY_OPTIONS = [
+  { value: "SUNDAY", labelHe: "ראשון", labelEn: "Sunday" },
+  { value: "MONDAY", labelHe: "שני", labelEn: "Monday" },
+  { value: "TUESDAY", labelHe: "שלישי", labelEn: "Tuesday" },
+  { value: "WEDNESDAY", labelHe: "רביעי", labelEn: "Wednesday" },
+  { value: "THURSDAY", labelHe: "חמישי", labelEn: "Thursday" },
+] as const;
+
+// ─── Component ─────────────────────────────────────────────────────
+
+export function CustomCourseModal({
+  open,
+  onOpenChange,
+  onAdd,
+}: CustomCourseModalProps) {
+  const tCommon = useTranslations("common");
+  const locale = useLocale();
+  const isHe = locale === "he";
+
+  const [name, setName] = useState("");
+  const [credits, setCredits] = useState("2");
+  const [discipline, setDiscipline] = useState("GENERAL");
+  const [day, setDay] = useState("");
+  const [startTime, setStartTime] = useState("");
+  const [endTime, setEndTime] = useState("");
+
+  const reset = useCallback(() => {
+    setName("");
+    setCredits("2");
+    setDiscipline("GENERAL");
+    setDay("");
+    setStartTime("");
+    setEndTime("");
+  }, []);
+
+  const handleAdd = useCallback(() => {
+    if (!name.trim()) return;
+
+    const creditsNum = parseFloat(credits) || 2;
+
+    const sessions = day && startTime && endTime
+      ? [{
+          dayOfWeek: day,
+          startTime,
+          endTime,
+          sessionType: "LECTURE",
+        }]
+      : [];
+
+    const customCourse: CourseWithSchedule = {
+      id: `custom-${crypto.randomUUID()}`,
+      code: `CUSTOM-${Date.now()}`,
+      universityId: null,
+      nameHe: name.trim(),
+      nameEn: name.trim(),
+      discipline: discipline as CourseWithSchedule["discipline"],
+      courseType: "ELECTIVE" as CourseWithSchedule["courseType"],
+      credits: creditsNum,
+      yearOffered: [1, 2, 3],
+      semesterOffered: ["FALL", "SPRING"] as CourseWithSchedule["semesterOffered"],
+      prerequisites: [],
+      canCountAs: [],
+      description: null,
+      isMandatory: false,
+      attendanceMandatory: true,
+      submissionType: "EXAM" as CourseWithSchedule["submissionType"],
+      weeklyHours: null,
+      examDateA: null,
+      examDateB: null,
+      averageGrade: null,
+      medianGrade: null,
+      gradeStdDev: null,
+      failRate: null,
+      difficultyLevel: null,
+      gradeDataSource: null,
+      gradeDataYear: null,
+      isActive: true,
+      lastSyncedAt: null,
+      yedionUrl: null,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      scheduleSessions: sessions,
+    };
+
+    onAdd(customCourse);
+    reset();
+    onOpenChange(false);
+  }, [name, credits, discipline, day, startTime, endTime, onAdd, onOpenChange, reset]);
+
+  const isValid = name.trim().length > 0;
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="max-w-md">
+        <DialogHeader>
+          <DialogTitle className="text-base font-semibold">
+            {isHe ? "הוסף קורס ידני" : "Add Custom Course"}
+          </DialogTitle>
+          <p className="text-xs text-foreground/40 mt-1">
+            {isHe ? "לקורסים שלא נמצאים בקטלוג שלנו (בחירות חיצוניות, סדנאות וכו׳)" : "For courses not in our catalog (external electives, workshops, etc.)"}
+          </p>
+        </DialogHeader>
+
+        <div className="space-y-4 pt-2">
+          {/* Course name */}
+          <div>
+            <label className="mb-1 block text-xs text-foreground/50">
+              {isHe ? "שם הקורס" : "Course Name"} *
+            </label>
+            <Input
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              placeholder={isHe ? "למשל: סדנת כתיבה אקדמית" : "e.g. Academic Writing Workshop"}
+              className="text-sm"
+            />
+          </div>
+
+          {/* Credits + Discipline row */}
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="mb-1 block text-xs text-foreground/50">
+                {isHe ? "נ״ז (ש״ס)" : "Credits"}
+              </label>
+              <Input
+                type="number"
+                min="1"
+                max="10"
+                step="0.5"
+                value={credits}
+                onChange={(e) => setCredits(e.target.value)}
+                className="text-sm font-mono"
+              />
+            </div>
+            <div>
+              <label className="mb-1 block text-xs text-foreground/50">
+                {isHe ? "תחום" : "Discipline"}
+              </label>
+              <Select value={discipline} onValueChange={setDiscipline}>
+                <SelectTrigger className="text-sm">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {DISCIPLINE_OPTIONS.map((opt) => (
+                    <SelectItem key={opt.value} value={opt.value}>
+                      {isHe ? opt.labelHe : opt.labelEn}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+
+          {/* Schedule (optional) */}
+          <div>
+            <label className="mb-1 block text-xs text-foreground/50">
+              {isHe ? "מערכת שעות (אופציונלי)" : "Schedule (optional)"}
+            </label>
+            <div className="grid grid-cols-3 gap-2">
+              <Select value={day} onValueChange={setDay}>
+                <SelectTrigger className="text-xs">
+                  <SelectValue placeholder={isHe ? "יום" : "Day"} />
+                </SelectTrigger>
+                <SelectContent>
+                  {DAY_OPTIONS.map((opt) => (
+                    <SelectItem key={opt.value} value={opt.value}>
+                      {isHe ? opt.labelHe : opt.labelEn}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <Input
+                type="time"
+                value={startTime}
+                onChange={(e) => setStartTime(e.target.value)}
+                className="text-xs font-mono"
+                placeholder="10:00"
+              />
+              <Input
+                type="time"
+                value={endTime}
+                onChange={(e) => setEndTime(e.target.value)}
+                className="text-xs font-mono"
+                placeholder="12:00"
+              />
+            </div>
+          </div>
+
+          {/* Actions */}
+          <div className="flex items-center justify-end gap-2 pt-2">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => {
+                reset();
+                onOpenChange(false);
+              }}
+            >
+              {tCommon("cancel")}
+            </Button>
+            <Button
+              size="sm"
+              disabled={!isValid}
+              onClick={handleAdd}
+              className="gap-1.5"
+            >
+              <Plus className="h-3.5 w-3.5" />
+              {isHe ? "הוסף" : "Add"}
+            </Button>
+          </div>
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+}
