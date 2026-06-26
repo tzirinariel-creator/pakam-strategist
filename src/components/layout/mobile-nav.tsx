@@ -100,7 +100,7 @@ export function MobileNav() {
       )}
 
       {/* Bottom nav bar */}
-      <nav className="fixed bottom-0 start-0 end-0 z-50 flex h-16 items-center justify-around border-t border-border bg-background/95 backdrop-blur-md md:hidden">
+      <nav className="fixed bottom-0 start-0 end-0 z-50 flex h-16 items-center justify-around border-t border-border bg-background/80 backdrop-blur-md md:hidden">
         {MOBILE_NAV_ITEMS.map((item) => {
           const Icon = item.icon;
           const isActive = pathname.includes(item.href);

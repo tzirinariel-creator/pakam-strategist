@@ -183,7 +183,7 @@ export function ExamGantt({ courses }: ExamGanttProps) {
       {/* Toolbar */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <span className="text-xs font-medium text-foreground/50">
+          <span className="font-display text-xs font-medium text-foreground/50">
             {isHe ? "ציר זמן מבחנים" : "Exam Timeline"}
           </span>
           {conflictDays.size > 0 && (
@@ -255,7 +255,7 @@ export function ExamGantt({ courses }: ExamGanttProps) {
                 <th
                   key={`dn-${i}`}
                   className={cn(
-                    "border-e border-b border-border/15 text-[10px] font-mono py-1",
+                    "border-e border-b border-border/15 text-[10px] font-mono tabular py-1",
                     d.isToday
                       ? "bg-foreground/8 font-bold text-foreground/80"
                       : d.isWeekend

@@ -66,7 +66,7 @@ export function CatalogContent() {
       <div className="animate-stagger-1 flex flex-col gap-2">
         <div className="flex items-center gap-3">
           <BookOpen className="h-8 w-8 text-foreground/80" />
-          <h1 className="text-2xl font-bold text-foreground/80 md:text-3xl">
+          <h1 className="font-display text-2xl font-bold text-foreground/80 md:text-3xl">
             {t("title")}
           </h1>
         </div>

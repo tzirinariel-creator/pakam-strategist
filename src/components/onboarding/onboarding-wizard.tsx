@@ -88,10 +88,10 @@ export function OnboardingWizard() {
         <div className="animate-fade-in mb-8">
           {/* Step counter */}
           <div className="mb-2 flex items-center justify-between text-xs text-foreground/40">
-            <span>
+            <span className="tabular">
               {t("step")} 1 {t("of")} 2
             </span>
-            <span>50%</span>
+            <span className="tabular">50%</span>
           </div>
           {/* Bar */}
           <div className="h-1.5 w-full overflow-hidden rounded-full bg-foreground/10">

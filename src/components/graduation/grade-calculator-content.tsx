@@ -232,7 +232,7 @@ function SemesterGpaDisplay({
   return (
     <div className="flex items-center gap-2 text-sm">
       <span className="text-foreground/50">{label}:</span>
-      <span className="font-mono font-semibold text-foreground/80">
+      <span className="font-mono tabular font-semibold text-foreground/80">
         {gpa.toFixed(1)}
       </span>
     </div>
@@ -445,7 +445,7 @@ function WeightBreakdownBar({
               <span className="text-xs font-medium text-foreground/70">
                 {seg.label}
               </span>
-              <span className={cn("font-mono text-base font-semibold", seg.textColor)}>
+              <span className={cn("font-mono tabular text-base font-semibold", seg.textColor)}>
                 {seg.grade !== null
                   ? roundScore(seg.grade)?.toFixed(1)
                   : "--"}
@@ -502,7 +502,7 @@ function ScoreDashboard({
     <div className="data-card space-y-6 p-6">
       <div className="flex items-center gap-3">
         <GraduationCap className="h-5 w-5 text-foreground/80" />
-        <h3 className="font-bold text-lg text-foreground/90">
+        <h3 className="font-display font-bold text-lg text-foreground/90">
           {t("graduationScore")}
         </h3>
       </div>
@@ -513,7 +513,7 @@ function ScoreDashboard({
           <div className="flex items-baseline gap-1">
             <span
               className={cn(
-                "font-mono text-5xl font-bold tabular-nums tracking-tight",
+                "font-display tabular text-5xl font-bold tabular-nums tracking-tight",
                 getScoreColor(score)
               )}
             >
@@ -537,7 +537,7 @@ function ScoreDashboard({
       <div className="flex items-center justify-center gap-8 text-sm">
         <div className="flex flex-col items-center gap-1">
           <span className="text-xs text-foreground/50">{t("overallGpa")}</span>
-          <span className="font-mono text-xl font-semibold text-foreground/80">
+          <span className="font-display tabular text-xl font-semibold text-foreground/80">
             {overallGpa !== null ? overallGpa.toFixed(1) : "--"}
           </span>
         </div>
@@ -546,7 +546,7 @@ function ScoreDashboard({
           <span className="text-xs text-foreground/50">
             {t("coursesWeight")}
           </span>
-          <span className="font-mono text-xl font-semibold text-foreground/80">
+          <span className="font-display tabular text-xl font-semibold text-foreground/80">
             {courseAvg !== null ? courseAvg.toFixed(1) : "--"}
           </span>
         </div>
@@ -643,7 +643,7 @@ function ReverseCalculator({
       <div className="flex items-center gap-3">
         <Target className="h-5 w-5 text-foreground/80" />
         <div>
-          <h3 className="font-bold text-lg text-foreground/90">
+          <h3 className="font-display font-bold text-lg text-foreground/90">
             {t("reverseCalc")}
           </h3>
           <p className="text-xs text-foreground/50">{t("reverseCalcDesc")}</p>
@@ -656,7 +656,7 @@ function ReverseCalculator({
           <label className="text-sm font-medium text-foreground/70">
             {t("targetScore")}
           </label>
-          <span className="font-mono text-2xl font-bold text-foreground/80">
+          <span className="font-mono tabular text-2xl font-bold text-foreground/80">
             {target}
           </span>
         </div>
@@ -719,7 +719,7 @@ function ReverseCalculator({
               <span className="text-xs text-foreground/50">
                 {t("neededAvg")}
               </span>
-              <div className="font-mono text-3xl font-bold text-foreground/80">
+              <div className="font-display tabular text-3xl font-bold text-foreground/80">
                 {result.neededAvg !== null ? result.neededAvg.toFixed(1) : "--"}
               </div>
             </div>
@@ -727,7 +727,7 @@ function ReverseCalculator({
               <span className="text-xs text-foreground/50">
                 {t("remainingCourses")}
               </span>
-              <div className="font-mono text-3xl font-bold text-foreground/70">
+              <div className="font-mono tabular text-3xl font-bold text-foreground/70">
                 {result.remainingCount}
               </div>
               <span className="text-xs text-foreground/40">
@@ -752,7 +752,7 @@ function EmptyState({ t, locale }: { t: ReturnType<typeof useTranslations<"grade
         <div className="mb-6 flex justify-center">
           <Calculator className="h-16 w-16 text-foreground/80" />
         </div>
-        <h1 className="mb-3 font-bold text-3xl text-foreground/80">
+        <h1 className="mb-3 font-display font-bold text-3xl text-foreground/80">
           {t("title")}
         </h1>
         <p className="mb-6 text-lg text-foreground/70">{t("noCoursesDesc")}</p>
@@ -868,7 +868,7 @@ export function GradeCalculatorContent() {
     <div className="bg-mesh space-y-8 p-4 md:p-6">
       {/* Page header */}
       <div className="animate-stagger-1">
-        <h1 className="font-bold text-3xl text-foreground/80">
+        <h1 className="font-display font-bold text-3xl text-foreground/80">
           {t("title")}
         </h1>
         <p className="mt-1 text-foreground/50">{t("subtitle")}</p>
@@ -888,7 +888,7 @@ export function GradeCalculatorContent() {
       <div className="animate-stagger-3 space-y-4">
         <div className="flex items-center gap-3">
           <Calculator className="h-5 w-5 text-foreground/80" />
-          <h2 className="font-bold text-xl text-foreground/90">
+          <h2 className="font-display font-bold text-xl text-foreground/90">
             {t("courseGrades")}
           </h2>
         </div>

@@ -55,7 +55,7 @@ export function Sidebar() {
   return (
     <aside
       className={cn(
-        "fixed top-0 start-0 z-40 flex h-screen flex-col border-e border-sidebar-border bg-sidebar transition-all duration-300",
+        "fixed top-0 start-0 z-40 flex h-screen flex-col border-e border-sidebar-border bg-[color-mix(in_oklch,var(--sidebar)_82%,transparent)] backdrop-blur-md transition-all duration-300",
         sidebarCollapsed ? "w-16" : "w-64"
       )}
     >
@@ -66,7 +66,7 @@ export function Sidebar() {
             <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-foreground">
               <GraduationCap className="h-5 w-5 text-primary-foreground" />
             </div>
-            <span className="font-heading text-lg font-bold text-foreground/80">
+            <span className="font-display text-lg font-bold text-foreground/80">
               {isRTL ? "פכ\"מ" : "PKM"}
             </span>
           </div>
@@ -93,8 +93,8 @@ export function Sidebar() {
                     className={cn(
                       "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all duration-200",
                       isActive
-                        ? "bg-foreground/10 text-foreground/80 border-s-[3px] border-s-foreground"
-                        : "text-sidebar-foreground/70 hover:bg-foreground/5 hover:text-sidebar-foreground border-s-[3px] border-transparent",
+                        ? "bg-accent text-foreground/80 shadow-card"
+                        : "text-sidebar-foreground/70 hover:bg-foreground/5 hover:text-sidebar-foreground",
                       sidebarCollapsed && "justify-center px-2"
                     )}
                   >

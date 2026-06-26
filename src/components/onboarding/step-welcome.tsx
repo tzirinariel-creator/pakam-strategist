@@ -85,7 +85,7 @@ export function StepWelcome({ onNext, selectedProgram, onProgramSelect }: StepWe
       </div>
 
       {/* Title */}
-      <h2 className="animate-stagger-1 text-foreground font-bold text-3xl md:text-4xl">
+      <h2 className="animate-stagger-1 font-display text-foreground font-bold text-3xl md:text-4xl">
         {t("welcomeTitle")}
       </h2>
 
@@ -108,7 +108,7 @@ export function StepWelcome({ onNext, selectedProgram, onProgramSelect }: StepWe
               <feature.icon className="h-[18px] w-[18px] text-foreground/60" />
             </div>
             <div className="min-w-0">
-              <h3 className="text-sm font-semibold text-foreground/90">
+              <h3 className="font-display text-sm font-semibold text-foreground/90">
                 {feature.title}
               </h3>
               <p className="mt-0.5 text-xs leading-relaxed text-foreground/50">
@@ -122,7 +122,7 @@ export function StepWelcome({ onNext, selectedProgram, onProgramSelect }: StepWe
       {/* Program selection */}
       {programs.length > 1 && (
         <div className="animate-stagger-4 mt-10 w-full max-w-lg">
-          <h3 className="mb-1 text-sm font-semibold text-foreground/70">
+          <h3 className="font-display mb-1 text-sm font-semibold text-foreground/70">
             {t("chooseProgram")}
           </h3>
           <p className="mb-4 text-xs text-foreground/40">
@@ -148,10 +148,11 @@ export function StepWelcome({ onNext, selectedProgram, onProgramSelect }: StepWe
                   disabled={!isActive}
                   className={cn(
                     "relative flex items-start gap-3 rounded-xl border p-4 text-start transition-all",
+                    isActive && "hover-lift",
                     isActive && !isSelected &&
                       "border-foreground/10 bg-foreground/[0.02] hover:border-foreground/25 hover:bg-foreground/5 cursor-pointer",
                     isActive && isSelected &&
-                      "border-foreground/40 bg-foreground/8 ring-1 ring-foreground/20 shadow-sm cursor-pointer",
+                      "border-foreground/40 bg-foreground/8 ring-1 ring-foreground/20 shadow-card cursor-pointer",
                     !isActive &&
                       "border-foreground/5 bg-foreground/[0.01] opacity-50 cursor-not-allowed"
                   )}

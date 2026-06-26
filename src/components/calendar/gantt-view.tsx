@@ -604,7 +604,7 @@ export function GanttView({ courses }: GanttViewProps) {
         {daysToExamsVal > 0 && (
           <div className="flex items-center gap-2 rounded-lg border border-red-400/20 bg-red-400/5 px-3 py-2">
             <Clock className="size-4 text-red-400" />
-            <span className="text-sm font-medium text-red-400">
+            <span className="tabular text-sm font-medium text-red-400">
               {t("examCountdown", { days: daysToExamsVal })}
             </span>
           </div>
@@ -671,7 +671,7 @@ export function GanttView({ courses }: GanttViewProps) {
                   {/* Date (day of month) */}
                   <span
                     className={cn(
-                      "font-mono text-[10px] leading-none",
+                      "font-mono tabular text-[10px] leading-none",
                       isExam
                         ? "text-red-400/60"
                         : isCurrent

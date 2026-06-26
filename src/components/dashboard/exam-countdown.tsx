@@ -77,7 +77,7 @@ export function ExamCountdown() {
     <div className="data-card p-5">
       <div className="flex items-center gap-2 mb-3">
         <CalendarClock className="h-5 w-5 text-foreground/60" />
-        <h3 className="text-base font-bold text-foreground/90">
+        <h3 className="font-display text-base font-bold text-foreground/90">
           {t("examCountdown")}
         </h3>
       </div>
@@ -111,7 +111,7 @@ export function ExamCountdown() {
                 "flex h-10 w-10 shrink-0 flex-col items-center justify-center rounded-lg font-mono",
                 daysBgColor
               )}>
-                <span className="text-lg font-bold leading-none">
+                <span className="text-lg font-bold leading-none tabular">
                   {exam.daysLeft}
                 </span>
                 <span className="text-[9px] leading-none mt-0.5">

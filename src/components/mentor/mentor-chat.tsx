@@ -400,7 +400,7 @@ export function MentorChat() {
           </Button>
           <div className="flex items-center gap-2">
             <Bot className="h-5 w-5 text-muted-foreground" />
-            <h2 className="text-sm font-semibold">{t("title")}</h2>
+            <h2 className="font-display text-sm font-semibold">{t("title")}</h2>
           </div>
         </div>
 
@@ -417,7 +417,7 @@ export function MentorChat() {
                 <div className="mb-5 flex h-14 w-14 items-center justify-center rounded-2xl bg-muted">
                   <Bot className="h-7 w-7 text-foreground/50" />
                 </div>
-                <h3 className="mb-1.5 text-lg font-bold">{t("title")}</h3>
+                <h3 className="mb-1.5 font-display text-lg font-bold">{t("title")}</h3>
                 <p className="mb-6 max-w-sm text-center text-sm text-muted-foreground leading-relaxed">
                   {t("welcomeDescription")}
                 </p>

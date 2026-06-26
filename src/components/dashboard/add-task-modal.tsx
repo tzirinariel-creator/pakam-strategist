@@ -100,7 +100,7 @@ export function AddTaskModal({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle className="flex items-center gap-2">
+          <DialogTitle className="font-display flex items-center gap-2">
             <CalendarDays className="h-5 w-5 text-foreground/60" />
             {initialData ? t("editTask") : t("addTask")}
           </DialogTitle>

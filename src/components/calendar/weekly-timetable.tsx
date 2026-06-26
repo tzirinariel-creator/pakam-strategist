@@ -271,7 +271,7 @@ export function WeeklyTimetable({ sessions }: WeeklyTimetableProps) {
               {HOURS.map((hour) => (
                 <div
                   key={hour}
-                  className="flex items-start justify-center border-b border-border/30 pt-1.5 font-mono text-[11px] text-muted-foreground/70"
+                  className="flex items-start justify-center border-b border-border/30 pt-1.5 font-mono tabular text-[11px] text-muted-foreground/70"
                   style={{ height: `${ROW_HEIGHT}px` }}
                 >
                   <span dir="ltr">{String(hour).padStart(2, "0")}:00</span>

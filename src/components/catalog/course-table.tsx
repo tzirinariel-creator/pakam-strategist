@@ -322,7 +322,7 @@ export function CourseTable({ courses }: CourseTableProps) {
               </TableCell>
 
               {/* Year */}
-              <TableCell className="hidden text-sm text-foreground/70 lg:table-cell">
+              <TableCell className="hidden text-sm text-foreground/70 lg:table-cell tabular">
                 {formatYears(course.yearOffered, locale)}
               </TableCell>
 

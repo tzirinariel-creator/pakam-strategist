@@ -60,7 +60,7 @@ export function ScoreDisplay({ breakdown, className }: ScoreDisplayProps) {
           <div className="flex items-baseline gap-1">
             <span
               className={cn(
-                "font-mono text-6xl font-bold tabular-nums tracking-tight",
+                "font-display tabular text-6xl font-bold tabular-nums tracking-tight",
                 getScoreColor(score)
               )}
             >
@@ -88,14 +88,14 @@ export function ScoreDisplay({ breakdown, className }: ScoreDisplayProps) {
           {/* Stats row */}
           <div className="mt-2 flex items-center gap-6 text-sm text-foreground/50">
             <div className="flex flex-col items-center">
-              <span className="font-mono text-lg font-semibold text-foreground/70">
+              <span className="font-mono tabular text-lg font-semibold text-foreground/70">
                 {breakdown.totalGradedCourses}
               </span>
               <span>{t("gradedCourses")}</span>
             </div>
             <div className="h-8 w-px bg-border" />
             <div className="flex flex-col items-center">
-              <span className="font-mono text-lg font-semibold text-foreground/70">
+              <span className="font-mono tabular text-lg font-semibold text-foreground/70">
                 {breakdown.completedCredits}
               </span>
               <span>{t("completedCredits")}</span>

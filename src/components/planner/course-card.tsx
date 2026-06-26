@@ -79,12 +79,19 @@ export function CourseCard({ userCourse, disabled }: CourseCardProps) {
     disabled: disabled ?? confirmRemove,
   });
 
-  const style = transform
-    ? {
-        transform: CSS.Translate.toString(transform),
-        zIndex: 50,
-      }
-    : undefined;
+  const disciplineColor = config?.color ?? "hsl(var(--muted-foreground))";
+
+  const style = {
+    ...(confirmRemove
+      ? {}
+      : { backgroundColor: `color-mix(in oklch, var(--card) 92%, ${disciplineColor})` }),
+    ...(transform
+      ? {
+          transform: CSS.Translate.toString(transform),
+          zIndex: 50,
+        }
+      : {}),
+  };
 
   const confirmTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -116,8 +123,8 @@ export function CourseCard({ userCourse, disabled }: CourseCardProps) {
       ref={setNodeRef}
       style={style}
       className={cn(
-        "group relative flex items-center gap-2 rounded-lg border border-border/60 bg-card p-2.5 transition-all",
-        "hover:border-foreground/40 hover:shadow-md hover:shadow-foreground/5",
+        "group relative flex items-center gap-2 rounded-lg border border-border/60 p-2.5 transition-all hover-lift",
+        "hover:border-foreground/40",
         isDragging && "opacity-50 shadow-lg shadow-foreground/20 ring-2 ring-foreground/40",
         confirmRemove && "border-red-400/50 bg-red-500/5",
         !disabled && !confirmRemove && "cursor-grab active:cursor-grabbing",
@@ -137,7 +144,7 @@ export function CourseCard({ userCourse, disabled }: CourseCardProps) {
       <div className="flex min-w-0 flex-1 flex-col gap-0.5">
         <div className="flex items-center gap-1.5">
           {STATUS_ICON[userCourse.status]}
-          <span className="line-clamp-2 text-sm font-medium leading-tight" title={`${course.code} — ${courseName}`}>
+          <span className="font-display line-clamp-2 text-sm font-medium leading-tight" title={`${course.code} — ${courseName}`}>
             {courseName}
           </span>
         </div>
@@ -161,7 +168,7 @@ export function CourseCard({ userCourse, disabled }: CourseCardProps) {
 
       {/* Credits */}
       <div className="flex shrink-0 flex-col items-center">
-        <span className="text-sm font-bold text-foreground/80">
+        <span className="text-sm font-bold tabular text-foreground/80">
           {course.credits}
         </span>
         <span className="text-[9px] text-muted-foreground leading-none">
@@ -260,23 +267,25 @@ export function CourseCardOverlay({
   const { course } = userCourse;
   const courseName = isHe ? course.nameHe : (course.nameEn ?? course.nameHe);
   const config = DISCIPLINE_CONFIG[course.discipline];
+  const disciplineColor = config?.color ?? "hsl(var(--muted-foreground))";
 
   return (
     <div
       className={cn(
-        "relative flex items-center gap-2 rounded-lg border border-foreground/60 bg-card p-2.5 shadow-xl shadow-foreground/20 ring-2 ring-foreground/40",
+        "relative flex items-center gap-2 rounded-lg border border-foreground/60 p-2.5 shadow-xl shadow-foreground/20 ring-2 ring-foreground/40",
         "cursor-grabbing",
       )}
+      style={{ backgroundColor: `color-mix(in oklch, var(--card) 92%, ${disciplineColor})` }}
     >
       <div
         className="absolute inset-y-0 start-0 w-1 rounded-s-lg"
-        style={{ backgroundColor: config?.color ?? "hsl(var(--muted-foreground))" }}
+        style={{ backgroundColor: disciplineColor }}
       />
 
       <GripVertical className="size-4 shrink-0 text-foreground/80 ms-1" />
 
       <div className="flex min-w-0 flex-1 flex-col gap-0.5">
-        <span className="line-clamp-2 text-sm font-medium leading-tight">
+        <span className="font-display line-clamp-2 text-sm font-medium leading-tight">
           {courseName}
         </span>
         <DisciplineBadge
@@ -285,7 +294,7 @@ export function CourseCardOverlay({
         />
       </div>
 
-      <span className="shrink-0 text-sm font-bold text-foreground/80">
+      <span className="shrink-0 text-sm font-bold tabular text-foreground/80">
         {course.credits}
       </span>
     </div>

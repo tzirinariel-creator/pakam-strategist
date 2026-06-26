@@ -171,7 +171,7 @@ export function LandingPage() {
       {/* ── Hero Section ─────────────────────────────────── */}
       <section className="relative overflow-hidden px-4 py-14 sm:px-6 md:py-24">
         {/* Background depth: soft glows + faint grid */}
-        <div className="pointer-events-none absolute inset-0">
+        <div className="bg-mesh pointer-events-none absolute inset-0">
           <div className="absolute start-1/4 top-0 size-[28rem] rounded-full bg-foreground/[0.04] blur-3xl" />
           <div className="absolute end-1/4 bottom-0 size-80 rounded-full bg-blue-500/[0.06] blur-3xl" />
           <div
@@ -189,12 +189,12 @@ export function LandingPage() {
         <div className="relative mx-auto grid max-w-6xl items-center gap-12 lg:grid-cols-2 lg:gap-8">
           {/* Text column */}
           <div className="text-center lg:text-start">
-            <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-border bg-card px-4 py-1.5 text-sm font-medium text-foreground/70 shadow-sm">
+            <div className="eyebrow mb-6 inline-flex items-center gap-2 rounded-full border border-border bg-card px-4 py-1.5 text-foreground/70 shadow-sm">
               <Sparkles className="size-4" />
               {t("badge")}
             </div>
 
-            <h1 className="mb-6 font-bold text-4xl leading-[1.1] tracking-tight text-foreground sm:text-5xl md:text-6xl">
+            <h1 className="mb-6 text-display-l text-foreground">
               {t("heroTitle")}
             </h1>
 
@@ -224,7 +224,7 @@ export function LandingPage() {
                 <div key={s.label} className="flex items-center gap-6 sm:gap-8">
                   {i > 0 && <div className="h-8 w-px bg-border" />}
                   <div className="text-center lg:text-start">
-                    <div className="font-bold text-2xl text-foreground">{s.value}</div>
+                    <div className="tabular font-bold text-2xl text-foreground">{s.value}</div>
                     <div className="text-xs text-muted-foreground">{s.label}</div>
                   </div>
                 </div>
@@ -243,7 +243,7 @@ export function LandingPage() {
       <section className="border-t border-border/50 bg-card/30 px-4 py-16 sm:px-6 sm:py-24">
         <div className="mx-auto max-w-6xl">
           <div className="mb-12 text-center">
-            <h2 className="mb-3 font-bold text-3xl tracking-tight text-foreground md:text-4xl">
+            <h2 className="mb-3 font-display font-bold text-3xl tracking-tight text-foreground md:text-4xl">
               {t("featuresTitle")}
             </h2>
             <p className="mx-auto max-w-xl text-muted-foreground">

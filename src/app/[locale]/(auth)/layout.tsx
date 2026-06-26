@@ -7,7 +7,7 @@ export default function AuthLayout({
 }) {
   return (
     <AppProviders>
-      <div className="flex min-h-screen items-center justify-center bg-background px-4">
+      <div className="bg-mesh flex min-h-screen items-center justify-center bg-background px-4">
         {children}
       </div>
     </AppProviders>

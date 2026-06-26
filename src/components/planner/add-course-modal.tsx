@@ -151,7 +151,7 @@ export function AddCourseModal() {
     <Dialog open={showAddCourseModal} onOpenChange={handleOpenChange}>
       <DialogContent className="max-w-lg sm:max-w-2xl">
         <DialogHeader>
-          <DialogTitle className="font-bold text-foreground/80">
+          <DialogTitle className="font-display font-bold text-foreground/80">
             {t("addCourse")}
           </DialogTitle>
           {yearConfig && semConfig && (
@@ -233,7 +233,7 @@ export function AddCourseModal() {
                         className="text-[10px] px-1.5 py-0"
                       />
                       <span className="text-[10px] text-muted-foreground">
-                        {course.credits} {tCredits("title")}
+                        <span className="tabular">{course.credits}</span> {tCredits("title")}
                       </span>
                     </div>
                     {/* Conflict warning */}

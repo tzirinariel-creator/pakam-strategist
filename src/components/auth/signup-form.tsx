@@ -148,7 +148,7 @@ export function SignupForm() {
             <CheckCircle className="size-8 text-green-500" />
           </div>
           <div>
-            <h1 className="font-bold text-2xl tracking-tight">
+            <h1 className="font-display font-bold text-2xl tracking-tight">
               {t("checkYourEmail")}
             </h1>
             <p className="mt-2 text-sm text-muted-foreground">
@@ -177,7 +177,7 @@ export function SignupForm() {
           <GraduationCap className="size-8 text-foreground/80" />
         </div>
         <div>
-          <h1 className="font-bold text-3xl tracking-tight">
+          <h1 className="font-display font-bold text-3xl tracking-tight">
             Pakamon
           </h1>
           <p className="mt-1 text-sm text-muted-foreground">

@@ -311,7 +311,7 @@ function PageHeader({
       <div className="flex items-center gap-3">
         <CalendarDays className="size-7 text-foreground/80" />
         <div>
-          <h1 className="font-bold text-2xl text-foreground/80">
+          <h1 className="font-display font-bold text-2xl text-foreground/80">
             {t("title")}
           </h1>
           <p className="text-xs text-muted-foreground">{t("subtitle")}</p>

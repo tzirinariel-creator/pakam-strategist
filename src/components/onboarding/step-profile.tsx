@@ -188,7 +188,7 @@ export function StepProfile({ data, onUpdate }: StepProfileProps) {
     <div className="flex flex-col items-center">
       {/* Header */}
       <div className="animate-stagger-1 text-center">
-        <h2 className="font-bold text-2xl text-foreground/90">
+        <h2 className="font-display font-bold text-2xl text-foreground/90">
           {t("quickProfile")}
         </h2>
         <p className="mt-2 text-foreground/50">{t("quickProfileDesc")}</p>

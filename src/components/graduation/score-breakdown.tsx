@@ -49,7 +49,7 @@ function ComponentRow({
         <div className="flex items-center gap-3">
           {rounded !== null ? (
             <>
-              <span className={cn("font-mono text-base font-semibold", accentColor)}>
+              <span className={cn("font-mono tabular text-base font-semibold", accentColor)}>
                 {rounded.toFixed(1)}
               </span>
               <span className="font-mono text-xs text-foreground/40">
@@ -150,7 +150,7 @@ export function ScoreBreakdown({ breakdown, enableWhatIf, className }: ScoreBrea
   return (
     <div className={cn("data-card space-y-6 p-6", className)}>
       <div className="flex items-center justify-between">
-        <h3 className="text-lg font-semibold text-foreground/90">
+        <h3 className="font-display text-lg font-semibold text-foreground/90">
           {t("formulaTitle")}
         </h3>
         <span className="font-mono text-xs text-foreground/40">PKM-013</span>
@@ -200,7 +200,7 @@ export function ScoreBreakdown({ breakdown, enableWhatIf, className }: ScoreBrea
       <div className="border-t border-border/50 pt-4">
         <div className="flex items-center justify-between">
           <span className="font-semibold text-foreground/70">{t("totalWeighted")}</span>
-          <span className="font-mono text-xl font-bold text-foreground/80">
+          <span className="font-display tabular text-xl font-bold text-foreground/80">
             {roundScore(breakdown.weightedScore)?.toFixed(2) ?? "—"}
           </span>
         </div>
@@ -285,7 +285,7 @@ export function ScoreBreakdown({ breakdown, enableWhatIf, className }: ScoreBrea
                 <div className="flex items-center justify-between rounded-lg border border-foreground/15 bg-foreground/5 px-4 py-3">
                   <div className="space-y-0.5">
                     <span className="text-[11px] text-foreground/50">{t("simulatedScore")}</span>
-                    <div className="font-mono text-xl font-bold text-foreground/80">
+                    <div className="font-display tabular text-xl font-bold text-foreground/80">
                       {simulatedScore.toFixed(2)}
                     </div>
                   </div>

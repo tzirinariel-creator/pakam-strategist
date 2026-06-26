@@ -27,7 +27,7 @@ export function RegulationsContent() {
         <div className="flex items-center gap-3">
           <Scale className="h-8 w-8 text-foreground/80" />
           <div className="flex flex-col gap-0.5">
-            <h1 className="text-2xl font-bold text-foreground/80 md:text-3xl">
+            <h1 className="font-display text-2xl font-bold text-foreground/80 md:text-3xl">
               {t("title")}
             </h1>
             <p className="text-sm text-foreground/60">
@@ -72,7 +72,7 @@ export function RegulationsContent() {
           <div className="flex h-16 w-16 items-center justify-center rounded-full bg-foreground/10">
             <BookOpen className="h-8 w-8 text-foreground/80" />
           </div>
-          <h3 className="text-lg font-bold text-foreground">
+          <h3 className="font-display text-lg font-bold text-foreground">
             {t("noCourses")}
           </h3>
           <p className="max-w-md text-sm text-muted-foreground">

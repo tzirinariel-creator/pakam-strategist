@@ -71,7 +71,7 @@ export function RuleCard({ rule }: RuleCardProps) {
 
   return (
     <div
-      className={`group rounded-lg border ${borderColor} ${bgColor} transition-all duration-200 hover:shadow-md`}
+      className={`group hover-lift shadow-card rounded-lg border ${borderColor} ${bgColor} transition-all duration-200 hover:shadow-md`}
     >
       {/* Header - always visible */}
       <button
@@ -99,7 +99,7 @@ export function RuleCard({ rule }: RuleCardProps) {
                   : t("severityInfo")}
             </span>
           </div>
-          <span className="truncate font-bold text-sm text-foreground">
+          <span className="font-display truncate font-bold text-sm text-foreground">
             {ruleName}
           </span>
         </div>

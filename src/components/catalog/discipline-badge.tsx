@@ -31,7 +31,7 @@ export function DisciplineBadge({ discipline, className }: DisciplineBadgeProps)
   return (
     <Badge
       variant="outline"
-      className={cn(config.badgeClass, "font-medium", className)}
+      className={cn(config.badgeClass, "rounded-full font-medium", className)}
     >
       {isHe ? config.nameHe : config.nameEn}
     </Badge>

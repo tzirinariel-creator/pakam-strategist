@@ -214,7 +214,7 @@ export function StepReady({ data, plannedSemesters, allCourses, sessionGroupSele
         )}
       </div>
 
-      <h2 className="animate-stagger-1 text-foreground text-3xl font-bold">
+      <h2 className="animate-stagger-1 font-display text-foreground text-3xl font-bold">
         {hasSaved
           ? t("allDoneReadyTitle")
           : saveError
@@ -293,7 +293,7 @@ export function StepReady({ data, plannedSemesters, allCourses, sessionGroupSele
                   <span className="text-sm text-foreground/50">
                     {t("planCoursesCount")}
                   </span>
-                  <span className="font-mono text-lg font-bold text-foreground/80">
+                  <span className="font-mono tabular text-lg font-bold text-foreground/80">
                     {totalCourseCount}
                   </span>
                 </div>
@@ -301,7 +301,7 @@ export function StepReady({ data, plannedSemesters, allCourses, sessionGroupSele
                   <span className="text-sm text-foreground/50">
                     {t("totalCreditsLabel")}
                   </span>
-                  <span className="font-mono text-lg font-bold text-foreground/80">
+                  <span className="font-mono tabular text-lg font-bold text-foreground/80">
                     {totalCredits}
                   </span>
                 </div>

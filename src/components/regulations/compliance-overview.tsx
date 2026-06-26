@@ -72,7 +72,7 @@ export function ComplianceOverview({ summary }: ComplianceOverviewProps) {
         </svg>
         {/* Score text in center */}
         <div className="absolute inset-0 flex flex-col items-center justify-center">
-          <span className={`font-data text-3xl font-bold ${scoreColor}`}>
+          <span className={`font-display tabular text-3xl font-bold ${scoreColor}`}>
             {complianceScore}%
           </span>
           <span className="text-xs text-muted-foreground">
@@ -85,7 +85,7 @@ export function ComplianceOverview({ summary }: ComplianceOverviewProps) {
       <div className="flex flex-1 flex-col gap-4">
         <div className="flex items-center gap-3">
           <Shield className={`h-6 w-6 ${scoreColor}`} />
-          <h2 className="font-bold text-xl text-foreground">
+          <h2 className="font-display font-bold text-xl text-foreground">
             {t("complianceTitle")}
           </h2>
         </div>
@@ -137,7 +137,7 @@ export function ComplianceOverview({ summary }: ComplianceOverviewProps) {
         <div className="flex flex-col gap-1.5">
           <div className="flex justify-between text-xs text-muted-foreground">
             <span>{t("progressLabel")}</span>
-            <span>{passed}/{totalRules}</span>
+            <span className="tabular">{passed}/{totalRules}</span>
           </div>
           <div className="h-2.5 w-full overflow-hidden rounded-full bg-muted/30">
             <div

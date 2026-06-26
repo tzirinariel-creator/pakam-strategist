@@ -178,7 +178,7 @@ function CreditOverviewWidget({
     <div className="data-card space-y-5 p-6">
       <div className="flex items-center gap-3">
         <BookOpen className="h-5 w-5 text-foreground/60" />
-        <h3 className="text-lg font-bold text-foreground/90">
+        <h3 className="font-display text-lg font-bold text-foreground/90">
           {t("creditTracking")}
         </h3>
       </div>
@@ -188,10 +188,10 @@ function CreditOverviewWidget({
         <div className="flex items-baseline justify-between">
           <span className="text-sm text-foreground/60">{t("totalCredits")}</span>
           <div dir="ltr" className="flex items-baseline gap-1">
-            <span className="font-mono text-2xl font-bold text-foreground/80">
+            <span className="font-mono tabular text-2xl font-bold text-foreground/80">
               {effectiveTotal}
             </span>
-            <span className="font-mono text-sm text-foreground/40">
+            <span className="font-mono tabular text-sm text-foreground/40">
               / {target}
             </span>
           </div>
@@ -247,10 +247,10 @@ function CreditOverviewWidget({
             {t("focusArea", { target: focusTarget })}
           </span>
           <div dir="ltr" className="flex items-baseline gap-1 shrink-0 whitespace-nowrap">
-            <span className={cn("font-mono text-xl font-bold", focusColor)}>
+            <span className={cn("font-mono tabular text-xl font-bold", focusColor)}>
               {focusCredits}
             </span>
-            <span className="font-mono text-sm text-foreground/40">
+            <span className="font-mono tabular text-sm text-foreground/40">
               / {focusTarget}
             </span>
           </div>
@@ -340,14 +340,14 @@ function RegulationWidget({
       className="data-card flex flex-col items-center gap-3 p-6 text-center transition-all hover:border-foreground/30 hover:shadow-md cursor-pointer"
     >
       <Scale className="h-6 w-6 text-foreground/60" />
-      <h3 className="text-base font-bold text-foreground/90">
+      <h3 className="font-display text-base font-bold text-foreground/90">
         {t("academicRegulations")}
       </h3>
       <div className="flex items-baseline gap-1">
-        <span className={cn("font-mono text-3xl font-bold", color)}>
+        <span className={cn("font-display tabular text-3xl font-bold", color)}>
           {passedCount}
         </span>
-        <span className="font-mono text-lg text-foreground/40">/ {totalCount}</span>
+        <span className="font-mono tabular text-lg text-foreground/40">/ {totalCount}</span>
       </div>
       <span className="text-sm text-foreground/50">{t("rulesMet")}</span>
       <Progress value={complianceRate} className="h-2 w-full" />
@@ -425,7 +425,7 @@ function DegreeGapWidget({
     <div className="data-card p-5">
       <div className="flex items-center gap-2 mb-3">
         <Target className="h-5 w-5 text-foreground/60" />
-        <h3 className="text-base font-bold text-foreground/90">
+        <h3 className="font-display text-base font-bold text-foreground/90">
           {t("whatsMissing")}
         </h3>
         <span className="ms-auto rounded-full bg-red-500/10 px-2 py-0.5 text-xs font-medium text-red-400">
@@ -557,7 +557,7 @@ function SemesterProgressWidget({
 
   return (
     <div className="data-card p-5">
-      <h3 className="mb-3 text-sm font-semibold text-foreground/70">
+      <h3 className="font-display mb-3 text-sm font-semibold text-foreground/70">
         {t("degreeProgress")}
       </h3>
       <div className="flex items-center gap-2">
@@ -591,7 +591,7 @@ function SemesterProgressWidget({
           }
           {" / "}{target} {t("creditsShort")}
         </span>
-        <span className="font-mono text-foreground/70">
+        <span className="font-mono tabular text-foreground/70">
           {Math.round((earned / target) * 100)}%
         </span>
       </div>
@@ -903,7 +903,7 @@ export function DashboardContent() {
     <div className="bg-mesh space-y-8 p-4 md:p-6">
       {/* Page header */}
       <div className="animate-stagger-1">
-        <h1 className="text-2xl font-bold text-foreground md:text-3xl">
+        <h1 className="font-display text-2xl font-bold text-foreground md:text-3xl">
           {profileQuery.data?.displayName
             ? (isHe ? `היי ${profileQuery.data.displayName}` : `Hi ${profileQuery.data.displayName}`)
             : t("subtitle")}
@@ -923,7 +923,7 @@ export function DashboardContent() {
               style={{ width: `${Math.min(((credits?.effectiveTotal ?? credits?.total ?? 0) / CREDIT_REQUIREMENTS.TOTAL) * 100, 100)}%` }}
             />
           </div>
-          <span className="text-xs font-mono text-foreground/50">
+          <span className="text-xs font-mono tabular text-foreground/50">
             {credits?.effectiveTotal ?? credits?.total ?? 0}/{CREDIT_REQUIREMENTS.TOTAL} {isHe ? "ש״ס" : "credits"}
           </span>
         </div>
@@ -1021,7 +1021,7 @@ export function DashboardContent() {
 
       {/* Quick actions */}
       <div className="animate-stagger-6">
-        <h2 className="mb-4 text-lg font-semibold text-foreground/80">
+        <h2 className="font-display mb-4 text-lg font-semibold text-foreground/80">
           {t("quickActions")}
         </h2>
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
