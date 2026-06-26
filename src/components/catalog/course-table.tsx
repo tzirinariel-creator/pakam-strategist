@@ -156,79 +156,107 @@ export function CourseTable({ courses }: CourseTableProps) {
           <TableRow className="border-b-foreground/20 bg-card hover:bg-card">
             {/* Code - hidden on mobile */}
             <TableHead
-              className="hidden cursor-pointer select-none sm:table-cell"
-              onClick={() => handleSort("code")}
+              className="hidden select-none sm:table-cell"
+              aria-sort={sortField === "code" ? (sortDirection === "asc" ? "ascending" : "descending") : "none"}
             >
-              <span className="inline-flex items-center gap-1 text-foreground/80 font-bold">
+              <button
+                type="button"
+                onClick={() => handleSort("code")}
+                className="inline-flex items-center gap-1 text-foreground/80 font-bold bg-transparent appearance-none cursor-pointer select-none"
+              >
                 {t("code")}
                 {sortIcon("code")}
-              </span>
+              </button>
             </TableHead>
 
             {/* Course Name */}
             <TableHead
-              className="cursor-pointer select-none"
-              onClick={() => handleSort("nameHe")}
+              className="select-none"
+              aria-sort={sortField === "nameHe" ? (sortDirection === "asc" ? "ascending" : "descending") : "none"}
             >
-              <span className="inline-flex items-center gap-1 text-foreground/80 font-bold">
+              <button
+                type="button"
+                onClick={() => handleSort("nameHe")}
+                className="inline-flex items-center gap-1 text-foreground/80 font-bold bg-transparent appearance-none cursor-pointer select-none"
+              >
                 {t("courseName")}
                 {sortIcon("nameHe")}
-              </span>
+              </button>
             </TableHead>
 
             {/* Discipline */}
             <TableHead
-              className="cursor-pointer select-none"
-              onClick={() => handleSort("discipline")}
+              className="select-none"
+              aria-sort={sortField === "discipline" ? (sortDirection === "asc" ? "ascending" : "descending") : "none"}
             >
-              <span className="inline-flex items-center gap-1 text-foreground/80 font-bold">
+              <button
+                type="button"
+                onClick={() => handleSort("discipline")}
+                className="inline-flex items-center gap-1 text-foreground/80 font-bold bg-transparent appearance-none cursor-pointer select-none"
+              >
                 {t("discipline")}
                 {sortIcon("discipline")}
-              </span>
+              </button>
             </TableHead>
 
             {/* Type - hidden on mobile */}
             <TableHead
-              className="hidden cursor-pointer select-none md:table-cell"
-              onClick={() => handleSort("courseType")}
+              className="hidden select-none md:table-cell"
+              aria-sort={sortField === "courseType" ? (sortDirection === "asc" ? "ascending" : "descending") : "none"}
             >
-              <span className="inline-flex items-center gap-1 text-foreground/80 font-bold">
+              <button
+                type="button"
+                onClick={() => handleSort("courseType")}
+                className="inline-flex items-center gap-1 text-foreground/80 font-bold bg-transparent appearance-none cursor-pointer select-none"
+              >
                 {t("type")}
                 {sortIcon("courseType")}
-              </span>
+              </button>
             </TableHead>
 
             {/* Credits */}
             <TableHead
-              className="cursor-pointer select-none text-center"
-              onClick={() => handleSort("credits")}
+              className="select-none text-center"
+              aria-sort={sortField === "credits" ? (sortDirection === "asc" ? "ascending" : "descending") : "none"}
             >
-              <span className="inline-flex items-center gap-1 text-foreground/80 font-bold">
+              <button
+                type="button"
+                onClick={() => handleSort("credits")}
+                className="inline-flex items-center gap-1 text-foreground/80 font-bold bg-transparent appearance-none cursor-pointer select-none"
+              >
                 {t("creditsCol")}
                 {sortIcon("credits")}
-              </span>
+              </button>
             </TableHead>
 
             {/* Year - hidden on mobile */}
             <TableHead
-              className="hidden cursor-pointer select-none lg:table-cell"
-              onClick={() => handleSort("yearOffered")}
+              className="hidden select-none lg:table-cell"
+              aria-sort={sortField === "yearOffered" ? (sortDirection === "asc" ? "ascending" : "descending") : "none"}
             >
-              <span className="inline-flex items-center gap-1 text-foreground/80 font-bold">
+              <button
+                type="button"
+                onClick={() => handleSort("yearOffered")}
+                className="inline-flex items-center gap-1 text-foreground/80 font-bold bg-transparent appearance-none cursor-pointer select-none"
+              >
                 {t("yearCol")}
                 {sortIcon("yearOffered")}
-              </span>
+              </button>
             </TableHead>
 
             {/* Semester - hidden on mobile */}
             <TableHead
-              className="hidden cursor-pointer select-none lg:table-cell"
-              onClick={() => handleSort("semesterOffered")}
+              className="hidden select-none lg:table-cell"
+              aria-sort={sortField === "semesterOffered" ? (sortDirection === "asc" ? "ascending" : "descending") : "none"}
             >
-              <span className="inline-flex items-center gap-1 text-foreground/80 font-bold">
+              <button
+                type="button"
+                onClick={() => handleSort("semesterOffered")}
+                className="inline-flex items-center gap-1 text-foreground/80 font-bold bg-transparent appearance-none cursor-pointer select-none"
+              >
                 {t("semesterCol")}
                 {sortIcon("semesterOffered")}
-              </span>
+              </button>
             </TableHead>
 
             {/* Prerequisites - hidden on mobile/tablet */}

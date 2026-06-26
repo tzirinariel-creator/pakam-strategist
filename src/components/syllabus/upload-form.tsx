@@ -168,7 +168,9 @@ export function UploadForm({ onUploaded }: UploadFormProps) {
               </span>
             </div>
             <button
+              type="button"
               onClick={clearFile}
+              aria-label={t("clearFile")}
               className="rounded-full p-1 text-foreground/40 transition-colors hover:bg-destructive/10 hover:text-destructive"
             >
               <X className="h-4 w-4" />
@@ -189,6 +191,7 @@ export function UploadForm({ onUploaded }: UploadFormProps) {
               type="file"
               accept=".pdf,.docx,.txt,.md"
               onChange={handleFileSelect}
+              aria-label={t("chooseFile")}
               className="absolute inset-0 cursor-pointer opacity-0"
             />
           </>

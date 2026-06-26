@@ -39,7 +39,7 @@ export function DashboardTabs({ isHe }: { isHe: boolean }) {
   return (
     <div className="flex flex-col gap-4">
       {/* Tab bar */}
-      <div className="flex gap-1 rounded-xl border border-border/40 bg-card/40 p-1 overflow-x-auto">
+      <div role="tablist" className="flex gap-1 rounded-xl border border-border/40 bg-card/40 p-1 overflow-x-auto">
         {TAB_CONFIG.map((tab) => {
           const Icon = tab.icon;
           const isActive = activeTab === tab.key;
@@ -48,6 +48,9 @@ export function DashboardTabs({ isHe }: { isHe: boolean }) {
             <button
               key={tab.key}
               type="button"
+              role="tab"
+              aria-selected={activeTab === tab.key}
+              aria-label={t(tab.translationKey)}
               onClick={() => setActiveTab(tab.key)}
               className={cn(
                 "flex flex-1 items-center justify-center gap-2 rounded-lg px-3 py-2.5 text-sm font-medium transition-all whitespace-nowrap",
@@ -64,7 +67,7 @@ export function DashboardTabs({ isHe }: { isHe: boolean }) {
       </div>
 
       {/* Tab content */}
-      <div className="min-h-[300px]">
+      <div role="tabpanel" className="min-h-[300px]">
         {activeTab === "exams" && <ExamTab key="tab-exams" isHe={isHe} />}
         {activeTab === "calendar" && <CalendarTab key="tab-calendar" isHe={isHe} />}
         {activeTab === "assignments" && <AssignmentsTab key="tab-assignments" isHe={isHe} />}

@@ -109,10 +109,11 @@ export function AddTaskModal({
         <div className="space-y-4">
           {/* Title */}
           <div>
-            <label className="mb-1 block text-xs font-medium text-foreground/60">
+            <label htmlFor="task-title" className="mb-1 block text-xs font-medium text-foreground/60">
               {t("taskTitle")}
             </label>
             <input
+              id="task-title"
               type="text"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
@@ -124,10 +125,10 @@ export function AddTaskModal({
 
           {/* Task type selector */}
           <div>
-            <label className="mb-1.5 block text-xs font-medium text-foreground/60">
+            <label id="task-type-label" className="mb-1.5 block text-xs font-medium text-foreground/60">
               {t("taskType")}
             </label>
-            <div className="flex gap-1.5">
+            <div className="flex gap-1.5" role="group" aria-labelledby="task-type-label">
               {TASK_TYPES.map((type) => (
                 <button
                   key={type}
@@ -150,10 +151,11 @@ export function AddTaskModal({
           {/* Date range */}
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="mb-1 block text-xs font-medium text-foreground/60">
+              <label htmlFor="task-start" className="mb-1 block text-xs font-medium text-foreground/60">
                 {t("startDate")}
               </label>
               <input
+                id="task-start"
                 type="date"
                 value={startDate}
                 onChange={(e) => {
@@ -164,10 +166,11 @@ export function AddTaskModal({
               />
             </div>
             <div>
-              <label className="mb-1 block text-xs font-medium text-foreground/60">
+              <label htmlFor="task-end" className="mb-1 block text-xs font-medium text-foreground/60">
                 {t("endDate")}
               </label>
               <input
+                id="task-end"
                 type="date"
                 value={endDate}
                 min={startDate}
@@ -180,10 +183,11 @@ export function AddTaskModal({
           {/* Course (optional) */}
           {courseCodes.length > 0 && (
             <div>
-              <label className="mb-1 block text-xs font-medium text-foreground/60">
+              <label htmlFor="task-course" className="mb-1 block text-xs font-medium text-foreground/60">
                 {t("linkedCourse")}
               </label>
               <select
+                id="task-course"
                 value={courseCode}
                 onChange={(e) => setCourseCode(e.target.value)}
                 className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground focus:border-foreground/30 focus:outline-none"
@@ -200,10 +204,11 @@ export function AddTaskModal({
 
           {/* Notes */}
           <div>
-            <label className="mb-1 block text-xs font-medium text-foreground/60">
+            <label htmlFor="task-notes" className="mb-1 block text-xs font-medium text-foreground/60">
               {t("notes")}
             </label>
             <textarea
+              id="task-notes"
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
               placeholder={t("notesPlaceholder")}

@@ -76,6 +76,8 @@ export function RuleCard({ rule }: RuleCardProps) {
       {/* Header - always visible */}
       <button
         onClick={() => setExpanded(!expanded)}
+        aria-expanded={expanded}
+        aria-controls={`rule-${ruleId}-details`}
         className="flex w-full items-center gap-3 px-4 py-3 text-start"
       >
         {/* Status icon */}
@@ -117,7 +119,10 @@ export function RuleCard({ rule }: RuleCardProps) {
 
       {/* Expandable details */}
       {expanded && (
-        <div className="border-t border-border/10 px-4 py-3">
+        <div
+          id={`rule-${ruleId}-details`}
+          className="border-t border-border/10 px-4 py-3"
+        >
           <p className="text-sm leading-relaxed text-foreground/70">
             {message}
           </p>

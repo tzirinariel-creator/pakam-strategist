@@ -350,33 +350,37 @@ export function MentorChat() {
               </p>
             )}
             {sessionsQuery.data?.map((session) => (
-              <button
-                key={session.id}
-                onClick={() => handleSelectSession(session.id)}
-                className={cn(
-                  "group flex w-full items-center gap-2 rounded-lg px-3 py-2.5 text-start text-sm transition-colors",
-                  activeSessionId === session.id
-                    ? "bg-foreground/10 text-foreground"
-                    : "text-muted-foreground hover:bg-muted hover:text-foreground"
-                )}
-              >
-                <MessageSquare className="h-4 w-4 shrink-0" />
-                <div className="min-w-0 flex-1">
-                  <p className="truncate text-sm">
-                    {session.title ?? t("newChat")}
-                  </p>
-                  <p className="text-xs text-muted-foreground/70">
-                    {t("messageCount", { count: session.messageCount })}
-                  </p>
-                </div>
+              <div key={session.id} className="group relative">
                 <button
+                  type="button"
+                  onClick={() => handleSelectSession(session.id)}
+                  className={cn(
+                    "flex w-full items-center gap-2 rounded-lg px-3 py-2.5 text-start text-sm transition-colors",
+                    activeSessionId === session.id
+                      ? "bg-foreground/10 text-foreground"
+                      : "text-muted-foreground hover:bg-muted hover:text-foreground"
+                  )}
+                >
+                  <MessageSquare className="h-4 w-4 shrink-0" />
+                  <div className="min-w-0 flex-1">
+                    <p className="truncate text-sm">
+                      {session.title ?? t("newChat")}
+                    </p>
+                    <p className="text-xs text-muted-foreground/70">
+                      {t("messageCount", { count: session.messageCount })}
+                    </p>
+                  </div>
+                </button>
+                <button
+                  type="button"
                   onClick={(e) => handleDeleteSession(e, session.id)}
-                  className="shrink-0 rounded p-1 opacity-0 transition-opacity hover:bg-destructive/10 hover:text-destructive group-hover:opacity-100"
+                  aria-label={t("deleteChat")}
                   title={t("deleteChat")}
+                  className="absolute end-2 top-1/2 -translate-y-1/2 shrink-0 rounded p-1 opacity-0 transition-opacity hover:bg-destructive/10 hover:text-destructive group-hover:opacity-100"
                 >
                   <Trash2 className="h-3.5 w-3.5" />
                 </button>
-              </button>
+              </div>
             ))}
           </div>
         </ScrollArea>
@@ -402,7 +406,11 @@ export function MentorChat() {
 
         {/* Messages area */}
         <ScrollArea className="flex-1">
-          <div className="mx-auto max-w-3xl px-4 py-6">
+          <div
+            className="mx-auto max-w-3xl px-4 py-6"
+            aria-live="polite"
+            aria-atomic="false"
+          >
             {messages.length === 0 ? (
               /* Empty state — clean welcome */
               <div className="flex flex-col items-center justify-center py-20">
@@ -482,6 +490,7 @@ export function MentorChat() {
                 onChange={(e) => setInput(e.target.value)}
                 onKeyDown={handleKeyDown}
                 placeholder={t("placeholder")}
+                aria-label={t("placeholder")}
                 disabled={isStreaming || !apiKeyQuery.data?.hasKey}
                 rows={1}
                 className={cn(
@@ -502,6 +511,7 @@ export function MentorChat() {
               onClick={() => sendMessage(input)}
               disabled={!input.trim() || isStreaming}
               size="icon"
+              aria-label={t("send")}
               className="h-11 w-11 shrink-0 rounded-xl"
             >
               {isStreaming ? (

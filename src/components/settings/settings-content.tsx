@@ -196,10 +196,11 @@ function ProfileSection() {
       <div className="flex flex-col gap-4">
         {/* Email (read-only) */}
         <div className="flex flex-col gap-1.5">
-          <label className="text-sm font-medium text-foreground/80">
+          <label htmlFor="settings-email" className="text-sm font-medium text-foreground/80">
             {t("email")}
           </label>
           <Input
+            id="settings-email"
             value={profileQuery.data?.email ?? ""}
             disabled
             className="bg-muted/50 text-foreground/60"
@@ -208,14 +209,14 @@ function ProfileSection() {
 
         {/* Focus Area */}
         <div className="flex flex-col gap-1.5">
-          <label className="text-sm font-medium text-foreground/80">
+          <label id="settings-focus-label" className="text-sm font-medium text-foreground/80">
             {t("focusArea")}
           </label>
           <p className="text-xs text-foreground/40">
             {t("focusAreaHint")}
           </p>
           <Select value={focusArea} onValueChange={setFocusArea}>
-            <SelectTrigger className="w-full">
+            <SelectTrigger className="w-full" aria-labelledby="settings-focus-label">
               <SelectValue placeholder={t("focusArea")} />
             </SelectTrigger>
             <SelectContent>
@@ -230,11 +231,11 @@ function ProfileSection() {
 
         {/* Academic Year */}
         <div className="flex flex-col gap-1.5">
-          <label className="text-sm font-medium text-foreground/80">
+          <label id="settings-year-label" className="text-sm font-medium text-foreground/80">
             {t("academicYear")}
           </label>
           <Select value={currentYear} onValueChange={setCurrentYear}>
-            <SelectTrigger className="w-full">
+            <SelectTrigger className="w-full" aria-labelledby="settings-year-label">
               <SelectValue placeholder={t("academicYear")} />
             </SelectTrigger>
             <SelectContent>
@@ -249,11 +250,11 @@ function ProfileSection() {
 
         {/* Current Semester */}
         <div className="flex flex-col gap-1.5">
-          <label className="text-sm font-medium text-foreground/80">
+          <label id="settings-semester-label" className="text-sm font-medium text-foreground/80">
             {t("semester")}
           </label>
           <Select value={currentSemester} onValueChange={setCurrentSemester}>
-            <SelectTrigger className="w-full">
+            <SelectTrigger className="w-full" aria-labelledby="settings-semester-label">
               <SelectValue placeholder={t("semester")} />
             </SelectTrigger>
             <SelectContent>

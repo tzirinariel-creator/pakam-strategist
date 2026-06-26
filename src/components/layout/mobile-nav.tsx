@@ -63,6 +63,7 @@ export function MobileNav() {
                 </span>
                 <button
                   onClick={closeMore}
+                  aria-label={t("close")}
                   className="rounded-lg p-2 text-muted-foreground hover:text-foreground min-h-[44px] min-w-[44px] flex items-center justify-center"
                 >
                   <X className="h-4 w-4" />

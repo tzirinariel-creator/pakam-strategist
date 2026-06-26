@@ -12,7 +12,8 @@
     "catalog": "קטלוג קורסים",
     "calendar": "יומן",
     "settings": "הגדרות",
-    "more": "עוד"
+    "more": "עוד",
+    "close": "סגור"
   },
   "auth": {
     "login": "התחברות",
@@ -338,7 +339,9 @@
     "paper": "עבודה",
     "weeklySchedule": "לוח שבועי",
     "noApiKey": "צריך מפתח Claude API — הגדירו אותו בהגדרות",
-    "syllabusDeleted": "הסילבוס נמחק"
+    "syllabusDeleted": "הסילבוס נמחק",
+    "clearFile": "הסר קובץ",
+    "chooseFile": "בחר קובץ סילבוס"
   },
   "calendar": {
     "title": "יומן אקדמי",

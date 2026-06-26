@@ -12,7 +12,8 @@
     "catalog": "Course Catalog",
     "calendar": "Calendar",
     "settings": "Settings",
-    "more": "More"
+    "more": "More",
+    "close": "Close"
   },
   "auth": {
     "login": "Log In",
@@ -338,7 +339,9 @@
     "paper": "Paper",
     "weeklySchedule": "Weekly Schedule",
     "noApiKey": "Need a Claude API key — set it up in Settings",
-    "syllabusDeleted": "Syllabus deleted"
+    "syllabusDeleted": "Syllabus deleted",
+    "clearFile": "Remove file",
+    "chooseFile": "Choose syllabus file"
   },
   "calendar": {
     "title": "Academic Calendar",

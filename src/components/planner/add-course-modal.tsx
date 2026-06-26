@@ -171,6 +171,7 @@ export function AddCourseModal() {
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder={tCatalog("searchPlaceholder")}
+            aria-label={tCatalog("searchPlaceholder")}
             className="ps-9"
             autoFocus
           />
