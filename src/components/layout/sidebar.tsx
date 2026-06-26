@@ -91,9 +91,9 @@ export function Sidebar() {
                   <Link
                     href={item.href}
                     className={cn(
-                      "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all duration-200",
+                      "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-[background-color,color,box-shadow] duration-200",
                       isActive
-                        ? "bg-accent text-foreground/80 shadow-card"
+                        ? "bg-foreground/[0.07] text-foreground font-semibold shadow-card"
                         : "text-sidebar-foreground/70 hover:bg-foreground/5 hover:text-sidebar-foreground",
                       sidebarCollapsed && "justify-center px-2"
                     )}
@@ -101,7 +101,7 @@ export function Sidebar() {
                     <Icon
                       className={cn(
                         "h-5 w-5 shrink-0",
-                        isActive && "text-foreground/80"
+                        isActive && "text-foreground"
                       )}
                     />
                     {!sidebarCollapsed && <span>{t(item.key)}</span>}

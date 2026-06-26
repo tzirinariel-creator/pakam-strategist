@@ -12,6 +12,7 @@ import { TipCard } from "@/components/shared/tip-card";
 import { getContextualTips, getRandomTip } from "@/lib/tips-engine";
 import { ThemedLoader } from "@/components/ui/themed-loader";
 import { Progress } from "@/components/ui/progress";
+import { CountUp } from "@/components/ui/count-up";
 import { OnboardingWizard } from "@/components/onboarding/onboarding-wizard";
 import { CREDIT_REQUIREMENTS, DISCIPLINE_CONFIG, FILTERABLE_DISCIPLINE_IDS, getDisciplineCredits } from "@/lib/constants";
 import { cn } from "@/lib/utils";
@@ -189,7 +190,7 @@ function CreditOverviewWidget({
           <span className="text-sm text-foreground/60">{t("totalCredits")}</span>
           <div dir="ltr" className="flex items-baseline gap-1">
             <span className="font-mono tabular text-2xl font-bold text-foreground/80">
-              {effectiveTotal}
+              <CountUp value={effectiveTotal} />
             </span>
             <span className="font-mono tabular text-sm text-foreground/40">
               / {target}
@@ -345,7 +346,7 @@ function RegulationWidget({
       </h3>
       <div className="flex items-baseline gap-1">
         <span className={cn("font-display tabular text-3xl font-bold", color)}>
-          {passedCount}
+          <CountUp value={passedCount} />
         </span>
         <span className="font-mono tabular text-lg text-foreground/40">/ {totalCount}</span>
       </div>
