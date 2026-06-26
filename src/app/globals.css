@@ -357,11 +357,6 @@ h1, h2, h3, h4, h5, h6 {
   to { opacity: 1; transform: translateX(0); }
 }
 
-@keyframes pulse-subtle {
-  0%, 100% { box-shadow: 0 0 0 0 rgba(0, 0, 0, 0.1); }
-  50% { box-shadow: 0 0 0 6px rgba(0, 0, 0, 0); }
-}
-
 .animate-fade-in {
   animation: fade-in 0.3s ease-out;
 }
@@ -374,28 +369,6 @@ h1, h2, h3, h4, h5, h6 {
   animation: slide-in-left 0.3s ease-out;
 }
 
-.animate-pulse-gold {
-  animation: pulse-subtle 2s ease-in-out infinite;
-}
-
-/* =========================================
-   Gradient Utilities
-   ========================================= */
-
-/* Primary gradient for buttons and accents */
-.gradient-gold {
-  background: var(--foreground);
-  color: var(--background);
-}
-
-/* Glass morphism backdrop */
-.glass {
-  background: rgba(var(--card), 0.6);
-  backdrop-filter: blur(16px) saturate(180%);
-  -webkit-backdrop-filter: blur(16px) saturate(180%);
-  border: 1px solid rgba(255, 255, 255, 0.05);
-}
-
 /* Subtle background mesh */
 .bg-mesh {
   background-image:
@@ -405,38 +378,22 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 /* =========================================
-   Shadow Effects
+   Discipline glows
+   Applied dynamically as `shadow-${slug}-glow` (see lib/constants.ts →
+   glowClass, used by the onboarding discipline pickers). Do not remove
+   without also removing glowClass.
    ========================================= */
-
-/* Subtle elevation glow */
-.shadow-gold-glow {
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08), 0 1px 2px rgba(0, 0, 0, 0.04);
-}
-
-/* Discipline colored glows — PPE program */
 .shadow-philosophy-glow { box-shadow: 0 0 20px rgba(74, 144, 217, 0.15); }
 .shadow-economics-glow { box-shadow: 0 0 20px rgba(46, 204, 113, 0.15); }
 .shadow-polsci-glow { box-shadow: 0 0 20px rgba(231, 76, 60, 0.15); }
 .shadow-law-glow { box-shadow: 0 0 20px rgba(243, 156, 18, 0.15); }
 .shadow-ppe-glow { box-shadow: 0 0 20px rgba(107, 114, 128, 0.15); }
-/* Discipline colored glows — Law program */
 .shadow-law-core-glow { box-shadow: 0 0 20px rgba(139, 92, 246, 0.15); }
 .shadow-private-glow { box-shadow: 0 0 20px rgba(245, 158, 11, 0.15); }
 .shadow-public-glow { box-shadow: 0 0 20px rgba(59, 130, 246, 0.15); }
 .shadow-commercial-glow { box-shadow: 0 0 20px rgba(16, 185, 129, 0.15); }
 .shadow-criminal-glow { box-shadow: 0 0 20px rgba(239, 68, 68, 0.15); }
 .shadow-intl-glow { box-shadow: 0 0 20px rgba(99, 102, 241, 0.15); }
-
-/* Elevation system */
-.elevation-1 {
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08), 0 1px 2px rgba(0, 0, 0, 0.04);
-}
-.elevation-2 {
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1), 0 2px 4px rgba(0, 0, 0, 0.06);
-}
-.elevation-3 {
-  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12), 0 4px 8px rgba(0, 0, 0, 0.06);
-}
 
 /* =========================================
    Staggered Entrance Animations
@@ -453,49 +410,6 @@ h1, h2, h3, h4, h5, h6 {
 .animate-stagger-4 { animation: stagger-fade-in 0.4s ease-out 0.2s both; }
 .animate-stagger-5 { animation: stagger-fade-in 0.4s ease-out 0.25s both; }
 .animate-stagger-6 { animation: stagger-fade-in 0.4s ease-out 0.3s both; }
-
-/* =========================================
-   Skeleton Shimmer
-   ========================================= */
-
-@keyframes shimmer {
-  0% { background-position: -200% 0; }
-  100% { background-position: 200% 0; }
-}
-
-.skeleton {
-  background: linear-gradient(
-    90deg,
-    var(--muted) 25%,
-    var(--muted-foreground)/10 50%,
-    var(--muted) 75%
-  );
-  background-size: 200% 100%;
-  animation: shimmer 1.5s infinite;
-  border-radius: var(--radius-md);
-}
-
-/* =========================================
-   Counter Tick Animation
-   ========================================= */
-
-@keyframes count-up {
-  from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-.animate-count {
-  animation: count-up 0.5s ease-out both;
-}
-
-/* =========================================
-   Gradient Text
-   ========================================= */
-
-.text-gradient-gold {
-  color: var(--foreground);
-  font-weight: 800;
-}
 
 /* =========================================
    Interactive Utilities
