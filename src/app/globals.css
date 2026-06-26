@@ -23,17 +23,26 @@
   --ring: oklch(0.708 0 0);
   --radius: 0.625rem;
 
+  /* Font stacks — real :root vars so base rules (h1/body/.font-data) resolve.
+     next/font sets --font-frank / --font-assistant / --font-jetbrains on <body>. */
+  --font-display: var(--font-frank), "Frank Ruhl Libre", Georgia, serif;
+  --font-heading: var(--font-frank), "Frank Ruhl Libre", Georgia, serif;
+  --font-body: var(--font-assistant), system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-hebrew: var(--font-assistant), system-ui, -apple-system, sans-serif;
+  --font-mono-stack: var(--font-jetbrains), "JetBrains Mono", "Fira Code", monospace;
+  --font-mono: var(--font-jetbrains), "JetBrains Mono", "Fira Code", monospace;
+
   /* Accent Colors — clean monochrome */
   --accent-gold: #1a1a1a;
   --accent-gold-hover: #333333;
   --accent-gold-muted: rgba(0, 0, 0, 0.06);
 
-  /* Discipline Colors — PPE program */
-  --discipline-philosophy: #4A90D9;
-  --discipline-economics: #2ECC71;
-  --discipline-polsci: #E74C3C;
-  --discipline-law: #F39C12;
-  --discipline-ppe: #6B7280;
+  /* Discipline Colors — PPE program (harmonized oklch) */
+  --discipline-philosophy: oklch(0.62 0.15 255);
+  --discipline-economics: oklch(0.68 0.16 152);
+  --discipline-polsci: oklch(0.63 0.2 27);
+  --discipline-law: oklch(0.74 0.15 75);
+  --discipline-ppe: oklch(0.62 0.02 60);
   /* Discipline Colors — Law (LLB) program */
   --discipline-law-core: #8B5CF6;
   --discipline-private: #F59E0B;
@@ -83,44 +92,64 @@
   --sidebar-primary: oklch(0.205 0 0);
   --sidebar-primary-foreground: oklch(0.985 0 0);
   --sidebar-ring: oklch(0.708 0 0);
+
+  /* Elevation — layered soft shadows (stacked-shadow technique) */
+  --shadow-xs: 0 1px 2px rgba(27, 26, 23, 0.05);
+  --shadow-card: 0 1px 2px rgba(27, 26, 23, 0.04), 0 1px 3px rgba(27, 26, 23, 0.03);
+  --shadow-elevated: 0 2px 4px rgba(27, 26, 23, 0.04), 0 8px 16px rgba(27, 26, 23, 0.05), 0 16px 32px rgba(27, 26, 23, 0.04);
+  --shadow-float: 0 4px 8px rgba(27, 26, 23, 0.05), 0 14px 32px rgba(27, 26, 23, 0.09), 0 28px 56px rgba(27, 26, 23, 0.06);
+  --shadow-xl: 0 8px 16px rgba(27, 26, 23, 0.06), 0 24px 48px rgba(27, 26, 23, 0.12), 0 48px 96px rgba(27, 26, 23, 0.08);
+
+  /* Motion — easing + duration tokens */
+  --ease-standard: cubic-bezier(0.2, 0, 0, 1);
+  --ease-out-soft: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-out-quint: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --ease-in: cubic-bezier(0.4, 0, 1, 1);
+  --dur-instant: 100ms;
+  --dur-fast: 160ms;
+  --dur-base: 240ms;
+  --dur-slow: 360ms;
+  --dur-slower: 480ms;
 }
 
 /* ------- Light Mode (explicit) ------- */
 .light,
 [data-theme="light"] {
-  --background: #FAFAFA;
-  --background-secondary: #F0F0F0;
+  /* Warm "paper & ink" — restrained monochrome with a parchment cast */
+  --background: #FAF9F6;
+  --background-secondary: #F1EFEA;
   --card: #FFFFFF;
-  --card-hover: #F8F8F8;
-  --foreground: #111111;
-  --foreground-secondary: #6B6B7B;
-  --muted: #F0F0F0;
-  --muted-foreground: #6B6B7B;
-  --border: #E0E0E0;
-  --border-subtle: #F0F0F0;
-  --input: #F0F0F0;
-  --ring: #333333;
+  --card-hover: #FAF9F5;
+  --foreground: #1B1A17;
+  --foreground-secondary: #6E6A62;
+  --muted: #F1EFEA;
+  --muted-foreground: #6E6A62;
+  --border: #E7E3DB;
+  --border-subtle: #F1EEE8;
+  --input: #EFEDE7;
+  --ring: #2A2824;
 
-  --accent-gold: #111111;
-  --accent-gold-hover: #333333;
-  --accent-gold-muted: rgba(0, 0, 0, 0.06);
+  --accent-gold: #1B1A17;
+  --accent-gold-hover: #3A372F;
+  --accent-gold-muted: rgba(27, 26, 23, 0.06);
 
   --sidebar: #FFFFFF;
-  --sidebar-foreground: #111111;
-  --sidebar-border: #E0E0E0;
-  --sidebar-accent: rgba(0, 0, 0, 0.04);
-  --sidebar-accent-foreground: #111111;
+  --sidebar-foreground: #1B1A17;
+  --sidebar-border: #E7E3DB;
+  --sidebar-accent: rgba(27, 26, 23, 0.04);
+  --sidebar-accent-foreground: #1B1A17;
 
-  --primary: #111111;
-  --primary-foreground: #FFFFFF;
-  --secondary: #F0F0F0;
-  --secondary-foreground: #111111;
-  --destructive: #DC3545;
+  --primary: #1B1A17;
+  --primary-foreground: #FAF9F6;
+  --secondary: #F1EFEA;
+  --secondary-foreground: #1B1A17;
+  --destructive: #C0392B;
   --destructive-foreground: #FFFFFF;
-  --accent: #F0F0F0;
-  --accent-foreground: #111111;
+  --accent: #F1EFEA;
+  --accent-foreground: #1B1A17;
   --popover: #FFFFFF;
-  --popover-foreground: #111111;
+  --popover-foreground: #1B1A17;
 }
 
 /* =========================================
@@ -175,11 +204,10 @@
   --color-sidebar-accent: var(--sidebar-accent);
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
 
-  /* Fonts — unified: Inter + Heebo + JetBrains Mono */
-  --font-heading: "Inter", "Heebo", system-ui, sans-serif;
-  --font-body: "Inter", "Heebo", system-ui, sans-serif;
-  --font-hebrew: "Heebo", "Inter", system-ui, sans-serif;
-  --font-mono: "JetBrains Mono", "Fira Code", monospace;
+  /* Tailwind font utilities (font-sans / font-serif / font-mono) — real stacks live in :root */
+  --font-sans: var(--font-body);
+  --font-serif: var(--font-display);
+  --font-mono: var(--font-mono-stack);
 
   /* Radii */
   --radius-sm: 0.25rem;
@@ -224,29 +252,46 @@ body {
    Typography
    ========================================= */
 
-h1, h2, h3, h4, h5, h6 {
+/* Big headings wear the scholarly serif; small headings stay in the clean sans */
+h1, h2, h3 {
   font-family: var(--font-heading);
   color: var(--foreground);
+  font-weight: 700;
   letter-spacing: -0.01em;
+  line-height: 1.15;
 }
 
+h4, h5, h6 {
+  font-family: var(--font-body);
+  color: var(--foreground);
+  font-weight: 600;
+}
+
+/* Negative tracking hurts Hebrew letterforms */
 [dir="rtl"] h1,
 [dir="rtl"] h2,
-[dir="rtl"] h3,
-[dir="rtl"] h4,
-[dir="rtl"] h5,
-[dir="rtl"] h6 {
-  font-family: var(--font-hebrew);
+[dir="rtl"] h3 {
   letter-spacing: 0;
 }
 
-/* Override font-serif to match body font — no Playfair Display */
+/* Display utility — the serif voice for hero / section titles */
+.font-display {
+  font-family: var(--font-display);
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  line-height: 1.1;
+}
+
+[dir="rtl"] .font-display {
+  letter-spacing: 0;
+}
+
+/* font-serif now resolves to the real display serif (no longer aliased to sans) */
 .font-serif {
-  font-family: var(--font-heading);
+  font-family: var(--font-display);
 }
 
 [dir="rtl"] .font-serif {
-  font-family: var(--font-hebrew);
   letter-spacing: 0;
 }
 
@@ -256,6 +301,32 @@ h1, h2, h3, h4, h5, h6 {
   font-variant-numeric: tabular-nums;
   letter-spacing: -0.02em;
 }
+
+/* Tabular figures for any numeric surface (sans, not mono) */
+.tabular {
+  font-variant-numeric: tabular-nums lining-nums;
+}
+
+/* Role-based type scale — voice contrast over size contrast */
+.text-display-xl { font-family: var(--font-display); font-weight: 900; font-size: 4.5rem; line-height: 1.04; letter-spacing: -0.025em; }
+.text-display-l  { font-family: var(--font-display); font-weight: 900; font-size: 3.75rem; line-height: 1.06; letter-spacing: -0.025em; }
+.text-display-m  { font-family: var(--font-display); font-weight: 700; font-size: 3rem;    line-height: 1.08; letter-spacing: -0.022em; }
+.text-heading-xl { font-family: var(--font-display); font-weight: 700; font-size: 2.25rem; line-height: 1.12; letter-spacing: -0.02em; }
+.text-heading-l  { font-family: var(--font-display); font-weight: 700; font-size: 1.875rem;line-height: 1.2;  letter-spacing: -0.018em; }
+.text-heading-m  { font-family: var(--font-display); font-weight: 700; font-size: 1.5rem;  line-height: 1.33; letter-spacing: -0.015em; }
+.text-heading-s  { font-family: var(--font-display); font-weight: 500; font-size: 1.25rem; line-height: 1.4;  letter-spacing: -0.01em; }
+
+.eyebrow { font-family: var(--font-body); font-weight: 600; font-size: 0.75rem; line-height: 1.4; color: var(--muted-foreground); }
+:lang(en) .eyebrow { text-transform: uppercase; letter-spacing: 0.06em; }
+
+/* Hebrew letterforms must never be tracked */
+[dir="rtl"] .text-display-xl,
+[dir="rtl"] .text-display-l,
+[dir="rtl"] .text-display-m,
+[dir="rtl"] .text-heading-xl,
+[dir="rtl"] .text-heading-l,
+[dir="rtl"] .text-heading-m,
+[dir="rtl"] .text-heading-s { letter-spacing: 0; }
 
 /* =========================================
    Card & Component Styles
@@ -282,7 +353,9 @@ h1, h2, h3, h4, h5, h6 {
   padding: 1rem;
   position: relative;
   overflow: hidden;
-  transition: all 0.2s ease;
+  box-shadow: var(--shadow-card);
+  transition: transform 0.25s var(--ease-out-soft), box-shadow 0.25s var(--ease-out-soft),
+    border-color 0.25s var(--ease-out-soft), background 0.25s var(--ease-out-soft);
 }
 
 .data-card::before {
@@ -299,9 +372,9 @@ h1, h2, h3, h4, h5, h6 {
 
 .data-card:hover {
   background: var(--card-hover);
-  border-color: var(--border);
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08), 0 1px 2px rgba(0, 0, 0, 0.04);
+  border-color: var(--foreground-secondary);
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-elevated);
 }
 
 .data-card:hover::before {
@@ -370,11 +443,12 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 /* Subtle background mesh */
+/* Discipline aurora — for landing / auth / empty states only, never behind data */
 .bg-mesh {
   background-image:
-    radial-gradient(at 20% 20%, rgba(0, 0, 0, 0.02) 0%, transparent 50%),
-    radial-gradient(at 80% 80%, rgba(59, 130, 246, 0.02) 0%, transparent 50%),
-    radial-gradient(at 50% 50%, rgba(34, 197, 94, 0.01) 0%, transparent 50%);
+    radial-gradient(at 15% 0%, color-mix(in oklch, var(--discipline-philosophy) 8%, transparent) 0%, transparent 45%),
+    radial-gradient(at 85% 10%, color-mix(in oklch, var(--discipline-economics) 6%, transparent) 0%, transparent 45%),
+    radial-gradient(at 50% 100%, color-mix(in oklch, var(--discipline-polsci) 5%, transparent) 0%, transparent 55%);
 }
 
 /* =========================================
@@ -443,45 +517,104 @@ h1, h2, h3, h4, h5, h6 {
    ========================================= */
 
 .dark {
-  --background: oklch(0.145 0 0);
-  --foreground: oklch(0.985 0 0);
-  --card: oklch(0.205 0 0);
-  --card-hover: oklch(0.24 0 0);
-  --card-foreground: oklch(0.985 0 0);
-  --popover: oklch(0.205 0 0);
-  --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.922 0 0);
-  --primary-foreground: oklch(0.205 0 0);
-  --secondary: oklch(0.269 0 0);
-  --secondary-foreground: oklch(0.985 0 0);
-  --muted: oklch(0.269 0 0);
-  --muted-foreground: oklch(0.708 0 0);
-  --accent: oklch(0.269 0 0);
-  --accent-foreground: oklch(0.985 0 0);
+  /* Warm charcoal, not flat black — a faint amber hue keeps the dark mode rich */
+  --background: oklch(0.165 0.006 65);
+  --background-secondary: oklch(0.205 0.006 65);
+  --foreground: oklch(0.96 0.005 85);
+  --foreground-secondary: oklch(0.72 0.006 80);
+  --card: oklch(0.205 0.007 65);
+  --card-hover: oklch(0.238 0.008 65);
+  --card-foreground: oklch(0.96 0.005 85);
+  --popover: oklch(0.205 0.007 65);
+  --popover-foreground: oklch(0.96 0.005 85);
+  --primary: oklch(0.95 0.005 85);
+  --primary-foreground: oklch(0.205 0.007 65);
+  --secondary: oklch(0.262 0.007 65);
+  --secondary-foreground: oklch(0.96 0.005 85);
+  --muted: oklch(0.262 0.007 65);
+  --muted-foreground: oklch(0.72 0.006 80);
+  --accent: oklch(0.262 0.007 65);
+  --accent-foreground: oklch(0.96 0.005 85);
   --destructive: oklch(0.704 0.191 22.216);
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.556 0 0);
+  --border: oklch(0.97 0.01 85 / 9%);
+  --border-subtle: oklch(0.97 0.01 85 / 5%);
+  --input: oklch(0.97 0.01 85 / 13%);
+  --ring: oklch(0.62 0.006 80);
 
-  /* Dark mode accent = white/light instead of dark */
-  --accent-gold: oklch(0.95 0 0);
-  --accent-gold-hover: oklch(0.85 0 0);
-  --accent-gold-muted: rgba(255, 255, 255, 0.08);
+  /* Dark mode accent = warm light instead of dark */
+  --accent-gold: oklch(0.95 0.005 85);
+  --accent-gold-hover: oklch(0.86 0.006 85);
+  --accent-gold-muted: rgba(245, 242, 232, 0.08);
 
   --chart-1: oklch(0.488 0.243 264.376);
   --chart-2: oklch(0.696 0.17 162.48);
   --chart-3: oklch(0.769 0.188 70.08);
   --chart-4: oklch(0.627 0.265 303.9);
   --chart-5: oklch(0.645 0.246 16.439);
-  --sidebar: oklch(0.205 0 0);
-  --sidebar-foreground: oklch(0.985 0 0);
+  --sidebar: oklch(0.19 0.006 65);
+  --sidebar-foreground: oklch(0.96 0.005 85);
   --sidebar-primary: oklch(0.488 0.243 264.376);
   --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.269 0 0);
-  --sidebar-accent-foreground: oklch(0.985 0 0);
-  --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: oklch(0.556 0 0);
+  --sidebar-accent: oklch(0.262 0.007 65);
+  --sidebar-accent-foreground: oklch(0.96 0.005 85);
+  --sidebar-border: oklch(0.97 0.01 85 / 9%);
+  --sidebar-ring: oklch(0.62 0.006 80);
 }
+
+/* Deeper shadows for dark surfaces + a lit top-edge on raised planes */
+.dark {
+  --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.3);
+  --shadow-card: 0 1px 2px rgba(0, 0, 0, 0.3), 0 1px 3px rgba(0, 0, 0, 0.22);
+  --shadow-elevated: 0 2px 4px rgba(0, 0, 0, 0.3), 0 8px 16px rgba(0, 0, 0, 0.36), 0 16px 32px rgba(0, 0, 0, 0.3);
+  --shadow-float: 0 4px 8px rgba(0, 0, 0, 0.4), 0 14px 32px rgba(0, 0, 0, 0.5), 0 28px 56px rgba(0, 0, 0, 0.42);
+  --shadow-xl: 0 8px 16px rgba(0, 0, 0, 0.4), 0 24px 48px rgba(0, 0, 0, 0.55), 0 48px 96px rgba(0, 0, 0, 0.45);
+}
+.dark .data-card {
+  box-shadow: var(--shadow-card), inset 0 1px 0 rgba(255, 255, 255, 0.045);
+}
+.dark .data-card:hover {
+  box-shadow: var(--shadow-elevated), inset 0 1px 0 rgba(255, 255, 255, 0.06);
+}
+
+/* =========================================
+   Elevation + Motion Utilities
+   ========================================= */
+.shadow-card { box-shadow: var(--shadow-card); }
+.shadow-elevated { box-shadow: var(--shadow-elevated); }
+.shadow-float { box-shadow: var(--shadow-float); }
+
+.hover-lift {
+  transition: transform 0.22s var(--ease-out-soft), box-shadow 0.22s var(--ease-out-soft),
+    border-color 0.22s var(--ease-out-soft);
+  will-change: transform;
+}
+.hover-lift:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-elevated);
+}
+.hover-lift:active {
+  transform: translateY(-1px);
+}
+
+@keyframes rise-in {
+  from { opacity: 0; transform: translateY(14px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.animate-rise { animation: rise-in 0.55s var(--ease-out-soft) both; }
+
+/* Subtle film grain — warmth and texture, never interactive */
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 90;
+  pointer-events: none;
+  opacity: 0.035;
+  mix-blend-mode: soft-light;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-size: 160px 160px;
+}
+.dark body::after { opacity: 0.05; }
 
 @layer base {
   * {

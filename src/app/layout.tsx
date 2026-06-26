@@ -1,18 +1,22 @@
 import type { Metadata } from "next";
-import { Inter, Heebo, JetBrains_Mono } from "next/font/google";
+import { Assistant, Frank_Ruhl_Libre, JetBrains_Mono } from "next/font/google";
 import { getLocale } from "next-intl/server";
 import "./globals.css";
 
-const inter = Inter({
-  subsets: ["latin"],
-  variable: "--font-inter",
+// Body / UI — a clean, modern Hebrew+Latin grotesque (replaces the generic Heebo)
+const sans = Assistant({
+  subsets: ["hebrew", "latin"],
+  variable: "--font-assistant",
   display: "swap",
+  weight: ["400", "500", "600"],
 });
 
-const heebo = Heebo({
+// Display / headings — a scholarly Hebrew serif. The signature voice of the product.
+const display = Frank_Ruhl_Libre({
   subsets: ["hebrew", "latin"],
-  variable: "--font-heebo",
+  variable: "--font-frank",
   display: "swap",
+  weight: ["500", "700", "900"],
 });
 
 const jetbrainsMono = JetBrains_Mono({
@@ -54,7 +58,12 @@ export default async function RootLayout({
   const dir = locale === "he" ? "rtl" : "ltr";
 
   return (
-    <html lang={locale} dir={dir} suppressHydrationWarning className="light">
+    <html
+      lang={locale}
+      dir={dir}
+      suppressHydrationWarning
+      className={`light ${sans.variable} ${display.variable} ${jetbrainsMono.variable}`}
+    >
       <head>
         {/* Inline script to prevent theme flash on page load */}
         <script
@@ -64,7 +73,7 @@ export default async function RootLayout({
         />
       </head>
       <body
-        className={`${inter.variable} ${heebo.variable} ${jetbrainsMono.variable} antialiased min-h-screen bg-background text-foreground`}
+        className="antialiased min-h-screen bg-background text-foreground"
       >
         {children}
       </body>
