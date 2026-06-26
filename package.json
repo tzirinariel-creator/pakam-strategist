@@ -2,6 +2,16 @@
   "name": "pakam-strategist",
   "version": "0.1.0",
   "private": true,
+  "description": "Degree-planning web app for Tel Aviv University s PPE program — semester planning, credit tracking, a regulation-compliance engine, a grade calculator, and a BYOK AI mentor.",
+  "author": "Ariel Tzirin",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/tzirinariel-creator/pakam-strategist.git"
+  },
+  "engines": {
+    "node": ">=22"
+  },
   "scripts": {
     "dev": "next dev",
     "build": "prisma generate && NODE_OPTIONS='--max-old-space-size=8192' next build",
@@ -35,18 +45,14 @@
     "lucide-react": "^0.575.0",
     "next": "16.1.6",
     "next-intl": "^4.8.3",
-    "pdf-parse": "^2.4.5",
     "pg": "^8.18.0",
     "radix-ui": "^1.4.3",
     "react": "19.2.3",
     "react-dom": "19.2.3",
     "react-markdown": "^10.1.0",
-    "reactflow": "^11.11.4",
-    "recharts": "^3.7.0",
     "sonner": "^2.0.7",
     "superjson": "^2.2.6",
     "tailwind-merge": "^3.5.0",
-    "xlsx": "^0.18.5",
     "zod": "^4.3.6",
     "zustand": "^5.0.11"
   },
@@ -58,7 +64,6 @@
     "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/react": "^16.3.2",
     "@types/node": "^20",
-    "@types/pdf-parse": "^1.1.5",
     "@types/pg": "^8.16.0",
     "@types/react": "^19",
     "@types/react-dom": "^19",
