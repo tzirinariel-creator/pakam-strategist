@@ -42,12 +42,6 @@ export async function GET(request: NextRequest) {
     process.env.GOOGLE_REDIRECT_URI ||
     `${request.nextUrl.origin}/api/google/callback`;
 
-  console.log("[Google OAuth] Auth request:", {
-    clientId: process.env.GOOGLE_CLIENT_ID.slice(0, 10) + "...",
-    redirectUri,
-    origin: request.nextUrl.origin,
-  });
-
   const oauth2Client = new google.auth.OAuth2(
     process.env.GOOGLE_CLIENT_ID,
     process.env.GOOGLE_CLIENT_SECRET,

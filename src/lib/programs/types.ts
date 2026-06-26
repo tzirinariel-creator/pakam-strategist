@@ -158,16 +158,3 @@ export function getDisciplineMinCredits(
 ): number {
   return getDiscipline(program, disciplineId)?.minCredits ?? 0;
 }
-
-/**
- * Build a credit requirements map: { PHILOSOPHY: 18, ECONOMICS: 27, ... }
- */
-export function getCreditRequirementsByDiscipline(
-  program: ProgramDefinition
-): Record<string, number> {
-  const map: Record<string, number> = {};
-  for (const d of program.disciplines) {
-    map[d.id] = d.minCredits;
-  }
-  return map;
-}

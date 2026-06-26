@@ -16,9 +16,6 @@ import type {
   DisciplineCredits,
 } from "@/types/degree";
 import { getActiveProgram, type ProgramDefinition } from "@/lib/programs/registry";
-import {
-  getCreditRequirementsByDiscipline,
-} from "@/lib/programs/types";
 
 // -------------------------------------------------------------------
 // Helpers
