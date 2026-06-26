@@ -98,13 +98,19 @@ export async function parseSyllabusContent(
 ): Promise<ParsedSyllabus> {
   const client = new Anthropic({ apiKey, timeout: 120_000, maxRetries: 1 });
 
+  const MAX_INPUT_CHARS = 100_000;
+  const truncated = text.length > MAX_INPUT_CHARS;
+  const boundedText = truncated ? text.slice(0, MAX_INPUT_CHARS) : text;
+
   const response = await client.messages.create({
     model: CLAUDE_MODEL,
     max_tokens: MAX_TOKENS,
     messages: [
       {
         role: "user",
-        content: `${SYLLABUS_PARSE_PROMPT}\n\n--- SYLLABUS TEXT ---\n\n${text}`,
+        content: `${SYLLABUS_PARSE_PROMPT}\n\n--- SYLLABUS TEXT ---\n\n${boundedText}${
+          truncated ? "\n\n[NOTE: syllabus text was truncated]" : ""
+        }`,
       },
     ],
   });

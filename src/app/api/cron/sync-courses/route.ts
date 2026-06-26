@@ -153,15 +153,20 @@ export async function GET(request: Request) {
     // Auto-apply safe changes only
     const applyResult = await autoApplySafe(diff, scrapeDataMap, prisma, year);
 
-    // Update sync log — save both diff and scrapeData
+    // Update sync log — save both diff and scrapeData.
+    // Surface apply-phase failures: mark "partial" and record the count so they
+    // aren't silently dropped on the success path.
     await prisma.syncLog.update({
       where: { id: syncLog.id },
       data: {
-        status: "success",
+        status: applyResult.failed.length > 0 ? "partial" : "success",
         completedAt: new Date(),
         coursesChecked: scrapeResults.length,
         changesFound: diff.updated.length,
         changesApplied: applyResult.applied,
+        errorMessage: applyResult.failed.length
+          ? `${applyResult.failed.length} apply failures`
+          : null,
         diffJson: JSON.parse(
           JSON.stringify({
             diff,
@@ -177,6 +182,7 @@ export async function GET(request: Request) {
       coursesChecked: scrapeResults.length,
       changesFound: diff.updated.length,
       safeApplied: applyResult.applied,
+      safeFailed: applyResult.failed.length,
       reviewPending: diff.updated.filter((u) =>
         u.changes.some((c) => c.severity === "review")
       ).length,

@@ -52,15 +52,20 @@ export const studyTaskRouter = createTRPCRouter({
    */
   create: protectedProcedure
     .input(
-      z.object({
-        title: z.string().min(1).max(200),
-        startDate: z.coerce.date(),
-        endDate: z.coerce.date(),
-        taskType: z.enum(["study", "assignment", "exam", "custom"]),
-        courseCode: z.string().optional(),
-        color: z.string().optional(),
-        notes: z.string().max(500).optional(),
-      })
+      z
+        .object({
+          title: z.string().min(1).max(200),
+          startDate: z.coerce.date(),
+          endDate: z.coerce.date(),
+          taskType: z.enum(["study", "assignment", "exam", "custom"]),
+          courseCode: z.string().max(30).optional(),
+          color: z.string().optional(),
+          notes: z.string().max(500).optional(),
+        })
+        .refine((d) => d.endDate >= d.startDate, {
+          message: "endDate must be on/after startDate",
+          path: ["endDate"],
+        })
     )
     .mutation(async ({ ctx, input }) => {
       const user = await ctx.db.user.findUnique({
@@ -92,16 +97,24 @@ export const studyTaskRouter = createTRPCRouter({
    */
   update: protectedProcedure
     .input(
-      z.object({
-        id: z.string().uuid(),
-        title: z.string().min(1).max(200).optional(),
-        startDate: z.coerce.date().optional(),
-        endDate: z.coerce.date().optional(),
-        taskType: z.enum(["study", "assignment", "exam", "custom"]).optional(),
-        courseCode: z.string().nullable().optional(),
-        color: z.string().nullable().optional(),
-        notes: z.string().max(500).nullable().optional(),
-      })
+      z
+        .object({
+          id: z.string().uuid(),
+          title: z.string().min(1).max(200).optional(),
+          startDate: z.coerce.date().optional(),
+          endDate: z.coerce.date().optional(),
+          taskType: z.enum(["study", "assignment", "exam", "custom"]).optional(),
+          courseCode: z.string().max(30).nullable().optional(),
+          color: z.string().nullable().optional(),
+          notes: z.string().max(500).nullable().optional(),
+        })
+        .refine(
+          (d) => d.startDate == null || d.endDate == null || d.endDate >= d.startDate,
+          {
+            message: "endDate must be on/after startDate",
+            path: ["endDate"],
+          }
+        )
     )
     .mutation(async ({ ctx, input }) => {
       const user = await ctx.db.user.findUnique({

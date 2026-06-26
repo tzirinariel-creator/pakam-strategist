@@ -118,8 +118,6 @@ const FUN_FACTS_EN = [
 ] as const;
 
 const MAX_CREDITS_PER_SEMESTER = 30;
-/** @deprecated Use program.creditRequirements.total instead. */
-const TOTAL_TARGET = 150;
 
 // -----------------------------------------------------------------------
 // Main entry point
@@ -150,8 +148,8 @@ export function generateDefaultPlan(
   // Step 3: Place law foundation courses (3 courses across years 2-3)
   placeLawFoundation(allCourses, planned, plannedIds);
 
-  // Step 4: Fill with electives based on focus area, respecting 150-credit cap
-  fillElectives(allCourses, focusArea, planned, plannedIds, courseMap);
+  // Step 4: Fill with electives based on focus area, respecting the credit cap
+  fillElectives(allCourses, focusArea, planned, plannedIds, courseMap, totalTarget);
 
   // Step 5: Compute analytics
   const semesterAnalytics = computeAllSemesterAnalytics(planned, allCourses);
@@ -297,12 +295,13 @@ function fillElectives(
   focusArea: string | null,
   planned: GeneratedPlanCourse[],
   plannedIds: Set<string>,
-  courseMap: Map<string, CourseWithSchedule>
+  courseMap: Map<string, CourseWithSchedule>,
+  totalTarget: number
 ) {
   const currentCredits = () =>
     planned.reduce((sum, pc) => sum + (courseMap.get(pc.courseId)?.credits ?? 0), 0);
 
-  if (currentCredits() >= TOTAL_TARGET) return;
+  if (currentCredits() >= totalTarget) return;
 
   // Available electives
   const electives = allCourses.filter(
@@ -327,9 +326,9 @@ function fillElectives(
   });
 
   for (const course of electives) {
-    if (currentCredits() >= TOTAL_TARGET) break;
-    // Don't exceed 150
-    if (currentCredits() + course.credits > TOTAL_TARGET + 2) continue;
+    if (currentCredits() >= totalTarget) break;
+    // Don't exceed the target (with a small +2 tolerance)
+    if (currentCredits() + course.credits > totalTarget + 2) continue;
 
     // Pick earliest valid year
     const years = course.yearOffered.length > 0 ? course.yearOffered : [1, 2, 3];

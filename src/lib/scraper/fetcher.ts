@@ -10,7 +10,7 @@
 
 const BASE_URL = "https://ims.tau.ac.il/tal";
 const USER_AGENT = "PakamSync/1.0 (+https://pakam-strategist.vercel.app)";
-const MAX_RETRIES = 2; // 2 attempts max (keeps total time predictable)
+const MAX_RETRIES = 3; // up to 2 retries (3 attempts) on network errors and 5xx/429
 const TIMEOUT_MS = 15_000; // 15s per request (TAU can be slow from EU)
 
 // =========================================
@@ -99,11 +99,30 @@ async function fetchWithRetry(
       });
 
       clearTimeout(timeout);
+
+      // Retry transient server-side failures (5xx) and rate limiting (429).
+      if (attempt < retries && (response.status >= 500 || response.status === 429)) {
+        const backoff = REQUEST_DELAY_MS * Math.pow(2, attempt - 1);
+        // Honor a numeric-only Retry-After header, clamped to 30s. Ignore HTTP-date form.
+        const retryAfterRaw = response.headers.get("retry-after");
+        let clampedRetryAfter = 0;
+        if (retryAfterRaw) {
+          const retryAfterSec = Number(retryAfterRaw);
+          if (Number.isFinite(retryAfterSec)) {
+            clampedRetryAfter = Math.min(retryAfterSec * 1000, 30_000);
+          }
+        }
+        await new Promise((r) =>
+          setTimeout(r, Math.max(backoff, clampedRetryAfter || 0))
+        );
+        continue;
+      }
+
       return response;
     } catch (err) {
       if (attempt === retries) throw err;
 
-      // Exponential backoff: 2s, 4s, 8s
+      // Exponential backoff on network errors: REQUEST_DELAY_MS, ×2, ×4
       const backoff = REQUEST_DELAY_MS * Math.pow(2, attempt - 1);
       console.warn(
         `[fetcher] Attempt ${attempt}/${retries} failed for ${url}, retrying in ${backoff}ms...`

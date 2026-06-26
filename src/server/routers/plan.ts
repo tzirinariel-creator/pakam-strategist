@@ -59,7 +59,10 @@ export const planRouter = createTRPCRouter({
         plannedYear: z.number().int().min(1).max(4),
         plannedSemester: z.enum(["FALL", "SPRING", "SUMMER"]),
         disciplineOverride: disciplineEnum.optional(),
-        selectedGroups: z.record(z.string(), z.string()).optional(), // { "tutorial": "B", "lab": "01" }
+        selectedGroups: z
+          .record(z.string().max(30), z.string().max(30))
+          .refine((o) => Object.keys(o).length <= 30, "too many groups")
+          .optional(), // { "tutorial": "B", "lab": "01" }
       })
     )
     .mutation(async ({ ctx, input }) => {
@@ -137,7 +140,11 @@ export const planRouter = createTRPCRouter({
         grade: z.number().min(0).max(100).nullable().optional(), // null clears the grade
         disciplineOverride: disciplineEnum.optional(),
         attempt: z.number().int().min(1).optional(),
-        selectedGroups: z.record(z.string(), z.string()).nullable().optional(), // { "tutorial": "B" } or null to clear
+        selectedGroups: z
+          .record(z.string().max(30), z.string().max(30))
+          .refine((o) => Object.keys(o).length <= 30, "too many groups")
+          .nullable()
+          .optional(), // { "tutorial": "B" } or null to clear
       })
     )
     .mutation(async ({ ctx, input }) => {
@@ -286,7 +293,10 @@ export const planRouter = createTRPCRouter({
             courseId: z.string().uuid(),
             plannedYear: z.number().int().min(1).max(4),
             plannedSemester: z.enum(["FALL", "SPRING", "SUMMER"]),
-            selectedGroups: z.record(z.string(), z.string()).optional(), // { "tutorial": "B", "lab": "01" }
+            selectedGroups: z
+              .record(z.string().max(30), z.string().max(30))
+              .refine((o) => Object.keys(o).length <= 30, "too many groups")
+              .optional(), // { "tutorial": "B", "lab": "01" }
           })
         ),
       })

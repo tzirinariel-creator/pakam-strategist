@@ -161,7 +161,17 @@ export async function buildUserContext(
   );
 
   const allCourses = await db.course.findMany({
-    where: { semesterOffered: { has: nextSemesterInfo.semester } },
+    where: { semesterOffered: { has: nextSemesterInfo.semester }, isActive: true },
+    select: {
+      code: true,
+      nameHe: true,
+      discipline: true,
+      credits: true,
+      averageGrade: true,
+      difficultyLevel: true,
+      failRate: true,
+      prerequisites: true,
+    },
   });
 
   const availableNextSemester: CourseInfo[] = allCourses
