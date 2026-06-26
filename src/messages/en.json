@@ -688,7 +688,12 @@
     "footerAbout": "About",
     "footerFaq": "FAQ",
     "footerPrivacy": "Privacy",
-    "footerTerms": "Terms"
+    "footerTerms": "Terms",
+    "stats": {
+      "courses": "real courses",
+      "rules": "regulation rules",
+      "credits": "credits to graduate"
+    }
   },
   "about": {
     "title": "About",

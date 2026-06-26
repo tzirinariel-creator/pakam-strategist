@@ -751,7 +751,12 @@
     "footerAbout": "מי אנחנו",
     "footerFaq": "שאלות נפוצות",
     "footerPrivacy": "פרטיות",
-    "footerTerms": "תנאי שימוש"
+    "footerTerms": "תנאי שימוש",
+    "stats": {
+      "courses": "קורסים אמיתיים",
+      "rules": "כללי תקנון",
+      "credits": "נקודות זכות לתואר"
+    }
   },
   "about": {
     "title": "מי אנחנו",
