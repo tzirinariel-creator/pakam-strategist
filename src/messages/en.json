@@ -271,7 +271,7 @@
   },
   "catalog": {
     "title": "Course Catalog",
-    "subtitle": "All 105 PPE courses — search, filter, and pick",
+    "subtitle": "All 117 PPE courses — search, filter, and pick",
     "searchPlaceholder": "Search by course name, code, or instructor...",
     "allDisciplines": "All Disciplines",
     "allTypes": "All Course Types",
@@ -442,7 +442,7 @@
     "featurePersonalized": "Fits Your Year",
     "featurePersonalizedDesc": "Your plan updates based on your year, semester, and focus area",
     "featureCommunity": "All Courses Built In",
-    "featureCommunityDesc": "105 courses with prerequisites, hours, and exam dates — no need to dig through the Yedion",
+    "featureCommunityDesc": "117 courses with prerequisites, hours, and exam dates — no need to dig through the Yedion",
     "letsStart": "Let's Start",
     "welcomeNote": "Takes less than 3 minutes",
     "howItWorksStep1": "Tell us about you",
@@ -663,7 +663,7 @@
       },
       "catalog": {
         "title": "Course Catalog",
-        "desc": "105 courses with prerequisites, hours, and type — filter and find in seconds"
+        "desc": "117 courses with prerequisites, hours, and type — filter and find in seconds"
       },
       "calendar": {
         "title": "Weekly Schedule",
@@ -817,7 +817,7 @@
     "weeklySchedule": "Weekly Schedule",
     "weeklyScheduleDesc": "Your weekly timetable",
     "courseCatalog": "Course Catalog",
-    "courseCatalogDesc": "All 105 courses in one place",
+    "courseCatalogDesc": "All 117 courses in one place",
     "gradeCalculator": "Grade Calculator",
     "gradeCalculatorDesc": "Graduation score + \"What if\" simulation",
     "errorTitle": "Couldn't load your data",
