@@ -596,8 +596,8 @@ export function InsightsBar({
                   <span className="font-medium text-foreground/80">{nameB}</span>
                   <span className="text-foreground/30 ms-1.5">
                     ({(isHe
-                      ? ({ SUNDAY: "ראשון", MONDAY: "שני", TUESDAY: "שלישי", WEDNESDAY: "רביעי", THURSDAY: "חמישי", FRIDAY: "שישי" } as Record<string, string>)[conflict.day] ?? conflict.day
-                      : ({ SUNDAY: "Sun", MONDAY: "Mon", TUESDAY: "Tue", WEDNESDAY: "Wed", THURSDAY: "Thu", FRIDAY: "Fri" } as Record<string, string>)[conflict.day] ?? conflict.day
+                      ? ({ SUNDAY: "ראשון", MONDAY: "שני", TUESDAY: "שלישי", WEDNESDAY: "רביעי", THURSDAY: "חמישי", FRIDAY: "שישי", SATURDAY: "שבת" } as Record<string, string>)[conflict.day] ?? conflict.day
+                      : ({ SUNDAY: "Sun", MONDAY: "Mon", TUESDAY: "Tue", WEDNESDAY: "Wed", THURSDAY: "Thu", FRIDAY: "Fri", SATURDAY: "Sat" } as Record<string, string>)[conflict.day] ?? conflict.day
                     )} <bdi>{conflict.time}</bdi>)
                   </span>
                 </div>

@@ -36,9 +36,11 @@ const NAV_ITEMS = [
   { key: "calendar", href: "/calendar" },
   { key: "graduation", href: "/graduation" },
   { key: "regulations", href: "/regulations" },
-  { key: "settings", href: "/settings" },
   { key: "mentor", href: "/mentor" },
 ] as const;
+
+// Pinned to the bottom of the sidebar, separated from the main nav.
+const SETTINGS_ITEM = { key: "settings", href: "/settings" } as const;
 
 export function Sidebar() {
   const t = useTranslations("nav");
@@ -54,6 +56,44 @@ export function Sidebar() {
     : sidebarCollapsed
       ? ChevronRight
       : ChevronLeft;
+
+  const renderNavItem = (item: { key: keyof typeof NAV_ICONS; href: string }) => {
+    const Icon = NAV_ICONS[item.key];
+    const isActive = pathname.includes(item.href);
+
+    return (
+      <Tooltip key={item.key}>
+        <TooltipTrigger asChild>
+          <Link
+            href={item.href}
+            className={cn(
+              "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-[background-color,color,box-shadow] duration-200",
+              isActive
+                ? "bg-accent-brand-muted text-accent-brand font-semibold"
+                : "text-sidebar-foreground/70 hover:bg-foreground/5 hover:text-sidebar-foreground",
+              sidebarCollapsed && "justify-center px-2"
+            )}
+          >
+            <Icon
+              className={cn(
+                "h-5 w-5 shrink-0",
+                isActive && "text-accent-brand"
+              )}
+            />
+            {!sidebarCollapsed && <span>{t(item.key)}</span>}
+          </Link>
+        </TooltipTrigger>
+        {sidebarCollapsed && (
+          <TooltipContent
+            side={isRTL ? "left" : "right"}
+            className="bg-foreground text-primary-foreground font-medium"
+          >
+            {t(item.key)}
+          </TooltipContent>
+        )}
+      </Tooltip>
+    );
+  };
 
   return (
     <aside
@@ -84,44 +124,13 @@ export function Sidebar() {
       {/* Navigation */}
       <TooltipProvider>
         <nav className="flex-1 space-y-1 overflow-y-auto px-2 py-4">
-          {NAV_ITEMS.map((item) => {
-            const Icon = NAV_ICONS[item.key];
-            const isActive = pathname.includes(item.href);
-
-            return (
-              <Tooltip key={item.key}>
-                <TooltipTrigger asChild>
-                  <Link
-                    href={item.href}
-                    className={cn(
-                      "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-[background-color,color,box-shadow] duration-200",
-                      isActive
-                        ? "bg-accent-brand-muted text-accent-brand font-semibold"
-                        : "text-sidebar-foreground/70 hover:bg-foreground/5 hover:text-sidebar-foreground",
-                      sidebarCollapsed && "justify-center px-2"
-                    )}
-                  >
-                    <Icon
-                      className={cn(
-                        "h-5 w-5 shrink-0",
-                        isActive && "text-accent-brand"
-                      )}
-                    />
-                    {!sidebarCollapsed && <span>{t(item.key)}</span>}
-                  </Link>
-                </TooltipTrigger>
-                {sidebarCollapsed && (
-                  <TooltipContent
-                    side={isRTL ? "left" : "right"}
-                    className="bg-foreground text-primary-foreground font-medium"
-                  >
-                    {t(item.key)}
-                  </TooltipContent>
-                )}
-              </Tooltip>
-            );
-          })}
+          {NAV_ITEMS.map((item) => renderNavItem(item))}
         </nav>
+
+        {/* Settings — pinned at the bottom, separated from the main nav */}
+        <div className="border-t border-sidebar-border px-2 pt-2 pb-1">
+          {renderNavItem(SETTINGS_ITEM)}
+        </div>
       </TooltipProvider>
 
       {/* Collapse toggle */}

@@ -23,6 +23,7 @@ const DAY_NAMES_HE: Record<string, string> = {
   WEDNESDAY: "רביעי",
   THURSDAY: "חמישי",
   FRIDAY: "שישי",
+  SATURDAY: "שבת",
 };
 
 const DAY_NAMES_EN: Record<string, string> = {
@@ -32,6 +33,7 @@ const DAY_NAMES_EN: Record<string, string> = {
   WEDNESDAY: "Wednesday",
   THURSDAY: "Thursday",
   FRIDAY: "Friday",
+  SATURDAY: "Saturday",
 };
 
 interface TodaysClassesProps {

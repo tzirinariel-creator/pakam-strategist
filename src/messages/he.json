@@ -878,7 +878,8 @@
     "seminarAvgLabel": "ממוצע סמינריוניות (18%)",
     "referatLabel": "ציון רפרט (4%)",
     "simulatedScore": "ציון סימולציה",
-    "change": "שינוי"
+    "change": "שינוי",
+    "forecastBasis": "תחזית · מבוססת על {credits} מתוך 150 נ\"ז שהושלמו"
   },
   "dashboard": {
     "title": "הבית שלך",

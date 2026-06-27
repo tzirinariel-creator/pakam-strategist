@@ -12,7 +12,12 @@ import {
 } from "lucide-react";
 import { useState } from "react";
 import { Link } from "@/i18n/navigation";
+import { DISCIPLINE_CONFIG } from "@/lib/constants";
 import type { RegulationResult } from "@/types/regulation";
+
+// Detail keys whose values are discipline enum IDs (e.g. "ECONOMICS").
+// These must be rendered through DISCIPLINE_CONFIG, never as the raw enum.
+const DISCIPLINE_DETAIL_KEYS = new Set(["discipline", "focusArea"]);
 
 interface RuleCardProps {
   rule: RegulationResult;
@@ -133,6 +138,13 @@ export function RuleCard({ rule }: RuleCardProps) {
               {Object.entries(rule.details).map(([key, value]) => {
                 // Skip complex nested objects from display
                 if (typeof value === "object" && value !== null) return null;
+                // Discipline/focus-area values are enum IDs (e.g. "ECONOMICS").
+                // Render their localized name, never the raw English enum.
+                let displayValue = String(value);
+                if (DISCIPLINE_DETAIL_KEYS.has(key) && value != null) {
+                  const cfg = DISCIPLINE_CONFIG[String(value)];
+                  if (cfg) displayValue = isHe ? cfg.nameHe : cfg.nameEn;
+                }
                 return (
                   <div
                     key={key}
@@ -142,7 +154,7 @@ export function RuleCard({ rule }: RuleCardProps) {
                       {t(`detailLabels.${key}` as Parameters<typeof t>[0], { defaultValue: key })}:
                     </span>
                     <span className="font-data font-semibold text-foreground">
-                      {String(value)}
+                      {displayValue}
                     </span>
                   </div>
                 );

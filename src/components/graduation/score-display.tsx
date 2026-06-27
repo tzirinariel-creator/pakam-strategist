@@ -69,6 +69,11 @@ export function ScoreDisplay({ breakdown, className }: ScoreDisplayProps) {
             <span className="text-lg text-foreground/40">/100</span>
           </div>
 
+          {/* Honest framing — this is a projection from partial data, not a final grade */}
+          <p className="-mt-2 text-xs text-foreground/40">
+            {t("forecastBasis", { credits: breakdown.completedCredits })}
+          </p>
+
           {/* Score label */}
           <div
             className={cn(

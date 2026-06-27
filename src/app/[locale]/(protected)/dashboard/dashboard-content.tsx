@@ -432,7 +432,7 @@ function DegreeGapWidget({
         <h3 className="font-display text-base font-bold text-foreground/90">
           {t("whatsMissing")}
         </h3>
-        <span className="ms-auto rounded-full bg-red-500/10 px-2 py-0.5 text-xs font-medium text-red-400">
+        <span className="ms-auto rounded-full bg-foreground/[0.06] px-2 py-0.5 text-xs font-medium text-foreground/60">
           {failedRules.length}
         </span>
       </div>

@@ -815,7 +815,8 @@
     "seminarAvgLabel": "Seminar Avg (18%)",
     "referatLabel": "Referat Grade (4%)",
     "simulatedScore": "Simulated Score",
-    "change": "Change"
+    "change": "Change",
+    "forecastBasis": "Forecast · based on {credits} of 150 credits completed"
   },
   "dashboard": {
     "title": "Your Home",
