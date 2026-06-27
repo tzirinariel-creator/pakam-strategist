@@ -2,6 +2,7 @@ import { NextResponse, type NextRequest } from "next/server";
 import { createServerClient } from "@supabase/ssr";
 import createIntlMiddleware from "next-intl/middleware";
 import { routing } from "./i18n/routing";
+import { SUPABASE_URL, SUPABASE_ANON_KEY } from "./lib/supabase/env";
 
 const intlMiddleware = createIntlMiddleware(routing);
 
@@ -30,8 +31,8 @@ export async function middleware(request: NextRequest) {
   // 3. Check Supabase session for protected routes
   try {
     const supabase = createServerClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+      SUPABASE_URL,
+      SUPABASE_ANON_KEY,
       {
         cookies: {
           getAll: () => request.cookies.getAll(),

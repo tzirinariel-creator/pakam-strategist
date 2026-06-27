@@ -1,6 +1,7 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { createServerClient } from "@supabase/ssr";
 import { checkRateLimit } from "@/lib/rate-limit";
+import { SUPABASE_URL, SUPABASE_ANON_KEY } from "@/lib/supabase/env";
 
 /**
  * POST /api/auth/demo-login
@@ -40,8 +41,8 @@ export async function POST(request: NextRequest) {
   const response = NextResponse.json({ ok: true });
 
   const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    SUPABASE_URL,
+    SUPABASE_ANON_KEY,
     {
       cookies: {
         getAll: () => request.cookies.getAll(),

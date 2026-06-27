@@ -224,6 +224,42 @@ describe("Fail-twice blocking rule (Task 3)", () => {
   });
 });
 
+describe("PKM-012 English content courses are grade-aware (humanities pass = 70)", () => {
+  it("two COMPLETED ENGLISH courses graded 70+ → requirement satisfied", () => {
+    const courses = [
+      course({ courseType: "ENGLISH", status: "COMPLETED", grade: 70, credits: 3 }),
+      course({ courseType: "ENGLISH", status: "COMPLETED", grade: 88, credits: 3 }),
+    ];
+    const summary = runRegulationEngine(courses, null);
+    const pkm012 = summary.results.find((r) => r.ruleId === "PKM-012");
+    expect(pkm012?.passed).toBe(true);
+    expect(pkm012?.details?.currentCourses).toBe(2);
+  });
+
+  it("one of the two graded 65 (below 70) → NOT satisfied; failed course does not count", () => {
+    const courses = [
+      course({ courseType: "ENGLISH", status: "COMPLETED", grade: 88, credits: 3 }),
+      course({ courseType: "ENGLISH", status: "COMPLETED", grade: 65, credits: 3 }),
+    ];
+    const summary = runRegulationEngine(courses, null);
+    const pkm012 = summary.results.find((r) => r.ruleId === "PKM-012");
+    expect(pkm012?.passed).toBe(false);
+    // Only the 88 course counts; the sub-70 course is excluded from the count.
+    expect(pkm012?.details?.currentCourses).toBe(1);
+  });
+
+  it("two PLANNED / ungraded ENGLISH courses → still on-track (satisfied, not penalized)", () => {
+    const courses = [
+      course({ courseType: "ENGLISH", status: "PLANNED", grade: null, credits: 3 }),
+      course({ courseType: "ENGLISH", status: "PLANNED", grade: null, credits: 3 }),
+    ];
+    const summary = runRegulationEngine(courses, null);
+    const pkm012 = summary.results.find((r) => r.ruleId === "PKM-012");
+    expect(pkm012?.passed).toBe(true);
+    expect(pkm012?.details?.currentCourses).toBe(2);
+  });
+});
+
 describe("runRegulationEngine — regression: verified review fixes", () => {
   it("PKM-001 counts the miluim/reserve exemption toward the total (reservist parity with dashboard)", () => {
     // 142 completed credits + 8 reserve-duty exemption = 150 → requirement met.

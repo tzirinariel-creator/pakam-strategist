@@ -68,7 +68,7 @@ export function SignupForm() {
         type: "signup",
         email,
         options: {
-          emailRedirectTo: `${window.location.origin}/api/auth/callback?next=/${locale}/planner`,
+          emailRedirectTo: `${window.location.origin}/api/auth/callback?next=/${locale}/dashboard`,
         },
       });
       if (resendError) {
@@ -110,7 +110,7 @@ export function SignupForm() {
       const { error: authError } = await supabase.auth.signInWithOAuth({
         provider: "google",
         options: {
-          redirectTo: `${window.location.origin}/api/auth/callback?next=/${locale}/planner`,
+          redirectTo: `${window.location.origin}/api/auth/callback?next=/${locale}/dashboard`,
           queryParams: {
             access_type: "offline",
             prompt: "consent",
@@ -151,7 +151,7 @@ export function SignupForm() {
           data: {
             display_name: name,
           },
-          emailRedirectTo: `${window.location.origin}/api/auth/callback?next=/${locale}/planner`,
+          emailRedirectTo: `${window.location.origin}/api/auth/callback?next=/${locale}/dashboard`,
         },
       });
 

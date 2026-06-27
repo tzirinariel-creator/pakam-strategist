@@ -16,6 +16,7 @@ import type {
   DisciplineCredits,
 } from "@/types/degree";
 import { getActiveProgram, type ProgramDefinition } from "@/lib/programs/registry";
+import { ENGLISH_CONFIG } from "@/lib/constants";
 
 // Practice ("משלב עשייה") credit caps (domain rules §1):
 // each practice course grants at most PRACTICE_COURSE_MAX_CREDITS regardless of
@@ -58,6 +59,31 @@ function emptyDisciplineCredits(program: ProgramDefinition): DisciplineCredits {
  */
 function resolvedDiscipline(uc: UserCourseWithCourse): Discipline {
   return uc.disciplineOverride ?? uc.course.discipline;
+}
+
+/**
+ * Does an ENGLISH content course count toward the PKM-012 "2 English content
+ * courses" requirement?
+ *
+ * The humanities faculty (where PPE sits) sets the English passing grade at
+ * ENGLISH_CONFIG.COURSE_PASSING_GRADE (70) — higher than the 60 used elsewhere.
+ * A COMPLETED English course graded BELOW that bar was failed against the
+ * humanities standard and must NOT count. But a course the student merely
+ * planned or is taking (and hasn't been graded yet) is still on-track and DOES
+ * count, so we don't scare students for coursework in progress.
+ *
+ * Rule:
+ *  - Not yet graded (PLANNED / IN_PROGRESS, or no grade recorded) → counts.
+ *  - COMPLETED with grade >= COURSE_PASSING_GRADE (70)            → counts.
+ *  - COMPLETED with grade <  COURSE_PASSING_GRADE (70)            → does NOT count.
+ */
+function englishContentCourseCounts(uc: UserCourseWithCourse): boolean {
+  // Still on track: not finished, so no grade to judge against the bar yet.
+  if (uc.status !== "COMPLETED") return true;
+  // Completed but no grade recorded → treat as on-track (don't penalize).
+  if (uc.grade == null) return true;
+  // Completed and graded → must clear the humanities English passing grade.
+  return uc.grade >= ENGLISH_CONFIG.COURSE_PASSING_GRADE;
 }
 
 // -------------------------------------------------------------------
@@ -156,8 +182,13 @@ export function calculateCredits(
         // practice total already accumulated above (with caps applied).
         break;
       case "ENGLISH":
-        englishCredits += credits;
-        englishCourseCount += 1;
+        // PKM-012 counts English CONTENT courses, but a COMPLETED English course
+        // graded below the humanities passing bar (70) was failed and must not
+        // count. Planned / in-progress / ungraded courses still count (on-track).
+        if (englishContentCourseCounts(uc)) {
+          englishCredits += credits;
+          englishCourseCount += 1;
+        }
         break;
     }
 

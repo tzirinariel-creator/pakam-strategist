@@ -198,12 +198,23 @@ function SummaryCard({
         </span>
       </div>
 
-      {/* Weighted average */}
+      {/* Weighted average — explicitly NOT the official graduation score, which
+          uses 78/18/4 weighting. Labeled + linked so grade-anxious students
+          don't mistake this credit-weighted mean for their final score. */}
       <div className="space-y-2 sm:border-s sm:border-border/40 sm:ps-6">
-        <span className="text-xs text-foreground/50">{t("summaryWeightedAvg")}</span>
+        <span className="block text-xs leading-snug text-foreground/50">
+          {t("summaryWeightedAvg")}
+        </span>
         <div className="font-display tabular text-3xl font-bold text-foreground/85">
           {weightedAvg !== null ? weightedAvg.toFixed(1) : "--"}
         </div>
+        <Link
+          href="/graduation"
+          className="inline-flex items-center gap-1 text-[11px] leading-snug text-foreground/45 underline-offset-2 transition-colors hover:text-foreground/70 hover:underline"
+        >
+          <Calculator className="h-3 w-3 shrink-0" />
+          {t("summaryWeightedAvgHint")}
+        </Link>
       </div>
 
       {/* Focus-area progress */}
@@ -548,12 +559,20 @@ function AddCourse({
 }
 
 // -----------------------------------------------------------------------
-// Empty state — points back to onboarding + offers add-below.
+// Empty state — honest CTA. The primary action points at THIS screen's
+// add-course form (an empty record with planned courses still lives on /record,
+// so promising "onboarding" would be a dead end). The dashboard/onboarding link
+// only appears when the student has zero courses ANYWHERE — the one case where
+// building a fresh plan there is genuinely the right next step.
 // -----------------------------------------------------------------------
 
 function EmptyState({
+  hasAnyCourses,
+  onAddFirstCourse,
   t,
 }: {
+  hasAnyCourses: boolean;
+  onAddFirstCourse: () => void;
   t: ReturnType<typeof useTranslations<"record">>;
 }) {
   return (
@@ -564,14 +583,30 @@ function EmptyState({
       <h2 className="mb-2 font-display text-2xl font-bold text-foreground/85">
         {t("emptyTitle")}
       </h2>
-      <p className="mb-6 text-foreground/60">{t("emptyDesc")}</p>
-      <Link
-        href="/dashboard"
-        className="inline-flex items-center gap-2 rounded-full border border-foreground/20 bg-foreground/10 px-6 py-2.5 text-sm font-bold text-foreground/80 transition-colors hover:bg-foreground/15"
-      >
-        <GraduationCap className="h-4 w-4" />
-        {t("backToOnboarding")}
-      </Link>
+      <p className="mb-6 text-foreground/60">
+        {hasAnyCourses ? t("emptyDesc") : t("emptyDescNoCourses")}
+      </p>
+      <div className="flex flex-col items-center gap-3">
+        {/* Primary, honest CTA — jumps to the add-course form on this screen. */}
+        <button
+          type="button"
+          onClick={onAddFirstCourse}
+          className="inline-flex items-center gap-2 rounded-full border border-accent-brand/30 bg-accent-brand/15 px-6 py-2.5 text-sm font-bold text-foreground/90 transition-colors hover:bg-accent-brand/25"
+        >
+          <Plus className="h-4 w-4" />
+          {t("emptyAddFirstCourse")}
+        </button>
+        {/* Onboarding link only when the student has no courses at all. */}
+        {!hasAnyCourses && (
+          <Link
+            href="/dashboard"
+            className="inline-flex items-center gap-2 text-sm font-medium text-foreground/55 underline-offset-4 transition-colors hover:text-foreground/80 hover:underline"
+          >
+            <GraduationCap className="h-4 w-4" />
+            {t("backToOnboarding")}
+          </Link>
+        )}
+      </div>
     </div>
   );
 }
@@ -592,10 +627,30 @@ export function AcademicRecordContent() {
   const locale = useLocale();
   const isHe = locale === "he";
 
+  // Lets the empty-state CTA jump to (and focus) the add-course form below.
+  const addCourseRef = useRef<HTMLDivElement>(null);
+  const scrollToAddCourse = useCallback(() => {
+    const el = addCourseRef.current;
+    if (!el) return;
+    el.scrollIntoView({ behavior: "smooth", block: "center" });
+    el.querySelector<HTMLInputElement>('input[type="text"]')?.focus({
+      preventScroll: true,
+    });
+  }, []);
+
   const utils = api.useUtils();
   const planQuery = api.plan.getUserPlan.useQuery(undefined, { retry: false });
-  const creditsQuery = api.plan.getCredits.useQuery(undefined, { retry: false });
   const profileQuery = api.user.getProfile.useQuery(undefined, { retry: false });
+  // Gate the credits query behind a successful plan load. getCredits throws
+  // NOT_FOUND when no User row exists yet (e.g. visiting /record before
+  // onboarding), so running it unconditionally spams query errors. The plan
+  // query is the screen's user-existence check; once it resolves we know the
+  // user exists and getCredits is safe. Focus-area progress just shows 0/empty
+  // until then — a graceful degrade, not an error.
+  const creditsQuery = api.plan.getCredits.useQuery(undefined, {
+    retry: false,
+    enabled: planQuery.isSuccess,
+  });
   const catalogQuery = api.course.list.useQuery(undefined, {
     retry: false,
     staleTime: 5 * 60 * 1000,
@@ -722,8 +777,11 @@ export function AcademicRecordContent() {
   const focusTarget =
     creditsQuery.data?.breakdown.focusAreaTarget ?? CREDIT_REQUIREMENTS.FOCUS_AREA_MIN;
 
-  const isLoading =
-    planQuery.isLoading || creditsQuery.isLoading || profileQuery.isLoading;
+  // Note: creditsQuery is intentionally excluded — it's gated behind the plan
+  // query (enabled: planQuery.isSuccess), so a disabled query reads as
+  // isLoading and would otherwise pin the loader forever. Focus-area progress
+  // degrades to 0/empty until credits arrive.
+  const isLoading = planQuery.isLoading || profileQuery.isLoading;
 
   if (isLoading) {
     return <ThemedLoader />;
@@ -731,6 +789,9 @@ export function AcademicRecordContent() {
 
   const catalog = (catalogQuery.data ?? []) as CourseWithSchedule[];
   const isEmpty = completedCourses.length === 0;
+  // Does the student have ANY course (planned, in-progress, etc.) — not just
+  // completed ones? Drives whether the empty state offers an onboarding link.
+  const hasAnyCourses = (planQuery.data?.courses ?? []).length > 0;
 
   return (
     <div className="bg-mesh space-y-8 p-4 md:p-6">
@@ -768,7 +829,11 @@ export function AcademicRecordContent() {
       {/* Completed courses grouped by year·semester */}
       {isEmpty ? (
         <div className="animate-stagger-2">
-          <EmptyState t={t} />
+          <EmptyState
+            hasAnyCourses={hasAnyCourses}
+            onAddFirstCourse={scrollToAddCourse}
+            t={t}
+          />
         </div>
       ) : (
         <div className="animate-stagger-3 space-y-4">
@@ -827,7 +892,7 @@ export function AcademicRecordContent() {
       )}
 
       {/* Add a past course — always available */}
-      <div className="animate-stagger-4">
+      <div ref={addCourseRef} className="animate-stagger-4">
         <AddCourse
           catalog={catalog}
           existingCourseIds={existingCourseIds}

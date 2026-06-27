@@ -1,6 +1,7 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { createServerClient } from "@supabase/ssr";
 import type { EmailOtpType } from "@supabase/supabase-js";
+import { SUPABASE_URL, SUPABASE_ANON_KEY } from "@/lib/supabase/env";
 
 /**
  * Supabase auth callback handler.
@@ -19,18 +20,18 @@ export async function GET(request: NextRequest) {
   // Validate redirect target to prevent open-redirect attacks.
   // Only allow relative paths that start with "/" and don't contain "//"
   // (which could be used to redirect to an external site like "//evil.com").
-  const rawNext = searchParams.get("next") ?? "/he/planner";
+  const rawNext = searchParams.get("next") ?? "/he/dashboard";
   const next =
     rawNext.startsWith("/") && !rawNext.startsWith("//")
       ? rawNext
-      : "/he/planner";
+      : "/he/dashboard";
 
   if (code || (tokenHash && type)) {
     const response = NextResponse.redirect(new URL(next, origin));
 
     const supabase = createServerClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+      SUPABASE_URL,
+      SUPABASE_ANON_KEY,
       {
         cookies: {
           getAll: () => request.cookies.getAll(),

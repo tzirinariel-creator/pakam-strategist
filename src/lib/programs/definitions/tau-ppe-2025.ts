@@ -76,7 +76,7 @@ export const TAU_PPE_2025: ProgramDefinition = {
     seminarCredits: 12,
     electiveCredits: 35,
     focusAreaMin: 60,
-    passingGrade: 56,
+    passingGrade: 60,
     graduationMinScore: 60,
     englishCourses: 2,
     maxFailureRate: 0.3,

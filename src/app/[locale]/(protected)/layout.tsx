@@ -24,14 +24,17 @@ export default async function ProtectedLayout({
 }) {
   const { locale } = await params;
 
-  // Server-side auth guard (defense-in-depth alongside middleware)
+  // Server-side auth guard (defense-in-depth alongside middleware).
+  // Use getUser() — it revalidates the token against Supabase Auth rather
+  // than trusting the cookie-decoded session (which is spoofable). This
+  // matches the tRPC context's getUser()-based authorization.
   try {
     const supabase = await createServerSupabase();
     const {
-      data: { session },
-    } = await supabase.auth.getSession();
+      data: { user },
+    } = await supabase.auth.getUser();
 
-    if (!session) {
+    if (!user) {
       redirect(`/${locale}/login`);
     }
   } catch (e) {

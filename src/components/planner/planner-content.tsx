@@ -14,6 +14,7 @@ export function PlannerContent() {
   const t = useTranslations("planner");
   const tCredits = useTranslations("credits");
   const tCommon = useTranslations("common");
+  const tOnboarding = useTranslations("onboarding");
 
   const {
     data: planData,
@@ -59,6 +60,35 @@ export function PlannerContent() {
   }
 
   const courses = planData?.courses ?? [];
+
+  // ------ Zero-course empty state ------
+  // Defensive guard: new users who land here before completing onboarding
+  // (which lives on /dashboard) would otherwise see an empty board. Point
+  // them back to the dashboard where the onboarding wizard runs.
+  if (courses.length === 0) {
+    return (
+      <div className="flex min-h-[60vh] flex-col items-center justify-center gap-5 p-4 text-center md:p-6">
+        <div className="flex size-16 items-center justify-center rounded-2xl bg-foreground/10">
+          <GraduationCap className="size-8 text-foreground/80" />
+        </div>
+        <div className="max-w-md space-y-2">
+          <h1 className="text-2xl font-bold text-foreground/80">
+            {tOnboarding("welcomeTitle")}
+          </h1>
+          <p className="text-sm text-muted-foreground">
+            {tOnboarding("welcomeSubtitle")}
+          </p>
+        </div>
+        <Link
+          href="/dashboard"
+          className="inline-flex items-center gap-2 rounded-lg bg-foreground px-5 py-2.5 text-sm font-medium text-primary-foreground transition-colors hover:bg-foreground/90"
+        >
+          {tOnboarding("goToDashboard")}
+        </Link>
+      </div>
+    );
+  }
+
   const totalCredits = courses.reduce((sum, uc) => sum + uc.course.credits, 0);
   const completedCredits = courses
     .filter((uc) => uc.status === "COMPLETED")
