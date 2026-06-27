@@ -365,7 +365,10 @@ export const ruleEnglishRequirement: RegulationRule = (ctx: RuleContext) => {
   const minCredits = minCourses * minCreditsPerCourse;
   const currentCredits = ctx.creditBreakdown.english;
   const currentCourses = ctx.creditBreakdown.englishCourseCount;
-  const passed = currentCourses >= minCourses || currentCredits >= minCredits;
+  // Must take 2 SEPARATE English content courses (domain rules §5). A single
+  // multi-credit course does NOT satisfy this, so the requirement is on the
+  // course COUNT — credits are not an alternative path.
+  const passed = currentCourses >= minCourses;
 
   return result(
     "PKM-012",
@@ -555,118 +558,145 @@ export const ruleMaxAttempts: RegulationRule = (ctx: RuleContext) => {
 };
 
 // -------------------------------------------------------------------
-// PKM-016: Year transition GPA >= 75 (overall course average)
+// Year 1→2 transition gate helper
+// -------------------------------------------------------------------
+// The gate (domain rules §2) is evaluated ONLY over YEAR-1 courses:
+//   • overall average ≥ 75 across all year-1 graded courses, AND
+//   • average ≥ 80 across the year-1 PPE-dedicated (PPE_CORE) courses.
+// Failing either is BLOCKING. We compute a credit-weighted average so the
+// gate is not polluted by later years' transcripts.
+
+/** Credit-weighted average over year-1 COMPLETED courses matching a filter. */
+function year1WeightedAverage(
+  ctx: RuleContext,
+  match: (uc: RuleContext["userCourses"][number]) => boolean
+): { average: number | null; courseCount: number } {
+  const courses = ctx.userCourses.filter(
+    (uc) =>
+      uc.plannedYear === 1 &&
+      uc.status === "COMPLETED" &&
+      uc.grade !== null &&
+      match(uc)
+  );
+  if (courses.length === 0) return { average: null, courseCount: 0 };
+
+  let totalWeighted = 0;
+  let totalCredits = 0;
+  for (const uc of courses) {
+    totalWeighted += uc.grade! * uc.course.credits;
+    totalCredits += uc.course.credits;
+  }
+  if (totalCredits === 0) return { average: null, courseCount: courses.length };
+  return {
+    average: Math.round((totalWeighted / totalCredits) * 100) / 100,
+    courseCount: courses.length,
+  };
+}
+
+// -------------------------------------------------------------------
+// PKM-016: Year 1→2 transition gate — overall year-1 average >= 75 (BLOCKING)
 // -------------------------------------------------------------------
 
 export const ruleYearTransitionGPA: RegulationRule = (ctx: RuleContext) => {
   const requiredGPA = ctx.programDefinition.creditRequirements.yearTransitionGpa;
-  const courseAvg = ctx.gradeBreakdown.courseAverage;
+  // Overall average across ALL year-1 graded courses (non-seminar — seminar
+  // submission grades are weighted separately and don't carry a course grade).
+  const { average } = year1WeightedAverage(
+    ctx,
+    (uc) => uc.course.courseType !== "SEMINAR"
+  );
 
-  if (courseAvg === null) {
+  if (average === null) {
     return result(
       "PKM-016",
       "Year Transition GPA",
       "ממוצע מעבר שנה",
       true,
       "INFO",
-      "Year transition GPA cannot be checked yet. Enter course grades to see your standing.",
-      "ממוצע מעבר שנה לא ניתן לבדיקה עדיין. הזינו ציוני קורסים כדי לראות את מצבכם.",
+      "Year transition GPA cannot be checked yet. Enter year-1 course grades to see your standing.",
+      "ממוצע מעבר שנה לא ניתן לבדיקה עדיין. הזינו ציוני קורסים משנה א׳ כדי לראות את מצבכם.",
       { courseAverage: null, required: requiredGPA }
     );
   }
 
-  const rounded = Math.round(courseAvg * 100) / 100;
-  const passed = rounded >= requiredGPA;
+  const passed = average >= requiredGPA;
 
   return result(
     "PKM-016",
     "Year Transition GPA",
     "ממוצע מעבר שנה",
     passed,
-    passed ? "INFO" : "WARNING",
+    // Blocking gate: a failure is an ERROR (continuation is blocked).
+    passed ? "INFO" : "ERROR",
     passed
-      ? `Course average is ${rounded}, above the ${requiredGPA} required for year transition.`
-      : `Course average is ${rounded}, below the ${requiredGPA} required for year transition. Improve grades to advance.`,
+      ? `Year-1 average is ${average}, above the ${requiredGPA} required to advance to year 2.`
+      : `Year-1 average is ${average}, below the ${requiredGPA} required to advance to year 2. This blocks continuation.`,
     passed
-      ? `ממוצע הקורסים ${rounded}, מעל ה-${requiredGPA} הנדרש למעבר שנה.`
-      : `ממוצע הקורסים ${rounded}, מתחת ל-${requiredGPA} הנדרש למעבר שנה. שפרו ציונים כדי להתקדם.`,
-    { courseAverage: rounded, required: requiredGPA }
+      ? `ממוצע שנה א׳ הוא ${average}, מעל ה-${requiredGPA} הנדרש למעבר לשנה ב׳.`
+      : `ממוצע שנה א׳ הוא ${average}, מתחת ל-${requiredGPA} הנדרש למעבר לשנה ב׳. המעבר חסום.`,
+    { courseAverage: average, required: requiredGPA }
   );
 };
 
 // -------------------------------------------------------------------
-// PKM-017: Year transition major GPA >= 80 (focus area average)
+// PKM-017: Year 1→2 transition gate — PPE-core year-1 average >= 80 (BLOCKING)
 // -------------------------------------------------------------------
+// The 80 threshold is over the PPE-DEDICATED (PPE_CORE) courses, NOT the
+// student's chosen focus area (domain rules §2).
+
+const PPE_CORE_DISCIPLINE = "PPE_CORE";
 
 export const ruleYearTransitionMajorGPA: RegulationRule = (ctx: RuleContext) => {
   const requiredMajorGPA = ctx.programDefinition.creditRequirements.yearTransitionMajorGpa;
 
-  // Not all programs require a major-specific GPA threshold
+  // Not all programs require a PPE-core GPA threshold
   if (!requiredMajorGPA) {
     return result(
       "PKM-017",
-      "Year Transition Major GPA",
-      "ממוצע מעבר שנה בהתמחות",
+      "Year Transition Core GPA",
+      "ממוצע מעבר שנה בקורסי הליבה",
       true,
       "INFO",
-      "This program does not require a separate major GPA for year transition.",
-      "תוכנית זו לא דורשת ממוצע התמחות נפרד למעבר שנה.",
+      "This program does not require a separate core GPA for year transition.",
+      "תוכנית זו לא דורשת ממוצע ליבה נפרד למעבר שנה.",
     );
   }
 
-  if (!ctx.focusArea) {
+  // Average over YEAR-1 PPE-dedicated (PPE_CORE) graded courses.
+  const { average, courseCount } = year1WeightedAverage(
+    ctx,
+    (uc) => (uc.disciplineOverride ?? uc.course.discipline) === PPE_CORE_DISCIPLINE
+  );
+
+  if (average === null || courseCount === 0) {
     return result(
       "PKM-017",
-      "Year Transition Major GPA",
-      "ממוצע מעבר שנה בהתמחות",
+      "Year Transition Core GPA",
+      "ממוצע מעבר שנה בקורסי הליבה",
       true,
       "INFO",
-      "No focus area selected. Major GPA check will apply once you choose a focus area.",
-      "לא נבחר תחום התמחות. בדיקת ממוצע ההתמחות תיכנס לתוקף לאחר בחירת תחום.",
+      "No graded PPE-core courses in year 1 yet. This check applies once year-1 core grades are entered.",
+      "אין עדיין ציונים בקורסי הליבה (פכ\"מ ייעודי) בשנה א׳. הבדיקה תיכנס לתוקף לאחר הזנת ציונים.",
+      { majorAverage: null, required: requiredMajorGPA },
     );
   }
 
-  // Compute focus-area GPA from completed courses in the focus discipline
-  const focusCourses = ctx.userCourses.filter((uc) => {
-    const discipline = uc.disciplineOverride ?? uc.course.discipline;
-    return discipline === ctx.focusArea && uc.status === "COMPLETED" && uc.grade !== null;
-  });
-
-  if (focusCourses.length === 0) {
-    return result(
-      "PKM-017",
-      "Year Transition Major GPA",
-      "ממוצע מעבר שנה בהתמחות",
-      true,
-      "INFO",
-      "No graded courses in focus area yet. Major GPA check will apply once grades are entered.",
-      "אין עדיין ציונים בתחום ההתמחות. הבדיקה תיכנס לתוקף לאחר הזנת ציונים.",
-    );
-  }
-
-  // Credit-weighted average
-  let totalWeighted = 0;
-  let totalCredits = 0;
-  for (const uc of focusCourses) {
-    totalWeighted += uc.grade! * uc.course.credits;
-    totalCredits += uc.course.credits;
-  }
-  const majorAvg = Math.round((totalWeighted / totalCredits) * 100) / 100;
-  const passed = majorAvg >= requiredMajorGPA;
+  const passed = average >= requiredMajorGPA;
 
   return result(
     "PKM-017",
-    "Year Transition Major GPA",
-    "ממוצע מעבר שנה בהתמחות",
+    "Year Transition Core GPA",
+    "ממוצע מעבר שנה בקורסי הליבה",
     passed,
-    passed ? "INFO" : "WARNING",
+    // Blocking gate: a failure is an ERROR (continuation is blocked).
+    passed ? "INFO" : "ERROR",
     passed
-      ? `Focus area average is ${majorAvg}, above the ${requiredMajorGPA} required for year transition.`
-      : `Focus area average is ${majorAvg}, below the ${requiredMajorGPA} required for year transition.`,
+      ? `PPE-core year-1 average is ${average}, above the ${requiredMajorGPA} required to advance to year 2.`
+      : `PPE-core year-1 average is ${average}, below the ${requiredMajorGPA} required to advance to year 2. This blocks continuation.`,
     passed
-      ? `ממוצע ההתמחות ${majorAvg}, מעל ה-${requiredMajorGPA} הנדרש למעבר שנה.`
-      : `ממוצע ההתמחות ${majorAvg}, מתחת ל-${requiredMajorGPA} הנדרש למעבר שנה. שפרו ציונים בקורסי ההתמחות.`,
-    { majorAverage: majorAvg, required: requiredMajorGPA, focusArea: ctx.focusArea },
+      ? `ממוצע קורסי הליבה (פכ"מ ייעודי) בשנה א׳ הוא ${average}, מעל ה-${requiredMajorGPA} הנדרש למעבר לשנה ב׳.`
+      : `ממוצע קורסי הליבה (פכ"מ ייעודי) בשנה א׳ הוא ${average}, מתחת ל-${requiredMajorGPA} הנדרש למעבר לשנה ב׳. המעבר חסום.`,
+    { majorAverage: average, required: requiredMajorGPA, discipline: PPE_CORE_DISCIPLINE },
   );
 };
 

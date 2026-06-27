@@ -242,11 +242,11 @@ export const planRouter = createTRPCRouter({
     if (user.miluimGroup && user.miluimGroup !== "NONE") {
       const groupConfig = MILUIM_CONFIG.GROUPS[user.miluimGroup as keyof typeof MILUIM_CONFIG.GROUPS];
       if (groupConfig && groupConfig.creditExemptionPerYear > 0) {
-        // Exemption is per year — multiply by years in program (current year)
-        // Capped at MAX_CREDIT_EXEMPTIONS_DEGREE (10 SH"S total for the degree)
-        const yearsInProgram = user.currentYear ?? 1;
+        // The exemption is the GROUP's amount (e.g. B=6), capped at the
+        // per-degree maximum (10 SH"S). We store ONE group for the whole degree,
+        // so do NOT multiply by years — that over-grants (e.g. B in year 2 → 12).
         miluimExemption = Math.min(
-          groupConfig.creditExemptionPerYear * yearsInProgram,
+          groupConfig.creditExemptionPerYear,
           MILUIM_CONFIG.MAX_CREDIT_EXEMPTIONS_DEGREE,
         );
       }

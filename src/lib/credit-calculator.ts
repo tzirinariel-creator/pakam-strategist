@@ -17,6 +17,12 @@ import type {
 } from "@/types/degree";
 import { getActiveProgram, type ProgramDefinition } from "@/lib/programs/registry";
 
+// Practice ("משלב עשייה") credit caps (domain rules §1):
+// each practice course grants at most PRACTICE_COURSE_MAX_CREDITS regardless of
+// actual credits, and the practice total is capped at PRACTICE_TOTAL_MAX.
+const PRACTICE_COURSE_MAX_CREDITS = 4;
+const PRACTICE_TOTAL_MAX = 8;
+
 // -------------------------------------------------------------------
 // Helpers
 // -------------------------------------------------------------------
@@ -116,10 +122,20 @@ export function calculateCredits(
 
   for (const uc of countable) {
     const { course } = uc;
-    const credits = course.credits;
     const discipline = resolvedDiscipline(uc);
 
-    // Attribute to the resolved discipline bucket.
+    // Effective credits that count toward the degree. For practice
+    // ("משלב עשייה") courses each course grants at most 4 ש"ז regardless of its
+    // actual credits, and the practice TOTAL is capped at 8 ש"ז (domain rules §1).
+    let credits = course.credits;
+    if (course.courseType === "PRACTICE") {
+      const perCourse = Math.min(credits, PRACTICE_COURSE_MAX_CREDITS);
+      const remainingCap = Math.max(0, PRACTICE_TOTAL_MAX - practice);
+      credits = Math.min(perCourse, remainingCap);
+      practice += credits;
+    }
+
+    // Attribute to the resolved discipline bucket (capped value for practice).
     byDiscipline[discipline] = (byDiscipline[discipline] ?? 0) + credits;
 
     // Course-type buckets.
@@ -133,7 +149,7 @@ export function calculateCredits(
         elective += credits;
         break;
       case "PRACTICE":
-        practice += credits;
+        // practice total already accumulated above (with caps applied).
         break;
       case "ENGLISH":
         englishCredits += credits;
@@ -141,7 +157,7 @@ export function calculateCredits(
         break;
     }
 
-    // Earned vs planned.
+    // Earned vs planned (capped value for practice).
     if (uc.status === "COMPLETED") {
       earnedCredits += credits;
     } else {
