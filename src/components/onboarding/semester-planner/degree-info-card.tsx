@@ -75,7 +75,7 @@ export function DegreeInfoCard() {
           {/* Mandatory */}
           <div className="flex flex-col items-center gap-1 rounded-md border border-border/30 bg-card/30 px-2 py-2.5">
             <span className="font-mono text-lg font-bold text-foreground/80">
-              103
+              {CREDIT_REQUIREMENTS.MANDATORY_TOTAL}
             </span>
             <span className="text-[10px] font-medium text-foreground/50">
               {/* Mandatory */}
@@ -95,7 +95,7 @@ export function DegreeInfoCard() {
           {/* Seminars */}
           <div className="flex flex-col items-center gap-1 rounded-md border border-border/30 bg-card/30 px-2 py-2.5">
             <span className="font-mono text-lg font-bold text-foreground/80">
-              12
+              {CREDIT_REQUIREMENTS.SEMINAR_TOTAL}
             </span>
             <span className="text-[10px] font-medium text-foreground/50">
               {/* Seminars */}

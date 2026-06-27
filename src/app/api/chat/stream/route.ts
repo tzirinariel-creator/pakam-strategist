@@ -34,6 +34,28 @@ const streamInputSchema = z.object({
 // -------------------------------------------------------------------
 
 export async function POST(request: NextRequest) {
+  // User-facing streaming error messages. The mentor UI is Hebrew-first, so we
+  // localize the human-readable text (status codes / semantics are unchanged).
+  // Respect the request locale via the NEXT_LOCALE cookie (same pattern used by
+  // the other API routes), defaulting to Hebrew.
+  const locale = request.cookies.get("NEXT_LOCALE")?.value === "en" ? "en" : "he";
+  const streamErrors =
+    locale === "en"
+      ? {
+          invalidKey: "API key is invalid or expired",
+          rateLimit: "Rate limit reached. Please wait.",
+          overloaded: "Claude is overloaded. Please try again shortly.",
+          generic: "Failed to get response",
+          notSaved: "Reply could not be saved — it may disappear on refresh.",
+        }
+      : {
+          invalidKey: "מפתח ה-API שגוי או שפג תוקפו",
+          rateLimit: "הגעת למגבלת הבקשות. נסה שוב בעוד רגע.",
+          overloaded: "השירות עמוס כעת. נסה שוב בעוד רגע.",
+          generic: "שליחת התשובה נכשלה. נסה שוב.",
+          notSaved: "לא ניתן היה לשמור את התשובה — ייתכן שהיא תיעלם ברענון.",
+        };
+
   try {
     // 1. Auth check
     const supabase = await createServerSupabase();
@@ -234,7 +256,7 @@ export async function POST(request: NextRequest) {
             console.error("Failed to persist chat session:", dbErr);
             controller.enqueue(
               encoder.encode(
-                `data: ${JSON.stringify({ type: "error", error: "Reply could not be saved — it may disappear on refresh." })}\n\n`
+                `data: ${JSON.stringify({ type: "error", error: streamErrors.notSaved })}\n\n`
               )
             );
           }
@@ -248,12 +270,12 @@ export async function POST(request: NextRequest) {
           const apiError = err as { status?: number };
           const errorMessage =
             apiError?.status === 401
-              ? "API key is invalid or expired"
+              ? streamErrors.invalidKey
               : apiError?.status === 429
-                ? "Rate limit reached. Please wait."
+                ? streamErrors.rateLimit
                 : apiError?.status === 529
-                  ? "Claude is overloaded. Please try again shortly."
-                  : "Failed to get response";
+                  ? streamErrors.overloaded
+                  : streamErrors.generic;
 
           // Guard against a controller that may already be closed.
           if (!closed) {
