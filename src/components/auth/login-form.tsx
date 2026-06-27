@@ -7,6 +7,7 @@ import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
+import { authErrorKey } from "@/lib/auth-helpers";
 import { GraduationCap, Loader2, AlertCircle, Eye } from "lucide-react";
 
 function GoogleIcon({ className }: { className?: string }) {
@@ -43,6 +44,7 @@ export function LoginForm() {
   const [googleLoading, setGoogleLoading] = useState(false);
   const [demoLoading, setDemoLoading] = useState(false);
   const [showEmailForm, setShowEmailForm] = useState(false);
+  const [resetMessage, setResetMessage] = useState<string | null>(null);
 
   // Show error if redirected from auth callback with ?error=auth
   useEffect(() => {
@@ -72,7 +74,8 @@ export function LoginForm() {
       });
 
       if (authError) {
-        setError(authError.message);
+        const key = authErrorKey(authError.message);
+        setError(key ? t(key) : t("unexpectedError"));
         setGoogleLoading(false);
       }
       // If no error, the browser will redirect to Google
@@ -85,6 +88,7 @@ export function LoginForm() {
   const handleEmailSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
+    setResetMessage(null);
     setLoading(true);
 
     try {
@@ -95,7 +99,8 @@ export function LoginForm() {
       });
 
       if (authError) {
-        setError(authError.message);
+        const key = authErrorKey(authError.message);
+        setError(key ? t(key) : t("loginFailed"));
         return;
       }
 
@@ -106,6 +111,34 @@ export function LoginForm() {
       setError(t("unexpectedError"));
     } finally {
       setLoading(false);
+    }
+  };
+
+  // Send a password reset link. The callback route handles the recovery token,
+  // so the user lands authenticated and can set a new password from Settings.
+  const handleForgotPassword = async () => {
+    setError(null);
+    setResetMessage(null);
+    if (!email) {
+      setError(t("loginFailed"));
+      return;
+    }
+    try {
+      const supabase = createClient();
+      const { error: resetError } = await supabase.auth.resetPasswordForEmail(
+        email,
+        {
+          redirectTo: `${window.location.origin}/api/auth/callback?next=/${locale}/settings`,
+        },
+      );
+      if (resetError) {
+        setResetMessage(t("resetEmailError"));
+        return;
+      }
+      // Neutral message regardless of whether the address exists (avoids enumeration).
+      setResetMessage(t("resetEmailSent"));
+    } catch {
+      setResetMessage(t("resetEmailError"));
     }
   };
 
@@ -231,6 +264,27 @@ export function LoginForm() {
                 className="bg-background/50"
               />
             </div>
+
+            {/* Forgot password — sends a reset link; falls back to Google guidance */}
+            <div className="flex flex-col gap-1 text-start">
+              <button
+                type="button"
+                onClick={handleForgotPassword}
+                className="text-xs font-medium text-muted-foreground underline-offset-4 hover:text-foreground hover:underline"
+              >
+                {t("forgotPassword")}
+              </button>
+              <span className="text-[11px] text-muted-foreground/70">
+                {t("forgotPasswordHint")}
+              </span>
+            </div>
+
+            {/* Reset feedback */}
+            {resetMessage && (
+              <p className="text-xs font-medium text-foreground/70">
+                {resetMessage}
+              </p>
+            )}
 
             {/* Submit */}
             <Button

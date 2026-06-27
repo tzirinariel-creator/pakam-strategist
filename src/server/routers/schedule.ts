@@ -9,6 +9,7 @@ import {
   deleteEventsFromGoogle,
   type PushableEvent,
 } from "@/lib/google-calendar";
+import { SEMESTER_TEACHING_DATES } from "@/lib/constants";
 
 export const scheduleRouter = createTRPCRouter({
   /**
@@ -306,25 +307,16 @@ export const scheduleRouter = createTRPCRouter({
         LAB: "מעבדה",
       };
 
-      // Semester date ranges — computed dynamically from the current academic year.
-      // Academic year starts in October: if today is Oct+ we are in year Y/Y+1,
-      // otherwise we are in year (Y-1)/Y.
-      const now = new Date();
-      const acadStartYear =
-        now.getMonth() >= 9 /* Oct+ */ ? now.getFullYear() : now.getFullYear() - 1;
-
+      // Semester teaching ranges — shared with the .ics export via
+      // SEMESTER_TEACHING_DATES (TAU 2025/26) so both export paths place classes
+      // on identical dates. SUMMER isn't a teaching semester for PPE; fall back to
+      // a short fixed window so the sync still works if a summer course exists.
       const semesterDates: Record<string, { start: Date; end: Date }> = {
-        FALL: {
-          start: new Date(acadStartYear, 9, 26),       // Oct 26
-          end:   new Date(acadStartYear + 1, 0, 25),    // Jan 25
-        },
-        SPRING: {
-          start: new Date(acadStartYear + 1, 2, 15),    // Mar 15
-          end:   new Date(acadStartYear + 1, 5, 20),    // Jun 20
-        },
+        FALL: SEMESTER_TEACHING_DATES.FALL,
+        SPRING: SEMESTER_TEACHING_DATES.SPRING,
         SUMMER: {
-          start: new Date(acadStartYear + 1, 6, 6),     // Jul 6
-          end:   new Date(acadStartYear + 1, 7, 29),    // Aug 29
+          start: new Date(2026, 6, 6), // Jul 6 2026
+          end: new Date(2026, 7, 29), // Aug 29 2026
         },
       };
 

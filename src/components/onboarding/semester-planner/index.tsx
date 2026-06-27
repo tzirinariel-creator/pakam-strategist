@@ -3,6 +3,7 @@
 import { useMemo, useState, useCallback, useEffect, useRef } from "react";
 import { useTranslations, useLocale } from "next-intl";
 import { CalendarDays, Info, Download, Check, BarChart3 } from "lucide-react";
+import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { SEMESTER_CONFIG, YEAR_CONFIG } from "@/lib/constants";
 import { detectConflicts } from "@/lib/plan-generator";
@@ -53,6 +54,7 @@ export function SemesterPlanner({
   onFinish,
 }: SemesterPlannerProps) {
   const t = useTranslations("onboarding");
+  const tCal = useTranslations("calendar");
   const locale = useLocale();
   const isHe = locale === "he";
 
@@ -605,11 +607,20 @@ export function SemesterPlanner({
             </div>
             <div className="flex items-center gap-1">
               <button
-                onClick={() => downloadICS(allCurrentCourses, currentSemester)}
-                className="flex items-center gap-1 rounded-md px-2 py-1 text-xs text-foreground/30 hover:text-foreground/50 hover:bg-foreground/5 transition-all"
-                title={isHe ? "ייצא ליומן" : "Export to calendar"}
+                onClick={() => {
+                  // Guard the empty case: warn instead of silently doing nothing.
+                  if (allCurrentCourses.length === 0) {
+                    toast.error(tCal("exportEmpty"));
+                    return;
+                  }
+                  downloadICS(allCurrentCourses, currentSemester);
+                  toast.success(tCal("exportSuccess"));
+                }}
+                className="flex items-center gap-1.5 rounded-md px-2.5 py-1.5 text-xs font-medium text-foreground/70 hover:text-foreground hover:bg-foreground/5 transition-all"
+                title={tCal("exportICSFile")}
               >
                 <Download className="h-3 w-3" />
+                {tCal("exportICSFile")}
               </button>
             </div>
           </div>

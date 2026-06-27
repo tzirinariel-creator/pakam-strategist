@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useTranslations, useLocale } from "next-intl";
 import { Link, useRouter } from "@/i18n/navigation";
 import { createClient } from "@/lib/supabase/client";
@@ -8,7 +8,8 @@ import { api } from "@/lib/trpc/react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
-import { GraduationCap, Loader2, AlertCircle, CheckCircle, Eye } from "lucide-react";
+import { isTauEmail, authErrorKey } from "@/lib/auth-helpers";
+import { GraduationCap, Loader2, AlertCircle, CheckCircle, Eye, Mail } from "lucide-react";
 
 function GoogleIcon({ className }: { className?: string }) {
   return (
@@ -46,8 +47,40 @@ export function SignupForm() {
   const [demoLoading, setDemoLoading] = useState(false);
   const [confirmationSent, setConfirmationSent] = useState(false);
   const [showEmailForm, setShowEmailForm] = useState(false);
+  const [resendCooldown, setResendCooldown] = useState(0);
+  const [resendMessage, setResendMessage] = useState<string | null>(null);
 
   const ensureExists = api.user.ensureExists.useMutation();
+
+  // Tick down the resend cooldown once a second.
+  useEffect(() => {
+    if (resendCooldown <= 0) return;
+    const timer = setTimeout(() => setResendCooldown((s) => s - 1), 1000);
+    return () => clearTimeout(timer);
+  }, [resendCooldown]);
+
+  const handleResend = async () => {
+    if (resendCooldown > 0) return;
+    setResendMessage(null);
+    try {
+      const supabase = createClient();
+      const { error: resendError } = await supabase.auth.resend({
+        type: "signup",
+        email,
+        options: {
+          emailRedirectTo: `${window.location.origin}/api/auth/callback?next=/${locale}/planner`,
+        },
+      });
+      if (resendError) {
+        setResendMessage(t("resendError"));
+        return;
+      }
+      setResendMessage(t("resendSuccess"));
+      setResendCooldown(60);
+    } catch {
+      setResendMessage(t("resendError"));
+    }
+  };
 
   const handleDemoLogin = async () => {
     setError(null);
@@ -86,7 +119,8 @@ export function SignupForm() {
       });
 
       if (authError) {
-        setError(authError.message);
+        const key = authErrorKey(authError.message);
+        setError(key ? t(key) : t("unexpectedError"));
         setGoogleLoading(false);
       }
       // If no error, the browser will redirect to Google
@@ -99,6 +133,13 @@ export function SignupForm() {
   const handleEmailSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
+
+    // Restrict signup to Tel Aviv University email addresses.
+    if (!isTauEmail(email)) {
+      setError(t("tauEmailRequired"));
+      return;
+    }
+
     setLoading(true);
 
     try {
@@ -110,11 +151,13 @@ export function SignupForm() {
           data: {
             display_name: name,
           },
+          emailRedirectTo: `${window.location.origin}/api/auth/callback?next=/${locale}/planner`,
         },
       });
 
       if (authError) {
-        setError(authError.message);
+        const key = authErrorKey(authError.message);
+        setError(key ? t(key) : t("unexpectedError"));
         return;
       }
 
@@ -157,7 +200,46 @@ export function SignupForm() {
                 b: (chunks) => <strong>{chunks}</strong>,
               })}
             </p>
+            {/* Spam-folder hint */}
+            <p className="mt-2 text-xs text-muted-foreground/80">
+              {t("spamHint")}
+            </p>
           </div>
+
+          {/* Resend feedback */}
+          {resendMessage && (
+            <p className="text-xs font-medium text-foreground/70">
+              {resendMessage}
+            </p>
+          )}
+
+          {/* Resend button with cooldown */}
+          <Button
+            type="button"
+            variant="outline"
+            onClick={handleResend}
+            disabled={resendCooldown > 0}
+            className="w-full gap-2"
+          >
+            <Mail className="size-4" />
+            {resendCooldown > 0
+              ? t("resendCooldown", { seconds: resendCooldown })
+              : t("resendEmail")}
+          </Button>
+
+          {/* Wrong email? → go back to edit the form */}
+          <button
+            type="button"
+            onClick={() => {
+              setConfirmationSent(false);
+              setResendMessage(null);
+              setResendCooldown(0);
+            }}
+            className="text-sm font-medium text-muted-foreground underline-offset-4 hover:text-foreground hover:underline"
+          >
+            {t("wrongEmail")}
+          </button>
+
           <Link
             href="/login"
             className="text-sm font-medium text-foreground/80 underline-offset-4 hover:underline"

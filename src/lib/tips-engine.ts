@@ -187,8 +187,8 @@ const WARNINGS: Tip[] = [
   },
   {
     id: "w-3",
-    textEn: "Failing the same course twice = game over. No third attempt. Invest in the first try.",
-    textHe: "כשלון באותו קורס פעמיים = סוף הדרך. אין ניסיון שלישי. תשקיעו בפעם הראשונה.",
+    textEn: "Fail the same course twice and you can't retake it — there is no third attempt. Make the first try count.",
+    textHe: "כישלון באותו קורס פעמיים — לא ניתן לחזור עליו, אין מועד שלישי. כדאי להשקיע כבר בפעם הראשונה.",
     category: "warning",
     icon: Ban,
   },

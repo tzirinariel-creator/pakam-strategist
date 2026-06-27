@@ -5,6 +5,7 @@
 // for import into Google Calendar, Apple Calendar, etc.
 
 import type { CourseWithSchedule } from "./plan-generator";
+import { SEMESTER_TEACHING_DATES } from "./constants";
 
 // ─── Constants ─────────────────────────────────────────────────────
 
@@ -18,19 +19,9 @@ const DAY_MAP: Record<string, string> = {
   SATURDAY: "SA",
 };
 
-// Academic semester teaching ranges — aligned with the app's academic calendar
-// (see gantt-view ACADEMIC_CALENDAR), TAU 2025-2026. Fixed dates rather than
-// `new Date().getFullYear()` so the export year matches the plan, not the run year.
-const SEMESTER_DATES: Record<string, { start: Date; end: Date }> = {
-  FALL: {
-    start: new Date(2025, 9, 19), // Oct 19 2025
-    end: new Date(2026, 0, 16), // Jan 16 2026 (teaching end)
-  },
-  SPRING: {
-    start: new Date(2026, 2, 8), // Mar 8 2026
-    end: new Date(2026, 5, 12), // Jun 12 2026
-  },
-};
+// Single shared source of truth for teaching dates (TAU 2025/26), imported so the
+// .ics export and the Google Calendar sync place classes on identical dates.
+const SEMESTER_DATES = SEMESTER_TEACHING_DATES;
 
 // ─── Helpers ─────────────────────────────────────────────────────
 
@@ -216,7 +207,9 @@ export function generateICSFromSessions(
   const range = SEMESTER_DATES[semester];
   if (!range) return "";
 
-  const untilDate = formatICSDate(range.end);
+  // UNTIL must be in UTC (trailing Z) per RFC 5545 when DTSTART uses a TZID —
+  // otherwise Google Calendar rejects the recurrence end. Matches generateICS.
+  const untilDate = formatICSUntilUTC(range.end);
 
   for (const session of sessions) {
     const icsDay = DAY_MAP[session.dayOfWeek];

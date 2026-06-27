@@ -288,6 +288,30 @@ export const SEMESTER_CONFIG = {
   SUMMER: { nameEn: "Summer", nameHe: "סמסטר קיץ", short: "קיץ", shortEn: "Summer" },
 } as const;
 
+/**
+ * Single source of truth for semester *teaching* periods, pinned to TAU 2025/26.
+ * Used by both the .ics export (src/lib/ics-export.ts) and the Google Calendar
+ * sync (src/server/routers/schedule.ts) so recurring classes land on identical
+ * dates regardless of which export path the student uses. These are the
+ * teaching ranges (first lecture → last lecture), not the wider classification
+ * windows in MILUIM_CONFIG.SEMESTER_DATES_2026.
+ *
+ * Months are 0-indexed (JS Date convention): 9 = October, 0 = January, etc.
+ */
+export const SEMESTER_TEACHING_DATES: Record<
+  "FALL" | "SPRING",
+  { start: Date; end: Date }
+> = {
+  FALL: {
+    start: new Date(2025, 9, 19), // Oct 19 2025
+    end: new Date(2026, 0, 16), // Jan 16 2026 (teaching end)
+  },
+  SPRING: {
+    start: new Date(2026, 2, 8), // Mar 8 2026
+    end: new Date(2026, 5, 12), // Jun 12 2026
+  },
+} as const;
+
 // Year display config
 export const YEAR_CONFIG = {
   1: { nameEn: "Year A", nameHe: "שנה א׳" },

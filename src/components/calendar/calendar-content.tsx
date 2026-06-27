@@ -130,11 +130,18 @@ export function CalendarContent() {
   // ICS export handler — uses schedule session data directly
   const handleExport = () => {
     const sessions = scheduleData?.sessions;
-    if (sessions && sessions.length > 0 && parsedSemester) {
-      const sem = parsedSemester.semester;
-      if (sem === "FALL" || sem === "SPRING") {
-        downloadICSFromSessions(sessions, sem);
-      }
+    // Guard the empty case: warn instead of silently doing nothing.
+    if (!sessions || sessions.length === 0 || !parsedSemester) {
+      toast.error(t("exportEmpty"));
+      return;
+    }
+    const sem = parsedSemester.semester;
+    if (sem === "FALL" || sem === "SPRING") {
+      downloadICSFromSessions(sessions, sem);
+      toast.success(t("exportSuccess"));
+    } else {
+      // SUMMER (or unsupported) — no teaching .ics range available.
+      toast.error(t("exportEmpty"));
     }
   };
 
@@ -219,16 +226,16 @@ export function CalendarContent() {
             ))}
           </select>
 
-          {/* ICS Export button */}
+          {/* ICS Export button — names the artifact (.ics) */}
           {semesterCourses.length > 0 && viewMode !== "exams" && (
             <button
               type="button"
               onClick={handleExport}
               className="flex items-center gap-1.5 rounded-lg border border-border bg-card px-3 py-1.5 text-sm font-medium text-foreground/70 transition-colors hover:bg-foreground/5 hover:text-foreground"
-              title={t("exportICS")}
+              title={t("exportICSFile")}
             >
               <Download className="size-3.5" />
-              <span className="hidden sm:inline">{t("exportICS")}</span>
+              <span className="hidden sm:inline">{t("exportICSFile")}</span>
             </button>
           )}
 
@@ -254,6 +261,13 @@ export function CalendarContent() {
           )}
         </div>
       </div>
+
+      {/* .ics import hint — clarifies the downloaded file must be imported */}
+      {semesterCourses.length > 0 && viewMode !== "exams" && (
+        <p className="-mt-2 text-xs text-muted-foreground/70">
+          {t("exportHint")}
+        </p>
+      )}
 
       {/* Empty semester state */}
       {semesterCourses.length === 0 && viewMode !== "exams" && (

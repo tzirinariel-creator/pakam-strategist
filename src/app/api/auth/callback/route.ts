@@ -1,14 +1,20 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { createServerClient } from "@supabase/ssr";
+import type { EmailOtpType } from "@supabase/supabase-js";
 
 /**
- * Supabase OAuth callback handler.
- * After Google OAuth consent, Supabase redirects here with a `code` parameter.
- * We exchange the code for a session and redirect to the dashboard.
+ * Supabase auth callback handler.
+ * Handles two flows that both land here:
+ *  1. OAuth / PKCE — Supabase redirects with a `code` parameter (Google sign-in).
+ *  2. Email confirmation — the signup confirm link carries `token_hash` + `type`
+ *     (e.g. type=signup). We verify the OTP to establish the session.
+ * In both cases we exchange the credential for a session and redirect to `next`.
  */
 export async function GET(request: NextRequest) {
   const { searchParams, origin } = request.nextUrl;
   const code = searchParams.get("code");
+  const tokenHash = searchParams.get("token_hash");
+  const type = searchParams.get("type") as EmailOtpType | null;
 
   // Validate redirect target to prevent open-redirect attacks.
   // Only allow relative paths that start with "/" and don't contain "//"
@@ -19,7 +25,7 @@ export async function GET(request: NextRequest) {
       ? rawNext
       : "/he/planner";
 
-  if (code) {
+  if (code || (tokenHash && type)) {
     const response = NextResponse.redirect(new URL(next, origin));
 
     const supabase = createServerClient(
@@ -37,7 +43,10 @@ export async function GET(request: NextRequest) {
       },
     );
 
-    const { error } = await supabase.auth.exchangeCodeForSession(code);
+    // PKCE / OAuth flow → exchange code; email-confirm flow → verify OTP.
+    const { error } = code
+      ? await supabase.auth.exchangeCodeForSession(code)
+      : await supabase.auth.verifyOtp({ token_hash: tokenHash!, type: type! });
 
     if (!error) {
       return response;

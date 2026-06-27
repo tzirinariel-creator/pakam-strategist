@@ -78,10 +78,22 @@ const enforceAuth = t.middleware(async ({ ctx, next }) => {
   }
 
   if (!user) {
+    // Populate displayName from verified session metadata. Email-confirm signups
+    // carry `display_name` (set in the signUp options); OAuth providers carry
+    // `full_name` / `name`. Fall back to null when none is present.
+    const meta = ctx.session.user.user_metadata as
+      | Record<string, unknown>
+      | undefined;
+    const displayName =
+      ((meta?.display_name ?? meta?.full_name ?? meta?.name) as
+        | string
+        | undefined) ?? null;
+
     user = await ctx.db.user.create({
       data: {
         supabaseId: ctx.session.user.id,
         email: ctx.session.user.email ?? "",
+        displayName,
       },
     });
   }
