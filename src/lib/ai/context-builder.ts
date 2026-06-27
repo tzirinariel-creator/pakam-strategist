@@ -33,6 +33,8 @@ export interface UserForContext {
   focusArea: string | null;
   currentYear: number;
   currentSemester: string;
+  /** AMIRANT English placement score (DB column kept as amiramScore). */
+  amiramScore?: number | null;
 }
 
 // -------------------------------------------------------------------
@@ -118,7 +120,17 @@ export async function buildUserContext(
   const creditResult = calculateCredits(userCourses, user.focusArea);
   const gradeResult = calculateGrades(userCourses);
 
-  const regulationSummary = runRegulationEngine(userCourses, user.focusArea);
+  const regulationSummary = runRegulationEngine(
+    userCourses,
+    user.focusArea,
+    0,
+    undefined,
+    {
+      amirantScore: user.amiramScore ?? null,
+      academicYear: user.currentYear,
+      currentSemester: user.currentSemester,
+    },
+  );
 
   const regulationIssues: RegulationIssue[] = regulationSummary.results
     .filter((r) => !r.passed)

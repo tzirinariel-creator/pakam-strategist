@@ -27,6 +27,15 @@ export interface RuleContext {
   seminars: SeminarInfo[];
   /** The active program definition — rules read thresholds from here. */
   programDefinition: ProgramDefinition;
+  /**
+   * Student's AMIRANT (English placement) score on the 50–150 scale, or null
+   * if not provided. When null, English-level rules stay neutral. נכון לתשפ"ו.
+   */
+  amirantScore?: number | null;
+  /** Student's current academic year (1-based) — used by deadline rules. */
+  academicYear?: number;
+  /** Student's current semester ("FALL" | "SPRING" | "SUMMER"). */
+  currentSemester?: string;
 }
 
 export type RegulationRule = (context: RuleContext) => RegulationResult;

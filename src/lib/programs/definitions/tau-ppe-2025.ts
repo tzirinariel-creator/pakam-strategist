@@ -68,8 +68,13 @@ export const TAU_PPE_2025: ProgramDefinition = {
   ],
 
   // ── Credit Requirements ──
+  // VERIFIED נכון לתשפ"ו: 150 = 103 mandatory (incl. PPE seminar) + 12 seminars + 35 electives.
+  // The 103 mandatory splits 29 PPE-core + 18 philosophy + 27 economics + 15 polsci + 14 law.
   creditRequirements: {
     total: 150,
+    mandatoryCredits: 103,
+    seminarCredits: 12,
+    electiveCredits: 35,
     focusAreaMin: 60,
     passingGrade: 56,
     graduationMinScore: 60,

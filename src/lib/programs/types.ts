@@ -90,6 +90,16 @@ export interface ProgramDefinition {
   creditRequirements: {
     /** Total credits for graduation (e.g., 150) */
     total: number;
+    /**
+     * Minimum MANDATORY credits, incl. the PPE seminar (e.g., 103).
+     * Sum of the per-discipline mandatory minima. VERIFIED נכון לתשפ"ו.
+     * Optional: programs that don't model this can omit it.
+     */
+    mandatoryCredits?: number;
+    /** Minimum SEMINAR credits — their own bucket, NOT electives (e.g., 12). */
+    seminarCredits?: number;
+    /** Minimum ELECTIVE credits (e.g., 35). */
+    electiveCredits?: number;
     /** Minimum credits in focus area discipline (e.g., 60) */
     focusAreaMin: number;
     /** Minimum passing grade (e.g., 60) */

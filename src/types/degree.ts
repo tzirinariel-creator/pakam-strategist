@@ -65,6 +65,8 @@ export interface CreditBreakdown {
   planned: number;
   mandatory: number;
   elective: number;
+  /** SEMINAR credits — their own bucket (12 ש"ס), NOT counted as electives. */
+  seminar: number;
   practice: number;
   byDiscipline: DisciplineCredits;
   focusArea: number;

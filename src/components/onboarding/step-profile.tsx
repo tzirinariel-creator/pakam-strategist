@@ -182,7 +182,7 @@ export function StepProfile({ data, onUpdate }: StepProfileProps) {
     };
   };
 
-  const amirnetStatus = getAmirnetStatus(data.amiramScore);
+  const amirnetStatus = getAmirnetStatus(data.amirantScore);
 
   return (
     <div className="flex flex-col items-center">
@@ -756,12 +756,12 @@ export function StepProfile({ data, onUpdate }: StepProfileProps) {
         {/* Amirnet / Psychometric English score section */}
         <div className="animate-stagger-4">
           <h3 className="mb-2 text-sm font-medium text-foreground/70">
-            {isHe ? "ציון אמירנ״ט / פסיכומטרי אנגלית" : "Amirnet / Psychometric English Score"}
+            {isHe ? "ציון אמירנט / פסיכומטרי אנגלית" : "AMIRANT / Psychometric English Score"}
           </h3>
           <p className="mb-3 text-xs text-foreground/40">
             {isHe
-              ? "הציון קובע כמה קורסי אנגלית תצטרכו. הסולם 50-150 זהה לאמירנ״ט, אמיר״ם ופסיכומטרי. בפכ״מ נדרשים 2 קורסי תוכן באנגלית בכל מקרה."
-              : "Determines how many English courses you need. The 50-150 scale is shared by Amirnet, AMIRAM and Psychometric. PPE requires 2 English content courses regardless."
+              ? "הציון קובע כמה קורסי אנגלית תצטרכו. הסולם 50-150 זהה לאמירנט ולפסיכומטרי. בפכ״מ נדרשים 2 קורסי תוכן באנגלית בכל מקרה."
+              : "Determines how many English courses you need. The 50-150 scale is shared by AMIRANT and Psychometric. PPE requires 2 English content courses regardless."
             }
           </p>
           <div className="flex items-center gap-3">
@@ -769,10 +769,10 @@ export function StepProfile({ data, onUpdate }: StepProfileProps) {
               type="number"
               min={50}
               max={150}
-              value={data.amiramScore ?? ""}
+              value={data.amirantScore ?? ""}
               onChange={(e) => {
                 const val = e.target.value;
-                onUpdate({ amiramScore: val === "" ? null : parseInt(val, 10) });
+                onUpdate({ amirantScore: val === "" ? null : parseInt(val, 10) });
               }}
               placeholder={isHe ? "למשל: 134" : "e.g. 134"}
               className="w-32 rounded-xl border-2 border-border bg-card px-4 py-2.5 text-sm text-foreground placeholder:text-foreground/30 focus:border-foreground/30 focus:outline-none transition-colors"

@@ -166,7 +166,10 @@ function buildCreditRequirements(program: ProgramDefinition) {
     FOCUS_AREA_MIN: program.creditRequirements.focusAreaMin,
     ENGLISH_MIN_COURSES: program.creditRequirements.englishCourses,
     ENGLISH_MIN_CREDITS_PER_COURSE: 2,
-    ELECTIVE_TOTAL: 35,
+    // VERIFIED נכון לתשפ"ו: 150 = 103 mandatory (incl. PPE seminar) + 12 seminars + 35 electives.
+    MANDATORY_TOTAL: program.creditRequirements.mandatoryCredits ?? 0,
+    SEMINAR_TOTAL: program.creditRequirements.seminarCredits ?? 0,
+    ELECTIVE_TOTAL: program.creditRequirements.electiveCredits ?? 0,
     PRACTICE_ELECTIVE_MAX: 8,
     PRACTICE_COURSE_MAX_CREDITS: 4,
     PASSING_GRADE: program.creditRequirements.passingGrade,
@@ -588,6 +591,69 @@ export const AMIRNET_CONFIG = {
 
 // Backwards-compatible alias
 export const AMIRAM_CONFIG = AMIRNET_CONFIG;
+
+// ────────────────────────────────────────────────────────────────────
+// English (AMIRANT) placement → level mapping — נכון לתשפ"ו
+// Official 50–150 scale. The LEVEL (preparatory) courses below are NOT
+// counted in the 150 credits and NOT in the final grade — they are
+// SEPARATE from the 2 English CONTENT courses (rule PKM-012).
+// ────────────────────────────────────────────────────────────────────
+export type EnglishLevel =
+  | "PRE_BASIC"   // טרום בסיסי — auto-rejection
+  | "BASIC"       // בסיסי
+  | "ADVANCED_A"  // מתקדמים א'
+  | "ADVANCED_B"  // מתקדמים ב'
+  | "EXEMPT";     // פטור
+
+export const ENGLISH_CONFIG = {
+  // Score at/above which the student is exempt from LEVEL courses.
+  EXEMPT_THRESHOLD: 134,
+  // Passing grade for an English COURSE in the humanities faculty (where PPE sits)
+  // is 70 — higher than the 60 used elsewhere. נכון לתשפ"ו.
+  COURSE_PASSING_GRADE: 70,
+  // Deadline to reach exemption (פטור): by the END of the 2nd semester, i.e.
+  // year 1, semester B (SPRING). Past this without exemption → studies stop.
+  EXEMPTION_DEADLINE_YEAR: 1,
+  EXEMPTION_DEADLINE_SEMESTER: "SPRING" as const,
+  // Score → level + number of remaining LEVEL (preparatory) courses.
+  // Ordered high→low; first match wins.
+  LEVELS: [
+    { level: "EXEMPT" as EnglishLevel, minScore: 134, levelCourses: 0, nameHe: "פטור", nameEn: "Exempt" },
+    { level: "ADVANCED_B" as EnglishLevel, minScore: 120, levelCourses: 1, nameHe: "מתקדמים ב׳", nameEn: "Advanced B" },
+    { level: "ADVANCED_A" as EnglishLevel, minScore: 100, levelCourses: 2, nameHe: "מתקדמים א׳", nameEn: "Advanced A" },
+    { level: "BASIC" as EnglishLevel, minScore: 85, levelCourses: 3, nameHe: "בסיסי", nameEn: "Basic" },
+    { level: "PRE_BASIC" as EnglishLevel, minScore: 0, levelCourses: 4, nameHe: "טרום בסיסי", nameEn: "Pre-basic" },
+  ],
+} as const;
+
+export interface EnglishLevelInfo {
+  level: EnglishLevel;
+  nameHe: string;
+  nameEn: string;
+  levelCourses: number;   // remaining preparatory LEVEL courses needed
+  isExempt: boolean;
+  isRejected: boolean;    // טרום בסיסי (≤84) — below admission minimum
+}
+
+/**
+ * Map an AMIRANT score (50–150) to its English level + how many LEVEL
+ * (preparatory) courses are still needed. Returns null for a null score
+ * so callers can stay neutral (no rule firing). נכון לתשפ"ו.
+ */
+export function getEnglishLevel(score: number | null): EnglishLevelInfo | null {
+  if (score == null) return null;
+  const row =
+    ENGLISH_CONFIG.LEVELS.find((l) => score >= l.minScore) ??
+    ENGLISH_CONFIG.LEVELS[ENGLISH_CONFIG.LEVELS.length - 1]!;
+  return {
+    level: row.level,
+    nameHe: row.nameHe,
+    nameEn: row.nameEn,
+    levelCourses: row.levelCourses,
+    isExempt: row.level === "EXEMPT",
+    isRejected: row.level === "PRE_BASIC",
+  };
+}
 
 // Recommended credit load per semester (from official PKM guide 5786)
 export const SEMESTER_CREDIT_GUIDANCE = {

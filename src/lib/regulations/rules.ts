@@ -12,6 +12,7 @@ import type { RuleContext, RegulationRule, RegulationResult } from "@/types/regu
 import type { DisciplineDefinition, ProgramDefinition } from "@/lib/programs/types";
 import { getActiveProgram } from "@/lib/programs/registry";
 import { getDiscipline } from "@/lib/programs/types";
+import { getEnglishLevel, ENGLISH_CONFIG, GRADE_REQUIREMENTS } from "@/lib/constants";
 
 // -------------------------------------------------------------------
 // Helper: build a RegulationResult
@@ -64,6 +65,126 @@ export const ruleTotalCredits: RegulationRule = (ctx: RuleContext) => {
     passed
       ? `דרישת ש"ס כוללת מתקיימת: ${current}/${required} ש"ס.`
       : `דרישת ש"ס כוללת לא מתקיימת: ${current}/${required} ש"ס. חסרות ${required - current} ש"ס.`,
+    { current, required, deficit: Math.max(0, required - current) }
+  );
+};
+
+// -------------------------------------------------------------------
+// PKM-018: Mandatory credits >= program mandatory minimum (e.g. 103)
+// -------------------------------------------------------------------
+// VERIFIED נכון לתשפ"ו: 150 = 103 mandatory (incl. PPE seminar) + 12 seminars + 35 electives.
+
+export const ruleMandatoryCredits: RegulationRule = (ctx: RuleContext) => {
+  const required = ctx.programDefinition.creditRequirements.mandatoryCredits ?? 0;
+
+  // Program doesn't model a mandatory-credit minimum → neutral pass.
+  if (required === 0) {
+    return result(
+      "PKM-018",
+      "Mandatory Credits",
+      "נקודות זכות חובה",
+      true,
+      "INFO",
+      "No mandatory-credit minimum defined for this program.",
+      "אין דרישת מינימום ש\"ס חובה בתוכנית זו.",
+      { current: 0, required: 0 }
+    );
+  }
+
+  const current = ctx.creditBreakdown.mandatory;
+  const passed = current >= required;
+
+  return result(
+    "PKM-018",
+    "Mandatory Credits",
+    "נקודות זכות חובה",
+    passed,
+    "ERROR",
+    passed
+      ? `Mandatory credits met: ${current}/${required} SH"S.`
+      : `Mandatory credits insufficient: ${current}/${required} SH"S. Need ${required - current} more.`,
+    passed
+      ? `נקודות חובה מתקיימות: ${current}/${required} ש"ס. (נכון לתשפ"ו)`
+      : `נקודות חובה לא מספיקות: ${current}/${required} ש"ס. חסרות ${required - current} ש"ס. (נכון לתשפ"ו)`,
+    { current, required, deficit: Math.max(0, required - current) }
+  );
+};
+
+// -------------------------------------------------------------------
+// PKM-019: Seminar credits >= program seminar minimum (e.g. 12)
+// -------------------------------------------------------------------
+// Seminars are their OWN bucket — NOT counted as electives (domain rules §1).
+
+export const ruleSeminarCredits: RegulationRule = (ctx: RuleContext) => {
+  const required = ctx.programDefinition.creditRequirements.seminarCredits ?? 0;
+
+  if (required === 0) {
+    return result(
+      "PKM-019",
+      "Seminar Credits",
+      "נקודות זכות סמינריונים",
+      true,
+      "INFO",
+      "No seminar-credit minimum defined for this program.",
+      "אין דרישת מינימום ש\"ס סמינריונים בתוכנית זו.",
+      { current: 0, required: 0 }
+    );
+  }
+
+  const current = ctx.creditBreakdown.seminar;
+  const passed = current >= required;
+
+  return result(
+    "PKM-019",
+    "Seminar Credits",
+    "נקודות זכות סמינריונים",
+    passed,
+    "ERROR",
+    passed
+      ? `Seminar credits met: ${current}/${required} SH"S.`
+      : `Seminar credits insufficient: ${current}/${required} SH"S. Need ${required - current} more.`,
+    passed
+      ? `נקודות סמינריונים מתקיימות: ${current}/${required} ש"ס. (נכון לתשפ"ו)`
+      : `נקודות סמינריונים לא מספיקות: ${current}/${required} ש"ס. חסרות ${required - current} ש"ס. (נכון לתשפ"ו)`,
+    { current, required, deficit: Math.max(0, required - current) }
+  );
+};
+
+// -------------------------------------------------------------------
+// PKM-020: Elective credits >= program elective minimum (e.g. 35)
+// -------------------------------------------------------------------
+
+export const ruleElectiveCredits: RegulationRule = (ctx: RuleContext) => {
+  const required = ctx.programDefinition.creditRequirements.electiveCredits ?? 0;
+
+  if (required === 0) {
+    return result(
+      "PKM-020",
+      "Elective Credits",
+      "נקודות זכות בחירה",
+      true,
+      "INFO",
+      "No elective-credit minimum defined for this program.",
+      "אין דרישת מינימום ש\"ס בחירה בתוכנית זו.",
+      { current: 0, required: 0 }
+    );
+  }
+
+  const current = ctx.creditBreakdown.elective;
+  const passed = current >= required;
+
+  return result(
+    "PKM-020",
+    "Elective Credits",
+    "נקודות זכות בחירה",
+    passed,
+    "ERROR",
+    passed
+      ? `Elective credits met: ${current}/${required} SH"S.`
+      : `Elective credits insufficient: ${current}/${required} SH"S. Need ${required - current} more.`,
+    passed
+      ? `נקודות בחירה מתקיימות: ${current}/${required} ש"ס. (נכון לתשפ"ו)`
+      : `נקודות בחירה לא מספיקות: ${current}/${required} ש"ס. חסרות ${required - current} ש"ס. (נכון לתשפ"ו)`,
     { current, required, deficit: Math.max(0, required - current) }
   );
 };
@@ -387,6 +508,161 @@ export const ruleEnglishRequirement: RegulationRule = (ctx: RuleContext) => {
 };
 
 // -------------------------------------------------------------------
+// PKM-021: English LEVEL (preparatory) requirement from AMIRANT score
+// -------------------------------------------------------------------
+// Informational: reports the student's English level and how many LEVEL
+// (preparatory) courses they still need based on the AMIRANT score. These
+// LEVEL courses are PREPARATORY — NOT in the 150 credits and NOT in the
+// final grade, and are SEPARATE from the 2 English CONTENT courses (PKM-012).
+// נכון לתשפ"ו. Neutral (skipped) when the score is null.
+
+export const ruleEnglishLevel: RegulationRule = (ctx: RuleContext) => {
+  const info = getEnglishLevel(ctx.amirantScore ?? null);
+
+  // No score → stay neutral, do not error.
+  if (!info) {
+    return result(
+      "PKM-021",
+      "English Level (AMIRANT)",
+      "רמת אנגלית (אמירנט)",
+      true,
+      "INFO",
+      "No AMIRANT score provided — English level cannot be determined.",
+      "לא הוזן ציון אמירנט — לא ניתן לקבוע רמת אנגלית. (נכון לתשפ\"ו)",
+      { amirantScore: null }
+    );
+  }
+
+  const { level, nameHe, nameEn, levelCourses, isExempt, isRejected } = info;
+  const score = ctx.amirantScore!;
+
+  // טרום בסיסי (≤84): below TAU admission minimum — blocking (auto-rejection).
+  if (isRejected) {
+    return result(
+      "PKM-021",
+      "English Level (AMIRANT)",
+      "רמת אנגלית (אמירנט)",
+      false,
+      "ERROR",
+      `AMIRANT ${score} → ${nameEn} (pre-basic): below the admission minimum (auto-rejection). At least ${levelCourses} level courses would be required.`,
+      `אמירנט ${score} → ${nameHe}: מתחת לרף הקבלה (דחייה אוטומטית). נדרשים לפחות ${levelCourses} קורסי רמה. (נכון לתשפ\"ו)`,
+      { amirantScore: score, level, levelCourses, isExempt, isRejected }
+    );
+  }
+
+  return result(
+    "PKM-021",
+    "English Level (AMIRANT)",
+    "רמת אנגלית (אמירנט)",
+    true,
+    "INFO",
+    isExempt
+      ? `AMIRANT ${score} → ${nameEn}: exempt from level courses. The 2 English content courses still apply.`
+      : `AMIRANT ${score} → ${nameEn}: ${levelCourses} preparatory level course(s) still needed (not counted in the 150 credits). The 2 English content courses still apply.`,
+    isExempt
+      ? `אמירנט ${score} → ${nameHe}: פטור מקורסי רמה. עדיין נדרשים 2 קורסי תוכן באנגלית. (נכון לתשפ\"ו)`
+      : `אמירנט ${score} → ${nameHe}: נדרשים עוד ${levelCourses} קורסי רמה (לא נספרים ב-150 ש\"ס). עדיין נדרשים 2 קורסי תוכן באנגלית. (נכון לתשפ\"ו)`,
+    { amirantScore: score, level, levelCourses, isExempt, isRejected }
+  );
+};
+
+// -------------------------------------------------------------------
+// PKM-022: Humanities English EXEMPTION deadline (BLOCKING)
+// -------------------------------------------------------------------
+// A student who is NOT exempt (score < 134) must reach exemption (פטור) by the
+// END OF THE 2ND SEMESTER (year 1, semester B), else studies stop. We warn
+// while still within the window and ERROR once past it without exemption.
+// נכון לתשפ"ו. Neutral when the score is null or the student is exempt.
+
+export const ruleEnglishExemptionDeadline: RegulationRule = (ctx: RuleContext) => {
+  const info = getEnglishLevel(ctx.amirantScore ?? null);
+
+  // No score → stay neutral.
+  if (!info) {
+    return result(
+      "PKM-022",
+      "English Exemption Deadline",
+      "מועד אחרון לפטור באנגלית",
+      true,
+      "INFO",
+      "No AMIRANT score provided — exemption deadline cannot be evaluated.",
+      "לא הוזן ציון אמירנט — לא ניתן להעריך את המועד האחרון לפטור. (נכון לתשפ\"ו)",
+      { amirantScore: null }
+    );
+  }
+
+  // Already exempt → requirement satisfied.
+  if (info.isExempt) {
+    return result(
+      "PKM-022",
+      "English Exemption Deadline",
+      "מועד אחרון לפטור באנגלית",
+      true,
+      "INFO",
+      `Exempt from English (AMIRANT ${ctx.amirantScore}). No exemption deadline applies.`,
+      `פטור מאנגלית (אמירנט ${ctx.amirantScore}). אין מועד אחרון רלוונטי. (נכון לתשפ\"ו)`,
+      { amirantScore: ctx.amirantScore, level: info.level, isExempt: true }
+    );
+  }
+
+  // Not exempt: must reach exemption by end of year-1 semester B.
+  const deadlineYear = ENGLISH_CONFIG.EXEMPTION_DEADLINE_YEAR;       // 1
+  const deadlineSem = ENGLISH_CONFIG.EXEMPTION_DEADLINE_SEMESTER;    // "SPRING"
+
+  const year = ctx.academicYear;
+  const sem = ctx.currentSemester;
+
+  // Without academic standing we can only warn (cannot tell if past the deadline).
+  if (year == null || !sem) {
+    return result(
+      "PKM-022",
+      "English Exemption Deadline",
+      "מועד אחרון לפטור באנגלית",
+      false,
+      "WARNING",
+      `Not yet exempt in English (AMIRANT ${ctx.amirantScore}, ${info.nameEn}). You must reach exemption by the end of the 2nd semester (year 1, semester B) or studies stop.`,
+      `עדיין לא הושג פטור באנגלית (אמירנט ${ctx.amirantScore}, ${info.nameHe}). יש להגיע לפטור עד סוף הסמסטר השני (שנה א׳, סמסטר ב׳) אחרת הלימודים נפסקים. (נכון לתשפ\"ו)`,
+      { amirantScore: ctx.amirantScore, level: info.level, isExempt: false }
+    );
+  }
+
+  // Compute whether we are PAST the deadline. Semester ordering: FALL < SPRING < SUMMER.
+  const semRank: Record<string, number> = { FALL: 0, SPRING: 1, SUMMER: 2 };
+  const deadlineRank = year > deadlineYear
+    ? Infinity // any semester in a later year is already past
+    : (semRank[deadlineSem] ?? 1);
+  const currentRank = (semRank[sem] ?? 0);
+  const pastDeadline =
+    year > deadlineYear ||
+    (year === deadlineYear && currentRank > (semRank[deadlineSem] ?? 1));
+
+  if (pastDeadline) {
+    return result(
+      "PKM-022",
+      "English Exemption Deadline",
+      "מועד אחרון לפטור באנגלית",
+      false,
+      "ERROR",
+      `Past the English exemption deadline (end of year 1, semester B) without exemption (AMIRANT ${ctx.amirantScore}, ${info.nameEn}). Studies are blocked until exemption is reached.`,
+      `חלף המועד האחרון לפטור באנגלית (סוף שנה א׳, סמסטר ב׳) ללא פטור (אמירנט ${ctx.amirantScore}, ${info.nameHe}). הלימודים חסומים עד להשגת פטור. (נכון לתשפ\"ו)`,
+      { amirantScore: ctx.amirantScore, level: info.level, isExempt: false, pastDeadline: true }
+    );
+  }
+
+  // Still within the window → warn so the student acts in time.
+  return result(
+    "PKM-022",
+    "English Exemption Deadline",
+    "מועד אחרון לפטור באנגלית",
+    false,
+    "WARNING",
+    `Not yet exempt in English (AMIRANT ${ctx.amirantScore}, ${info.nameEn}). Reach exemption by the end of the 2nd semester (year 1, semester B) — ${info.levelCourses} level course(s) needed — or studies stop.`,
+    `עדיין לא הושג פטור באנגלית (אמירנט ${ctx.amirantScore}, ${info.nameHe}). יש להגיע לפטור עד סוף הסמסטר השני (שנה א׳, סמסטר ב׳) — נדרשים ${info.levelCourses} קורסי רמה — אחרת הלימודים נפסקים. (נכון לתשפ\"ו)`,
+    { amirantScore: ctx.amirantScore, level: info.level, isExempt: false, pastDeadline: false, currentRank, deadlineRank }
+  );
+};
+
+// -------------------------------------------------------------------
 // PKM-013: Graduation score >= 60 (passing grade)
 // -------------------------------------------------------------------
 
@@ -558,6 +834,66 @@ export const ruleMaxAttempts: RegulationRule = (ctx: RuleContext) => {
 };
 
 // -------------------------------------------------------------------
+// PKM-023: Second failure in the SAME course = cannot continue (BLOCKING)
+// -------------------------------------------------------------------
+// Domain rules §4: a student may retake a failed mandatory course once; a
+// SECOND failure in the same course means they cannot continue in PPE. We
+// group userCourses by courseId, count attempts with status FAILED, and ERROR
+// when any course has ≥ MAX_FAILURES_SAME_COURSE (2) failed attempts.
+
+export const ruleFailTwice: RegulationRule = (ctx: RuleContext) => {
+  const maxFailures = GRADE_REQUIREMENTS.MAX_FAILURES_SAME_COURSE; // 2
+
+  // Count FAILED attempts per course.
+  const failuresByCourse = new Map<
+    string,
+    { count: number; courseCode: string; userCourseIds: string[] }
+  >();
+
+  for (const uc of ctx.userCourses) {
+    if (uc.status !== "FAILED") continue;
+    const entry = failuresByCourse.get(uc.courseId) ?? {
+      count: 0,
+      courseCode: uc.course.code,
+      userCourseIds: [],
+    };
+    entry.count += 1;
+    entry.userCourseIds.push(uc.id);
+    failuresByCourse.set(uc.courseId, entry);
+  }
+
+  const violations = [...failuresByCourse.values()].filter(
+    (e) => e.count >= maxFailures
+  );
+  const passed = violations.length === 0;
+  const affectedIds = violations.flatMap((v) => v.userCourseIds);
+
+  return result(
+    "PKM-023",
+    "Repeated Course Failure",
+    "כישלון חוזר בקורס",
+    passed,
+    // Blocking: a second failure in the same course stops continuation.
+    passed ? "INFO" : "ERROR",
+    passed
+      ? `No course has been failed ${maxFailures} or more times.`
+      : `${violations.length} course(s) failed ${maxFailures}+ times — cannot continue in PPE: ${violations
+          .map((v) => `${v.courseCode} (${v.count}×)`)
+          .join(", ")}.`,
+    passed
+      ? `אין קורס שנכשל בו ${maxFailures} פעמים או יותר.`
+      : `${violations.length} קורס/ים נכשלו ${maxFailures} פעמים או יותר — לא ניתן להמשיך בפכ"מ: ${violations
+          .map((v) => `${v.courseCode} (${v.count} כשלונות)`)
+          .join(", ")}.`,
+    {
+      maxFailures,
+      violations: violations.map((v) => ({ courseCode: v.courseCode, failures: v.count })),
+    },
+    affectedIds
+  );
+};
+
+// -------------------------------------------------------------------
 // Year 1→2 transition gate helper
 // -------------------------------------------------------------------
 // The gate (domain rules §2) is evaluated ONLY over YEAR-1 courses:
@@ -711,6 +1047,9 @@ export const ruleYearTransitionMajorGPA: RegulationRule = (ctx: RuleContext) => 
 export function getAllRulesFor(program?: ProgramDefinition): RegulationRule[] {
   return [
     ruleTotalCredits,
+    ruleMandatoryCredits,
+    ruleSeminarCredits,
+    ruleElectiveCredits,
     ...getDisciplineRulesFor(program),
     ruleFocusAreaCredits,
     ruleSeminarPapers,
@@ -718,9 +1057,12 @@ export function getAllRulesFor(program?: ProgramDefinition): RegulationRule[] {
     ruleMandatoryCourses,
     ruleLawFoundation,
     ruleEnglishRequirement,
+    ruleEnglishLevel,
+    ruleEnglishExemptionDeadline,
     ruleGraduationScore,
     ruleFailureRate,
     ruleMaxAttempts,
+    ruleFailTwice,
     ruleYearTransitionGPA,
     ruleYearTransitionMajorGPA,
   ];
@@ -729,6 +1071,9 @@ export function getAllRulesFor(program?: ProgramDefinition): RegulationRule[] {
 /** @deprecated Use getAllRulesFor(program) for per-user support. */
 export const ALL_RULES: RegulationRule[] = [
   ruleTotalCredits,
+  ruleMandatoryCredits,
+  ruleSeminarCredits,
+  ruleElectiveCredits,
   ...disciplineRules,        // dynamic — one per discipline with minCredits > 0
   ruleFocusAreaCredits,
   ruleSeminarPapers,
@@ -736,9 +1081,12 @@ export const ALL_RULES: RegulationRule[] = [
   ruleMandatoryCourses,
   ruleLawFoundation,
   ruleEnglishRequirement,
+  ruleEnglishLevel,
+  ruleEnglishExemptionDeadline,
   ruleGraduationScore,
   ruleFailureRate,
   ruleMaxAttempts,
+  ruleFailTwice,
   ruleYearTransitionGPA,
   ruleYearTransitionMajorGPA,
 ];

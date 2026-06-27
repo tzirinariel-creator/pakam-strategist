@@ -53,7 +53,8 @@ export const userRouter = createTRPCRouter({
           .enum(["NONE", "GROUP_A", "GROUP_B", "GROUP_C", "GROUP_G"])
           .optional(),
         miluimCreditsUsed: z.number().int().min(0).max(10).optional(),
-        amiramScore: z.number().int().min(0).max(300).nullable().optional(),
+        // AMIRANT/Psychometric English uses the 50–150 scale (DB column kept as amiramScore).
+        amiramScore: z.number().int().min(50).max(150).nullable().optional(),
       })
     )
     .mutation(async ({ ctx, input }) => {

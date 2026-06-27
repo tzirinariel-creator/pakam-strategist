@@ -44,9 +44,22 @@ export const regulationRouter = createTRPCRouter({
       }
     }
 
-    // Run the regulation engine (safe for empty course lists)
+    // Run the regulation engine (safe for empty course lists).
+    // Thread the AMIRANT (English placement) score + academic standing so the
+    // English-level and exemption-deadline rules can fire. The DB column is
+    // still `amiramScore`; the rules layer calls it amirantScore.
     try {
-      const summary = runRegulationEngine(userCourses, user.focusArea, miluimExemption);
+      const summary = runRegulationEngine(
+        userCourses,
+        user.focusArea,
+        miluimExemption,
+        undefined,
+        {
+          amirantScore: user.amiramScore,
+          academicYear: user.currentYear,
+          currentSemester: user.currentSemester,
+        },
+      );
 
       return {
         ...summary,

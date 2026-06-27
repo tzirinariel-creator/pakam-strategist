@@ -105,6 +105,125 @@ describe("runRegulationEngine — responds to course data", () => {
   });
 });
 
+describe("AMIRANT English wiring (Task 1)", () => {
+  it("score 90 → BASIC, needs 3 level courses; content-course requirement (PKM-012) still applies", () => {
+    const summary = runRegulationEngine([], null, 0, undefined, {
+      amirantScore: 90,
+      academicYear: 1,
+      currentSemester: "FALL",
+    });
+    const level = summary.results.find((r) => r.ruleId === "PKM-021");
+    expect(level?.details?.level).toBe("BASIC");
+    expect(level?.details?.levelCourses).toBe(3);
+    // The 2 English CONTENT courses (PKM-012) are separate and still required.
+    const content = summary.results.find((r) => r.ruleId === "PKM-012");
+    expect(content?.passed).toBe(false); // no content courses taken yet
+  });
+
+  it("score 134 → EXEMPT, 0 level courses, no exemption deadline", () => {
+    const summary = runRegulationEngine([], null, 0, undefined, {
+      amirantScore: 134,
+      academicYear: 1,
+      currentSemester: "FALL",
+    });
+    const level = summary.results.find((r) => r.ruleId === "PKM-021");
+    expect(level?.details?.level).toBe("EXEMPT");
+    expect(level?.details?.levelCourses).toBe(0);
+    const deadline = summary.results.find((r) => r.ruleId === "PKM-022");
+    expect(deadline?.passed).toBe(true); // exempt → satisfied
+  });
+
+  it("year-1 semester-2, score 110, no exemption → deadline WARNING (still in window)", () => {
+    const summary = runRegulationEngine([], null, 0, undefined, {
+      amirantScore: 110,
+      academicYear: 1,
+      currentSemester: "SPRING",
+    });
+    const deadline = summary.results.find((r) => r.ruleId === "PKM-022");
+    expect(deadline?.passed).toBe(false);
+    expect(deadline?.severity).toBe("WARNING");
+  });
+
+  it("year-2, score 110, no exemption → deadline ERROR (past the window, blocking)", () => {
+    const summary = runRegulationEngine([], null, 0, undefined, {
+      amirantScore: 110,
+      academicYear: 2,
+      currentSemester: "FALL",
+    });
+    const deadline = summary.results.find((r) => r.ruleId === "PKM-022");
+    expect(deadline?.passed).toBe(false);
+    expect(deadline?.severity).toBe("ERROR");
+  });
+
+  it("score ≤84 → PRE_BASIC auto-rejection (ERROR)", () => {
+    const summary = runRegulationEngine([], null, 0, undefined, {
+      amirantScore: 70,
+      academicYear: 1,
+      currentSemester: "FALL",
+    });
+    const level = summary.results.find((r) => r.ruleId === "PKM-021");
+    expect(level?.passed).toBe(false);
+    expect(level?.severity).toBe("ERROR");
+  });
+
+  it("null score → English-level + deadline rules stay neutral (passing INFO, no error)", () => {
+    const summary = runRegulationEngine([], null, 0, undefined, {
+      amirantScore: null,
+    });
+    const level = summary.results.find((r) => r.ruleId === "PKM-021");
+    const deadline = summary.results.find((r) => r.ruleId === "PKM-022");
+    expect(level?.passed).toBe(true);
+    expect(level?.severity).toBe("INFO");
+    expect(deadline?.passed).toBe(true);
+    expect(deadline?.severity).toBe("INFO");
+  });
+});
+
+describe("Credit structure 103/12/35 + seminar bucket (Task 2)", () => {
+  it("seminar credits go to the SEMINAR bucket, NOT electives", () => {
+    const courses = [
+      course({ courseType: "SEMINAR", credits: 4 }),
+      course({ courseType: "ELECTIVE", credits: 3 }),
+    ];
+    // Reach into the engine via the elective/seminar rules.
+    const summary = runRegulationEngine(courses, null);
+    const seminarRule = summary.results.find((r) => r.ruleId === "PKM-019");
+    const electiveRule = summary.results.find((r) => r.ruleId === "PKM-020");
+    expect(seminarRule?.details?.current).toBe(4);   // seminar credits counted here
+    expect(electiveRule?.details?.current).toBe(3);  // electives exclude the seminar
+  });
+
+  it("PKM-018/019/020 enforce 103 / 12 / 35 minima", () => {
+    const summary = runRegulationEngine([], null);
+    expect(summary.results.find((r) => r.ruleId === "PKM-018")?.details?.required).toBe(103);
+    expect(summary.results.find((r) => r.ruleId === "PKM-019")?.details?.required).toBe(12);
+    expect(summary.results.find((r) => r.ruleId === "PKM-020")?.details?.required).toBe(35);
+  });
+});
+
+describe("Fail-twice blocking rule (Task 3)", () => {
+  it("two FAILED attempts of the same course → PKM-023 blocks (ERROR)", () => {
+    const courses = [
+      course({ courseId: "X", status: "FAILED", attemptNumber: 1 }),
+      course({ courseId: "X", status: "FAILED", attemptNumber: 2 }),
+    ];
+    const summary = runRegulationEngine(courses, null);
+    const failTwice = summary.results.find((r) => r.ruleId === "PKM-023");
+    expect(failTwice?.passed).toBe(false);
+    expect(failTwice?.severity).toBe("ERROR");
+  });
+
+  it("one failure (then retake) does NOT trigger PKM-023", () => {
+    const courses = [
+      course({ courseId: "Y", status: "FAILED", attemptNumber: 1 }),
+      course({ courseId: "Y", status: "COMPLETED", attemptNumber: 2 }),
+    ];
+    const summary = runRegulationEngine(courses, null);
+    const failTwice = summary.results.find((r) => r.ruleId === "PKM-023");
+    expect(failTwice?.passed).toBe(true);
+  });
+});
+
 describe("runRegulationEngine — regression: verified review fixes", () => {
   it("PKM-001 counts the miluim/reserve exemption toward the total (reservist parity with dashboard)", () => {
     // 142 completed credits + 8 reserve-duty exemption = 150 → requirement met.

@@ -42,19 +42,35 @@ function extractSeminars(courses: UserCourseWithCourse[]): SeminarInfo[] {
 // -------------------------------------------------------------------
 
 /**
+ * Optional student context for rules that depend on profile data beyond the
+ * course list (English placement, current academic standing). All fields are
+ * optional so existing callers keep working and the relevant rules stay neutral.
+ */
+export interface RegulationStudentContext {
+  /** AMIRANT (English placement) score, 50–150, or null. */
+  amirantScore?: number | null;
+  /** Current academic year (1-based). */
+  academicYear?: number;
+  /** Current semester ("FALL" | "SPRING" | "SUMMER"). */
+  currentSemester?: string;
+}
+
+/**
  * Run all regulation rules against the user's course data.
  *
  * @param userCourses      The user's full course list (with embedded Course data).
  * @param focusArea        The user's chosen focus-area discipline (or null).
  * @param miluimExemption  Credit exemption from military reserve service (default 0).
  * @param program          Optional ProgramDefinition; defaults to active program (PPE).
+ * @param student          Optional student context (AMIRANT score, academic standing).
  * @returns                A RegulationSummary with all results and a compliance score.
  */
 export function runRegulationEngine(
   userCourses: UserCourseWithCourse[],
   focusArea: Discipline | null,
   miluimExemption: number = 0,
-  program?: ProgramDefinition
+  program?: ProgramDefinition,
+  student?: RegulationStudentContext
 ): RegulationSummary {
   const programDef = program ?? getActiveProgram();
 
@@ -77,6 +93,9 @@ export function runRegulationEngine(
     gradeBreakdown,
     seminars,
     programDefinition: programDef,
+    amirantScore: student?.amirantScore ?? null,
+    academicYear: student?.academicYear,
+    currentSemester: student?.currentSemester,
   };
 
   // 3. Execute every rule (discipline rules are per-program).

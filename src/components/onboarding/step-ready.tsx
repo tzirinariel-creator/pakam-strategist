@@ -80,14 +80,16 @@ export function StepReady({ data, plannedSemesters, completedCourses, allCourses
     setIsSaving(true);
     setSaveError(false);
     try {
-      // 1. Update user profile (including miluim + amiram) — 15s timeout
+      // 1. Update user profile (including miluim + AMIRANT) — 15s timeout.
+      //    The DB column is still `amiramScore` (schema unchanged); the
+      //    onboarding field was renamed to `amirantScore` for correctness.
       await withTimeout(
         updateProfile.mutateAsync({
           currentYear: data.year,
           currentSemester: data.semester,
           ...(data.focusArea ? { focusArea: data.focusArea } : {}),
           miluimGroup: data.miluimGroup,
-          amiramScore: data.amiramScore,
+          amiramScore: data.amirantScore,
         }),
         15000,
       );

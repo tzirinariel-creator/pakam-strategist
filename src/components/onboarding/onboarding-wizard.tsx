@@ -26,7 +26,8 @@ export interface OnboardingData {
   semester: "FALL" | "SPRING";
   focusArea: string | null;
   miluimGroup: "NONE" | "GROUP_A" | "GROUP_B" | "GROUP_C" | "GROUP_G";
-  amiramScore: number | null;
+  /** AMIRANT English placement score (50–150 scale). DB column stays `amiramScore`. */
+  amirantScore: number | null;
 }
 
 // Welcome → Profile → History → SemesterPlanner → Ready
@@ -71,7 +72,7 @@ export function OnboardingWizard() {
     semester: getDefaultSemester(),
     focusArea: null,
     miluimGroup: "NONE",
-    amiramScore: null,
+    amirantScore: null,
   });
 
   const updateData = useCallback((updates: Partial<OnboardingData>) => {

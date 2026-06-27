@@ -114,6 +114,7 @@ export function calculateCredits(
   const byDiscipline = emptyDisciplineCredits(program);
   let mandatory = 0;
   let elective = 0;
+  let seminar = 0;
   let practice = 0;
   let englishCredits = 0;
   let englishCourseCount = 0;
@@ -145,8 +146,11 @@ export function calculateCredits(
         mandatory += credits;
         break;
       case "ELECTIVE":
-      case "SEMINAR":
         elective += credits;
+        break;
+      case "SEMINAR":
+        // Seminars are their OWN 12-credit bucket (domain rules §1), NOT electives.
+        seminar += credits;
         break;
       case "PRACTICE":
         // practice total already accumulated above (with caps applied).
@@ -179,6 +183,7 @@ export function calculateCredits(
     planned: plannedCredits,
     mandatory,
     elective,
+    seminar,
     practice,
     byDiscipline,
     focusArea: focusAreaCredits,
