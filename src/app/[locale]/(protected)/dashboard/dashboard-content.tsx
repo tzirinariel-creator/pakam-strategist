@@ -395,6 +395,7 @@ function DisciplineSuggestions({ discipline, isHe }: { discipline: string; isHe:
 
 function DegreeGapWidget({
   regulationResults,
+  hasCourses,
   t,
   isHe,
 }: {
@@ -406,6 +407,8 @@ function DegreeGapWidget({
     severity: string;
     details?: Record<string, unknown>;
   }> | undefined;
+  /** Whether the student has any courses (earned + planned) yet. */
+  hasCourses: boolean;
   t: (key: string, values?: Record<string, string | number>) => string;
   isHe: boolean;
 }) {
@@ -415,6 +418,31 @@ function DegreeGapWidget({
   const failedRules = regulationResults.filter((r) => !r.passed);
 
   if (failedRules.length === 0) {
+    // Brand-new student with no courses: "all requirements met" would be a lie
+    // (they've done nothing, not everything). Show a neutral getting-started state.
+    if (!hasCourses) {
+      return (
+        <Link
+          href="/planner"
+          className="data-card group flex flex-col items-center gap-3 p-5 text-center transition-all hover:border-foreground/30 hover:shadow-md"
+        >
+          <div className="flex h-12 w-12 items-center justify-center rounded-full bg-foreground/5">
+            <GraduationCap className="h-6 w-6 text-foreground/50" />
+          </div>
+          <p className="text-sm font-semibold text-foreground/80">
+            {t("gapEmptyTitle")}
+          </p>
+          <p className="max-w-xs text-xs leading-relaxed text-foreground/50">
+            {t("gapEmptyDesc")}
+          </p>
+          <span className="flex items-center gap-1 text-xs font-medium text-foreground/60">
+            {t("gapEmptyCta")} <Arrow className="h-3 w-3" />
+          </span>
+        </Link>
+      );
+    }
+
+    // Real success: student has courses AND every rule passes.
     return (
       <div className="data-card flex flex-col items-center gap-3 p-5 text-center border-emerald-400/20 bg-emerald-400/5">
         <CheckCircle2 className="h-8 w-8 text-emerald-400" />
@@ -664,6 +692,68 @@ function GoogleCalendarBanner({
 }
 
 // -----------------------------------------------------------------------
+// Welcome Home Card — friendly first-time guidance, dismissible
+// -----------------------------------------------------------------------
+
+function WelcomeHomeCard({
+  t,
+  isHe,
+  onDismiss,
+}: {
+  t: (key: string, values?: Record<string, string | number>) => string;
+  isHe: boolean;
+  onDismiss: () => void;
+}) {
+  const Arrow = isHe ? ArrowLeft : ArrowRight;
+  const steps: { href: string; label: string; icon: React.ComponentType<{ className?: string }> }[] = [
+    { href: "/calendar", label: t("welcomeStepSchedule"), icon: Calendar },
+    { href: "/record", label: t("welcomeStepRecord"), icon: Pencil },
+    { href: "/regulations", label: t("welcomeStepRegulations"), icon: Scale },
+  ];
+
+  return (
+    <div className="data-card relative overflow-hidden p-6">
+      <button
+        type="button"
+        onClick={onDismiss}
+        aria-label={t("welcomeDismiss")}
+        className="absolute end-3 top-3 rounded-md p-1 text-foreground/25 transition-colors hover:text-foreground/60"
+      >
+        <X className="size-4" />
+      </button>
+      <h2 className="font-display text-xl font-bold text-foreground/90">
+        {t("welcomeHomeTitle")}
+      </h2>
+      <p className="mt-1 text-sm text-foreground/55">
+        {t("welcomeHomeSubtitle")}
+      </p>
+      <div className="mt-5 grid gap-3 sm:grid-cols-3">
+        {steps.map(({ href, label, icon: Icon }, i) => (
+          <Link
+            key={href}
+            href={href}
+            className="group flex items-center gap-3 rounded-xl border border-foreground/10 bg-foreground/[0.02] p-3.5 transition-all hover:border-foreground/25 hover:bg-foreground/[0.04]"
+          >
+            <div className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-foreground/[0.06] text-foreground/60">
+              <Icon className="size-4" />
+            </div>
+            <div className="min-w-0 flex-1">
+              <span className="block text-[11px] font-medium text-foreground/35">
+                {t("welcomeStepLabel", { num: i + 1 })}
+              </span>
+              <span className="block text-sm font-medium text-foreground/80">
+                {label}
+              </span>
+            </div>
+            <Arrow className="size-3.5 shrink-0 text-foreground/30 transition-transform group-hover:translate-x-0.5 rtl:group-hover:-translate-x-0.5" />
+          </Link>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+// -----------------------------------------------------------------------
 // Main dashboard content
 // -----------------------------------------------------------------------
 
@@ -756,6 +846,17 @@ export function DashboardContent() {
     }
   }, []);
 
+  // Welcome card — shown to brand-new users (just onboarded / few courses),
+  // dismissible and persisted so it never nags established students.
+  const [welcomeDismissed, setWelcomeDismissed] = useState(true);
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      setWelcomeDismissed(
+        localStorage.getItem("pakamon-welcome-dismissed") === "true"
+      );
+    }
+  }, []);
+
   // Clear onboarding flag once data is successfully loaded
   const handleOnboardingSuccess = useCallback(() => {
     if (typeof window !== "undefined") {
@@ -786,6 +887,20 @@ export function DashboardContent() {
   const passedRules = regulationSummary?.passed ?? 0;
   const totalRules = regulationSummary?.totalRules ?? 0;
   const complianceRate = regulationSummary?.complianceScore ?? 0;
+
+  // Has the student actually built anything yet? Used to distinguish a
+  // brand-new "nothing done" state from a genuine "all requirements met" state.
+  const courseCount = planQuery.data?.courses?.length ?? 0;
+  const earnedCredits = credits?.earned ?? 0;
+  const plannedCredits = credits?.planned ?? 0;
+  const hasAnyCourses = courseCount > 0 || earnedCredits + plannedCredits > 0;
+
+  // "Established" users have a meaningful plan; new/near-empty users get the
+  // welcome card and a lighter, contextual quick-actions row.
+  const isNewUser = courseCount < 4;
+  const hasFocusArea = !!profileQuery.data?.focusArea;
+  const hasGrades = gradeBreakdown.totalGradedCourses > 0;
+  const currentYear = profileQuery.data?.currentYear ?? 1;
 
   // Allows user to bypass the transition screen and go to dashboard
   const [skipTransition, setSkipTransition] = useState(false);
@@ -939,6 +1054,22 @@ export function DashboardContent() {
         </div>
       </div>
 
+      {/* Welcome card — first-time guidance for fresh / just-onboarded users.
+          Shows once (until dismissed), only for new users, never for established
+          students with a full plan. */}
+      {!welcomeDismissed && hasPlanData && (fromOnboarding || onboardingFlag || isNewUser) && (
+        <div className="animate-stagger-1">
+          <WelcomeHomeCard
+            t={t}
+            isHe={isHe}
+            onDismiss={() => {
+              setWelcomeDismissed(true);
+              localStorage.setItem("pakamon-welcome-dismissed", "true");
+            }}
+          />
+        </div>
+      )}
+
       {/* Returning-student prompt — year ≥ 2 with nothing marked completed yet */}
       {(credits?.earned ?? 0) === 0 &&
         (profileQuery.data?.currentYear ?? 1) >= 2 && (
@@ -997,6 +1128,7 @@ export function DashboardContent() {
         <div className="animate-stagger-3">
           <DegreeGapWidget
             regulationResults={regulationSummary.results}
+            hasCourses={hasAnyCourses}
             t={t}
             isHe={isHe}
           />
@@ -1054,49 +1186,89 @@ export function DashboardContent() {
         </div>
       )}
 
-      {/* Quick actions */}
-      <div className="animate-stagger-6">
-        <h2 className="font-display mb-4 text-lg font-semibold text-foreground/80">
-          {t("quickActions")}
-        </h2>
-        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-          <QuickActionCard
-            icon={GraduationCap}
-            label={t("degreePlanner")}
-            description={t("degreePlannerDesc")}
-            href="/planner"
-            color="bg-violet-500/10 text-violet-400"
-          />
-          <QuickActionCard
-            icon={Scale}
-            label={t("checkRegulations")}
-            description={t("checkRegulationsDesc")}
-            href="/regulations"
-            color="bg-amber-500/10 text-amber-400"
-          />
-          <QuickActionCard
-            icon={BookOpen}
-            label={t("courseCatalog")}
-            description={t("courseCatalogDesc")}
-            href="/catalog"
-            color="bg-cyan-500/10 text-cyan-400"
-          />
-          <QuickActionCard
-            icon={Calculator}
-            label={t("gradeCalculator")}
-            description={t("gradeCalculatorDesc")}
-            href="/graduation"
-            color="bg-emerald-500/10 text-emerald-400"
-          />
-          <QuickActionCard
-            icon={Pencil}
-            label={t("editSemesterPlan")}
-            description={t("editSemesterPlanDesc")}
-            href="/planner/semester"
-            color="bg-orange-500/10 text-orange-400"
-          />
-        </div>
-      </div>
+      {/* Quick actions — contextual: surface the student's actual next step
+          rather than duplicating the sidebar nav. */}
+      {(() => {
+        const actions: {
+          icon: React.ComponentType<{ className?: string }>;
+          label: string;
+          description: string;
+          href: string;
+          color: string;
+        }[] = [];
+
+        // 1. No grades yet → enter grades
+        if (!hasGrades) {
+          actions.push({
+            icon: Calculator,
+            label: t("actionEnterGrades"),
+            description: t("actionEnterGradesDesc"),
+            href: "/graduation",
+            color: "bg-emerald-500/10 text-emerald-400",
+          });
+        }
+
+        // 2. No focus area chosen → pick one
+        if (!hasFocusArea) {
+          actions.push({
+            icon: Target,
+            label: t("actionPickFocus"),
+            description: t("actionPickFocusDesc"),
+            href: "/planner",
+            color: "bg-violet-500/10 text-violet-400",
+          });
+        }
+
+        // 3. Likely missing past courses (year ≥ 2 but few earned credits)
+        if (currentYear >= 2 && earnedCredits < 20) {
+          actions.push({
+            icon: GraduationCap,
+            label: t("actionAddPast"),
+            description: t("actionAddPastDesc"),
+            href: "/record",
+            color: "bg-amber-500/10 text-amber-400",
+          });
+        }
+
+        // Fallback / established users → a single edit-plan action
+        if (actions.length === 0) {
+          actions.push({
+            icon: Pencil,
+            label: t("actionEditPlan"),
+            description: t("actionEditPlanDesc"),
+            href: "/planner",
+            color: "bg-orange-500/10 text-orange-400",
+          });
+        }
+
+        // Cap at 3 to keep the row tight
+        const shown = actions.slice(0, 3);
+
+        return (
+          <div className="animate-stagger-6">
+            <h2 className="font-display mb-4 text-lg font-semibold text-foreground/80">
+              {t("nextStep")}
+            </h2>
+            <div
+              className={cn(
+                "grid gap-3 sm:grid-cols-2",
+                shown.length >= 3 && "lg:grid-cols-3"
+              )}
+            >
+              {shown.map((a) => (
+                <QuickActionCard
+                  key={a.href + a.label}
+                  icon={a.icon}
+                  label={a.label}
+                  description={a.description}
+                  href={a.href}
+                  color={a.color}
+                />
+              ))}
+            </div>
+          </div>
+        );
+      })()}
     </div>
   );
 }

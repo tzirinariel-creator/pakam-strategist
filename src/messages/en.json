@@ -771,7 +771,8 @@
     "credits": "credits",
     "exportICS": "Export to Calendar",
     "exportSuccess": "Calendar file created",
-    "tabTimeline": "Timeline"
+    "tabTimeline": "Timeline",
+    "openGradeCalculator": "Open the grade calculator"
   },
   "roi": {
     "title": "Performance Analytics",
@@ -1012,7 +1013,26 @@
     "enterGradesCta": "Enter grades and see your graduation score",
     "pastCoursesTitle": "Already studied some courses?",
     "pastCoursesDesc": "Mark them and enter grades to see your real progress",
-    "pastCoursesCta": "Mark completed courses"
+    "pastCoursesCta": "Mark completed courses",
+    "gapEmptyTitle": "Nothing started yet — let's build your degree",
+    "gapEmptyDesc": "Add courses to your plan and we'll start tracking your requirements",
+    "gapEmptyCta": "Go to Planner",
+    "welcomeHomeTitle": "Plan saved 🎉 Let's go",
+    "welcomeHomeSubtitle": "Three quick steps so your home shows real data",
+    "welcomeStepLabel": "Step {num}",
+    "welcomeStepSchedule": "Check your weekly schedule",
+    "welcomeStepRecord": "Add grades and past courses",
+    "welcomeStepRegulations": "Check you meet the regulations",
+    "welcomeDismiss": "Dismiss",
+    "nextStep": "Your next step",
+    "actionEnterGrades": "Enter grades",
+    "actionEnterGradesDesc": "to see your graduation score",
+    "actionPickFocus": "Pick a focus area",
+    "actionPickFocusDesc": "to tailor recommendations to you",
+    "actionAddPast": "Add past courses",
+    "actionAddPastDesc": "mark what you've already studied",
+    "actionEditPlan": "Edit your plan",
+    "actionEditPlanDesc": "change courses and semesters"
   },
   "studyPlanner": {
     "title": "Study Planner",

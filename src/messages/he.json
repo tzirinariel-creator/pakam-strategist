@@ -834,7 +834,8 @@
     "credits": "ש\"ס",
     "exportICS": "ייצוא ליומן",
     "exportSuccess": "קובץ היומן נוצר",
-    "tabTimeline": "ציר זמן"
+    "tabTimeline": "ציר זמן",
+    "openGradeCalculator": "פתח את מחשבון הציונים"
   },
   "roi": {
     "title": "ניתוח ביצועים",
@@ -1075,7 +1076,26 @@
     "enterGradesCta": "הזינו ציונים וראו את ציון הגמר",
     "pastCoursesTitle": "כבר למדת קורסים?",
     "pastCoursesDesc": "סמן אותם והזן ציונים כדי לראות את ההתקדמות האמיתית שלך",
-    "pastCoursesCta": "סמנו קורסים שהושלמו"
+    "pastCoursesCta": "סמנו קורסים שהושלמו",
+    "gapEmptyTitle": "עוד לא התחלת — בוא נבנה את התואר",
+    "gapEmptyDesc": "הוסף קורסים לתוכנית ונתחיל לעקוב אחרי הדרישות שלך",
+    "gapEmptyCta": "לתכנון התואר",
+    "welcomeHomeTitle": "התוכנית נשמרה 🎉 קדימה",
+    "welcomeHomeSubtitle": "שלושה צעדים קצרים כדי שהבית שלך יציג נתונים אמיתיים",
+    "welcomeStepLabel": "צעד {num}",
+    "welcomeStepSchedule": "בדוק את מערכת השעות שלך",
+    "welcomeStepRecord": "הוסף ציונים וקורסים מהעבר",
+    "welcomeStepRegulations": "בדוק שאתה עומד בתקנון",
+    "welcomeDismiss": "סגור",
+    "nextStep": "הצעד הבא שלך",
+    "actionEnterGrades": "הזן ציונים",
+    "actionEnterGradesDesc": "כדי לראות את ציון הגמר שלך",
+    "actionPickFocus": "בחר תחום מיקוד",
+    "actionPickFocusDesc": "כדי לכוון את ההמלצות אליך",
+    "actionAddPast": "הוסף קורסי עבר",
+    "actionAddPastDesc": "סמן מה שכבר למדת",
+    "actionEditPlan": "ערוך את התוכנית",
+    "actionEditPlanDesc": "שנה קורסים וסמסטרים"
   },
   "studyPlanner": {
     "title": "תכנון לימודים",
