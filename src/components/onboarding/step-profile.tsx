@@ -2,7 +2,7 @@
 
 import { useState, useMemo } from "react";
 import { useTranslations, useLocale } from "next-intl";
-import { Shield, ChevronDown, HelpCircle, Swords, Check } from "lucide-react";
+import { Shield, ChevronDown, Swords, Check, Sparkles, FileText } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { MILUIM_CONFIG, AMIRNET_CONFIG, DISCIPLINE_CONFIG, FOCUS_DISCIPLINE_IDS } from "@/lib/constants";
 import type { OnboardingData } from "./onboarding-wizard";
@@ -14,102 +14,51 @@ interface StepProfileProps {
   onUpdate: (updates: Partial<OnboardingData>) => void;
 }
 
+/**
+ * Derive the miluim group from the common-path inputs (days served this year +
+ * combat status). This is intentionally a simple, single-question-block estimate
+ * — the precise per-semester logic + edge cases live behind "special cases" or
+ * the manual selector. Per מתווה תשפ"ו (docs/pakam-domain-rules-2026.md §6).
+ */
+function deriveGroup(days: number, combat: boolean): MiluimGroupKey {
+  if (days <= 0) return "NONE";
+  if (combat) {
+    // Combat (ייעוד קדמי): enhanced mapping — higher group with fewer days.
+    if (days >= 21) return "GROUP_C";
+    if (days >= 14) return "GROUP_B";
+    return "GROUP_A"; // a handful of combat days still clears the legal 10-day floor
+  }
+  // Regular reservists.
+  if (days >= 35) return "GROUP_C";
+  if (days >= 21) return "GROUP_B";
+  return "GROUP_A"; // 1–20 days
+}
+
 export function StepProfile({ data, onUpdate }: StepProfileProps) {
   const t = useTranslations("onboarding");
+  const tm = useTranslations("onboarding.miluim");
   const locale = useLocale();
   const isHe = locale === "he";
-  const [showMiluimDetails, setShowMiluimDetails] = useState(data.miluimGroup !== "NONE");
-  const [miluimMode, setMiluimMode] = useState<"select" | "guided">("guided");
-  const [guidedStep, setGuidedStep] = useState(0);
-  // miluimFormFile removed — file upload not implemented for pilot
+
+  const hasGroup = data.miluimGroup !== "NONE";
+  const [showMiluimDetails, setShowMiluimDetails] = useState(hasGroup);
+  // Common-path question state.
+  const [served, setServed] = useState<boolean | null>(hasGroup ? true : null);
+  const [days, setDays] = useState<number | null>(null);
   const [isCombat, setIsCombat] = useState(false);
-  const [daysServedA, setDaysServedA] = useState<number | null>(null); // Days in semester A
-  const [daysServedB, setDaysServedB] = useState<number | null>(null); // Days in semester B (including 3 months before)
-  const [daysServedPreB, setDaysServedPreB] = useState<number | null>(null); // Days in 3 months before semester B (Dec-Mar)
-  // Legacy — kept for computed group logic
-  const daysServed = Math.max(daysServedA ?? 0, daysServedB ?? 0);
-  const servicePattern: "single_semester" | "year_cumulative" | "pre_semester_b" | null =
-    (daysServedA ?? 0) > 0 && (daysServedB ?? 0) > 0
-      ? "year_cumulative" as const
-      : (daysServedPreB ?? 0) > 0
-        ? "pre_semester_b" as const
-        : (daysServedA ?? 0) > 0 || (daysServedB ?? 0) > 0
-          ? "single_semester" as const
-          : null;
+  // Secondary panels.
+  const [showSpecialCases, setShowSpecialCases] = useState(false);
+  const [showManualSelect, setShowManualSelect] = useState(false);
 
-  // Compute the correct group based on semester-specific days + combat + pattern
-  // Per official מתווה תשפ"ו document — precise rules per group
-  // Returns separate groups per semester + best overall group
-  const computedGroups = useMemo(() => {
-    // Per-semester classification (official doc section 2)
-    const classifySemester = (days: number, combat: boolean): MiluimGroupKey => {
-      if (days <= 0) return "NONE";
-      if (combat) {
-        // Combat fighters (per official מתווה תשפ"ו): 21+ → C, 14-20 → B
-        if (days >= 21) return "GROUP_C";
-        if (days >= 14) return "GROUP_B";
-        return "NONE"; // combat <14 days = not eligible
-      }
-      // Regular reservists
-      if (days >= 35) return "GROUP_C";
-      if (days >= 21) return "GROUP_B";
-      if (days >= 1) return "GROUP_A"; // 1-20 days
-      return "NONE";
-    };
+  const derivedGroup = useMemo(
+    () => deriveGroup(days ?? 0, isCombat),
+    [days, isCombat]
+  );
 
-    const dA = daysServedA ?? 0;
-    const dB = daysServedB ?? 0;
-    const dPreB = daysServedPreB ?? 0;
-    const totalDays = dA + dB;
-
-    const semA = classifySemester(dA, isCombat);
-    let semB = classifySemester(dB, isCombat);
-
-    // === Year-cumulative upgrades (regular reservists only) ===
-
-    // 35+ cumulative in year → GROUP_B for semester B (official doc: "35 יום ומעלה במצטבר בשנת תשפ"ו — מזכה בסמ' ב'")
-    if (!isCombat && totalDays >= 35) {
-      if (groupRank(semB) < groupRank("GROUP_B")) semB = "GROUP_B";
-    }
-
-    // 60+ days in 3 months before semester opening → GROUP_B for that semester
-    // "60 יום ב-3 החודשים שלפני פתיחת השנה (מזכה בסמ' א' בלבד)"
-    // "60 יום לפני סמסטר ב' (מזכה בסמ' ב' בלבד)"
-    if (!isCombat && dPreB >= 60) {
-      if (groupRank(semB) < groupRank("GROUP_B")) semB = "GROUP_B";
-    }
-
-    // 100+ days in sem A → GROUP_C also in sem B
-    // "100 ימים ומעלה בסמסטר א' (מזכה גם בסמסטר ב')"
-    if (dA >= 100) {
-      if (groupRank(semB) < groupRank("GROUP_C")) semB = "GROUP_C";
-    }
-
-    // === Combat year-cumulative: 21+ cumulative in year → GROUP_B for sem B only ===
-    // "לוחמים: 21 יום ומעלה במצטבר בשנת תשפ"ו (מזכה בסמ' ב' בלבד)"
-    if (isCombat && totalDays >= 21) {
-      if (groupRank(semB) < groupRank("GROUP_B")) semB = "GROUP_B";
-    }
-
-    // === Retroactive: 100+ in previous year (תשפ"ה) → B for sem A (not implemented in input yet) ===
-
-    const overall = groupRank(semA) >= groupRank(semB) ? semA : semB;
-
-    return { semA, semB, overall, totalDays };
-  }, [daysServedA, daysServedB, daysServedPreB, isCombat]);
-
-  // Helper: group ranking C > B > A > G > NONE
-  function groupRank(g: MiluimGroupKey): number {
-    switch (g) {
-      case "GROUP_C": return 4;
-      case "GROUP_B": return 3;
-      case "GROUP_G": return 2;
-      case "GROUP_A": return 1;
-      default: return 0;
-    }
-  }
-
-  const computedGroup = computedGroups.overall;
+  // Keep data.miluimGroup in sync with the common-path derivation.
+  const applyDerived = (g: MiluimGroupKey) => {
+    onUpdate({ miluimGroup: g });
+  };
 
   const yearOptions = [
     { value: 1, label: t("yearA") },
@@ -183,6 +132,13 @@ export function StepProfile({ data, onUpdate }: StepProfileProps) {
   };
 
   const amirnetStatus = getAmirnetStatus(data.amirantScore);
+
+  const groupCfg = hasGroup
+    ? MILUIM_CONFIG.GROUPS[data.miluimGroup as MiluimGroupKey]
+    : null;
+  const exemptionShown = groupCfg
+    ? Math.min(groupCfg.creditExemptionPerYear, MILUIM_CONFIG.MAX_CREDIT_EXEMPTIONS_DEGREE)
+    : 0;
 
   return (
     <div className="flex flex-col items-center">
@@ -270,483 +226,310 @@ export function StepProfile({ data, onUpdate }: StepProfileProps) {
           </div>
         </div>
 
-        {/* Miluim (military reserve) section */}
+        {/* ──────── Miluim (military reserve) section ──────── */}
         <div className="animate-stagger-4">
-          <h3 className="mb-3 text-sm font-medium text-foreground/70">
-            {isHe ? "שירות מילואים" : "Military Reserve Service"}
+          <h3 className="mb-1 text-sm font-medium text-foreground/70">
+            {tm("sectionTitle")}
           </h3>
+          <p className="mb-3 text-xs text-foreground/40">{tm("optionalHint")}</p>
+
+          {/* Collapsed entry button */}
           <button
             onClick={() => setShowMiluimDetails((v) => !v)}
             className={cn(
               "flex w-full items-center gap-3 rounded-xl border-2 px-4 py-3.5 text-sm font-medium transition-all",
-              showMiluimDetails || data.miluimGroup !== "NONE"
+              showMiluimDetails || hasGroup
                 ? "border-emerald-500/40 bg-emerald-500/5 text-foreground/80"
                 : "border-border bg-card text-foreground/60 hover:border-foreground/30"
             )}
           >
             <Shield className={cn(
               "h-5 w-5 shrink-0",
-              showMiluimDetails || data.miluimGroup !== "NONE"
-                ? "text-emerald-500"
-                : "text-foreground/40"
+              showMiluimDetails || hasGroup ? "text-emerald-500" : "text-foreground/40"
             )} />
             <div className="flex-1 text-start">
               <span className="block">
-                {data.miluimGroup !== "NONE"
-                  ? MILUIM_CONFIG.GROUPS[data.miluimGroup as MiluimGroupKey]?.nameHe?.split("—")[0]?.trim()
-                  : isHe ? "שירתת במילואים? לחצו כאן" : "Served in reserves? Click here"
-                }
+                {hasGroup
+                  ? groupCfg?.nameHe?.split("—")[0]?.trim()
+                  : tm("collapsedPromptNone")}
               </span>
-              {data.miluimGroup === "NONE" && (
-                <span className="block text-[11px] text-foreground/35 mt-0.5">
-                  {isHe ? "בדקו אם מגיעות לכם הקלות לפי מתווה תשפ״ו" : "Check if you qualify for accommodations under the תשפ\"ו framework"}
-                </span>
-              )}
             </div>
-            {data.miluimGroup !== "NONE" && (
+            {hasGroup && exemptionShown > 0 && (
               <span className="rounded-full bg-emerald-500/10 px-2.5 py-1 text-[10px] font-bold text-emerald-500">
-                {MILUIM_CONFIG.GROUPS[data.miluimGroup as MiluimGroupKey]?.creditExemptionPerYear} {isHe ? "ש״ס פטור" : "cr. exempt"}
+                {tm("collapsedExempt", { credits: exemptionShown })}
               </span>
             )}
-            <ChevronDown
-              className={cn(
-                "h-4 w-4 shrink-0 text-foreground/30 transition-transform",
-                showMiluimDetails && "rotate-180"
-              )}
-            />
+            <ChevronDown className={cn(
+              "h-4 w-4 shrink-0 text-foreground/30 transition-transform",
+              showMiluimDetails && "rotate-180"
+            )} />
           </button>
 
           {showMiluimDetails && (
             <div className="mt-3 space-y-3 animate-in fade-in slide-in-from-top-1 duration-200">
-              <p className="text-xs text-foreground/40">
-                {isHe
-                  ? "לפי מתווה תשפ״ו — שיוך הקבוצה נקבע על פי מספר ימי השירות בסמסטר ולפי סוג השירות (לוחם/ת או לא). ההטבות כוללות פטור ש״ס, מועדי בחינה, ועוד."
-                  : "Per תשפ\"ו framework — group assignment is based on reserve days per semester and service type (combat/non-combat). Benefits include credit exemptions, exam dates, and more."
-                }
-              </p>
 
-              {/* Mode toggle: Guided vs Direct */}
-              <div className="flex gap-2">
-                <button
-                  onClick={() => { setMiluimMode("guided"); setGuidedStep(0); }}
-                  className={cn(
-                    "flex-1 flex items-center justify-center gap-1.5 rounded-lg px-3 py-2 text-xs transition-all",
-                    miluimMode === "guided"
-                      ? "bg-foreground/10 text-foreground/70 font-medium"
-                      : "bg-foreground/3 text-foreground/35 hover:bg-foreground/5"
-                  )}
-                >
-                  <HelpCircle className="h-3 w-3" />
-                  {isHe ? "שאלון קצר" : "Quick questionnaire"}
-                </button>
-                <button
-                  onClick={() => setMiluimMode("select")}
-                  className={cn(
-                    "flex-1 flex items-center justify-center gap-1.5 rounded-lg px-3 py-2 text-xs transition-all",
-                    miluimMode === "select"
-                      ? "bg-foreground/10 text-foreground/70 font-medium"
-                      : "bg-foreground/3 text-foreground/35 hover:bg-foreground/5"
-                  )}
-                >
-                  <Shield className="h-3 w-3" />
-                  {isHe ? "אני יודע/ת את הקבוצה" : "I know my group"}
-                </button>
-              </div>
+              {/* ─── COMMON PATH: one short question block ─── */}
+              <div className="rounded-xl border border-foreground/10 bg-foreground/3 p-3 space-y-3">
+                {/* Q1: did you serve this year? */}
+                <div className="space-y-2">
+                  <p className="text-xs font-medium text-foreground/60">{tm("q1")}</p>
+                  <div className="grid grid-cols-2 gap-2">
+                    <button
+                      onClick={() => setServed(true)}
+                      className={cn(
+                        "rounded-lg border px-3 py-2.5 text-xs transition-all",
+                        served === true
+                          ? "border-emerald-500/40 bg-emerald-500/5 text-foreground/80 font-medium"
+                          : "border-foreground/15 bg-card text-foreground/60 hover:border-foreground/30"
+                      )}
+                    >
+                      {tm("q1Yes")}
+                    </button>
+                    <button
+                      onClick={() => {
+                        setServed(false);
+                        setDays(null);
+                        setIsCombat(false);
+                        onUpdate({ miluimGroup: "NONE" });
+                      }}
+                      className={cn(
+                        "rounded-lg border px-3 py-2.5 text-xs transition-all",
+                        served === false
+                          ? "border-foreground/30 bg-foreground/10 text-foreground/70 font-medium"
+                          : "border-foreground/15 bg-card text-foreground/60 hover:border-foreground/30"
+                      )}
+                    >
+                      {tm("q1No")}
+                    </button>
+                  </div>
+                </div>
 
-              {/* ──── Guided flow — step-by-step based on official framework ──── */}
-              {miluimMode === "guided" && (
-                <div className="rounded-xl border border-foreground/10 bg-foreground/3 p-3 space-y-3 animate-in fade-in duration-200">
-
-                  {/* Step 0: Did you serve? */}
-                  {guidedStep === 0 && (
-                    <div className="space-y-2">
-                      <p className="text-xs font-medium text-foreground/60">
-                        {isHe ? "האם שירתת במילואים במהלך שנת הלימודים תשפ״ו?" : "Did you serve in reserves during the תשפ\"ו academic year?"}
-                      </p>
-                      <p className="text-[10px] text-foreground/30">
-                        {isHe ? "(סמ׳ א׳: 26.10.25-13.3.26 | סמ׳ ב׳: 15.3.26-16.10.26)" : "(Sem A: 26.10.25-13.3.26 | Sem B: 15.3.26-16.10.26)"}
-                      </p>
-                      <div className="grid grid-cols-2 gap-2">
-                        <button
-                          onClick={() => setGuidedStep(1)}
-                          className="rounded-lg border border-foreground/15 bg-card px-3 py-2.5 text-xs text-foreground/60 hover:border-foreground/30 transition-all"
-                        >
-                          {isHe ? "כן, שירתתי" : "Yes, I served"}
-                        </button>
-                        <button
-                          onClick={() => setGuidedStep(5)}
-                          className="rounded-lg border border-foreground/15 bg-card px-3 py-2.5 text-xs text-foreground/60 hover:border-foreground/30 transition-all"
-                        >
-                          {isHe ? "לא שירתתי" : "No service"}
-                        </button>
-                      </div>
+                {/* Q2 + Q3: only when served === true */}
+                {served === true && (
+                  <div className="space-y-3 animate-in fade-in duration-200">
+                    {/* Days */}
+                    <div className="space-y-1.5">
+                      <label className="text-xs font-medium text-foreground/60">{tm("q2Days")}</label>
+                      <input
+                        type="number"
+                        min={0}
+                        max={365}
+                        value={days ?? ""}
+                        onChange={(e) => {
+                          const v = e.target.value === "" ? null : parseInt(e.target.value, 10);
+                          setDays(v);
+                          applyDerived(deriveGroup(v ?? 0, isCombat));
+                        }}
+                        placeholder={tm("q2DaysPlaceholder")}
+                        className="w-full rounded-lg border border-border bg-card px-3 py-2 text-sm text-foreground placeholder:text-foreground/25 focus:border-foreground/30 focus:outline-none transition-colors"
+                      />
+                      <p className="text-[10px] text-foreground/30">{tm("q2DaysHint")}</p>
                     </div>
-                  )}
 
-                  {/* Step 1: Combat status */}
-                  {guidedStep === 1 && (
-                    <div className="space-y-2">
-                      <p className="text-xs font-medium text-foreground/60">
-                        {isHe ? "האם שירתת בייעוד קדמי (לוחם/ת)?" : "Did you serve in a front-line (combat) designation?"}
-                      </p>
-                      <p className="text-[10px] text-foreground/30">
-                        {isHe
-                          ? "לוחמים זכאים לשיוך מיטיב — קבוצה גבוהה יותר גם עם פחות ימים"
-                          : "Combat soldiers get enhanced group mapping — higher group with fewer days"}
-                      </p>
-                      <div className="grid grid-cols-1 gap-2">
-                        <button
-                          onClick={() => { setIsCombat(true); setGuidedStep(2); }}
-                          className="flex items-center justify-center gap-1.5 rounded-lg border border-foreground/15 bg-card px-3 py-2.5 text-xs text-foreground/60 hover:border-foreground/30 transition-all"
-                        >
-                          <Swords className="h-3 w-3" />
-                          {isHe ? "כן, לוחם/ת" : "Yes, combat"}
-                        </button>
-                        <button
-                          onClick={() => { setIsCombat(false); setGuidedStep(2); }}
-                          className="rounded-lg border border-foreground/15 bg-card px-3 py-2.5 text-xs text-foreground/60 hover:border-foreground/30 transition-all"
-                        >
-                          {isHe ? "לא, תפקיד אחר" : "No, other role"}
-                        </button>
-                        {/* 300+ fighters shortcut */}
+                    {/* Combat */}
+                    <div className="space-y-1.5">
+                      <label className="text-xs font-medium text-foreground/60">{tm("q3Combat")}</label>
+                      <div className="grid grid-cols-2 gap-2">
                         <button
                           onClick={() => {
                             setIsCombat(true);
-                            onUpdate({ miluimGroup: "GROUP_C" });
-                            setGuidedStep(4);
+                            applyDerived(deriveGroup(days ?? 0, true));
                           }}
-                          className="rounded-lg border border-amber-500/20 bg-amber-500/5 px-3 py-2.5 text-start text-[11px] text-foreground/60 hover:border-amber-500/30 transition-all"
+                          className={cn(
+                            "flex items-center justify-center gap-1.5 rounded-lg border px-3 py-2 text-xs transition-all",
+                            isCombat
+                              ? "border-amber-500/40 bg-amber-500/5 text-amber-600 font-medium"
+                              : "border-foreground/15 bg-card text-foreground/60 hover:border-foreground/30"
+                          )}
                         >
-                          <span className="flex items-center gap-1.5 font-medium text-amber-500">
-                            <Swords className="h-3 w-3" />
-                            {isHe ? "לוחם/ת 300+ ימים מאז 7.10.23" : "300+ days combat since 7.10.23"}
-                          </span>
-                          <span className="block mt-0.5 text-foreground/30">
-                            {isHe ? "קבוצה C אוטומטית — תמיכה מלאה עד סוף התואר" : "Automatic Group C — full support through degree"}
-                          </span>
+                          <Swords className="h-3 w-3" />
+                          {tm("q3CombatYes")}
                         </button>
-                        {/* קבע ייעודי-קדמי */}
                         <button
                           onClick={() => {
-                            onUpdate({ miluimGroup: "GROUP_C" });
-                            setGuidedStep(4);
+                            setIsCombat(false);
+                            applyDerived(deriveGroup(days ?? 0, false));
                           }}
-                          className="rounded-lg border border-foreground/10 bg-foreground/3 px-3 py-2 text-start text-[11px] text-foreground/50 hover:border-foreground/20 transition-all"
+                          className={cn(
+                            "rounded-lg border px-3 py-2 text-xs transition-all",
+                            !isCombat && days != null
+                              ? "border-foreground/30 bg-foreground/10 text-foreground/70 font-medium"
+                              : "border-foreground/15 bg-card text-foreground/60 hover:border-foreground/30"
+                          )}
                         >
-                          <span className="font-medium">{isHe ? "קבע ייעודי-קדמי" : "Front-line regular army"}</span>
-                          <span className="block text-foreground/30">{isHe ? "שייך אוטומטית לקבוצה C" : "Automatically assigned to Group C"}</span>
+                          {tm("q3CombatNo")}
                         </button>
                       </div>
                     </div>
-                  )}
 
-                  {/* Step 2: Semester-aware days input */}
-                  {guidedStep === 2 && (
-                    <div className="space-y-3">
-                      <p className="text-xs font-medium text-foreground/60">
-                        {isHe ? "כמה ימי מילואים שירתת בכל סמסטר?" : "How many reserve days per semester?"}
-                      </p>
-                      <p className="text-[10px] text-foreground/30">
-                        {isHe
-                          ? "הזינו את מספר הימים בכל תקופה בנפרד — המערכת תחשב את הקבוצה המיטיבה ביותר"
-                          : "Enter days per period — the system will compute the best group automatically"}
-                      </p>
-
-                      {isCombat && (
-                        <span className="inline-flex items-center gap-1 rounded-full bg-amber-500/10 px-2 py-0.5 text-[10px] font-medium text-amber-500">
-                          <Swords className="h-2.5 w-2.5" />
-                          {isHe ? "לוחם/ת — שיוך מיטיב" : "Combat — enhanced mapping"}
-                        </span>
-                      )}
-
-                      {/* Semester A */}
-                      <div className="rounded-lg border border-foreground/10 bg-card/50 p-2.5 space-y-1.5">
-                        <div className="flex items-center justify-between">
-                          <label className="text-[11px] font-medium text-foreground/50">
-                            {isHe ? "סמסטר א׳" : "Semester A"}
-                          </label>
-                          <span className="text-[9px] text-foreground/25 font-mono">26.10.25 – 13.3.26</span>
-                        </div>
-                        <input
-                          type="number"
-                          min={0}
-                          max={180}
-                          value={daysServedA ?? ""}
-                          onChange={(e) => setDaysServedA(e.target.value === "" ? null : parseInt(e.target.value, 10))}
-                          placeholder={isHe ? "ימים בסמ׳ א׳ (0 אם לא שירתת)" : "Days in Sem A (0 if none)"}
-                          className="w-full rounded-lg border border-border bg-card px-3 py-2 text-sm text-foreground placeholder:text-foreground/25 focus:border-foreground/30 focus:outline-none transition-colors"
-                        />
-                        {(daysServedA ?? 0) > 0 && computedGroups.semA !== "NONE" && (
-                          <p className="text-[10px] text-emerald-500/70">
-                            → {MILUIM_CONFIG.GROUPS[computedGroups.semA]?.nameHe?.split("—")[0]?.trim()} {isHe ? "בסמ׳ א׳" : "in Sem A"}
-                          </p>
-                        )}
+                    {/* Result */}
+                    {derivedGroup !== "NONE" && (days ?? 0) > 0 && (
+                      <div className="rounded-lg border border-emerald-500/20 bg-emerald-500/5 p-2.5 animate-in fade-in duration-200">
+                        <p className="text-xs font-medium text-emerald-500">{tm("resultTitle")}</p>
+                        <p className="mt-1 text-sm font-bold text-foreground/80">
+                          {isHe
+                            ? MILUIM_CONFIG.GROUPS[derivedGroup].nameHe
+                            : MILUIM_CONFIG.GROUPS[derivedGroup].nameEn}
+                        </p>
+                        <p className="mt-0.5 text-[11px] text-foreground/45">
+                          {tm("resultExemption", {
+                            credits: Math.min(
+                              MILUIM_CONFIG.GROUPS[derivedGroup].creditExemptionPerYear,
+                              MILUIM_CONFIG.MAX_CREDIT_EXEMPTIONS_DEGREE
+                            ),
+                          })}
+                        </p>
+                        <p className="mt-1.5 text-[10px] text-foreground/30">{tm("editLater")}</p>
                       </div>
+                    )}
+                  </div>
+                )}
+              </div>
 
-                      {/* Semester B */}
-                      <div className="rounded-lg border border-foreground/10 bg-card/50 p-2.5 space-y-1.5">
-                        <div className="flex items-center justify-between">
-                          <label className="text-[11px] font-medium text-foreground/50">
-                            {isHe ? "סמסטר ב׳" : "Semester B"}
-                          </label>
-                          <span className="text-[9px] text-foreground/25 font-mono">15.3.26 – 16.10.26</span>
-                        </div>
-                        <input
-                          type="number"
-                          min={0}
-                          max={180}
-                          value={daysServedB ?? ""}
-                          onChange={(e) => setDaysServedB(e.target.value === "" ? null : parseInt(e.target.value, 10))}
-                          placeholder={isHe ? "ימים בסמ׳ ב׳ (0 אם לא שירתת)" : "Days in Sem B (0 if none)"}
-                          className="w-full rounded-lg border border-border bg-card px-3 py-2 text-sm text-foreground placeholder:text-foreground/25 focus:border-foreground/30 focus:outline-none transition-colors"
-                        />
-                        {(daysServedB ?? 0) > 0 && computedGroups.semB !== "NONE" && (
-                          <p className="text-[10px] text-emerald-500/70">
-                            → {MILUIM_CONFIG.GROUPS[computedGroups.semB]?.nameHe?.split("—")[0]?.trim()} {isHe ? "בסמ׳ ב׳" : "in Sem B"}
-                          </p>
-                        )}
-                      </div>
+              {/* ─── Special cases (edge cases, behind a link) ─── */}
+              <div>
+                <button
+                  onClick={() => setShowSpecialCases((v) => !v)}
+                  className="flex w-full items-center gap-1.5 text-[11px] text-foreground/40 hover:text-foreground/60 transition-colors"
+                >
+                  <ChevronDown className={cn("h-3 w-3 transition-transform", showSpecialCases && "rotate-180")} />
+                  {tm("specialCasesToggle")}
+                </button>
+                {showSpecialCases && (
+                  <div className="mt-2 space-y-1.5 animate-in fade-in duration-200">
+                    <p className="text-[10px] text-foreground/30">{tm("specialCasesHint")}</p>
+                    {/* 300+ */}
+                    <button
+                      onClick={() => onUpdate({ miluimGroup: "GROUP_C" })}
+                      className="w-full rounded-lg border border-amber-500/20 bg-amber-500/5 px-3 py-2 text-start text-[11px] text-foreground/60 hover:border-amber-500/30 transition-all"
+                    >
+                      <span className="flex items-center gap-1.5 font-medium text-amber-500">
+                        <Swords className="h-3 w-3" />
+                        {tm("special300")}
+                      </span>
+                      <span className="block mt-0.5 text-foreground/30">{tm("special300Desc")}</span>
+                    </button>
+                    {/* Bereaved → G */}
+                    <button
+                      onClick={() => onUpdate({ miluimGroup: "GROUP_G" })}
+                      className="w-full rounded-lg border border-foreground/15 bg-card px-3 py-2 text-start text-[11px] text-foreground/60 hover:border-foreground/30 transition-all"
+                    >
+                      <span className="font-medium">{tm("specialBereaved")}</span>
+                      <span className="block text-foreground/30">{tm("specialBereavedDesc")}</span>
+                    </button>
+                    {/* Wounded → G */}
+                    <button
+                      onClick={() => onUpdate({ miluimGroup: "GROUP_G" })}
+                      className="w-full rounded-lg border border-foreground/15 bg-card px-3 py-2 text-start text-[11px] text-foreground/60 hover:border-foreground/30 transition-all"
+                    >
+                      <span className="font-medium">{tm("specialWounded")}</span>
+                      <span className="block text-foreground/30">{tm("specialWoundedDesc")}</span>
+                    </button>
+                    {/* Spouse → B (depends on partner; B as a sensible default, refine manually) */}
+                    <button
+                      onClick={() => onUpdate({ miluimGroup: "GROUP_B" })}
+                      className="w-full rounded-lg border border-foreground/15 bg-card px-3 py-2 text-start text-[11px] text-foreground/60 hover:border-foreground/30 transition-all"
+                    >
+                      <span className="font-medium">{tm("specialSpouse")}</span>
+                      <span className="block text-foreground/30">{tm("specialSpouseDesc")}</span>
+                    </button>
+                    {/* Retroactive / regular-army front-line → opens manual select */}
+                    <button
+                      onClick={() => setShowManualSelect(true)}
+                      className="w-full rounded-lg border border-foreground/10 bg-foreground/3 px-3 py-2 text-start text-[11px] text-foreground/50 hover:border-foreground/20 transition-all"
+                    >
+                      <span className="font-medium">{tm("specialRetro")}</span>
+                      <span className="block text-foreground/30">{tm("specialRetroDesc")}</span>
+                    </button>
+                  </div>
+                )}
+              </div>
 
-                      {/* Optional: Pre-semester B service (3 months before) — advanced */}
-                      {!isCombat && (
-                        <details className="group">
-                          <summary className="text-[10px] text-foreground/30 cursor-pointer hover:text-foreground/50 transition-colors">
-                            {isHe ? "▸ שירתת גם ב-3 חודשים שלפני סמ׳ ב׳ (דצמבר–מרץ)?" : "▸ Service in 3 months before Sem B (Dec–Mar)?"}
-                          </summary>
-                          <div className="mt-1.5 rounded-lg border border-foreground/10 bg-card/50 p-2.5 space-y-1.5 animate-in fade-in duration-200">
-                            <p className="text-[10px] text-foreground/30">
-                              {isHe ? "60+ ימים ב-3 חודשים שלפני סמ׳ ב׳ → לפחות קבוצה B" : "60+ days in 3 months pre-Sem B → at least Group B"}
-                            </p>
-                            <input
-                              type="number"
-                              min={0}
-                              max={90}
-                              value={daysServedPreB ?? ""}
-                              onChange={(e) => setDaysServedPreB(e.target.value === "" ? null : parseInt(e.target.value, 10))}
-                              placeholder={isHe ? "ימים (דצמבר–מרץ)" : "Days (Dec–Mar)"}
-                              className="w-full rounded-lg border border-border bg-card px-3 py-2 text-sm text-foreground placeholder:text-foreground/25 focus:border-foreground/30 focus:outline-none transition-colors"
-                            />
+              {/* ─── Manual group selector (secondary) ─── */}
+              <div>
+                <button
+                  onClick={() => setShowManualSelect((v) => !v)}
+                  className="flex w-full items-center gap-1.5 text-[11px] text-foreground/40 hover:text-foreground/60 transition-colors"
+                >
+                  <ChevronDown className={cn("h-3 w-3 transition-transform", showManualSelect && "rotate-180")} />
+                  {tm("changeManually")}
+                </button>
+                {showManualSelect && (
+                  <div className="mt-2 grid grid-cols-1 gap-2 animate-in fade-in duration-200">
+                    {(Object.keys(MILUIM_CONFIG.GROUPS) as MiluimGroupKey[]).map((groupKey) => {
+                      const group = MILUIM_CONFIG.GROUPS[groupKey];
+                      const isSelected = data.miluimGroup === groupKey;
+                      return (
+                        <button
+                          key={groupKey}
+                          onClick={() => onUpdate({ miluimGroup: groupKey })}
+                          className={cn(
+                            "rounded-xl border-2 px-4 py-2.5 text-start text-sm transition-all",
+                            isSelected
+                              ? "border-foreground bg-foreground/10 text-foreground/80 shadow-sm"
+                              : "border-border bg-card text-foreground/60 hover:border-foreground/30"
+                          )}
+                        >
+                          <div className="flex items-center justify-between">
+                            <span className="font-medium">{isHe ? group.nameHe : group.nameEn}</span>
+                            {groupKey !== "NONE" && (
+                              <span className="rounded-full bg-foreground/5 px-1.5 py-0.5 text-[9px] font-mono text-foreground/40">
+                                {Math.min(group.creditExemptionPerYear, MILUIM_CONFIG.MAX_CREDIT_EXEMPTIONS_DEGREE)} {isHe ? "ש״ס" : "cr."}
+                              </span>
+                            )}
                           </div>
-                        </details>
-                      )}
-
-                      {/* Show computed result — with per-semester breakdown */}
-                      {((daysServedA ?? 0) > 0 || (daysServedB ?? 0) > 0) && computedGroup !== "NONE" && (
-                        <div className="rounded-lg border border-emerald-500/20 bg-emerald-500/5 p-2.5 animate-in fade-in duration-200">
-                          <p className="text-xs font-medium text-emerald-500">
-                            {isHe ? "שיוך לפי המתווה:" : "Framework classification:"}
-                          </p>
-                          <p className="mt-1 text-sm font-bold text-foreground/80">
-                            {MILUIM_CONFIG.GROUPS[computedGroup].nameHe}
-                          </p>
-                          {/* Per-semester breakdown */}
-                          <div className="mt-1 flex gap-3 text-[10px] text-foreground/40">
-                            {computedGroups.semA !== "NONE" && (
-                              <span>{isHe ? "סמ׳ א׳:" : "Sem A:"} {computedGroups.semA.replace("GROUP_", "")}</span>
-                            )}
-                            {computedGroups.semB !== "NONE" && (
-                              <span>{isHe ? "סמ׳ ב׳:" : "Sem B:"} {computedGroups.semB.replace("GROUP_", "")}</span>
-                            )}
-                            {computedGroups.totalDays > 0 && (
-                              <span>{isHe ? "סה״כ:" : "Total:"} {computedGroups.totalDays} {isHe ? "ימים" : "days"}</span>
-                            )}
-                          </div>
-                          <p className="mt-0.5 text-[10px] text-foreground/40">
-                            {isHe
-                              ? `${isCombat ? "(לוחם/ת — שיוך מיטיב) " : ""}→ פטור ${MILUIM_CONFIG.GROUPS[computedGroup].creditExemptionPerYear} ש״ס בשנה`
-                              : `${isCombat ? "(combat — enhanced) " : ""}→ ${MILUIM_CONFIG.GROUPS[computedGroup].creditExemptionPerYear} credits/year exemption`
-                            }
-                          </p>
-                          <button
-                            onClick={() => {
-                              onUpdate({ miluimGroup: computedGroup });
-                              setGuidedStep(4);
-                            }}
-                            className="mt-2 w-full rounded-lg bg-emerald-500/10 px-3 py-2 text-xs font-medium text-emerald-600 hover:bg-emerald-500/15 transition-all"
-                          >
-                            {isHe ? `אישור — ${MILUIM_CONFIG.GROUPS[computedGroup].nameHe.split("—")[0]?.trim()}` : `Confirm — ${computedGroup.replace("_", " ")}`}
-                          </button>
-                        </div>
-                      )}
-                    </div>
-                  )}
-
-                  {/* Step 4: Done — show summary */}
-                  {guidedStep === 4 && (
-                    <div className="space-y-2 text-center">
-                      <p className="text-xs font-medium text-emerald-500">
-                        {isHe ? "הקבוצה נקבעה" : "Group set"}
-                      </p>
-                      <p className="text-sm font-bold text-foreground/80">
-                        {MILUIM_CONFIG.GROUPS[data.miluimGroup as MiluimGroupKey]?.nameHe}
-                      </p>
-                      <button
-                        onClick={() => setMiluimMode("select")}
-                        className="text-[11px] text-foreground/40 hover:text-foreground/60 underline"
-                      >
-                        {isHe ? "שנה ידנית" : "Change manually"}
-                      </button>
-                    </div>
-                  )}
-
-                  {/* Step 5: Not serving, but maybe bereaved/special/spouse? */}
-                  {guidedStep === 5 && (
-                    <div className="space-y-2">
-                      <p className="text-xs font-medium text-foreground/60">
-                        {isHe ? "האם את/ה שייכ/ת לאחת מהקבוצות הבאות?" : "Do you belong to any of these groups?"}
-                      </p>
-                      <div className="grid grid-cols-1 gap-1.5">
-                        <button
-                          onClick={() => {
-                            onUpdate({ miluimGroup: "GROUP_G" });
-                            setGuidedStep(4);
-                          }}
-                          className="rounded-lg border border-foreground/15 bg-card px-3 py-2 text-start text-[11px] text-foreground/60 hover:border-foreground/30 transition-all"
-                        >
-                          <span className="font-medium">{isHe ? "בן/בת משפחה שכולה" : "Bereaved family member"}</span>
-                          <span className="block text-foreground/30">{isHe ? "קרבה ראשונה לחלל/ת מערכות ישראל" : "First-degree relative of fallen soldier"}</span>
-                        </button>
-                        <button
-                          onClick={() => {
-                            onUpdate({ miluimGroup: "GROUP_G" });
-                            setGuidedStep(4);
-                          }}
-                          className="rounded-lg border border-foreground/15 bg-card px-3 py-2 text-start text-[11px] text-foreground/60 hover:border-foreground/30 transition-all"
-                        >
-                          <span className="font-medium">{isHe ? "פצוע/ה או נפגע/ת 7.10" : "Wounded / Oct 7 victim"}</span>
-                          <span className="block text-foreground/30">{isHe ? "פצועי מערכות, סדיר, נפגעי פעולות איבה" : "Wounded in action, regular army, terror attack victims"}</span>
-                        </button>
-                        <button
-                          onClick={() => setGuidedStep(6)}
-                          className="rounded-lg border border-foreground/15 bg-card px-3 py-2 text-start text-[11px] text-foreground/60 hover:border-foreground/30 transition-all"
-                        >
-                          <span className="font-medium">{isHe ? "בן/בת זוג של משרת/ת מילואים" : "Spouse of reservist"}</span>
-                          <span className="block text-foreground/30">{isHe ? "הורה לילדים עד גיל 13 — הקבוצה תלויה בהיקף שירות בן/בת הזוג" : "Parent of children under 13 — group depends on partner's service"}</span>
-                        </button>
-                        <button
-                          onClick={() => {
-                            onUpdate({ miluimGroup: "NONE" });
-                            setGuidedStep(4);
-                          }}
-                          className="rounded-lg border border-foreground/15 bg-card px-3 py-2 text-xs text-foreground/40 hover:border-foreground/30 transition-all"
-                        >
-                          {isHe ? "אף אחד מהנ״ל — אני לא זכאי/ת" : "None of the above — not eligible"}
-                        </button>
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Step 6: Spouse — how much did your partner serve? */}
-                  {guidedStep === 6 && (
-                    <div className="space-y-2">
-                      <p className="text-xs font-medium text-foreground/60">
-                        {isHe ? "כמה ימים שירת/ה בן/בת הזוג בסמסטר?" : "How many days did your partner serve per semester?"}
-                      </p>
-                      <p className="text-[10px] text-foreground/30">
-                        {isHe ? "הזכאות לבני/ות זוג (הורים לילדים עד גיל 13) תלויה בהיקף שירות בן/בת הזוג" : "Eligibility for spouses (parents of children under 13) depends on partner's service days"}
-                      </p>
-                      <div className="grid grid-cols-1 gap-1.5">
-                        <button
-                          onClick={() => {
-                            onUpdate({ miluimGroup: "GROUP_C" });
-                            setGuidedStep(4);
-                          }}
-                          className="rounded-lg border border-foreground/15 bg-card px-3 py-2 text-start text-[11px] text-foreground/60 hover:border-foreground/30 transition-all"
-                        >
-                          <span className="font-medium">{isHe ? "35+ ימים בסמסטר → קבוצה C" : "35+ days/semester → Group C"}</span>
-                        </button>
-                        <button
-                          onClick={() => {
-                            onUpdate({ miluimGroup: "GROUP_B" });
-                            setGuidedStep(4);
-                          }}
-                          className="rounded-lg border border-foreground/15 bg-card px-3 py-2 text-start text-[11px] text-foreground/60 hover:border-foreground/30 transition-all"
-                        >
-                          <span className="font-medium">{isHe ? "21-34 ימים בסמסטר (או שירות ממושך) → קבוצה B" : "21-34 days/sem (or extended) → Group B"}</span>
-                          <span className="block text-foreground/30">{isHe ? "כולל: 60+ ימים לפני סמסטר, 35+ ימים מצטברים בשנה" : "Including: 60+ days pre-semester, 35+ cumulative in year"}</span>
-                        </button>
-                        <button
-                          onClick={() => {
-                            onUpdate({ miluimGroup: "GROUP_C" });
-                            setGuidedStep(4);
-                          }}
-                          className="rounded-lg border border-amber-500/20 bg-amber-500/5 px-3 py-2 text-start text-[11px] text-foreground/60 hover:border-amber-500/30 transition-all"
-                        >
-                          <span className="font-medium text-amber-500">{isHe ? "300+ ימים מאז 7.10.23 (לוחם/ת) → קבוצה C" : "300+ days since 7.10.23 (combat) → Group C"}</span>
-                          <span className="block text-foreground/30">{isHe ? "קבוצת 300+ — תמיכה מלאה עד סוף התואר" : "300+ group — full support through degree"}</span>
-                        </button>
-                        <button
-                          onClick={() => { setGuidedStep(5); }}
-                          className="rounded-lg border border-foreground/10 bg-foreground/3 px-3 py-1.5 text-[10px] text-foreground/35 hover:text-foreground/50 transition-all"
-                        >
-                          ← {isHe ? "חזרה" : "Back"}
-                        </button>
-                      </div>
-                    </div>
-                  )}
-                </div>
-              )}
-
-              {/* ──── Direct select mode ──── */}
-              {miluimMode === "select" && (
-                <div className="grid grid-cols-1 gap-2">
-                  {(Object.keys(MILUIM_CONFIG.GROUPS) as MiluimGroupKey[]).map((groupKey) => {
-                    const group = MILUIM_CONFIG.GROUPS[groupKey];
-                    const isSelected = data.miluimGroup === groupKey;
-                    return (
-                      <button
-                        key={groupKey}
-                        onClick={() => onUpdate({ miluimGroup: groupKey })}
-                        className={cn(
-                          "rounded-xl border-2 px-4 py-2.5 text-start text-sm transition-all",
-                          isSelected
-                            ? "border-foreground bg-foreground/10 text-foreground/80 shadow-sm"
-                            : "border-border bg-card text-foreground/60 hover:border-foreground/30"
-                        )}
-                      >
-                        <div className="flex items-center justify-between">
-                          <span className="font-medium">
-                            {isHe ? group.nameHe : group.nameEn}
-                          </span>
-                          {groupKey !== "NONE" && (
-                            <span className="rounded-full bg-foreground/5 px-1.5 py-0.5 text-[9px] font-mono text-foreground/40">
-                              {group.creditExemptionPerYear} {isHe ? "ש״ס/שנה" : "cr/yr"}
+                          {group.descHe && (
+                            <span className="block mt-0.5 text-xs text-foreground/40">
+                              {isHe ? group.descHe : group.descEn}
                             </span>
                           )}
-                        </div>
-                        {group.descHe && (
-                          <span className="block mt-0.5 text-xs text-foreground/40">
-                            {isHe ? group.descHe : group.descEn}
-                          </span>
-                        )}
-                      </button>
-                    );
-                  })}
-                </div>
-              )}
-
-              {/* Show benefits for selected miluim group */}
-              {data.miluimGroup !== "NONE" && MILUIM_CONFIG.GROUPS[data.miluimGroup as MiluimGroupKey]?.benefits?.length > 0 && (
-                <div className="mt-3 rounded-xl border border-emerald-500/20 bg-emerald-500/5 p-3 animate-in fade-in duration-200">
-                  <div className="flex items-center justify-between mb-2">
-                    <p className="text-xs font-medium text-emerald-500">
-                      {isHe ? "ההטבות שלך:" : "Your benefits:"}
-                    </p>
-                    <span className="text-[10px] font-mono text-emerald-500/60">
-                      {isHe
-                        ? `פטור ${MILUIM_CONFIG.GROUPS[data.miluimGroup as MiluimGroupKey].creditExemptionPerYear} ש״ס/שנה`
-                        : `${MILUIM_CONFIG.GROUPS[data.miluimGroup as MiluimGroupKey].creditExemptionPerYear} credits/year`
-                      }
-                    </span>
+                        </button>
+                      );
+                    })}
                   </div>
-                  <ul className="space-y-1">
-                    {(MILUIM_CONFIG.GROUPS[data.miluimGroup as MiluimGroupKey]?.benefits ?? []).map((benefit: string, idx: number) => (
-                      <li key={idx} className="flex items-start gap-1.5 text-[11px] text-foreground/50">
-                        <Check className="h-3 w-3 text-emerald-400 mt-0.5 shrink-0" />
-                        {benefit}
-                      </li>
-                    ))}
-                  </ul>
+                )}
+              </div>
+
+              {/* ─── BENEFITS: split into two clearly-labeled groups ─── */}
+              {hasGroup && groupCfg && (
+                <div className="space-y-3">
+                  {/* (1) Auto-applied — the exemption */}
+                  <div className="rounded-xl border border-emerald-500/25 bg-emerald-500/5 p-3">
+                    <div className="flex items-center gap-1.5 mb-1.5">
+                      <Sparkles className="h-3.5 w-3.5 text-emerald-500" />
+                      <p className="text-xs font-semibold text-emerald-600">{tm("appliedTitle")}</p>
+                    </div>
+                    <p className="text-[11px] text-foreground/40 mb-2">{tm("appliedSubtitle")}</p>
+                    <div className="flex items-start gap-1.5 text-[11px] text-foreground/60">
+                      <Check className="h-3 w-3 text-emerald-400 mt-0.5 shrink-0" />
+                      <span>{tm("appliedExemption", { credits: exemptionShown })}</span>
+                    </div>
+                  </div>
+
+                  {/* (2) Entitlements — claimed with the secretariat */}
+                  <div className="rounded-xl border border-foreground/12 bg-foreground/3 p-3">
+                    <div className="flex items-center justify-between mb-1.5">
+                      <div className="flex items-center gap-1.5">
+                        <FileText className="h-3.5 w-3.5 text-foreground/50" />
+                        <p className="text-xs font-semibold text-foreground/70">{tm("entitlementsTitle")}</p>
+                      </div>
+                      <span className="rounded-full bg-foreground/5 px-2 py-0.5 text-[9px] font-medium text-foreground/40">
+                        {tm("asof")}
+                      </span>
+                    </div>
+                    <p className="text-[11px] text-foreground/40 mb-2">{tm("entitlementsSubtitle")}</p>
+                    <ul className="space-y-2">
+                      {buildEntitlements(data.miluimGroup as MiluimGroupKey, tm).map((ent) => (
+                        <li key={ent.key} className="flex items-start gap-1.5">
+                          <span className="mt-1 h-1.5 w-1.5 shrink-0 rounded-full bg-foreground/25" />
+                          <div className="leading-snug">
+                            <span className="text-[11px] font-medium text-foreground/70">{ent.title}</span>
+                            <span className="block text-[10px] text-foreground/40">{ent.desc}</span>
+                          </div>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
                 </div>
               )}
             </div>
@@ -798,4 +581,42 @@ export function StepProfile({ data, onUpdate }: StepProfileProps) {
       </div>
     </div>
   );
+}
+
+/**
+ * Per-group "entitlements you claim" list, sourced from the group's flags in
+ * MILUIM_CONFIG (which mirror docs/pakam-domain-rules-2026.md §6 Layer B).
+ * The credit exemption is intentionally NOT here — it's the one auto-applied item.
+ */
+function buildEntitlements(
+  group: MiluimGroupKey,
+  tm: (key: string) => string
+): { key: string; title: string; desc: string }[] {
+  const cfg = MILUIM_CONFIG.GROUPS[group];
+  const out: { key: string; title: string; desc: string }[] = [];
+
+  if (cfg.examChoice2of3) {
+    out.push({ key: "examDates", title: tm("entExamDates"), desc: tm("entExamDatesDesc") });
+  }
+  if (cfg.examTimeBonus > 0) {
+    out.push({ key: "examTime", title: tm("entExamTime"), desc: tm("entExamTimeDesc") });
+  }
+  if (cfg.biddingBonus > 0) {
+    out.push({ key: "bidding", title: tm("entBidding"), desc: tm("entBiddingDesc") });
+  }
+  // Binary conversion: B/C have binaryGradePerYear; G converts 6 credits.
+  if (cfg.binaryGradePerYear > 0 || group === "GROUP_G") {
+    out.push({ key: "binary", title: tm("entBinary"), desc: tm("entBinaryDesc") });
+  }
+  if (cfg.attendanceExempt) {
+    out.push({ key: "attendance", title: tm("entAttendance"), desc: tm("entAttendanceDesc") });
+  }
+  // Tuition-drag waiver: a Group-C specific completion benefit.
+  if (group === "GROUP_C") {
+    out.push({ key: "tuition", title: tm("entTuition"), desc: tm("entTuitionDesc") });
+  }
+  // Recordings: available to all groups that have any benefit.
+  out.push({ key: "recordings", title: tm("entRecordings"), desc: tm("entRecordingsDesc") });
+
+  return out;
 }

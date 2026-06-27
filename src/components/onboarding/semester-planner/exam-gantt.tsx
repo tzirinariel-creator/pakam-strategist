@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState, useRef } from "react";
+import { useMemo, useState, useRef, useEffect } from "react";
 import { useLocale } from "next-intl";
 import { AlertTriangle, ZoomIn, ZoomOut } from "lucide-react";
 import { DISCIPLINE_CONFIG } from "@/lib/constants";
@@ -55,6 +55,17 @@ export function ExamGantt({ courses }: ExamGanttProps) {
   const scrollRef = useRef<HTMLDivElement>(null);
   const [hoveredExam, setHoveredExam] = useState<string | null>(null);
   const [zoomLevel, setZoomLevel] = useState(1);
+  // Narrow viewport → smaller columns so more of the timeline fits without scrolling.
+  const [isNarrow, setIsNarrow] = useState(false);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const mq = window.matchMedia("(max-width: 639px)");
+    const update = () => setIsNarrow(mq.matches);
+    update();
+    mq.addEventListener("change", update);
+    return () => mq.removeEventListener("change", update);
+  }, []);
 
   // Build exam events
   const events = useMemo<ExamEvent[]>(() => {
@@ -97,9 +108,11 @@ export function ExamGantt({ courses }: ExamGanttProps) {
     return { startDate: min, endDate: max, totalDays: daysBetween(min, max) };
   }, [events]);
 
-  const dayWidth = Math.round(44 * zoomLevel);
+  // On phones, shrink the base day width and label column so more days fit per screen.
+  const baseDayWidth = isNarrow ? 30 : 44;
+  const dayWidth = Math.round(baseDayWidth * zoomLevel);
   const rowHeight = 36;
-  const labelWidth = 120;
+  const labelWidth = isNarrow ? 88 : 120;
 
   // Generate day columns
   const days = useMemo(() => {
@@ -127,6 +140,43 @@ export function ExamGantt({ courses }: ExamGanttProps) {
     days.forEach((d, i) => map.set(d.dateKey, i));
     return map;
   }, [days]);
+
+  // Column to bring into view on mount: today if it's in range, else the nearest exam.
+  const focusCol = useMemo(() => {
+    if (days.length === 0) return 0;
+    const todayIdx = days.findIndex((d) => d.isToday);
+    if (todayIdx >= 0) return todayIdx;
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    let best = -1;
+    let bestDist = Infinity;
+    for (const e of events) {
+      const d = e.moedA ?? e.moedB;
+      if (!d) continue;
+      const dist = Math.abs(d.getTime() - today.getTime());
+      if (dist < bestDist) {
+        bestDist = dist;
+        best = dateToCol.get(d.toISOString().split("T")[0] ?? "") ?? -1;
+      }
+    }
+    return best >= 0 ? best : 0;
+  }, [days, events, dateToCol]);
+
+  // On mount, scroll the timeline so the relevant region is visible (not hidden off-screen).
+  useEffect(() => {
+    const el = scrollRef.current;
+    if (!el || focusCol <= 0) return;
+    // Position the focus column roughly one-third in from the timeline's leading edge.
+    const offset = labelWidth + Math.max(0, focusCol - 2) * dayWidth;
+    if (isHe) {
+      // RTL: scrollLeft is negative and grows leftward as content scrolls.
+      el.scrollLeft = -offset;
+    } else {
+      el.scrollLeft = offset;
+    }
+    // Run once after first paint; dayWidth/labelWidth settle synchronously with isNarrow.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [focusCol]);
 
   // Detect conflicts — exams on same day
   const conflictDays = useMemo(() => {
@@ -226,7 +276,7 @@ export function ExamGantt({ courses }: ExamGanttProps) {
             {/* Day-of-week row */}
             <tr>
               <th
-                className="sticky start-0 z-20 border-e border-b border-border/20 bg-background/90 backdrop-blur-sm"
+                className="sticky start-0 z-20 border-e border-b border-border/20 bg-card"
                 style={{ width: `${labelWidth}px`, minWidth: `${labelWidth}px` }}
               />
               {days.map((d, i) => (
@@ -246,7 +296,7 @@ export function ExamGantt({ courses }: ExamGanttProps) {
             {/* Date number row */}
             <tr>
               <th
-                className="sticky start-0 z-20 border-e border-b border-border/20 bg-background/90 backdrop-blur-sm px-2 text-start text-[10px] font-medium text-foreground/40"
+                className="sticky start-0 z-20 border-e border-b border-border/20 bg-card px-2 text-start text-[10px] font-medium text-foreground/40"
                 style={{ width: `${labelWidth}px` }}
               >
                 {isHe ? "קורס" : "Course"}
@@ -294,7 +344,7 @@ export function ExamGantt({ courses }: ExamGanttProps) {
                 >
                   {/* Course name label — sticky */}
                   <td
-                    className="sticky start-0 z-10 border-e border-b border-border/15 bg-background/90 backdrop-blur-sm px-2"
+                    className="sticky start-0 z-10 border-e border-b border-border/15 bg-card px-2"
                     style={{ width: `${labelWidth}px` }}
                   >
                     <div className="flex items-center gap-1.5">
@@ -303,9 +353,7 @@ export function ExamGantt({ courses }: ExamGanttProps) {
                         style={{ backgroundColor: event.color }}
                       />
                       <span className="text-[10px] font-medium text-foreground/70 truncate leading-tight">
-                        {event.courseName.length > 14
-                          ? event.courseName.slice(0, 14) + "…"
-                          : event.courseName}
+                        {event.courseName}
                       </span>
                     </div>
                   </td>

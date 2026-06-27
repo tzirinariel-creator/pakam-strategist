@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo, useRef } from "react";
+import { useState, useMemo, useRef, useEffect } from "react";
 import { useTranslations, useLocale } from "next-intl";
 import {
   BookOpen,
@@ -80,8 +80,11 @@ const MONTH_NAMES_EN = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","O
 // ─── Constants ───────────────────────────────────────────────────────
 
 const ROW_HEIGHT = 48; // px
+// Column widths — base (desktop) values; shrunk on narrow viewports inside the component.
 const WEEK_COL_WIDTH = 56; // px min
 const LABEL_COL_WIDTH = 200; // px
+const WEEK_COL_WIDTH_NARROW = 36; // px min (phones)
+const LABEL_COL_WIDTH_NARROW = 124; // px (phones)
 
 // Semester move-to options
 const SEMESTER_SLOTS: { year: number; semester: Semester }[] = [
@@ -561,6 +564,22 @@ export function GanttView({ courses }: GanttViewProps) {
   const locale = useLocale();
   const isHe = locale === "he";
 
+  const scrollRef = useRef<HTMLDivElement>(null);
+
+  // Narrow viewport → shrink columns so more weeks fit, and pin the label column.
+  const [isNarrow, setIsNarrow] = useState(false);
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const mq = window.matchMedia("(max-width: 639px)");
+    const update = () => setIsNarrow(mq.matches);
+    update();
+    mq.addEventListener("change", update);
+    return () => mq.removeEventListener("change", update);
+  }, []);
+
+  const labelColWidth = isNarrow ? LABEL_COL_WIDTH_NARROW : LABEL_COL_WIDTH;
+  const weekColWidth = isNarrow ? WEEK_COL_WIDTH_NARROW : WEEK_COL_WIDTH;
+
   const semesterKey = useMemo(() => detectSemester(courses), [courses]);
   const cal = ACADEMIC_CALENDAR[semesterKey];
   const TOTAL_WEEKS = cal.totalWeeks + cal.examWeeks;
@@ -583,6 +602,18 @@ export function GanttView({ courses }: GanttViewProps) {
   );
 
   const weeks = Array.from({ length: TOTAL_WEEKS }, (_, i) => i + 1);
+
+  // On mount, scroll so the current week (or exam period) is in view rather than off-screen.
+  useEffect(() => {
+    const el = scrollRef.current;
+    if (!el) return;
+    const focusWeek = currentWeek >= 1 && currentWeek <= TOTAL_WEEKS ? currentWeek : EXAM_WEEK_START;
+    const offset = labelColWidth + Math.max(0, focusWeek - 2) * weekColWidth;
+    if (offset <= 0) return;
+    el.scrollLeft = isHe ? -offset : offset;
+    // Run once after first layout; widths settle synchronously with isNarrow.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentWeek, isNarrow]);
 
   return (
     <div className="flex flex-col gap-4">
@@ -629,18 +660,20 @@ export function GanttView({ courses }: GanttViewProps) {
       </div>
 
       {/* Gantt chart */}
-      <div className="overflow-x-auto rounded-lg border border-border bg-card">
-        <div className="min-w-[900px]">
+      <div ref={scrollRef} className="overflow-x-auto rounded-lg border border-border bg-card">
+        <div style={{ minWidth: `${labelColWidth + TOTAL_WEEKS * weekColWidth}px` }}>
           {/* Month header row */}
-          <div
-            className="flex border-b border-border bg-muted/30"
-            style={{ paddingInlineStart: `${LABEL_COL_WIDTH}px` }}
-          >
+          <div className="flex border-b border-border bg-muted/30">
+            {/* Sticky leading spacer aligns with the pinned label column */}
+            <div
+              className="sticky start-0 z-20 shrink-0 border-e border-border bg-muted/30"
+              style={{ width: `${labelColWidth}px` }}
+            />
             {monthSpans.map((ms, idx) => (
               <div
                 key={`month-${idx}`}
                 className="flex items-center justify-center border-e border-border/40 py-1.5 text-xs font-semibold text-foreground/70"
-                style={{ minWidth: `${WEEK_COL_WIDTH * ms.span}px`, flex: ms.span }}
+                style={{ minWidth: `${weekColWidth * ms.span}px`, flex: ms.span }}
               >
                 {ms.month}
               </div>
@@ -648,10 +681,12 @@ export function GanttView({ courses }: GanttViewProps) {
           </div>
 
           {/* Week headers with dates */}
-          <div
-            className="flex border-b border-border"
-            style={{ paddingInlineStart: `${LABEL_COL_WIDTH}px` }}
-          >
+          <div className="flex border-b border-border">
+            {/* Sticky leading spacer aligns with the pinned label column */}
+            <div
+              className="sticky start-0 z-20 shrink-0 border-e border-border bg-card"
+              style={{ width: `${labelColWidth}px` }}
+            />
             {weeks.map((week) => {
               const isExam = week >= EXAM_WEEK_START;
               const isCurrent = week === currentWeek;
@@ -666,7 +701,7 @@ export function GanttView({ courses }: GanttViewProps) {
                     isExam && "bg-red-500/8",
                     isCurrent && !isExam && "bg-foreground/10",
                   )}
-                  style={{ minWidth: `${WEEK_COL_WIDTH}px` }}
+                  style={{ minWidth: `${weekColWidth}px` }}
                 >
                   {/* Date (day of month) */}
                   <span
@@ -745,10 +780,10 @@ export function GanttView({ courses }: GanttViewProps) {
                         className="flex w-full border-b border-border/40 cursor-pointer hover:bg-foreground/[0.02] transition-colors"
                         style={{ height: `${ROW_HEIGHT}px` }}
                       >
-                        {/* Course label */}
+                        {/* Course label — pinned so names stay visible while the timeline scrolls */}
                         <div
-                          className="flex shrink-0 items-center gap-2 border-e border-border bg-card px-3"
-                          style={{ width: `${LABEL_COL_WIDTH}px` }}
+                          className="sticky start-0 z-10 flex shrink-0 items-center gap-2 border-e border-border bg-card px-3"
+                          style={{ width: `${labelColWidth}px` }}
                         >
                           <BookOpen
                             className="size-3.5 shrink-0"
@@ -786,7 +821,7 @@ export function GanttView({ courses }: GanttViewProps) {
                                   "flex flex-1 items-center justify-center border-e border-border/20",
                                   isExam && "bg-red-500/5",
                                 )}
-                                style={{ minWidth: `${WEEK_COL_WIDTH}px` }}
+                                style={{ minWidth: `${weekColWidth}px` }}
                               >
                                 {isActive && (
                                   <div
@@ -833,10 +868,10 @@ export function GanttView({ courses }: GanttViewProps) {
           {grouped.length > 0 && (
             <TooltipProvider delayDuration={100}>
               <div className="flex border-b border-border">
-                {/* Label */}
+                {/* Label — pinned alongside the course labels */}
                 <div
-                  className="flex shrink-0 items-center gap-2 border-e border-border bg-muted/30 px-3"
-                  style={{ width: `${LABEL_COL_WIDTH}px` }}
+                  className="sticky start-0 z-10 flex shrink-0 items-center gap-2 border-e border-border bg-card px-3"
+                  style={{ width: `${labelColWidth}px` }}
                 >
                   <span className="text-[10px] font-semibold text-foreground/50 uppercase tracking-wider">
                     {isHe ? "עומס שבועי" : "Weekly Load"}
@@ -860,7 +895,7 @@ export function GanttView({ courses }: GanttViewProps) {
                               "flex flex-1 items-center justify-center border-e border-border/20 py-2 cursor-default transition-colors",
                               isExam ? "bg-red-500/5" : workloadInfo.bgClass,
                             )}
-                            style={{ minWidth: `${WEEK_COL_WIDTH}px` }}
+                            style={{ minWidth: `${weekColWidth}px` }}
                           >
                             <span
                               className={cn(

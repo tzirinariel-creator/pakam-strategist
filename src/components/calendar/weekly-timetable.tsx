@@ -233,9 +233,98 @@ export function WeeklyTimetable({ sessions }: WeeklyTimetableProps) {
         )}
       </div>
 
-      {/* Timetable */}
-      <div className="overflow-x-auto rounded-xl border border-border bg-card shadow-sm">
-        <div className="min-w-[700px]">
+      {/* Mobile agenda — vertical list grouped by day (< md) */}
+      <div className="flex flex-col gap-3 md:hidden">
+        {dayOrder.map((dayIdx) => {
+          const dayKey = DAY_KEYS[dayIdx];
+          const isToday = dayIdx === currentDay;
+          const daySlots = slots
+            .filter((s) => s.day === dayIdx)
+            .sort((a, b) => a.startHour - b.startHour);
+
+          return (
+            <div
+              key={`agenda-${dayIdx}`}
+              className="overflow-hidden rounded-xl border border-border bg-card shadow-sm"
+            >
+              <div
+                className={cn(
+                  "flex items-center justify-between border-b border-border px-3 py-2 text-sm font-semibold",
+                  isToday ? "bg-foreground/8 text-foreground" : "bg-muted/30 text-muted-foreground",
+                )}
+              >
+                <span>{dayKey != null ? t(`days.${dayKey}`) : ""}</span>
+                {daySlots.length > 0 && (
+                  <span className="font-mono text-[11px] font-normal text-muted-foreground/70">
+                    {daySlots.length}
+                  </span>
+                )}
+              </div>
+
+              {daySlots.length === 0 ? (
+                <div className="px-3 py-3 text-xs text-muted-foreground/40">—</div>
+              ) : (
+                <ul className="divide-y divide-border/40">
+                  {daySlots.map((slot) => {
+                    const config = DISCIPLINE_CONFIG[slot.discipline];
+                    const color = config?.color ?? "hsl(var(--muted-foreground))";
+                    const hasConflict = conflictIds.has(slot.courseId);
+                    const sessionTypeKey = SESSION_TYPE_KEYS[slot.sessionType];
+                    const sessionTypeText = sessionTypeKey ? t(sessionTypeKey) : slot.sessionType;
+                    const locationText = [slot.building, slot.room].filter(Boolean).join(", ");
+
+                    return (
+                      <li
+                        key={slot.courseId}
+                        className="flex gap-2.5 px-3 py-2.5"
+                        style={{
+                          borderInlineStartWidth: "3px",
+                          borderInlineStartStyle: "solid",
+                          borderInlineStartColor: color,
+                          backgroundColor: `color-mix(in srgb, ${color} 7%, var(--card))`,
+                        }}
+                      >
+                        <span
+                          className="mt-0.5 shrink-0 font-mono text-[11px] leading-tight text-muted-foreground/80"
+                          dir="ltr"
+                        >
+                          {slot.startTimeStr}
+                          <br />
+                          {slot.endTimeStr}
+                        </span>
+                        <div className="flex min-w-0 flex-1 flex-col">
+                          <span className="truncate text-sm font-semibold text-foreground/90">
+                            {slot.courseName}
+                          </span>
+                          <span className="truncate text-[11px] text-muted-foreground">
+                            {slot.courseCode} · {sessionTypeText}
+                          </span>
+                          {locationText && (
+                            <span className="mt-0.5 flex items-center gap-1 truncate text-[11px] text-muted-foreground">
+                              <MapPin className="size-3 shrink-0 opacity-60" />
+                              {locationText}
+                            </span>
+                          )}
+                          {hasConflict && (
+                            <span className="mt-1 flex w-fit items-center gap-1 rounded bg-red-500/10 px-1.5 py-0.5 text-[10px] font-bold text-red-400">
+                              <AlertTriangle className="size-2.5" />
+                              {t("conflict")}
+                            </span>
+                          )}
+                        </div>
+                      </li>
+                    );
+                  })}
+                </ul>
+              )}
+            </div>
+          );
+        })}
+      </div>
+
+      {/* Timetable grid — md:+ (no horizontal scroll; columns fill the width) */}
+      <div className="hidden rounded-xl border border-border bg-card shadow-sm md:block">
+        <div className="w-full">
           {/* Day headers */}
           <div
             className="flex border-b border-border bg-muted/30"
