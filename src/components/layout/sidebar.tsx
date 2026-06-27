@@ -93,7 +93,7 @@ export function Sidebar() {
                     className={cn(
                       "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-[background-color,color,box-shadow] duration-200",
                       isActive
-                        ? "bg-foreground/[0.07] text-foreground font-semibold shadow-card"
+                        ? "bg-accent-brand-muted text-accent-brand font-semibold"
                         : "text-sidebar-foreground/70 hover:bg-foreground/5 hover:text-sidebar-foreground",
                       sidebarCollapsed && "justify-center px-2"
                     )}
@@ -101,7 +101,7 @@ export function Sidebar() {
                     <Icon
                       className={cn(
                         "h-5 w-5 shrink-0",
-                        isActive && "text-foreground"
+                        isActive && "text-accent-brand"
                       )}
                     />
                     {!sidebarCollapsed && <span>{t(item.key)}</span>}

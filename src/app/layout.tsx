@@ -1,24 +1,19 @@
 import type { Metadata } from "next";
-import { Assistant, Frank_Ruhl_Libre, JetBrains_Mono } from "next/font/google";
+import { Rubik, JetBrains_Mono } from "next/font/google";
 import { getLocale } from "next-intl/server";
 import "./globals.css";
 
-// Body / UI — a clean, modern Hebrew+Latin grotesque (replaces the generic Heebo)
-const sans = Assistant({
+// One confident sans for everything — Hebrew (purpose-revised) + Latin, variable.
+// Hierarchy comes from weight + size, the Linear/Vercel way. Heavy weights (700/800)
+// carry display; 400/500/600 carry body and UI.
+const sans = Rubik({
   subsets: ["hebrew", "latin"],
-  variable: "--font-assistant",
+  variable: "--font-rubik",
   display: "swap",
-  weight: ["400", "500", "600"],
+  weight: ["400", "500", "600", "700", "800"],
 });
 
-// Display / headings — a scholarly Hebrew serif. The signature voice of the product.
-const display = Frank_Ruhl_Libre({
-  subsets: ["hebrew", "latin"],
-  variable: "--font-frank",
-  display: "swap",
-  weight: ["500", "700", "900"],
-});
-
+// Numeric / data display only (course codes, GPA, credits) — tabular figures.
 const jetbrainsMono = JetBrains_Mono({
   subsets: ["latin"],
   variable: "--font-jetbrains",
@@ -62,7 +57,7 @@ export default async function RootLayout({
       lang={locale}
       dir={dir}
       suppressHydrationWarning
-      className={`light ${sans.variable} ${display.variable} ${jetbrainsMono.variable}`}
+      className={`light ${sans.variable} ${jetbrainsMono.variable}`}
     >
       <head>
         {/* Inline script to prevent theme flash on page load */}

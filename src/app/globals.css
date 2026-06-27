@@ -21,14 +21,14 @@
   --border-subtle: #E8E8E8;
   --input: oklch(0.922 0 0);
   --ring: oklch(0.708 0 0);
-  --radius: 0.625rem;
+  --radius: 0.75rem;
 
-  /* Font stacks — real :root vars so base rules (h1/body/.font-data) resolve.
-     next/font sets --font-frank / --font-assistant / --font-jetbrains on <body>. */
-  --font-display: var(--font-frank), "Frank Ruhl Libre", Georgia, serif;
-  --font-heading: var(--font-frank), "Frank Ruhl Libre", Georgia, serif;
-  --font-body: var(--font-assistant), system-ui, -apple-system, "Segoe UI", sans-serif;
-  --font-hebrew: var(--font-assistant), system-ui, -apple-system, sans-serif;
+  /* Font stacks — one confident sans (Rubik) for everything; hierarchy by weight+size.
+     next/font sets --font-rubik / --font-jetbrains on <html>. */
+  --font-display: var(--font-rubik), system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-heading: var(--font-rubik), system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-body: var(--font-rubik), system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-hebrew: var(--font-rubik), system-ui, -apple-system, sans-serif;
   --font-mono-stack: var(--font-jetbrains), "JetBrains Mono", "Fira Code", monospace;
   --font-mono: var(--font-jetbrains), "JetBrains Mono", "Fira Code", monospace;
 
@@ -38,7 +38,7 @@
   --accent-gold-muted: rgba(0, 0, 0, 0.06);
 
   /* Discipline Colors — PPE program (harmonized oklch) */
-  --discipline-philosophy: oklch(0.62 0.15 255);
+  --discipline-philosophy: oklch(0.6 0.13 230);
   --discipline-economics: oklch(0.68 0.16 152);
   --discipline-polsci: oklch(0.63 0.2 27);
   --discipline-law: oklch(0.74 0.15 75);
@@ -94,11 +94,12 @@
   --sidebar-ring: oklch(0.708 0 0);
 
   /* Elevation — layered soft shadows (stacked-shadow technique) */
-  --shadow-xs: 0 1px 2px rgba(27, 26, 23, 0.05);
-  --shadow-card: 0 1px 2px rgba(27, 26, 23, 0.04), 0 1px 3px rgba(27, 26, 23, 0.03);
-  --shadow-elevated: 0 2px 4px rgba(27, 26, 23, 0.04), 0 8px 16px rgba(27, 26, 23, 0.05), 0 16px 32px rgba(27, 26, 23, 0.04);
-  --shadow-float: 0 4px 8px rgba(27, 26, 23, 0.05), 0 14px 32px rgba(27, 26, 23, 0.09), 0 28px 56px rgba(27, 26, 23, 0.06);
-  --shadow-xl: 0 8px 16px rgba(27, 26, 23, 0.06), 0 24px 48px rgba(27, 26, 23, 0.12), 0 48px 96px rgba(27, 26, 23, 0.08);
+  --shadow-xs: 0 1px 2px rgba(16, 17, 26, 0.04);
+  --shadow-card: 0 1px 2px rgba(16, 17, 26, 0.04), 0 1px 3px rgba(16, 17, 26, 0.03);
+  --shadow-elevated: 0 2px 4px rgba(16, 17, 26, 0.04), 0 8px 24px rgba(16, 17, 26, 0.07);
+  --shadow-float: 0 8px 16px rgba(16, 17, 26, 0.06), 0 24px 48px rgba(16, 17, 26, 0.10);
+  --shadow-xl: 0 12px 24px rgba(16, 17, 26, 0.08), 0 32px 64px rgba(16, 17, 26, 0.12);
+  --shadow-accent: 0 4px 16px rgba(91, 91, 214, 0.22);
 
   /* Motion — easing + duration tokens */
   --ease-standard: cubic-bezier(0.2, 0, 0, 1);
@@ -116,40 +117,48 @@
 /* ------- Light Mode (explicit) ------- */
 .light,
 [data-theme="light"] {
-  /* Warm "paper & ink" — restrained monochrome with a parchment cast */
-  --background: #FAF9F6;
-  --background-secondary: #F1EFEA;
+  /* Studio Clarity — true-neutral cool canvas, one indigo brand accent */
+  --background: #FCFCFD;
+  --background-secondary: #F4F4F6;
   --card: #FFFFFF;
-  --card-hover: #FAF9F5;
-  --foreground: #1B1A17;
-  --foreground-secondary: #6E6A62;
-  --muted: #F1EFEA;
-  --muted-foreground: #6E6A62;
-  --border: #E7E3DB;
-  --border-subtle: #F1EEE8;
-  --input: #EFEDE7;
-  --ring: #2A2824;
+  --card-hover: #FAFAFB;
+  --foreground: #18181B;
+  --foreground-secondary: #52525B;
+  --muted: #F4F4F6;
+  --muted-foreground: #71717A;
+  --border: #E8E8EC;
+  --border-subtle: #F1F1F4;
+  --input: #E4E4E8;
+  --ring: #5B5BD6;
 
-  --accent-gold: #1B1A17;
-  --accent-gold-hover: #3A372F;
-  --accent-gold-muted: rgba(27, 26, 23, 0.06);
+  /* Brand accent — indigo (the one confident color) */
+  --accent-brand: #5B5BD6;
+  --accent-brand-hover: #4F4FC9;
+  --accent-brand-fg: #FFFFFF;
+  --accent-brand-muted: rgba(91, 91, 214, 0.08);
+  --accent-brand-ring: rgba(91, 91, 214, 0.35);
+
+  /* accent-gold retained as the neutral-ink accent (legacy token, ink value) */
+  --accent-gold: #18181B;
+  --accent-gold-hover: #3F3F46;
+  --accent-gold-muted: rgba(24, 24, 27, 0.06);
 
   --sidebar: #FFFFFF;
-  --sidebar-foreground: #1B1A17;
-  --sidebar-border: #E7E3DB;
-  --sidebar-accent: rgba(27, 26, 23, 0.04);
-  --sidebar-accent-foreground: #1B1A17;
+  --sidebar-foreground: #18181B;
+  --sidebar-border: #E8E8EC;
+  --sidebar-accent: rgba(24, 24, 27, 0.04);
+  --sidebar-accent-foreground: #18181B;
 
-  --primary: #1B1A17;
-  --primary-foreground: #FAF9F6;
-  --secondary: #F1EFEA;
-  --secondary-foreground: #1B1A17;
-  --destructive: #C0392B;
+  --primary: #18181B;
+  --primary-foreground: #FCFCFD;
+  --secondary: #F4F4F6;
+  --secondary-foreground: #18181B;
+  --destructive: #DC2626;
   --destructive-foreground: #FFFFFF;
-  --accent: #F1EFEA;
-  --accent-foreground: #1B1A17;
+  --accent: #F4F4F6;
+  --accent-foreground: #18181B;
   --popover: #FFFFFF;
-  --popover-foreground: #1B1A17;
+  --popover-foreground: #18181B;
 }
 
 /* =========================================
@@ -183,6 +192,10 @@
   --color-accent-gold: var(--accent-gold);
   --color-accent-gold-hover: var(--accent-gold-hover);
   --color-accent-gold-muted: var(--accent-gold-muted);
+  --color-accent-brand: var(--accent-brand);
+  --color-accent-brand-hover: var(--accent-brand-hover);
+  --color-accent-brand-fg: var(--accent-brand-fg);
+  --color-accent-brand-muted: var(--accent-brand-muted);
   --color-discipline-philosophy: var(--discipline-philosophy);
   --color-discipline-economics: var(--discipline-economics);
   --color-discipline-polsci: var(--discipline-polsci);
@@ -308,8 +321,8 @@ h4, h5, h6 {
 }
 
 /* Role-based type scale — voice contrast over size contrast */
-.text-display-xl { font-family: var(--font-display); font-weight: 900; font-size: 4.5rem; line-height: 1.04; letter-spacing: -0.025em; }
-.text-display-l  { font-family: var(--font-display); font-weight: 900; font-size: 3.75rem; line-height: 1.06; letter-spacing: -0.025em; }
+.text-display-xl { font-family: var(--font-display); font-weight: 800; font-size: 4.5rem; line-height: 1.04; letter-spacing: -0.025em; }
+.text-display-l  { font-family: var(--font-display); font-weight: 800; font-size: 3.75rem; line-height: 1.06; letter-spacing: -0.025em; }
 .text-display-m  { font-family: var(--font-display); font-weight: 700; font-size: 3rem;    line-height: 1.08; letter-spacing: -0.022em; }
 .text-heading-xl { font-family: var(--font-display); font-weight: 700; font-size: 2.25rem; line-height: 1.12; letter-spacing: -0.02em; }
 .text-heading-l  { font-family: var(--font-display); font-weight: 700; font-size: 1.875rem;line-height: 1.2;  letter-spacing: -0.018em; }
@@ -365,7 +378,7 @@ h4, h5, h6 {
   inset-inline-start: 0;
   width: 3px;
   height: 100%;
-  background: linear-gradient(180deg, var(--foreground) 0%, transparent 100%);
+  background: linear-gradient(180deg, var(--accent-brand) 0%, transparent 100%);
   opacity: 0;
   transition: opacity 0.2s ease;
 }
@@ -496,7 +509,7 @@ h4, h5, h6 {
 
 /* Progress bar */
 .progress-gradient {
-  background: var(--foreground);
+  background: var(--accent-brand);
 }
 
 /* =========================================
@@ -517,48 +530,55 @@ h4, h5, h6 {
    ========================================= */
 
 .dark {
-  /* Warm charcoal, not flat black — a faint amber hue keeps the dark mode rich */
-  --background: oklch(0.165 0.006 65);
-  --background-secondary: oklch(0.205 0.006 65);
-  --foreground: oklch(0.96 0.005 85);
-  --foreground-secondary: oklch(0.72 0.006 80);
-  --card: oklch(0.205 0.007 65);
-  --card-hover: oklch(0.238 0.008 65);
-  --card-foreground: oklch(0.96 0.005 85);
-  --popover: oklch(0.205 0.007 65);
-  --popover-foreground: oklch(0.96 0.005 85);
-  --primary: oklch(0.95 0.005 85);
-  --primary-foreground: oklch(0.205 0.007 65);
-  --secondary: oklch(0.262 0.007 65);
-  --secondary-foreground: oklch(0.96 0.005 85);
-  --muted: oklch(0.262 0.007 65);
-  --muted-foreground: oklch(0.72 0.006 80);
-  --accent: oklch(0.262 0.007 65);
-  --accent-foreground: oklch(0.96 0.005 85);
+  /* Studio Clarity dark — cool near-black, never flat #000 */
+  --background: #0B0B0F;
+  --background-secondary: #121217;
+  --foreground: #ECECEE;
+  --foreground-secondary: #A1A1AA;
+  --card: #16161C;
+  --card-hover: #1C1C23;
+  --card-foreground: #ECECEE;
+  --popover: #1C1C23;
+  --popover-foreground: #ECECEE;
+  --primary: #ECECEE;
+  --primary-foreground: #16161C;
+  --secondary: #1C1C23;
+  --secondary-foreground: #ECECEE;
+  --muted: #1C1C23;
+  --muted-foreground: #8B8B94;
+  --accent: #1C1C23;
+  --accent-foreground: #ECECEE;
   --destructive: oklch(0.704 0.191 22.216);
-  --border: oklch(0.97 0.01 85 / 9%);
-  --border-subtle: oklch(0.97 0.01 85 / 5%);
-  --input: oklch(0.97 0.01 85 / 13%);
-  --ring: oklch(0.62 0.006 80);
+  --border: rgba(255, 255, 255, 0.09);
+  --border-subtle: rgba(255, 255, 255, 0.05);
+  --input: rgba(255, 255, 255, 0.12);
+  --ring: #8B8BEA;
 
-  /* Dark mode accent = warm light instead of dark */
-  --accent-gold: oklch(0.95 0.005 85);
-  --accent-gold-hover: oklch(0.86 0.006 85);
-  --accent-gold-muted: rgba(245, 242, 232, 0.08);
+  /* Brand accent — brightened indigo for dark */
+  --accent-brand: #8B8BEA;
+  --accent-brand-hover: #9D9DEF;
+  --accent-brand-fg: #0B0B0F;
+  --accent-brand-muted: rgba(139, 139, 234, 0.14);
+  --accent-brand-ring: rgba(139, 139, 234, 0.40);
+
+  /* accent-gold = neutral light ink in dark */
+  --accent-gold: #ECECEE;
+  --accent-gold-hover: #D4D4D8;
+  --accent-gold-muted: rgba(236, 236, 238, 0.08);
 
   --chart-1: oklch(0.488 0.243 264.376);
   --chart-2: oklch(0.696 0.17 162.48);
   --chart-3: oklch(0.769 0.188 70.08);
   --chart-4: oklch(0.627 0.265 303.9);
   --chart-5: oklch(0.645 0.246 16.439);
-  --sidebar: oklch(0.19 0.006 65);
-  --sidebar-foreground: oklch(0.96 0.005 85);
-  --sidebar-primary: oklch(0.488 0.243 264.376);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.262 0.007 65);
-  --sidebar-accent-foreground: oklch(0.96 0.005 85);
-  --sidebar-border: oklch(0.97 0.01 85 / 9%);
-  --sidebar-ring: oklch(0.62 0.006 80);
+  --sidebar: #121217;
+  --sidebar-foreground: #ECECEE;
+  --sidebar-primary: #8B8BEA;
+  --sidebar-primary-foreground: #0B0B0F;
+  --sidebar-accent: rgba(255, 255, 255, 0.06);
+  --sidebar-accent-foreground: #ECECEE;
+  --sidebar-border: rgba(255, 255, 255, 0.09);
+  --sidebar-ring: #8B8BEA;
 }
 
 /* Deeper shadows for dark surfaces + a lit top-edge on raised planes */
@@ -602,19 +622,7 @@ h4, h5, h6 {
 }
 .animate-rise { animation: rise-in 0.55s var(--ease-out-soft) both; }
 
-/* Subtle film grain — warmth and texture, never interactive */
-body::after {
-  content: "";
-  position: fixed;
-  inset: 0;
-  z-index: 90;
-  pointer-events: none;
-  opacity: 0.035;
-  mix-blend-mode: soft-light;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
-  background-size: 160px 160px;
-}
-.dark body::after { opacity: 0.05; }
+/* (Film grain removed — Studio Clarity uses a clean neutral canvas, no paper texture.) */
 
 @layer base {
   * {
