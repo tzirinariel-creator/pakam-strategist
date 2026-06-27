@@ -3,6 +3,7 @@
 import { useState, useCallback, useRef, useMemo } from "react";
 import { useTranslations } from "next-intl";
 import { useLocale } from "next-intl";
+import { Link } from "@/i18n/navigation";
 import {
   Calculator,
   GraduationCap,
@@ -12,6 +13,7 @@ import {
   AlertTriangle,
   ChevronDown,
   ChevronUp,
+  FolderOpen,
 } from "lucide-react";
 import { api } from "@/lib/trpc/react";
 import { ThemedLoader } from "@/components/ui/themed-loader";
@@ -774,6 +776,7 @@ function EmptyState({ t, locale }: { t: ReturnType<typeof useTranslations<"grade
 
 export function GradeCalculatorContent() {
   const t = useTranslations("grades");
+  const tRecord = useTranslations("record");
   const locale = useLocale();
 
   // Fetch all plan data
@@ -867,11 +870,21 @@ export function GradeCalculatorContent() {
   return (
     <div className="bg-mesh space-y-8 p-4 md:p-6">
       {/* Page header */}
-      <div className="animate-stagger-1">
-        <h1 className="font-display font-bold text-3xl text-foreground/80">
-          {t("title")}
-        </h1>
-        <p className="mt-1 text-foreground/50">{t("subtitle")}</p>
+      <div className="animate-stagger-1 flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
+        <div>
+          <h1 className="font-display font-bold text-3xl text-foreground/80">
+            {t("title")}
+          </h1>
+          <p className="mt-1 text-foreground/50">{t("subtitle")}</p>
+        </div>
+        {/* Cross-link to My Academic Record (manage completed courses) */}
+        <Link
+          href="/record"
+          className="inline-flex shrink-0 items-center gap-2 rounded-full border border-border bg-card/60 px-4 py-2 text-sm font-medium text-foreground/70 transition-colors hover:border-foreground/30 hover:text-foreground/90"
+        >
+          <FolderOpen className="h-4 w-4" />
+          {tRecord("crossLinkFromGrades")}
+        </Link>
       </div>
 
       {/* Section 2: Score Dashboard + Section 3: Reverse Calculator */}

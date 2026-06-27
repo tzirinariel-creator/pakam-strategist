@@ -12,6 +12,7 @@ import {
   BookOpen,
   Calendar,
   Calculator,
+  FolderOpen,
   Bot,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -23,6 +24,7 @@ const NAV_ICONS = {
   planner: GraduationCap,
   catalog: BookOpen,
   calendar: Calendar,
+  record: FolderOpen,
   graduation: Calculator,
   regulations: Scale,
   settings: Settings,
@@ -34,6 +36,7 @@ const NAV_ITEMS = [
   { key: "planner", href: "/planner" },
   { key: "catalog", href: "/catalog" },
   { key: "calendar", href: "/calendar" },
+  { key: "record", href: "/record" },
   { key: "graduation", href: "/graduation" },
   { key: "regulations", href: "/regulations" },
   { key: "mentor", href: "/mentor" },

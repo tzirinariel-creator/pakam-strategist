@@ -12,6 +12,7 @@ import {
   BookOpen,
   Calendar,
   Calculator,
+  FolderOpen,
   Bot,
   X,
 } from "lucide-react";
@@ -26,6 +27,7 @@ const MOBILE_NAV_ITEMS = [
 
 const MORE_MENU_ITEMS = [
   { key: "catalog", href: "/catalog", icon: BookOpen },
+  { key: "record", href: "/record", icon: FolderOpen },
   { key: "graduation", href: "/graduation", icon: Calculator },
   { key: "settings", href: "/settings", icon: Settings },
   { key: "mentor", href: "/mentor", icon: Bot },
