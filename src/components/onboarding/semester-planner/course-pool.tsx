@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { useTranslations, useLocale } from "next-intl";
-import { BookOpen, Plus, Search, Star } from "lucide-react";
+import { BookOpen, Lock, Plus, Search, Star } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { canTakeCourse, type CourseWithSchedule, type GeneratedPlanCourse } from "@/lib/plan-generator";
 import { CourseBubble, type BubbleState } from "./course-bubble";
@@ -92,16 +92,22 @@ export function CoursePool({
     return planned;
   }, [completedCourseIds, mandatoryIds, selectedIds, currentYear, currentSemester]);
 
-  const tabs: { key: TabKey; label: string; count: number }[] = [
+  // Elective-family tabs (the student CHOOSES to add these).
+  const electiveTabs: { key: TabKey; label: string; count: number }[] = [
     { key: "elective", label: t("tabElective"), count: grouped.elective.length },
     { key: "law", label: t("tabLaw"), count: grouped.law.length },
     { key: "seminar", label: t("tabSeminar"), count: grouped.seminar.length },
   ];
 
-  // Only show mandatory tab if there are non-auto-selected mandatory courses
-  if (grouped.mandatory.length > 0) {
-    tabs.unshift({ key: "mandatory", label: t("tabMandatory"), count: grouped.mandatory.length });
-  }
+  // Mandatory tab only appears for non-auto-placed mandatory courses (rare):
+  // most mandatory courses are already locked into "My Semester".
+  const mandatoryTabs: { key: TabKey; label: string; count: number }[] =
+    grouped.mandatory.length > 0
+      ? [{ key: "mandatory", label: t("tabMandatory"), count: grouped.mandatory.length }]
+      : [];
+
+  // Flat list preserved for activeTab reset logic below.
+  const tabs = [...mandatoryTabs, ...electiveTabs];
 
   // Reset activeTab when current tab has no courses (e.g., after semester switch)
   useEffect(() => {
@@ -157,23 +163,63 @@ export function CoursePool({
         )}
       </div>
 
-      {/* Tabs */}
-      <div className="mb-3 flex gap-1.5 overflow-x-auto">
-        {tabs.map((tab) => (
-          <button
-            key={tab.key}
-            onClick={() => setActiveTab(tab.key)}
-            className={cn(
-              "shrink-0 rounded-lg px-3 py-1.5 text-xs font-medium transition-all",
-              activeTab === tab.key
-                ? "bg-foreground/10 text-foreground/80"
-                : "bg-foreground/5 text-foreground/40 hover:text-foreground/60"
-            )}
-          >
-            {tab.label}
-            <span className="ms-1 font-mono text-[10px] opacity-60">{tab.count}</span>
-          </button>
-        ))}
+      {/* Frame — explains mandatory was placed; add electives to reach 150 */}
+      <p className="mb-3 rounded-lg bg-foreground/[0.03] px-3 py-2 text-[11px] leading-snug text-foreground/45">
+        {t("poolFrame")}
+      </p>
+
+      {/* Tabs — split into the two groups a first-year actually needs to tell apart:
+          mandatory (pick a time/group) vs elective (choose to add). */}
+      <div className="mb-3 space-y-2">
+        {mandatoryTabs.length > 0 && (
+          <div>
+            <p className="mb-1 flex items-center gap-1 text-[10px] font-semibold uppercase tracking-wide text-foreground/40">
+              <Lock className="h-2.5 w-2.5" />
+              {t("poolGroupMandatory")}
+            </p>
+            <div className="flex gap-1.5 overflow-x-auto">
+              {mandatoryTabs.map((tab) => (
+                <button
+                  key={tab.key}
+                  onClick={() => setActiveTab(tab.key)}
+                  className={cn(
+                    "shrink-0 rounded-lg px-3 py-1.5 text-xs font-medium transition-all",
+                    activeTab === tab.key
+                      ? "bg-foreground/10 text-foreground/80"
+                      : "bg-foreground/5 text-foreground/40 hover:text-foreground/60"
+                  )}
+                >
+                  {tab.label}
+                  <span className="ms-1 font-mono text-[10px] opacity-60">{tab.count}</span>
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+
+        <div>
+          <p className="mb-1 flex items-center gap-1 text-[10px] font-semibold uppercase tracking-wide text-foreground/40">
+            <Plus className="h-2.5 w-2.5" />
+            {t("poolGroupElective")}
+          </p>
+          <div className="flex gap-1.5 overflow-x-auto">
+            {electiveTabs.map((tab) => (
+              <button
+                key={tab.key}
+                onClick={() => setActiveTab(tab.key)}
+                className={cn(
+                  "shrink-0 rounded-lg px-3 py-1.5 text-xs font-medium transition-all",
+                  activeTab === tab.key
+                    ? "bg-foreground/10 text-foreground/80"
+                    : "bg-foreground/5 text-foreground/40 hover:text-foreground/60"
+                )}
+              >
+                {tab.label}
+                <span className="ms-1 font-mono text-[10px] opacity-60">{tab.count}</span>
+              </button>
+            ))}
+          </div>
+        </div>
       </div>
 
       {/* Search input */}

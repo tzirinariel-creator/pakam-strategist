@@ -1,11 +1,12 @@
 "use client";
 
 import { useState, useEffect, useRef, useCallback } from "react";
-import { PartyPopper, Calendar, BookOpen, Check, GraduationCap, RefreshCw, AlertTriangle } from "lucide-react";
+import { PartyPopper, Calendar, BookOpen, Check, GraduationCap, RefreshCw, AlertTriangle, Download, CalendarDays } from "lucide-react";
 import { useTranslations, useLocale } from "next-intl";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { api } from "@/lib/trpc/react";
+import { downloadICSFromSessions } from "@/lib/ics-export";
 import { useRouter } from "@/i18n/navigation";
 import { DISCIPLINE_CONFIG, FOCUS_DISCIPLINE_IDS, SEMESTER_CONFIG, YEAR_CONFIG } from "@/lib/constants";
 import type { OnboardingData } from "./onboarding-wizard";
@@ -64,6 +65,45 @@ export function StepReady({ data, plannedSemesters, completedCourses, allCourses
     (sum, c) => sum + (courseMap.get(c.courseId)?.credits ?? 0),
     0
   );
+
+  // ─── Calendar sync (final onboarding step) ───────────────────────────
+  // Mirrors calendar-content.tsx: pull the saved schedule for the student's
+  // starting semester, then offer Google sync / .ics download once saved.
+  const tCal = useTranslations("calendar");
+  // SUMMER has no teaching .ics range; the saved plan only ever uses FALL/SPRING.
+  const syncSemester: "FALL" | "SPRING" = data.semester === "SPRING" ? "SPRING" : "FALL";
+  const scheduleQuery = api.schedule.getScheduleForSemester.useQuery(
+    { year: data.year, semester: syncSemester },
+    { enabled: hasSaved },
+  );
+  const googleStatus = api.schedule.getGoogleStatus.useQuery(undefined, { enabled: hasSaved });
+  const syncToGoogle = api.schedule.syncToGoogle.useMutation({
+    onSuccess: () => toast.success(tCal("syncSuccess")),
+    onError: () => toast.error(tCal("syncFailed")),
+  });
+
+  const scheduleSessions = scheduleQuery.data?.sessions ?? [];
+  const hasSchedule = scheduleSessions.length > 0;
+  const googleConfigured = googleStatus.data?.configured ?? false;
+  const googleConnected = googleStatus.data?.connected ?? false;
+
+  const handleSyncGoogle = useCallback(() => {
+    if (googleConnected) {
+      syncToGoogle.mutate({ year: data.year, semester: syncSemester });
+    } else if (typeof window !== "undefined") {
+      // Not yet connected — kick off the OAuth connect flow (same as settings/banner).
+      window.location.href = "/api/google/auth";
+    }
+  }, [googleConnected, syncToGoogle, data.year, syncSemester]);
+
+  const handleDownloadICS = useCallback(() => {
+    if (!hasSchedule) {
+      toast.error(tCal("exportEmpty"));
+      return;
+    }
+    downloadICSFromSessions(scheduleSessions, syncSemester);
+    toast.success(tCal("exportSuccess"));
+  }, [hasSchedule, scheduleSessions, syncSemester, tCal]);
 
   // Timeout helper — ensures no network call hangs forever
   const withTimeout = useCallback(<T,>(promise: Promise<T>, ms: number): Promise<T> => {
@@ -365,9 +405,62 @@ export function StepReady({ data, plannedSemesters, completedCourses, allCourses
         </div>
       </div>
 
+      {/* Calendar sync — explicit, guided final step */}
+      {hasSaved && (
+        <div className="animate-stagger-4 mt-8 w-full max-w-sm">
+          <div className="data-card space-y-4 p-6 text-start">
+            <div className="flex items-center gap-2">
+              <CalendarDays className="h-5 w-5 text-foreground/70" />
+              <h3 className="text-sm font-semibold text-foreground/80">
+                {t("syncCalendarTitle")}
+              </h3>
+            </div>
+
+            {!hasSchedule ? (
+              // Empty guard — saved plan has no schedule sessions.
+              <p className="text-sm text-foreground/50">
+                {t("syncCalendarEmpty")}
+              </p>
+            ) : (
+              <>
+                <p className="text-xs text-foreground/45">
+                  {t("syncCalendarDesc")}
+                </p>
+                <div className="flex flex-col gap-2.5">
+                  {/* Google — hidden entirely when OAuth isn't configured server-side */}
+                  {googleConfigured && (
+                    <button
+                      onClick={handleSyncGoogle}
+                      disabled={syncToGoogle.isPending}
+                      className="flex items-center justify-center gap-2 rounded-xl border-2 border-border px-6 py-3 text-sm font-medium text-foreground/80 transition-all hover:border-foreground/30 hover:text-foreground disabled:opacity-50"
+                    >
+                      <RefreshCw className={cn("h-4 w-4", syncToGoogle.isPending && "animate-spin")} />
+                      {t("syncCalendarGoogle")}
+                    </button>
+                  )}
+
+                  <button
+                    onClick={handleDownloadICS}
+                    className="flex items-center justify-center gap-2 rounded-xl border-2 border-border px-6 py-3 text-sm font-medium text-foreground/80 transition-all hover:border-foreground/30 hover:text-foreground"
+                  >
+                    <Download className="h-4 w-4" />
+                    {t("syncCalendarICS")}
+                  </button>
+
+                  {/* Always clarify the .ics needs importing; the only-option when Google is off. */}
+                  <p className="text-[11px] text-foreground/35">
+                    {t("syncCalendarICSHint")}
+                  </p>
+                </div>
+              </>
+            )}
+          </div>
+        </div>
+      )}
+
       {/* CTA buttons — only show after save completes */}
       {hasSaved && (
-        <div className="animate-stagger-4 mt-8 flex w-full max-w-sm flex-col gap-3">
+        <div className="animate-stagger-4 mt-4 flex w-full max-w-sm flex-col gap-3">
           <button
             onClick={() => router.push("/dashboard?from=onboarding")}
             className="flex items-center justify-center gap-2 rounded-xl bg-foreground px-6 py-3.5 font-bold text-background shadow-sm transition-all hover:scale-[1.02] press-scale"
