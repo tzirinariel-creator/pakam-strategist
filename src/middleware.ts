@@ -6,15 +6,31 @@ import { SUPABASE_URL, SUPABASE_ANON_KEY } from "./lib/supabase/env";
 
 const intlMiddleware = createIntlMiddleware(routing);
 
-// Paths that don't require authentication
-const PUBLIC_PATHS = ["/login", "/signup", "/auth", "/about", "/faq", "/privacy", "/terms"];
+// First post-locale path segments that don't require authentication.
+// Matched EXACTLY against the segment (not substring), so a future protected
+// route like /he/privacy-settings does NOT slip through as "privacy".
+const PUBLIC_SEGMENTS = new Set([
+  "login",
+  "signup",
+  "auth",
+  "about",
+  "faq",
+  "privacy",
+  "terms",
+]);
 
 function isPublicPath(pathname: string): boolean {
-  // Allow root locale paths (landing page): /he, /en, /
   const segments = pathname.split("/").filter(Boolean);
+
+  // Allow root locale paths (landing page): /he, /en, /
   if (segments.length <= 1) return true;
 
-  return PUBLIC_PATHS.some((p) => pathname.includes(p));
+  // segments[0] is the locale prefix (e.g. "he"); the route segment follows it.
+  const firstSegment = routing.locales.includes(segments[0] as "he" | "en")
+    ? segments[1]
+    : segments[0];
+
+  return firstSegment !== undefined && PUBLIC_SEGMENTS.has(firstSegment);
 }
 
 export async function middleware(request: NextRequest) {

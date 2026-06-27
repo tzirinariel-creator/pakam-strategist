@@ -33,6 +33,14 @@ function daysBetween(a: Date, b: Date): number {
   return Math.round((dB.getTime() - dA.getTime()) / (1000 * 60 * 60 * 24));
 }
 
+// Timezone-stable date key built from LOCAL date components. Using toISOString()
+// here would key by UTC, which differs from the local-midnight day for any UTC+2/+3
+// user (all TAU students) and lands every exam under the wrong column. Both the day
+// columns and the moed cells must use this same helper so they align in local time.
+function dateKey(d: Date): string {
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+}
+
 function formatDateFull(date: Date, locale: string): string {
   return date.toLocaleDateString(locale === "he" ? "he-IL" : "en-US", {
     weekday: "short",
@@ -128,7 +136,7 @@ export function ExamGantt({ courses }: ExamGanttProps) {
         dayNum: d.getDate(),
         isWeekend: dayOfWeek === 5 || dayOfWeek === 6,
         isToday: d.getTime() === today.getTime(),
-        dateKey: d.toISOString().split("T")[0] ?? "",
+        dateKey: dateKey(d),
       });
     }
     return result;
@@ -156,7 +164,7 @@ export function ExamGantt({ courses }: ExamGanttProps) {
       const dist = Math.abs(d.getTime() - today.getTime());
       if (dist < bestDist) {
         bestDist = dist;
-        best = dateToCol.get(d.toISOString().split("T")[0] ?? "") ?? -1;
+        best = dateToCol.get(dateKey(d)) ?? -1;
       }
     }
     return best >= 0 ? best : 0;
@@ -183,7 +191,7 @@ export function ExamGantt({ courses }: ExamGanttProps) {
     const dateMap = new Map<string, string[]>();
     for (const e of events) {
       if (e.moedA) {
-        const key = e.moedA.toISOString().split("T")[0] ?? "";
+        const key = dateKey(e.moedA);
         const list = dateMap.get(key) ?? [];
         list.push(e.courseId);
         dateMap.set(key, list);
@@ -325,8 +333,8 @@ export function ExamGantt({ courses }: ExamGanttProps) {
             {events.map((event) => {
               const hasConflict = conflictDays.has(event.courseId);
               const isHovered = hoveredExam === event.courseId;
-              const moedAKey = event.moedA ? (event.moedA.toISOString().split("T")[0] ?? "") : "";
-              const moedBKey = event.moedB ? (event.moedB.toISOString().split("T")[0] ?? "") : "";
+              const moedAKey = event.moedA ? dateKey(event.moedA) : "";
+              const moedBKey = event.moedB ? dateKey(event.moedB) : "";
               const moedACol = moedAKey ? dateToCol.get(moedAKey) : undefined;
               const moedBCol = moedBKey ? dateToCol.get(moedBKey) : undefined;
 

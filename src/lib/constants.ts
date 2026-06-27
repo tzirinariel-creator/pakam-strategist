@@ -495,6 +495,15 @@ export const MILUIM_CONFIG = {
       ],
     },
   },
+  // Regular (non-combat) reservist per-semester thresholds (single source of
+  // truth — deriveGroupFromDays reads these instead of hardcoding 35/21).
+  // Per מתווה תשפ"ו: 35+ → C, 21–34 → B, 1–20 → A, 0 → NONE.
+  REGULAR_RESERVIST: {
+    perSemesterRules: [
+      { minDays: 21, maxDays: 34, mappedGroup: "GROUP_B" as const },
+      { minDays: 35, maxDays: Infinity, mappedGroup: "GROUP_C" as const },
+    ],
+  },
   // Combat soldier bonus: fighters get enhanced group mapping
   // Per official doc: לוחמים 14-20 → A, 21+ → C (per semester) or 21+ cumulative in year → B (sem B only)
   COMBAT_UPGRADE: {

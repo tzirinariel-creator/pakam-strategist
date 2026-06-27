@@ -17,8 +17,16 @@ interface ScoreDisplayProps {
  */
 export function ScoreDisplay({ breakdown, className }: ScoreDisplayProps) {
   const t = useTranslations("graduation");
-  const score = roundScore(breakdown.weightedScore);
+  // The full weighted graduation score needs seminar + referat grades. Until a
+  // student has those, fall back to their current course average so someone with
+  // real grades sees their number (with a clear "provisional" note) instead of an
+  // empty "no grades yet" state.
+  const finalScore = roundScore(breakdown.weightedScore);
+  const provisionalScore =
+    finalScore === null ? roundScore(breakdown.courseAverage) : null;
+  const score = finalScore ?? provisionalScore;
   const hasScore = score !== null;
+  const isProvisional = finalScore === null && provisionalScore !== null;
 
   // Color coding based on score ranges
   const getScoreColor = (s: number) => {
@@ -69,9 +77,11 @@ export function ScoreDisplay({ breakdown, className }: ScoreDisplayProps) {
             <span className="text-lg text-foreground/40">/100</span>
           </div>
 
-          {/* Honest framing — this is a projection from partial data, not a final grade */}
+          {/* Honest framing — provisional course average until seminars are graded */}
           <p className="-mt-2 text-xs text-foreground/40">
-            {t("forecastBasis", { credits: breakdown.completedCredits })}
+            {isProvisional
+              ? t("provisionalBasis")
+              : t("forecastBasis", { credits: breakdown.completedCredits })}
           </p>
 
           {/* Score label */}

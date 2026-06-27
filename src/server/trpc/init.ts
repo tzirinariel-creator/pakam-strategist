@@ -57,25 +57,15 @@ const enforceAuth = t.middleware(async ({ ctx, next }) => {
   }
 
   // Auto-ensure user exists in Prisma DB (prevents race condition after signup).
-  // First try by supabaseId, then by email (handles re-created Supabase accounts).
+  // Resolve strictly by supabaseId — the session's verified identity. We never
+  // adopt an existing row by email: signup is open, so an email already present
+  // in Prisma belongs to a different (earlier) account, and rewriting its
+  // supabaseId to a new session would hand that account's entire record to the
+  // new authenticator (account takeover). A session whose supabaseId has no row
+  // is a brand-new user and gets a fresh row below.
   let user = await ctx.db.user.findUnique({
     where: { supabaseId: ctx.session.user.id },
   });
-
-  if (!user && ctx.session.user.email) {
-    // User might exist with same email but different supabaseId (e.g. re-created Supabase account)
-    user = await ctx.db.user.findUnique({
-      where: { email: ctx.session.user.email },
-    });
-
-    if (user) {
-      // Update supabaseId to match the new session
-      user = await ctx.db.user.update({
-        where: { id: user.id },
-        data: { supabaseId: ctx.session.user.id },
-      });
-    }
-  }
 
   if (!user) {
     // Populate displayName from verified session metadata. Email-confirm signups

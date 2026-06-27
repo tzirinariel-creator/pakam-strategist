@@ -1,7 +1,7 @@
 import { TRPCError } from "@trpc/server";
 import { createTRPCRouter, protectedProcedure } from "../trpc/init";
 import { runRegulationEngine } from "@/lib/regulations/rule-engine";
-import { computeCreditExemption, deriveCurrentGroup } from "@/lib/miluim";
+import { computeCreditExemption, deriveCurrentGroup, getCurrentAcademicYear } from "@/lib/miluim";
 
 export const regulationRouter = createTRPCRouter({
   /**
@@ -35,8 +35,11 @@ export const regulationRouter = createTRPCRouter({
     const miluimSemesters = await ctx.db.miluimSemester.findMany({
       where: { userId: user.id },
     });
+    // academicYear is the calendar-year key the rows were written with
+    // (getCurrentAcademicYear), NOT user.currentYear (academic standing 1–4).
+    // Mirrors plan.getCredits — see fix A.
     const currentGroup = deriveCurrentGroup(miluimSemesters, user.miluimGroup, {
-      academicYear: user.currentYear,
+      academicYear: getCurrentAcademicYear(),
       semester: user.currentSemester,
     });
     const miluimExemption = computeCreditExemption(

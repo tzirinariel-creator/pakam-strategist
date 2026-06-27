@@ -7,6 +7,7 @@ import {
   binaryCapRemaining,
   honorsBinaryPercent,
   honorsBinaryStatus,
+  getCurrentAcademicYear,
   type MiluimSemesterLike,
 } from "@/lib/miluim";
 import { calculateCredits } from "@/lib/credit-calculator";
@@ -98,6 +99,82 @@ describe("deriveCurrentGroup", () => {
     expect(
       deriveCurrentGroup(rows, "GROUP_A", { academicYear: 2099, semester: "FALL" })
     ).toBe("GROUP_A");
+  });
+
+  it("folds a SUMMER currentSemester onto SPRING so it still resolves (fix E)", () => {
+    // Student flagged SUMMER, but only a SPRING row exists for that year.
+    expect(
+      deriveCurrentGroup(rows, "NONE", { academicYear: 2025, semester: "SUMMER" })
+    ).toBe("GROUP_C"); // matches the 2025 SPRING row
+  });
+});
+
+// ───────────────────────────────────────────────────────────────────
+// getCurrentAcademicYear — Oct-start calendar-year key (fix A)
+// ───────────────────────────────────────────────────────────────────
+describe("getCurrentAcademicYear", () => {
+  it("Oct–Dec map to that calendar year (academic year start)", () => {
+    expect(getCurrentAcademicYear(new Date("2025-10-15"))).toBe(2025);
+    expect(getCurrentAcademicYear(new Date("2025-12-31"))).toBe(2025);
+  });
+
+  it("Jan–Sep map to the PREVIOUS calendar year (same academic year)", () => {
+    expect(getCurrentAcademicYear(new Date("2026-01-01"))).toBe(2025);
+    expect(getCurrentAcademicYear(new Date("2026-03-10"))).toBe(2025);
+    expect(getCurrentAcademicYear(new Date("2026-09-30"))).toBe(2025);
+  });
+
+  it("a FALL semester and the SPRING that follows share ONE academic year", () => {
+    // Nov 2025 (fall term) and Mar 2026 (spring term) are the same תשפ"ו year.
+    const fall = getCurrentAcademicYear(new Date("2025-11-20"));
+    const spring = getCurrentAcademicYear(new Date("2026-03-20"));
+    expect(fall).toBe(spring);
+    expect(fall).toBe(2025);
+  });
+});
+
+// ───────────────────────────────────────────────────────────────────
+// REAL resolution: a currentYear=2 student now resolves the per-semester
+// group instead of silently falling back to the stored miluimGroup (fix A).
+// Reproduces the production bug: rows are keyed by getCurrentAcademicYear()
+// (~2025), but the read path used to pass academicYear=user.currentYear (1–4),
+// which never matched → always fell back to miluimGroup.
+// ───────────────────────────────────────────────────────────────────
+describe("per-semester resolution with the real academic-year key (fix A)", () => {
+  it("currentYear=2 student: row for getCurrentAcademicYear()+semester wins over stored miluimGroup", () => {
+    const academicYear = getCurrentAcademicYear(); // e.g. 2025 — NOT the student's standing (2)
+    const currentSemester = "FALL" as const;
+
+    // A real per-semester row whose derivedGroup differs from the stored group.
+    const semesters: MiluimSemesterLike[] = [
+      {
+        academicYear,
+        semester: currentSemester,
+        daysServed: 40,
+        isCombat: false,
+        derivedGroup: "GROUP_C", // 40 days → C
+      },
+    ];
+    const storedMiluimGroup = "GROUP_A"; // stale single-group fallback
+
+    // OLD (broken) read path: academicYear = user.currentYear = 2 → never
+    // matches the 2025 row → falls back to GROUP_A.
+    const oldResolved = deriveCurrentGroup(semesters, storedMiluimGroup, {
+      academicYear: 2, // academic STANDING, the bug
+      semester: currentSemester,
+    });
+    expect(oldResolved).toBe("GROUP_A"); // demonstrates the dead resolution
+
+    // NEW (fixed) read path: academicYear = getCurrentAcademicYear().
+    const resolved = deriveCurrentGroup(semesters, storedMiluimGroup, {
+      academicYear: getCurrentAcademicYear(),
+      semester: currentSemester,
+    });
+    expect(resolved).toBe("GROUP_C"); // per-semester group is now used
+    expect(resolved).not.toBe(storedMiluimGroup);
+
+    // And it actually drives the exemption (C = 8, vs A = 2 under the old bug).
+    expect(computeCreditExemption(resolved, 0)).toBe(8);
   });
 });
 

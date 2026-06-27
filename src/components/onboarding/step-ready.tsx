@@ -9,6 +9,7 @@ import { api } from "@/lib/trpc/react";
 import { downloadICSFromSessions } from "@/lib/ics-export";
 import { useRouter } from "@/i18n/navigation";
 import { DISCIPLINE_CONFIG, FOCUS_DISCIPLINE_IDS, SEMESTER_CONFIG, YEAR_CONFIG } from "@/lib/constants";
+import { getCurrentAcademicYear } from "@/lib/miluim";
 import type { OnboardingData } from "./onboarding-wizard";
 import type { PlannedSemester } from "./semester-planner/index";
 import type { CompletedCourse } from "./step-history";
@@ -22,18 +23,6 @@ interface StepReadyProps {
   completedCourses?: CompletedCourse[];
   allCourses: CourseWithSchedule[];
   sessionGroupSelections?: SessionGroupSelections;
-}
-
-/**
- * Current TAU academic year as a calendar year (תשפ"ו = 2025-26 → 2025). The
- * academic year rolls in August (Aug–Dec = the year that started; Jan–Jul = the
- * previous calendar year). Used as the MiluimSemester.academicYear key.
- */
-function currentAcademicYear(): number {
-  const now = new Date();
-  const month = now.getMonth(); // 0-indexed
-  const year = now.getFullYear();
-  return month >= 7 ? year : year - 1; // Aug onward → this calendar year
 }
 
 export function StepReady({ data, plannedSemesters, completedCourses, allCourses, sessionGroupSelections }: StepReadyProps) {
@@ -154,7 +143,7 @@ export function StepReady({ data, plannedSemesters, completedCourses, allCourses
       if (data.miluimDays != null && data.miluimDays > 0) {
         await withTimeout(
           upsertMiluimSemester.mutateAsync({
-            academicYear: currentAcademicYear(),
+            academicYear: getCurrentAcademicYear(),
             semester: data.semester,
             daysServed: data.miluimDays,
             isCombat: data.miluimCombat ?? false,

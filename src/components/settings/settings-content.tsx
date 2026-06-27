@@ -27,7 +27,7 @@ import { useTranslations, useLocale } from "next-intl";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { DISCIPLINE_CONFIG, FOCUS_DISCIPLINE_IDS, MILUIM_CONFIG } from "@/lib/constants";
-import { deriveGroupFromDays } from "@/lib/miluim";
+import { deriveGroupFromDays, getCurrentAcademicYear } from "@/lib/miluim";
 import { MiluimDayCombatInputs } from "@/components/miluim/miluim-day-combat-inputs";
 import { api } from "@/lib/trpc/react";
 import { useUIStore } from "@/stores/ui-store";
@@ -43,17 +43,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-
-/**
- * Current TAU academic year as a calendar year (תשפ"ו = 2025-26 → 2025). Rolls
- * in August. Keep in sync with the same helper in step-ready.tsx.
- */
-function currentAcademicYear(): number {
-  const now = new Date();
-  const month = now.getMonth();
-  const year = now.getFullYear();
-  return month >= 7 ? year : year - 1;
-}
 
 // ---------------------------------------------------------------
 // Section wrapper
@@ -868,26 +857,52 @@ function MiluimSection() {
   const [combat, setCombat] = useState(false);
   const [saved, setSaved] = useState(false);
 
+  // Cumulative quota counters — student-editable (the army doesn't feed these,
+  // so without a way to enter them the degree cap / PKM-024 / PKM-025 stay inert).
+  const [creditsUsed, setCreditsUsed] = useState<number | null>(null);
+  const [binaryUsedInput, setBinaryUsedInput] = useState<number | null>(null);
+  const [countersSaved, setCountersSaved] = useState(false);
+
   // The current academic year + semester come from the profile; the current
-  // miluim row (if any) seeds the day/combat inputs.
-  const currentSemester = (profileQuery.data?.currentSemester ?? "FALL") as
+  // miluim row (if any) seeds the day/combat inputs. SUMMER has no miluim row
+  // of its own (fix E) — fold it onto SPRING so the editor reads/writes the
+  // same bucket group resolution uses.
+  const profileSemester = (profileQuery.data?.currentSemester ?? "FALL") as
     | "FALL"
     | "SPRING"
     | "SUMMER";
-  const academicYear = currentAcademicYear();
+  const editorSemester: "FALL" | "SPRING" =
+    profileSemester === "SUMMER" ? "SPRING" : profileSemester;
+  const academicYear = getCurrentAcademicYear();
+
+  // Human-readable label of the record being edited (academic year + semester).
+  const yearLabelHe = `תשפ"ו`; // נכון לתשפ"ו — the academicYear key maps to this
+  const academicYearLabel = isHe
+    ? `${yearLabelHe} (${academicYear}/${academicYear + 1})`
+    : `${academicYear}/${academicYear + 1}`;
+  const semesterLabel = isHe
+    ? editorSemester === "FALL" ? "סמסטר א׳" : "סמסטר ב׳"
+    : editorSemester === "FALL" ? "Fall" : "Spring";
 
   // Seed inputs from the matching per-semester row once data loads.
   useEffect(() => {
     const rows = semestersQuery.data;
     if (!rows) return;
     const row = rows.find(
-      (r) => r.academicYear === academicYear && r.semester === currentSemester
+      (r) => r.academicYear === academicYear && r.semester === editorSemester
     );
     if (row) {
       setDays(row.daysServed);
       setCombat(row.isCombat);
     }
-  }, [semestersQuery.data, academicYear, currentSemester]);
+  }, [semestersQuery.data, academicYear, editorSemester]);
+
+  // Seed the cumulative counters from the profile once loaded.
+  useEffect(() => {
+    if (!profileQuery.data) return;
+    setCreditsUsed(profileQuery.data.miluimCreditsUsed ?? 0);
+    setBinaryUsedInput(profileQuery.data.miluimBinaryUsed ?? 0);
+  }, [profileQuery.data]);
 
   const upsertMutation = api.user.upsertMiluimSemester.useMutation({
     onSuccess: () => {
@@ -901,29 +916,54 @@ function MiluimSection() {
     onError: () => toast.error(isHe ? "השמירה נכשלה" : "Save failed"),
   });
 
+  const updateProfileMutation = api.user.updateProfile.useMutation({
+    onSuccess: () => {
+      void utils.user.getProfile.invalidate();
+      void utils.plan.getCredits.invalidate();
+      void utils.regulation.checkCompliance.invalidate();
+      setCountersSaved(true);
+      setTimeout(() => setCountersSaved(false), 2000);
+      toast.success(t("saved"));
+    },
+    onError: () => toast.error(isHe ? "השמירה נכשלה" : "Save failed"),
+  });
+
   // Derived group preview from the current inputs (mirrors onboarding).
   const derivedGroup = deriveGroupFromDays(days ?? 0, combat);
   const groupCfg = MILUIM_CONFIG.GROUPS[derivedGroup];
   const groupName = isHe ? groupCfg.nameHe : groupCfg.nameEn;
 
-  // Cumulative quota trackers (read-only — sourced from the profile counters).
-  const creditUsed = profileQuery.data?.miluimCreditsUsed ?? 0;
+  // Cumulative quota caps.
   const creditCap = MILUIM_CONFIG.MAX_CREDIT_EXEMPTIONS_DEGREE; // 10
-  const binaryUsed = profileQuery.data?.miluimBinaryUsed ?? 0;
   const binaryCap = MILUIM_CONFIG.BINARY_GRADE.BA_DEGREE_CAP; // 5
 
   const handleSave = () => {
     upsertMutation.mutate({
       academicYear,
-      semester: currentSemester,
+      semester: editorSemester,
       daysServed: days ?? 0,
       isCombat: combat,
+    });
+  };
+
+  const handleSaveCounters = () => {
+    updateProfileMutation.mutate({
+      miluimCreditsUsed: Math.min(creditCap, Math.max(0, creditsUsed ?? 0)),
+      miluimBinaryUsed: Math.min(binaryCap, Math.max(0, binaryUsedInput ?? 0)),
     });
   };
 
   return (
     <SectionCard icon={Shield} title={t("title")} description={t("description")}>
       <div className="flex flex-col gap-5">
+        {/* Which record is being edited — academic year + semester (fix C) */}
+        <div className="flex items-center justify-between rounded-lg border border-foreground/10 bg-foreground/3 px-4 py-2.5">
+          <span className="text-xs text-foreground/50">{t("editingRecord")}</span>
+          <span className="text-xs font-medium text-foreground/70">
+            {academicYearLabel} · {semesterLabel}
+          </span>
+        </div>
+
         {/* Day + combat inputs (shared with onboarding) */}
         <MiluimDayCombatInputs
           days={days}
@@ -947,30 +987,7 @@ function MiluimSection() {
           </span>
         </div>
 
-        {/* Cumulative quota trackers */}
-        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-          <div className="rounded-lg border border-emerald-500/20 bg-emerald-500/5 px-4 py-3">
-            <p className="text-xs text-foreground/50">{t("creditExemptionUsed")}</p>
-            <p className="mt-1 font-mono text-lg font-bold text-foreground/80">
-              {creditUsed} {t("ofCap", { cap: creditCap })}
-            </p>
-            <p className="mt-0.5 text-[10px] text-foreground/30">
-              {t("creditExemptionUsedHint")}
-            </p>
-          </div>
-          <div className="rounded-lg border border-amber-500/20 bg-amber-500/5 px-4 py-3">
-            <div className="flex items-center gap-1.5">
-              <Swords className="h-3 w-3 text-amber-500" />
-              <p className="text-xs text-foreground/50">{t("binaryUsed")}</p>
-            </div>
-            <p className="mt-1 font-mono text-lg font-bold text-foreground/80">
-              {binaryUsed} {t("ofCap", { cap: binaryCap })}
-            </p>
-            <p className="mt-0.5 text-[10px] text-foreground/30">{t("binaryUsedHint")}</p>
-          </div>
-        </div>
-
-        {/* Save */}
+        {/* Save current-semester group */}
         <Button
           onClick={handleSave}
           disabled={upsertMutation.isPending}
@@ -983,6 +1000,78 @@ function MiluimSection() {
           ) : null}
           {saved ? t("saved") : t("save")}
         </Button>
+
+        {/* Cumulative quota — STUDENT-EDITABLE so the degree cap + warnings
+            actually engage (fix B). The army doesn't feed these, so the student
+            records what they've already used across earlier semesters. */}
+        <div className="border-t border-border pt-5">
+          <p className="mb-3 text-sm font-medium text-foreground/70">
+            {t("cumulativeTitle")}
+          </p>
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+            <div className="flex flex-col gap-1.5 rounded-lg border border-emerald-500/20 bg-emerald-500/5 px-4 py-3">
+              <label
+                htmlFor="miluim-credits-used"
+                className="text-xs text-foreground/60"
+              >
+                {t("creditExemptionUsed")}
+              </label>
+              <input
+                id="miluim-credits-used"
+                type="number"
+                min={0}
+                max={creditCap}
+                value={creditsUsed ?? ""}
+                onChange={(e) =>
+                  setCreditsUsed(
+                    e.target.value === "" ? null : parseInt(e.target.value, 10)
+                  )
+                }
+                className="w-full rounded-md border border-border bg-card px-3 py-1.5 font-mono text-sm text-foreground focus:border-foreground/30 focus:outline-none"
+              />
+              <p className="text-[10px] text-foreground/30">
+                {t("creditExemptionUsedHint")}
+              </p>
+            </div>
+            <div className="flex flex-col gap-1.5 rounded-lg border border-amber-500/20 bg-amber-500/5 px-4 py-3">
+              <label
+                htmlFor="miluim-binary-used"
+                className="flex items-center gap-1.5 text-xs text-foreground/60"
+              >
+                <Swords className="h-3 w-3 text-amber-500" />
+                {t("binaryUsed")}
+              </label>
+              <input
+                id="miluim-binary-used"
+                type="number"
+                min={0}
+                max={binaryCap}
+                value={binaryUsedInput ?? ""}
+                onChange={(e) =>
+                  setBinaryUsedInput(
+                    e.target.value === "" ? null : parseInt(e.target.value, 10)
+                  )
+                }
+                className="w-full rounded-md border border-border bg-card px-3 py-1.5 font-mono text-sm text-foreground focus:border-foreground/30 focus:outline-none"
+              />
+              <p className="text-[10px] text-foreground/30">{t("binaryUsedHint")}</p>
+            </div>
+          </div>
+
+          {/* Save cumulative counters */}
+          <Button
+            onClick={handleSaveCounters}
+            disabled={updateProfileMutation.isPending}
+            className="mt-3 self-start bg-foreground text-background hover:bg-foreground/90"
+          >
+            {updateProfileMutation.isPending ? (
+              <Loader2 className="size-4 animate-spin" />
+            ) : countersSaved ? (
+              <Check className="size-4" />
+            ) : null}
+            {countersSaved ? t("saved") : t("saveCounters")}
+          </Button>
+        </div>
       </div>
     </SectionCard>
   );

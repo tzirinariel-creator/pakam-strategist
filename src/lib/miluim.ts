@@ -16,6 +16,39 @@ import type { MiluimGroup, Semester } from "@/types/enums";
 export type MiluimGroupKey = keyof typeof MILUIM_CONFIG.GROUPS;
 
 /**
+ * The current Israeli academic year as a single calendar-year key, used as the
+ * `MiluimSemester.academicYear` value on BOTH the write path (onboarding +
+ * settings) and the read path (plan / regulation resolution). MUST be the one
+ * source of this key — a mismatch silently breaks per-semester resolution.
+ *
+ * The academic year starts in October, so a FALL semester and the SPRING that
+ * follows it share ONE academic-year value:
+ *   - Oct–Dec  → the current calendar year (the year the academic year started)
+ *   - Jan–Sep  → the previous calendar year (still the same academic year)
+ *
+ * e.g. Nov 2025 and Mar 2026 both map to 2025 (תשפ"ו).
+ *
+ * @param now  Injectable for tests; defaults to the real current date.
+ */
+export function getCurrentAcademicYear(now: Date = new Date()): number {
+  const month = now.getMonth(); // 0-indexed: 9 = October
+  const year = now.getFullYear();
+  return month >= 9 ? year : year - 1; // Oct onward → this calendar year
+}
+
+/**
+ * Map any semester to the FALL/SPRING bucket that the miluim outline actually
+ * uses. SUMMER has no distinct miluim group (the schema accepts it but the
+ * editor never creates a SUMMER row), so a student currently flagged SUMMER
+ * still resolves against the nearest taught semester. We fold SUMMER → SPRING:
+ * the summer term sits at the tail of the academic year, so it shares that
+ * year's SPRING service window.
+ */
+function toResolvableSemester(semester: Semester): Semester {
+  return semester === "SUMMER" ? "SPRING" : semester;
+}
+
+/**
  * Minimal shape of a per-semester miluim record used by the pure helpers.
  * Matches the Prisma `MiluimSemester` model but stays decoupled from it so the
  * helpers can be unit-tested with plain objects.
@@ -48,9 +81,11 @@ export function deriveGroupFromDays(days: number, combat: boolean): MiluimGroupK
     return "GROUP_A"; // a handful of combat days still clears the legal 10-day floor
   }
 
-  // Regular reservists. Thresholds match the per-group criteria in MILUIM_CONFIG.
-  if (days >= 35) return "GROUP_C";
-  if (days >= 21) return "GROUP_B";
+  // Regular reservists. Thresholds come from MILUIM_CONFIG (single source) —
+  // same place combat reads from, so the two never drift apart.
+  const [b, c] = MILUIM_CONFIG.REGULAR_RESERVIST.perSemesterRules;
+  if (days >= c.minDays) return "GROUP_C"; // 35+
+  if (days >= b.minDays) return "GROUP_B"; // 21–34
   return "GROUP_A"; // 1–20 days
 }
 
@@ -78,10 +113,13 @@ export function deriveCurrentGroup(
     current.semester != null &&
     semesters.length > 0
   ) {
+    // SUMMER never has its own miluim row, so fold it onto the nearest
+    // FALL/SPRING bucket before matching (see toResolvableSemester / fix E).
+    const wantSemester = toResolvableSemester(current.semester);
     const row = semesters.find(
       (s) =>
         s.academicYear === current.academicYear &&
-        s.semester === current.semester
+        s.semester === wantSemester
     );
     if (row) return row.derivedGroup as MiluimGroupKey;
   }

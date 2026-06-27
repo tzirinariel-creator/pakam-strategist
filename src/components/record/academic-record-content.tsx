@@ -432,6 +432,33 @@ function AddCourse({
   const selectClass =
     "rounded-lg border border-border bg-card px-3 py-2 text-sm text-foreground focus:border-foreground/30 focus:outline-none";
 
+  // No genuinely-past semester exists (e.g. a brand-new year-1·FALL student):
+  // there is no valid PAST placement, so adding a course here would silently
+  // mark it COMPLETED in the current, unfinished semester with no placement
+  // choice — polluting completed credits, the weighted average, and the
+  // year-1 transition gate. Refuse: show an honest empty state pointing at
+  // onboarding/the planner instead of the catalog add-search.
+  if (pastSemesters.length === 0) {
+    return (
+      <div className="data-card p-8 text-center">
+        <div className="mb-5 flex justify-center">
+          <FolderOpen className="h-12 w-12 text-foreground/40" />
+        </div>
+        <h2 className="mb-2 font-display text-lg font-bold text-foreground/90">
+          {t("addTitle")}
+        </h2>
+        <p className="mb-6 text-sm text-foreground/55">{t("emptyDescNoCourses")}</p>
+        <Link
+          href="/dashboard"
+          className="inline-flex items-center gap-2 rounded-full border border-accent-brand/30 bg-accent-brand/15 px-6 py-2.5 text-sm font-bold text-foreground/90 transition-colors hover:bg-accent-brand/25"
+        >
+          <GraduationCap className="h-4 w-4" />
+          {t("backToOnboarding")}
+        </Link>
+      </div>
+    );
+  }
+
   return (
     <div className="data-card p-6">
       <h2 className="mb-1 flex items-center gap-2 font-display text-lg font-bold text-foreground/90">

@@ -3,7 +3,7 @@ import { TRPCError } from "@trpc/server";
 import { createTRPCRouter, protectedProcedure } from "../trpc/init";
 import { calculateCredits } from "@/lib/credit-calculator";
 import { calculateGraduationScore } from "@/lib/grade-calculator";
-import { computeCreditExemption, deriveCurrentGroup } from "@/lib/miluim";
+import { computeCreditExemption, deriveCurrentGroup, getCurrentAcademicYear } from "@/lib/miluim";
 import { getAllDisciplineIds } from "@/lib/programs/registry";
 
 // Discipline enum covering ALL registered programs (PPE, Law, etc.)
@@ -138,7 +138,7 @@ export const planRouter = createTRPCRouter({
           .enum(["PLANNED", "IN_PROGRESS", "COMPLETED", "FAILED", "EXEMPT"])
           .optional(),
         grade: z.number().min(0).max(100).nullable().optional(), // null clears the grade
-        disciplineOverride: disciplineEnum.optional(),
+        disciplineOverride: disciplineEnum.nullable().optional(), // null clears a mis-assigned discipline
         attempt: z.number().int().min(1).optional(),
         selectedGroups: z
           .record(z.string().max(30), z.string().max(30))
@@ -168,7 +168,8 @@ export const planRouter = createTRPCRouter({
         });
       }
 
-      const { userCourseId, attempt, selectedGroups, ...updateFields } = input;
+      const { userCourseId, attempt, selectedGroups, disciplineOverride, ...updateFields } =
+        input;
 
       const data: Record<string, unknown> = { ...updateFields };
       if (attempt !== undefined) {
@@ -176,6 +177,10 @@ export const planRouter = createTRPCRouter({
       }
       if (selectedGroups !== undefined) {
         data.selectedGroups = selectedGroups; // null clears, object sets
+      }
+      if (disciplineOverride !== undefined) {
+        // null clears a mis-assigned discipline override; a value sets it.
+        data.disciplineOverride = disciplineOverride;
       }
 
       const updated = await ctx.db.userCourse.update({
@@ -243,8 +248,11 @@ export const planRouter = createTRPCRouter({
     const miluimSemesters = await ctx.db.miluimSemester.findMany({
       where: { userId: user.id },
     });
+    // academicYear MUST be the calendar-year key used when the rows were
+    // WRITTEN (getCurrentAcademicYear), NOT user.currentYear (academic standing
+    // 1–4) — those never match, which silently killed per-semester resolution.
     const currentGroup = deriveCurrentGroup(miluimSemesters, user.miluimGroup, {
-      academicYear: user.currentYear,
+      academicYear: getCurrentAcademicYear(),
       semester: user.currentSemester,
     });
     // Credit exemption, capped at the per-degree maximum minus what's already
@@ -310,6 +318,19 @@ export const planRouter = createTRPCRouter({
         throw new TRPCError({ code: "NOT_FOUND", message: "User not found" });
       }
 
+      // De-dupe on courseId BEFORE insert. All saved rows use attemptNumber 1,
+      // so the @@unique([userId, courseId, attemptNumber]) means the same course
+      // placed in two semesters would silently collide — createMany's
+      // skipDuplicates drops the second row. Collapsing here (first placement
+      // wins) makes the dropped course visible in the count instead of the old
+      // bug where savedCount claimed the full input.courses.length.
+      const seen = new Set<string>();
+      const deduped = input.courses.filter((c) => {
+        if (seen.has(c.courseId)) return false;
+        seen.add(c.courseId);
+        return true;
+      });
+
       // Atomic: delete + create inside a single transaction so the user
       // never ends up with zero courses if createMany fails.
       const savedCount = await ctx.db.$transaction(async (tx) => {
@@ -318,10 +339,11 @@ export const planRouter = createTRPCRouter({
           where: { userId: user.id },
         });
 
-        // Bulk create all courses
-        if (input.courses.length > 0) {
-          await tx.userCourse.createMany({
-            data: input.courses.map((c) => ({
+        // Bulk create all courses. Return the REAL number of rows written
+        // (createMany result.count), never the raw payload length.
+        if (deduped.length > 0) {
+          const result = await tx.userCourse.createMany({
+            data: deduped.map((c) => ({
               userId: user.id,
               courseId: c.courseId,
               plannedYear: c.plannedYear,
@@ -331,9 +353,10 @@ export const planRouter = createTRPCRouter({
             })),
             skipDuplicates: true,
           });
+          return result.count;
         }
 
-        return input.courses.length;
+        return 0;
       });
 
       return { savedCount };

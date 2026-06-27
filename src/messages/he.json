@@ -292,11 +292,14 @@
       "combatYes": "כן",
       "combatNo": "לא",
       "derivedGroupLabel": "הקבוצה שחושבה",
-      "creditExemptionUsed": "פטור ש\"ס שנוצל",
-      "binaryUsed": "המרות לבינארי שנוצלו",
-      "creditExemptionUsedHint": "מתוך 10 ש\"ס מקסימום בתואר",
+      "editingRecord": "עורך/ת רשומה עבור",
+      "cumulativeTitle": "ניצול מצטבר בתואר",
+      "creditExemptionUsed": "פטור ש\"ז שכבר נוצל בסמסטרים קודמים",
+      "binaryUsed": "המרות לבינארי שכבר נוצלו",
+      "creditExemptionUsedHint": "מתוך 10 ש\"ז מקסימום בתואר",
       "binaryUsedHint": "מתוך 5 קורסים מקסימום בתואר (BA)",
       "save": "שמירת מילואים",
+      "saveCounters": "שמירת ניצול מצטבר",
       "saved": "נשמר",
       "noService": "לא משרת/ת במילואים השנה",
       "ofCap": "מתוך {cap}"
@@ -1028,7 +1031,8 @@
     "referatLabel": "ציון רפרט (4%)",
     "simulatedScore": "ציון סימולציה",
     "change": "שינוי",
-    "forecastBasis": "תחזית · מבוססת על {credits} מתוך 150 נ\"ז שהושלמו"
+    "forecastBasis": "תחזית · מבוססת על {credits} מתוך 150 נ\"ז שהושלמו",
+    "provisionalBasis": "ממוצע הקורסים הנוכחי · ציון הגמר המלא יחושב אחרי הסמינרים"
   },
   "dashboard": {
     "title": "הבית שלך",
