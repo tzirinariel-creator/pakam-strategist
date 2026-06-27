@@ -3,6 +3,7 @@ import { TRPCError } from "@trpc/server";
 import { createTRPCRouter, protectedProcedure } from "../trpc/init";
 import { seedDemoData } from "@/lib/demo-data";
 import { getAllDisciplineIds } from "@/lib/programs/registry";
+import { deriveGroupFromDays } from "@/lib/miluim";
 
 // Discipline enum covering ALL registered programs (PPE, Law, etc.)
 const disciplineEnum = z.enum(getAllDisciplineIds());
@@ -27,6 +28,7 @@ export const userRouter = createTRPCRouter({
         theme: true,
         miluimGroup: true,
         miluimCreditsUsed: true,
+        miluimBinaryUsed: true,
         amiramScore: true,
         programId: true,
 
@@ -53,6 +55,8 @@ export const userRouter = createTRPCRouter({
           .enum(["NONE", "GROUP_A", "GROUP_B", "GROUP_C", "GROUP_G"])
           .optional(),
         miluimCreditsUsed: z.number().int().min(0).max(10).optional(),
+        // Binary (pass/fail) conversions used across the BA (cap 5, domain §6).
+        miluimBinaryUsed: z.number().int().min(0).max(5).optional(),
         // AMIRANT/Psychometric English uses the 50–150 scale (DB column kept as amiramScore).
         amiramScore: z.number().int().min(50).max(150).nullable().optional(),
       })
@@ -74,6 +78,7 @@ export const userRouter = createTRPCRouter({
           theme: true,
           miluimGroup: true,
           miluimCreditsUsed: true,
+          miluimBinaryUsed: true,
           amiramScore: true,
           programId: true,
 
@@ -83,6 +88,78 @@ export const userRouter = createTRPCRouter({
       });
       return updated;
     }),
+
+  /**
+   * Upsert a per-semester miluim record. The miluim group is reassigned every
+   * semester from that semester's service days, so we key on
+   * (userId, academicYear, semester) and recompute derivedGroup server-side via
+   * the pure lib/miluim.ts logic (single source of truth). Purely additive — a
+   * user who never calls this keeps the exact same numbers as before.
+   */
+  upsertMiluimSemester: protectedProcedure
+    .input(
+      z.object({
+        academicYear: z.number().int().min(2020).max(2100),
+        semester: z.enum(["FALL", "SPRING", "SUMMER"]),
+        daysServed: z.number().int().min(0).max(365),
+        isCombat: z.boolean().default(false),
+      })
+    )
+    .mutation(async ({ ctx, input }) => {
+      const user = await ctx.db.user.findUnique({
+        where: { supabaseId: ctx.userId },
+        select: { id: true },
+      });
+      if (!user) {
+        throw new TRPCError({ code: "NOT_FOUND", message: "User not found" });
+      }
+
+      // Derive the group server-side from days + combat (authoritative).
+      const derivedGroup = deriveGroupFromDays(input.daysServed, input.isCombat);
+
+      const row = await ctx.db.miluimSemester.upsert({
+        where: {
+          userId_academicYear_semester: {
+            userId: user.id,
+            academicYear: input.academicYear,
+            semester: input.semester,
+          },
+        },
+        update: {
+          daysServed: input.daysServed,
+          isCombat: input.isCombat,
+          derivedGroup,
+        },
+        create: {
+          userId: user.id,
+          academicYear: input.academicYear,
+          semester: input.semester,
+          daysServed: input.daysServed,
+          isCombat: input.isCombat,
+          derivedGroup,
+        },
+      });
+
+      return row;
+    }),
+
+  /**
+   * List the current user's per-semester miluim records (most recent first).
+   */
+  listMiluimSemesters: protectedProcedure.query(async ({ ctx }) => {
+    const user = await ctx.db.user.findUnique({
+      where: { supabaseId: ctx.userId },
+      select: { id: true },
+    });
+    if (!user) {
+      throw new TRPCError({ code: "NOT_FOUND", message: "User not found" });
+    }
+
+    return ctx.db.miluimSemester.findMany({
+      where: { userId: user.id },
+      orderBy: [{ academicYear: "desc" }, { semester: "asc" }],
+    });
+  }),
 
   /**
    * Ensure user exists in Prisma DB (called after auth)
@@ -109,6 +186,7 @@ export const userRouter = createTRPCRouter({
         theme: true,
         miluimGroup: true,
         miluimCreditsUsed: true,
+        miluimBinaryUsed: true,
         amiramScore: true,
         programId: true,
 
@@ -173,9 +251,13 @@ export const userRouter = createTRPCRouter({
         startYear: null,
         miluimGroup: "NONE",
         miluimCreditsUsed: 0,
+        miluimBinaryUsed: 0,
         amiramScore: null,
       },
     });
+
+    // Clear per-semester miluim rows so the reset user returns to a clean slate.
+    await ctx.db.miluimSemester.deleteMany({ where: { userId: user.id } });
 
     return { success: true };
   }),

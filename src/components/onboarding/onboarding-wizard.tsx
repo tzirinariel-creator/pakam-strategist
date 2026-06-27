@@ -28,6 +28,14 @@ export interface OnboardingData {
   miluimGroup: "NONE" | "GROUP_A" | "GROUP_B" | "GROUP_C" | "GROUP_G";
   /** AMIRANT English placement score (50–150 scale). DB column stays `amiramScore`. */
   amirantScore: number | null;
+  /**
+   * Optional per-semester miluim inputs captured in step-profile (days served +
+   * combat status). When set, step-ready upserts ONE MiluimSemester for the
+   * student's starting {year, semester}. Absent → no per-semester row written,
+   * so behavior is unchanged for users who skip miluim.
+   */
+  miluimDays?: number | null;
+  miluimCombat?: boolean;
 }
 
 // Welcome → Profile → History → SemesterPlanner → Ready

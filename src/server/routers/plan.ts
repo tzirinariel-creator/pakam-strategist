@@ -3,7 +3,7 @@ import { TRPCError } from "@trpc/server";
 import { createTRPCRouter, protectedProcedure } from "../trpc/init";
 import { calculateCredits } from "@/lib/credit-calculator";
 import { calculateGraduationScore } from "@/lib/grade-calculator";
-import { MILUIM_CONFIG } from "@/lib/constants";
+import { computeCreditExemption, deriveCurrentGroup } from "@/lib/miluim";
 import { getAllDisciplineIds } from "@/lib/programs/registry";
 
 // Discipline enum covering ALL registered programs (PPE, Law, etc.)
@@ -237,20 +237,20 @@ export const planRouter = createTRPCRouter({
       include: { course: true },
     });
 
-    // Calculate miluim credit exemption
-    let miluimExemption = 0;
-    if (user.miluimGroup && user.miluimGroup !== "NONE") {
-      const groupConfig = MILUIM_CONFIG.GROUPS[user.miluimGroup as keyof typeof MILUIM_CONFIG.GROUPS];
-      if (groupConfig && groupConfig.creditExemptionPerYear > 0) {
-        // The exemption is the GROUP's amount (e.g. B=6), capped at the
-        // per-degree maximum (10 SH"S). We store ONE group for the whole degree,
-        // so do NOT multiply by years — that over-grants (e.g. B in year 2 → 12).
-        miluimExemption = Math.min(
-          groupConfig.creditExemptionPerYear,
-          MILUIM_CONFIG.MAX_CREDIT_EXEMPTIONS_DEGREE,
-        );
-      }
-    }
+    // Per-semester miluim rows (may be empty). The current group is the row for
+    // the user's current academic year + semester, else the stored miluimGroup —
+    // a user with NO rows gets the EXACT same group (and exemption) as before.
+    const miluimSemesters = await ctx.db.miluimSemester.findMany({
+      where: { userId: user.id },
+    });
+    const currentGroup = deriveCurrentGroup(miluimSemesters, user.miluimGroup, {
+      academicYear: user.currentYear,
+      semester: user.currentSemester,
+    });
+    // Credit exemption, capped at the per-degree maximum minus what's already
+    // been used. With no rows + miluimCreditsUsed 0 this equals the old
+    // min(group rate, 10) — no regression.
+    const miluimExemption = computeCreditExemption(currentGroup, user.miluimCreditsUsed);
 
     const breakdown = calculateCredits(userCourses, user.focusArea, miluimExemption);
     return breakdown;

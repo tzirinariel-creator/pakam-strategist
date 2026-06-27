@@ -281,7 +281,26 @@
     "resetTestData": "אפס נתוני בדיקה",
     "confirmResetTestData": "לאפס את כל הנתונים? לא ניתן לשחזר.",
     "resetSuccess": "הנתונים אופסו",
-    "deleteGoogleEvents": "מחק events מיומן Google"
+    "deleteGoogleEvents": "מחק events מיומן Google",
+    "miluim": {
+      "title": "מילואים",
+      "description": "הקבוצה הנוכחית, פטור הש\"ס שנוצל והמרות לבינארי שנוצלו",
+      "currentGroup": "קבוצת מילואים נוכחית",
+      "daysServed": "ימי מילואים בסמסטר",
+      "daysServedHint": "מספר ימי המילואים בסמסטר הנוכחי — קובע את הקבוצה",
+      "combat": "לוחם/ת (ייעוד קדמי)",
+      "combatYes": "כן",
+      "combatNo": "לא",
+      "derivedGroupLabel": "הקבוצה שחושבה",
+      "creditExemptionUsed": "פטור ש\"ס שנוצל",
+      "binaryUsed": "המרות לבינארי שנוצלו",
+      "creditExemptionUsedHint": "מתוך 10 ש\"ס מקסימום בתואר",
+      "binaryUsedHint": "מתוך 5 קורסים מקסימום בתואר (BA)",
+      "save": "שמירת מילואים",
+      "saved": "נשמר",
+      "noService": "לא משרת/ת במילואים השנה",
+      "ofCap": "מתוך {cap}"
+    }
   },
   "courseType": {
     "MANDATORY": "חובה",

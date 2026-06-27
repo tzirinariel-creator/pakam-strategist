@@ -5,34 +5,18 @@ import { useTranslations, useLocale } from "next-intl";
 import { Shield, ChevronDown, Swords, Check, Sparkles, FileText } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { MILUIM_CONFIG, AMIRNET_CONFIG, DISCIPLINE_CONFIG, FOCUS_DISCIPLINE_IDS } from "@/lib/constants";
+import { deriveGroupFromDays, type MiluimGroupKey } from "@/lib/miluim";
 import type { OnboardingData } from "./onboarding-wizard";
-
-type MiluimGroupKey = keyof typeof MILUIM_CONFIG.GROUPS;
 
 interface StepProfileProps {
   data: OnboardingData;
   onUpdate: (updates: Partial<OnboardingData>) => void;
 }
 
-/**
- * Derive the miluim group from the common-path inputs (days served this year +
- * combat status). This is intentionally a simple, single-question-block estimate
- * — the precise per-semester logic + edge cases live behind "special cases" or
- * the manual selector. Per מתווה תשפ"ו (docs/pakam-domain-rules-2026.md §6).
- */
-function deriveGroup(days: number, combat: boolean): MiluimGroupKey {
-  if (days <= 0) return "NONE";
-  if (combat) {
-    // Combat (ייעוד קדמי): enhanced mapping — higher group with fewer days.
-    if (days >= 21) return "GROUP_C";
-    if (days >= 14) return "GROUP_B";
-    return "GROUP_A"; // a handful of combat days still clears the legal 10-day floor
-  }
-  // Regular reservists.
-  if (days >= 35) return "GROUP_C";
-  if (days >= 21) return "GROUP_B";
-  return "GROUP_A"; // 1–20 days
-}
+// The miluim group is derived from days served + combat status via the shared
+// pure logic in lib/miluim.ts (single source of truth). Per מתווה תשפ"ו
+// (docs/pakam-domain-rules-2026.md §6). Alias kept for local readability.
+const deriveGroup = deriveGroupFromDays;
 
 export function StepProfile({ data, onUpdate }: StepProfileProps) {
   const t = useTranslations("onboarding");
@@ -290,7 +274,7 @@ export function StepProfile({ data, onUpdate }: StepProfileProps) {
                         setServed(false);
                         setDays(null);
                         setIsCombat(false);
-                        onUpdate({ miluimGroup: "NONE" });
+                        onUpdate({ miluimGroup: "NONE", miluimDays: null, miluimCombat: false });
                       }}
                       className={cn(
                         "rounded-lg border px-3 py-2.5 text-xs transition-all",
@@ -319,6 +303,7 @@ export function StepProfile({ data, onUpdate }: StepProfileProps) {
                           const v = e.target.value === "" ? null : parseInt(e.target.value, 10);
                           setDays(v);
                           applyDerived(deriveGroup(v ?? 0, isCombat));
+                          onUpdate({ miluimDays: v, miluimCombat: isCombat });
                         }}
                         placeholder={tm("q2DaysPlaceholder")}
                         className="w-full rounded-lg border border-border bg-card px-3 py-2 text-sm text-foreground placeholder:text-foreground/25 focus:border-foreground/30 focus:outline-none transition-colors"
@@ -334,6 +319,7 @@ export function StepProfile({ data, onUpdate }: StepProfileProps) {
                           onClick={() => {
                             setIsCombat(true);
                             applyDerived(deriveGroup(days ?? 0, true));
+                            onUpdate({ miluimDays: days, miluimCombat: true });
                           }}
                           className={cn(
                             "flex items-center justify-center gap-1.5 rounded-lg border px-3 py-2 text-xs transition-all",
@@ -349,6 +335,7 @@ export function StepProfile({ data, onUpdate }: StepProfileProps) {
                           onClick={() => {
                             setIsCombat(false);
                             applyDerived(deriveGroup(days ?? 0, false));
+                            onUpdate({ miluimDays: days, miluimCombat: false });
                           }}
                           className={cn(
                             "rounded-lg border px-3 py-2 text-xs transition-all",

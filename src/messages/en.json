@@ -281,7 +281,26 @@
     "resetTestData": "Reset Test Data",
     "confirmResetTestData": "Reset all data? This cannot be undone.",
     "resetSuccess": "Data reset successfully",
-    "deleteGoogleEvents": "Delete events from Google Calendar"
+    "deleteGoogleEvents": "Delete events from Google Calendar",
+    "miluim": {
+      "title": "Miluim (Reserve Duty)",
+      "description": "Your current group, credit exemption used, and binary conversions used",
+      "currentGroup": "Current miluim group",
+      "daysServed": "Reserve days this semester",
+      "daysServedHint": "Number of reserve days this semester — determines the group",
+      "combat": "Combat (front-line designation)",
+      "combatYes": "Yes",
+      "combatNo": "No",
+      "derivedGroupLabel": "Derived group",
+      "creditExemptionUsed": "Credit exemption used",
+      "binaryUsed": "Binary conversions used",
+      "creditExemptionUsedHint": "Out of 10 SH\"S max across the degree",
+      "binaryUsedHint": "Out of 5 courses max across the BA",
+      "save": "Save miluim",
+      "saved": "Saved",
+      "noService": "Not serving in reserves this year",
+      "ofCap": "of {cap}"
+    }
   },
   "courseType": {
     "MANDATORY": "Mandatory",

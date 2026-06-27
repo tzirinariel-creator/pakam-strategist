@@ -20,11 +20,15 @@ import {
   Eye,
   EyeOff,
   ExternalLink,
+  Shield,
+  Swords,
 } from "lucide-react";
 import { useTranslations, useLocale } from "next-intl";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
-import { DISCIPLINE_CONFIG, FOCUS_DISCIPLINE_IDS } from "@/lib/constants";
+import { DISCIPLINE_CONFIG, FOCUS_DISCIPLINE_IDS, MILUIM_CONFIG } from "@/lib/constants";
+import { deriveGroupFromDays } from "@/lib/miluim";
+import { MiluimDayCombatInputs } from "@/components/miluim/miluim-day-combat-inputs";
 import { api } from "@/lib/trpc/react";
 import { useUIStore } from "@/stores/ui-store";
 import { useRouter, usePathname } from "@/i18n/navigation";
@@ -39,6 +43,17 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+
+/**
+ * Current TAU academic year as a calendar year (תשפ"ו = 2025-26 → 2025). Rolls
+ * in August. Keep in sync with the same helper in step-ready.tsx.
+ */
+function currentAcademicYear(): number {
+  const now = new Date();
+  const month = now.getMonth();
+  const year = now.getFullYear();
+  return month >= 7 ? year : year - 1;
+}
 
 // ---------------------------------------------------------------
 // Section wrapper
@@ -837,6 +852,143 @@ function ApiKeySection() {
 }
 
 // ---------------------------------------------------------------
+// Miluim Section — current-semester group + cumulative quota tracker
+// ---------------------------------------------------------------
+
+function MiluimSection() {
+  const t = useTranslations("settings.miluim");
+  const locale = useLocale();
+  const isHe = locale === "he";
+  const utils = api.useUtils();
+
+  const profileQuery = api.user.getProfile.useQuery();
+  const semestersQuery = api.user.listMiluimSemesters.useQuery();
+
+  const [days, setDays] = useState<number | null>(null);
+  const [combat, setCombat] = useState(false);
+  const [saved, setSaved] = useState(false);
+
+  // The current academic year + semester come from the profile; the current
+  // miluim row (if any) seeds the day/combat inputs.
+  const currentSemester = (profileQuery.data?.currentSemester ?? "FALL") as
+    | "FALL"
+    | "SPRING"
+    | "SUMMER";
+  const academicYear = currentAcademicYear();
+
+  // Seed inputs from the matching per-semester row once data loads.
+  useEffect(() => {
+    const rows = semestersQuery.data;
+    if (!rows) return;
+    const row = rows.find(
+      (r) => r.academicYear === academicYear && r.semester === currentSemester
+    );
+    if (row) {
+      setDays(row.daysServed);
+      setCombat(row.isCombat);
+    }
+  }, [semestersQuery.data, academicYear, currentSemester]);
+
+  const upsertMutation = api.user.upsertMiluimSemester.useMutation({
+    onSuccess: () => {
+      void utils.user.listMiluimSemesters.invalidate();
+      void utils.plan.getCredits.invalidate();
+      void utils.regulation.checkCompliance.invalidate();
+      setSaved(true);
+      setTimeout(() => setSaved(false), 2000);
+      toast.success(t("saved"));
+    },
+    onError: () => toast.error(isHe ? "השמירה נכשלה" : "Save failed"),
+  });
+
+  // Derived group preview from the current inputs (mirrors onboarding).
+  const derivedGroup = deriveGroupFromDays(days ?? 0, combat);
+  const groupCfg = MILUIM_CONFIG.GROUPS[derivedGroup];
+  const groupName = isHe ? groupCfg.nameHe : groupCfg.nameEn;
+
+  // Cumulative quota trackers (read-only — sourced from the profile counters).
+  const creditUsed = profileQuery.data?.miluimCreditsUsed ?? 0;
+  const creditCap = MILUIM_CONFIG.MAX_CREDIT_EXEMPTIONS_DEGREE; // 10
+  const binaryUsed = profileQuery.data?.miluimBinaryUsed ?? 0;
+  const binaryCap = MILUIM_CONFIG.BINARY_GRADE.BA_DEGREE_CAP; // 5
+
+  const handleSave = () => {
+    upsertMutation.mutate({
+      academicYear,
+      semester: currentSemester,
+      daysServed: days ?? 0,
+      isCombat: combat,
+    });
+  };
+
+  return (
+    <SectionCard icon={Shield} title={t("title")} description={t("description")}>
+      <div className="flex flex-col gap-5">
+        {/* Day + combat inputs (shared with onboarding) */}
+        <MiluimDayCombatInputs
+          days={days}
+          combat={combat}
+          onDaysChange={setDays}
+          onCombatChange={setCombat}
+          labels={{
+            daysLabel: t("daysServed"),
+            daysHint: t("daysServedHint"),
+            combatLabel: t("combat"),
+            combatYes: t("combatYes"),
+            combatNo: t("combatNo"),
+          }}
+        />
+
+        {/* Derived current group */}
+        <div className="flex items-center justify-between rounded-lg border border-foreground/10 bg-foreground/3 px-4 py-3">
+          <span className="text-sm text-foreground/60">{t("currentGroup")}</span>
+          <span className="text-sm font-medium text-foreground/80">
+            {(days ?? 0) > 0 ? groupName : t("noService")}
+          </span>
+        </div>
+
+        {/* Cumulative quota trackers */}
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+          <div className="rounded-lg border border-emerald-500/20 bg-emerald-500/5 px-4 py-3">
+            <p className="text-xs text-foreground/50">{t("creditExemptionUsed")}</p>
+            <p className="mt-1 font-mono text-lg font-bold text-foreground/80">
+              {creditUsed} {t("ofCap", { cap: creditCap })}
+            </p>
+            <p className="mt-0.5 text-[10px] text-foreground/30">
+              {t("creditExemptionUsedHint")}
+            </p>
+          </div>
+          <div className="rounded-lg border border-amber-500/20 bg-amber-500/5 px-4 py-3">
+            <div className="flex items-center gap-1.5">
+              <Swords className="h-3 w-3 text-amber-500" />
+              <p className="text-xs text-foreground/50">{t("binaryUsed")}</p>
+            </div>
+            <p className="mt-1 font-mono text-lg font-bold text-foreground/80">
+              {binaryUsed} {t("ofCap", { cap: binaryCap })}
+            </p>
+            <p className="mt-0.5 text-[10px] text-foreground/30">{t("binaryUsedHint")}</p>
+          </div>
+        </div>
+
+        {/* Save */}
+        <Button
+          onClick={handleSave}
+          disabled={upsertMutation.isPending}
+          className="self-start bg-foreground text-background hover:bg-foreground/90"
+        >
+          {upsertMutation.isPending ? (
+            <Loader2 className="size-4 animate-spin" />
+          ) : saved ? (
+            <Check className="size-4" />
+          ) : null}
+          {saved ? t("saved") : t("save")}
+        </Button>
+      </div>
+    </SectionCard>
+  );
+}
+
+// ---------------------------------------------------------------
 // Main Settings Content
 // ---------------------------------------------------------------
 
@@ -859,6 +1011,7 @@ export function SettingsContent() {
       {/* Settings sections */}
       <div className="mx-auto grid w-full max-w-3xl gap-6">
         <ProfileSection />
+        <MiluimSection />
         <ApiKeySection />
         <GoogleCalendarSection />
         <AppearanceSection />

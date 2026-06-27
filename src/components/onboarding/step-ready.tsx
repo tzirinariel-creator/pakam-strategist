@@ -24,6 +24,18 @@ interface StepReadyProps {
   sessionGroupSelections?: SessionGroupSelections;
 }
 
+/**
+ * Current TAU academic year as a calendar year (תשפ"ו = 2025-26 → 2025). The
+ * academic year rolls in August (Aug–Dec = the year that started; Jan–Jul = the
+ * previous calendar year). Used as the MiluimSemester.academicYear key.
+ */
+function currentAcademicYear(): number {
+  const now = new Date();
+  const month = now.getMonth(); // 0-indexed
+  const year = now.getFullYear();
+  return month >= 7 ? year : year - 1; // Aug onward → this calendar year
+}
+
 export function StepReady({ data, plannedSemesters, completedCourses, allCourses, sessionGroupSelections }: StepReadyProps) {
   const t = useTranslations("onboarding");
   const locale = useLocale();
@@ -37,6 +49,7 @@ export function StepReady({ data, plannedSemesters, completedCourses, allCourses
   const updateProfile = api.user.updateProfile.useMutation();
   const savePlanMutation = api.plan.savePlan.useMutation();
   const saveCompletedMutation = api.plan.saveCompletedCourses.useMutation();
+  const upsertMiluimSemester = api.user.upsertMiluimSemester.useMutation();
   const utils = api.useUtils();
 
   // Build the flat course list from planned semesters
@@ -133,6 +146,22 @@ export function StepReady({ data, plannedSemesters, completedCourses, allCourses
         }),
         15000,
       );
+
+      // 1b. If the student entered miluim days this semester, persist ONE
+      //     MiluimSemester for their starting {academicYear, semester}. The
+      //     server derives the group from days+combat. Skipped entirely when no
+      //     days were entered, so non-serving students write no per-semester row.
+      if (data.miluimDays != null && data.miluimDays > 0) {
+        await withTimeout(
+          upsertMiluimSemester.mutateAsync({
+            academicYear: currentAcademicYear(),
+            semester: data.semester,
+            daysServed: data.miluimDays,
+            isCombat: data.miluimCombat ?? false,
+          }),
+          15000,
+        );
+      }
 
       // 2. Bulk save all planned courses in a single request — 20s timeout.
       //    NOTE: savePlan replaces all UserCourses, so it MUST run before the

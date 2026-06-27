@@ -53,6 +53,12 @@ export interface RegulationStudentContext {
   academicYear?: number;
   /** Current semester ("FALL" | "SPRING" | "SUMMER"). */
   currentSemester?: string;
+  /** Current miluim group ("NONE" | "GROUP_A".."GROUP_G") — for binary-cap rules. */
+  miluimGroup?: string | null;
+  /** Binary (pass/fail) conversions already used across the degree. */
+  miluimBinaryUsed?: number;
+  /** Credit exemptions (ש"ס) already used across the degree. */
+  miluimCreditsUsed?: number;
 }
 
 /**
@@ -96,6 +102,9 @@ export function runRegulationEngine(
     amirantScore: student?.amirantScore ?? null,
     academicYear: student?.academicYear,
     currentSemester: student?.currentSemester,
+    miluimGroup: student?.miluimGroup ?? null,
+    miluimBinaryUsed: student?.miluimBinaryUsed,
+    miluimCreditsUsed: student?.miluimCreditsUsed,
   };
 
   // 3. Execute every rule (discipline rules are per-program).

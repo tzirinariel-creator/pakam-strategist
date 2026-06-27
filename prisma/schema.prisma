@@ -101,7 +101,8 @@ model User {
   locale                 String    @default("he")
   theme                  String    @default("dark")
   miluimGroup            MiluimGroup @default(NONE)
-  miluimCreditsUsed      Int       @default(0) // max 10 across the degree
+  miluimCreditsUsed      Int       @default(0) // max 10 across the degree (credit-exemption-used counter)
+  miluimBinaryUsed       Int       @default(0) // binary (pass/fail) conversions used across the degree (BA cap 5)
   amiramScore            Int?      // Amiram English proficiency score
   role                   String    @default("user") // "user" | "admin"
 
@@ -113,11 +114,37 @@ model User {
   calendarEvents         CalendarEvent[]
   chatSessions           ChatSession[]
   studyTasks             StudyTask[]
+  miluimSemesters        MiluimSemester[]
 
   createdAt              DateTime  @default(now())
   updatedAt              DateTime  @updatedAt
 
   @@map("users")
+}
+
+// Per-semester miluim (reserve) record. The group is reassigned each semester
+// from that semester's service days, so we model one row per (user, year,
+// semester). Exemptions/binary caps are cumulative across the degree and are
+// tracked on User (miluimCreditsUsed / miluimBinaryUsed). Purely additive: a
+// user with NO rows here keeps the exact same numbers as before. (domain §6)
+model MiluimSemester {
+  id            String      @id @default(uuid())
+  userId        String
+  academicYear  Int
+  semester      Semester
+  daysServed    Int         @default(0)
+  isCombat      Boolean     @default(false)
+  derivedGroup  MiluimGroup @default(NONE)
+  notes         String?
+
+  user          User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+
+  @@unique([userId, academicYear, semester])
+  @@index([userId])
+  @@map("miluim_semesters")
 }
 
 model Course {

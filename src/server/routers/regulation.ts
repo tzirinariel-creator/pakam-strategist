@@ -1,7 +1,7 @@
 import { TRPCError } from "@trpc/server";
 import { createTRPCRouter, protectedProcedure } from "../trpc/init";
 import { runRegulationEngine } from "@/lib/regulations/rule-engine";
-import { MILUIM_CONFIG } from "@/lib/constants";
+import { computeCreditExemption, deriveCurrentGroup } from "@/lib/miluim";
 
 export const regulationRouter = createTRPCRouter({
   /**
@@ -29,25 +29,26 @@ export const regulationRouter = createTRPCRouter({
       ],
     });
 
-    // Calculate miluim credit exemption (same logic as plan.getCredits)
-    let miluimExemption = 0;
-    if (user.miluimGroup && user.miluimGroup !== "NONE") {
-      const groupConfig = MILUIM_CONFIG.GROUPS[user.miluimGroup as keyof typeof MILUIM_CONFIG.GROUPS];
-      if (groupConfig && groupConfig.creditExemptionPerYear > 0) {
-        // The exemption is the GROUP's amount, capped at the per-degree maximum
-        // (10 SH"S). One group is stored for the whole degree, so do NOT multiply
-        // by years in program — that over-grants. (Mirrors plan.getCredits.)
-        miluimExemption = Math.min(
-          groupConfig.creditExemptionPerYear,
-          MILUIM_CONFIG.MAX_CREDIT_EXEMPTIONS_DEGREE,
-        );
-      }
-    }
+    // Per-semester miluim rows (may be empty). Resolve the CURRENT group from
+    // the current-semester row, else the stored miluimGroup — a user with NO
+    // rows behaves exactly as before. (Mirrors plan.getCredits.)
+    const miluimSemesters = await ctx.db.miluimSemester.findMany({
+      where: { userId: user.id },
+    });
+    const currentGroup = deriveCurrentGroup(miluimSemesters, user.miluimGroup, {
+      academicYear: user.currentYear,
+      semester: user.currentSemester,
+    });
+    const miluimExemption = computeCreditExemption(
+      currentGroup,
+      user.miluimCreditsUsed,
+    );
 
     // Run the regulation engine (safe for empty course lists).
     // Thread the AMIRANT (English placement) score + academic standing so the
     // English-level and exemption-deadline rules can fire. The DB column is
-    // still `amiramScore`; the rules layer calls it amirantScore.
+    // still `amiramScore`; the rules layer calls it amirantScore. The miluim
+    // fields drive the new non-blocking PKM-024 / PKM-025 binary-cap rules.
     try {
       const summary = runRegulationEngine(
         userCourses,
@@ -58,6 +59,9 @@ export const regulationRouter = createTRPCRouter({
           amirantScore: user.amiramScore,
           academicYear: user.currentYear,
           currentSemester: user.currentSemester,
+          miluimGroup: currentGroup,
+          miluimBinaryUsed: user.miluimBinaryUsed,
+          miluimCreditsUsed: user.miluimCreditsUsed,
         },
       );
 

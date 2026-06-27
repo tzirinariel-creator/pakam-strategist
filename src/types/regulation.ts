@@ -36,6 +36,15 @@ export interface RuleContext {
   academicYear?: number;
   /** Student's current semester ("FALL" | "SPRING" | "SUMMER"). */
   currentSemester?: string;
+  /**
+   * Current miluim group ("NONE" | "GROUP_A".."GROUP_G"). Optional so existing
+   * callers stay valid; used by the binary-cap rules (PKM-024/025).
+   */
+  miluimGroup?: string | null;
+  /** Binary (pass/fail) conversions already used across the degree. */
+  miluimBinaryUsed?: number;
+  /** Credit exemptions (ש"ס) already used across the degree. */
+  miluimCreditsUsed?: number;
 }
 
 export type RegulationRule = (context: RuleContext) => RegulationResult;

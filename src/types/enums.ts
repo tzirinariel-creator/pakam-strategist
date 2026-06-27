@@ -58,3 +58,11 @@ export type DayOfWeek =
   | "WEDNESDAY"
   | "THURSDAY"
   | "FRIDAY";
+
+// Mirrors the Prisma MiluimGroup enum (per-semester reserve-duty group).
+export type MiluimGroup =
+  | "NONE"
+  | "GROUP_A"
+  | "GROUP_B"
+  | "GROUP_C"
+  | "GROUP_G";
