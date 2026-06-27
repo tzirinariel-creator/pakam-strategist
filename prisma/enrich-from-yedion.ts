@@ -51,7 +51,15 @@ async function main() {
   // 2) Replace schedule sessions (no user FK references these). Only keep ones
   //    whose courseCode exists in the DB, to satisfy the FK.
   const dbCodes = new Set((await prisma.course.findMany({ select: { code: true } })).map((c) => c.code));
-  const sessions = fx.scheduleSessions.filter((s) => dbCodes.has(s.courseCode));
+  // Defensive de-dup: the same Yedion session can be captured more than once.
+  const seen = new Set<string>();
+  const sessions = fx.scheduleSessions.filter((s) => {
+    if (!dbCodes.has(s.courseCode)) return false;
+    const k = [s.courseCode, s.groupCode, s.dayOfWeek, s.startTime, s.endTime, s.semester, s.sessionType, s.lecturerName, s.room].join("|");
+    if (seen.has(k)) return false;
+    seen.add(k);
+    return true;
+  });
   const deleted = await prisma.scheduleSession.deleteMany({});
   const created = await prisma.scheduleSession.createMany({
     data: sessions.map((s) => ({

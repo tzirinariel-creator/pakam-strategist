@@ -909,9 +909,14 @@ export function DashboardContent() {
       {/* Page header */}
       <div className="animate-stagger-1">
         <h1 className="font-display text-2xl font-bold text-foreground md:text-3xl">
-          {profileQuery.data?.displayName
-            ? (isHe ? `היי ${profileQuery.data.displayName}` : `Hi ${profileQuery.data.displayName}`)
-            : t("subtitle")}
+          {(() => {
+            const name = profileQuery.data?.displayName;
+            // In Hebrew, only greet by name if it's actually a Hebrew name —
+            // never jam a Latin name into a Hebrew greeting ("היי Ariel").
+            const isHebrewName = !!name && /[֐-׿]/.test(name);
+            if (isHe) return isHebrewName ? `היי ${name}` : t("subtitle");
+            return name ? `Hi ${name}` : t("subtitle");
+          })()}
         </h1>
         {profileQuery.data?.currentYear && profileQuery.data?.currentSemester && (
           <p className="mt-1 text-sm text-foreground/50">
