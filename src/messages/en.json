@@ -1200,5 +1200,38 @@
     "assignments": "Assignments",
     "syllabi": "Syllabi",
     "fullCalendarView": "Full Calendar View"
+  },
+  "tour": {
+    "title": "Quick tour",
+    "reopen": "Tour",
+    "reopenAria": "Reopen the guided tour",
+    "skip": "Skip",
+    "next": "Next",
+    "back": "Back",
+    "finish": "Done",
+    "stepOf": "Step {current} of {total}",
+    "goToStep": "Go to step {num}",
+    "steps": {
+      "welcome": {
+        "title": "Welcome to Pakamon",
+        "body": "Plan your whole degree in one place — from courses to final score."
+      },
+      "planner": {
+        "title": "The Planner",
+        "body": "Build your semesters and drag courses right in."
+      },
+      "schedule": {
+        "title": "Schedule & Exams",
+        "body": "Everything syncs to one calendar — classes and exam dates."
+      },
+      "record": {
+        "title": "My Academic Record",
+        "body": "Enter past courses and grades, and everything updates automatically."
+      },
+      "regulations": {
+        "title": "The Regulations",
+        "body": "Automatically checks that you meet every degree requirement."
+      }
+    }
   }
 }

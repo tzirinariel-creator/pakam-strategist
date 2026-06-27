@@ -1,24 +1,9 @@
 // =========================================
-// Auth helpers — email validation + error mapping
+// Auth helpers — error mapping
 // =========================================
-// Shared by signup-form.tsx and login-form.tsx so that:
-//  - signups are restricted to Tel Aviv University addresses
-//  - raw English Supabase error strings never reach the user; they are
-//    mapped to actionable Hebrew/English i18n keys under the `auth` namespace.
-
-// ─── TAU email restriction ────────────────────────────────────────
-
-/** Allowed university email domains (case-insensitive). */
-const TAU_EMAIL_DOMAINS = ["@mail.tau.ac.il", "@tau.ac.il"];
-
-/**
- * Returns true if the email belongs to a Tel Aviv University domain.
- * Used to gate signup before calling supabase.auth.signUp.
- */
-export function isTauEmail(email: string): boolean {
-  const normalized = email.trim().toLowerCase();
-  return TAU_EMAIL_DOMAINS.some((domain) => normalized.endsWith(domain));
-}
+// Shared by signup-form.tsx and login-form.tsx so that raw English Supabase
+// error strings never reach the user; they are mapped to actionable
+// Hebrew/English i18n keys under the `auth` namespace.
 
 // ─── Supabase error → i18n key mapping ────────────────────────────
 

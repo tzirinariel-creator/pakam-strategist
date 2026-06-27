@@ -14,6 +14,7 @@ import { ThemedLoader } from "@/components/ui/themed-loader";
 import { Progress } from "@/components/ui/progress";
 import { CountUp } from "@/components/ui/count-up";
 import { OnboardingWizard } from "@/components/onboarding/onboarding-wizard";
+import { ProductTour, TourReopenButton, TOUR_DONE_KEY } from "@/components/onboarding/product-tour";
 import { CREDIT_REQUIREMENTS, DISCIPLINE_CONFIG, FILTERABLE_DISCIPLINE_IDS, getDisciplineCredits } from "@/lib/constants";
 import { cn } from "@/lib/utils";
 import { DashboardTabs } from "@/components/dashboard/dashboard-tabs";
@@ -857,6 +858,37 @@ export function DashboardContent() {
     }
   }, []);
 
+  // Product tour — a short, fully-skippable guided walkthrough shown ONCE the
+  // first time a brand-new student lands on the dashboard. Sequencing decision:
+  // the tour runs FIRST (it explains the whole app at a glance); the welcome
+  // card is suppressed while the tour is open so the two never stack, then
+  // remains afterwards as the ongoing "next steps" nudge. Persisted via the
+  // `pakamon-tour-done` localStorage key so it never repeats.
+  const [tourOpen, setTourOpen] = useState(false);
+  const [tourChecked, setTourChecked] = useState(false);
+  const closeTour = useCallback(() => {
+    setTourOpen(false);
+    if (typeof window !== "undefined") {
+      localStorage.setItem(TOUR_DONE_KEY, "true");
+    }
+  }, []);
+
+  // Auto-open the tour exactly once for genuine first-run users: they've just
+  // finished onboarding (or are a near-empty new user) and haven't seen it yet.
+  // Gate on plan data so it never fires over a loading/onboarding screen.
+  useEffect(() => {
+    if (tourChecked || typeof window === "undefined") return;
+    if (!hasPlanData) return;
+    setTourChecked(true);
+    const alreadyDone = localStorage.getItem(TOUR_DONE_KEY) === "true";
+    const planCourseCount = planQuery.data?.courses?.length ?? 0;
+    const isFirstRun = fromOnboarding || onboardingFlag || planCourseCount < 4;
+    if (!alreadyDone && isFirstRun) {
+      setTourOpen(true);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [hasPlanData, tourChecked]);
+
   // Clear onboarding flag once data is successfully loaded
   const handleOnboardingSuccess = useCallback(() => {
     if (typeof window !== "undefined") {
@@ -1021,18 +1053,27 @@ export function DashboardContent() {
 
   return (
     <div className="bg-mesh space-y-8 p-4 md:p-6">
+      {/* Product tour — first-run guided walkthrough (and re-openable later) */}
+      <ProductTour open={tourOpen} onClose={closeTour} />
+
       {/* Page header */}
       <div className="animate-stagger-1">
-        <h1 className="font-display text-2xl font-bold text-foreground md:text-3xl">
-          {(() => {
-            const name = profileQuery.data?.displayName;
-            // In Hebrew, only greet by name if it's actually a Hebrew name —
-            // never jam a Latin name into a Hebrew greeting ("היי Ariel").
-            const isHebrewName = !!name && /[֐-׿]/.test(name);
-            if (isHe) return isHebrewName ? `היי ${name}` : t("subtitle");
-            return name ? `Hi ${name}` : t("subtitle");
-          })()}
-        </h1>
+        <div className="flex items-start justify-between gap-3">
+          <h1 className="font-display text-2xl font-bold text-foreground md:text-3xl">
+            {(() => {
+              const name = profileQuery.data?.displayName;
+              // In Hebrew, only greet by name if it's actually a Hebrew name —
+              // never jam a Latin name into a Hebrew greeting ("היי Ariel").
+              const isHebrewName = !!name && /[֐-׿]/.test(name);
+              if (isHe) return isHebrewName ? `היי ${name}` : t("subtitle");
+              return name ? `Hi ${name}` : t("subtitle");
+            })()}
+          </h1>
+          {/* Unobtrusive re-open entry point for the guided tour */}
+          <div className="shrink-0 pt-1">
+            <TourReopenButton onClick={() => setTourOpen(true)} />
+          </div>
+        </div>
         {profileQuery.data?.currentYear && profileQuery.data?.currentSemester && (
           <p className="mt-1 text-sm text-foreground/50">
             {isHe ? "פכ\"מ" : "PPE"} · {t("semesterContext", {
@@ -1056,8 +1097,9 @@ export function DashboardContent() {
 
       {/* Welcome card — first-time guidance for fresh / just-onboarded users.
           Shows once (until dismissed), only for new users, never for established
-          students with a full plan. */}
-      {!welcomeDismissed && hasPlanData && (fromOnboarding || onboardingFlag || isNewUser) && (
+          students with a full plan. Suppressed while the product tour is open so
+          the two never stack — the tour runs first, the card remains after. */}
+      {!welcomeDismissed && !tourOpen && hasPlanData && (fromOnboarding || onboardingFlag || isNewUser) && (
         <div className="animate-stagger-1">
           <WelcomeHomeCard
             t={t}

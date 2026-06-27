@@ -141,48 +141,49 @@ async function main() {
   let completedCount = 0;
   let plannedCount = 0;
 
-  await prisma.$transaction(async (tx) => {
-    for (const c of ALL_COURSES) {
-      const courseId = idByCode.get(c.code);
-      if (!courseId) {
-        skipped++;
-        continue;
-      }
-
-      const existing = await tx.userCourse.findFirst({
-        where: { userId: user.id, courseId },
-      });
-
-      if (existing) {
-        await tx.userCourse.update({
-          where: { id: existing.id },
-          data: {
-            status: c.status,
-            grade: c.grade,
-            plannedYear: c.year,
-            plannedSemester: c.semester,
-          },
-        });
-        updated++;
-      } else {
-        await tx.userCourse.create({
-          data: {
-            userId: user.id,
-            courseId,
-            status: c.status,
-            grade: c.grade,
-            plannedYear: c.year,
-            plannedSemester: c.semester,
-            attemptNumber: 1,
-          },
-        });
-        created++;
-      }
-
-      if (c.status === "COMPLETED") completedCount++;
-      else if (c.status === "PLANNED") plannedCount++;
+  // No wrapping interactive transaction: every write is an idempotent upsert
+  // scoped to the demo user, so atomicity isn't needed — and a single long
+  // transaction over the Supabase pooler exceeds the 5s interactive timeout.
+  for (const c of ALL_COURSES) {
+    const courseId = idByCode.get(c.code);
+    if (!courseId) {
+      skipped++;
+      continue;
     }
-  });
+
+    const existing = await prisma.userCourse.findFirst({
+      where: { userId: user.id, courseId },
+    });
+
+    if (existing) {
+      await prisma.userCourse.update({
+        where: { id: existing.id },
+        data: {
+          status: c.status,
+          grade: c.grade,
+          plannedYear: c.year,
+          plannedSemester: c.semester,
+        },
+      });
+      updated++;
+    } else {
+      await prisma.userCourse.create({
+        data: {
+          userId: user.id,
+          courseId,
+          status: c.status,
+          grade: c.grade,
+          plannedYear: c.year,
+          plannedSemester: c.semester,
+          attemptNumber: 1,
+        },
+      });
+      created++;
+    }
+
+    if (c.status === "COMPLETED") completedCount++;
+    else if (c.status === "PLANNED") plannedCount++;
+  }
 
   // 5) Summary — completed credits + average over graded completed courses.
   const seededCourseIds = ALL_COURSES.map((c) => idByCode.get(c.code)).filter(

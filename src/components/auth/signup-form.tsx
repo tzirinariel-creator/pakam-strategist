@@ -8,7 +8,7 @@ import { api } from "@/lib/trpc/react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
-import { isTauEmail, authErrorKey } from "@/lib/auth-helpers";
+import { authErrorKey } from "@/lib/auth-helpers";
 import { GraduationCap, Loader2, AlertCircle, CheckCircle, Eye, Mail } from "lucide-react";
 
 function GoogleIcon({ className }: { className?: string }) {
@@ -133,12 +133,6 @@ export function SignupForm() {
   const handleEmailSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
-
-    // Restrict signup to Tel Aviv University email addresses.
-    if (!isTauEmail(email)) {
-      setError(t("tauEmailRequired"));
-      return;
-    }
 
     setLoading(true);
 
@@ -345,7 +339,7 @@ export function SignupForm() {
                 dir="ltr"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="you@mail.tau.ac.il"
+                placeholder="you@example.com"
                 required
                 autoComplete="email"
                 className="bg-background/50"

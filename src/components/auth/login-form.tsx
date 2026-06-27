@@ -240,7 +240,7 @@ export function LoginForm() {
                 dir="ltr"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="you@mail.tau.ac.il"
+                placeholder="you@example.com"
                 required
                 autoComplete="email"
                 className="bg-background/50"
