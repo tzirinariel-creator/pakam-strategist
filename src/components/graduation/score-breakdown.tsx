@@ -158,7 +158,7 @@ export function ScoreBreakdown({ breakdown, enableWhatIf, className }: ScoreBrea
 
       {/* Formula display — translated */}
       <div className="rounded-lg border border-border/50 bg-background/50 px-4 py-3">
-        <p className="font-mono text-xs leading-relaxed text-foreground/50" dir="ltr">
+        <p className="font-mono text-xs leading-relaxed text-foreground/50" dir="auto">
           {t("formulaExplainer")}
         </p>
       </div>

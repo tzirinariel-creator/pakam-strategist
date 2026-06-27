@@ -2,7 +2,7 @@
 
 import { useState, useCallback } from "react";
 import { ChevronRight, ChevronLeft } from "lucide-react";
-import { useTranslations } from "next-intl";
+import { useTranslations, useLocale } from "next-intl";
 import { cn } from "@/lib/utils";
 import { api } from "@/lib/trpc/react";
 import { StepWelcome } from "./step-welcome";
@@ -34,6 +34,9 @@ function getDefaultSemester(): "FALL" | "SPRING" {
 
 export function OnboardingWizard() {
   const t = useTranslations("onboarding");
+  const locale = useLocale();
+  const BackChevron = locale === "he" ? ChevronRight : ChevronLeft;
+  const NextChevron = locale === "he" ? ChevronLeft : ChevronRight;
   const [step, setStep] = useState(0);
   const [plannedSemesters, setPlannedSemesters] = useState<PlannedSemester[] | null>(null);
   const [sessionGroupSelections, setSessionGroupSelections] = useState<SessionGroupSelections>({});
@@ -78,8 +81,10 @@ export function OnboardingWizard() {
 
   // Progress: step 1 = 50%, step 2 = full planning (no progress bar shown)
   const showProgressBar = step === 1;
-  // Profile step requires a focus area to be selected before proceeding
-  const canProceed = step === 1 && data.focusArea !== null;
+  // Profile step has sensible defaults (year/semester) and focus area is
+  // genuinely optional — "undecided" (null) is a valid choice the hint
+  // actively recommends — so never gate Next on it.
+  const canProceed = step === 1;
 
   return (
     <div className="bg-mesh relative mx-auto flex min-h-[80vh] w-full max-w-4xl flex-col px-4 py-8 md:px-8">
@@ -142,7 +147,7 @@ export function OnboardingWizard() {
             onClick={goBack}
             className="flex items-center gap-1.5 rounded-lg px-4 py-2.5 text-sm text-foreground/50 transition-all hover:bg-foreground/5 hover:text-foreground/70"
           >
-            <ChevronRight className="h-4 w-4" />
+            <BackChevron className="h-4 w-4" />
             {t("back")}
           </button>
 
@@ -157,7 +162,7 @@ export function OnboardingWizard() {
             )}
           >
             {t("next")}
-            <ChevronLeft className="h-4 w-4" />
+            <NextChevron className="h-4 w-4" />
           </button>
         </div>
       )}

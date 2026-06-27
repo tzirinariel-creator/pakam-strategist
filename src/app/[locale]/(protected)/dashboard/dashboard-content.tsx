@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef, useCallback } from "react";
-import { GraduationCap, BookOpen, Scale, Pencil, Shield, CheckCircle2, AlertCircle, Languages, Target, ArrowRight, Calendar, X, RefreshCw, Calculator } from "lucide-react";
+import { GraduationCap, BookOpen, Scale, Pencil, Shield, CheckCircle2, AlertCircle, Languages, Target, ArrowRight, ArrowLeft, Calendar, X, RefreshCw, Calculator } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 import { useSearchParams } from "next/navigation";
 import { Link } from "@/i18n/navigation";
@@ -328,6 +328,8 @@ function RegulationWidget({
   totalCount: number;
   t: (key: string) => string;
 }) {
+  const isHe = useLocale() === "he";
+  const Arrow = isHe ? ArrowLeft : ArrowRight;
   const color =
     complianceRate >= 100
       ? "text-emerald-400"
@@ -353,7 +355,7 @@ function RegulationWidget({
       <span className="text-sm text-foreground/50">{t("rulesMet")}</span>
       <Progress value={complianceRate} className="h-2 w-full" />
       <span className="text-xs text-foreground/40 flex items-center gap-1">
-        {t("viewAllRules")} <ArrowRight className="h-3 w-3" />
+        {t("viewAllRules")} <Arrow className="h-3 w-3" />
       </span>
     </Link>
   );
@@ -409,6 +411,7 @@ function DegreeGapWidget({
 }) {
   if (!regulationResults) return null;
 
+  const Arrow = isHe ? ArrowLeft : ArrowRight;
   const failedRules = regulationResults.filter((r) => !r.passed);
 
   if (failedRules.length === 0) {
@@ -490,7 +493,7 @@ function DegreeGapWidget({
         href="/regulations"
         className="mt-3 flex items-center justify-center gap-1 rounded-lg border border-border/30 bg-card/40 px-3 py-2 text-xs text-foreground/50 transition-colors hover:border-foreground/20 hover:text-foreground/70"
       >
-        {t("viewAllRules")} <ArrowRight className="h-3 w-3" />
+        {t("viewAllRules")} <Arrow className="h-3 w-3" />
       </Link>
     </div>
   );
@@ -667,6 +670,7 @@ function GoogleCalendarBanner({
 export function DashboardContent() {
   const locale = useLocale();
   const isHe = locale === "he";
+  const Arrow = isHe ? ArrowLeft : ArrowRight;
   const t = useTranslations("dashboard");
   const searchParams = useSearchParams();
   const fromOnboarding = searchParams.get("from") === "onboarding";
@@ -979,7 +983,7 @@ export function DashboardContent() {
           >
             <Calculator className="h-4 w-4" />
             {t("enterGradesCta")}
-            <ArrowRight className="h-3 w-3" />
+            <Arrow className="h-3 w-3" />
           </Link>
         )}
       </div>

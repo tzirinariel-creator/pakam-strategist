@@ -285,7 +285,12 @@ export function CourseTable({ courses }: CourseTableProps) {
               {/* Name */}
               <TableCell className="font-medium">
                 <div>
-                  <span className="text-foreground">{locale === "he" ? course.nameHe : (course.nameEn ?? course.nameHe)}</span>
+                  <span
+                    className="block text-foreground line-clamp-2"
+                    title={locale === "he" ? course.nameHe : (course.nameEn ?? course.nameHe)}
+                  >
+                    {locale === "he" ? course.nameHe : (course.nameEn ?? course.nameHe)}
+                  </span>
                   {locale === "he" ? (
                     course.nameEn && (
                       <span className="ms-2 text-xs text-muted-foreground hidden sm:inline">

@@ -46,7 +46,15 @@ export function MentorChat() {
   const [input, setInput] = useState("");
   const [isStreaming, setIsStreaming] = useState(false);
   const [activeSessionId, setActiveSessionId] = useState<string | null>(null);
-  const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+
+  // Open the sessions sidebar by default on desktop only — on a phone it would
+  // cover the conversation, so it stays collapsed until the user opens it.
+  useEffect(() => {
+    if (typeof window !== "undefined" && window.matchMedia("(min-width: 768px)").matches) {
+      setSidebarOpen(true);
+    }
+  }, []);
 
   // Refs
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -317,7 +325,7 @@ export function MentorChat() {
       : ChevronRight;
 
   return (
-    <div className="flex h-[calc(100vh-4rem)] overflow-hidden">
+    <div className="flex h-[calc(100dvh-8rem)] overflow-hidden md:h-[calc(100vh-4rem)]">
       {/* Sessions sidebar */}
       <div
         className={cn(

@@ -14,10 +14,6 @@ interface UIState {
   setTheme: (theme: "dark" | "light" | "system") => void;
   toggleTheme: () => void;
 
-  // Mobile
-  mobileNavOpen: boolean;
-  setMobileNavOpen: (open: boolean) => void;
-
   // Modals / sheets
   activeModal: string | null;
   openModal: (id: string) => void;
@@ -47,10 +43,6 @@ export const useUIStore = create<UIState>()(
                 ? "dark"
                 : "system",
         })),
-
-      // Mobile
-      mobileNavOpen: false,
-      setMobileNavOpen: (open) => set({ mobileNavOpen: open }),
 
       // Modals
       activeModal: null,

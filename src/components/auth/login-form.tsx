@@ -204,6 +204,7 @@ export function LoginForm() {
               <Input
                 id="email"
                 type="email"
+                dir="ltr"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="you@mail.tau.ac.il"
@@ -221,6 +222,7 @@ export function LoginForm() {
               <Input
                 id="password"
                 type="password"
+                dir="ltr"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="********"

@@ -2,7 +2,7 @@
 
 import { useTranslations, useLocale } from "next-intl";
 import { usePathname, useRouter } from "@/i18n/navigation";
-import { Globe, Moon, Sun, Monitor, LogOut, Menu } from "lucide-react";
+import { Globe, Moon, Sun, Monitor, LogOut } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useUIStore } from "@/stores/ui-store";
 import { createClient } from "@/lib/supabase/client";
@@ -13,7 +13,7 @@ export function TopBar() {
   const locale = useLocale();
   const pathname = usePathname();
   const router = useRouter();
-  const { theme, toggleTheme, setMobileNavOpen, sidebarCollapsed } = useUIStore();
+  const { theme, toggleTheme, sidebarCollapsed } = useUIStore();
   const queryClient = useQueryClient();
 
   const toggleLocale = () => {
@@ -41,17 +41,9 @@ export function TopBar() {
         sidebarCollapsed ? "md:start-16" : "md:start-64",
       )}
     >
-      {/* Mobile menu button */}
-      <button
-        onClick={() => setMobileNavOpen(true)}
-        className="md:hidden p-2 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted"
-        aria-label={locale === "he" ? "תפריט" : "Menu"}
-      >
-        <Menu className="h-5 w-5" />
-      </button>
-
-      {/* Page title area */}
-      <div className="hidden md:block" />
+      {/* Spacer — keeps the action cluster pinned to the inline-end on all sizes.
+          Mobile navigation lives in the bottom nav bar, not here. */}
+      <div className="flex-1" />
 
       {/* Actions */}
       <div className="flex items-center gap-2">

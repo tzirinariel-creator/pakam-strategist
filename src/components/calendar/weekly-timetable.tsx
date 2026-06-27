@@ -206,25 +206,25 @@ export function WeeklyTimetable({ sessions }: WeeklyTimetableProps) {
   return (
     <div className="flex flex-col gap-4">
       {/* Stats bar */}
-      <div className="flex items-center gap-6 rounded-lg border border-border/50 bg-card/50 px-4 py-2.5 text-xs text-muted-foreground">
+      <div className="flex flex-wrap items-center gap-x-4 gap-y-2 rounded-lg border border-border/50 bg-card/50 px-4 py-2.5 text-xs text-muted-foreground">
         <div className="flex items-center gap-1.5">
           <Clock className="size-3.5" />
           <span className="font-medium">{Math.round(totalHours)}</span>
           <span>{t("hrsPerWeek")}</span>
         </div>
-        <div className="h-3 w-px bg-border" />
+        <div className="hidden h-3 w-px bg-border sm:block" />
         <span>
           <span className="font-medium text-foreground/70">{uniqueCourses}</span>{" "}
           {t("coursesCount")}
         </span>
-        <div className="h-3 w-px bg-border" />
+        <div className="hidden h-3 w-px bg-border sm:block" />
         <span>
           <span className="font-medium text-foreground/70">{totalSessions}</span>{" "}
           {t("sessionsCount")}
         </span>
         {conflictIds.size > 0 && (
           <>
-            <div className="h-3 w-px bg-border" />
+            <div className="hidden h-3 w-px bg-border sm:block" />
             <span className="flex items-center gap-1 text-red-400">
               <AlertTriangle className="size-3" />
               {Math.ceil(conflictIds.size / 2)} {t("conflict")}

@@ -594,11 +594,11 @@ export function InsightsBar({
                   <X className="inline h-2.5 w-2.5 text-red-400" />
                   {" "}
                   <span className="font-medium text-foreground/80">{nameB}</span>
-                  <span className="text-foreground/30 ms-1.5" dir="ltr">
+                  <span className="text-foreground/30 ms-1.5">
                     ({(isHe
                       ? ({ SUNDAY: "ראשון", MONDAY: "שני", TUESDAY: "שלישי", WEDNESDAY: "רביעי", THURSDAY: "חמישי", FRIDAY: "שישי" } as Record<string, string>)[conflict.day] ?? conflict.day
                       : ({ SUNDAY: "Sun", MONDAY: "Mon", TUESDAY: "Tue", WEDNESDAY: "Wed", THURSDAY: "Thu", FRIDAY: "Fri" } as Record<string, string>)[conflict.day] ?? conflict.day
-                    )} {conflict.time})
+                    )} <bdi>{conflict.time}</bdi>)
                   </span>
                 </div>
               </div>
