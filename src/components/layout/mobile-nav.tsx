@@ -11,6 +11,7 @@ import {
   Settings,
   BookOpen,
   Calendar,
+  Calculator,
   Bot,
   X,
 } from "lucide-react";
@@ -19,14 +20,15 @@ import { cn } from "@/lib/utils";
 const MOBILE_NAV_ITEMS = [
   { key: "dashboard", href: "/dashboard", icon: LayoutDashboard },
   { key: "planner", href: "/planner", icon: GraduationCap },
-  { key: "mentor", href: "/mentor", icon: Bot },
+  { key: "calendar", href: "/calendar", icon: Calendar },
   { key: "regulations", href: "/regulations", icon: Scale },
 ] as const;
 
 const MORE_MENU_ITEMS = [
   { key: "catalog", href: "/catalog", icon: BookOpen },
-  { key: "calendar", href: "/calendar", icon: Calendar },
+  { key: "graduation", href: "/graduation", icon: Calculator },
   { key: "settings", href: "/settings", icon: Settings },
+  { key: "mentor", href: "/mentor", icon: Bot },
 ] as const;
 
 export function MobileNav() {

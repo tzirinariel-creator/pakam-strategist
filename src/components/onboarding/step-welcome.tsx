@@ -50,6 +50,7 @@ export function StepWelcome({ onNext, selectedProgram, onProgramSelect }: StepWe
       icon: MessageCircle,
       title: t("featureMentor"),
       description: t("featureMentorDesc"),
+      note: t("featureMentorByok"),
       delay: "animate-stagger-3",
     },
     {
@@ -114,6 +115,12 @@ export function StepWelcome({ onNext, selectedProgram, onProgramSelect }: StepWe
               <p className="mt-0.5 text-xs leading-relaxed text-foreground/50">
                 {feature.description}
               </p>
+              {"note" in feature && (
+                <span className="mt-1.5 inline-flex items-center gap-1 rounded-full bg-foreground/5 px-2 py-0.5 text-[10px] font-medium text-foreground/40">
+                  <Lock className="h-2.5 w-2.5" />
+                  {feature.note}
+                </span>
+              )}
             </div>
           </div>
         ))}

@@ -3,7 +3,6 @@ import { userRouter } from "../routers/user";
 import { courseRouter } from "../routers/course";
 import { planRouter } from "../routers/plan";
 import { regulationRouter } from "../routers/regulation";
-import { syllabusRouter } from "../routers/syllabus";
 import { scheduleRouter } from "../routers/schedule";
 import { studyTaskRouter } from "../routers/study-task";
 import { adminRouter } from "../routers/admin";
@@ -17,7 +16,6 @@ export const appRouter = createTRPCRouter({
   course: courseRouter,
   plan: planRouter,
   regulation: regulationRouter,
-  syllabus: syllabusRouter,
   schedule: scheduleRouter,
   studyTask: studyTaskRouter,
   admin: adminRouter,

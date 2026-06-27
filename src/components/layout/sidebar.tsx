@@ -11,6 +11,7 @@ import {
   ChevronLeft,
   BookOpen,
   Calendar,
+  Calculator,
   Bot,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -22,9 +23,10 @@ const NAV_ICONS = {
   planner: GraduationCap,
   catalog: BookOpen,
   calendar: Calendar,
-  mentor: Bot,
+  graduation: Calculator,
   regulations: Scale,
   settings: Settings,
+  mentor: Bot,
 } as const;
 
 const NAV_ITEMS = [
@@ -32,9 +34,10 @@ const NAV_ITEMS = [
   { key: "planner", href: "/planner" },
   { key: "catalog", href: "/catalog" },
   { key: "calendar", href: "/calendar" },
-  { key: "mentor", href: "/mentor" },
+  { key: "graduation", href: "/graduation" },
   { key: "regulations", href: "/regulations" },
   { key: "settings", href: "/settings" },
+  { key: "mentor", href: "/mentor" },
 ] as const;
 
 export function Sidebar() {

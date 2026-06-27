@@ -11,7 +11,6 @@ import {
   ArrowLeft,
   ArrowRight,
   Sparkles,
-  FileText,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -24,7 +23,6 @@ const FEATURES = [
   { key: "calendar", icon: Calendar, color: "#4A90D9" },
   { key: "grades", icon: BarChart3, color: "#2ECC71" },
   { key: "regulations", icon: Scale, color: "#E74C3C" },
-  { key: "syllabus", icon: FileText, color: "#F39C12" },
 ] as const;
 
 // ─── Product Preview (a styled mini-planner — "show, don't tell") ────

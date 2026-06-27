@@ -7,15 +7,13 @@ import {
   ClipboardCheck,
   CalendarDays,
   ListTodo,
-  FileText,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { ExamTab } from "./exam-tab";
 import { CalendarTab } from "./calendar-tab";
 import { AssignmentsTab } from "./assignments-tab";
-import { SyllabusTab } from "./syllabus-tab";
 
-type TabKey = "exams" | "calendar" | "assignments" | "syllabi";
+type TabKey = "exams" | "calendar" | "assignments";
 
 const TAB_CONFIG: {
   key: TabKey;
@@ -25,7 +23,6 @@ const TAB_CONFIG: {
   { key: "exams", icon: ClipboardCheck, translationKey: "examsAndGrades" },
   { key: "calendar", icon: CalendarDays, translationKey: "calendar" },
   { key: "assignments", icon: ListTodo, translationKey: "assignments" },
-  { key: "syllabi", icon: FileText, translationKey: "syllabi" },
 ];
 
 export function DashboardTabs({ isHe }: { isHe: boolean }) {
@@ -71,7 +68,6 @@ export function DashboardTabs({ isHe }: { isHe: boolean }) {
         {activeTab === "exams" && <ExamTab key="tab-exams" isHe={isHe} />}
         {activeTab === "calendar" && <CalendarTab key="tab-calendar" isHe={isHe} />}
         {activeTab === "assignments" && <AssignmentsTab key="tab-assignments" isHe={isHe} />}
-        {activeTab === "syllabi" && <SyllabusTab key="tab-syllabi" />}
       </div>
     </div>
   );

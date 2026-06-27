@@ -13,7 +13,8 @@
     "calendar": "Calendar",
     "settings": "Settings",
     "more": "More",
-    "close": "Close"
+    "close": "Close",
+    "graduation": "Grade Calculator"
   },
   "auth": {
     "login": "Log In",
@@ -586,7 +587,8 @@
     "coursesWithoutSchedule": "{count} courses with no known hours (not shown in timetable)",
     "coursesWithoutScheduleExplain": "Meeting times haven't been set yet, or these may be online courses. They're in your plan but won't appear on the timetable.",
     "dropHere": "Drop here",
-    "noCoursesEmpty": "No courses"
+    "noCoursesEmpty": "No courses",
+    "featureMentorByok": "Requires your own Claude API key"
   },
   "workload": {
     "workload": "Workload",

@@ -13,7 +13,8 @@
     "calendar": "יומן",
     "settings": "הגדרות",
     "more": "עוד",
-    "close": "סגור"
+    "close": "סגור",
+    "graduation": "מחשבון ציונים"
   },
   "auth": {
     "login": "התחברות",
@@ -586,7 +587,8 @@
     "coursesWithoutSchedule": "{count} קורסים ללא שעות ידועות (לא יופיעו בטבלה)",
     "coursesWithoutScheduleExplain": "שעות המפגשים של קורסים אלו עדיין לא נקבעו, או שמדובר בקורסים מקוונים. הם בתוכנית אבל לא יוצגו במערכת.",
     "dropHere": "שחרר כאן",
-    "noCoursesEmpty": "אין קורסים"
+    "noCoursesEmpty": "אין קורסים",
+    "featureMentorByok": "דורש מפתח Claude API אישי"
   },
   "degreeInfo": {
     "overviewTitle": "סקירה כללית",
