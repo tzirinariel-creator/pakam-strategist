@@ -176,11 +176,12 @@ export function WeeklyTimetable({ sessions }: WeeklyTimetableProps) {
   const locale = useLocale();
   const isRTL = locale === "he";
 
-  // Only keep the days the grid actually renders (Sun–Thu). Friday/Saturday slots
-  // are excluded from conflicts AND stats so the counts can't disagree with the view.
+  // Keep Sun–Fri (0–5); Saturday (6) is always excluded. Friday is included so its
+  // sessions count toward conflicts AND stats and are never silently dropped — the
+  // Friday column/section only renders when at least one Friday session exists.
   const slots = useMemo(
     () =>
-      sessionsToSlots(sessions, locale).filter((s) => s.day >= 0 && s.day <= 4),
+      sessionsToSlots(sessions, locale).filter((s) => s.day >= 0 && s.day <= 5),
     [sessions, locale]
   );
   const conflictIds = useMemo(() => detectConflicts(slots), [slots]);
@@ -190,12 +191,17 @@ export function WeeklyTimetable({ sessions }: WeeklyTimetableProps) {
   const now = new Date();
   const currentDay = now.getDay(); // 0=Sun
   const currentHour = now.getHours() + now.getMinutes() / 60;
-  const isWeekday = currentDay >= 0 && currentDay <= 4;
+
+  // Show Sun–Thu by default (standard Israeli academic week); add Friday only when
+  // there's at least one Friday session, so we never render an always-empty column.
+  const hasFriday = useMemo(() => slots.some((s) => s.day === 5), [slots]);
+  const dayOrder: TimeSlot["day"][] = hasFriday ? [0, 1, 2, 3, 4, 5] : [0, 1, 2, 3, 4];
+  const dayCount = dayOrder.length;
+  const colWidthPct = 100 / dayCount;
+
+  const isWeekday = dayOrder.includes(currentDay as TimeSlot["day"]);
   const isInTimeRange = currentHour >= HOURS_START && currentHour <= HOURS_END;
 
-  // Show Sun–Thu by default (standard Israeli academic week)
-  // Friday sessions are allowed by the type system but filtered from display
-  const dayOrder: TimeSlot["day"][] = [0, 1, 2, 3, 4];
   const gridHeight = TOTAL_HOURS * ROW_HEIGHT;
 
   // Stats — derived from the rendered slots so counts match what's shown.
@@ -389,11 +395,11 @@ export function WeeklyTimetable({ sessions }: WeeklyTimetableProps) {
               ))}
 
               {/* Vertical day dividers */}
-              {[1, 2, 3, 4].map((i) => (
+              {dayOrder.slice(1).map((_, idx) => (
                 <div
-                  key={`vline-${i}`}
+                  key={`vline-${idx + 1}`}
                   className="absolute top-0 bottom-0 border-e border-border/20"
-                  style={{ insetInlineStart: `${(i / 5) * 100}%` }}
+                  style={{ insetInlineStart: `${((idx + 1) / dayCount) * 100}%` }}
                 />
               ))}
 
@@ -405,8 +411,8 @@ export function WeeklyTimetable({ sessions }: WeeklyTimetableProps) {
                   <div
                     className="pointer-events-none absolute top-0 bottom-0 bg-foreground/[0.02]"
                     style={{
-                      insetInlineStart: `${(colIndex / 5) * 100}%`,
-                      width: "20%",
+                      insetInlineStart: `${(colIndex / dayCount) * 100}%`,
+                      width: `${colWidthPct}%`,
                     }}
                   />
                 );
@@ -438,9 +444,8 @@ export function WeeklyTimetable({ sessions }: WeeklyTimetableProps) {
                 const topPx = Math.round((slot.startHour - HOURS_START) * ROW_HEIGHT);
                 const heightPx = Math.round((slot.endHour - slot.startHour) * ROW_HEIGHT);
 
-                const colWidthPct = 20;
                 const slotWidthPct = colWidthPct / slot.totalOverlap;
-                const basePct = (colIndex / 5) * 100;
+                const basePct = (colIndex / dayCount) * 100;
                 const subCol = isRTL
                   ? (slot.totalOverlap - 1 - slot.subColumn)
                   : slot.subColumn;

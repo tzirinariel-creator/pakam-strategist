@@ -1098,8 +1098,10 @@ export function DashboardContent() {
       {/* Welcome card — first-time guidance for fresh / just-onboarded users.
           Shows once (until dismissed), only for new users, never for established
           students with a full plan. Suppressed while the product tour is open so
-          the two never stack — the tour runs first, the card remains after. */}
-      {!welcomeDismissed && !tourOpen && hasPlanData && (fromOnboarding || onboardingFlag || isNewUser) && (
+          the two never stack — the tour runs first, the card remains after.
+          Gated on tourChecked so the card can't flash for one frame before the
+          tour-decision effect has run and (potentially) opened the tour. */}
+      {tourChecked && !welcomeDismissed && !tourOpen && hasPlanData && (fromOnboarding || onboardingFlag || isNewUser) && (
         <div className="animate-stagger-1">
           <WelcomeHomeCard
             t={t}
