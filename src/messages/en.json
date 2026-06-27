@@ -163,6 +163,10 @@
     "saveError": "Couldn't save — try refreshing and saving again",
     "removeError": "Couldn't remove the course — try again",
     "courseRemoved": "Course removed from plan",
+    "markCompleted": "Already completed this course",
+    "gradeLabel": "Grade",
+    "gradeSaved": "Grade saved",
+    "statusSaveError": "Couldn't update the course — try again",
     "planSaved": "Plan saved",
     "ganttTitle": "Timeline — Your Entire Degree at a Glance",
     "timelineHint": "Semester timeline — all courses by year",
@@ -883,7 +887,10 @@
     "googleBannerSyncNow": "Sync now",
     "todaysClasses": "My Classes Today",
     "examCountdown": "Upcoming Exams",
-    "enterGradesCta": "Enter grades and see your graduation score"
+    "enterGradesCta": "Enter grades and see your graduation score",
+    "pastCoursesTitle": "Already studied some courses?",
+    "pastCoursesDesc": "Mark them and enter grades to see your real progress",
+    "pastCoursesCta": "Mark completed courses"
   },
   "studyPlanner": {
     "title": "Study Planner",

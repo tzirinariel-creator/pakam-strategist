@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { useDraggable } from "@dnd-kit/core";
 import { CSS } from "@dnd-kit/utilities";
 import {
@@ -11,6 +11,8 @@ import {
   ShieldCheck,
   GripVertical,
   Trash2,
+  Check,
+  GraduationCap,
 } from "lucide-react";
 import { useTranslations, useLocale } from "next-intl";
 import { toast } from "sonner";
@@ -23,6 +25,11 @@ import {
   TooltipContent,
   TooltipProvider,
 } from "@/components/ui/tooltip";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 import type { UserCourseWithCourse } from "@/types/degree";
 import type { CourseStatus } from "@/types/enums";
 import { cn } from "@/lib/utils";
@@ -61,6 +68,18 @@ export function CourseCard({ userCourse, disabled }: CourseCardProps) {
     },
     onError: () => {
       toast.error(tPlanner("removeError"));
+    },
+  });
+
+  const updateMutation = api.plan.updateCourse.useMutation({
+    onSuccess: () => {
+      void utils.plan.getUserPlan.invalidate();
+      void utils.plan.getCredits.invalidate();
+      void utils.plan.getGraduationScore.invalidate();
+      void utils.regulation.checkCompliance.invalidate();
+    },
+    onError: () => {
+      toast.error(tPlanner("statusSaveError"));
     },
   });
 
@@ -176,6 +195,15 @@ export function CourseCard({ userCourse, disabled }: CourseCardProps) {
         </span>
       </div>
 
+      {/* Mark-completed + grade control */}
+      <CompletionControl
+        key={`${userCourse.status}-${userCourse.grade ?? ""}`}
+        userCourseId={userCourse.id}
+        status={userCourse.status}
+        grade={userCourse.grade}
+        onUpdate={(input) => updateMutation.mutate(input)}
+      />
+
       {/* Remove button — shows on hover */}
       <button
         type="button"
@@ -196,6 +224,177 @@ export function CourseCard({ userCourse, disabled }: CourseCardProps) {
         )}
       </button>
     </div>
+  );
+}
+
+// -----------------------------------------------------------------------
+// Completion + grade control — lets a returning student mark a planned
+// course as already COMPLETED and enter its grade, right from the card.
+// -----------------------------------------------------------------------
+
+interface CompletionUpdate {
+  userCourseId: string;
+  status?: CourseStatus;
+  grade?: number | null;
+}
+
+function CompletionControl({
+  userCourseId,
+  status,
+  grade,
+  onUpdate,
+}: {
+  userCourseId: string;
+  status: CourseStatus;
+  grade: number | null;
+  onUpdate: (input: CompletionUpdate) => void;
+}) {
+  const tPlanner = useTranslations("planner");
+  const isCompleted = status === "COMPLETED";
+
+  // Local grade input mirrors the server value; debounced save on change/blur.
+  const [gradeValue, setGradeValue] = useState<string>(
+    grade !== null ? String(grade) : "",
+  );
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // The parent re-keys this control whenever the server status/grade changes,
+  // so local state initializes fresh from props — no sync effect needed.
+  useEffect(() => {
+    return () => {
+      if (debounceRef.current) clearTimeout(debounceRef.current);
+    };
+  }, []);
+
+  const handleToggle = useCallback(() => {
+    if (isCompleted) {
+      // Un-mark: revert to PLANNED and clear the grade.
+      if (debounceRef.current) clearTimeout(debounceRef.current);
+      setGradeValue("");
+      onUpdate({ userCourseId, status: "PLANNED", grade: null });
+    } else {
+      onUpdate({ userCourseId, status: "COMPLETED" });
+    }
+  }, [isCompleted, onUpdate, userCourseId]);
+
+  const commitGrade = useCallback(
+    (raw: string) => {
+      if (raw === "") {
+        // Cleared — drop the grade but keep the course COMPLETED.
+        onUpdate({ userCourseId, grade: null });
+        return;
+      }
+      const num = parseInt(raw, 10);
+      if (isNaN(num)) return;
+      const clamped = Math.max(0, Math.min(100, num));
+      onUpdate({ userCourseId, status: "COMPLETED", grade: clamped });
+    },
+    [onUpdate, userCourseId],
+  );
+
+  const handleGradeChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      const raw = e.target.value;
+      let next: string;
+      if (raw === "") {
+        next = "";
+      } else {
+        const num = parseInt(raw, 10);
+        if (isNaN(num) || num < 0 || num > 100) return; // reject invalid keystroke
+        next = String(num);
+      }
+      setGradeValue(next);
+      // Debounce the network write so typing stays smooth.
+      if (debounceRef.current) clearTimeout(debounceRef.current);
+      debounceRef.current = setTimeout(() => commitGrade(next), 600);
+    },
+    [commitGrade],
+  );
+
+  const handleGradeBlur = useCallback(() => {
+    if (debounceRef.current) clearTimeout(debounceRef.current);
+    commitGrade(gradeValue);
+  }, [commitGrade, gradeValue]);
+
+  return (
+    <Popover>
+      <PopoverTrigger asChild>
+        <button
+          type="button"
+          onPointerDown={(e) => e.stopPropagation()}
+          onClick={(e) => e.stopPropagation()}
+          title={tPlanner("markCompleted")}
+          aria-label={tPlanner("markCompleted")}
+          className={cn(
+            "shrink-0 flex items-center justify-center rounded-md p-1 transition-all focus:outline-none focus:ring-2 focus:ring-foreground/30",
+            isCompleted
+              ? "text-emerald-400 hover:bg-emerald-400/10"
+              : "text-muted-foreground/50 hover:text-foreground/70 hover:bg-foreground/5 opacity-0 group-hover:opacity-100 focus:opacity-100",
+          )}
+        >
+          <GraduationCap className="size-3.5" />
+        </button>
+      </PopoverTrigger>
+      <PopoverContent
+        align="end"
+        side="top"
+        sideOffset={6}
+        className="w-60 space-y-3 p-3"
+        onPointerDown={(e) => e.stopPropagation()}
+        onClick={(e) => e.stopPropagation()}
+      >
+        {/* Completed toggle */}
+        <label className="flex items-center gap-2 cursor-pointer text-xs font-medium text-foreground/80">
+          <button
+            type="button"
+            role="switch"
+            aria-checked={isCompleted}
+            onClick={handleToggle}
+            className={cn(
+              "relative inline-flex h-4 w-7 shrink-0 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-foreground/30",
+              isCompleted ? "bg-emerald-500" : "bg-foreground/20",
+            )}
+          >
+            <span
+              className={cn(
+                "inline-block h-3 w-3 transform rounded-full bg-white transition-transform",
+                isCompleted ? "translate-x-3.5 rtl:-translate-x-3.5" : "translate-x-0.5 rtl:-translate-x-0.5",
+              )}
+            />
+          </button>
+          <span>{tPlanner("markCompleted")}</span>
+        </label>
+
+        {/* Grade input — only when completed */}
+        {isCompleted && (
+          <div className="flex items-center gap-2 animate-in fade-in duration-150">
+            <span className="text-xs text-foreground/60">{tPlanner("gradeLabel")}</span>
+            <div className="relative">
+              <input
+                type="number"
+                min={0}
+                max={100}
+                step={1}
+                value={gradeValue}
+                onChange={handleGradeChange}
+                onBlur={handleGradeBlur}
+                placeholder="0–100"
+                dir="ltr"
+                className={cn(
+                  "w-20 rounded-md border border-border/50 bg-background/50 px-2 py-1.5",
+                  "font-mono text-sm text-foreground text-center",
+                  "placeholder:text-foreground/20",
+                  "focus:border-foreground/35 focus:outline-none focus:ring-1 focus:ring-foreground/20 transition-all",
+                )}
+              />
+            </div>
+            {grade !== null && (
+              <Check className="size-3.5 text-emerald-400" />
+            )}
+          </div>
+        )}
+      </PopoverContent>
+    </Popover>
   );
 }
 

@@ -934,6 +934,31 @@ export function DashboardContent() {
         </div>
       </div>
 
+      {/* Returning-student prompt — year ≥ 2 with nothing marked completed yet */}
+      {(credits?.earned ?? 0) === 0 &&
+        (profileQuery.data?.currentYear ?? 1) >= 2 && (
+          <Link
+            href="/planner"
+            className="animate-stagger-2 group flex items-center gap-4 rounded-xl border border-foreground/15 bg-foreground/[0.03] p-5 transition-all hover:border-foreground/25 hover:bg-foreground/[0.05]"
+          >
+            <div className="shrink-0 rounded-lg bg-emerald-500/10 p-2.5">
+              <GraduationCap className="size-5 text-emerald-400" />
+            </div>
+            <div className="min-w-0 flex-1">
+              <p className="text-sm font-semibold text-foreground/90">
+                {t("pastCoursesTitle")}
+              </p>
+              <p className="mt-0.5 text-xs text-foreground/50">
+                {t("pastCoursesDesc")}
+              </p>
+            </div>
+            <span className="shrink-0 flex items-center gap-1 text-xs font-medium text-foreground/60">
+              {t("pastCoursesCta")}
+              <Arrow className="size-3" />
+            </span>
+          </Link>
+        )}
+
       {/* Today's classes + Exam countdown */}
       {profileQuery.data?.currentYear && profileQuery.data?.currentSemester && (
         <div className="animate-stagger-2 grid gap-6 lg:grid-cols-2">

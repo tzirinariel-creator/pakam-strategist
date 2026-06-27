@@ -163,6 +163,10 @@
     "saveError": "לא הצלחנו לשמור — נסו לרענן ולשמור שוב",
     "removeError": "לא הצלחנו להסיר את הקורס — נסו שוב",
     "courseRemoved": "הקורס הוסר מהתוכנית",
+    "markCompleted": "כבר השלמתי קורס זה",
+    "gradeLabel": "ציון",
+    "gradeSaved": "הציון נשמר",
+    "statusSaveError": "לא הצלחנו לעדכן את הקורס — נסו שוב",
     "planSaved": "התוכנית נשמרה",
     "ganttTitle": "ציר זמן — כל התואר במבט אחד",
     "timelineHint": "תצוגת סמסטרים — כל הקורסים לפי שנים",
@@ -946,7 +950,10 @@
     "googleBannerSyncNow": "סנכרן עכשיו",
     "todaysClasses": "השיעורים שלי היום",
     "examCountdown": "בחינות קרובות",
-    "enterGradesCta": "הזינו ציונים וראו את ציון הגמר"
+    "enterGradesCta": "הזינו ציונים וראו את ציון הגמר",
+    "pastCoursesTitle": "כבר למדת קורסים?",
+    "pastCoursesDesc": "סמן אותם והזן ציונים כדי לראות את ההתקדמות האמיתית שלך",
+    "pastCoursesCta": "סמנו קורסים שהושלמו"
   },
   "studyPlanner": {
     "title": "תכנון לימודים",
