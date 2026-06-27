@@ -338,4 +338,88 @@ export const planRouter = createTRPCRouter({
 
       return { savedCount };
     }),
+
+  /**
+   * Save the user's past academic record from onboarding ("Your history").
+   *
+   * Takes courses the student already completed (by course CODE, with optional
+   * grade) and upserts each as a UserCourse with status COMPLETED. Idempotent:
+   * matched on userId + courseId, so re-running onboarding updates rather than
+   * duplicates. Courses are matched by code; unknown codes are skipped.
+   */
+  saveCompletedCourses: protectedProcedure
+    .input(
+      z.object({
+        courses: z.array(
+          z.object({
+            courseCode: z.string().min(1).max(40),
+            plannedYear: z.number().int().min(1).max(4),
+            plannedSemester: z.enum(["FALL", "SPRING", "SUMMER"]),
+            grade: z.number().min(0).max(100).nullable().optional(),
+          })
+        ),
+      })
+    )
+    .mutation(async ({ ctx, input }) => {
+      const user = await ctx.db.user.findUnique({
+        where: { supabaseId: ctx.userId },
+      });
+
+      if (!user) {
+        throw new TRPCError({ code: "NOT_FOUND", message: "User not found" });
+      }
+
+      if (input.courses.length === 0) {
+        return { savedCount: 0 };
+      }
+
+      // Resolve course codes → ids in one query.
+      const codes = Array.from(new Set(input.courses.map((c) => c.courseCode)));
+      const courses = await ctx.db.course.findMany({
+        where: { code: { in: codes } },
+        select: { id: true, code: true },
+      });
+      const idByCode = new Map(courses.map((c) => [c.code, c.id]));
+
+      const savedCount = await ctx.db.$transaction(async (tx) => {
+        let count = 0;
+        for (const c of input.courses) {
+          const courseId = idByCode.get(c.courseCode);
+          if (!courseId) continue; // skip unknown codes
+
+          // Idempotent upsert on userId + courseId (first attempt).
+          const existing = await tx.userCourse.findFirst({
+            where: { userId: user.id, courseId },
+          });
+
+          if (existing) {
+            await tx.userCourse.update({
+              where: { id: existing.id },
+              data: {
+                status: "COMPLETED",
+                grade: c.grade ?? null,
+                plannedYear: c.plannedYear,
+                plannedSemester: c.plannedSemester,
+              },
+            });
+          } else {
+            await tx.userCourse.create({
+              data: {
+                userId: user.id,
+                courseId,
+                status: "COMPLETED",
+                grade: c.grade ?? null,
+                plannedYear: c.plannedYear,
+                plannedSemester: c.plannedSemester,
+                attemptNumber: 1,
+              },
+            });
+          }
+          count += 1;
+        }
+        return count;
+      });
+
+      return { savedCount };
+    }),
 });

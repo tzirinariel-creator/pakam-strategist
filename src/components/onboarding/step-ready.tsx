@@ -10,17 +10,20 @@ import { useRouter } from "@/i18n/navigation";
 import { DISCIPLINE_CONFIG, FOCUS_DISCIPLINE_IDS, SEMESTER_CONFIG, YEAR_CONFIG } from "@/lib/constants";
 import type { OnboardingData } from "./onboarding-wizard";
 import type { PlannedSemester } from "./semester-planner/index";
+import type { CompletedCourse } from "./step-history";
 import type { CourseWithSchedule } from "@/lib/plan-generator";
 import type { SessionGroupSelections } from "./semester-planner/live-timetable";
 
 interface StepReadyProps {
   data: OnboardingData;
   plannedSemesters: PlannedSemester[] | null;
+  /** Past academic record captured in the history step. */
+  completedCourses?: CompletedCourse[];
   allCourses: CourseWithSchedule[];
   sessionGroupSelections?: SessionGroupSelections;
 }
 
-export function StepReady({ data, plannedSemesters, allCourses, sessionGroupSelections }: StepReadyProps) {
+export function StepReady({ data, plannedSemesters, completedCourses, allCourses, sessionGroupSelections }: StepReadyProps) {
   const t = useTranslations("onboarding");
   const locale = useLocale();
   const isHe = locale === "he";
@@ -32,20 +35,28 @@ export function StepReady({ data, plannedSemesters, allCourses, sessionGroupSele
 
   const updateProfile = api.user.updateProfile.useMutation();
   const savePlanMutation = api.plan.savePlan.useMutation();
+  const saveCompletedMutation = api.plan.saveCompletedCourses.useMutation();
   const utils = api.useUtils();
 
   // Build the flat course list from planned semesters
   const courseMap = new Map(allCourses.map((c) => [c.id, c]));
+  // Codes already captured as completed in the history step — these are saved
+  // separately as COMPLETED, so exclude them from the planned payload to avoid
+  // a duplicate UserCourse for the same course.
+  const completedCodes = new Set((completedCourses ?? []).map((c) => c.courseCode));
   const flattenedCourses = (plannedSemesters ?? []).flatMap((sem) =>
-    sem.courseIds.map((courseId) => {
+    sem.courseIds.flatMap((courseId) => {
       const courseCode = courseMap.get(courseId)?.code;
+      if (courseCode && completedCodes.has(courseCode)) return [];
       const groups = courseCode ? sessionGroupSelections?.[courseCode] : undefined;
-      return {
-        courseId,
-        plannedYear: sem.year,
-        plannedSemester: sem.semester as "FALL" | "SPRING",
-        ...(groups && Object.keys(groups).length > 0 ? { selectedGroups: groups } : {}),
-      };
+      return [
+        {
+          courseId,
+          plannedYear: sem.year,
+          plannedSemester: sem.semester as "FALL" | "SPRING",
+          ...(groups && Object.keys(groups).length > 0 ? { selectedGroups: groups } : {}),
+        },
+      ];
     })
   );
   const totalCourseCount = flattenedCourses.length;
@@ -81,7 +92,9 @@ export function StepReady({ data, plannedSemesters, allCourses, sessionGroupSele
         15000,
       );
 
-      // 2. Bulk save all courses in a single request — 20s timeout
+      // 2. Bulk save all planned courses in a single request — 20s timeout.
+      //    NOTE: savePlan replaces all UserCourses, so it MUST run before the
+      //    completed-history save below (which upserts COMPLETED courses on top).
       await withTimeout(
         savePlanMutation.mutateAsync({
           courses: flattenedCourses,
@@ -89,9 +102,25 @@ export function StepReady({ data, plannedSemesters, allCourses, sessionGroupSele
         20000,
       );
 
+      // 2b. Save the past academic record as COMPLETED courses (with grades).
+      //     Runs after savePlan so it isn't wiped by savePlan's delete-replace.
+      const completedPayload = (completedCourses ?? []).map((c) => ({
+        courseCode: c.courseCode,
+        plannedYear: c.plannedYear,
+        plannedSemester: c.plannedSemester,
+        grade: c.grade,
+      }));
+      if (completedPayload.length > 0) {
+        await withTimeout(
+          saveCompletedMutation.mutateAsync({ courses: completedPayload }),
+          20000,
+        );
+      }
+
       // 3. Invalidate caches (fire-and-forget, don't block on refetch)
       utils.plan.getUserPlan.invalidate();
       utils.plan.getCredits.invalidate();
+      utils.plan.getGraduationScore.invalidate();
       utils.user.getProfile.invalidate();
       // Try to refetch, but don't block on it — 5s timeout
       try {
