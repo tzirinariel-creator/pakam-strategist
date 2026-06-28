@@ -357,7 +357,7 @@ export const planRouter = createTRPCRouter({
         }
 
         return 0;
-      });
+      }, { timeout: 15000, maxWait: 8000 });
 
       return { savedCount };
     }),
@@ -404,44 +404,45 @@ export const planRouter = createTRPCRouter({
       });
       const idByCode = new Map(courses.map((c) => [c.code, c.id]));
 
-      const savedCount = await ctx.db.$transaction(async (tx) => {
-        let count = 0;
-        for (const c of input.courses) {
-          const courseId = idByCode.get(c.courseCode);
-          if (!courseId) continue; // skip unknown codes
+      // NO wrapping interactive transaction: each write is an idempotent upsert,
+      // so atomicity isn't needed — and a per-course findFirst+write loop inside a
+      // single 5s interactive transaction over the Supabase pooler TIMES OUT for a
+      // mid-degree student with many completed courses (this was the real
+      // "השמירה נכשלה" / save-failed bug). Same class as the seed-demo timeout.
+      let savedCount = 0;
+      for (const c of input.courses) {
+        const courseId = idByCode.get(c.courseCode);
+        if (!courseId) continue; // skip unknown codes
 
-          // Idempotent upsert on userId + courseId (first attempt).
-          const existing = await tx.userCourse.findFirst({
-            where: { userId: user.id, courseId },
+        const existing = await ctx.db.userCourse.findFirst({
+          where: { userId: user.id, courseId },
+        });
+
+        if (existing) {
+          await ctx.db.userCourse.update({
+            where: { id: existing.id },
+            data: {
+              status: "COMPLETED",
+              grade: c.grade ?? null,
+              plannedYear: c.plannedYear,
+              plannedSemester: c.plannedSemester,
+            },
           });
-
-          if (existing) {
-            await tx.userCourse.update({
-              where: { id: existing.id },
-              data: {
-                status: "COMPLETED",
-                grade: c.grade ?? null,
-                plannedYear: c.plannedYear,
-                plannedSemester: c.plannedSemester,
-              },
-            });
-          } else {
-            await tx.userCourse.create({
-              data: {
-                userId: user.id,
-                courseId,
-                status: "COMPLETED",
-                grade: c.grade ?? null,
-                plannedYear: c.plannedYear,
-                plannedSemester: c.plannedSemester,
-                attemptNumber: 1,
-              },
-            });
-          }
-          count += 1;
+        } else {
+          await ctx.db.userCourse.create({
+            data: {
+              userId: user.id,
+              courseId,
+              status: "COMPLETED",
+              grade: c.grade ?? null,
+              plannedYear: c.plannedYear,
+              plannedSemester: c.plannedSemester,
+              attemptNumber: 1,
+            },
+          });
         }
-        return count;
-      });
+        savedCount += 1;
+      }
 
       return { savedCount };
     }),
