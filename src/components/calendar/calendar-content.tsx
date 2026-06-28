@@ -121,8 +121,13 @@ export function CalendarContent() {
   // Google Calendar sync
   const googleStatus = api.schedule.getGoogleStatus.useQuery();
   const syncToGoogle = api.schedule.syncToGoogle.useMutation({
-    onSuccess: () => toast.success(t("syncToGoogle")),
-    onError: () => toast.error(t("syncToGoogle")),
+    onSuccess: (data) =>
+      toast.success(
+        data.synced > 0
+          ? `${t("syncSuccess")} (${data.synced})`
+          : t("syncSuccess"),
+      ),
+    onError: () => toast.error(t("syncFailed")),
   });
 
   const isLoading = planLoading;

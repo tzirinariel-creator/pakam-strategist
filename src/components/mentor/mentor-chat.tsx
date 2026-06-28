@@ -38,6 +38,7 @@ interface Message {
 
 export function MentorChat() {
   const t = useTranslations("mentor");
+  const tCommon = useTranslations("common");
   const locale = useLocale();
   const isRTL = locale === "he";
 
@@ -280,6 +281,44 @@ export function MentorChat() {
     return (
       <div className="flex h-full items-center justify-center">
         <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+      </div>
+    );
+  }
+
+  // -------------------------------------------------------------------
+  // Error state — the key-check query failed. Never leave a blank screen:
+  // offer a retry and a path to Settings instead of a dead-end.
+  // -------------------------------------------------------------------
+
+  if (apiKeyQuery.isError) {
+    return (
+      <div className="flex h-full items-center justify-center p-8">
+        <div className="mx-auto max-w-md text-center">
+          <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-muted">
+            <Bot className="h-8 w-8 text-muted-foreground" />
+          </div>
+          <h2 className="mb-2 text-xl font-bold">{t("title")}</h2>
+          <p className="mb-6 text-sm text-muted-foreground">
+            {t("errorSending")}
+          </p>
+          <div className="flex items-center justify-center gap-2">
+            <Button onClick={() => apiKeyQuery.refetch()}>
+              <Loader2
+                className={cn(
+                  "me-2 h-4 w-4",
+                  apiKeyQuery.isFetching && "animate-spin"
+                )}
+              />
+              {tCommon("retry")}
+            </Button>
+            <Link href="/settings">
+              <Button variant="outline">
+                <Settings className="me-2 h-4 w-4" />
+                {t("goToSettings")}
+              </Button>
+            </Link>
+          </div>
+        </div>
       </div>
     );
   }

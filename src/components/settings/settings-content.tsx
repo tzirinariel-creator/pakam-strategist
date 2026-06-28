@@ -32,6 +32,7 @@ import { MiluimDayCombatInputs } from "@/components/miluim/miluim-day-combat-inp
 import { api } from "@/lib/trpc/react";
 import { useUIStore } from "@/stores/ui-store";
 import { useRouter, usePathname } from "@/i18n/navigation";
+import { useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
@@ -122,6 +123,8 @@ function ProfileSection() {
     },
   });
 
+  const [displayName, setDisplayName] = useState<string>("");
+  const [amirantScore, setAmirantScore] = useState<string>("");
   const [focusArea, setFocusArea] = useState<string>("");
   const [currentYear, setCurrentYear] = useState<string>("");
   const [currentSemester, setCurrentSemester] = useState<string>("");
@@ -130,6 +133,12 @@ function ProfileSection() {
   // Populate from query data
   useEffect(() => {
     if (profileQuery.data) {
+      setDisplayName(profileQuery.data.displayName ?? "");
+      setAmirantScore(
+        profileQuery.data.amiramScore != null
+          ? String(profileQuery.data.amiramScore)
+          : ""
+      );
       setFocusArea(profileQuery.data.focusArea ?? "UNDECIDED");
       setCurrentYear(String(profileQuery.data.currentYear ?? ""));
       setCurrentSemester(profileQuery.data.currentSemester ?? "");
@@ -138,6 +147,23 @@ function ProfileSection() {
 
   const handleSaveProfile = () => {
     const input: Record<string, unknown> = {};
+    // Display name — Hebrew greeting name. Only send a non-empty value
+    // (the backend schema requires min length 1).
+    const trimmedName = displayName.trim();
+    if (trimmedName) {
+      input.displayName = trimmedName;
+    }
+    // AMIRANT/English-placement score — clamp into the 50–150 zod range, or
+    // clear it (null) when the field is emptied.
+    const trimmedScore = amirantScore.trim();
+    if (trimmedScore === "") {
+      input.amiramScore = null;
+    } else {
+      const parsed = Number(trimmedScore);
+      if (Number.isFinite(parsed)) {
+        input.amiramScore = Math.min(150, Math.max(50, Math.round(parsed)));
+      }
+    }
     if (focusArea && focusArea !== "UNDECIDED") {
       input.focusArea = focusArea;
     } else {
@@ -208,6 +234,43 @@ function ProfileSection() {
             value={profileQuery.data?.email ?? ""}
             disabled
             className="bg-muted/50 text-foreground/60"
+          />
+        </div>
+
+        {/* Display name — the Hebrew name used in the greeting */}
+        <div className="flex flex-col gap-1.5">
+          <label htmlFor="settings-display-name" className="text-sm font-medium text-foreground/80">
+            {t("displayName")}
+          </label>
+          <p className="text-xs text-foreground/40">
+            {t("displayNameHint")}
+          </p>
+          <Input
+            id="settings-display-name"
+            value={displayName}
+            onChange={(e) => setDisplayName(e.target.value)}
+            maxLength={100}
+            placeholder={t("displayNamePlaceholder")}
+          />
+        </div>
+
+        {/* AMIRANT / English-placement score */}
+        <div className="flex flex-col gap-1.5">
+          <label htmlFor="settings-amirant" className="text-sm font-medium text-foreground/80">
+            {t("amirantScore")}
+          </label>
+          <p className="text-xs text-foreground/40">
+            {t("amirantScoreHint")}
+          </p>
+          <Input
+            id="settings-amirant"
+            type="number"
+            inputMode="numeric"
+            min={50}
+            max={150}
+            value={amirantScore}
+            onChange={(e) => setAmirantScore(e.target.value)}
+            placeholder={t("amirantScorePlaceholder")}
           />
         </div>
 
@@ -439,6 +502,42 @@ function GoogleCalendarSection() {
       setSyncSemester(profileQuery.data.currentSemester ?? "FALL");
     }
   }, [profileQuery.data]);
+
+  // OAuth callback feedback. The Google callback redirects back to
+  // /settings?google=connected|denied|error(&reason=...). Surface a toast per
+  // outcome, refresh the connection status on success, then strip the params
+  // from the URL so a refresh doesn't re-fire the toast.
+  const searchParams = useSearchParams();
+  useEffect(() => {
+    const result = searchParams.get("google");
+    if (!result) return;
+
+    if (result === "connected") {
+      toast.success(t("googleOauthConnected"));
+      void googleStatus.refetch();
+    } else if (result === "denied") {
+      toast.error(t("googleOauthDenied"));
+    } else if (result === "error") {
+      const reason = searchParams.get("reason");
+      const detail =
+        reason === "no_session"
+          ? t("googleOauthErrorNoSession")
+          : reason === "mismatch"
+            ? t("googleOauthErrorMismatch")
+            : t("googleOauthError");
+      toast.error(detail);
+    }
+
+    // Clean the OAuth params from the URL without a navigation/refetch.
+    if (typeof window !== "undefined") {
+      const url = new URL(window.location.href);
+      url.searchParams.delete("google");
+      url.searchParams.delete("reason");
+      window.history.replaceState(null, "", url.toString());
+    }
+    // Run once per distinct query string; t/googleStatus are stable refs.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchParams]);
 
   const isConnected = googleStatus.data?.connected ?? false;
 
