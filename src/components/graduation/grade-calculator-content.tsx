@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback, useRef, useMemo } from "react";
+import { useState, useCallback, useMemo, useEffect } from "react";
 import { useTranslations } from "next-intl";
 import { useLocale } from "next-intl";
 import { Link } from "@/i18n/navigation";
@@ -50,18 +50,20 @@ function GradeInput({
   initialStatus,
   onSave,
   placeholder,
+  savedSignal,
 }: {
   userCourseId: string;
   initialGrade: number | null;
   initialStatus: CourseStatus;
   onSave: (id: string, grade: number | null, status: CourseStatus) => void;
   placeholder: string;
+  /** Bumped by the parent when THIS course's save mutation succeeds. */
+  savedSignal: number;
 }) {
   const [value, setValue] = useState<string>(
     initialGrade !== null ? String(initialGrade) : ""
   );
   const [saved, setSaved] = useState(false);
-  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const handleChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -83,33 +85,40 @@ function GradeInput({
     []
   );
 
+  // Save immediately on blur — blur already means the user finished editing,
+  // so there's no debounce timer that could be lost on unmount (e.g. navigating
+  // away or collapsing the semester). The save fires synchronously here.
   const handleBlur = useCallback(() => {
-    if (timerRef.current) clearTimeout(timerRef.current);
+    const num = parseInt(value, 10);
 
-    timerRef.current = setTimeout(() => {
-      const num = parseInt(value, 10);
-
-      if (value === "" || isNaN(num)) {
-        // Cleared — remove the saved grade (revert a completed course to in-progress).
-        if (initialGrade !== null) {
-          const revertedStatus: CourseStatus =
-            initialStatus === "COMPLETED" ? "IN_PROGRESS" : initialStatus;
-          onSave(userCourseId, null, revertedStatus);
-        }
-        return;
+    if (value === "" || isNaN(num)) {
+      // Cleared — remove the saved grade (revert a completed course to in-progress).
+      if (initialGrade !== null) {
+        const revertedStatus: CourseStatus =
+          initialStatus === "COMPLETED" ? "IN_PROGRESS" : initialStatus;
+        onSave(userCourseId, null, revertedStatus);
       }
+      return;
+    }
 
-      const grade = Math.max(0, Math.min(100, num));
-      const newStatus: CourseStatus =
-        initialStatus === "PLANNED" || initialStatus === "IN_PROGRESS"
-          ? "COMPLETED"
-          : initialStatus;
+    const grade = Math.max(0, Math.min(100, num));
+    const newStatus: CourseStatus =
+      initialStatus === "PLANNED" || initialStatus === "IN_PROGRESS"
+        ? "COMPLETED"
+        : initialStatus;
 
-      onSave(userCourseId, grade, newStatus);
-      setSaved(true);
-      setTimeout(() => setSaved(false), 1500);
-    }, 300);
+    onSave(userCourseId, grade, newStatus);
   }, [value, userCourseId, initialStatus, initialGrade, onSave]);
+
+  // Show the "saved" checkmark only when the parent confirms the mutation
+  // actually succeeded (savedSignal bump), never on the fire-and-forget call —
+  // a failed/aborted save no longer shows a false "saved".
+  useEffect(() => {
+    if (savedSignal === 0) return;
+    setSaved(true);
+    const id = setTimeout(() => setSaved(false), 1500);
+    return () => clearTimeout(id);
+  }, [savedSignal]);
 
   return (
     <div className="relative">
@@ -248,11 +257,14 @@ function SemesterGpaDisplay({
 function SemesterSection({
   group,
   onSaveGrade,
+  savedSignals,
   t,
   locale,
 }: {
   group: SemesterGroup;
   onSaveGrade: (id: string, grade: number | null, status: CourseStatus) => void;
+  /** Per-course success counters, bumped on a confirmed save. */
+  savedSignals: Record<string, number>;
   t: ReturnType<typeof useTranslations<"grades">>;
   locale: string;
 }) {
@@ -354,6 +366,7 @@ function SemesterSection({
                           initialStatus={uc.status}
                           onSave={onSaveGrade}
                           placeholder={t("enterGrade")}
+                          savedSignal={savedSignals[uc.id] ?? 0}
                         />
                       </div>
                     </td>
@@ -779,19 +792,33 @@ export function GradeCalculatorContent() {
   const tRecord = useTranslations("record");
   const locale = useLocale();
 
-  // Fetch all plan data
-  const planQuery = api.plan.getUserPlan.useQuery(undefined, { retry: false });
+  // Fetch all plan data. refetchOnMount: "always" so navigating to this screen
+  // always pulls a fresh snapshot — a grade written on /record (or here) is
+  // never masked by a stale per-page QueryClient cache (staleTime is 30s).
+  const planQuery = api.plan.getUserPlan.useQuery(undefined, {
+    retry: false,
+    refetchOnMount: "always",
+  });
   const gradeQuery = api.plan.getGraduationScore.useQuery(undefined, {
     retry: false,
   });
 
+  // Per-course "saved" counters — bumped only on a confirmed mutation success,
+  // so the GradeInput checkmark reflects a real save (never a fire-and-forget
+  // call that later failed).
+  const [savedSignals, setSavedSignals] = useState<Record<string, number>>({});
+
   // Mutation for updating a course grade
   const utils = api.useUtils();
   const updateCourseMutation = api.plan.updateCourse.useMutation({
-    onSuccess: () => {
+    onSuccess: (_data, variables) => {
       // Invalidate both plan and graduation score queries
       void utils.plan.getUserPlan.invalidate();
       void utils.plan.getGraduationScore.invalidate();
+      setSavedSignals((prev) => ({
+        ...prev,
+        [variables.userCourseId]: (prev[variables.userCourseId] ?? 0) + 1,
+      }));
       toast.success(t("gradeSaved"));
     },
     onError: () => {
@@ -912,6 +939,7 @@ export function GradeCalculatorContent() {
               key={group.key}
               group={group}
               onSaveGrade={handleSaveGrade}
+              savedSignals={savedSignals}
               t={t}
               locale={locale}
             />

@@ -12,12 +12,55 @@ import {
 } from "lucide-react";
 import { useState } from "react";
 import { Link } from "@/i18n/navigation";
-import { DISCIPLINE_CONFIG } from "@/lib/constants";
+import { DISCIPLINE_CONFIG, ENGLISH_CONFIG } from "@/lib/constants";
 import type { RegulationResult } from "@/types/regulation";
 
 // Detail keys whose values are discipline enum IDs (e.g. "ECONOMICS").
 // These must be rendered through DISCIPLINE_CONFIG, never as the raw enum.
 const DISCIPLINE_DETAIL_KEYS = new Set(["discipline", "focusArea"]);
+
+// Internal sort/rank keys the rules emit purely to compute ordering
+// (e.g. deadlineRank, currentRank). They are NOT user-facing information, so
+// they are dropped from the details UI entirely.
+const HIDDEN_DETAIL_KEYS = new Set(["deadlineRank", "currentRank"]);
+
+// Detail keys whose values are English-level enum IDs (e.g. "ADVANCED_B").
+// Rendered through ENGLISH_CONFIG.LEVELS, never as the raw enum.
+const ENGLISH_LEVEL_DETAIL_KEYS = new Set(["level"]);
+
+// Keys whose value is a genuine number (a score/count) and should stay LTR.
+// Hebrew labels and localized text values inherit the page's RTL direction.
+const NUMERIC_DETAIL_KEYS = new Set([
+  "amirantScore",
+  "score",
+  "current",
+  "required",
+  "deficit",
+  "total",
+  "completed",
+  "incomplete",
+  "currentCourses",
+  "minCourses",
+  "currentCredits",
+  "minCredits",
+  "levelCourses",
+  "mandatoryCreditsCurrent",
+  "mandatoryCreditsRequired",
+  "courseAverage",
+  "majorAverage",
+  "used",
+  "cap",
+  "remaining",
+  "percent",
+  "totalHours",
+  "binaryHours",
+  "binaryUsed",
+  "failedCount",
+  "totalAttempted",
+  "failureRate",
+  "maxFailureRate",
+  "maxAttempts",
+]);
 
 interface RuleCardProps {
   rule: RegulationResult;
@@ -139,22 +182,49 @@ export function RuleCard({ rule }: RuleCardProps) {
               {Object.entries(rule.details).map(([key, value]) => {
                 // Skip complex nested objects from display
                 if (typeof value === "object" && value !== null) return null;
-                // Discipline/focus-area values are enum IDs (e.g. "ECONOMICS").
-                // Render their localized name, never the raw English enum.
+                // Drop internal sort/rank keys entirely — they're ordering
+                // helpers, never user-facing information.
+                if (HIDDEN_DETAIL_KEYS.has(key) || key.endsWith("Rank")) return null;
+
+                // ── Localize the value (no English gibberish) ──────────────
                 let displayValue = String(value);
-                if (DISCIPLINE_DETAIL_KEYS.has(key) && value != null) {
+                let isNumeric = NUMERIC_DETAIL_KEYS.has(key) && typeof value === "number";
+
+                if (typeof value === "boolean") {
+                  // Booleans → כן/לא (or Yes/No), never true/false.
+                  displayValue = value ? (isHe ? "כן" : "Yes") : (isHe ? "לא" : "No");
+                  isNumeric = false;
+                } else if (DISCIPLINE_DETAIL_KEYS.has(key) && value != null) {
+                  // Discipline/focus-area values are enum IDs (e.g. "ECONOMICS").
                   const cfg = DISCIPLINE_CONFIG[String(value)];
                   if (cfg) displayValue = isHe ? cfg.nameHe : cfg.nameEn;
+                  isNumeric = false;
+                } else if (ENGLISH_LEVEL_DETAIL_KEYS.has(key) && value != null) {
+                  // English-level enum (e.g. "ADVANCED_B") → the localized level name.
+                  const row = ENGLISH_CONFIG.LEVELS.find((l) => l.level === value);
+                  if (row) displayValue = isHe ? row.nameHe : row.nameEn;
+                  isNumeric = false;
                 }
+
+                // ── Localize the LABEL via next-intl v4's t.has() guard ────
+                // (No unsupported `defaultValue` option — a missing key would
+                // otherwise print the raw "detailLabels.foo" path.)
+                const labelKey = `detailLabels.${key}` as Parameters<typeof t>[0];
+                // Unknown key with no human label → omit the chip rather than
+                // surface an internal field name.
+                if (!t.has(labelKey)) return null;
+                const label = t(labelKey);
+
                 return (
                   <div
                     key={key}
                     className="flex items-center gap-1 rounded-md border border-border/20 bg-background/50 px-2 py-1 text-xs"
                   >
-                    <span className="text-muted-foreground">
-                      {t(`detailLabels.${key}` as Parameters<typeof t>[0], { defaultValue: key })}:
-                    </span>
-                    <span className="font-data font-semibold text-foreground">
+                    <span className="text-muted-foreground">{label}:</span>
+                    <span
+                      className="font-data font-semibold text-foreground"
+                      {...(isNumeric ? { dir: "ltr" as const } : {})}
+                    >
                       {displayValue}
                     </span>
                   </div>

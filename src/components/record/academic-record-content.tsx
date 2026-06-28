@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState, useCallback, useRef } from "react";
+import { useMemo, useState, useCallback, useRef, useEffect } from "react";
 import { useTranslations, useLocale } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import {
@@ -79,6 +79,7 @@ function GradeInput({
   onSave,
   placeholder,
   ariaLabel,
+  savedSignal,
 }: {
   userCourseId: string;
   initialGrade: number | null;
@@ -86,12 +87,13 @@ function GradeInput({
   onSave: (id: string, grade: number | null, status: CourseStatus) => void;
   placeholder: string;
   ariaLabel: string;
+  /** Bumped by the parent when THIS course's save mutation succeeds. */
+  savedSignal: number;
 }) {
   const [value, setValue] = useState<string>(
     initialGrade !== null ? String(initialGrade) : ""
   );
   const [saved, setSaved] = useState(false);
-  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const handleChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const raw = e.target.value;
@@ -104,25 +106,30 @@ function GradeInput({
     setValue(String(num));
   }, []);
 
+  // Save immediately on blur — blur already means the user finished editing,
+  // so there's no debounce timer that could be lost on unmount (e.g. navigating
+  // away or collapsing a section). The save fires synchronously here.
   const handleBlur = useCallback(() => {
-    if (timerRef.current) clearTimeout(timerRef.current);
-    timerRef.current = setTimeout(() => {
-      const num = parseInt(value, 10);
-      if (value === "" || isNaN(num)) {
-        // Cleared — drop the grade but keep the course COMPLETED in the record.
-        if (initialGrade !== null) {
-          onSave(userCourseId, null, initialStatus);
-          setSaved(true);
-          setTimeout(() => setSaved(false), 1500);
-        }
-        return;
+    const num = parseInt(value, 10);
+    if (value === "" || isNaN(num)) {
+      // Cleared — drop the grade but keep the course COMPLETED in the record.
+      if (initialGrade !== null) {
+        onSave(userCourseId, null, initialStatus);
       }
-      const grade = Math.max(0, Math.min(100, num));
-      onSave(userCourseId, grade, "COMPLETED");
-      setSaved(true);
-      setTimeout(() => setSaved(false), 1500);
-    }, 300);
+      return;
+    }
+    const grade = Math.max(0, Math.min(100, num));
+    onSave(userCourseId, grade, "COMPLETED");
   }, [value, userCourseId, initialStatus, initialGrade, onSave]);
+
+  // Show the "saved" checkmark only when the parent confirms the mutation
+  // actually succeeded (savedSignal bump), never on the fire-and-forget call.
+  useEffect(() => {
+    if (savedSignal === 0) return;
+    setSaved(true);
+    const id = setTimeout(() => setSaved(false), 1500);
+    return () => clearTimeout(id);
+  }, [savedSignal]);
 
   return (
     <div className="relative">
@@ -257,6 +264,7 @@ function CourseRow({
   isHe,
   onSaveGrade,
   onRemove,
+  savedSignal,
   t,
 }: {
   uc: UserCourseWithCourse;
@@ -265,6 +273,8 @@ function CourseRow({
   isHe: boolean;
   onSaveGrade: (id: string, grade: number | null, status: CourseStatus) => void;
   onRemove: (id: string) => void;
+  /** Per-course success counter, bumped on a confirmed save. */
+  savedSignal: number;
   t: ReturnType<typeof useTranslations<"record">>;
 }) {
   const { course } = uc;
@@ -327,6 +337,7 @@ function CourseRow({
             onSave={onSaveGrade}
             placeholder={t("gradePlaceholder")}
             ariaLabel={`${t("gradeAria")} — ${courseName}`}
+            savedSignal={savedSignal}
           />
         </div>
       </td>
@@ -666,7 +677,13 @@ export function AcademicRecordContent() {
   }, []);
 
   const utils = api.useUtils();
-  const planQuery = api.plan.getUserPlan.useQuery(undefined, { retry: false });
+  // refetchOnMount: "always" so navigating to this screen always pulls a fresh
+  // snapshot — a grade written on /graduation is never masked by a stale
+  // per-page QueryClient cache (global staleTime is 30s).
+  const planQuery = api.plan.getUserPlan.useQuery(undefined, {
+    retry: false,
+    refetchOnMount: "always",
+  });
   const profileQuery = api.user.getProfile.useQuery(undefined, { retry: false });
   // Gate the credits query behind a successful plan load. getCredits throws
   // NOT_FOUND when no User row exists yet (e.g. visiting /record before
@@ -689,8 +706,19 @@ export function AcademicRecordContent() {
     void utils.plan.getGraduationScore.invalidate();
   }, [utils]);
 
+  // Per-course "saved" counters — bumped only on a confirmed mutation success,
+  // so the GradeInput checkmark reflects a real save (never a fire-and-forget
+  // call that later failed).
+  const [savedSignals, setSavedSignals] = useState<Record<string, number>>({});
+
   const updateCourseMutation = api.plan.updateCourse.useMutation({
-    onSuccess: invalidateAll,
+    onSuccess: (_data, variables) => {
+      invalidateAll();
+      setSavedSignals((prev) => ({
+        ...prev,
+        [variables.userCourseId]: (prev[variables.userCourseId] ?? 0) + 1,
+      }));
+    },
     onError: () => toast.error(t("saveError")),
   });
   const removeCourseMutation = api.plan.removeCourse.useMutation({
@@ -906,6 +934,7 @@ export function AcademicRecordContent() {
                           isHe={isHe}
                           onSaveGrade={handleSaveGrade}
                           onRemove={handleRemove}
+                          savedSignal={savedSignals[uc.id] ?? 0}
                           t={t}
                         />
                       ))}

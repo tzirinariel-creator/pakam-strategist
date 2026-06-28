@@ -47,8 +47,18 @@ export function StepReady({ data, plannedSemesters, completedCourses, allCourses
   // separately as COMPLETED, so exclude them from the planned payload to avoid
   // a duplicate UserCourse for the same course.
   const completedCodes = new Set((completedCourses ?? []).map((c) => c.courseCode));
+  // A client-only "custom course" carries a fake courseId (e.g. `custom-<uuid>`)
+  // that is NOT a real catalog UUID, so it isn't in courseMap. savePlan validates
+  // every courseId with z.string().uuid() and rejects the WHOLE save if any is
+  // invalid — so we MUST drop non-catalog ids here. (Persisting custom courses is
+  // a deferred feature; we just toast the student that it wasn't saved.)
+  let droppedCustomCourse = false;
   const flattenedCourses = (plannedSemesters ?? []).flatMap((sem) =>
     sem.courseIds.flatMap((courseId) => {
+      if (!courseMap.has(courseId)) {
+        droppedCustomCourse = true;
+        return [];
+      }
       const courseCode = courseMap.get(courseId)?.code;
       if (courseCode && completedCodes.has(courseCode)) return [];
       const groups = courseCode ? sessionGroupSelections?.[courseCode] : undefined;
@@ -213,6 +223,17 @@ export function StepReady({ data, plannedSemesters, completedCourses, allCourses
     doSave();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  // Once the save succeeds, gently tell the student if a manually-added custom
+  // course was left out (it carries no real catalog id, so it can't be saved
+  // yet — and we filtered it out above so it never breaks the whole save).
+  const didToastCustom = useRef(false);
+  useEffect(() => {
+    if (hasSaved && droppedCustomCourse && !didToastCustom.current) {
+      didToastCustom.current = true;
+      toast(t("customCourseNotSaved"));
+    }
+  }, [hasSaved, droppedCustomCourse, t]);
 
   // Focus area display
   const focusDisplay = data.focusArea
