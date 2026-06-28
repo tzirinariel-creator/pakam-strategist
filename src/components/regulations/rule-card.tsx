@@ -5,7 +5,7 @@ import {
   CheckCircle2,
   XCircle,
   AlertTriangle,
-  Info,
+  Clock,
   ChevronDown,
   ChevronUp,
   Wrench,
@@ -57,11 +57,12 @@ export function RuleCard({ rule }: RuleCardProps) {
         statusLabel = t("warning");
         break;
       case "INFO":
-        StatusIcon = Info;
-        statusColor = "text-blue-400";
-        borderColor = "border-blue-400/20";
-        bgColor = "bg-blue-400/5";
-        statusLabel = t("info");
+        // Unmet INFO = a normal in-progress accumulation target, not a failure.
+        StatusIcon = Clock;
+        statusColor = "text-foreground/60";
+        borderColor = "border-foreground/15";
+        bgColor = "bg-foreground/5";
+        statusLabel = t("inProgressStatus");
         break;
     }
   }
@@ -169,8 +170,10 @@ export function RuleCard({ rule }: RuleCardProps) {
             </div>
           )}
 
-          {/* Fix in planner — only for failed rules */}
-          {!passed && (
+          {/* Fix in planner — only for real issues (ERROR violations or
+              WARNINGs). Unmet INFO targets are normal progress, not something
+              the student must "fix", so they get no wrench CTA. */}
+          {!passed && severity !== "INFO" && (
             <Link
               href="/planner"
               className="mt-3 flex w-fit items-center gap-1.5 rounded-md border border-foreground/20 bg-foreground/5 px-3 py-1.5 text-xs font-medium text-foreground/60 transition-colors hover:bg-foreground/10 hover:text-foreground/80"

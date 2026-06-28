@@ -135,7 +135,25 @@ export function runRegulationEngine(
     }
   }
 
-  // 5. Compliance score: percentage of rules that passed.
+  // 5. Compliance vs. progress — two distinct ideas, never conflated.
+  //
+  // Compliance = is the student VIOLATING any hard rule? A violation is a rule
+  // that FAILED with severity "ERROR". Not-yet-earned accumulation targets
+  // (INFO) are normal mid-degree progress, NOT violations. A fresh student with
+  // zero credits violates nothing, so they are fully compliant.
+  const violations = results.filter(
+    (r) => !r.passed && r.severity === "ERROR"
+  ).length;
+  const compliant = violations === 0;
+
+  // Progress = how far toward graduation across the non-ERROR (accumulation /
+  // progress) rules. A neutral "X of Y requirements met" figure, never pass/fail.
+  const progressRules = results.filter((r) => r.severity !== "ERROR");
+  const progressTotal = progressRules.length;
+  const progressMet = progressRules.filter((r) => r.passed).length;
+
+  // 6. Legacy compliance score: passed/total. Kept for backward-compat only —
+  // the UI no longer uses it as the headline figure (see RegulationSummary).
   const totalRules = results.length;
   const complianceScore =
     totalRules > 0 ? Math.round((passed / totalRules) * 100) : 0;
@@ -148,5 +166,9 @@ export function runRegulationEngine(
     info,
     results,
     complianceScore,
+    violations,
+    compliant,
+    progressMet,
+    progressTotal,
   };
 }

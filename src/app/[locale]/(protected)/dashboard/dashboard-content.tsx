@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef, useCallback } from "react";
-import { GraduationCap, BookOpen, Scale, Pencil, Shield, CheckCircle2, AlertCircle, Languages, Target, ArrowRight, ArrowLeft, Calendar, X, RefreshCw, Calculator } from "lucide-react";
+import { GraduationCap, BookOpen, Scale, Pencil, Shield, ShieldCheck, ShieldAlert, CheckCircle2, AlertCircle, Languages, Target, ArrowRight, ArrowLeft, Calendar, X, RefreshCw, Calculator } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 import { useSearchParams } from "next/navigation";
 import { Link } from "@/i18n/navigation";
@@ -319,24 +319,29 @@ function CreditOverviewWidget({
 // -----------------------------------------------------------------------
 
 function RegulationWidget({
-  complianceRate,
-  passedCount,
-  totalCount,
+  isCompliant,
+  violations,
+  progressMet,
+  progressTotal,
   t,
 }: {
-  complianceRate: number;
-  passedCount: number;
-  totalCount: number;
-  t: (key: string) => string;
+  isCompliant: boolean;
+  violations: number;
+  progressMet: number;
+  progressTotal: number;
+  t: (key: string, values?: Record<string, string | number>) => string;
 }) {
   const isHe = useLocale() === "he";
   const Arrow = isHe ? ArrowLeft : ArrowRight;
-  const color =
-    complianceRate >= 100
-      ? "text-emerald-400"
-      : complianceRate >= 70
-        ? "text-amber-400"
-        : "text-red-400";
+
+  // Headline = compliance (violations), NOT a passed/total ratio. A student
+  // with zero violations is green even if many progress targets remain.
+  const StatusIcon = isCompliant ? ShieldCheck : ShieldAlert;
+  const statusColor = isCompliant ? "text-emerald-400" : "text-red-400";
+
+  // Neutral progress, shown beneath the compliance status.
+  const progressPct =
+    progressTotal > 0 ? Math.round((progressMet / progressTotal) * 100) : 0;
 
   return (
     <Link
@@ -347,14 +352,20 @@ function RegulationWidget({
       <h3 className="font-display text-base font-bold text-foreground/90">
         {t("academicRegulations")}
       </h3>
-      <div className="flex items-baseline gap-1">
-        <span className={cn("font-display tabular text-3xl font-bold", color)}>
-          <CountUp value={passedCount} />
+
+      <div className="flex items-center gap-2">
+        <StatusIcon className={cn("h-7 w-7", statusColor)} />
+        <span className={cn("font-display text-lg font-bold", statusColor)}>
+          {isCompliant
+            ? t("compliantStatus")
+            : t("violationsStatus", { count: violations })}
         </span>
-        <span className="font-mono tabular text-lg text-foreground/40">/ {totalCount}</span>
       </div>
-      <span className="text-sm text-foreground/50">{t("rulesMet")}</span>
-      <Progress value={complianceRate} className="h-2 w-full" />
+
+      <span className="text-sm text-foreground/50">
+        {t("requirementsProgress", { met: progressMet, total: progressTotal })}
+      </span>
+      <Progress value={progressPct} className="h-2 w-full" />
       <span className="text-xs text-foreground/40 flex items-center gap-1">
         {t("viewAllRules")} <Arrow className="h-3 w-3" />
       </span>
@@ -916,9 +927,13 @@ export function DashboardContent() {
   };
 
   const regulationSummary = regulationQuery.data;
-  const passedRules = regulationSummary?.passed ?? 0;
-  const totalRules = regulationSummary?.totalRules ?? 0;
-  const complianceRate = regulationSummary?.complianceScore ?? 0;
+  // Compliance is violations-based: a student with zero ERROR-severity
+  // violations is fully compliant, regardless of how many INFO progress
+  // targets remain. Progress (non-ERROR requirements met) is shown separately.
+  const violations = regulationSummary?.violations ?? 0;
+  const isCompliant = regulationSummary?.compliant ?? true;
+  const progressMet = regulationSummary?.progressMet ?? 0;
+  const progressTotal = regulationSummary?.progressTotal ?? 0;
 
   // Has the student actually built anything yet? Used to distinguish a
   // brand-new "nothing done" state from a genuine "all requirements met" state.
@@ -1160,9 +1175,10 @@ export function DashboardContent() {
 
         {/* Regulation compliance */}
         <RegulationWidget
-          complianceRate={complianceRate}
-          passedCount={passedRules}
-          totalCount={totalRules}
+          isCompliant={isCompliant}
+          violations={violations}
+          progressMet={progressMet}
+          progressTotal={progressTotal}
           t={t}
         />
       </div>

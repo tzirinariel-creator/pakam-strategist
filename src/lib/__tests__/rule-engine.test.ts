@@ -144,7 +144,11 @@ describe("AMIRANT English wiring (Task 1)", () => {
     expect(deadline?.severity).toBe("WARNING");
   });
 
-  it("year-2, score 110, no exemption → deadline ERROR (past the window, blocking)", () => {
+  it("year-2, score 110, no exemption → deadline WARNING (past the window, non-blocking)", () => {
+    // Past-deadline fires off a SELF-REPORTED AMIRANT score + current year, so an
+    // already-exempt student who never updated their score would otherwise see a
+    // false red block. The rule still fires (passed:false) but is a non-blocking
+    // WARNING that prompts updating the score in Settings — never a hard ERROR.
     const summary = runRegulationEngine([], null, 0, undefined, {
       amirantScore: 110,
       academicYear: 2,
@@ -152,7 +156,7 @@ describe("AMIRANT English wiring (Task 1)", () => {
     });
     const deadline = summary.results.find((r) => r.ruleId === "PKM-022");
     expect(deadline?.passed).toBe(false);
-    expect(deadline?.severity).toBe("ERROR");
+    expect(deadline?.severity).toBe("WARNING");
   });
 
   it("score ≤84 → PRE_BASIC auto-rejection (ERROR)", () => {

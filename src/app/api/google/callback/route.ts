@@ -3,6 +3,7 @@ import { google } from "googleapis";
 import { createServerSupabase } from "@/lib/supabase/server";
 import { prisma } from "@/lib/db";
 import { encrypt } from "@/lib/crypto";
+import { isDemoEmail } from "@/server/trpc/demo";
 
 /**
  * Google Calendar OAuth — Step 2: Exchange authorization code for tokens.
@@ -58,6 +59,11 @@ export async function GET(request: NextRequest) {
   if (session.user.id !== userId) {
     console.error("[Google OAuth] User ID mismatch — possible CSRF attempt");
     return NextResponse.redirect(settingsUrl("google=error&reason=mismatch"));
+  }
+
+  // The demo account is read-only — never persist a Google token on the shared row.
+  if (isDemoEmail(session.user.email)) {
+    return NextResponse.redirect(settingsUrl("google=error"));
   }
 
   try {

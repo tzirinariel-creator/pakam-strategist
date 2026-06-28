@@ -19,7 +19,7 @@ Planning a PPE degree is genuinely hard: **150 credits over 3 years**, minimum-c
 ## Features
 
 - **Semester planner** — drag-and-drop courses across the 3-year, 6-semester grid; live credit totals, prerequisite and schedule-conflict detection, and workload scoring per semester.
-- **Course catalog** — 117 real PPE courses with prerequisites, weekly hours, exam dates, and historical grade statistics; filterable by discipline and type.
+- **Course catalog** — 117 real PPE courses with prerequisites, weekly hours, and exam dates; filterable and sortable by discipline and type.
 - **Regulation engine** — 25 rules from the PPE academic regulations (per-discipline credit minimums, seminar/referat requirements, year-transition GPA, max attempts, failure rate…) evaluated automatically with a compliance score and per-rule explanations.
 - **Grade calculator** — live final-grade projection with the official weighted formula, plus a reverse "what grade do I need?" mode given a target.
 - **AI mentor (BYOK)** — a Claude-powered academic advisor with full context of the student's plan, grades, and regulations. Bring-your-own-key: the key is validated, **encrypted at rest (AES-256-GCM)**, and never leaves the server.

@@ -3,6 +3,7 @@ import { google } from "googleapis";
 import { createServerSupabase } from "@/lib/supabase/server";
 import { prisma } from "@/lib/db";
 import { decrypt } from "@/lib/crypto";
+import { isDemoEmail, DEMO_READONLY_MESSAGE } from "@/server/trpc/demo";
 
 /**
  * Google Calendar OAuth — Disconnect: Revoke token and clear from DB.
@@ -15,6 +16,11 @@ export async function POST() {
 
   if (!session) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  // The demo account is read-only — never mutate the shared showcase row.
+  if (isDemoEmail(session.user.email)) {
+    return NextResponse.json({ error: DEMO_READONLY_MESSAGE }, { status: 403 });
   }
 
   const user = await prisma.user.findUnique({

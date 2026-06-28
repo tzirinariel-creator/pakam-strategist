@@ -706,14 +706,18 @@ export const ruleEnglishExemptionDeadline: RegulationRule = (ctx: RuleContext) =
     (year === deadlineYear && currentRank > (semRank[deadlineSem] ?? 1));
 
   if (pastDeadline) {
+    // Non-blocking: this fires off a SELF-REPORTED AMIRANT score + current year.
+    // A student who already reached exemption but never updated their score in
+    // Settings would otherwise see a false, alarming red block — so we WARN (not
+    // ERROR) and tell them to update the score if they're already exempt.
     return result(
       "PKM-022",
       "English Exemption Deadline",
       "מועד אחרון לפטור באנגלית",
       false,
-      "ERROR",
-      `Past the English exemption deadline (end of year 1, semester B) without exemption (AMIRANT ${ctx.amirantScore}, ${info.nameEn}). Studies are blocked until exemption is reached.`,
-      `חלף המועד האחרון לפטור באנגלית (סוף שנה א׳, סמסטר ב׳) ללא פטור (אמירנט ${ctx.amirantScore}, ${info.nameHe}). הלימודים חסומים עד להשגת פטור. (נכון לתשפ\"ו)`,
+      "WARNING",
+      `Past the English exemption deadline (end of year 1, semester B) without exemption (AMIRANT ${ctx.amirantScore}, ${info.nameEn}). Reach exemption to continue — if you're already exempt, update your AMIRANT score in Settings.`,
+      `חלף המועד האחרון לפטור באנגלית (סוף שנה א׳, סמסטר ב׳) ללא פטור (אמירנט ${ctx.amirantScore}, ${info.nameHe}). יש להגיע לפטור כדי להמשיך — אם כבר קיבלת פטור, עדכן/י את ציון האמירנט בהגדרות. (נכון לתשפ\"ו)`,
       { amirantScore: ctx.amirantScore, level: info.level, isExempt: false, pastDeadline: true }
     );
   }

@@ -56,6 +56,28 @@ export interface RegulationSummary {
   warnings: number;
   info: number;
   results: RegulationResult[];
+  /**
+   * Legacy passed/total ratio (0-100). Kept for backward-compat only.
+   * Do NOT use as a headline "compliance" figure — a mid-degree student with
+   * zero violations still has many not-yet-earned INFO progress targets, which
+   * drags this far below 100 and frames normal progress as failure.
+   * Use `compliant` / `violations` for compliance and `progressMet` /
+   * `progressTotal` for degree progress instead.
+   */
   complianceScore: number; // 0-100
+  /**
+   * Count of REAL rule violations: rules that FAILED with severity "ERROR".
+   * Accumulation / progress targets (INFO) are NOT violations.
+   */
+  violations: number;
+  /** True when the student is violating no hard rules (violations === 0). */
+  compliant: boolean;
+  /**
+   * Degree-progress numerator: non-ERROR rules currently satisfied. This is a
+   * neutral "how far toward graduation" figure, never a pass/fail score.
+   */
+  progressMet: number;
+  /** Degree-progress denominator: total non-ERROR (progress/accumulation) rules. */
+  progressTotal: number;
   courseCount?: number;     // number of courses the user has (added by router)
 }
