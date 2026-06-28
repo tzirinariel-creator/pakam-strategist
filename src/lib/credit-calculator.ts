@@ -24,6 +24,13 @@ import { ENGLISH_CONFIG } from "@/lib/constants";
 const PRACTICE_COURSE_MAX_CREDITS = 4;
 const PRACTICE_TOTAL_MAX = 8;
 
+// LAW_FOUNDATION basket cap (domain rules §9b):
+// The law division (חטיבה במשפטים) is 14 ש"ז = 1411-9107 (4, fixed) + 1411-9240
+// (2, fixed) + EXACTLY 8 ש"ז "pick any two" from the 10-course LAW_FOUNDATION
+// basket. Only the FIRST 8 completed/planned basket credits count toward the
+// `mandatory` bucket; any beyond 8 fall through to the `elective` bucket.
+const LAW_FOUNDATION_MANDATORY_CAP = 8;
+
 // -------------------------------------------------------------------
 // Helpers
 // -------------------------------------------------------------------
@@ -55,10 +62,25 @@ function emptyDisciplineCredits(program: ProgramDefinition): DisciplineCredits {
  *
  * Priority:
  *  1. disciplineOverride on the UserCourse (user explicitly reassigned it)
- *  2. The course's own primary discipline
+ *  2. A mandatory law-division course whose primary discipline is mis-tagged
+ *     non-LAW but which carries LAW in `canCountAs` defaults to LAW. This is the
+ *     case for 1411-9240 (משפט וכלכלה, 2 ש"ז): it sits in the 14-ש"ז law division
+ *     (domain rules §9b) but the catalog tags it ECONOMICS with canCountAs:['LAW'].
+ *     Without this, DISC-LAW under-counts (12 instead of 14) and ECONOMICS
+ *     over-counts. The user can still override either way.
+ *  3. The course's own primary discipline.
  */
 function resolvedDiscipline(uc: UserCourseWithCourse): Discipline {
-  return uc.disciplineOverride ?? uc.course.discipline;
+  if (uc.disciplineOverride) return uc.disciplineOverride;
+  const { course } = uc;
+  if (
+    course.isMandatory &&
+    course.discipline !== "LAW" &&
+    (course.canCountAs ?? []).includes("LAW" as Discipline)
+  ) {
+    return "LAW" as Discipline;
+  }
+  return course.discipline;
 }
 
 /**
@@ -142,6 +164,7 @@ export function calculateCredits(
   let elective = 0;
   let seminar = 0;
   let practice = 0;
+  let lawFoundationMandatory = 0; // running LAW_FOUNDATION credits applied to `mandatory` (capped at 8)
   let englishCredits = 0;
   let englishCourseCount = 0;
   let earnedCredits = 0;
@@ -168,23 +191,52 @@ export function calculateCredits(
     // Course-type buckets.
     switch (course.courseType) {
       case "MANDATORY":
-      case "LAW_FOUNDATION":
         mandatory += credits;
         break;
+      case "LAW_FOUNDATION": {
+        // Fix #1 (domain rules §9b): the law division counts EXACTLY 8 ש"ז from
+        // the LAW_FOUNDATION basket ("pick any two 4-credit courses"). Only the
+        // first 8 completed/planned basket credits land in `mandatory`; anything
+        // beyond 8 falls through to `elective` (it still earns credit, just not
+        // as a mandatory requirement). Without this cap the uncapped basket both
+        // under-counts (a student who takes <2) and over-counts (a student who
+        // takes >2) the mandatory bucket.
+        const room = Math.max(0, LAW_FOUNDATION_MANDATORY_CAP - lawFoundationMandatory);
+        const toMandatory = Math.min(credits, room);
+        mandatory += toMandatory;
+        lawFoundationMandatory += toMandatory;
+        const overflow = credits - toMandatory;
+        if (overflow > 0) elective += overflow;
+        break;
+      }
       case "ELECTIVE":
         elective += credits;
         break;
       case "SEMINAR":
-        // Seminars are their OWN 12-credit bucket (domain rules §1), NOT electives.
-        seminar += credits;
+        // Fix #2 (domain rules §9b): a MANDATORY seminar (the PPE seminar,
+        // 0651-3001) is part of the 103 mandatory credits, so it counts toward
+        // the `mandatory` bucket — NOT the 12-credit seminar bucket. Every other
+        // (non-mandatory) seminar stays in the seminar bucket, which targets 12.
+        if (course.isMandatory) {
+          mandatory += credits;
+        } else {
+          seminar += credits;
+        }
         break;
       case "PRACTICE":
         // practice total already accumulated above (with caps applied).
         break;
       case "ENGLISH":
-        // PKM-012 counts English CONTENT courses, but a COMPLETED English course
-        // graded below the humanities passing bar (70) was failed and must not
-        // count. Planned / in-progress / ungraded courses still count (on-track).
+        // Fix #3 (reconciliation): the 2 English CONTENT courses are part of the
+        // 150 and previously belonged to NO course-type bucket, so the buckets
+        // could never sum back to 150. Attribute their credits to `elective` so
+        // mandatory+seminar+elective(+practice) reconciles to the total.
+        elective += credits;
+        // PKM-012 separately counts English CONTENT courses for the grade-aware
+        // "2 courses" requirement. A COMPLETED English course graded below the
+        // humanities passing bar (70) was failed and must NOT count; planned /
+        // in-progress / ungraded courses still count (on-track). This count is
+        // kept INDEPENDENT of the elective bucketing above (don't break PKM-012).
         if (englishContentCourseCounts(uc)) {
           englishCredits += credits;
           englishCourseCount += 1;

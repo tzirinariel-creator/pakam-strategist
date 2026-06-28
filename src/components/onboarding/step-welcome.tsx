@@ -24,8 +24,9 @@ const PROGRAM_ICONS: Record<string, typeof GraduationCap> = {
   LAW: Scale,
 };
 
-// Programs that are fully ready (have courses in DB, onboarding flow, etc.)
-const ACTIVE_PROGRAMS = new Set(["PPE", "LAW"]);
+// Programs that are fully ready (have courses in DB, onboarding flow, etc.).
+// LAW is defined but not yet serviceable, so it stays locked ("coming soon").
+const ACTIVE_PROGRAMS = new Set(["PPE"]);
 
 export function StepWelcome({ onNext, selectedProgram, onProgramSelect }: StepWelcomeProps) {
   const t = useTranslations("onboarding");

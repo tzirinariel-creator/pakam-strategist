@@ -2,6 +2,7 @@ import { initTRPC, TRPCError } from "@trpc/server";
 import superjson from "superjson";
 import { prisma } from "@/lib/db";
 import { createServerSupabase } from "@/lib/supabase/server";
+import { isDemoEmail, DEMO_READONLY_MESSAGE } from "./demo";
 
 /**
  * tRPC Context — available to all procedures
@@ -50,8 +51,15 @@ export const publicProcedure = t.procedure;
  * Auth middleware — ensures user is logged in AND exists in Prisma DB.
  * Auto-creates the Prisma User record if Supabase session is valid
  * but the DB record doesn't exist yet (prevents race condition on first login).
+ *
+ * Also enforces the SHARED demo account as strictly READ-ONLY: any `mutation`
+ * (write) run while authenticated as the demo user is rejected, while every
+ * `query` (read) passes through so the showcase stays fully browsable. The
+ * demo identity is matched by email (see `isDemoEmail`), and the single check
+ * here covers every protected/admin mutation across all routers — no
+ * per-procedure duplication. Reads are never blocked.
  */
-const enforceAuth = t.middleware(async ({ ctx, next }) => {
+const enforceAuth = t.middleware(async ({ ctx, type, next }) => {
   if (!ctx.session?.user) {
     throw new TRPCError({ code: "UNAUTHORIZED", message: "Please log in to access this resource" });
   }
@@ -85,6 +93,16 @@ const enforceAuth = t.middleware(async ({ ctx, next }) => {
         email: ctx.session.user.email ?? "",
         displayName,
       },
+    });
+  }
+
+  // Demo account is read-only: reject every write (mutation) for the shared
+  // showcase login, but let reads (queries) through untouched. Match by the
+  // demo user's verified email — never a hardcoded id.
+  if (type === "mutation" && isDemoEmail(user.email)) {
+    throw new TRPCError({
+      code: "FORBIDDEN",
+      message: DEMO_READONLY_MESSAGE,
     });
   }
 

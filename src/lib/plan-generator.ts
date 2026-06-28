@@ -590,7 +590,12 @@ function validatePlan(
     const course = courseMap.get(pc.courseId);
     if (!course) continue;
 
-    // Check prerequisites
+    // Check prerequisites — ADVISORY ONLY for PPE.
+    // TAU PPE students are formally exempt from course prerequisites
+    // (Yedion note 19), so unmet/out-of-order prereqs are surfaced as soft
+    // ordering hints (severity "info"), NEVER as blocking errors. The econ
+    // chain (math/stats → micro → macro → econometrics) is a sensible default
+    // ordering, not a binding gate.
     for (const prereqCode of course.prerequisites) {
       const prereqId = codeToId.get(prereqCode);
       if (!prereqId) continue;
@@ -598,7 +603,7 @@ function validatePlan(
       if (!prereqPlacement) {
         warnings.push({
           type: "prerequisite",
-          severity: "warning",
+          severity: "info",
           courseId: pc.courseId,
           message: `Prerequisite "${prereqCode}" for "${course.nameEn ?? course.nameHe}" is not in the plan`,
           messageHe: `קדם "${prereqCode}" של "${course.nameHe}" לא בתוכנית`,
@@ -609,7 +614,7 @@ function validatePlan(
         if (pPlacement >= cPlacement) {
           warnings.push({
             type: "prerequisite",
-            severity: "error",
+            severity: "info",
             courseId: pc.courseId,
             message: `"${course.nameEn ?? course.nameHe}" requires "${prereqCode}" to be completed first`,
             messageHe: `"${course.nameHe}" דורש את "${prereqCode}" לפני`,
@@ -692,13 +697,14 @@ export function canTakeCourse(
   semester: "FALL" | "SPRING",
   planned: GeneratedPlanCourse[],
   allCourses: CourseWithSchedule[]
-): { ok: boolean; reason?: string; reasonHe?: string } {
+): { ok: boolean; reason?: string; reasonHe?: string; prereqAdvisory?: boolean } {
   const courseMap = new Map(allCourses.map((c) => [c.id, c]));
   const codeToId = new Map(allCourses.map((c) => [c.code, c.id]));
   const course = courseMap.get(courseId);
   if (!course) return { ok: false, reason: "Course not found" };
 
-  // Check semester offering
+  // Check semester offering — this remains a HARD gate (the course genuinely
+  // isn't taught this semester).
   const offered = course.semesterOffered.map(String);
   if (offered.length > 0 && !offered.includes(semester)) {
     return {
@@ -708,7 +714,10 @@ export function canTakeCourse(
     };
   }
 
-  // Check prerequisites completed before this placement
+  // Per-course prerequisites are ADVISORY for PPE, NEVER a hard gate:
+  // TAU PPE students are formally exempt from course prerequisites (Yedion note 19).
+  // We still surface the first unmet prereq as a soft ordering hint (ok stays true),
+  // so callers can show an advisory cue without blocking the course.
   const semIdx = (s: string) => (s === "FALL" ? 0 : 1);
   const targetOrder = year * 10 + semIdx(semester);
 
@@ -718,7 +727,8 @@ export function canTakeCourse(
     const prereqEntry = planned.find((pc) => pc.courseId === prereqId);
     if (!prereqEntry) {
       return {
-        ok: false,
+        ok: true,
+        prereqAdvisory: true,
         reason: `Prerequisite ${prereqCode} not in plan`,
         reasonHe: `קדם ${prereqCode} חסר מהתוכנית`,
       };
@@ -726,7 +736,8 @@ export function canTakeCourse(
     const prereqOrder = prereqEntry.plannedYear * 10 + semIdx(prereqEntry.plannedSemester);
     if (prereqOrder >= targetOrder) {
       return {
-        ok: false,
+        ok: true,
+        prereqAdvisory: true,
         reason: `Prerequisite ${prereqCode} must come first`,
         reasonHe: `קדם ${prereqCode} צריך להיות לפני`,
       };

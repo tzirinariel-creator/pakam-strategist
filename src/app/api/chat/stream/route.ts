@@ -22,6 +22,7 @@ import {
 } from "@/lib/ai/context-builder";
 import { getProgramById } from "@/lib/programs/registry";
 import { checkRateLimit } from "@/lib/rate-limit";
+import { isDemoEmail, DEMO_READONLY_MESSAGE } from "@/server/trpc/demo";
 
 // Input validation schema — prevents abuse & injection
 const streamInputSchema = z.object({
@@ -68,6 +69,17 @@ export async function POST(request: NextRequest) {
       return NextResponse.json(
         { error: "Unauthorized" },
         { status: 401 }
+      );
+    }
+
+    // Demo account is read-only. The chat stream is a write/abuse path — it
+    // persists chat sessions and would burn the shared Claude key — so reject
+    // the demo user here too (this is a Next route, not a tRPC mutation, so it
+    // needs its own guard). Matched by the verified session email.
+    if (isDemoEmail(authUser.email)) {
+      return NextResponse.json(
+        { error: DEMO_READONLY_MESSAGE },
+        { status: 403 }
       );
     }
 

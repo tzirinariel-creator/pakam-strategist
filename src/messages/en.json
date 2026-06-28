@@ -95,7 +95,7 @@
   },
   "regulations": {
     "title": "Academic Regulations",
-    "subtitle": "17 PPE program requirements — how many do you meet?",
+    "subtitle": "25 PPE program requirements — how many do you meet?",
     "passed": "Passed",
     "failed": "Failed",
     "warning": "Warning",
@@ -113,7 +113,7 @@
     "passedSection": "Requirements Met",
     "noRules": "No rules found to check — try refreshing the page",
     "noCourses": "No courses added yet",
-    "noCoursesDescription": "Once you add courses, we'll automatically check that your plan meets all 17 requirements.",
+    "noCoursesDescription": "Once you add courses, we'll automatically check that your plan meets all 25 requirements.",
     "goToPlanner": "Go to Planner",
     "fixInPlanner": "Fix in Planner",
     "severityError": "Required",
@@ -531,7 +531,7 @@
     "featurePlan": "Plan 3 Years",
     "featurePlanDesc": "All courses organized by semester — see where you're headed",
     "featureRegulations": "Regulation Check",
-    "featureRegulationsDesc": "17 regulation rules checked automatically in the background",
+    "featureRegulationsDesc": "25 regulation rules checked automatically in the background",
     "featureMentor": "AI Mentor",
     "featureMentorDesc": "Questions about your degree? The mentor knows the regulations",
     "featurePersonalized": "Fits Your Year",
@@ -742,7 +742,7 @@
     "noCoursesEmpty": "No courses",
     "featureMentorByok": "Requires your own Claude API key",
     "historyTitle": "Your history",
-    "historyDesc": "We've checked the mandatory courses you likely already took. Adjust to match your path and add grades (optional) — so your dashboard shows the right credits and GPA.",
+    "historyDesc": "Check the courses you've already completed. We've laid out the mandatory courses by semester for convenience — pick only the ones you finished and add grades (optional), so your dashboard shows the right credits and GPA.",
     "historySelectedCount": "{count} completed courses",
     "historyGradedCount": "{count} with a grade",
     "historyLoading": "Loading course catalog…",
@@ -851,7 +851,7 @@
       },
       "regulations": {
         "title": "Regulation Check",
-        "desc": "17 PPE regulation rules — discipline credits, seminar requirements, year transitions — checked automatically"
+        "desc": "25 PPE regulation rules — discipline credits, seminar requirements, year transitions — checked automatically"
       },
       "syllabus": {
         "title": "Syllabus Analysis",
@@ -994,7 +994,7 @@
     "degreePlanner": "Degree Planner",
     "degreePlannerDesc": "Organize courses by semester",
     "checkRegulations": "Regulation Check",
-    "checkRegulationsDesc": "Meeting all 17 requirements?",
+    "checkRegulationsDesc": "Meeting all 25 requirements?",
     "aiMentor": "AI Mentor",
     "aiMentorDesc": "Questions? The mentor knows the rules",
     "weeklySchedule": "Weekly Schedule",

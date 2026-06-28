@@ -255,6 +255,13 @@ export function CoursePool({
             );
             const isRecommended = focusArea ? course.discipline === focusArea : false;
 
+            // PPE students are formally exempt from course prerequisites
+            // (Yedion note 19), so an unmet prereq must NEVER block adding a
+            // course — it stays "default" and addable. The amber prereq badge
+            // + tooltip on CourseBubble already carries the advisory cue, so the
+            // student is still informed. Only a non-prereq failure (e.g. the
+            // genuine semester-offering gate) may disable the bubble.
+            const prereqOnlyIssue = !prereqCheck.ok ? false : !!prereqCheck.prereqAdvisory;
             let bubbleState: BubbleState = "default";
             if (isSelected) bubbleState = "selected";
             else if (!prereqCheck.ok) bubbleState = "disabled";
@@ -265,7 +272,12 @@ export function CoursePool({
                 course={course}
                 state={bubbleState}
                 disabledReason={
-                  isHe ? prereqCheck.reasonHe : prereqCheck.reason
+                  // Only surface a reason when the bubble is actually disabled
+                  // (semester-offering gate). Prereq hints are advisory and shown
+                  // via the amber badge instead, so they never read as a blocker.
+                  bubbleState === "disabled" || prereqOnlyIssue
+                    ? (isHe ? prereqCheck.reasonHe : prereqCheck.reason)
+                    : undefined
                 }
                 recommended={isRecommended}
                 onToggle={() => onToggleCourse(course.id)}

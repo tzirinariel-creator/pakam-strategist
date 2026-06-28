@@ -193,9 +193,14 @@ describe("Credit structure 103/12/35 + seminar bucket (Task 2)", () => {
     expect(electiveRule?.details?.current).toBe(3);  // electives exclude the seminar
   });
 
-  it("PKM-018/019/020 enforce 103 / 12 / 35 minima", () => {
+  it("PKM-018/019/020 enforce 101 / 12 / 35 minima", () => {
+    // mandatoryCredits is 101, NOT the official 103: a doc-correct COMPLETE plan
+    // earns 89 (MANDATORY) + 4 (PPE seminar) + 8 (LAW_FOUNDATION basket) = 101
+    // from the published catalog; the last 2 ש"ז is an unpublished future PPE
+    // course (see tau-ppe-2025.ts). Requiring 103 would permanently red-flag a
+    // complete student for a credit no course can supply.
     const summary = runRegulationEngine([], null);
-    expect(summary.results.find((r) => r.ruleId === "PKM-018")?.details?.required).toBe(103);
+    expect(summary.results.find((r) => r.ruleId === "PKM-018")?.details?.required).toBe(101);
     expect(summary.results.find((r) => r.ruleId === "PKM-019")?.details?.required).toBe(12);
     expect(summary.results.find((r) => r.ruleId === "PKM-020")?.details?.required).toBe(35);
   });

@@ -166,7 +166,10 @@ function buildCreditRequirements(program: ProgramDefinition) {
     FOCUS_AREA_MIN: program.creditRequirements.focusAreaMin,
     ENGLISH_MIN_COURSES: program.creditRequirements.englishCourses,
     ENGLISH_MIN_CREDITS_PER_COURSE: 2,
-    // VERIFIED נכון לתשפ"ו: 150 = 103 mandatory (incl. PPE seminar) + 12 seminars + 35 electives.
+    // Official נכון לתשפ"ו: 150 = 103 mandatory (incl. PPE seminar) + 12 seminars
+    // + 35 electives. MANDATORY_TOTAL reads the program's mandatoryCredits, which
+    // is pinned to 101 (the published catalog supply; the last 2 ש"ז is an
+    // unpublished future PPE course — see tau-ppe-2025.ts).
     MANDATORY_TOTAL: program.creditRequirements.mandatoryCredits ?? 0,
     SEMINAR_TOTAL: program.creditRequirements.seminarCredits ?? 0,
     ELECTIVE_TOTAL: program.creditRequirements.electiveCredits ?? 0,

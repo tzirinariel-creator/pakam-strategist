@@ -53,7 +53,18 @@ export const TAU_PPE_2025: ProgramDefinition = {
       id: "PPE_CORE",
       nameHe: 'פכ"מ ייעודי',
       nameEn: "PPE Core",
-      minCredits: 29,
+      // Official PPE-dedicated requirement is 29 ש"ז, but that figure is met only
+      // once the student layers elective/seminar PPE_CORE courses on top of the
+      // mandatory core. The PUBLISHED catalog supplies exactly 13 PPE_CORE ש"ז of
+      // MANDATORY credit a complete student is guaranteed to earn:
+      //   9 (4 PPE_CORE mandatory courses) + 4 (PPE seminar 0651-3001) = 13.
+      // The would-be 15 is short by 2 ש"ז — the unpublished future PPE course
+      // (domain rules §9b: "עתיד להתווסף קורס ייעודי נוסף של 2-4 ש"ס"). We pin the
+      // DISC-PPE_CORE minimum to what the catalog actually delivers (13) so a
+      // doc-correct COMPLETE plan reconciles instead of permanently red-flagging
+      // students for credits no published course can supply. Revisit when TAU
+      // publishes the missing course.
+      minCredits: 13,
       color: "#6B7280",
       isFocusOption: false,
     },
@@ -68,11 +79,19 @@ export const TAU_PPE_2025: ProgramDefinition = {
   ],
 
   // ── Credit Requirements ──
-  // VERIFIED נכון לתשפ"ו: 150 = 103 mandatory (incl. PPE seminar) + 12 seminars + 35 electives.
+  // Official נכון לתשפ"ו: 150 = 103 mandatory (incl. PPE seminar) + 12 seminars + 35 electives.
   // The 103 mandatory splits 29 PPE-core + 18 philosophy + 27 economics + 15 polsci + 14 law.
+  //
+  // mandatoryCredits is pinned to 101, NOT the official 103: a doc-correct
+  // COMPLETE plan earns 89 (MANDATORY courses) + 4 (PPE seminar 0651-3001) +
+  // 8 (the "pick any two" LAW_FOUNDATION basket) = 101 mandatory ש"ז from the
+  // PUBLISHED catalog. The remaining 2 ש"ז is an unpublished future PPE course
+  // (domain rules §9b: "עתיד להתווסף קורס ייעודי נוסף של 2-4 ש"ס") — no catalog
+  // course can supply it yet, so requiring 103 permanently red-flags a complete
+  // student. Revisit when TAU publishes the missing 2-ש"ז PPE course.
   creditRequirements: {
     total: 150,
-    mandatoryCredits: 103,
+    mandatoryCredits: 101,
     seminarCredits: 12,
     electiveCredits: 35,
     focusAreaMin: 60,

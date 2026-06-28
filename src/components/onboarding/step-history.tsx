@@ -100,31 +100,25 @@ export function getPastSemesters(
 }
 
 /**
- * Build the default pre-filled map: every mandatory course whose natural
- * placement is a past semester, pre-checked as completed (no grade).
+ * Build the default completed map.
+ *
+ * IMPORTANT: this intentionally returns an EMPTY map. The past mandatory
+ * courses are still pre-POPULATED in the UI (the per-semester lists in the
+ * `grouped` memo render straight from the catalog, not from this map), but
+ * nothing is auto-marked completed. A mid-degree student off the standard
+ * track has NOT necessarily passed every mandatory course at its natural
+ * placement, so auto-checking them would over-claim credits and GPA. The
+ * student affirmatively checks only the courses they actually completed.
+ *
+ * The signature is kept for the call site; the params are unused now that we
+ * no longer pre-check based on the student's current (year, semester).
  */
 export function buildDefaultCompleted(
-  allCourses: CourseWithSchedule[],
-  year: number,
-  semester: "FALL" | "SPRING"
+  _allCourses: CourseWithSchedule[],
+  _year: number,
+  _semester: "FALL" | "SPRING"
 ): Record<string, CompletedCourse> {
-  const current = timelineIndex(year, semester);
-  const map: Record<string, CompletedCourse> = {};
-  for (const course of allCourses) {
-    const isMandatory =
-      course.courseType === "MANDATORY" || course.isMandatory === true;
-    if (!isMandatory) continue;
-    const placement = computePlacement(course);
-    if (!placement) continue;
-    if (timelineIndex(placement.year, placement.semester) >= current) continue;
-    map[course.code] = {
-      courseCode: course.code,
-      plannedYear: placement.year,
-      plannedSemester: placement.semester,
-      grade: null,
-    };
-  }
-  return map;
+  return {};
 }
 
 export function StepHistory({

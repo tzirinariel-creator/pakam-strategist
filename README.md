@@ -14,16 +14,15 @@ Built in Hebrew (RTL) and English, fully internationalized.
 
 ## Why it exists
 
-Planning a PPE degree is genuinely hard: **150 credits over 3 years**, minimum-credit requirements across five disciplines, mandatory seminars and a referat, a final-grade formula (78% courses / 18% seminar papers / 4% referat), and ~17 regulation rules that interact. Students juggle this across the university course catalog, spreadsheets, and WhatsApp groups. Pakamon puts it in one place and checks the rules for you.
+Planning a PPE degree is genuinely hard: **150 credits over 3 years**, minimum-credit requirements across five disciplines, mandatory seminars and a referat, a final-grade formula (78% courses / 18% seminar papers / 4% referat), and ~25 regulation rules that interact. Students juggle this across the university course catalog, spreadsheets, and WhatsApp groups. Pakamon puts it in one place and checks the rules for you.
 
 ## Features
 
 - **Semester planner** — drag-and-drop courses across the 3-year, 6-semester grid; live credit totals, prerequisite and schedule-conflict detection, and workload scoring per semester.
 - **Course catalog** — 117 real PPE courses with prerequisites, weekly hours, exam dates, and historical grade statistics; filterable by discipline and type.
-- **Regulation engine** — 17 rules from the PPE academic regulations (per-discipline credit minimums, seminar/referat requirements, year-transition GPA, max attempts, failure rate…) evaluated automatically with a compliance score and per-rule explanations.
+- **Regulation engine** — 25 rules from the PPE academic regulations (per-discipline credit minimums, seminar/referat requirements, year-transition GPA, max attempts, failure rate…) evaluated automatically with a compliance score and per-rule explanations.
 - **Grade calculator** — live final-grade projection with the official weighted formula, plus a reverse "what grade do I need?" mode given a target.
 - **AI mentor (BYOK)** — a Claude-powered academic advisor with full context of the student's plan, grades, and regulations. Bring-your-own-key: the key is validated, **encrypted at rest (AES-256-GCM)**, and never leaves the server.
-- **Syllabus parser** — upload a syllabus; Claude extracts deadlines, the grading breakdown, weekly topics, and a summary into structured data.
 - **Weekly timetable & exam calendar** — auto-built from selected courses, with exam countdowns and `.ics` / Google Calendar export.
 
 ## Tech stack
@@ -47,7 +46,7 @@ The parts worth a look:
 
 - **`src/lib/regulations/`** — a small rule engine. Each regulation is a pure function `(RuleContext) → RuleResult`; the engine aggregates them into a compliance summary. Discipline-credit rules are generated dynamically from the program definition, so adding a discipline doesn't mean editing the engine.
 - **`src/lib/programs/`** — the degree is data, not code. A `ProgramDefinition` describes credit requirements, disciplines, and structure (`tau-ppe-2025.ts`), which drives the planner, the credit calculator, and the rule engine. A second program (Law) is already defined alongside PPE.
-- **`src/lib/ai/`** — server-only Claude integration. `crypto.ts` encrypts the user's key with AES-256-GCM; `claude-client.ts` validates and constructs a client; `syllabus-parser.ts` prompts Claude for JSON and defensively normalizes the response.
+- **`src/lib/ai/`** — server-only Claude integration. `crypto.ts` encrypts the user's key with AES-256-GCM; `claude-client.ts` validates and constructs a client; the mentor prompt and context builder assemble the student's plan, grades, and regulations into the advisor's context.
 - **`src/lib/scraper/`** — fetches and parses TAU's "Yedion" course pages (cheerio), diffs against the DB, and classifies changes as auto-applyable vs. needs-review.
 - **Type-safe boundary** — tRPC routers in `src/server/routers/` are consumed directly by the client with full inference; Zod validates every input.
 - **Security** — strict CSP and security headers (`next.config.ts`), per-route rate limiting, encrypted secrets, and ownership checks on every protected procedure.
@@ -85,11 +84,11 @@ Required env vars are documented in [`.env.example`](.env.example). Generate the
 ```
 src/
   app/[locale]/        # App Router pages (auth / public / protected groups)
-  server/routers/      # tRPC routers (plan, course, regulation, ai, syllabus, schedule…)
+  server/routers/      # tRPC routers (plan, course, regulation, ai, schedule…)
   lib/
     regulations/       # rule engine + rule definitions
     programs/          # program definitions (the degree as data)
-    ai/                # Claude client, crypto, syllabus parser, mentor prompt
+    ai/                # Claude client, crypto, mentor prompt, context builder
     scraper/           # Yedion course-catalog sync
     *-calculator.ts    # grade / credit / workload / conflict logic (pure, unit-tested)
   components/          # feature components + shadcn UI primitives
@@ -114,7 +113,7 @@ Being honest about what this is and isn't:
 
 - **Test coverage is logic-first.** Pure calculators and the rule engine are covered; component/E2E tests (Playwright) for the onboarding and planner flows are a roadmap item.
 - **Single program (for now).** The architecture treats a degree as a `ProgramDefinition`, and a second program (Law) is defined — but the catalog and regulations are PPE-complete. Generalizing the catalog to other programs is next.
-- **BYOK only.** The AI mentor and syllabus parser run on the user's own Claude key — there is no shared/server key, by design (cost + isolation). No key, no AI features (handled gracefully).
+- **BYOK only.** The AI mentor runs on the user's own Claude key — there is no shared/server key, by design (cost + isolation). No key, no AI features (handled gracefully).
 - **The Yedion scraper is best-effort.** It parses an external university HTML source that can change shape; it diffs and flags risky changes for review rather than auto-applying everything.
 - **Auth is application-layer.** Authorization is enforced in tRPC procedures with explicit ownership checks (not Postgres RLS) — a deliberate trade-off given the Prisma data layer.
 

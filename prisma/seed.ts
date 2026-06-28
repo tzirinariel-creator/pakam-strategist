@@ -70,10 +70,22 @@ interface FixtureData {
   }>;
 }
 
-/** All fixture files to load — order doesn't matter (skipDuplicates handles overlap) */
+/**
+ * Fixture files to load into the Course catalog.
+ *
+ * ONLY the PPE catalog is seeded. The standalone Law-school catalog
+ * (prisma/fixtures/law-courses-2025.json, ~59 "0910-xxxx" courses) is a FUTURE,
+ * NOT-YET-LAUNCHED program. The Course table has no `program` column, so seeding
+ * it here would leak law-school courses into every PPE student's catalog and
+ * auto-add phantom LAW mandatory courses to their plan (the launch blocker we
+ * fixed in prisma/cleanup-nonppe-courses.ts). Do NOT re-add the law fixture here
+ * until the Law program actually launches WITH per-program scoping in the schema.
+ *
+ * Note: PPE's own law-DIVISION courses (e.g. 1411-9xxx LAW_FOUNDATION) live
+ * inside ppe-courses-2025.json and are correctly seeded.
+ */
 const FIXTURE_FILES = [
   "ppe-courses-2025.json",
-  "law-courses-2025.json",
 ];
 
 function loadFixtures(): FixtureData[] {

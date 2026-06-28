@@ -59,12 +59,17 @@ export const ruleTotalCredits: RegulationRule = (ctx: RuleContext) => {
   const required = ctx.programDefinition.creditRequirements.total;
   const passed = current >= required;
 
+  // Severity: a credit-ACCUMULATION target is PROGRESS, not a compliance
+  // VIOLATION. A mid-degree student simply hasn't earned the credits yet, so
+  // an unmet total is INFO (a progress target), never a red ERROR. ERROR is
+  // reserved for genuine violations (fail-twice, the 75/80 year gate, the
+  // English-exemption deadline).
   return result(
     "PKM-001",
     "Total Credits Requirement",
     "דרישת נקודות זכות כוללת",
     passed,
-    "ERROR",
+    "INFO",
     passed
       ? `Total credits met: ${current}/${required} SH"S.`
       : `Total credits insufficient: ${current}/${required} SH"S. Need ${required - current} more.`,
@@ -76,9 +81,13 @@ export const ruleTotalCredits: RegulationRule = (ctx: RuleContext) => {
 };
 
 // -------------------------------------------------------------------
-// PKM-018: Mandatory credits >= program mandatory minimum (e.g. 103)
+// PKM-018: Mandatory credits >= program mandatory minimum (101)
 // -------------------------------------------------------------------
-// VERIFIED נכון לתשפ"ו: 150 = 103 mandatory (incl. PPE seminar) + 12 seminars + 35 electives.
+// Official נכון לתשפ"ו: 150 = 103 mandatory (incl. PPE seminar) + 12 seminars +
+// 35 electives. The mandatory minimum is pinned to 101 (the published catalog's
+// 89 MANDATORY + 4 PPE seminar + 8 LAW_FOUNDATION basket); the last 2 ש"ז is an
+// unpublished future PPE course (see tau-ppe-2025.ts). Severity is INFO — an
+// unmet mandatory-credit total is mid-degree PROGRESS, not a violation.
 
 export const ruleMandatoryCredits: RegulationRule = (ctx: RuleContext) => {
   const required = ctx.programDefinition.creditRequirements.mandatoryCredits ?? 0;
@@ -105,7 +114,7 @@ export const ruleMandatoryCredits: RegulationRule = (ctx: RuleContext) => {
     "Mandatory Credits",
     "נקודות זכות חובה",
     passed,
-    "ERROR",
+    "INFO",
     passed
       ? `Mandatory credits met: ${current}/${required} SH"S.`
       : `Mandatory credits insufficient: ${current}/${required} SH"S. Need ${required - current} more.`,
@@ -145,7 +154,7 @@ export const ruleSeminarCredits: RegulationRule = (ctx: RuleContext) => {
     "Seminar Credits",
     "נקודות זכות סמינריונים",
     passed,
-    "ERROR",
+    "INFO",
     passed
       ? `Seminar credits met: ${current}/${required} SH"S.`
       : `Seminar credits insufficient: ${current}/${required} SH"S. Need ${required - current} more.`,
@@ -184,7 +193,7 @@ export const ruleElectiveCredits: RegulationRule = (ctx: RuleContext) => {
     "Elective Credits",
     "נקודות זכות בחירה",
     passed,
-    "ERROR",
+    "INFO",
     passed
       ? `Elective credits met: ${current}/${required} SH"S.`
       : `Elective credits insufficient: ${current}/${required} SH"S. Need ${required - current} more.`,
@@ -221,12 +230,14 @@ function createDisciplineCreditsRule(disc: DisciplineDefinition): RegulationRule
       );
     }
 
+    // Severity: a per-discipline credit target is mid-degree PROGRESS, not a
+    // compliance VIOLATION — INFO, never a red ERROR.
     return result(
       `DISC-${disc.id}`,
       `${disc.nameEn} Credits`,
       `נקודות זכות ב${disc.nameHe}`,
       passed,
-      "ERROR",
+      "INFO",
       passed
         ? `${disc.nameEn} credits met: ${current}/${required} SH"S.`
         : `${disc.nameEn} credits insufficient: ${current}/${required} SH"S. Need ${required - current} more.`,
@@ -279,12 +290,16 @@ export const ruleFocusAreaCredits: RegulationRule = (ctx: RuleContext) => {
   const disciplineNameEn = disc?.nameEn ?? focusArea;
   const disciplineNameHe = disc?.nameHe ?? focusArea;
 
+  // Severity: once a focus area is chosen, reaching its 60-ש"ז target is
+  // mid-degree PROGRESS, not a violation — INFO, never a red ERROR. (The
+  // no-focus-selected branch above stays WARNING: choosing a focus is an
+  // actionable nudge, not accumulated progress.)
   return result(
     "PKM-007",
     "Focus Area Credits",
     "נקודות תחום מיקוד",
     passed,
-    "ERROR",
+    "INFO",
     passed
       ? `Focus area (${disciplineNameEn}) credits met: ${current}/${required} SH"S.`
       : `Focus area (${disciplineNameEn}) credits insufficient: ${current}/${required} SH"S. Need ${required - current} more.`,
@@ -322,12 +337,14 @@ export const ruleSeminarPapers: RegulationRule = (ctx: RuleContext) => {
   const current = completedPapers.length;
   const passed = current >= required;
 
+  // Severity: the 3-seminar-paper requirement is graduation PROGRESS a student
+  // earns over the degree, not a mid-degree compliance violation → INFO.
   return result(
     "PKM-008",
     "Seminar Papers",
     "עבודות סמינריוניות",
     passed,
-    "ERROR",
+    "INFO",
     passed
       ? `Seminar papers requirement met: ${current}/${required} papers completed.`
       : `Seminar papers insufficient: ${current}/${required} completed. Need ${required - current} more.`,
@@ -366,12 +383,13 @@ export const ruleReferat: RegulationRule = (ctx: RuleContext) => {
   const current = completedReferats.length;
   const passed = current >= required;
 
+  // Severity: the referat is graduation PROGRESS, not a mid-degree violation → INFO.
   return result(
     "PKM-009",
     "Referat Requirement",
     "דרישת רפרט",
     passed,
-    "ERROR",
+    "INFO",
     passed
       ? `Referat requirement met: ${current}/${required} referat(s) completed.`
       : `Referat requirement not met: ${current}/${required} completed. Need ${required - current} more.`,
@@ -396,7 +414,20 @@ export const ruleMandatoryCourses: RegulationRule = (ctx: RuleContext) => {
   );
   const totalMandatory = mandatoryCourses.length;
   const completedCount = totalMandatory - incomplete.length;
-  const passed = incomplete.length === 0 && totalMandatory > 0;
+
+  // Fix #7: "all mandatory courses completed" must reflect the CANONICAL
+  // requirement, not merely the mandatory rows the student happened to add.
+  // A student who adds + completes 2 of ~27 mandatory courses has NOT finished
+  // the mandatory load — so this rule cannot go green while the mandatory-credit
+  // total (PKM-018) is still below the program target. We gate the pass on BOTH:
+  //   (a) every mandatory row the student added is COMPLETED/EXEMPT, AND
+  //   (b) the accumulated mandatory credits have reached the program minimum.
+  const mandatoryCreditsRequired =
+    ctx.programDefinition.creditRequirements.mandatoryCredits ?? 0;
+  const mandatoryCreditsCurrent = ctx.creditBreakdown.mandatory;
+  const creditsMet =
+    mandatoryCreditsRequired === 0 ||
+    mandatoryCreditsCurrent >= mandatoryCreditsRequired;
 
   // Special case: no mandatory courses in plan at all
   if (totalMandatory === 0) {
@@ -408,23 +439,50 @@ export const ruleMandatoryCourses: RegulationRule = (ctx: RuleContext) => {
       "WARNING",
       "No mandatory courses found in your plan. Make sure all required courses are added.",
       "לא נמצאו קורסי חובה בתוכנית שלך. ודא שכל קורסי החובה הוספו.",
-      { total: 0, completed: 0, incomplete: 0 }
+      { total: 0, completed: 0, incomplete: 0, mandatoryCreditsCurrent, mandatoryCreditsRequired }
     );
   }
 
+  const allRowsComplete = incomplete.length === 0;
+  const passed = allRowsComplete && creditsMet;
+
+  // Distinguish the two ways the requirement can be unmet for a clear message:
+  // rows still in progress, vs. rows all complete but the mandatory-credit
+  // target not yet reached (i.e. required mandatory courses are simply missing
+  // from the plan).
+  const creditsShort = Math.max(0, mandatoryCreditsRequired - mandatoryCreditsCurrent);
+
+  let messageEn: string;
+  let messageHe: string;
+  if (passed) {
+    messageEn = `All mandatory courses completed (${mandatoryCreditsCurrent}/${mandatoryCreditsRequired} SH"S).`;
+    messageHe = `כל קורסי החובה הושלמו (${mandatoryCreditsCurrent}/${mandatoryCreditsRequired} ש"ס).`;
+  } else if (!allRowsComplete) {
+    messageEn = `${completedCount}/${totalMandatory} added mandatory courses completed. ${incomplete.length} remaining.`;
+    messageHe = `${completedCount}/${totalMandatory} מקורסי החובה שנוספו הושלמו. נותרו ${incomplete.length} קורסים.`;
+  } else {
+    messageEn = `Added mandatory courses are complete, but required mandatory courses are still missing: ${mandatoryCreditsCurrent}/${mandatoryCreditsRequired} SH"S (${creditsShort} short).`;
+    messageHe = `קורסי החובה שנוספו הושלמו, אך עדיין חסרים קורסי חובה נדרשים: ${mandatoryCreditsCurrent}/${mandatoryCreditsRequired} ש"ס (חסרות ${creditsShort}).`;
+  }
+
+  // Severity: an unmet mandatory requirement is mid-degree PROGRESS (courses not
+  // yet taken/completed), not a compliance VIOLATION → INFO, never a red ERROR.
   return result(
     "PKM-010",
     "Mandatory Courses",
     "קורסי חובה",
     passed,
-    passed ? "INFO" : "ERROR",
-    passed
-      ? `All ${totalMandatory} mandatory courses completed.`
-      : `${completedCount}/${totalMandatory} mandatory courses completed. ${incomplete.length} remaining.`,
-    passed
-      ? `כל ${totalMandatory} קורסי החובה הושלמו.`
-      : `${completedCount}/${totalMandatory} קורסי חובה הושלמו. נותרו ${incomplete.length} קורסים.`,
-    { total: totalMandatory, completed: completedCount, incomplete: incomplete.length },
+    "INFO",
+    messageEn,
+    messageHe,
+    {
+      total: totalMandatory,
+      completed: completedCount,
+      incomplete: incomplete.length,
+      mandatoryCreditsCurrent,
+      mandatoryCreditsRequired,
+      creditsMet,
+    },
     incomplete.map((uc) => uc.id)
   );
 };
@@ -447,12 +505,14 @@ export const ruleLawFoundation: RegulationRule = (ctx: RuleContext) => {
   const current = completed.length;
   const passed = current >= required;
 
+  // Severity: "take 2 from the law basket" is a structural PROGRESS target a
+  // student fulfills over the degree, not a mid-degree violation → INFO.
   return result(
     "PKM-011",
     "Law Foundation Courses",
     "קורסי יסודות משפט",
     passed,
-    "ERROR",
+    "INFO",
     passed
       ? `Law foundation requirement met: ${current}/${required} courses completed.`
       : `Law foundation courses insufficient: ${current}/${required} completed. Need ${required - current} more.`,
@@ -497,12 +557,15 @@ export const ruleEnglishRequirement: RegulationRule = (ctx: RuleContext) => {
   // course COUNT — credits are not an alternative path.
   const passed = currentCourses >= minCourses;
 
+  // Severity: the 2 English CONTENT courses are a graduation PROGRESS target a
+  // student earns over the degree, not a mid-degree violation → INFO. (The
+  // BLOCKING English item is the AMIRANT exemption DEADLINE, rule PKM-022.)
   return result(
     "PKM-012",
     "Courses in English",
     "קורסים באנגלית",
     passed,
-    "ERROR",
+    "INFO",
     passed
       ? `Requirement met: ${currentCourses} course(s) taught in English, ${currentCredits} credits.`
       : `Need ${minCourses} courses taught in English: have ${currentCourses}/${minCourses}, ${currentCredits}/${minCredits} credits.`,
