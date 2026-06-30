@@ -133,12 +133,11 @@ export function RuleCard({ rule }: RuleCardProps) {
         {/* Status icon */}
         <StatusIcon className={`h-5 w-5 shrink-0 ${statusColor}`} />
 
-        {/* Rule info */}
+        {/* Rule info — the internal rule code (e.g. "PKM-007") is intentionally
+            NOT shown; it's robotic and meaningless to a student (#25). It stays
+            on aria-controls / the details id for accessibility only. */}
         <div className="flex min-w-0 flex-1 flex-col gap-0.5">
           <div className="flex items-center gap-2">
-            <span className="font-data text-[11px] font-semibold text-muted-foreground">
-              {ruleId}
-            </span>
             <span
               className={`inline-flex items-center rounded-full border px-1.5 py-0.5 text-[10px] font-medium ${severityBadgeColor}`}
             >
