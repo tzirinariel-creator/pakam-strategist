@@ -138,9 +138,12 @@ export function SemesterPlanner({
 
   // Flag the plan as "dirty" the moment the student changes anything, so the
   // standalone page can warn before a silent exit-without-saving (#18). Kept
-  // ref-stable so adding it to handler deps never churns them.
+  // ref-stable so adding it to handler deps never churns them. The ref is
+  // synced in an effect (not during render) per the react-hooks/refs rule.
   const onDirtyRef = useRef(onDirty);
-  onDirtyRef.current = onDirty;
+  useEffect(() => {
+    onDirtyRef.current = onDirty;
+  }, [onDirty]);
   const markDirty = useCallback(() => {
     onDirtyRef.current?.();
   }, []);
