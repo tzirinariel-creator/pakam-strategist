@@ -1,6 +1,6 @@
 "use client";
 
-import { useTranslations } from "next-intl";
+import { Bidi } from "@/lib/bidi";
 import {
   GraduationCap,
   Target,
@@ -57,16 +57,14 @@ export function DegreeInfoCard() {
       <Section icon={GraduationCap} title="מה שצריך לדעת על פכ״מ">
         {/* Total credits callout */}
         <div className="mb-3 rounded-md border border-border/30 bg-foreground/[0.03] px-3 py-2 text-center">
-          <span className="font-mono text-2xl font-bold text-foreground/80">
-            {CREDIT_REQUIREMENTS.TOTAL}
-          </span>
-          <span className="me-1.5 text-sm text-foreground/50">
-            {/* Total credit hours for the degree */}
-            ש״ס סה״כ לתואר
-          </span>
+          <div className="flex flex-wrap items-baseline justify-center gap-x-1.5">
+            <span className="font-mono text-2xl font-bold text-foreground/80">
+              {CREDIT_REQUIREMENTS.TOTAL}
+            </span>
+            <span className="text-sm text-foreground/50">ש״ס סה״כ לתואר</span>
+          </div>
           <p className="mt-0.5 text-xs text-foreground/40">
-            {/* 30 more than a standard BA (120) */}
-            30 ש״ס מעל תואר ראשון רגיל (120)
+            <Bidi text="30 ש״ס מעל תואר ראשון רגיל (120)" />
           </p>
         </div>
 
@@ -217,6 +215,13 @@ export function DegreeInfoCard() {
               קורסים הנלמדים באנגלית (כל תחום, מינימום{" "}
               {CREDIT_REQUIREMENTS.ENGLISH_MIN_CREDITS_PER_COURSE} ש״ס כ״א)
             </p>
+            {/* #10: intro-phil (e.g. מבוא לפילוסופיה של המוסר) can be taken in
+                English, which also satisfies the English-content requirement —
+                so it's more flexible than a fixed sem-A mandatory. */}
+            <p className="mt-1.5 text-[11px] leading-relaxed text-foreground/45">
+              טיפ: חלק מקורסי-החובה (כמו &quot;מבוא לפילוסופיה של המוסר&quot;) ניתן
+              ללמוד גם באנגלית — וכך הם נספרים גם לדרישת-האנגלית.
+            </p>
           </div>
 
           {/* Year transition requirements */}
@@ -226,16 +231,17 @@ export function DegreeInfoCard() {
               דרישות מעבר שנה
             </p>
             <p className="text-sm text-foreground/70">
-              {/* Overall GPA >= 75 + PACAM courses GPA >= 80 */}
+              {/* "75 ומעלה" reads naturally in Hebrew — the bare ≥ glyph looked
+                  broken (#3). The number stays in an isolated LTR bdi. */}
               ממוצע כללי{" "}
-              <span className="font-mono font-bold text-foreground/80">
+              <bdi dir="ltr" className="font-mono font-bold text-foreground/80">
                 {GRADE_REQUIREMENTS.YEAR_TRANSITION_OVERALL_GPA}
-              </span>
-              ≥ + ממוצע קורסי פכ״מ{" "}
-              <span className="font-mono font-bold text-foreground/80">
+              </bdi>{" "}
+              ומעלה + ממוצע קורסי פכ״מ{" "}
+              <bdi dir="ltr" className="font-mono font-bold text-foreground/80">
                 {GRADE_REQUIREMENTS.YEAR_TRANSITION_PPE_GPA}
-              </span>
-              ≥
+              </bdi>{" "}
+              ומעלה
             </p>
           </div>
 
@@ -269,6 +275,28 @@ export function DegreeInfoCard() {
             </div>
           </div>
         </div>
+      </Section>
+
+      {/* ── Section: Glossary — plain-language explanations of the terms
+          students kept finding unclear (#4). Always visible, RTL-safe. ── */}
+      <Section icon={BookOpen} title="מילון מונחים">
+        <dl className="space-y-2 text-xs">
+          {([
+            ["ש״ס", "שעות סמסטריאליות — נקודות הזכות שצוברים לתואר."],
+            ["סמינר / סמינריון", "קורס מתקדם שבו כותבים עבודת מחקר. צריך 4 כאלה לתואר."],
+            ["רפרט", "עבודה סמינריונית מצומצמת — נספרת 4% מציון התואר."],
+            ["תחום מיקוד", "הדיסציפלינה שבה מתמחים (60 ש״ס) — קובעת את הסיווג בשירות המדינה."],
+            ["קורסי רמה (אנגלית)", "קורסי אנגלית מכינים שלא נספרים ל-150, לפי ציון אמירנט."],
+            ["פטור (אנגלית)", "אין צורך בקורסי-רמה. עדיין צריך 2 קורסי-תוכן באנגלית."],
+          ] as const).map(([term, def]) => (
+            <div key={term} className="rounded-md border border-border/20 bg-card/20 px-3 py-2">
+              <dt className="font-bold text-foreground/75">{term}</dt>
+              <dd className="mt-0.5 text-foreground/55">
+                <Bidi text={def} />
+              </dd>
+            </div>
+          ))}
+        </dl>
       </Section>
     </div>
   );

@@ -365,7 +365,7 @@ function SemesterSection({
                           initialGrade={uc.grade}
                           initialStatus={uc.status}
                           onSave={onSaveGrade}
-                          placeholder={t("enterGrade")}
+                          placeholder="0–100"
                           savedSignal={savedSignals[uc.id] ?? 0}
                         />
                       </div>
@@ -525,7 +525,7 @@ function ScoreDashboard({
       {/* Big score */}
       <div className="flex items-center justify-center py-2">
         {score !== null ? (
-          <div className="flex items-baseline gap-1">
+          <div className="flex items-baseline gap-1" dir="ltr">
             <span
               className={cn(
                 "font-display tabular text-5xl font-bold tabular-nums tracking-tight",

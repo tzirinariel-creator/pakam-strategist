@@ -1,6 +1,11 @@
 import { z } from "zod/v4";
 import { TRPCError } from "@trpc/server";
 import { createTRPCRouter, protectedProcedure } from "../trpc/init";
+import { generateExamPlan, type ExamInput } from "@/lib/exam-planner";
+
+// Marker stored in `notes` so we can regenerate the auto plan without wiping a
+// student's manually-added tasks (assignments, work shifts, custom).
+const AUTO_MARK = "[auto]";
 
 export const studyTaskRouter = createTRPCRouter({
   /**
@@ -200,5 +205,115 @@ export const studyTaskRouter = createTRPCRouter({
       });
 
       return { success: true };
+    }),
+
+  /**
+   * Auto-generate a reverse-planned study schedule for the chosen exams. Creates
+   * an exam block + spaced study sessions per exam. Regenerable: it first clears
+   * the previous AUTO-generated tasks (marked in `notes`) but never touches the
+   * student's manually-added assignments / shifts / custom tasks.
+   */
+  generateExamPlan: protectedProcedure
+    .input(
+      z.object({
+        exams: z
+          .array(z.object({ courseCode: z.string().max(40), moed: z.enum(["A", "B"]) }))
+          .min(1)
+          .max(20),
+        unavailable: z.array(z.string()).max(60).optional(),
+      })
+    )
+    .mutation(async ({ ctx, input }) => {
+      const user = await ctx.db.user.findUnique({ where: { supabaseId: ctx.userId } });
+      if (!user) throw new TRPCError({ code: "NOT_FOUND", message: "User not found" });
+
+      const codes = Array.from(new Set(input.exams.map((e) => e.courseCode)));
+      const moedByCode = new Map(input.exams.map((e) => [e.courseCode, e.moed]));
+
+      const userCourses = await ctx.db.userCourse.findMany({
+        where: { userId: user.id, course: { code: { in: codes } } },
+        include: { course: true },
+      });
+
+      // De-dup by course code (a course can appear in multiple semesters).
+      const seen = new Set<string>();
+      const examInputs: ExamInput[] = [];
+      for (const uc of userCourses) {
+        const code = uc.course.code;
+        if (seen.has(code)) continue;
+        const moed = moedByCode.get(code);
+        if (!moed) continue;
+        const examDate = moed === "B" ? uc.course.examDateB : uc.course.examDateA;
+        if (!examDate) continue;
+        seen.add(code);
+        examInputs.push({
+          courseCode: code,
+          courseName: uc.course.nameHe,
+          examDate,
+          credits: uc.course.credits,
+          averageGrade: uc.course.averageGrade,
+          failRate: uc.course.failRate,
+          moed,
+        });
+      }
+
+      if (examInputs.length === 0) {
+        return { created: 0, message: "no exams with dates" };
+      }
+
+      const plan = generateExamPlan(examInputs, new Date(), input.unavailable ?? []);
+
+      // Atomic: clear previous auto tasks, then create the fresh plan.
+      const created = await ctx.db.$transaction(async (tx) => {
+        await tx.studyTask.deleteMany({
+          where: { userId: user.id, notes: { startsWith: AUTO_MARK } },
+        });
+
+        const rows: {
+          userId: string;
+          title: string;
+          startDate: Date;
+          endDate: Date;
+          taskType: string;
+          courseCode: string;
+          color: string;
+          notes: string;
+        }[] = [];
+
+        // Exam blocks (all-day on the exam date).
+        for (const ex of plan.exams) {
+          rows.push({
+            userId: user.id,
+            title: `מבחן: ${ex.courseName} (מועד ${ex.moed === "B" ? "ב׳" : "א׳"})`,
+            startDate: ex.examDate,
+            endDate: ex.examDate,
+            taskType: "exam",
+            courseCode: ex.courseCode,
+            color: ex.color,
+            notes: `${AUTO_MARK} ${ex.difficulty}`,
+          });
+        }
+        // Study sessions — a study block starting 09:00, exact duration.
+        for (const s of plan.sessions) {
+          const start = new Date(s.date);
+          start.setHours(9, 0, 0, 0);
+          const end = new Date(start.getTime() + s.hours * 60 * 60 * 1000);
+          rows.push({
+            userId: user.id,
+            title: `לימוד: ${s.courseName}`,
+            startDate: start,
+            endDate: end,
+            taskType: "study",
+            courseCode: s.courseCode,
+            color: s.color,
+            notes: `${AUTO_MARK} ${s.hours}h`,
+          });
+        }
+
+        const res = await tx.studyTask.createMany({ data: rows });
+        return res.count;
+      });
+
+      return { created, exams: plan.exams.length, sessions: plan.sessions.length };
     }),
 });

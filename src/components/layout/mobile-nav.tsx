@@ -11,9 +11,11 @@ import {
   Settings,
   BookOpen,
   Calendar,
+  CalendarClock,
   Calculator,
   FolderOpen,
   Bot,
+  Compass,
   X,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -26,9 +28,11 @@ const MOBILE_NAV_ITEMS = [
 ] as const;
 
 const MORE_MENU_ITEMS = [
+  { key: "examPlanner", href: "/exam-planner", icon: CalendarClock },
   { key: "catalog", href: "/catalog", icon: BookOpen },
   { key: "record", href: "/record", icon: FolderOpen },
   { key: "graduation", href: "/graduation", icon: Calculator },
+  { key: "guide", href: "/guide", icon: Compass },
   { key: "settings", href: "/settings", icon: Settings },
   { key: "mentor", href: "/mentor", icon: Bot },
 ] as const;

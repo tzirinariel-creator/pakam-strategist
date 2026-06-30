@@ -52,7 +52,7 @@ function ComponentRow({
               <span className={cn("font-mono tabular text-base font-semibold", accentColor)}>
                 {rounded.toFixed(1)}
               </span>
-              <span className="font-mono text-xs text-foreground/40">
+              <span dir="ltr" className="font-mono text-xs text-foreground/40">
                 × {weight} ={" "}
                 <span className="font-semibold text-foreground/60">
                   {roundScore(weightedContribution)?.toFixed(2) ?? "—"}
@@ -153,7 +153,6 @@ export function ScoreBreakdown({ breakdown, enableWhatIf, className }: ScoreBrea
         <h3 className="font-display text-lg font-semibold text-foreground/90">
           {t("formulaTitle")}
         </h3>
-        <span className="font-mono text-xs text-foreground/40">PKM-013</span>
       </div>
 
       {/* Formula display — translated */}

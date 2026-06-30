@@ -138,6 +138,7 @@ export const planRouter = createTRPCRouter({
           .enum(["PLANNED", "IN_PROGRESS", "COMPLETED", "FAILED", "EXEMPT"])
           .optional(),
         grade: z.number().min(0).max(100).nullable().optional(), // null clears the grade
+        isBinary: z.boolean().optional(), // miluim pass/fail conversion
         disciplineOverride: disciplineEnum.nullable().optional(), // null clears a mis-assigned discipline
         attempt: z.number().int().min(1).optional(),
         selectedGroups: z
@@ -334,9 +335,14 @@ export const planRouter = createTRPCRouter({
       // Atomic: delete + create inside a single transaction so the user
       // never ends up with zero courses if createMany fails.
       const savedCount = await ctx.db.$transaction(async (tx) => {
-        // Clear any existing courses (fresh onboarding)
+        // Replace only the PLAN (PLANNED + IN_PROGRESS). COMPLETED / EXEMPT /
+        // FAILED rows are the student's earned RECORD — never wiped by a plan
+        // edit. This is what makes editing the plan non-destructive: the
+        // standalone planner (and onboarding) no longer needs to re-write
+        // history after this delete, which previously risked losing it (and
+        // stripped isBinary/disciplineOverride/grades on the re-write).
         await tx.userCourse.deleteMany({
-          where: { userId: user.id },
+          where: { userId: user.id, status: { in: ["PLANNED", "IN_PROGRESS"] } },
         });
 
         // Bulk create all courses. Return the REAL number of rows written

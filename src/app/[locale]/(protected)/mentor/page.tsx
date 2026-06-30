@@ -1,5 +1,5 @@
 import { setRequestLocale } from "next-intl/server";
-import { MentorChat } from "@/components/mentor/mentor-chat";
+import { DegreeAssistant } from "@/components/mentor/degree-assistant";
 
 export default async function MentorPage({
   params,
@@ -9,5 +9,7 @@ export default async function MentorPage({
   const { locale } = await params;
   setRequestLocale(locale);
 
-  return <MentorChat />;
+  // Deterministic, free, no-API-key assistant — answers from the student's own
+  // data + the app's domain knowledge (replaces the BYOK Claude chat).
+  return <DegreeAssistant />;
 }

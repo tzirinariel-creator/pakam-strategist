@@ -78,6 +78,18 @@ export function StepReady({ data, plannedSemesters, completedCourses, allCourses
     0
   );
 
+  // Credits the student already COMPLETED (the history step). Surfaced in the
+  // summary next to the planned total so a mid-degree student sees their REAL
+  // standing toward the degree — not just the single planned semester, which
+  // read as "only 21 ש״ס appeared / my history didn't reflect" (#18).
+  const creditsByCode = new Map(allCourses.map((c) => [c.code, c.credits]));
+  const completedCount = completedCourses?.length ?? 0;
+  const completedCredits = (completedCourses ?? []).reduce(
+    (sum, c) => sum + (creditsByCode.get(c.courseCode) ?? 0),
+    0
+  );
+  const combinedCredits = totalCredits + completedCredits;
+
   // ─── Calendar sync (final onboarding step) ───────────────────────────
   // Mirrors calendar-content.tsx: pull the saved schedule for the student's
   // starting semester, then offer Google sync / .ics download once saved.
@@ -139,7 +151,11 @@ export function StepReady({ data, plannedSemesters, completedCourses, allCourses
         updateProfile.mutateAsync({
           currentYear: data.year,
           currentSemester: data.semester,
-          ...(data.focusArea ? { focusArea: data.focusArea } : {}),
+          // Always send focusArea (null = "undecided"), so the chosen value is
+          // written in the SAME call as year/semester. The old conditional
+          // spread omitted the key when undecided, which (a) could never clear a
+          // stale focus and (b) was the focus-desync in #22.
+          focusArea: data.focusArea ?? null,
           miluimGroup: data.miluimGroup,
           amiramScore: data.amirantScore,
         }),
@@ -205,6 +221,13 @@ export function StepReady({ data, plannedSemesters, completedCourses, allCourses
       // This survives page navigation / React Query cache isolation.
       if (typeof window !== "undefined") {
         localStorage.setItem("pakamon-onboarding-complete", Date.now().toString());
+        // A brand-new student who just onboarded should ALWAYS get the tour —
+        // clear any stale "tour seen" flag left over from earlier test runs
+        // (test-user resets wipe the DB but not the browser). Fixes #15.
+        localStorage.removeItem("pakamon-tour-done");
+        // The plan is saved — drop the in-progress onboarding snapshot (#13) so a
+        // future fresh onboarding starts clean, not from this finished run.
+        localStorage.removeItem("pakamon-onboarding-state");
       }
     } catch (error) {
       console.error("Failed to save onboarding plan:", error);
@@ -409,12 +432,38 @@ export function StepReady({ data, plannedSemesters, completedCourses, allCourses
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="text-sm text-foreground/50">
-                    {t("totalCreditsLabel")}
+                    {totalCredits > 0 && completedCount > 0
+                      ? isHe ? "ש״ס בתכנון" : "Planned credits"
+                      : t("totalCreditsLabel")}
                   </span>
                   <span className="font-mono tabular text-lg font-bold text-foreground/80">
                     {totalCredits}
                   </span>
                 </div>
+
+                {/* Completed history + combined total — only for a mid-degree
+                    student who recorded past courses. This is the fix for #18:
+                    the previous summary showed ONLY the planned semester. */}
+                {completedCount > 0 && (
+                  <>
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm text-foreground/50">
+                        {isHe ? "ש״ס שכבר השלמת" : "Credits already completed"}
+                      </span>
+                      <span className="font-mono tabular text-lg font-bold text-emerald-500">
+                        {completedCredits}
+                      </span>
+                    </div>
+                    <div className="flex items-center justify-between border-t border-border pt-2">
+                      <span className="text-sm font-medium text-foreground/70">
+                        {isHe ? "סה״כ לתואר עד כה" : "Toward your degree so far"}
+                      </span>
+                      <span className="font-mono tabular text-xl font-bold text-foreground/90">
+                        {combinedCredits}
+                      </span>
+                    </div>
+                  </>
+                )}
                 {/* Per-semester mini breakdown */}
                 <div className="space-y-1 pt-1">
                   {plannedSemesters.map((sem) => {

@@ -88,8 +88,19 @@ export function CalendarContent() {
 
   const [selectedSemester, setSelectedSemester] = useState<string>("");
 
-  // Auto-select first semester when data loads
-  const activeSemester = selectedSemester || (semesterOptions[0]?.key ?? "");
+  // The student's CURRENT semester (from their profile) — used as the default
+  // so the calendar opens on "now", not the earliest semester on record
+  // (reported #29/#32: it was showing a previous semester).
+  const { data: calendarProfile } = api.user.getProfile.useQuery();
+  const currentSemesterKey = useMemo(() => {
+    if (!calendarProfile?.currentYear || !calendarProfile?.currentSemester) return "";
+    const key = `${calendarProfile.currentYear}-${calendarProfile.currentSemester}`;
+    return semesterOptions.some((o) => o.key === key) ? key : "";
+  }, [calendarProfile?.currentYear, calendarProfile?.currentSemester, semesterOptions]);
+
+  // Default: explicit selection → current semester → first available.
+  const activeSemester =
+    selectedSemester || currentSemesterKey || (semesterOptions[0]?.key ?? "");
 
   // Parse active semester into year + semester
   const parsedSemester = useMemo(() => {

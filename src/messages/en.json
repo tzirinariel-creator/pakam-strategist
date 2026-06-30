@@ -7,7 +7,7 @@
     "dashboard": "Home",
     "planner": "Degree Planner",
     "regulations": "Regulations",
-    "mentor": "AI Mentor",
+    "mentor": "Degree Assistant",
     "syllabus": "Syllabi",
     "catalog": "Course Catalog",
     "calendar": "Calendar",
@@ -15,7 +15,9 @@
     "more": "More",
     "close": "Close",
     "graduation": "Grade Calculator",
-    "record": "My Academic Record"
+    "record": "My Academic Record",
+    "examPlanner": "Exam planner",
+    "guide": "Beginner guide"
   },
   "auth": {
     "login": "Log In",
@@ -203,13 +205,22 @@
     "gradeSaved": "Grade saved",
     "statusSaveError": "Couldn't update the course — try again",
     "planSaved": "Plan saved",
+    "planSavedBannerTitle": "Your plan is saved",
+    "planSavedBannerDesc": "All your changes were saved. You can continue from here.",
+    "unsavedTitle": "Wait — your changes aren't saved yet",
+    "unsavedDesc": "To save, go back and tap \"I'm done planning this semester\", then \"Finish & save\". If you leave now, this semester's changes won't be saved.",
+    "unsavedKeepEditing": "Keep planning",
+    "unsavedLeave": "Leave without saving",
     "ganttTitle": "Timeline — Your Entire Degree at a Glance",
     "timelineHint": "Semester timeline — all courses by year",
     "kanbanView": "By Year",
-    "timelineView": "Timeline"
+    "timelineView": "Timeline",
+    "markBinary": "Mark as binary (pass/fail)",
+    "binaryBadge": "P/F",
+    "binaryHint": "Grade is excluded from your average. Up to 5 across the degree (miluim-eligible). Over 25% of hours as binary may forfeit honors."
   },
   "mentor": {
-    "title": "Academic Mentor",
+    "title": "Degree Assistant",
     "placeholder": "Ask about your degree, courses, or regulations...",
     "thinking": "Thinking...",
     "noApiKey": "Need a Claude API key — set it up in Settings",
@@ -594,13 +605,13 @@
       "optionalHint": "Only relevant if you served this year. You can skip and revisit this from settings later.",
       "collapsedPromptServed": "Did you do reserve duty this year?",
       "collapsedPromptNone": "Did you serve this year? Check your accommodations",
-      "collapsedExempt": "{credits} cr. exempt",
-      "q1": "Did you do reserve duty this year?",
+      "collapsedExempt": "{credits} cr./yr exempt",
+      "q1": "Did you do reserve duty this semester?",
       "q1Yes": "Yes",
       "q1No": "No / skip",
-      "q2Days": "Roughly how many days?",
+      "q2Days": "How many reserve days this semester?",
       "q2DaysPlaceholder": "Number of days",
-      "q2DaysHint": "A rough estimate is fine — you can update it later.",
+      "q2DaysHint": "Your group is calculated per semester. A rough estimate is fine — update it and add other semesters in settings.",
       "q3Combat": "Combat (front-line) role?",
       "q3CombatYes": "Yes, combat",
       "q3CombatNo": "No",
@@ -747,6 +758,7 @@
     "degreeProgress": "Degree Progress",
     "planNextSemester": "Plan next semester",
     "finishPlanning": "Finish & save",
+    "savingPlan": "Saving your plan…",
     "tabMandatory": "Mandatory",
     "tabElective": "Elective",
     "tabLaw": "Law",
@@ -1015,7 +1027,9 @@
     "simulatedScore": "Simulated Score",
     "change": "Change",
     "forecastBasis": "Forecast · based on {credits} of 150 credits completed",
-    "provisionalBasis": "Current course average · the full graduation score is computed once seminars are graded"
+    "provisionalBasis": "Current course average · the full graduation score is computed once seminars are graded",
+    "generalAverage": "General average",
+    "graduationScoreLabel": "Weighted graduation score"
   },
   "dashboard": {
     "title": "Your Home",
@@ -1305,5 +1319,24 @@
         "body": "Automatically checks that you meet every degree requirement."
       }
     }
+  },
+  "miluim": {
+    "barLabel": "Reserves",
+    "groupShort": "Group {group}",
+    "barCreditHeadline": "Up to {credits} cr./yr exemption (10/degree cap)",
+    "myBenefits": "My benefits",
+    "close": "Close",
+    "creditExemption": "Credit exemption",
+    "creditExemptionHint": "Up to {perYear} cr./yr · available now: {available}",
+    "binaryQuota": "Binary courses",
+    "binaryQuotaHint": "{left} left · up to {percent}% of hours to keep honors",
+    "binaryNone": "Not available for this group",
+    "flagAttendance": "Attendance exempt",
+    "flagExamChoice": "2-of-3 exam dates",
+    "flagExamTime": "+{percent}% exam time",
+    "flagBidding": "+{percent}% bidding",
+    "allBenefits": "All your benefits",
+    "howToRealize": "Most benefits apply automatically (exam-date choice, bidding). Credit exemptions require a request — contact the reserves office or Dean of Students. To mark a course binary (pass/fail): on the course card in the planner, for a completed course with a grade. Update your service data here so the system calculates correctly.",
+    "updateService": "Update reserve-service data"
   }
 }

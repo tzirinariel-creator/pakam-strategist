@@ -60,6 +60,17 @@ export function CatalogContent() {
   // Cast the returned data to our Course type
   const typedCourses = (courses ?? []) as unknown as Course[];
 
+  // Real data-freshness signal: the most recent per-course sync timestamp.
+  // Answers "how up-to-date is this?" with a concrete date, not a static year.
+  const freshestSync = useMemo(() => {
+    const times = ((courses ?? []) as Array<{ lastSyncedAt?: string | Date | null }>)
+      .map((c) => c.lastSyncedAt)
+      .filter(Boolean)
+      .map((d) => new Date(d as string | Date).getTime())
+      .filter((ms) => !isNaN(ms));
+    return times.length ? new Date(Math.max(...times)) : null;
+  }, [courses]);
+
   return (
     <div className="flex flex-col gap-6 p-4 md:p-6">
       {/* Header */}
@@ -120,6 +131,19 @@ export function CatalogContent() {
             {isHe
               ? "נתונים מידיעון אוניברסיטת תל אביב · תשפ״ו"
               : "Data from Tel Aviv University Yedion · 2025/26"}
+            {freshestSync && (
+              <>
+                {" · "}
+                {isHe ? "עודכן לאחרונה " : "last updated "}
+                <bdi dir="ltr">
+                  {freshestSync.toLocaleDateString(isHe ? "he-IL" : "en-US", {
+                    day: "numeric",
+                    month: "short",
+                    year: "numeric",
+                  })}
+                </bdi>
+              </>
+            )}
           </p>
           <span className="text-foreground/15">·</span>
           <a

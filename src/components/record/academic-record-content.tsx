@@ -188,7 +188,7 @@ function SummaryCard({
       {/* Completed credits + progress to 150 */}
       <div className="space-y-2">
         <span className="text-xs text-foreground/50">{t("summaryCompletedCredits")}</span>
-        <div className="flex items-baseline gap-1">
+        <div dir="ltr" className="flex items-baseline gap-1">
           <span className="font-display tabular text-3xl font-bold text-foreground/85">
             {completedCredits}
           </span>
@@ -229,7 +229,7 @@ function SummaryCard({
         <span className="text-xs text-foreground/50">{t("summaryFocusCredits")}</span>
         {hasFocus ? (
           <>
-            <div className="flex items-baseline gap-1">
+            <div dir="ltr" className="flex items-baseline gap-1">
               <span className="font-display tabular text-3xl font-bold text-foreground/85">
                 {focusCredits}
               </span>

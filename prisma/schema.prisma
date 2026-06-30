@@ -203,6 +203,7 @@ model UserCourse {
   plannedSemester     Semester
   attemptNumber       Int           @default(1)
   isGradeImproved     Boolean       @default(false)
+  isBinary            Boolean       @default(false) // Miluim pass/fail conversion — grade excluded from the average
   disciplineOverride  String?       // Override: which discipline this counts toward
   submissionType      SubmissionType?
   submissionGrade     Float?

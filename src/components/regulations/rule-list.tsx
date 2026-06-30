@@ -1,25 +1,92 @@
 "use client";
 
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
-import { XCircle, AlertTriangle, CheckCircle2, Clock } from "lucide-react";
+import { XCircle, AlertTriangle, CheckCircle2, Clock, ChevronDown } from "lucide-react";
 import { RuleCard } from "./rule-card";
+import { cn } from "@/lib/utils";
 import type { RegulationResult } from "@/types/regulation";
 
 interface RuleListProps {
   results: RegulationResult[];
 }
 
+/**
+ * One severity section. Failures/warnings always show open (they need action).
+ * The "passed" and "in-progress" buckets are collapsible and start collapsed so
+ * a student with 25+ rules sees the few that matter first, not a wall of cards.
+ */
+function RuleSection({
+  icon: Icon,
+  title,
+  rules,
+  tone,
+  collapsible,
+}: {
+  icon: React.ComponentType<{ className?: string }>;
+  title: string;
+  rules: RegulationResult[];
+  tone: { text: string; badge: string };
+  collapsible?: boolean;
+}) {
+  const [open, setOpen] = useState(!collapsible);
+  if (rules.length === 0) return null;
+
+  const header = (
+    <div className="flex items-center gap-2">
+      <Icon className={cn("h-5 w-5", tone.text)} />
+      <h3 className={cn("font-bold text-base", tone.text)}>{title}</h3>
+      <span
+        className={cn(
+          "flex h-5 min-w-5 items-center justify-center rounded-full px-1.5 font-data text-xs font-bold",
+          tone.badge
+        )}
+      >
+        {rules.length}
+      </span>
+      {collapsible && (
+        <ChevronDown
+          className={cn(
+            "ms-auto h-4 w-4 text-foreground/40 transition-transform",
+            open && "rotate-180"
+          )}
+        />
+      )}
+    </div>
+  );
+
+  return (
+    <section className="flex flex-col gap-3">
+      {collapsible ? (
+        <button
+          type="button"
+          onClick={() => setOpen((o) => !o)}
+          aria-expanded={open}
+          className="rounded-lg text-start transition-colors hover:opacity-80 focus:outline-none focus:ring-2 focus:ring-foreground/20"
+        >
+          {header}
+        </button>
+      ) : (
+        header
+      )}
+
+      {open && (
+        <div className="grid gap-2 sm:grid-cols-1 lg:grid-cols-2">
+          {rules.map((rule) => (
+            <RuleCard key={rule.ruleId} rule={rule} />
+          ))}
+        </div>
+      )}
+    </section>
+  );
+}
+
 export function RuleList({ results }: RuleListProps) {
   const t = useTranslations("regulations");
 
-  // Group rules into four buckets:
-  //   - failed   : real violations (ERROR, not passed)            → red, needs a fix
-  //   - warning  : WARNING-severity issues (not passed)           → amber
-  //   - inProgress: not-yet-earned progress targets (INFO, not passed) → neutral
-  //   - passed   : satisfied requirements                          → green
-  // INFO progress rules must NEVER land under "Requirements Met" while unmet,
-  // nor imply the student must "fix" not-yet-having-150-credits.
+  // Four buckets by severity/status. INFO progress rules must NEVER land under
+  // "Requirements Met" while unmet, nor imply the student must "fix" not-yet-
+  // having-150-credits.
   const { failedRules, warningRules, inProgressRules, passedRules } = useMemo(() => {
     const failed: RegulationResult[] = [];
     const warning: RegulationResult[] = [];
@@ -27,16 +94,10 @@ export function RuleList({ results }: RuleListProps) {
     const passed: RegulationResult[] = [];
 
     for (const rule of results) {
-      if (rule.passed) {
-        passed.push(rule);
-      } else if (rule.severity === "ERROR") {
-        failed.push(rule);
-      } else if (rule.severity === "WARNING") {
-        warning.push(rule);
-      } else {
-        // INFO-severity, not yet satisfied → normal in-progress accumulation.
-        inProgress.push(rule);
-      }
+      if (rule.passed) passed.push(rule);
+      else if (rule.severity === "ERROR") failed.push(rule);
+      else if (rule.severity === "WARNING") warning.push(rule);
+      else inProgress.push(rule);
     }
 
     return {
@@ -49,85 +110,35 @@ export function RuleList({ results }: RuleListProps) {
 
   return (
     <div className="flex flex-col gap-6">
-      {/* Failed rules */}
-      {failedRules.length > 0 && (
-        <section className="flex flex-col gap-3">
-          <div className="flex items-center gap-2">
-            <XCircle className="h-5 w-5 text-red-400" />
-            <h3 className="font-bold text-base text-red-400">
-              {t("failedSection")}
-            </h3>
-            <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-red-400/10 px-1.5 font-data text-xs font-bold text-red-400">
-              {failedRules.length}
-            </span>
-          </div>
-          <div className="grid gap-2 sm:grid-cols-1 lg:grid-cols-2">
-            {failedRules.map((rule) => (
-              <RuleCard key={rule.ruleId} rule={rule} />
-            ))}
-          </div>
-        </section>
-      )}
+      {/* Failures + warnings — always open, they need action */}
+      <RuleSection
+        icon={XCircle}
+        title={t("failedSection")}
+        rules={failedRules}
+        tone={{ text: "text-red-400", badge: "bg-red-400/10 text-red-400" }}
+      />
+      <RuleSection
+        icon={AlertTriangle}
+        title={t("warningSection")}
+        rules={warningRules}
+        tone={{ text: "text-amber-400", badge: "bg-amber-400/10 text-amber-400" }}
+      />
 
-      {/* Warning rules */}
-      {warningRules.length > 0 && (
-        <section className="flex flex-col gap-3">
-          <div className="flex items-center gap-2">
-            <AlertTriangle className="h-5 w-5 text-amber-400" />
-            <h3 className="font-bold text-base text-amber-400">
-              {t("warningSection")}
-            </h3>
-            <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-amber-400/10 px-1.5 font-data text-xs font-bold text-amber-400">
-              {warningRules.length}
-            </span>
-          </div>
-          <div className="grid gap-2 sm:grid-cols-1 lg:grid-cols-2">
-            {warningRules.map((rule) => (
-              <RuleCard key={rule.ruleId} rule={rule} />
-            ))}
-          </div>
-        </section>
-      )}
-
-      {/* In-progress rules — neutral accumulation targets, NOT failures */}
-      {inProgressRules.length > 0 && (
-        <section className="flex flex-col gap-3">
-          <div className="flex items-center gap-2">
-            <Clock className="h-5 w-5 text-foreground/60" />
-            <h3 className="font-bold text-base text-foreground/70">
-              {t("inProgressSection")}
-            </h3>
-            <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-foreground/10 px-1.5 font-data text-xs font-bold text-foreground/70">
-              {inProgressRules.length}
-            </span>
-          </div>
-          <div className="grid gap-2 sm:grid-cols-1 lg:grid-cols-2">
-            {inProgressRules.map((rule) => (
-              <RuleCard key={rule.ruleId} rule={rule} />
-            ))}
-          </div>
-        </section>
-      )}
-
-      {/* Passed rules */}
-      {passedRules.length > 0 && (
-        <section className="flex flex-col gap-3">
-          <div className="flex items-center gap-2">
-            <CheckCircle2 className="h-5 w-5 text-emerald-400" />
-            <h3 className="font-bold text-base text-emerald-400">
-              {t("passedSection")}
-            </h3>
-            <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-emerald-400/10 px-1.5 font-data text-xs font-bold text-emerald-400">
-              {passedRules.length}
-            </span>
-          </div>
-          <div className="grid gap-2 sm:grid-cols-1 lg:grid-cols-2">
-            {passedRules.map((rule) => (
-              <RuleCard key={rule.ruleId} rule={rule} />
-            ))}
-          </div>
-        </section>
-      )}
+      {/* In-progress + passed — collapsed by default to cut the wall of cards */}
+      <RuleSection
+        icon={Clock}
+        title={t("inProgressSection")}
+        rules={inProgressRules}
+        tone={{ text: "text-foreground/70", badge: "bg-foreground/10 text-foreground/70" }}
+        collapsible
+      />
+      <RuleSection
+        icon={CheckCircle2}
+        title={t("passedSection")}
+        rules={passedRules}
+        tone={{ text: "text-emerald-400", badge: "bg-emerald-400/10 text-emerald-400" }}
+        collapsible
+      />
 
       {/* Empty state */}
       {results.length === 0 && (

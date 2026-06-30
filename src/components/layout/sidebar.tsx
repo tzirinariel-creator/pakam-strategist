@@ -11,9 +11,11 @@ import {
   ChevronLeft,
   BookOpen,
   Calendar,
+  CalendarClock,
   Calculator,
   FolderOpen,
   Bot,
+  Compass,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useUIStore } from "@/stores/ui-store";
@@ -24,11 +26,13 @@ const NAV_ICONS = {
   planner: GraduationCap,
   catalog: BookOpen,
   calendar: Calendar,
+  examPlanner: CalendarClock,
   record: FolderOpen,
   graduation: Calculator,
   regulations: Scale,
   settings: Settings,
   mentor: Bot,
+  guide: Compass,
 } as const;
 
 const NAV_ITEMS = [
@@ -36,10 +40,12 @@ const NAV_ITEMS = [
   { key: "planner", href: "/planner" },
   { key: "catalog", href: "/catalog" },
   { key: "calendar", href: "/calendar" },
+  { key: "examPlanner", href: "/exam-planner" },
   { key: "record", href: "/record" },
   { key: "graduation", href: "/graduation" },
   { key: "regulations", href: "/regulations" },
   { key: "mentor", href: "/mentor" },
+  { key: "guide", href: "/guide" },
 ] as const;
 
 // Pinned to the bottom of the sidebar, separated from the main nav.

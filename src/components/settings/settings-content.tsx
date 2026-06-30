@@ -26,6 +26,7 @@ import {
 import { useTranslations, useLocale } from "next-intl";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
+import { Bidi } from "@/lib/bidi";
 import { DISCIPLINE_CONFIG, FOCUS_DISCIPLINE_IDS, MILUIM_CONFIG } from "@/lib/constants";
 import { deriveGroupFromDays, getCurrentAcademicYear } from "@/lib/miluim";
 import { MiluimDayCombatInputs } from "@/components/miluim/miluim-day-combat-inputs";
@@ -961,6 +962,9 @@ function MiluimSection() {
   const [creditsUsed, setCreditsUsed] = useState<number | null>(null);
   const [binaryUsedInput, setBinaryUsedInput] = useState<number | null>(null);
   const [countersSaved, setCountersSaved] = useState(false);
+  // Manual group override for special cases the day-model can't capture
+  // (career service / 300+ days → C, bereaved/wounded → G) — #9.
+  const [manualGroup, setManualGroup] = useState<string>("NONE");
 
   // The current academic year + semester come from the profile; the current
   // miluim row (if any) seeds the day/combat inputs. SUMMER has no miluim row
@@ -1001,6 +1005,7 @@ function MiluimSection() {
     if (!profileQuery.data) return;
     setCreditsUsed(profileQuery.data.miluimCreditsUsed ?? 0);
     setBinaryUsedInput(profileQuery.data.miluimBinaryUsed ?? 0);
+    setManualGroup(profileQuery.data.miluimGroup ?? "NONE");
   }, [profileQuery.data]);
 
   const upsertMutation = api.user.upsertMiluimSemester.useMutation({
@@ -1059,7 +1064,7 @@ function MiluimSection() {
         <div className="flex items-center justify-between rounded-lg border border-foreground/10 bg-foreground/3 px-4 py-2.5">
           <span className="text-xs text-foreground/50">{t("editingRecord")}</span>
           <span className="text-xs font-medium text-foreground/70">
-            {academicYearLabel} · {semesterLabel}
+            <Bidi text={academicYearLabel} /> · {semesterLabel}
           </span>
         </div>
 
@@ -1082,7 +1087,7 @@ function MiluimSection() {
         <div className="flex items-center justify-between rounded-lg border border-foreground/10 bg-foreground/3 px-4 py-3">
           <span className="text-sm text-foreground/60">{t("currentGroup")}</span>
           <span className="text-sm font-medium text-foreground/80">
-            {(days ?? 0) > 0 ? groupName : t("noService")}
+            {(days ?? 0) > 0 ? <Bidi text={groupName} /> : t("noService")}
           </span>
         </div>
 
@@ -1099,6 +1104,56 @@ function MiluimSection() {
           ) : null}
           {saved ? t("saved") : t("save")}
         </Button>
+
+        {/* Manual group override — special cases the day-model doesn't capture:
+            career service / 300+ days since 7.10.23 → C; bereaved/wounded → G (#9).
+            Writes the fallback user.miluimGroup; a per-semester days row, if any,
+            still takes precedence for that semester. */}
+        <div className="border-t border-border pt-5">
+          <label
+            id="miluim-manual-group-label"
+            className="mb-1.5 block text-sm font-medium text-foreground/70"
+          >
+            {isHe ? "סיווג ידני (מקרים מיוחדים)" : "Manual group (special cases)"}
+          </label>
+          <p className="mb-2.5 text-xs text-foreground/45">
+            {isHe
+              ? "שירות-קבע / 300+ ימים מ-7.10.23 ← קבוצה C · שכול או נפגע-פעולה ← קבוצה G. אם זה המצב שלך, בחר כאן."
+              : "Career service / 300+ days since Oct 7 2023 → Group C · bereaved or wounded → Group G. If that's you, pick it here."}
+          </p>
+          <Select
+            value={manualGroup}
+            onValueChange={(g) => {
+              setManualGroup(g);
+              updateProfileMutation.mutate({
+                miluimGroup: g as "NONE" | "GROUP_A" | "GROUP_B" | "GROUP_C" | "GROUP_G",
+              });
+            }}
+          >
+            <SelectTrigger className="w-full sm:w-72" aria-labelledby="miluim-manual-group-label">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {(Object.keys(MILUIM_CONFIG.GROUPS) as Array<keyof typeof MILUIM_CONFIG.GROUPS>).map((g) => (
+                <SelectItem key={g} value={g}>
+                  {isHe ? MILUIM_CONFIG.GROUPS[g].nameHe : MILUIM_CONFIG.GROUPS[g].nameEn}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          {/* Make the day-row precedence visible: if the student set a manual
+              group AND entered days that derive a different group, the day-row
+              wins for THIS semester — say so instead of silently overriding. */}
+          {manualGroup !== "NONE" &&
+            (days ?? 0) > 0 &&
+            deriveGroupFromDays(days ?? 0, combat) !== manualGroup && (
+              <p className="mt-2 rounded-md border border-amber-500/25 bg-amber-500/5 px-3 py-2 text-[11px] leading-relaxed text-amber-600">
+                {isHe
+                  ? "שים לב: הזנת ימים לסמסטר הנוכחי — הם קובעים את הקבוצה לסמסטר זה ויגברו על הסיווג-הידני. הסיווג-הידני חל על סמסטרים שבהם לא הזנת ימים."
+                  : "Note: you entered days for the current semester — those set the group for this semester and override the manual classification. The manual classification applies to semesters with no days entered."}
+              </p>
+            )}
+        </div>
 
         {/* Cumulative quota — STUDENT-EDITABLE so the degree cap + warnings
             actually engage (fix B). The army doesn't feed these, so the student

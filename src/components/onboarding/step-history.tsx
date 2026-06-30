@@ -100,25 +100,44 @@ export function getPastSemesters(
 }
 
 /**
- * Build the default completed map.
+ * Build the default completed map: PRE-CHECK every mandatory course whose
+ * natural placement (computePlacement) falls in a semester the student has
+ * already passed.
  *
- * IMPORTANT: this intentionally returns an EMPTY map. The past mandatory
- * courses are still pre-POPULATED in the UI (the per-semester lists in the
- * `grouped` memo render straight from the catalog, not from this map), but
- * nothing is auto-marked completed. A mid-degree student off the standard
- * track has NOT necessarily passed every mandatory course at its natural
- * placement, so auto-checking them would over-claim credits and GPA. The
- * student affirmatively checks only the courses they actually completed.
+ * Rationale (fixes #18): a student starting year 2/3 has, by definition,
+ * completed the mandatory courses of the earlier years — you can't reach year 2
+ * without passing year 1. The previous behavior returned an EMPTY map and made
+ * the student manually re-check ~16 courses; in practice they skipped it, so
+ * their history never persisted and the dashboard showed "only 21 ש״ס". Pre-
+ * checking the past mandatory makes their real standing reflect immediately.
  *
- * The signature is kept for the call site; the params are unused now that we
- * no longer pre-check based on the student's current (year, semester).
+ * GPA is NOT over-claimed: grades are left null (the grade calculator only
+ * counts COMPLETED courses that actually carry a grade). An irregular student
+ * who hasn't passed one of these can simply un-check it.
  */
 export function buildDefaultCompleted(
-  _allCourses: CourseWithSchedule[],
-  _year: number,
-  _semester: "FALL" | "SPRING"
+  allCourses: CourseWithSchedule[],
+  year: number,
+  semester: "FALL" | "SPRING"
 ): Record<string, CompletedCourse> {
-  return {};
+  const past = getPastSemesters(year, semester);
+  if (past.length === 0) return {};
+  const pastKeys = new Set(past.map((s) => `${s.year}-${s.semester}`));
+
+  const out: Record<string, CompletedCourse> = {};
+  for (const c of allCourses) {
+    if (!(c.courseType === "MANDATORY" || c.isMandatory)) continue;
+    const p = computePlacement(c);
+    if (!p) continue;
+    if (!pastKeys.has(`${p.year}-${p.semester}`)) continue;
+    out[c.code] = {
+      courseCode: c.code,
+      plannedYear: p.year,
+      plannedSemester: p.semester,
+      grade: null, // student fills grades; null keeps the average honest
+    };
+  }
+  return out;
 }
 
 export function StepHistory({
@@ -264,6 +283,14 @@ export function StepHistory({
           {t("historyTitle")}
         </h2>
         <p className="mt-2 max-w-md text-foreground/50">{t("historyDesc")}</p>
+        {/* Pre-check explainer: mandatory courses of past years are checked by
+            default for a mid-degree student (fixes #18). Make it clear they're
+            editable so an irregular student can correct them. */}
+        <p className="mx-auto mt-2 max-w-md text-xs text-foreground/40">
+          {isHe
+            ? "סימנו לך מראש את קורסי-החובה של השנים שעברת. הסר סימון אם לא עשית קורס, והוסף ציונים אם בא לך — הם לא חובה."
+            : "We pre-checked the mandatory courses from the years you've completed. Un-check any you didn't take, and add grades if you like — they're optional."}
+        </p>
       </div>
 
       <div className="mt-6 w-full max-w-2xl space-y-5">

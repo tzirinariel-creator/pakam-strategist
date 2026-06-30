@@ -139,8 +139,8 @@ const PLANNING_TIPS: Tip[] = [
   },
   {
     id: "pt-3",
-    textEn: "Before choosing a focus area, check how many credits you already have — you may have started without realizing.",
-    textHe: "לפני שבוחרים תחום התמחות, בדקו כמה ש\"ס כבר צברתם — ייתכן שכבר התחלתם בלי לשים לב.",
+    textEn: "Your focus area needs 60 credits. Before deciding, see which disciplines you already have courses in — pick one where you're already building momentum.",
+    textHe: "תחום ההתמחות דורש 60 ש\"ס. לפני שבוחרים — בדקו באילו תחומים כבר צברתם קורסים, ובחרו תחום שכבר יש לכם בו תאוצה.",
     category: "planning_tip",
     icon: Compass,
   },

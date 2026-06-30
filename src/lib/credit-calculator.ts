@@ -35,8 +35,13 @@ const LAW_FOUNDATION_MANDATORY_CAP = 8;
 // Helpers
 // -------------------------------------------------------------------
 
-/** Statuses that count toward earned / planned credits. */
-const COUNTABLE_STATUSES: CourseStatus[] = ["COMPLETED", "PLANNED"];
+/** Statuses that count toward earned / planned credits.
+ *  - COMPLETED / EXEMPT → earned (the requirement is satisfied).
+ *  - PLANNED / IN_PROGRESS → planned (on-track, not yet earned).
+ *  Previously IN_PROGRESS and EXEMPT contributed ZERO, so a student mid-semester
+ *  or with an exempt/transfer course saw under-counted credits in the "My status"
+ *  hero and false "still missing" regulation results (#31). FAILED stays out. */
+const COUNTABLE_STATUSES: CourseStatus[] = ["COMPLETED", "PLANNED", "IN_PROGRESS", "EXEMPT"];
 
 /**
  * Get all discipline IDs from a program.
@@ -244,8 +249,12 @@ export function calculateCredits(
         break;
     }
 
-    // Earned vs planned (capped value for practice).
-    if (uc.status === "COMPLETED") {
+    // Earned vs planned (capped value for practice). COMPLETED + EXEMPT are
+    // EARNED (requirement satisfied); PLANNED + IN_PROGRESS are on-track but not
+    // yet earned. EXEMPT is still excluded from the GPA (grade-calculator only
+    // counts COMPLETED courses that carry a grade), so this lifts credits without
+    // touching the average.
+    if (uc.status === "COMPLETED" || uc.status === "EXEMPT") {
       earnedCredits += credits;
     } else {
       plannedCredits += credits;

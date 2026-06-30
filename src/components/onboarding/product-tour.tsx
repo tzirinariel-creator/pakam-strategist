@@ -86,16 +86,19 @@ export function ProductTour({
         <DialogPrimitive.Overlay className="fixed inset-0 z-50 bg-black/50 backdrop-blur-[2px] data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=open]:fade-in-0 data-[state=closed]:fade-out-0" />
         <DialogPrimitive.Content
           aria-label={t("title")}
+          // NOTE: do NOT use the `.data-card` class here. It's an unlayered CSS
+          // rule (`position: relative; overflow: hidden`) and in Tailwind v4
+          // unlayered styles beat layered utilities — so `.data-card` silently
+          // overrode `fixed`, dropping the modal into normal flow thousands of
+          // pixels down the page (it "opened" but was never on screen). We
+          // replicate the card look with utilities so `fixed` actually applies.
           className={cn(
-            "data-card fixed top-1/2 start-1/2 z-50 w-full max-w-md -translate-x-1/2 -translate-y-1/2 rtl:translate-x-1/2",
-            "p-0 shadow-xl outline-none",
+            "fixed top-1/2 start-1/2 z-50 w-full max-w-md -translate-x-1/2 -translate-y-1/2 rtl:translate-x-1/2",
+            "rounded-2xl border border-border bg-card p-0 shadow-xl outline-none",
             "data-[state=open]:animate-in data-[state=closed]:animate-out",
             "data-[state=open]:fade-in-0 data-[state=closed]:fade-out-0",
             "data-[state=open]:zoom-in-95 data-[state=closed]:zoom-out-95"
           )}
-          // The .data-card hover lift is meant for clickable cards; neutralise it
-          // here so the modal doesn't jump on hover.
-          onMouseEnter={(e) => e.preventDefault()}
         >
           {/* Skip / close — always visible */}
           <DialogPrimitive.Close

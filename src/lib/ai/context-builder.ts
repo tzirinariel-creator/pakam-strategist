@@ -11,10 +11,11 @@ import type {
 } from "@/lib/ai/mentor-prompt";
 import type { UserCourseWithCourse } from "@/types/degree";
 import type { Semester } from "@/types/enums";
-import type { PrismaClient } from "@prisma/client";
+import type { PrismaClient, MiluimGroup } from "@prisma/client";
 import { calculateCredits } from "@/lib/credit-calculator";
 import { calculateGrades } from "@/lib/grade-calculator";
 import { runRegulationEngine } from "@/lib/regulations/rule-engine";
+import { computeCreditExemption, deriveCurrentGroup, getCurrentAcademicYear } from "@/lib/miluim";
 
 // -------------------------------------------------------------------
 // Types
@@ -35,6 +36,11 @@ export interface UserForContext {
   currentSemester: string;
   /** AMIRANT English placement score (DB column kept as amiramScore). */
   amiramScore?: number | null;
+  /** Miluim fields — so the mentor's credit total + regulation list match the
+   *  dashboard hero exactly (#19). Optional: absent → NONE / 0 (no change). */
+  miluimGroup?: MiluimGroup | string | null;
+  miluimCreditsUsed?: number;
+  miluimBinaryUsed?: number;
 }
 
 // -------------------------------------------------------------------
@@ -117,18 +123,35 @@ export async function buildUserContext(
     include: { course: true },
   })) as unknown as UserCourseWithCourse[];
 
-  const creditResult = calculateCredits(userCourses, user.focusArea);
+  // Resolve the miluim credit exemption EXACTLY like plan.getCredits /
+  // regulation.checkCompliance so the mentor's numbers match the dashboard (#19).
+  // academicYear for deriveCurrentGroup is the calendar-year key the rows were
+  // written with (getCurrentAcademicYear), NOT user.currentYear (standing 1–4).
+  const miluimSemesters = await db.miluimSemester.findMany({
+    where: { userId: user.id },
+  });
+  const currentGroup = deriveCurrentGroup(
+    miluimSemesters,
+    (user.miluimGroup ?? "NONE") as MiluimGroup,
+    { academicYear: getCurrentAcademicYear(), semester: user.currentSemester as Semester },
+  );
+  const miluimExemption = computeCreditExemption(currentGroup, user.miluimCreditsUsed ?? 0);
+
+  const creditResult = calculateCredits(userCourses, user.focusArea, miluimExemption);
   const gradeResult = calculateGrades(userCourses);
 
   const regulationSummary = runRegulationEngine(
     userCourses,
     user.focusArea,
-    0,
+    miluimExemption,
     undefined,
     {
       amirantScore: user.amiramScore ?? null,
       academicYear: user.currentYear,
       currentSemester: user.currentSemester,
+      miluimGroup: currentGroup,
+      miluimBinaryUsed: user.miluimBinaryUsed,
+      miluimCreditsUsed: user.miluimCreditsUsed,
     },
   );
 
@@ -204,7 +227,9 @@ export async function buildUserContext(
 
   return {
     focusArea: user.focusArea as MentorContext["focusArea"],
-    totalCredits: creditResult.totalCredits,
+    // effectiveTotal (credits + miluim exemption) — the same figure the "My
+    // status" hero headlines, so the mentor narrates the same number (#19).
+    totalCredits: creditResult.breakdown.effectiveTotal,
     earnedCredits: creditResult.earnedCredits,
     courseAverage: gradeResult.courseAverage,
     focusAreaCredits: creditResult.breakdown.focusArea,

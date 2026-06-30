@@ -37,6 +37,7 @@ export interface UserCourse {
   plannedSemester: Semester;
   attemptNumber: number;
   isGradeImproved: boolean;
+  isBinary: boolean; // Miluim pass/fail conversion — grade excluded from average
   disciplineOverride: Discipline | null; // For cross-discipline attribution
   submissionType: SubmissionType | null;
   submissionGrade: number | null;

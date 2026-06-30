@@ -27,6 +27,15 @@ export class PlannerErrorBoundary extends Component<Props, State> {
   }
 
   handleRetry = () => {
+    // A bare state reset re-renders the SAME (still-broken) subtree, so a
+    // transient failure — e.g. a flaky mobile network that left a query empty —
+    // would just crash again. A full reload re-fetches data and re-reads the
+    // session, which is the real recovery the message promises ("try refreshing").
+    // In-progress onboarding is persisted in localStorage, so nothing is lost.
+    if (typeof window !== "undefined") {
+      window.location.reload();
+      return;
+    }
     this.setState({ hasError: false, error: null });
   };
 

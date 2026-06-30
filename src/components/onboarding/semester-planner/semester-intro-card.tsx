@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useLocale } from "next-intl";
 import { X, BookOpen, GraduationCap, Award, Sparkles, FileText } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { Bidi } from "@/lib/bidi";
 
 // ─── Semester intro data ────────────────────────────────────────────
 
@@ -138,7 +139,7 @@ export function SemesterIntroCard({ year, semester }: SemesterIntroCardProps) {
           {/* Credit range guidance */}
           {data.creditRangeHe && (
             <div className="mt-1.5 inline-flex items-center gap-1 rounded-md bg-black/5 px-2 py-0.5 text-[10px] font-medium opacity-80">
-              <span>{isHe ? data.creditRangeHe : data.creditRangeEn}</span>
+              <span><Bidi text={isHe ? data.creditRangeHe! : data.creditRangeEn!} /></span>
             </div>
           )}
 

@@ -164,7 +164,7 @@ export function CourseDetailPopover({ course, children, onDisciplineOverride }: 
               <div key={i} className="flex items-center gap-2 text-xs text-foreground/60">
                 <Clock className="h-3 w-3 text-foreground/30" />
                 <span className="font-medium">{dayLabels[session.dayOfWeek] ?? session.dayOfWeek}</span>
-                <span className="font-mono text-[10px]">
+                <span dir="ltr" className="font-mono text-[10px]">
                   {session.startTime}–{session.endTime}
                 </span>
                 <span className="text-[10px] text-foreground/30">

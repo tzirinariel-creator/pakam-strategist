@@ -43,6 +43,33 @@ interface SemesterPlannerProps {
   allCourses: CourseWithSchedule[];
   isLoadingCourses: boolean;
   onFinish: (plannedSemesters: PlannedSemester[], sessionGroupSelections: SessionGroupSelections) => void;
+  /**
+   * Course ids the student already COMPLETED elsewhere (the onboarding history
+   * step, or a saved academic record). These are excluded from the editable
+   * pool and counted toward the running degree-credit total, but are NOT part
+   * of the planner's output — they're persisted separately as COMPLETED. Fixes
+   * the mid-degree "only 21 ש״ס appeared / my history didn't reflect" bug (#18):
+   * without this the planner ignores ~52 credits of completed year-1 history.
+   */
+  externalCompletedCourseIds?: string[];
+  /**
+   * An existing PLANNED plan to restore when editing post-onboarding. When
+   * given, the planner re-hydrates its semesters so saving preserves the
+   * semesters the student didn't touch this session (the standalone
+   * /planner/semester page would otherwise wipe them). Omitted in onboarding,
+   * where the planner starts fresh.
+   */
+  initialPlannedSemesters?: PlannedSemester[];
+  /** Existing per-course session-group choices to restore, so re-saving an
+   *  edited plan doesn't drop them. Keyed by course code. */
+  initialSessionGroupSelections?: SessionGroupSelections;
+  /** True while the parent is persisting the plan — drives the finish button's
+   *  "saving…" state (#18). Omitted in onboarding (finish just advances a step). */
+  isSaving?: boolean;
+  /** Called the first time the student changes anything this session. Lets the
+   *  standalone /planner/semester page warn before a silent exit-without-saving
+   *  (#18). Onboarding omits it — its own nav handles unsaved state. */
+  onDirty?: () => void;
 }
 
 // ─── Component ───────────────────────────────────────────────────────
@@ -52,23 +79,49 @@ export function SemesterPlanner({
   allCourses,
   isLoadingCourses,
   onFinish,
+  externalCompletedCourseIds,
+  initialPlannedSemesters,
+  initialSessionGroupSelections,
+  isSaving = false,
+  onDirty,
 }: SemesterPlannerProps) {
   const t = useTranslations("onboarding");
   const tCal = useTranslations("calendar");
   const locale = useLocale();
   const isHe = locale === "he";
 
+  // The (year, semester) the student starts editing on — used to split a
+  // restored plan into "current" vs "already-planned other" semesters.
+  const initialCurrentKey = `${data.year}-${data.semester}`;
+
   // ─── State ─────────────────────────────────────────────────────────
   const [currentYear, setCurrentYear] = useState(data.year);
   const [currentSemester, setCurrentSemester] = useState<"FALL" | "SPRING">(data.semester);
-  const [selectedCourseIds, setSelectedCourseIds] = useState<Set<string>>(new Set());
-  const [completedSemesters, setCompletedSemesters] = useState<PlannedSemester[]>([]);
+  // Restore the current semester's electives from an existing plan (standalone
+  // edit); empty in onboarding. Mandatory ids are re-derived, so seeding with
+  // the full course list is harmless (selectedElectives filters them out).
+  const [selectedCourseIds, setSelectedCourseIds] = useState<Set<string>>(() => {
+    const cur = (initialPlannedSemesters ?? []).find(
+      (s) => `${s.year}-${s.semester}` === initialCurrentKey
+    );
+    return new Set(cur?.courseIds ?? []);
+  });
+  // Seed the "other planned semesters" from an existing plan so a save doesn't
+  // drop the semesters the student isn't editing this session.
+  const [completedSemesters, setCompletedSemesters] = useState<PlannedSemester[]>(
+    () =>
+      (initialPlannedSemesters ?? []).filter(
+        (s) => `${s.year}-${s.semester}` !== initialCurrentKey
+      )
+  );
   const [showSummary, setShowSummary] = useState(false);
   const [showDegreeModal, setShowDegreeModal] = useState(true);
   const [customCourses, setCustomCourses] = useState<CourseWithSchedule[]>([]);
   const [showCustomCourseModal, setShowCustomCourseModal] = useState(false);
   // Session group selections: courseCode → { sessionType → groupCode }
-  const [sessionGroupSelections, setSessionGroupSelections] = useState<SessionGroupSelections>({});
+  const [sessionGroupSelections, setSessionGroupSelections] = useState<SessionGroupSelections>(
+    initialSessionGroupSelections ?? {}
+  );
   // Bottom panel tab: timetable or exam gantt
   const [bottomTab, setBottomTab] = useState<"timetable" | "exams">("timetable");
   // Discipline overrides: courseId → discipline key
@@ -81,6 +134,15 @@ export function SemesterPlanner({
   const pushUndo = useCallback((prev: Set<string>) => {
     undoStack.current.push(new Set(prev));
     redoStack.current = []; // clear redo on new action
+  }, []);
+
+  // Flag the plan as "dirty" the moment the student changes anything, so the
+  // standalone page can warn before a silent exit-without-saving (#18). Kept
+  // ref-stable so adding it to handler deps never churns them.
+  const onDirtyRef = useRef(onDirty);
+  onDirtyRef.current = onDirty;
+  const markDirty = useCallback(() => {
+    onDirtyRef.current?.();
   }, []);
 
   const handleUndo = useCallback(() => {
@@ -143,18 +205,31 @@ export function SemesterPlanner({
 
   // ─── Derived data ──────────────────────────────────────────────────
 
-  // IDs of all courses from previously completed semesters
+  // Courses the student already COMPLETED outside the planner (history step /
+  // saved record). Excluded from the editable pool and counted toward the
+  // running total, but never part of the planner's saved output.
+  const externalCompletedSet = useMemo(
+    () => new Set(externalCompletedCourseIds ?? []),
+    [externalCompletedCourseIds]
+  );
+
+  // IDs of all courses already done — previously-planned semesters in this
+  // session PLUS the external completed history. The mandatory pool, CoursePool
+  // and credit totals all subtract this set, so a mid-degree student never gets
+  // re-offered a course they already passed and their history credits show up.
   const completedCourseIds = useMemo(() => {
-    const ids = new Set<string>();
+    const ids = new Set<string>(externalCompletedSet);
     for (const sem of completedSemesters) {
       for (const id of sem.courseIds) {
         ids.add(id);
       }
     }
     return ids;
-  }, [completedSemesters]);
+  }, [completedSemesters, externalCompletedSet]);
 
-  // Credits from completed semesters
+  // Credits from everything already done (completed semesters + external
+  // history). completedCourseIds is already de-duplicated, so this can't
+  // double-count a course that appears in both sets.
   const completedCredits = useMemo(() => {
     const courseMap = new Map(mergedCourses.map((c) => [c.id, c]));
     let total = 0;
@@ -225,6 +300,7 @@ export function SemesterPlanner({
   const handleToggleCourse = useCallback(
     (courseId: string) => {
       if (mandatoryIds.has(courseId)) return; // can't toggle mandatory
+      markDirty();
       setSelectedCourseIds((prev) => {
         pushUndo(prev);
         const next = new Set(prev);
@@ -236,12 +312,13 @@ export function SemesterPlanner({
         return next;
       });
     },
-    [mandatoryIds, pushUndo]
+    [mandatoryIds, pushUndo, markDirty]
   );
 
   const handleRemoveCourse = useCallback(
     (courseId: string) => {
       if (mandatoryIds.has(courseId)) return;
+      markDirty();
       setSelectedCourseIds((prev) => {
         pushUndo(prev);
         const next = new Set(prev);
@@ -249,7 +326,7 @@ export function SemesterPlanner({
         return next;
       });
     },
-    [mandatoryIds, pushUndo]
+    [mandatoryIds, pushUndo, markDirty]
   );
 
   const handleDoneSemester = useCallback(() => {
@@ -257,6 +334,7 @@ export function SemesterPlanner({
   }, []);
 
   const handlePlanNext = useCallback(() => {
+    markDirty();
     // Save current semester
     const currentKey = `${currentYear}-${currentSemester}`;
     const currentCourseIds = [
@@ -286,19 +364,21 @@ export function SemesterPlanner({
     setShowSummary(false);
     undoStack.current = [];
     redoStack.current = [];
-  }, [currentYear, currentSemester, mandatoryIds, selectedCourseIds]);
+  }, [currentYear, currentSemester, mandatoryIds, selectedCourseIds, markDirty]);
 
   const handleAddCustomCourse = useCallback(
     (course: CourseWithSchedule) => {
+      markDirty();
       setCustomCourses((prev) => [...prev, course]);
       // Auto-select the custom course
       setSelectedCourseIds((prev) => new Set([...prev, course.id]));
     },
-    []
+    [markDirty]
   );
 
   const handleDeleteCustomCourse = useCallback(
     (courseId: string) => {
+      markDirty();
       setCustomCourses((prev) => prev.filter((c) => c.id !== courseId));
       setSelectedCourseIds((prev) => {
         const next = new Set(prev);
@@ -306,24 +386,26 @@ export function SemesterPlanner({
         return next;
       });
     },
-    []
+    [markDirty]
   );
 
   const handleSelectSessionGroup = useCallback(
     (courseCode: string, sessionType: string, groupCode: string) => {
+      markDirty();
       setSessionGroupSelections((prev) => ({
         ...prev,
         [courseCode]: { ...(prev[courseCode] ?? {}), [sessionType]: groupCode },
       }));
     },
-    []
+    [markDirty]
   );
 
   const handleDisciplineOverride = useCallback(
     (courseId: string, discipline: string) => {
+      markDirty();
       setDisciplineOverrides((prev) => ({ ...prev, [courseId]: discipline }));
     },
-    []
+    [markDirty]
   );
 
   const customCourseIds = useMemo(
@@ -441,6 +523,8 @@ export function SemesterPlanner({
           hasMoreSemesters={hasMoreSemesters}
           onPlanNext={handlePlanNext}
           onFinish={handleFinish}
+          onBack={() => setShowSummary(false)}
+          isSaving={isSaving}
         />
       </div>
     );

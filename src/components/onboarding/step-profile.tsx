@@ -4,6 +4,7 @@ import { useState, useMemo } from "react";
 import { useTranslations, useLocale } from "next-intl";
 import { Shield, ChevronDown, Swords, Check, Sparkles, FileText } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { Bidi } from "@/lib/bidi";
 import { MILUIM_CONFIG, AMIRNET_CONFIG, DISCIPLINE_CONFIG, FOCUS_DISCIPLINE_IDS } from "@/lib/constants";
 import { deriveGroupFromDays, type MiluimGroupKey } from "@/lib/miluim";
 import type { OnboardingData } from "./onboarding-wizard";
@@ -63,7 +64,9 @@ export function StepProfile({ data, onUpdate }: StepProfileProps) {
         label: isHe ? cfg.nameHe : cfg.nameEn,
         glowClass: cfg.glowClass,
         borderClass: cfg.borderClass,
-        bgClass: `${cfg.bgClass}/10`,
+        // /20 (was /10) so the selected fill actually reads — at /10 the wash was
+        // nearly invisible and you couldn't tell you'd picked it (#8).
+        bgClass: `${cfg.bgClass}/20`,
         textClass: cfg.textClass,
       };
     }),
@@ -196,13 +199,15 @@ export function StepProfile({ data, onUpdate }: StepProfileProps) {
                 <button
                   key={option.value ?? "undecided"}
                   onClick={() => onUpdate({ focusArea: option.value })}
+                  aria-pressed={isSelected}
                   className={cn(
-                    "rounded-xl border-2 px-4 py-3.5 text-sm font-medium transition-all",
+                    "flex items-center justify-center gap-1.5 rounded-xl border-2 px-4 py-3.5 text-sm font-medium transition-all",
                     isSelected
-                      ? cn(option.borderClass, option.bgClass, option.textClass, option.glowClass)
+                      ? cn(option.borderClass, option.bgClass, option.textClass, option.glowClass, "scale-[1.02] font-semibold shadow-sm")
                       : "border-border bg-card text-foreground/60 hover:border-foreground/20"
                   )}
                 >
+                  {isSelected && <Check className="h-3.5 w-3.5 shrink-0" />}
                   {option.label}
                 </button>
               );
@@ -354,9 +359,13 @@ export function StepProfile({ data, onUpdate }: StepProfileProps) {
                       <div className="rounded-lg border border-emerald-500/20 bg-emerald-500/5 p-2.5 animate-in fade-in duration-200">
                         <p className="text-xs font-medium text-emerald-500">{tm("resultTitle")}</p>
                         <p className="mt-1 text-sm font-bold text-foreground/80">
-                          {isHe
-                            ? MILUIM_CONFIG.GROUPS[derivedGroup].nameHe
-                            : MILUIM_CONFIG.GROUPS[derivedGroup].nameEn}
+                          <Bidi
+                            text={
+                              isHe
+                                ? MILUIM_CONFIG.GROUPS[derivedGroup].nameHe
+                                : MILUIM_CONFIG.GROUPS[derivedGroup].nameEn
+                            }
+                          />
                         </p>
                         <p className="mt-0.5 text-[11px] text-foreground/45">
                           {tm("resultExemption", {
@@ -384,7 +393,7 @@ export function StepProfile({ data, onUpdate }: StepProfileProps) {
                 </button>
                 {showSpecialCases && (
                   <div className="mt-2 space-y-1.5 animate-in fade-in duration-200">
-                    <p className="text-[10px] text-foreground/30">{tm("specialCasesHint")}</p>
+                    <p className="text-[10px] text-foreground/30"><Bidi text={tm("specialCasesHint")} /></p>
                     {/* 300+ */}
                     <button
                       onClick={() => onUpdate({ miluimGroup: "GROUP_C" })}
@@ -392,7 +401,7 @@ export function StepProfile({ data, onUpdate }: StepProfileProps) {
                     >
                       <span className="flex items-center gap-1.5 font-medium text-amber-500">
                         <Swords className="h-3 w-3" />
-                        {tm("special300")}
+                        <Bidi text={tm("special300")} />
                       </span>
                       <span className="block mt-0.5 text-foreground/30">{tm("special300Desc")}</span>
                     </button>
@@ -426,7 +435,7 @@ export function StepProfile({ data, onUpdate }: StepProfileProps) {
                       className="w-full rounded-lg border border-foreground/10 bg-foreground/3 px-3 py-2 text-start text-[11px] text-foreground/50 hover:border-foreground/20 transition-all"
                     >
                       <span className="font-medium">{tm("specialRetro")}</span>
-                      <span className="block text-foreground/30">{tm("specialRetroDesc")}</span>
+                      <span className="block text-foreground/30"><Bidi text={tm("specialRetroDesc")} /></span>
                     </button>
                   </div>
                 )}
@@ -458,7 +467,7 @@ export function StepProfile({ data, onUpdate }: StepProfileProps) {
                           )}
                         >
                           <div className="flex items-center justify-between">
-                            <span className="font-medium">{isHe ? group.nameHe : group.nameEn}</span>
+                            <span className="font-medium"><Bidi text={isHe ? group.nameHe : group.nameEn} /></span>
                             {groupKey !== "NONE" && (
                               <span className="rounded-full bg-foreground/5 px-1.5 py-0.5 text-[9px] font-mono text-foreground/40">
                                 {Math.min(group.creditExemptionPerYear, MILUIM_CONFIG.MAX_CREDIT_EXEMPTIONS_DEGREE)} {isHe ? "ש״ס" : "cr."}
@@ -510,8 +519,8 @@ export function StepProfile({ data, onUpdate }: StepProfileProps) {
                         <li key={ent.key} className="flex items-start gap-1.5">
                           <span className="mt-1 h-1.5 w-1.5 shrink-0 rounded-full bg-foreground/25" />
                           <div className="leading-snug">
-                            <span className="text-[11px] font-medium text-foreground/70">{ent.title}</span>
-                            <span className="block text-[10px] text-foreground/40">{ent.desc}</span>
+                            <span className="text-[11px] font-medium text-foreground/70"><Bidi text={ent.title} /></span>
+                            <span className="block text-[10px] text-foreground/40"><Bidi text={ent.desc} /></span>
                           </div>
                         </li>
                       ))}
@@ -530,7 +539,7 @@ export function StepProfile({ data, onUpdate }: StepProfileProps) {
           </h3>
           <p className="mb-3 text-xs text-foreground/40">
             {isHe
-              ? "הציון קובע כמה קורסי אנגלית תצטרכו. הסולם 50-150 זהה לאמירנט ולפסיכומטרי. בפכ״מ נדרשים 2 קורסי תוכן באנגלית בכל מקרה."
+              ? <Bidi text={"הציון קובע כמה קורסי אנגלית תצטרכו. הסולם 50-150 זהה לאמירנט ולפסיכומטרי. בפכ״מ נדרשים 2 קורסי תוכן באנגלית בכל מקרה."} />
               : "Determines how many English courses you need. The 50-150 scale is shared by AMIRANT and Psychometric. PPE requires 2 English content courses regardless."
             }
           </p>
@@ -549,20 +558,20 @@ export function StepProfile({ data, onUpdate }: StepProfileProps) {
             />
             {amirnetStatus && (
               <span className={cn("text-xs font-medium", amirnetStatus.color)}>
-                {amirnetStatus.text}
+                <Bidi text={amirnetStatus.text} />
               </span>
             )}
           </div>
           {amirnetStatus?.detail && (
             <p className={cn("mt-1.5 text-[10px]", amirnetStatus.color.replace("text-", "text-") + "/70")}>
-              {amirnetStatus.detail}
+              <Bidi text={amirnetStatus.detail} />
             </p>
           )}
           <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-[10px] text-foreground/30">
-            <span>{isHe ? "134+ = פטור" : "134+ = exempt"}</span>
-            <span>{isHe ? "120-133 = מתקדמים ב׳" : "120-133 = adv. B"}</span>
-            <span>{isHe ? "100-119 = מתקדמים א׳" : "100-119 = adv. A"}</span>
-            <span>{isHe ? "85-99 = בסיסי" : "85-99 = basic"}</span>
+            <span><Bidi text={isHe ? "134+ = פטור" : "134+ = exempt"} /></span>
+            <span><Bidi text={isHe ? "120-133 = מתקדמים ב׳" : "120-133 = adv. B"} /></span>
+            <span><Bidi text={isHe ? "100-119 = מתקדמים א׳" : "100-119 = adv. A"} /></span>
+            <span><Bidi text={isHe ? "85-99 = בסיסי" : "85-99 = basic"} /></span>
           </div>
         </div>
       </div>

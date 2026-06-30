@@ -12,6 +12,7 @@ import {
 } from "lucide-react";
 import { useState } from "react";
 import { Link } from "@/i18n/navigation";
+import { Bidi } from "@/lib/bidi";
 import { DISCIPLINE_CONFIG, ENGLISH_CONFIG } from "@/lib/constants";
 import type { RegulationResult } from "@/types/regulation";
 
@@ -173,7 +174,7 @@ export function RuleCard({ rule }: RuleCardProps) {
           className="border-t border-border/10 px-4 py-3"
         >
           <p className="text-sm leading-relaxed text-foreground/70">
-            {message}
+            <Bidi text={message} />
           </p>
 
           {/* Details data */}
@@ -185,6 +186,9 @@ export function RuleCard({ rule }: RuleCardProps) {
                 // Drop internal sort/rank keys entirely — they're ordering
                 // helpers, never user-facing information.
                 if (HIDDEN_DETAIL_KEYS.has(key) || key.endsWith("Rank")) return null;
+                // Null/undefined detail (e.g. focusArea not chosen yet) → skip the
+                // row entirely, never render the literal string "null"/"נול".
+                if (value === null || value === undefined || value === "") return null;
 
                 // ── Localize the value (no English gibberish) ──────────────
                 let displayValue = String(value);

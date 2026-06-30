@@ -406,7 +406,7 @@ export const MILUIM_CONFIG = {
       ],
     },
     GROUP_B: {
-      nameHe: "קבוצה B — 21-34 ימים בסמסטר",
+      nameHe: "קבוצה B — 21 עד 34 ימים בסמסטר",
       nameEn: "Group B — 21-34 days per semester",
       descHe: "21-34 ימים בסמסטר; או לוחמים 14-20 ימים; או 35+ ימים מצטברים בשנת תשפ\"ו (סמ׳ ב׳); או 60+ ימים לפני פתיחת סמסטר; או 100+ בתשפ\"ה (סמ׳ א׳ רטרואקטיבית)",
       descEn: "21-34 days/semester; or combat 14-20 days; or 35+ cumulative in year (sem B); or 60+ days before semester; or 100+ in prev year (sem A retroactive)",
@@ -437,7 +437,7 @@ export const MILUIM_CONFIG = {
       ],
     },
     GROUP_C: {
-      nameHe: "קבוצה C — 35+ ימים בסמסטר",
+      nameHe: "קבוצה C — 35 ימים ומעלה בסמסטר",
       nameEn: "Group C — 35+ days per semester",
       descHe: "35+ ימים מצטברים בסמסטר; או 100+ ימים בסמ׳ א׳ (מזכה גם בסמ׳ ב׳). לוחמים: 21+ ימים בסמסטר",
       descEn: "35+ cumulative days/semester; or 100+ days in sem A (gives C in sem B too). Combat: 21+ days/semester",

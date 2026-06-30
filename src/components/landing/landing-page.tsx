@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { Bidi } from "@/lib/bidi";
 
 // ─── Feature Card Data ──────────────────────────────────────────────
 
@@ -75,7 +76,7 @@ function PlannerPreview({ isRTL }: { isRTL: boolean }) {
       <div className="px-4 pt-4">
         <div className="mb-1.5 flex items-baseline justify-between text-[11px]">
           <span className="font-semibold text-foreground">
-            33 <span className="text-muted-foreground">/ 150 {isRTL ? "ש״ס" : "credits"}</span>
+            <bdi dir="ltr">33 / 150</bdi> <span className="text-muted-foreground">{isRTL ? "ש״ס" : "credits"}</span>
           </span>
           <span className="text-muted-foreground">{isRTL ? "22%" : "22%"}</span>
         </div>
@@ -118,7 +119,7 @@ function PlannerPreview({ isRTL }: { isRTL: boolean }) {
           {isRTL ? "תקנון" : "Regulations"}
         </span>
         <span className="rounded-full bg-[#2ECC71]/15 px-2 py-0.5 font-medium text-[#1f9d55]">
-          {isRTL ? "4 / 17 כללים" : "4 / 17 rules"}
+          {isRTL ? <><bdi dir="ltr">4 / 17</bdi> כללים</> : "4 / 17 rules"}
         </span>
       </div>
     </div>

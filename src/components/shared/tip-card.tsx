@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 import { RefreshCw } from "lucide-react";
 import { useLocale } from "next-intl";
 import { cn } from "@/lib/utils";
+import { Bidi } from "@/lib/bidi";
 import { ALL_TIPS, type Tip } from "@/lib/tips-engine";
 
 interface TipCardProps {
@@ -44,7 +45,7 @@ export function TipCard({ tip, className }: TipCardProps) {
       )}
     >
       <Icon className="mt-0.5 h-4 w-4 shrink-0 text-foreground/40" />
-      <p className="flex-1 text-sm leading-relaxed text-foreground/60">{text}</p>
+      <p className="flex-1 text-sm leading-relaxed text-foreground/60"><Bidi text={text} /></p>
       {canCycle && (
         <button
           type="button"

@@ -19,6 +19,7 @@ import { api } from "@/lib/trpc/react";
 import { cn } from "@/lib/utils";
 import { downloadExamICS } from "@/lib/ics-export";
 import { DISCIPLINE_CONFIG, SEMESTER_CONFIG, YEAR_CONFIG, CREDIT_REQUIREMENTS } from "@/lib/constants";
+import { Bidi } from "@/lib/bidi";
 import { Badge } from "@/components/ui/badge";
 import { ExamGantt } from "@/components/onboarding/semester-planner/exam-gantt";
 import type { Discipline, Semester } from "@/types/enums";
@@ -79,15 +80,31 @@ export function ExamSchedule() {
   const [activeTab, setActiveTab] = useState<"list" | "gantt">("list");
   const { data, isLoading, error } = api.schedule.getExamSchedule.useQuery();
 
-  // Group exams by date (both Moed A and Moed B)
+  // Group UPCOMING exams by date. The board previously listed every sitting and
+  // merely dimmed past ones (opacity-60), so it stayed cluttered with exams that
+  // already happened and with sittings for courses already passed (#33). We now
+  // hide them outright, client-side (server-side date-nulling would corrupt the
+  // shared Course.examDate* that the dashboard countdown also reads).
   const examGroups = useMemo<ExamGroup[]>(() => {
     if (!data?.exams) return [];
+
+    const todayStart = new Date();
+    todayStart.setHours(0, 0, 0, 0);
+    const isFuture = (d: Date) => d.getTime() >= todayStart.getTime();
 
     const dateMap = new Map<string, ExamGroup>();
 
     for (const exam of data.exams) {
-      // Add Moed A
-      if (exam.examDateA) {
+      // Already passed → no upcoming exam to plan for; drop its sittings.
+      // (A FAILED course keeps its future Moed B, so retakes still show.)
+      const passed =
+        exam.status === "COMPLETED" &&
+        exam.grade != null &&
+        exam.grade >= CREDIT_REQUIREMENTS.PASSING_GRADE;
+      if (passed) continue;
+
+      // Add Moed A — only if it hasn't happened yet.
+      if (exam.examDateA && isFuture(exam.examDateA)) {
         const dateA = exam.examDateA;
         const key = `A-${dateA.toISOString().split("T")[0] ?? ""}`;
         const existing = dateMap.get(key);
@@ -103,8 +120,8 @@ export function ExamSchedule() {
         }
       }
 
-      // Add Moed B
-      if (exam.examDateB) {
+      // Add Moed B — only if it hasn't happened yet.
+      if (exam.examDateB && isFuture(exam.examDateB)) {
         const dateB = exam.examDateB;
         const key = `B-${dateB.toISOString().split("T")[0] ?? ""}`;
         const existing = dateMap.get(key);
@@ -125,7 +142,7 @@ export function ExamSchedule() {
     return Array.from(dateMap.values()).sort(
       (a, b) => a.date.getTime() - b.date.getTime()
     );
-  }, [data?.exams, locale, isRTL]);
+  }, [data?.exams, locale, t]);
 
   // Stats
   const stats = useMemo(() => {
@@ -139,8 +156,12 @@ export function ExamSchedule() {
     let nextExam: Date | null = null;
 
     for (const exam of data.exams) {
+      // Already passed → count it as passed and STOP — it must not feed the
+      // "upcoming" tally or the next-exam countdown, so the stats agree with the
+      // board (examGroups), which hides passed courses.
       if (exam.status === "COMPLETED" && exam.grade !== null && exam.grade >= CREDIT_REQUIREMENTS.PASSING_GRADE) {
         passed++;
+        continue;
       }
 
       // Check both Moed A and Moed B for upcoming exams and next exam countdown
@@ -170,26 +191,48 @@ export function ExamSchedule() {
   // React's Rules of Hooks (hooks must always be called in the same order).
   const ganttCourses = useMemo(() => {
     if (!data?.exams) return [];
-    return data.exams.map((e) => ({
-      id: e.userCourseId,
-      code: e.courseCode,
-      nameHe: e.courseName,
-      nameEn: e.courseName,
-      discipline: e.discipline as Discipline,
-      credits: e.credits,
-      examDateA: e.examDateA,
-      examDateB: e.examDateB,
-      courseType: e.courseType,
-      yearOffered: [] as number[],
-      semesterOffered: [] as Semester[],
-      prerequisites: [] as string[],
-      canCountAs: [] as Discipline[],
-      description: null,
-      isMandatory: e.courseType === "MANDATORY",
-      submissionType: e.submissionType,
-      weeklyHours: null,
-    }));
+    const todayStart = new Date();
+    todayStart.setHours(0, 0, 0, 0);
+    const futureOnly = (d: Date | null) =>
+      d && d.getTime() >= todayStart.getTime() ? d : null;
+    return data.exams
+      .filter((e) => {
+        // Mirror the list view: drop passed courses and past-only sittings (#33).
+        const passed =
+          e.status === "COMPLETED" &&
+          e.grade != null &&
+          e.grade >= CREDIT_REQUIREMENTS.PASSING_GRADE;
+        if (passed) return false;
+        return futureOnly(e.examDateA) || futureOnly(e.examDateB);
+      })
+      .map((e) => ({
+        id: e.userCourseId,
+        code: e.courseCode,
+        nameHe: e.courseName,
+        nameEn: e.courseName,
+        discipline: e.discipline as Discipline,
+        credits: e.credits,
+        examDateA: futureOnly(e.examDateA),
+        examDateB: futureOnly(e.examDateB),
+        courseType: e.courseType,
+        yearOffered: [] as number[],
+        semesterOffered: [] as Semester[],
+        prerequisites: [] as string[],
+        canCountAs: [] as Discipline[],
+        description: null,
+        isMandatory: e.courseType === "MANDATORY",
+        submissionType: e.submissionType,
+        weeklyHours: null,
+      }));
   }, [data?.exams]);
+
+  // Disciplines present among the UPCOMING exams — drives the board legend (#8),
+  // so the colored dots actually mean something to the reader.
+  const legendDisciplines = useMemo(() => {
+    const ids = new Set<string>();
+    for (const g of examGroups) for (const e of g.exams) ids.add(e.discipline);
+    return Array.from(ids);
+  }, [examGroups]);
 
   // ─── Loading ─────────────────────────────────────────────────────
 
@@ -337,7 +380,39 @@ export function ExamSchedule() {
       )}
 
       {/* Exam groups by date (list view) */}
-      {activeTab === "list" && <div className="flex flex-col gap-4">
+      {activeTab === "list" && (examGroups.length === 0 ? (
+        // Everything is in the past or already passed → nothing upcoming (#33).
+        <div className="flex min-h-[160px] flex-col items-center justify-center gap-3 rounded-lg border border-dashed border-border/40 p-6">
+          <CheckCircle2 className="size-8 text-emerald-400/70" />
+          <p className="text-sm text-foreground/55">
+            {isRTL ? "אין מבחנים קרובים — אתה מעודכן." : "No upcoming exams — you're all caught up."}
+          </p>
+        </div>
+      ) : (
+      <div className="flex flex-col gap-4">
+        {/* Legend (#8): what the dot color, Moed-B badge and red mean. */}
+        <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5 rounded-lg border border-border/40 bg-card/30 px-3 py-2 text-[11px] text-foreground/50">
+          {legendDisciplines.map((id) => {
+            const cfg = DISCIPLINE_CONFIG[id as Discipline];
+            return (
+              <span key={id} className="inline-flex items-center gap-1.5">
+                <span
+                  className="size-2.5 rounded-full"
+                  style={{ backgroundColor: cfg?.color ?? "hsl(var(--muted-foreground))" }}
+                />
+                {(isRTL ? cfg?.nameHe : cfg?.nameEn) ?? id}
+              </span>
+            );
+          })}
+          <span className="inline-flex items-center gap-1.5">
+            <Badge variant="outline" className="text-[9px]">{t("moedB")}</Badge>
+            {isRTL ? "מועד חוזר" : "retake"}
+          </span>
+          <span className="inline-flex items-center gap-1.5">
+            <span className="size-2.5 rounded-full bg-red-400" />
+            {isRTL ? "היום / דחוף" : "today / urgent"}
+          </span>
+        </div>
         {examGroups.map((group) => {
           const days = daysUntil(group.date);
           const isPast = days < 0;
@@ -423,7 +498,7 @@ export function ExamSchedule() {
                           {exam.courseName}
                         </span>
                         <span className="text-[11px] text-muted-foreground">
-                          {exam.courseCode} · {exam.credits} {t("credits")}
+                          <Bidi text={exam.courseCode} /> · {exam.credits} {t("credits")}
                         </span>
                       </div>
 
@@ -469,7 +544,8 @@ export function ExamSchedule() {
             </div>
           );
         })}
-      </div>}
+      </div>
+      ))}
     </div>
   );
 }

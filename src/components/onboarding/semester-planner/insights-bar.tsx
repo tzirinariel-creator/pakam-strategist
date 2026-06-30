@@ -38,7 +38,7 @@ const LEVEL_LABELS_HE: Record<string, string> = {
   light: "קל",
   moderate: "בינוני",
   heavy: "כבד",
-  intense: "עמוס",
+  intense: "מאתגר מאוד",
 };
 
 const LEVEL_LABELS_EN: Record<string, string> = {
@@ -255,8 +255,8 @@ function generateScheduleInsights(
       insights.push({
         icon: Zap,
         text: isHe
-          ? `${maxConsecutive} שעות רצופות ביום ${dayNames[d]} — שקלו הפסקה`
-          : `${maxConsecutive} consecutive hours on ${dayNames[d]} — consider a break`,
+          ? `יום ${dayNames[d]} צפוף — ${maxConsecutive} שעות כמעט-רצופות. שווה לשבץ הפסקה של חצי שעה באמצע, או להזיז קורס אחד ליום אחר.`
+          : `${dayNames[d]} is packed — ${maxConsecutive} near-back-to-back hours. Worth slotting a 30-min break in the middle, or moving a course to another day.`,
         type: "warning",
       });
       break; // one alert is enough
@@ -540,7 +540,7 @@ export function InsightsBar({
               {t("degreeProgress")}
             </span>
           </div>
-          <div className="mt-1 flex items-baseline gap-1">
+          <div className="mt-1 flex items-baseline gap-1" dir="ltr">
             <span className="font-mono text-lg font-bold text-foreground/70">
               {totalCreditsPlanned}
             </span>

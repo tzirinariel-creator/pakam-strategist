@@ -1,7 +1,7 @@
 "use client";
 
 import { useTranslations, useLocale } from "next-intl";
-import { CheckCircle, Calendar, Feather, Gauge, Weight, Flame } from "lucide-react";
+import { CheckCircle, Calendar, Feather, Gauge, Weight, Flame, Pencil, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { calculateWorkload, getWorkloadColor } from "@/lib/workload-calculator";
 import { SEMESTER_CONFIG, YEAR_CONFIG } from "@/lib/constants";
@@ -36,6 +36,13 @@ interface SemesterSummaryProps {
   hasMoreSemesters: boolean;
   onPlanNext: () => void;
   onFinish: () => void;
+  /** Return to editing THIS semester (lossless) — "I forgot something" (#28). */
+  onBack: () => void;
+  /** Persisting the plan to the server (standalone edit). Drives the finish
+   *  button's "saving…" state so the slow prod DB save feels responsive and the
+   *  user doesn't double-submit or wonder whether it took (#18). Onboarding
+   *  omits it — there the "finish" just advances a step, no async save. */
+  isSaving?: boolean;
 }
 
 export function SemesterSummary({
@@ -46,6 +53,8 @@ export function SemesterSummary({
   hasMoreSemesters,
   onPlanNext,
   onFinish,
+  onBack,
+  isSaving = false,
 }: SemesterSummaryProps) {
   const t = useTranslations("onboarding");
   const locale = useLocale();
@@ -127,7 +136,8 @@ export function SemesterSummary({
           {hasMoreSemesters && (
             <button
               onClick={onPlanNext}
-              className="bg-foreground flex items-center justify-center gap-2 rounded-xl px-6 py-3 font-bold text-background shadow-sm transition-all hover:scale-[1.02] press-scale"
+              disabled={isSaving}
+              className="bg-foreground flex items-center justify-center gap-2 rounded-xl px-6 py-3 font-bold text-background shadow-sm transition-all hover:scale-[1.02] press-scale disabled:opacity-50"
             >
               <Calendar className="h-4 w-4" />
               {t("planNextSemester")}
@@ -135,14 +145,32 @@ export function SemesterSummary({
           )}
           <button
             onClick={onFinish}
+            disabled={isSaving}
+            aria-busy={isSaving}
             className={cn(
-              "flex items-center justify-center gap-2 rounded-xl px-6 py-3 text-sm font-medium transition-all",
+              "flex items-center justify-center gap-2 rounded-xl px-6 py-3 text-sm font-medium transition-all disabled:cursor-wait",
               hasMoreSemesters
-                ? "border-2 border-border text-foreground/60 hover:border-foreground/30 hover:text-foreground/80"
-                : "bg-foreground font-bold text-background shadow-sm hover:scale-[1.02] press-scale"
+                ? "border-2 border-border text-foreground/60 hover:border-foreground/30 hover:text-foreground/80 disabled:opacity-60"
+                : "bg-foreground font-bold text-background shadow-sm hover:scale-[1.02] press-scale disabled:opacity-80"
             )}
           >
-            {t("finishPlanning")}
+            {isSaving ? (
+              <>
+                <Loader2 className="h-4 w-4 animate-spin" />
+                {t("savingPlan")}
+              </>
+            ) : (
+              t("finishPlanning")
+            )}
+          </button>
+          {/* Tertiary: go back to editing this semester — lossless (#28). */}
+          <button
+            onClick={onBack}
+            disabled={isSaving}
+            className="flex items-center justify-center gap-1.5 rounded-xl px-6 py-2 text-xs font-medium text-foreground/45 transition-colors hover:text-foreground/70 disabled:opacity-50"
+          >
+            <Pencil className="h-3 w-3" />
+            {isHe ? "חזרה לעריכה — שכחתי משהו" : "Back to editing — I forgot something"}
           </button>
         </div>
       </div>

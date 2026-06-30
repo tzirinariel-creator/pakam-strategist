@@ -1,25 +1,26 @@
 "use client";
 
 import { useState, useEffect, useRef, useCallback } from "react";
-import { GraduationCap, BookOpen, Scale, Pencil, Shield, ShieldCheck, ShieldAlert, CheckCircle2, AlertCircle, Languages, Target, ArrowRight, ArrowLeft, Calendar, X, RefreshCw, Calculator } from "lucide-react";
+import { GraduationCap, Scale, Pencil, Target, ArrowRight, ArrowLeft, Calendar, X, RefreshCw, Calculator } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 import { useSearchParams } from "next/navigation";
 import { Link } from "@/i18n/navigation";
 import { api } from "@/lib/trpc/react";
-import { ScoreDisplay } from "@/components/graduation/score-display";
-import { ScoreBreakdown } from "@/components/graduation/score-breakdown";
 import { TipCard } from "@/components/shared/tip-card";
 import { getContextualTips, getRandomTip } from "@/lib/tips-engine";
 import { ThemedLoader } from "@/components/ui/themed-loader";
 import { Progress } from "@/components/ui/progress";
-import { CountUp } from "@/components/ui/count-up";
 import { OnboardingWizard } from "@/components/onboarding/onboarding-wizard";
-import { ProductTour, TourReopenButton, TOUR_DONE_KEY } from "@/components/onboarding/product-tour";
-import { CREDIT_REQUIREMENTS, DISCIPLINE_CONFIG, FILTERABLE_DISCIPLINE_IDS, getDisciplineCredits } from "@/lib/constants";
+import { TourReopenButton, TOUR_DONE_KEY } from "@/components/onboarding/product-tour";
+import { AnchoredTour } from "@/components/onboarding/anchored-tour";
 import { cn } from "@/lib/utils";
-import { DashboardTabs } from "@/components/dashboard/dashboard-tabs";
 import { TodaysClasses } from "@/components/dashboard/todays-classes";
 import { ExamCountdown } from "@/components/dashboard/exam-countdown";
+import { RecommendationsWidget } from "@/components/dashboard/recommendations-widget";
+import { StudyPlannerWidget } from "@/components/dashboard/study-planner-widget";
+import { MyStatusHero } from "@/components/dashboard/my-status-hero";
+import { buildRecommendations } from "@/lib/recommendations-engine";
+import { binaryCapRemaining, type MiluimGroupKey } from "@/lib/miluim";
 import type { GradeBreakdown, CreditBreakdown } from "@/types/degree";
 
 // -----------------------------------------------------------------------
@@ -140,406 +141,6 @@ function PostOnboardingTransition({
 }
 
 // -----------------------------------------------------------------------
-// Credit Overview Widget
-// -----------------------------------------------------------------------
-
-function CreditOverviewWidget({
-  credits,
-  t,
-  isHe,
-}: {
-  credits: CreditBreakdown | null;
-  t: (key: string, values?: Record<string, string | number>) => string;
-  isHe: boolean;
-}) {
-  const total = credits?.total ?? 0;
-  const earned = credits?.earned ?? 0;
-  const planned = credits?.planned ?? 0;
-  const miluimExemption = credits?.miluimExemption ?? 0;
-  const effectiveTotal = credits?.effectiveTotal ?? total;
-  const target = CREDIT_REQUIREMENTS.TOTAL;
-  // Progress bar: earned credits are "solid", planned credits are lighter
-  const earnedPct = Math.min((earned / target) * 100, 100);
-  const plannedPct = Math.min(((earned + planned) / target) * 100, 100);
-
-  const focusCredits = credits?.focusArea ?? 0;
-  const focusTarget = credits?.focusAreaTarget ?? CREDIT_REQUIREMENTS.FOCUS_AREA_MIN;
-  const focusPct = Math.min((focusCredits / focusTarget) * 100, 100);
-
-  // Focus area color
-  const focusColor =
-    focusCredits >= 60
-      ? "text-foreground/80"
-      : focusCredits >= 55
-        ? "text-emerald-400"
-        : focusCredits >= 40
-          ? "text-amber-400"
-          : "text-red-400";
-
-  return (
-    <div className="data-card space-y-5 p-6">
-      <div className="flex items-center gap-3">
-        <BookOpen className="h-5 w-5 text-foreground/60" />
-        <h3 className="font-display text-lg font-bold text-foreground/90">
-          {t("creditTracking")}
-        </h3>
-      </div>
-
-      {/* Total credits */}
-      <div className="space-y-2">
-        <div className="flex items-baseline justify-between">
-          <span className="text-sm text-foreground/60">{t("totalCredits")}</span>
-          <div dir="ltr" className="flex items-baseline gap-1">
-            <span className="font-mono tabular text-2xl font-bold text-foreground/80">
-              <CountUp value={effectiveTotal} />
-            </span>
-            <span className="font-mono tabular text-sm text-foreground/40">
-              / {target}
-            </span>
-          </div>
-        </div>
-        {/* Dual progress bar: earned (solid) + planned (striped/lighter) */}
-        <div className="relative h-2.5 w-full overflow-hidden rounded-full bg-foreground/10">
-          {/* Planned layer (behind, lighter) */}
-          <div
-            className="absolute inset-y-0 start-0 rounded-full bg-foreground/25 transition-all duration-500"
-            style={{ width: `${plannedPct}%` }}
-          />
-          {/* Earned layer (front, solid) */}
-          <div
-            className="absolute inset-y-0 start-0 rounded-full bg-foreground transition-all duration-500"
-            style={{ width: `${earnedPct}%` }}
-          />
-        </div>
-        {/* Legend for earned vs planned */}
-        <div className="flex items-center gap-4 text-[10px] text-foreground/50">
-          <div className="flex items-center gap-1.5">
-            <div className="h-2 w-2 rounded-full bg-foreground" />
-            <span>{isHe ? `${earned} הושלמו` : `${earned} completed`}</span>
-          </div>
-          {planned > 0 && (
-            <div className="flex items-center gap-1.5">
-              <div className="h-2 w-2 rounded-full bg-foreground/25" />
-              <span>{isHe ? `${planned} מתוכננים` : `${planned} planned`}</span>
-            </div>
-          )}
-        </div>
-        {/* Miluim exemption badge */}
-        {miluimExemption > 0 && (
-          <div className="space-y-0.5">
-            <div className="flex items-center gap-1.5 text-[10px] text-emerald-500/70">
-              <Shield className="h-3 w-3" />
-              <span>
-                {isHe
-                  ? `כולל ${miluimExemption} ש״ס פטור מילואים`
-                  : `Includes ${miluimExemption} cr. miluim exemption`}
-              </span>
-            </div>
-            <p className="text-[10px] text-foreground/35 leading-tight ps-[18px]">
-              * {t("miluimDisclaimer")}
-            </p>
-          </div>
-        )}
-      </div>
-
-      {/* Focus area */}
-      <div className="space-y-2">
-        <div className="flex items-baseline justify-between gap-2">
-          <span className="text-sm text-foreground/60 min-w-0 truncate">
-            {t("focusArea", { target: focusTarget })}
-          </span>
-          <div dir="ltr" className="flex items-baseline gap-1 shrink-0 whitespace-nowrap">
-            <span className={cn("font-mono tabular text-xl font-bold", focusColor)}>
-              {focusCredits}
-            </span>
-            <span className="font-mono tabular text-sm text-foreground/40">
-              / {focusTarget}
-            </span>
-          </div>
-        </div>
-        <Progress value={focusPct} className="h-2" />
-      </div>
-
-      {/* Per-discipline mini bars */}
-      <div className="space-y-2 pt-2">
-        {FILTERABLE_DISCIPLINE_IDS.map(
-          (d) => {
-            const dCredits = credits?.byDiscipline[d] ?? 0;
-            const required = getDisciplineCredits(d);
-            const dpct = required > 0 ? Math.min((dCredits / required) * 100, 100) : 0;
-            const cfg = DISCIPLINE_CONFIG[d];
-            if (!cfg) return null;
-            return (
-              <div key={d} className="flex items-center gap-3 text-xs">
-                <span className="w-20 truncate text-foreground/50">
-                  {isHe ? cfg.nameHe : (cfg.nameEn ?? d)}
-                </span>
-                <div className="flex-1">
-                  <div className="h-1.5 w-full overflow-hidden rounded-full bg-foreground/5">
-                    <div
-                      className="h-full rounded-full transition-all"
-                      style={{
-                        width: `${dpct}%`,
-                        backgroundColor: cfg.color,
-                      }}
-                    />
-                  </div>
-                </div>
-                <span dir="ltr" className="w-12 text-end font-mono text-foreground/40">
-                  {dCredits}/{required}
-                </span>
-              </div>
-            );
-          }
-        )}
-
-        {/* English courses requirement */}
-        <div className="flex items-center gap-3 text-xs pt-1 border-t border-foreground/5">
-          <span className="w-20 truncate text-foreground/50 flex items-center gap-1">
-            <Languages className="h-3 w-3 shrink-0" />
-            {t("englishCourses")}
-          </span>
-          <div className="flex-1" />
-          <span className="font-mono text-foreground/40">
-            {credits?.englishCourseCount ?? 0}/{CREDIT_REQUIREMENTS.ENGLISH_MIN_COURSES} {t("courses")}
-          </span>
-          {(credits?.englishCourseCount ?? 0) >= CREDIT_REQUIREMENTS.ENGLISH_MIN_COURSES ? (
-            <CheckCircle2 className="h-3.5 w-3.5 text-emerald-400 shrink-0" />
-          ) : (
-            <AlertCircle className="h-3.5 w-3.5 text-amber-400 shrink-0" />
-          )}
-        </div>
-      </div>
-    </div>
-  );
-}
-
-// -----------------------------------------------------------------------
-// Regulation Widget
-// -----------------------------------------------------------------------
-
-function RegulationWidget({
-  isCompliant,
-  violations,
-  progressMet,
-  progressTotal,
-  t,
-}: {
-  isCompliant: boolean;
-  violations: number;
-  progressMet: number;
-  progressTotal: number;
-  t: (key: string, values?: Record<string, string | number>) => string;
-}) {
-  const isHe = useLocale() === "he";
-  const Arrow = isHe ? ArrowLeft : ArrowRight;
-
-  // Headline = compliance (violations), NOT a passed/total ratio. A student
-  // with zero violations is green even if many progress targets remain.
-  const StatusIcon = isCompliant ? ShieldCheck : ShieldAlert;
-  const statusColor = isCompliant ? "text-emerald-400" : "text-red-400";
-
-  // Neutral progress, shown beneath the compliance status.
-  const progressPct =
-    progressTotal > 0 ? Math.round((progressMet / progressTotal) * 100) : 0;
-
-  return (
-    <Link
-      href="/regulations"
-      className="data-card flex flex-col items-center gap-3 p-6 text-center transition-all hover:border-foreground/30 hover:shadow-md cursor-pointer"
-    >
-      <Scale className="h-6 w-6 text-foreground/60" />
-      <h3 className="font-display text-base font-bold text-foreground/90">
-        {t("academicRegulations")}
-      </h3>
-
-      <div className="flex items-center gap-2">
-        <StatusIcon className={cn("h-7 w-7", statusColor)} />
-        <span className={cn("font-display text-lg font-bold", statusColor)}>
-          {isCompliant
-            ? t("compliantStatus")
-            : t("violationsStatus", { count: violations })}
-        </span>
-      </div>
-
-      <span className="text-sm text-foreground/50">
-        {t("requirementsProgress", { met: progressMet, total: progressTotal })}
-      </span>
-      <Progress value={progressPct} className="h-2 w-full" />
-      <span className="text-xs text-foreground/40 flex items-center gap-1">
-        {t("viewAllRules")} <Arrow className="h-3 w-3" />
-      </span>
-    </Link>
-  );
-}
-
-// -----------------------------------------------------------------------
-// Discipline Suggestions — shows available courses for a gap
-// -----------------------------------------------------------------------
-
-function DisciplineSuggestions({ discipline, isHe }: { discipline: string; isHe: boolean }) {
-  const suggestionsQuery = api.course.suggestForDiscipline.useQuery(
-    { discipline, limit: 3 },
-    { staleTime: 60_000 }
-  );
-
-  if (!suggestionsQuery.data?.length) return null;
-
-  return (
-    <div className="mt-1.5 flex flex-wrap gap-1.5 ps-5">
-      {suggestionsQuery.data.map((c) => (
-        <Link
-          key={c.id}
-          href="/catalog"
-          className="inline-flex items-center gap-1 rounded-md bg-foreground/[0.03] px-2 py-1 text-[10px] text-foreground/45 transition-colors hover:bg-foreground/[0.06] hover:text-foreground/60"
-        >
-          <span className="truncate max-w-[140px]">{isHe ? c.nameHe : (c.nameEn ?? c.nameHe)}</span>
-          <span className="shrink-0 font-mono">{c.credits}</span>
-        </Link>
-      ))}
-    </div>
-  );
-}
-
-// -----------------------------------------------------------------------
-// Degree Gap Widget — shows unfulfilled requirements at a glance
-// -----------------------------------------------------------------------
-
-function DegreeGapWidget({
-  regulationResults,
-  hasCourses,
-  t,
-  isHe,
-}: {
-  regulationResults: Array<{
-    ruleId: string;
-    ruleNameHe: string;
-    ruleNameEn: string;
-    passed: boolean;
-    severity: string;
-    details?: Record<string, unknown>;
-  }> | undefined;
-  /** Whether the student has any courses (earned + planned) yet. */
-  hasCourses: boolean;
-  t: (key: string, values?: Record<string, string | number>) => string;
-  isHe: boolean;
-}) {
-  if (!regulationResults) return null;
-
-  const Arrow = isHe ? ArrowLeft : ArrowRight;
-  const failedRules = regulationResults.filter((r) => !r.passed);
-
-  if (failedRules.length === 0) {
-    // Brand-new student with no courses: "all requirements met" would be a lie
-    // (they've done nothing, not everything). Show a neutral getting-started state.
-    if (!hasCourses) {
-      return (
-        <Link
-          href="/planner"
-          className="data-card group flex flex-col items-center gap-3 p-5 text-center transition-all hover:border-foreground/30 hover:shadow-md"
-        >
-          <div className="flex h-12 w-12 items-center justify-center rounded-full bg-foreground/5">
-            <GraduationCap className="h-6 w-6 text-foreground/50" />
-          </div>
-          <p className="text-sm font-semibold text-foreground/80">
-            {t("gapEmptyTitle")}
-          </p>
-          <p className="max-w-xs text-xs leading-relaxed text-foreground/50">
-            {t("gapEmptyDesc")}
-          </p>
-          <span className="flex items-center gap-1 text-xs font-medium text-foreground/60">
-            {t("gapEmptyCta")} <Arrow className="h-3 w-3" />
-          </span>
-        </Link>
-      );
-    }
-
-    // Real success: student has courses AND every rule passes.
-    return (
-      <div className="data-card flex flex-col items-center gap-3 p-5 text-center border-emerald-400/20 bg-emerald-400/5">
-        <CheckCircle2 className="h-8 w-8 text-emerald-400" />
-        <p className="text-sm font-medium text-emerald-400">
-          {t("allRequirementsMet")}
-        </p>
-      </div>
-    );
-  }
-
-  return (
-    <div className="data-card p-5">
-      <div className="flex items-center gap-2 mb-3">
-        <Target className="h-5 w-5 text-foreground/60" />
-        <h3 className="font-display text-base font-bold text-foreground/90">
-          {t("whatsMissing")}
-        </h3>
-        <span className="ms-auto rounded-full bg-foreground/[0.06] px-2 py-0.5 text-xs font-medium text-foreground/60">
-          {failedRules.length}
-        </span>
-      </div>
-      <div className="space-y-2">
-        {failedRules.slice(0, 5).map((rule) => {
-          const name = isHe ? rule.ruleNameHe : rule.ruleNameEn;
-          const details = rule.details as Record<string, number | string> | undefined;
-          const current = details?.current ?? details?.currentCredits;
-          const required = details?.required ?? details?.minCredits;
-          const deficit = details?.deficit;
-          // Extract discipline from DISC-* rules for suggestions
-          const isDisciplineRule = rule.ruleId.startsWith("DISC-");
-          const disciplineId = isDisciplineRule ? rule.ruleId.replace("DISC-", "") : null;
-
-          return (
-            <div key={rule.ruleId}>
-              <div
-                className={cn(
-                  "flex items-center gap-2 rounded-lg border px-3 py-2 text-xs",
-                  rule.severity === "ERROR"
-                    ? "border-red-400/20 bg-red-400/5"
-                    : "border-amber-400/20 bg-amber-400/5"
-                )}
-              >
-                <span
-                  className={cn(
-                    "shrink-0",
-                    rule.severity === "ERROR" ? "text-red-400" : "text-amber-400"
-                  )}
-                >
-                  {rule.severity === "ERROR" ? "●" : "◐"}
-                </span>
-                <span className="flex-1 truncate text-foreground/70">{name}</span>
-                {current !== undefined && required !== undefined && (
-                  <span className="shrink-0 font-mono text-foreground/50">
-                    {String(current)}/{String(required)}
-                  </span>
-                )}
-                {deficit !== undefined && Number(deficit) > 0 && (
-                  <span className="shrink-0 rounded bg-red-500/10 px-1.5 py-0.5 text-[10px] font-medium text-red-400">
-                    -{String(deficit)}
-                  </span>
-                )}
-              </div>
-              {disciplineId && Number(deficit) > 0 && (
-                <DisciplineSuggestions discipline={disciplineId} isHe={isHe} />
-              )}
-            </div>
-          );
-        })}
-        {failedRules.length > 5 && (
-          <p className="text-[10px] text-foreground/40 text-center">
-            +{failedRules.length - 5} {isHe ? "עוד" : "more"}
-          </p>
-        )}
-      </div>
-      <Link
-        href="/regulations"
-        className="mt-3 flex items-center justify-center gap-1 rounded-lg border border-border/30 bg-card/40 px-3 py-2 text-xs text-foreground/50 transition-colors hover:border-foreground/20 hover:text-foreground/70"
-      >
-        {t("viewAllRules")} <Arrow className="h-3 w-3" />
-      </Link>
-    </div>
-  );
-}
-
-// -----------------------------------------------------------------------
 // Quick Action Card — locale-aware
 // -----------------------------------------------------------------------
 
@@ -571,75 +172,6 @@ function QuickActionCard({
         )}
       </div>
     </Link>
-  );
-}
-
-// -----------------------------------------------------------------------
-// Semester Progress Widget
-// -----------------------------------------------------------------------
-
-function SemesterProgressWidget({
-  credits,
-  t,
-  isHe,
-}: {
-  credits: CreditBreakdown | null;
-  t: (key: string) => string;
-  isHe: boolean;
-}) {
-  const earned = credits?.earned ?? 0;
-  const planned = credits?.planned ?? 0;
-  const total = credits?.total ?? 0;
-  const target = CREDIT_REQUIREMENTS.TOTAL;
-
-  // Use EARNED credits for semester estimation (not planned)
-  const creditsPerSemester = 25; // typical
-  const estimatedSemester = Math.min(6, Math.ceil(earned / creditsPerSemester) || 1);
-  const totalSemesters = 6;
-
-  const yearLabels = [t("yearA"), t("yearA"), t("yearB"), t("yearB"), t("yearC"), t("yearC")];
-
-  return (
-    <div className="data-card p-5">
-      <h3 className="font-display mb-3 text-sm font-semibold text-foreground/70">
-        {t("degreeProgress")}
-      </h3>
-      <div className="flex items-center gap-2">
-        {Array.from({ length: totalSemesters }).map((_, i) => {
-          const isComplete = i < estimatedSemester - 1;
-          const isCurrent = i === estimatedSemester - 1;
-          return (
-            <div key={i} className="flex-1">
-              <div
-                className={cn(
-                  "h-2 rounded-full transition-all duration-500",
-                  isComplete
-                    ? "bg-foreground"
-                    : isCurrent
-                      ? "bg-foreground/50"
-                      : "bg-foreground/10"
-                )}
-              />
-              <span className="mt-1 block text-center text-[10px] text-foreground/30">
-                {yearLabels[i] ?? ""}
-              </span>
-            </div>
-          );
-        })}
-      </div>
-      <div className="mt-3 flex items-baseline justify-between text-xs text-foreground/50">
-        <span>
-          {earned > 0
-            ? (isHe ? `${earned} הושלמו` : `${earned} completed`)
-            : (isHe ? `${total} מתוכננים` : `${total} planned`)
-          }
-          {" / "}{target} {t("creditsShort")}
-        </span>
-        <span className="font-mono tabular text-foreground/70">
-          {Math.round((earned / target) * 100)}%
-        </span>
-      </div>
-    </div>
   );
 }
 
@@ -893,8 +425,15 @@ export function DashboardContent() {
     setTourChecked(true);
     const alreadyDone = localStorage.getItem(TOUR_DONE_KEY) === "true";
     const planCourseCount = planQuery.data?.courses?.length ?? 0;
-    const isFirstRun = fromOnboarding || onboardingFlag || planCourseCount < 4;
-    if (!alreadyDone && isFirstRun) {
+    // Just finished onboarding? Always show the tour — it's the one moment we
+    // KNOW the user is brand-new. Crucially this ignores a stale "done" flag in
+    // localStorage (which survives test-user resets and would otherwise silently
+    // suppress the tour after the first run ever — the "didn't auto-open when I
+    // registered" bug). Otherwise, show once for near-empty users who haven't
+    // seen it yet.
+    const justOnboarded = fromOnboarding || onboardingFlag;
+    const isNearEmptyNew = planCourseCount < 4;
+    if (justOnboarded || (!alreadyDone && isNearEmptyNew)) {
       setTourOpen(true);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -926,14 +465,10 @@ export function DashboardContent() {
     totalGradedCourses: 0,
   };
 
+  // regulationSummary feeds the recommendations engine and the hero's "top gap".
+  // The standalone compliance card was removed in the home-screen redesign — the
+  // full rules view lives on /regulations.
   const regulationSummary = regulationQuery.data;
-  // Compliance is violations-based: a student with zero ERROR-severity
-  // violations is fully compliant, regardless of how many INFO progress
-  // targets remain. Progress (non-ERROR requirements met) is shown separately.
-  const violations = regulationSummary?.violations ?? 0;
-  const isCompliant = regulationSummary?.compliant ?? true;
-  const progressMet = regulationSummary?.progressMet ?? 0;
-  const progressTotal = regulationSummary?.progressTotal ?? 0;
 
   // Has the student actually built anything yet? Used to distinguish a
   // brand-new "nothing done" state from a genuine "all requirements met" state.
@@ -948,6 +483,48 @@ export function DashboardContent() {
   const hasFocusArea = !!profileQuery.data?.focusArea;
   const hasGrades = gradeBreakdown.totalGradedCourses > 0;
   const currentYear = profileQuery.data?.currentYear ?? 1;
+
+  // Smart recommendations — deterministic, data-backed. Computed from data the
+  // dashboard already holds (plan, grades, credits, regulations, profile), so
+  // it adds no extra server round-trips. See lib/recommendations-engine.ts.
+  const recommendations = buildRecommendations({
+    courses: (planQuery.data?.courses ?? []).map((uc) => ({
+      status: uc.status,
+      grade: uc.grade,
+      courseType: uc.course.courseType,
+      isMandatory: uc.course.isMandatory,
+      isBinary: uc.isBinary,
+      credits: uc.course.credits,
+      nameHe: uc.course.nameHe,
+      nameEn: uc.course.nameEn,
+      examDateB: uc.course.examDateB,
+      discipline: (uc.disciplineOverride ?? uc.course.discipline) as string,
+    })),
+    courseAverage: gradeBreakdown.courseAverage,
+    englishCourseCount: credits?.englishCourseCount ?? 0,
+    amiramScore: profileQuery.data?.amiramScore ?? null,
+    hasFocusArea,
+    currentYear,
+    miluimGroup: profileQuery.data?.miluimGroup ?? "NONE",
+    binaryRemaining: binaryCapRemaining(
+      profileQuery.data?.miluimBinaryUsed ?? 0,
+      (profileQuery.data?.miluimGroup ?? "NONE") as MiluimGroupKey
+    ),
+    regulationResults: regulationSummary?.results ?? [],
+    now: new Date(),
+  });
+
+  // The single most pressing unmet requirement (biggest ERROR-severity deficit),
+  // surfaced in the "My status" hero.
+  const topGap =
+    (regulationSummary?.results ?? [])
+      .filter((r) => !r.passed && r.severity === "ERROR")
+      .map((r) => ({
+        nameHe: r.ruleNameHe,
+        nameEn: r.ruleNameEn,
+        deficit: Number((r.details as Record<string, unknown> | undefined)?.deficit ?? 0),
+      }))
+      .sort((a, b) => b.deficit - a.deficit)[0] ?? null;
 
   // Allows user to bypass the transition screen and go to dashboard
   const [skipTransition, setSkipTransition] = useState(false);
@@ -1068,8 +645,8 @@ export function DashboardContent() {
 
   return (
     <div className="bg-mesh space-y-8 p-4 md:p-6">
-      {/* Product tour — first-run guided walkthrough (and re-openable later) */}
-      <ProductTour open={tourOpen} onClose={closeTour} />
+      {/* Anchored product tour — spotlights the real UI it describes */}
+      <AnchoredTour open={tourOpen} onClose={closeTour} />
 
       {/* Page header */}
       <div className="animate-stagger-1">
@@ -1097,17 +674,8 @@ export function DashboardContent() {
             })}
           </p>
         )}
-        <div className="mt-3 flex items-center gap-3">
-          <div className="h-2 flex-1 rounded-full bg-foreground/10">
-            <div
-              className="h-2 rounded-full bg-foreground/70 transition-all duration-700"
-              style={{ width: `${Math.min(((credits?.effectiveTotal ?? credits?.total ?? 0) / CREDIT_REQUIREMENTS.TOTAL) * 100, 100)}%` }}
-            />
-          </div>
-          <span className="text-xs font-mono tabular text-foreground/50">
-            {credits?.effectiveTotal ?? credits?.total ?? 0}/{CREDIT_REQUIREMENTS.TOTAL} {isHe ? "ש״ס" : "credits"}
-          </span>
-        </div>
+        {/* The degree-progress bar lives in the "My status" hero below — no
+            need to duplicate it in the header. */}
       </div>
 
       {/* Welcome card — first-time guidance for fresh / just-onboarded users.
@@ -1154,65 +722,63 @@ export function DashboardContent() {
           </Link>
         )}
 
-      {/* Today's classes + Exam countdown */}
+      {/* My status — the unified "where am I in the degree" command center */}
+      {hasAnyCourses && (
+        <div className="animate-stagger-1" data-tour="status">
+          <MyStatusHero credits={credits} grade={gradeBreakdown} isHe={isHe} topGap={topGap} hasFocusArea={hasFocusArea} amiramScore={profileQuery.data?.amiramScore ?? null} currentYear={currentYear} />
+        </div>
+      )}
+
+      {/* My week — today's classes + next exams, framed as one zone (home
+          redesign). Sits right under the status hero, matching the 3-zone layout. */}
       {profileQuery.data?.currentYear && profileQuery.data?.currentSemester && (
-        <div className="animate-stagger-2 grid gap-6 lg:grid-cols-2">
-          <TodaysClasses
-            currentYear={profileQuery.data.currentYear}
-            currentSemester={profileQuery.data.currentSemester as "FALL" | "SPRING"}
-          />
-          <ExamCountdown />
-        </div>
+        <section className="animate-stagger-2 space-y-3" data-tour="week">
+          <div className="flex items-center justify-between gap-2">
+            <h2 className="font-display text-lg font-semibold text-foreground/80">
+              {isHe ? "השבוע שלי" : "My week"}
+            </h2>
+            <Link
+              href="/exam"
+              className="inline-flex shrink-0 items-center gap-1 text-xs font-medium text-foreground/55 transition-colors hover:text-foreground/80"
+            >
+              {isHe ? "כל הבחינות" : "All exams"}
+              <Arrow className="size-3" />
+            </Link>
+          </div>
+          <div className="grid gap-6 lg:grid-cols-2">
+            <TodaysClasses
+              currentYear={profileQuery.data.currentYear}
+              currentSemester={profileQuery.data.currentSemester as "FALL" | "SPRING"}
+            />
+            <ExamCountdown />
+          </div>
+        </section>
       )}
 
-      {/* Top row: Score + Credits + Regulations */}
-      <div className="animate-stagger-2 grid gap-6 lg:grid-cols-3">
-        {/* Graduation Score — hero widget */}
-        <ScoreDisplay breakdown={gradeBreakdown} className="lg:col-span-1" />
-
-        {/* Credit overview */}
-        <CreditOverviewWidget credits={credits} t={t} isHe={isHe} />
-
-        {/* Regulation compliance */}
-        <RegulationWidget
-          isCompliant={isCompliant}
-          violations={violations}
-          progressMet={progressMet}
-          progressTotal={progressTotal}
-          t={t}
-        />
-      </div>
-
-      {/* Degree Gap Widget — what's still missing */}
-      {regulationSummary?.results && (
+      {/* Study plan — surfaces a generated exam-study plan on the home screen so
+          it doesn't live only on /exam-planner. Renders nothing until there's a
+          plan (#10). */}
+      {hasPlanData && (
         <div className="animate-stagger-3">
-          <DegreeGapWidget
-            regulationResults={regulationSummary.results}
-            hasCourses={hasAnyCourses}
-            t={t}
-            isHe={isHe}
-          />
+          <StudyPlannerWidget isHe={isHe} hideWhenEmpty />
         </div>
       )}
 
-      {/* Score breakdown with integrated What-If simulator + grade entry CTA */}
-      <div className="animate-stagger-3 space-y-3">
-        <ScoreBreakdown breakdown={gradeBreakdown} enableWhatIf />
-        {gradeBreakdown.totalGradedCourses === 0 && (
-          <Link
-            href="/graduation"
-            className="flex items-center justify-center gap-2 rounded-lg border border-dashed border-foreground/20 bg-foreground/5 px-4 py-3 text-sm font-medium text-foreground/60 transition-colors hover:border-foreground/30 hover:bg-foreground/10 hover:text-foreground/80"
-          >
-            <Calculator className="h-4 w-4" />
-            {t("enterGradesCta")}
-            <Arrow className="h-3 w-3" />
-          </Link>
-        )}
-      </div>
+      {/* Next step — smart, data-backed recommendations (the single action list) */}
+      {recommendations.length > 0 && (
+        <div className="animate-stagger-3" data-tour="recommendations">
+          <RecommendationsWidget recommendations={recommendations} isHe={isHe} />
+        </div>
+      )}
 
-      {/* Semester progress + Tip */}
-      <div className="animate-stagger-4 grid gap-6 lg:grid-cols-2">
-        <SemesterProgressWidget credits={credits} t={t} isHe={isHe} />
+      {/* Home-screen redesign (balanced): the duplicate credit card, the GPA
+          score card, the compliance card, the "what's missing" list, and the
+          full score breakdown were removed from the dashboard. Credits + GPA now
+          live ONCE in the "My status" hero above; the full grade breakdown +
+          What-If lives on /graduation; the full rules + gaps on /regulations. */}
+
+      {/* Tip — degree progress now lives in the "My status" hero above. */}
+      <div className="animate-stagger-4">
         {(() => {
           const tips = getContextualTips({
             courseCount: planQuery.data?.courses?.length ?? 0,
@@ -1226,10 +792,9 @@ export function DashboardContent() {
         })()}
       </div>
 
-      {/* Dashboard tabs — exams, calendar, assignments, syllabi */}
-      <div className="animate-stagger-5">
-        <DashboardTabs isHe={isHe} />
-      </div>
+      {/* Home redesign: the exams/calendar/tasks tab block was dissolved — the
+          exam board lives at /exam ("all exams" link in "My week"), the calendar
+          at /calendar, and study tasks at /exam-planner (all in the sidebar). */}
 
       {/* Google Calendar banner */}
       {!googleBannerDismissed && hasPlanData && (
@@ -1268,13 +833,13 @@ export function DashboardContent() {
           });
         }
 
-        // 2. No focus area chosen → pick one
+        // 2. No focus area chosen → pick one (in settings, where the selector lives)
         if (!hasFocusArea) {
           actions.push({
             icon: Target,
             label: t("actionPickFocus"),
             description: t("actionPickFocusDesc"),
-            href: "/planner",
+            href: "/settings",
             color: "bg-violet-500/10 text-violet-400",
           });
         }

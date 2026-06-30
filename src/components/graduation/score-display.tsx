@@ -27,6 +27,11 @@ export function ScoreDisplay({ breakdown, className }: ScoreDisplayProps) {
   const score = finalScore ?? provisionalScore;
   const hasScore = score !== null;
   const isProvisional = finalScore === null && provisionalScore !== null;
+  // The plain overall course average ("ממוצע כללי"). When provisional, the hero
+  // number already IS this value, so we caption it rather than repeat it; when
+  // the weighted graduation score is shown, the general average is a distinct,
+  // useful number and gets its own prominent block.
+  const generalAverage = roundScore(breakdown.courseAverage);
 
   // Color coding based on score ranges
   const getScoreColor = (s: number) => {
@@ -64,8 +69,14 @@ export function ScoreDisplay({ breakdown, className }: ScoreDisplayProps) {
     >
       {hasScore ? (
         <>
+          {/* Caption — names the big number. In provisional mode the hero IS the
+              general average, so say so outright instead of hiding it in fine print. */}
+          <span className="text-xs font-semibold uppercase tracking-wide text-foreground/45">
+            {isProvisional ? t("generalAverage") : t("graduationScoreLabel")}
+          </span>
+
           {/* Large score number */}
-          <div className="flex items-baseline gap-1">
+          <div className="flex items-baseline gap-1" dir="ltr">
             <span
               className={cn(
                 "font-display tabular text-6xl font-bold tabular-nums tracking-tight",
@@ -99,6 +110,24 @@ export function ScoreDisplay({ breakdown, className }: ScoreDisplayProps) {
           >
             {getScoreLabel(score)}
           </div>
+
+          {/* General average — its own prominent block when the hero shows the
+              weighted graduation score (so the plain GPA never gets buried). */}
+          {!isProvisional && generalAverage !== null && (
+            <div className="mt-1 flex w-full flex-col items-center gap-0.5 rounded-xl border border-foreground/10 bg-foreground/[0.03] px-5 py-2.5">
+              <span className="text-[11px] font-semibold uppercase tracking-wide text-foreground/45">
+                {t("generalAverage")}
+              </span>
+              <span
+                className={cn(
+                  "font-mono tabular text-2xl font-bold tabular-nums",
+                  getScoreColor(generalAverage)
+                )}
+              >
+                {generalAverage.toFixed(2)}
+              </span>
+            </div>
+          )}
 
           {/* Stats row */}
           <div className="mt-2 flex items-center gap-6 text-sm text-foreground/50">

@@ -12,7 +12,10 @@ import {
   FileText,
   ClipboardCheck,
   Sparkles,
+  ArrowLeft,
+  ArrowRight,
 } from "lucide-react";
+import { Link } from "@/i18n/navigation";
 import { api } from "@/lib/trpc/react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
@@ -46,8 +49,18 @@ function daysBetween(a: Date | string, b: Date | string): number {
   return Math.ceil((db.getTime() - da.getTime()) / (1000 * 60 * 60 * 24));
 }
 
-export function StudyPlannerWidget({ isHe }: { isHe: boolean }) {
+export function StudyPlannerWidget({
+  isHe,
+  hideWhenEmpty = false,
+}: {
+  isHe: boolean;
+  /** On the dashboard / exam board, render nothing until there's a plan to show
+   *  — an empty "add a task" card there is just clutter. The full manager at
+   *  /exam-planner keeps its own empty state. (#10) */
+  hideWhenEmpty?: boolean;
+}) {
   const t = useTranslations("studyPlanner");
+  const Arrow = isHe ? ArrowLeft : ArrowRight;
   const utils = api.useUtils();
 
   const [showAddModal, setShowAddModal] = useState(false);
@@ -131,6 +144,11 @@ export function StudyPlannerWidget({ isHe }: { isHe: boolean }) {
     });
   };
 
+  // Dashboard / exam board: stay invisible until there's an actual plan to show.
+  if (hideWhenEmpty && (tasksQuery.isLoading || totalCount === 0)) {
+    return null;
+  }
+
   if (tasksQuery.isLoading) {
     return (
       <div className="data-card p-5">
@@ -155,7 +173,7 @@ export function StudyPlannerWidget({ isHe }: { isHe: boolean }) {
           <CalendarDays className="h-5 w-5 text-foreground/60" />
           <h3 className="text-base font-semibold text-foreground/80">{t("title")}</h3>
           {totalCount > 0 && (
-            <span className="ms-auto text-xs text-foreground/40">
+            <span dir="ltr" className="ms-auto text-xs text-foreground/40">
               {completedCount}/{totalCount}
             </span>
           )}
@@ -258,7 +276,7 @@ export function StudyPlannerWidget({ isHe }: { isHe: boolean }) {
                   </div>
 
                   {/* Date range */}
-                  <span className="hidden text-[10px] text-foreground/30 sm:block">
+                  <span dir="ltr" className="hidden text-[10px] text-foreground/30 sm:block">
                     {formatTaskDate(task.startDate, isHe)} – {formatTaskDate(task.endDate, isHe)}
                   </span>
 
@@ -299,6 +317,16 @@ export function StudyPlannerWidget({ isHe }: { isHe: boolean }) {
             {t("completedCount", { count: completedCount })}
           </div>
         )}
+
+        {/* Link to the full exam-period planner — the compact view leads to the
+            place you generate/edit the whole plan (#10). */}
+        <Link
+          href="/exam-planner"
+          className="mt-3 inline-flex items-center gap-1 text-xs font-medium text-foreground/55 transition-colors hover:text-foreground/80"
+        >
+          {isHe ? "למתכנן המבחנים המלא" : "Open the full exam planner"}
+          <Arrow className="h-3 w-3" />
+        </Link>
       </div>
 
       {/* Add task modal */}

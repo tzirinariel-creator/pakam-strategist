@@ -67,9 +67,12 @@ export function calculateGrades(
 
   // ----- Course average (credit-weighted) -----
   // Exclude SEMINAR courses — their submissionGrade is counted separately
-  // in the seminar paper / referat buckets below.
+  // in the seminar paper / referat buckets below. Also exclude miluim
+  // binary (pass/fail) courses — by definition their numeric grade does NOT
+  // count toward the average (the course still counts for degree credit, which
+  // the credit calculator handles separately).
   const gradedCourses = completed
-    .filter((uc) => uc.course.courseType !== "SEMINAR")
+    .filter((uc) => uc.course.courseType !== "SEMINAR" && !uc.isBinary)
     .map((uc) => ({
       grade: uc.grade!,
       weight: uc.course.credits,

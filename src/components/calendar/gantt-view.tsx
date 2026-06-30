@@ -32,6 +32,7 @@ import {
 } from "@/components/ui/popover";
 import type { UserCourseWithCourse } from "@/types/degree";
 import type { Discipline, Semester } from "@/types/enums";
+import { Bidi } from "@/lib/bidi";
 
 // ─── Types ───────────────────────────────────────────────────────────
 
@@ -430,7 +431,7 @@ function CoursePopover({
             </span>
           </div>
           <div className="mt-1 flex items-center gap-2 text-[10px] text-foreground/40">
-            <span className="font-mono">{uc.course.code}</span>
+            <span className="font-mono"><Bidi text={uc.course.code} /></span>
             <span>·</span>
             <span>{uc.course.credits} {t("credits")}</span>
           </div>
@@ -765,7 +766,7 @@ export function GanttView({ courses }: GanttViewProps) {
                       : (discConfig?.nameEn ?? group.discipline)}
                   </span>
                   <span className="text-[10px] text-muted-foreground">
-                    ({group.courses.length} · {groupCredits} {t("credits")})
+                    (<bdi dir="ltr">{group.courses.length} · {groupCredits}</bdi> {t("credits")})
                   </span>
                 </div>
 
@@ -794,7 +795,7 @@ export function GanttView({ courses }: GanttViewProps) {
                               {locale === "he" ? uc.course.nameHe : (uc.course.nameEn ?? uc.course.nameHe)}
                             </span>
                             <span className="text-[10px] text-muted-foreground">
-                              {uc.course.code}
+                              <Bidi text={uc.course.code} />
                             </span>
                           </div>
                           <span

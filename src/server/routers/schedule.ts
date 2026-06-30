@@ -124,8 +124,13 @@ export const scheduleRouter = createTRPCRouter({
         return { exams: [] };
       }
 
-      // Build filter based on optional year/semester
-      const whereClause: Record<string, unknown> = { userId: user.id };
+      // Build filter based on optional year/semester. Exclude courses the
+      // student already finished WITH a grade — a graded course doesn't need its
+      // exam on the upcoming board anymore (reported #33/#8).
+      const whereClause: Record<string, unknown> = {
+        userId: user.id,
+        NOT: { AND: [{ status: "COMPLETED" }, { grade: { not: null } }] },
+      };
       if (input?.year) whereClause.plannedYear = input.year;
       if (input?.semester) whereClause.plannedSemester = input.semester;
 

@@ -32,6 +32,7 @@ import {
 } from "@/components/ui/popover";
 import type { UserCourseWithCourse } from "@/types/degree";
 import type { CourseStatus } from "@/types/enums";
+import { Bidi } from "@/lib/bidi";
 import { cn } from "@/lib/utils";
 
 interface CourseCardProps {
@@ -77,6 +78,8 @@ export function CourseCard({ userCourse, disabled }: CourseCardProps) {
       void utils.plan.getCredits.invalidate();
       void utils.plan.getGraduationScore.invalidate();
       void utils.regulation.checkCompliance.invalidate();
+      // Binary toggles change the miluim binary quota shown in the status bar.
+      void utils.user.getProfile.invalidate();
     },
     onError: () => {
       toast.error(tPlanner("statusSaveError"));
@@ -174,13 +177,21 @@ export function CourseCard({ userCourse, disabled }: CourseCardProps) {
             discipline={userCourse.disciplineOverride ?? course.discipline}
             className="text-[10px] px-1.5 py-0"
           />
-          {userCourse.grade !== null && userCourse.status === "COMPLETED" && (
+          {userCourse.grade !== null && userCourse.status === "COMPLETED" && !userCourse.isBinary && (
             <GradeWithTooltip
               grade={userCourse.grade}
               courseType={course.courseType}
               credits={course.credits}
               isHe={isHe}
             />
+          )}
+          {userCourse.isBinary && userCourse.status === "COMPLETED" && (
+            <span
+              className="inline-flex items-center rounded-full bg-amber-500/15 px-1.5 py-0 text-[9px] font-medium text-amber-600"
+              title={tPlanner("binaryHint")}
+            >
+              {tPlanner("binaryBadge")}
+            </span>
           )}
         </div>
       </div>
@@ -195,12 +206,14 @@ export function CourseCard({ userCourse, disabled }: CourseCardProps) {
         </span>
       </div>
 
-      {/* Mark-completed + grade control */}
+      {/* Mark-completed + grade + binary control */}
       <CompletionControl
-        key={`${userCourse.status}-${userCourse.grade ?? ""}`}
+        key={`${userCourse.status}-${userCourse.grade ?? ""}-${userCourse.isBinary}`}
         userCourseId={userCourse.id}
         status={userCourse.status}
         grade={userCourse.grade}
+        isBinary={userCourse.isBinary}
+        courseType={course.courseType}
         onUpdate={(input) => updateMutation.mutate(input)}
       />
 
@@ -236,21 +249,36 @@ interface CompletionUpdate {
   userCourseId: string;
   status?: CourseStatus;
   grade?: number | null;
+  isBinary?: boolean;
 }
 
 function CompletionControl({
   userCourseId,
   status,
   grade,
+  isBinary,
+  courseType,
   onUpdate,
 }: {
   userCourseId: string;
   status: CourseStatus;
   grade: number | null;
+  isBinary: boolean;
+  courseType: string;
   onUpdate: (input: CompletionUpdate) => void;
 }) {
   const tPlanner = useTranslations("planner");
   const isCompleted = status === "COMPLETED";
+  // Seminar papers can't be pass/fail-converted (excluded type per the מתווה).
+  const binaryEligible = courseType !== "SEMINAR";
+
+  // Local mirror for snappy toggling; parent re-keys this control on isBinary.
+  const [binaryOn, setBinaryOn] = useState(isBinary);
+  const toggleBinary = useCallback(() => {
+    const next = !binaryOn;
+    setBinaryOn(next);
+    onUpdate({ userCourseId, isBinary: next });
+  }, [binaryOn, onUpdate, userCourseId]);
 
   // Local grade input mirrors the server value; debounced save on change/blur.
   const [gradeValue, setGradeValue] = useState<string>(
@@ -268,10 +296,12 @@ function CompletionControl({
 
   const handleToggle = useCallback(() => {
     if (isCompleted) {
-      // Un-mark: revert to PLANNED and clear the grade.
+      // Un-mark: revert to PLANNED, clear the grade, AND clear the binary flag —
+      // a PLANNED course must never carry a pass/fail conversion.
       if (debounceRef.current) clearTimeout(debounceRef.current);
       setGradeValue("");
-      onUpdate({ userCourseId, status: "PLANNED", grade: null });
+      setBinaryOn(false);
+      onUpdate({ userCourseId, status: "PLANNED", grade: null, isBinary: false });
     } else {
       onUpdate({ userCourseId, status: "COMPLETED" });
     }
@@ -393,6 +423,36 @@ function CompletionControl({
             )}
           </div>
         )}
+
+        {/* Binary (pass/fail) conversion — miluim benefit. Only for completed,
+            non-seminar courses that already have a numeric grade entered. */}
+        {isCompleted && binaryEligible && grade !== null && (
+          <div className="space-y-1.5 border-t border-border/30 pt-3">
+            <label className="flex items-center gap-2 cursor-pointer text-xs font-medium text-foreground/80">
+              <button
+                type="button"
+                role="switch"
+                aria-checked={binaryOn}
+                onClick={toggleBinary}
+                className={cn(
+                  "relative inline-flex h-4 w-7 shrink-0 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-foreground/30",
+                  binaryOn ? "bg-amber-500" : "bg-foreground/20",
+                )}
+              >
+                <span
+                  className={cn(
+                    "inline-block h-3 w-3 transform rounded-full bg-white transition-transform",
+                    binaryOn ? "translate-x-3.5 rtl:-translate-x-3.5" : "translate-x-0.5 rtl:-translate-x-0.5",
+                  )}
+                />
+              </button>
+              <span>{tPlanner("markBinary")}</span>
+            </label>
+            <p className="text-[10px] leading-tight text-foreground/45">
+              {tPlanner("binaryHint")}
+            </p>
+          </div>
+        )}
       </PopoverContent>
     </Popover>
   );
@@ -445,7 +505,7 @@ function GradeWithTooltip({
           </span>
         </TooltipTrigger>
         <TooltipContent side="top" className="max-w-[200px]">
-          <p className="text-xs" dir="auto">{tooltipText}</p>
+          <p className="text-xs" dir="auto"><Bidi text={tooltipText} /></p>
         </TooltipContent>
       </Tooltip>
     </TooltipProvider>

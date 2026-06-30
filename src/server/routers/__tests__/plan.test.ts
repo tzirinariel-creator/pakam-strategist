@@ -43,13 +43,23 @@ function makeFakeDb() {
         )
       ) ?? null,
 
-    deleteMany: async ({ where }: { where: { userId: string } }) => {
+    deleteMany: async ({
+      where,
+    }: {
+      where: { userId: string; status?: { in: string[] } };
+    }) => {
       let count = 0;
       for (let i = userCourses.length - 1; i >= 0; i--) {
-        if (userCourses[i]!.userId === where.userId) {
-          userCourses.splice(i, 1);
-          count++;
+        const uc = userCourses[i]!;
+        if (uc.userId !== where.userId) continue;
+        // Honor the status filter the data-loss fix relies on: savePlan only
+        // deletes PLANNED/IN_PROGRESS, never COMPLETED/EXEMPT/FAILED. A row with
+        // no explicit status defaults to PLANNED (the schema default).
+        if (where.status?.in && !where.status.in.includes(uc.status ?? "PLANNED")) {
+          continue;
         }
+        userCourses.splice(i, 1);
+        count++;
       }
       return { count };
     },
@@ -178,6 +188,61 @@ describe("plan.savePlan — truthful saved count (fix F)", () => {
     const caller = makeCaller(db);
     const res = await caller.savePlan({ courses: [] });
     expect(res.savedCount).toBe(0);
+  });
+});
+
+// ───────────────────────────────────────────────────────────────────────────
+// Data-loss fix — savePlan replaces only the PLAN (PLANNED/IN_PROGRESS) and
+// must NEVER delete the student's earned record (COMPLETED/EXEMPT/FAILED). This
+// is what makes editing the plan non-destructive; a regression here silently
+// wipes grades + credits, which is exactly the bug the overnight review caught.
+// ───────────────────────────────────────────────────────────────────────────
+describe("plan.savePlan — preserves COMPLETED history on a plan edit", () => {
+  it("keeps COMPLETED/EXEMPT/FAILED rows, replaces only PLANNED/IN_PROGRESS", async () => {
+    const db = makeFakeDb();
+    db._userCourses.push(
+      { id: "h1", userId: USER.id, courseId: "hist-completed", plannedYear: 1, plannedSemester: "FALL", attemptNumber: 1, status: "COMPLETED", grade: 88 },
+      { id: "h2", userId: USER.id, courseId: "hist-exempt", plannedYear: 1, plannedSemester: "SPRING", attemptNumber: 1, status: "EXEMPT", grade: null },
+      { id: "h3", userId: USER.id, courseId: "hist-failed", plannedYear: 1, plannedSemester: "FALL", attemptNumber: 1, status: "FAILED", grade: 40 },
+      { id: "p1", userId: USER.id, courseId: "old-planned", plannedYear: 2, plannedSemester: "FALL", attemptNumber: 1, status: "PLANNED" },
+      { id: "ip1", userId: USER.id, courseId: "in-progress", plannedYear: 2, plannedSemester: "FALL", attemptNumber: 1, status: "IN_PROGRESS" },
+    );
+
+    const caller = makeCaller(db);
+    await caller.savePlan({
+      courses: [{ courseId: VALID_UUID_1, plannedYear: 2, plannedSemester: "SPRING" }],
+    });
+
+    const byCourse = (c: string) => db._userCourses.find((uc) => uc.courseId === c);
+    // Earned record survives untouched (grade intact).
+    expect(byCourse("hist-completed")?.grade).toBe(88);
+    expect(byCourse("hist-exempt")).toBeTruthy();
+    expect(byCourse("hist-failed")?.grade).toBe(40);
+    // Old plan (PLANNED + IN_PROGRESS) is cleared and replaced.
+    expect(byCourse("old-planned")).toBeUndefined();
+    expect(byCourse("in-progress")).toBeUndefined();
+    expect(byCourse(VALID_UUID_1)).toBeTruthy();
+  });
+
+  it("a COMPLETED course that slips into the planned payload is NOT corrupted (stays COMPLETED, not duplicated)", async () => {
+    const db = makeFakeDb();
+    // Defense-in-depth: even if a completed course leaks into the plan payload
+    // (the callers try to exclude it), savePlan must not flip it to PLANNED or
+    // duplicate it. The surviving COMPLETED row (attempt 1) collides with the new
+    // attempt-1 planned row → skipDuplicates drops the planned one.
+    db._userCourses.push({
+      id: "keep", userId: USER.id, courseId: VALID_UUID_1,
+      plannedYear: 1, plannedSemester: "FALL", attemptNumber: 1, status: "COMPLETED", grade: 90,
+    });
+    const caller = makeCaller(db);
+    const res = await caller.savePlan({
+      courses: [{ courseId: VALID_UUID_1, plannedYear: 2, plannedSemester: "SPRING" }],
+    });
+    const rows = db._userCourses.filter((uc) => uc.courseId === VALID_UUID_1);
+    expect(rows).toHaveLength(1); // not duplicated
+    expect(rows[0]!.status).toBe("COMPLETED"); // not flipped to PLANNED
+    expect(rows[0]!.grade).toBe(90); // grade intact
+    expect(res.savedCount).toBe(0); // the colliding planned row was dropped
   });
 });
 

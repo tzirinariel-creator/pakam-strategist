@@ -1,8 +1,9 @@
 "use client";
 
 import { useMemo } from "react";
-import { CalendarClock } from "lucide-react";
+import { CalendarClock, ArrowLeft, ArrowRight } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
+import { Link } from "@/i18n/navigation";
 import { api } from "@/lib/trpc/react";
 import { cn } from "@/lib/utils";
 
@@ -143,6 +144,30 @@ export function ExamCountdown() {
           );
         })}
       </div>
+
+      {/* Legend — what the colors and A/B labels mean (#8). */}
+      <div className="mt-3 flex flex-wrap items-center gap-x-3 gap-y-1 border-t border-border/40 pt-2 text-[10px] text-foreground/45">
+        <span className="inline-flex items-center gap-1">
+          <span className="size-2 rounded-full bg-red-400/70" />
+          {isHe ? "עד 3 ימים" : "≤3 days"}
+        </span>
+        <span className="inline-flex items-center gap-1">
+          <span className="size-2 rounded-full bg-amber-400/70" />
+          {isHe ? "עד 7 ימים" : "≤7 days"}
+        </span>
+        <span className="text-foreground/35">
+          {isHe ? "מועד א׳ = ראשון · מועד ב׳ = חוזר" : "A = first sitting · B = retake"}
+        </span>
+      </div>
+
+      {/* Jump to the full exam-period planner */}
+      <Link
+        href="/exam-planner"
+        className="mt-2 inline-flex items-center gap-1 text-xs font-medium text-accent-brand transition-opacity hover:opacity-80"
+      >
+        {isHe ? "תכנן את תקופת המבחנים" : "Plan your exam period"}
+        {isHe ? <ArrowLeft className="size-3" /> : <ArrowRight className="size-3" />}
+      </Link>
     </div>
   );
 }

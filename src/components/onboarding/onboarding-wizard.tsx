@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback, useRef, useMemo } from "react";
+import { useState, useCallback, useRef, useMemo, useEffect } from "react";
 import { ChevronRight, ChevronLeft } from "lucide-react";
 import { useTranslations, useLocale } from "next-intl";
 import { cn } from "@/lib/utils";
@@ -54,6 +54,27 @@ function getDefaultSemester(): "FALL" | "SPRING" {
   return month >= 2 && month <= 6 ? "SPRING" : "FALL";
 }
 
+// In-progress onboarding is persisted here so a refresh or an accidental
+// back/forward never wipes a half-built plan (reported #13). Cleared by
+// step-ready once the plan is saved.
+const ONBOARDING_STATE_KEY = "pakamon-onboarding-state";
+
+function loadOnboardingState(): {
+  step?: number;
+  data?: Partial<OnboardingData>;
+  plannedSemesters?: PlannedSemester[] | null;
+  sessionGroupSelections?: SessionGroupSelections;
+  completedCourses?: Record<string, CompletedCourse>;
+} | null {
+  if (typeof window === "undefined") return null;
+  try {
+    const raw = localStorage.getItem(ONBOARDING_STATE_KEY);
+    return raw ? JSON.parse(raw) : null;
+  } catch {
+    return null;
+  }
+}
+
 export function OnboardingWizard() {
   const t = useTranslations("onboarding");
   const locale = useLocale();
@@ -67,9 +88,11 @@ export function OnboardingWizard() {
   // Whether we've seeded the history map with the default mandatory pre-fill.
   const historySeeded = useRef(false);
 
-  // Prefetch courses immediately so they're ready by step 2
+  // Prefetch courses immediately so they're ready by step 2. Retry on failure:
+  // the whole wizard depends on this list, and a single dropped request on a
+  // flaky mobile network must not leave the student with an empty catalog.
   const coursesQuery = api.course.list.useQuery(undefined, {
-    retry: false,
+    retry: 2,
     staleTime: 5 * 60 * 1000, // 5 minutes — course list rarely changes
   });
   const allCourses = (coursesQuery.data ?? []) as CourseWithSchedule[];
@@ -95,6 +118,17 @@ export function OnboardingWizard() {
     [data.year, data.semester]
   );
 
+  // Resolve the history step's completed courses (keyed by code) to catalog
+  // ids, so the planner can exclude already-done courses from its pool and
+  // count their credits toward the running degree total (fixes #18: a mid-degree
+  // student's completed history was invisible inside the planner).
+  const completedCourseIdList = useMemo(() => {
+    const idByCode = new Map(allCourses.map((c) => [c.code, c.id]));
+    return Object.values(completedCourses)
+      .map((cc) => idByCode.get(cc.courseCode))
+      .filter((id): id is string => Boolean(id));
+  }, [allCourses, completedCourses]);
+
   // Seed the history map with the default mandatory pre-fill the first time
   // the student reaches the history step (year/semester are now final).
   const seedHistory = useCallback(() => {
@@ -104,6 +138,37 @@ export function OnboardingWizard() {
       buildDefaultCompleted(allCourses, data.year, data.semester)
     );
   }, [allCourses, data.year, data.semester]);
+
+  // ── Persist in-progress onboarding (fixes #13) ──────────────────────────
+  // Two-pass: restore once after mount (avoids any SSR hydration mismatch),
+  // then persist on every change. The `hydrated` gate prevents the first
+  // persist from overwriting saved state with defaults before restore applies.
+  const [hydrated, setHydrated] = useState(false);
+  useEffect(() => {
+    const s = loadOnboardingState();
+    if (s) {
+      if (typeof s.step === "number") setStep(s.step);
+      if (s.data) setData((d) => ({ ...d, ...s.data }));
+      if (s.plannedSemesters) setPlannedSemesters(s.plannedSemesters);
+      if (s.sessionGroupSelections) setSessionGroupSelections(s.sessionGroupSelections);
+      if (s.completedCourses) {
+        setCompletedCourses(s.completedCourses);
+        if (Object.keys(s.completedCourses).length > 0) historySeeded.current = true;
+      }
+    }
+    setHydrated(true);
+  }, []);
+  useEffect(() => {
+    if (!hydrated) return;
+    try {
+      localStorage.setItem(
+        ONBOARDING_STATE_KEY,
+        JSON.stringify({ step, data, plannedSemesters, sessionGroupSelections, completedCourses })
+      );
+    } catch {
+      /* storage full / disabled — non-fatal */
+    }
+  }, [hydrated, step, data, plannedSemesters, sessionGroupSelections, completedCourses]);
 
   const goNext = useCallback(() => {
     setStep((prev) => {
@@ -199,6 +264,7 @@ export function OnboardingWizard() {
                 allCourses={allCourses}
                 isLoadingCourses={coursesQuery.isLoading}
                 onFinish={handlePlanFinish}
+                externalCompletedCourseIds={completedCourseIdList}
               />
             )}
             {step === STEP_READY && (

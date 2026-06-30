@@ -21,6 +21,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { Bidi } from "@/lib/bidi";
 
 // -----------------------------------------------------------------------
 // Workload level labels (keyed by level → i18n is handled at usage)
@@ -151,7 +152,7 @@ function WorkloadTooltipContent({
           <span
             className={cn("font-mono font-bold", getWorkloadColor(result.level))}
           >
-            {result.score}/100
+            <Bidi text={`${result.score}/100`} />
           </span>
         </div>
       </div>

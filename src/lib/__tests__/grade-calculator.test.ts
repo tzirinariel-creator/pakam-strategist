@@ -15,6 +15,7 @@ function uc(over: {
   submissionType?: string | null;
   submissionGrade?: number | null;
   attemptNumber?: number;
+  isBinary?: boolean;
 }): UserCourseWithCourse {
   return {
     status: over.status ?? "COMPLETED",
@@ -22,6 +23,7 @@ function uc(over: {
     submissionType: over.submissionType ?? null,
     submissionGrade: over.submissionGrade ?? null,
     attemptNumber: over.attemptNumber ?? 1,
+    isBinary: over.isBinary ?? false,
     course: {
       courseType: over.courseType ?? "MANDATORY",
       credits: over.credits ?? 3,
@@ -67,6 +69,16 @@ describe("calculateGrades", () => {
       uc({ grade: 100, credits: 4, courseType: "SEMINAR" }),
     ]);
     expect(r.courseAverage).toBe(60); // seminar grade excluded
+  });
+
+  it("excludes miluim binary (pass/fail) courses from the course average", () => {
+    const r = calculateGrades([
+      uc({ grade: 90, credits: 4 }),
+      uc({ grade: 50, credits: 4, isBinary: true }), // pass/fail — numeric grade excluded
+    ]);
+    expect(r.courseAverage).toBe(90);
+    expect(r.totalGradedCourses).toBe(1);
+    expect(r.completedCredits).toBe(4);
   });
 
   it("averages seminar papers (simple mean)", () => {

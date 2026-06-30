@@ -3,6 +3,7 @@
 import { useTranslations } from "next-intl";
 import { ShieldCheck, ShieldAlert, CheckCircle2, XCircle, AlertTriangle } from "lucide-react";
 import type { RegulationSummary } from "@/types/regulation";
+import { Bidi } from "@/lib/bidi";
 
 interface ComplianceOverviewProps {
   summary: RegulationSummary;
@@ -134,7 +135,7 @@ export function ComplianceOverview({ summary }: ComplianceOverviewProps) {
             <CheckCircle2 className="h-4 w-4 text-foreground/60" />
             <div className="flex flex-col">
               <span className="font-data text-lg font-bold text-foreground/80">
-                {progressMet}/{progressTotal}
+                <Bidi text={`${progressMet}/${progressTotal}`} />
               </span>
               <span className="text-xs text-muted-foreground">{t("requirementsMet")}</span>
             </div>
