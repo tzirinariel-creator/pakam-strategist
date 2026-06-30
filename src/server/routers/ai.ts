@@ -58,7 +58,7 @@ export const aiRouter = createTRPCRouter({
         throw new TRPCError({
           code: "BAD_REQUEST",
           message:
-            'מפתח לא תקין. אפשר מפתח Gemini חינמי (מתחיל ב-AIza) או מפתח Claude (מתחיל ב-sk-ant).',
+            'מפתח לא תקין. הדביקו מפתח Gemini חינמי מ-Google AI Studio (מתחיל ב-AQ. או ב-AIza), או מפתח Claude (מתחיל ב-sk-ant).',
         });
       }
 

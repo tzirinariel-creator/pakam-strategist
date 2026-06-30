@@ -47,14 +47,14 @@ export async function POST(request: NextRequest) {
     locale === "en"
       ? {
           invalidKey: "API key is invalid or expired",
-          rateLimit: "Rate limit reached. Please wait.",
+          rateLimit: "You've hit the usage limit for now. The free tier has a quota — try again in a minute (or later if you reached the daily cap).",
           overloaded: "The AI service is overloaded. Please try again shortly.",
           generic: "Failed to get response",
           notSaved: "Reply could not be saved — it may disappear on refresh.",
         }
       : {
           invalidKey: "מפתח ה-API שגוי או שפג תוקפו",
-          rateLimit: "הגעת למגבלת הבקשות. נסה שוב בעוד רגע.",
+          rateLimit: "הגעת למגבלת השימוש כרגע. בשכבה החינמית של Gemini יש מכסה — נסו שוב בעוד דקה (או מאוחר יותר אם הגעתם למכסה היומית).",
           overloaded: "השירות עמוס כעת. נסה שוב בעוד רגע.",
           generic: "שליחת התשובה נכשלה. נסה שוב.",
           notSaved: "לא ניתן היה לשמור את התשובה — ייתכן שהיא תיעלם ברענון.",

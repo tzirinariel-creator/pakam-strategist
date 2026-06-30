@@ -15,9 +15,9 @@ export const GEMINI_MODEL = "gemini-2.0-flash";
 
 const GEMINI_MAX_TOKENS = 4096;
 
-/** Google AI Studio API keys start with "AIza". */
+/** Google AI Studio keys: legacy "AIza…" or the newer "AQ.…" auth keys. */
 export function validateGeminiKey(key: string): boolean {
-  return /^AIza[0-9A-Za-z_-]{30,}$/.test(key.trim());
+  return /^(AIza[0-9A-Za-z_-]{30,}|AQ\.[A-Za-z0-9._-]{20,})$/.test(key.trim());
 }
 
 interface GeminiStreamChunk {
@@ -43,7 +43,7 @@ export async function* streamGemini(
 
   const url =
     `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}` +
-    `:streamGenerateContent?alt=sse&key=${encodeURIComponent(apiKey)}`;
+    `:streamGenerateContent?alt=sse`;
 
   // Gemini uses role "model" for the assistant; "user" stays "user".
   const contents = messages.map((m) => ({
@@ -53,7 +53,10 @@ export async function* streamGemini(
 
   const res = await fetch(url, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    // The key goes in the x-goog-api-key header (Google's documented method,
+    // works for both legacy AIza keys and the new AQ. auth keys) rather than a
+    // ?key= query param — also keeps the secret out of URLs/logs.
+    headers: { "Content-Type": "application/json", "x-goog-api-key": apiKey },
     body: JSON.stringify({
       systemInstruction: { parts: [{ text: system }] },
       contents,

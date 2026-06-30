@@ -9,7 +9,10 @@
 export type AiProvider = "gemini" | "anthropic";
 
 const ANTHROPIC_RE = /^sk-ant-[a-zA-Z0-9_-]{20,}$/;
-const GEMINI_RE = /^AIza[0-9A-Za-z_-]{30,}$/;
+// Google issues two key formats: the legacy "AIza…" keys and the newer "AQ.…"
+// auth keys (every NEW Google AI Studio key is "AQ." as of mid-2026, and the
+// old "AIza" keys are being phased out). Both are valid free-tier Gemini keys.
+const GEMINI_RE = /^(AIza[0-9A-Za-z_-]{30,}|AQ\.[A-Za-z0-9._-]{20,})$/;
 
 /** Identify which provider a raw key belongs to, or null if it's neither. */
 export function detectProvider(key: string): AiProvider | null {
@@ -30,9 +33,14 @@ export function validateAnyApiKey(key: string): boolean {
  */
 export function maskAnyApiKey(key: string): string {
   const k = key.trim();
-  const provider = detectProvider(k);
-  const prefix =
-    provider === "gemini" ? "AIza" : provider === "anthropic" ? "sk-ant-" : "";
+  // Keep whichever real prefix the key has, so the mask is recognizable.
+  const prefix = k.startsWith("AQ.")
+    ? "AQ."
+    : k.startsWith("AIza")
+      ? "AIza"
+      : k.startsWith("sk-ant-")
+        ? "sk-ant-"
+        : "";
   const tail = k.length >= 4 ? k.slice(-4) : "";
   return `${prefix}${"•".repeat(4)}${tail}`;
 }
