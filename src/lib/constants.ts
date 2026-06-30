@@ -408,8 +408,8 @@ export const MILUIM_CONFIG = {
     GROUP_B: {
       nameHe: "קבוצה B — 21 עד 34 ימים בסמסטר",
       nameEn: "Group B — 21-34 days per semester",
-      descHe: "21-34 ימים בסמסטר; או לוחמים 14-20 ימים; או 35+ ימים מצטברים בשנת תשפ\"ו (סמ׳ ב׳); או 60+ ימים לפני פתיחת סמסטר; או 100+ בתשפ\"ה (סמ׳ א׳ רטרואקטיבית)",
-      descEn: "21-34 days/semester; or combat 14-20 days; or 35+ cumulative in year (sem B); or 60+ days before semester; or 100+ in prev year (sem A retroactive)",
+      descHe: "שירות של 21–34 ימים בסמסטר. נכללים גם: לוחמים עם 14–20 ימים, מי שצבר 35+ ימים במהלך השנה, 60+ ימים לפני תחילת הסמסטר, או 100+ ימים בשנה הקודמת.",
+      descEn: "21–34 days of service in a semester. Also included: combat soldiers with 14–20 days, anyone with 35+ cumulative days during the year, 60+ days before the semester starts, or 100+ days in the previous year.",
       criteria: "21-34 ימים/סמסטר | לוחמים 14-20 | 35+ בשנה | 60+ לפני סמסטר | 100+ בתשפ\"ה",
       criteriaEn: "21-34 days/sem | combat 14-20 | 35+ in year | 60+ pre-semester | 100+ prev year",
       creditExemptionPerYear: 6,   // 6 ש"ס per year
@@ -439,8 +439,8 @@ export const MILUIM_CONFIG = {
     GROUP_C: {
       nameHe: "קבוצה C — 35 ימים ומעלה בסמסטר",
       nameEn: "Group C — 35+ days per semester",
-      descHe: "35+ ימים מצטברים בסמסטר; או 100+ ימים בסמ׳ א׳ (מזכה גם בסמ׳ ב׳). לוחמים: 21+ ימים בסמסטר",
-      descEn: "35+ cumulative days/semester; or 100+ days in sem A (gives C in sem B too). Combat: 21+ days/semester",
+      descHe: "שירות של 35+ ימים בסמסטר (או 100+ ימים בסמסטר א׳ — שמזכה אוטומטית גם בסמסטר ב׳). לוחמים: כבר מ-21 ימים בסמסטר.",
+      descEn: "35+ days of service in a semester (or 100+ days in semester A, which also grants Group C in semester B). Combat soldiers: from 21 days per semester.",
       criteria: "35+ ימים/סמסטר | 100+ בסמ׳ א׳→גם ב׳ | לוחמים: 21+",
       criteriaEn: "35+ days/sem | 100+ in sem A→also B | Combat: 21+",
       creditExemptionPerYear: 8,   // 8 ש"ס per year
