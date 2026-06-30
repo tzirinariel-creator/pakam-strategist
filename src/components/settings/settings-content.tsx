@@ -851,6 +851,7 @@ function ApiKeySection() {
 
   const hasKey = keyQuery.data?.hasKey ?? false;
   const masked = keyQuery.data?.masked ?? null;
+  const provider = keyQuery.data?.provider ?? null;
 
   return (
     <SectionCard
@@ -869,6 +870,17 @@ function ApiKeySection() {
               <code className="rounded bg-foreground/5 px-2 py-0.5 font-mono text-xs">
                 {masked}
               </code>
+            )}
+            {provider && (
+              <span className="inline-flex items-center gap-1.5 rounded-full bg-foreground/5 px-2 py-0.5 text-xs text-foreground/60">
+                {t("apiKeyProvider")}{" "}
+                {provider === "gemini" ? "Google Gemini" : "Anthropic Claude"}
+                {provider === "gemini" && (
+                  <span className="rounded-full bg-emerald-400/15 px-1.5 text-[10px] font-bold text-emerald-600">
+                    {t("apiKeyFreeBadge")}
+                  </span>
+                )}
+              </span>
             )}
           </div>
           <Button
@@ -925,10 +937,10 @@ function ApiKeySection() {
               {t("saveApiKey")}
             </Button>
             <a
-              href="https://console.anthropic.com/settings/keys"
+              href="https://aistudio.google.com/apikey"
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-1.5 text-sm text-foreground/60 transition-colors hover:text-foreground"
+              className="inline-flex items-center gap-1.5 text-sm font-medium text-accent-brand transition-colors hover:text-accent-brand-hover"
             >
               <ExternalLink className="size-3.5" />
               {t("getApiKey")}

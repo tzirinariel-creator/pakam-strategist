@@ -9,9 +9,10 @@ import { TRPCError } from "@trpc/server";
 import { createTRPCRouter, protectedProcedure } from "../trpc/init";
 import { encrypt, decrypt } from "@/lib/crypto";
 import {
-  validateApiKey,
-  maskApiKey,
-} from "@/lib/ai/claude-client";
+  detectProvider,
+  validateAnyApiKey,
+  maskAnyApiKey,
+} from "@/lib/ai/provider";
 import {
   type StoredMessage,
 } from "@/lib/ai/context-builder";
@@ -51,18 +52,19 @@ export const aiRouter = createTRPCRouter({
     .mutation(async ({ ctx, input }) => {
       const trimmedKey = input.apiKey.trim();
 
-      // Validate format.
-      if (!validateApiKey(trimmedKey)) {
+      // Validate format — accept EITHER a free Gemini key (AIza…) or a Claude
+      // key (sk-ant-…). The provider is inferred from the prefix.
+      if (!validateAnyApiKey(trimmedKey)) {
         throw new TRPCError({
           code: "BAD_REQUEST",
           message:
-            'Invalid API key format. Anthropic keys start with "sk-ant-".',
+            'מפתח לא תקין. אפשר מפתח Gemini חינמי (מתחיל ב-AIza) או מפתח Claude (מתחיל ב-sk-ant).',
         });
       }
 
       const user = await getUser(ctx.db, ctx.userId);
 
-      // Encrypt and save.
+      // Encrypt and save (same encrypted column stores either provider's key).
       const encryptedKey = encrypt(trimmedKey);
       await ctx.db.user.update({
         where: { id: user.id },
@@ -71,7 +73,8 @@ export const aiRouter = createTRPCRouter({
 
       return {
         success: true as const,
-        masked: maskApiKey(trimmedKey),
+        masked: maskAnyApiKey(trimmedKey),
+        provider: detectProvider(trimmedKey),
       };
     }),
 
@@ -96,20 +99,24 @@ export const aiRouter = createTRPCRouter({
     const user = await getUser(ctx.db, ctx.userId);
 
     if (!user.encryptedClaudeKey) {
-      return { hasKey: false as const, masked: null };
+      return { hasKey: false as const, masked: null, provider: null };
     }
 
-    // Decrypt to mask the original key for display.
+    // Decrypt to mask the original key for display + report which provider.
     try {
       const decrypted = decrypt(user.encryptedClaudeKey);
-      return { hasKey: true as const, masked: maskApiKey(decrypted) };
+      return {
+        hasKey: true as const,
+        masked: maskAnyApiKey(decrypted),
+        provider: detectProvider(decrypted),
+      };
     } catch {
       // If decryption fails, the stored key is corrupt. Clear it.
       await ctx.db.user.update({
         where: { id: user.id },
         data: { encryptedClaudeKey: null },
       });
-      return { hasKey: false as const, masked: null };
+      return { hasKey: false as const, masked: null, provider: null };
     }
   }),
 

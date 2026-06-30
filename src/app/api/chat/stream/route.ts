@@ -14,6 +14,9 @@ import {
   MAX_TOKENS,
   type ChatMessage,
 } from "@/lib/ai/claude-client";
+import { streamGemini } from "@/lib/ai/gemini-client";
+import { detectProvider } from "@/lib/ai/provider";
+import { decrypt } from "@/lib/crypto";
 import { buildMentorSystemPrompt } from "@/lib/ai/mentor-prompt";
 import {
   buildUserContext,
@@ -45,7 +48,7 @@ export async function POST(request: NextRequest) {
       ? {
           invalidKey: "API key is invalid or expired",
           rateLimit: "Rate limit reached. Please wait.",
-          overloaded: "Claude is overloaded. Please try again shortly.",
+          overloaded: "The AI service is overloaded. Please try again shortly.",
           generic: "Failed to get response",
           notSaved: "Reply could not be saved — it may disappear on refresh.",
         }
@@ -127,16 +130,20 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // 4. Create Claude client
-    let client;
+    // 4. Detect which provider the stored key belongs to (free Gemini or Claude).
+    let provider;
     try {
-      client = createClaudeClient(user.encryptedClaudeKey);
+      provider = detectProvider(decrypt(user.encryptedClaudeKey));
     } catch {
+      provider = null;
+    }
+    if (!provider) {
       return NextResponse.json(
         { error: "Invalid API key" },
         { status: 400 }
       );
     }
+    const encryptedKey = user.encryptedClaudeKey;
 
     // 5. Load or create chat session
     let chatSession: {
@@ -196,19 +203,33 @@ export async function POST(request: NextRequest) {
     const mentorContext = await buildUserContext(prisma, user);
     const systemPrompt = buildMentorSystemPrompt(mentorContext, getProgramById(user.programId));
 
-    // 8. Stream from Claude — abort the upstream generation if the client disconnects.
-    const stream = client.messages.stream(
-      {
-        model: CLAUDE_MODEL,
-        max_tokens: MAX_TOKENS,
-        system: systemPrompt,
-        messages: chatHistory.map((m) => ({
-          role: m.role,
-          content: m.content,
-        })),
-      },
-      { signal: request.signal }
-    );
+    // 8. Provider-agnostic producer — yields text to `onText` as it streams.
+    //    The Claude path keeps its exact SDK calls; the Gemini path streams via
+    //    REST. The client is aborted if the user disconnects (request.signal).
+    const produce = async (
+      onText: (text: string) => void,
+      signal: AbortSignal,
+    ): Promise<void> => {
+      if (provider === "gemini") {
+        for await (const text of streamGemini(encryptedKey, systemPrompt, chatHistory, signal)) {
+          onText(text);
+        }
+        return;
+      }
+      // Claude (unchanged semantics): create client, register text handler, finalize.
+      const client = createClaudeClient(encryptedKey);
+      const stream = client.messages.stream(
+        {
+          model: CLAUDE_MODEL,
+          max_tokens: MAX_TOKENS,
+          system: systemPrompt,
+          messages: chatHistory.map((m) => ({ role: m.role, content: m.content })),
+        },
+        { signal }
+      );
+      stream.on("text", onText);
+      await stream.finalMessage();
+    };
 
     // 9. Create a ReadableStream that forwards events
     let fullResponse = "";
@@ -233,18 +254,15 @@ export async function POST(request: NextRequest) {
             )
           );
 
-          // Stream text deltas
-          stream.on("text", (text) => {
+          // Stream text deltas (Claude or Gemini, same forwarding).
+          await produce((text) => {
             fullResponse += text;
             controller.enqueue(
               encoder.encode(
                 `data: ${JSON.stringify({ type: "delta", text })}\n\n`
               )
             );
-          });
-
-          // Wait for the stream to finish
-          await stream.finalMessage();
+          }, request.signal);
 
           // Persist BEFORE closing the stream, so a DB failure is surfaced to the
           // user instead of silently losing a reply they already saw on screen.
@@ -280,12 +298,13 @@ export async function POST(request: NextRequest) {
           safeClose();
         } catch (err: unknown) {
           const apiError = err as { status?: number };
+          const status = apiError?.status;
           const errorMessage =
-            apiError?.status === 401
+            status === 401 || status === 403 || status === 400
               ? streamErrors.invalidKey
-              : apiError?.status === 429
+              : status === 429
                 ? streamErrors.rateLimit
-                : apiError?.status === 529
+                : status === 529 || status === 503 || status === 500
                   ? streamErrors.overloaded
                   : streamErrors.generic;
 
