@@ -196,19 +196,26 @@ export function MiluimStatusBar() {
                 </div>
               </div>
 
-              {/* Quick benefit flags */}
-              <div className="flex flex-wrap gap-2">
-                {cfg.attendanceExempt && (
-                  <BenefitChip icon={BookOpen} label={t("flagAttendance")} />
+              {/* Headline benefits as an infographic (icon · value · label) —
+                  clearer than a chip-row, and the value/label split fixes the
+                  cramped "+25% זמן בבחינה" reading. */}
+              <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-4">
+                {cfg.examTimeBonus > 0 && (
+                  <InfoStat icon={Clock} value={`+${cfg.examTimeBonus}%`} label={isHe ? "זמן בבחינה" : "Exam time"} />
                 )}
                 {cfg.examChoice2of3 && (
-                  <BenefitChip icon={CalendarClock} label={t("flagExamChoice")} />
+                  <InfoStat
+                    icon={CalendarClock}
+                    value={isHe ? "2 מתוך 3" : "2 of 3"}
+                    label={isHe ? "מועדי בחינה" : "Exam dates"}
+                    title={isHe ? "אפשר לגשת ל-2 מתוך 3 המועדים — הציון הגבוה קובע, אוטומטית" : "Sit 2 of 3 exam dates — the highest grade counts, automatically"}
+                  />
                 )}
-                {cfg.examTimeBonus > 0 && (
-                  <BenefitChip icon={Clock} label={t("flagExamTime", { percent: cfg.examTimeBonus })} />
+                {cfg.attendanceExempt && (
+                  <InfoStat icon={BookOpen} value={isHe ? "פטור" : "Exempt"} label={isHe ? "נוכחות" : "Attendance"} />
                 )}
                 {cfg.biddingBonus > 0 && (
-                  <BenefitChip icon={Target} label={t("flagBidding", { percent: cfg.biddingBonus })} />
+                  <InfoStat icon={Target} value={`+${cfg.biddingBonus}%`} label={isHe ? "בידינג" : "Bidding"} />
                 )}
               </div>
 
@@ -251,17 +258,27 @@ export function MiluimStatusBar() {
   );
 }
 
-function BenefitChip({
+function InfoStat({
   icon: Icon,
+  value,
   label,
+  title,
 }: {
   icon: React.ComponentType<{ className?: string }>;
+  value: string;
   label: string;
+  title?: string;
 }) {
   return (
-    <span className="inline-flex items-center gap-1.5 rounded-full border border-border/60 bg-foreground/[0.03] px-2.5 py-1 text-[11px] font-medium text-foreground/70">
-      <Icon className="size-3" />
-      <Bidi text={label} />
-    </span>
+    <div
+      title={title}
+      className="flex flex-col items-center gap-1 rounded-xl border border-border/60 bg-foreground/[0.02] p-2.5 text-center"
+    >
+      <Icon className="size-4 text-foreground/55" />
+      <span className="font-data text-sm font-bold text-foreground/85" dir="ltr">
+        {value}
+      </span>
+      <span className="text-[10px] leading-tight text-foreground/50">{label}</span>
+    </div>
   );
 }
