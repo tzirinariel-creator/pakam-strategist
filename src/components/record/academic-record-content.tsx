@@ -295,7 +295,7 @@ function CourseRow({
             {courseName}
           </span>
           <div className="flex flex-wrap items-center gap-1.5">
-            <span className="font-mono text-[10px] text-foreground/40">{course.code}</span>
+            <span dir="ltr" className="font-mono text-[10px] text-foreground/40">{course.code}</span>
             {isElective && (
               <span className="rounded-full bg-foreground/8 px-1.5 py-0.5 text-[9px] font-medium text-foreground/50">
                 {t("electiveBadge")}
