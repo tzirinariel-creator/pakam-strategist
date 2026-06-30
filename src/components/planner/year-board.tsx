@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useRef, useEffect } from "react";
 import {
   DndContext,
   DragOverlay,
@@ -11,7 +11,8 @@ import {
   type DragEndEvent,
   type DragStartEvent,
 } from "@dnd-kit/core";
-import { useTranslations } from "next-intl";
+import { useTranslations, useLocale } from "next-intl";
+import { CheckCircle2 } from "lucide-react";
 import { SemesterColumn } from "./semester-column";
 import { CourseCardOverlay } from "./course-card";
 import { toast } from "sonner";
@@ -21,7 +22,10 @@ import type { UserCourseWithCourse } from "@/types/degree";
 import type { Semester } from "@/types/enums";
 import { cn } from "@/lib/utils";
 
-const SEMESTERS: Semester[] = ["FALL", "SPRING", "SUMMER"];
+// פכ"מ מתוכנן לסתיו ואביב בלבד. אין סמסטר קיץ בלוח — קורס שמשובץ לקיץ
+// נמחק בשקט בשמירה הבאה (המתכנן לא מכיר קיץ), לכן קיץ אינו יעד-גרירה ולא
+// ניתן להוספה. ההגנה ב-handleDragEnd נשענת על כך ש-SUMMER אינו ברשימה הזו.
+const SEMESTERS: Semester[] = ["FALL", "SPRING"];
 const YEARS = [1, 2, 3] as const;
 
 interface YearBoardProps {
@@ -29,20 +33,32 @@ interface YearBoardProps {
 }
 
 export function YearBoard({ courses }: YearBoardProps) {
-  const t = useTranslations("planner");
   const tYear = useTranslations("year");
   const tCredits = useTranslations("credits");
+  const isHe = useLocale() === "he";
 
   const selectedYear = usePlannerStore((s) => s.selectedYear);
   const setSelectedYear = usePlannerStore((s) => s.setSelectedYear);
 
   const [activeCourse, setActiveCourse] = useState<UserCourseWithCourse | null>(null);
 
+  // Unified save feedback (מסלול E): a drag-move persists instantly, so instead
+  // of a fleeting toast we show a steady "נשמר ✓" next to the board — the same
+  // wording as the green "saved" banner on the planner, so the whole app speaks
+  // one save-vocabulary instead of two mechanisms.
+  const [showSaved, setShowSaved] = useState(false);
+  const savedTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  useEffect(() => () => {
+    if (savedTimer.current) clearTimeout(savedTimer.current);
+  }, []);
+
   const utils = api.useUtils();
   const updateCourse = api.plan.updateCourse.useMutation({
     onSuccess: () => {
       utils.plan.getUserPlan.invalidate();
-      toast.success(t("courseMoved"));
+      setShowSaved(true);
+      if (savedTimer.current) clearTimeout(savedTimer.current);
+      savedTimer.current = setTimeout(() => setShowSaved(false), 2500);
     },
     onError: () => {
       toast.error(tCredits("error") ?? "Error moving course");
@@ -76,6 +92,22 @@ export function YearBoard({ courses }: YearBoardProps) {
         .reduce((sum, uc) => sum + uc.course.credits, 0);
     },
     [courses],
+  );
+
+  // רשת-ביטחון: קורסים שכבר משובצים לקיץ (מצב ישן/נדיר). הם לא מוצגים
+  // באף עמודה כי אין עמודת-קיץ — אז נציג אותם בנפרד עם דרך-מילוט ברורה,
+  // כדי שלא ייעלמו וייאבדו בלי שהמשתמש ידע.
+  const summerCourses = courses.filter((uc) => uc.plannedSemester === "SUMMER");
+
+  const moveSummerToSpring = useCallback(
+    (uc: UserCourseWithCourse) => {
+      updateCourse.mutate({
+        userCourseId: uc.id,
+        plannedYear: uc.plannedYear,
+        plannedSemester: "SPRING",
+      });
+    },
+    [updateCourse],
   );
 
   const handleDragStart = useCallback(
@@ -138,6 +170,19 @@ export function YearBoard({ courses }: YearBoardProps) {
       onDragCancel={handleDragCancel}
     >
       <div className="flex flex-col gap-4">
+        {/* Steady "saved" indicator next to the board (unified save feedback) */}
+        <div className="flex h-4 items-center justify-end">
+          {showSaved && (
+            <span
+              role="status"
+              className="animate-fade-in inline-flex items-center gap-1 text-xs font-medium text-emerald-500"
+            >
+              <CheckCircle2 className="size-3.5" />
+              {isHe ? "נשמר" : "Saved"}
+            </span>
+          )}
+        </div>
+
         {/* Year tabs */}
         <div className="flex items-center gap-1 rounded-lg border border-border/50 bg-card/30 p-1">
           {YEARS.map((year) => {
@@ -171,8 +216,8 @@ export function YearBoard({ courses }: YearBoardProps) {
           })}
         </div>
 
-        {/* Semester columns for selected year */}
-        <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
+        {/* Semester columns for selected year — סתיו ואביב בלבד */}
+        <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
           {SEMESTERS.map((semester) => (
             <SemesterColumn
               key={`${selectedYear}-${semester}`}
@@ -182,6 +227,43 @@ export function YearBoard({ courses }: YearBoardProps) {
             />
           ))}
         </div>
+
+        {/* רשת-ביטחון: קורסים שמשובצים לסמסטר קיץ (אין לזה עמודה) */}
+        {summerCourses.length > 0 && (
+          <div className="rounded-xl border border-amber-400/50 bg-amber-50/60 p-3 dark:bg-amber-950/20">
+            <p className="text-sm font-semibold text-amber-900 dark:text-amber-200">
+              {isHe
+                ? "יש קורסים שמשובצים לסמסטר קיץ"
+                : "Some courses are placed in a summer semester"}
+            </p>
+            <p className="mt-0.5 text-xs text-amber-800/80 dark:text-amber-200/70">
+              {isHe
+                ? "פכ\"מ מתוכנן לסתיו ולאביב בלבד. כדי שהקורסים האלה לא יאבדו, העבירו אותם לאביב."
+                : "This degree is planned for fall and spring only. Move these to spring so they aren't lost."}
+            </p>
+            <div className="mt-2 flex flex-col gap-1.5">
+              {summerCourses.map((uc) => (
+                <div
+                  key={uc.id}
+                  className="flex items-center justify-between gap-2 rounded-lg bg-card/70 px-2.5 py-1.5"
+                >
+                  <span className="truncate text-xs font-medium text-foreground">
+                    {isHe ? uc.course.nameHe : (uc.course.nameEn ?? uc.course.nameHe)}
+                    <span className="text-muted-foreground"> · {tYear(String(uc.plannedYear))}</span>
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => moveSummerToSpring(uc)}
+                    disabled={updateCourse.isPending}
+                    className="shrink-0 rounded-md border border-amber-400/60 px-2 py-1 text-[11px] font-semibold text-amber-900 transition-colors hover:bg-amber-100 disabled:opacity-50 dark:text-amber-200 dark:hover:bg-amber-900/30"
+                  >
+                    {isHe ? "העבר/י לאביב" : "Move to spring"}
+                  </button>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Drag overlay — renders the floating card while dragging */}

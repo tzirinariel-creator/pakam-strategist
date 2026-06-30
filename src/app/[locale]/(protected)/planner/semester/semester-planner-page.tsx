@@ -153,11 +153,13 @@ export function SemesterPlannerPage() {
 
       // Saved — the edits are now persisted, so the exit guard can stand down.
       setDirty(false);
-      // Transient toast PLUS an unmissable confirmation banner on the
-      // destination (?saved=1). The toast alone was easy to miss in the
-      // navigation transition over the slow prod DB — the core of #18.
+      // Return HOME (not to the board) so the student immediately SEES the
+      // status update — closing the home<->planning loop that was the heart of
+      // the disconnect (מסלול E). The dashboard shows the same unmissable green
+      // banner from ?saved=1 (the transient toast alone was easy to miss in the
+      // navigation transition over the slow prod DB — the core of #18).
       toast.success(t("planSaved"));
-      router.push("/planner?saved=1");
+      router.push("/dashboard?saved=1");
     } catch {
       toast.error(t("saveError"));
     }

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef, useCallback } from "react";
-import { GraduationCap, Scale, Pencil, Target, ArrowRight, ArrowLeft, Calendar, X, RefreshCw, Calculator } from "lucide-react";
+import { GraduationCap, Scale, Pencil, Target, ArrowRight, ArrowLeft, Calendar, X, RefreshCw, Calculator, CheckCircle2 } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 import { useSearchParams } from "next/navigation";
 import { Link } from "@/i18n/navigation";
@@ -306,9 +306,24 @@ export function DashboardContent() {
   const isHe = locale === "he";
   const Arrow = isHe ? ArrowLeft : ArrowRight;
   const t = useTranslations("dashboard");
+  const tPlanner = useTranslations("planner");
   const searchParams = useSearchParams();
   const fromOnboarding = searchParams.get("from") === "onboarding";
   const resetDemo = searchParams.get("reset") === "demo";
+
+  // Save confirmation (מסלול E + #18): the semester planner now returns home
+  // with ?saved=1 after persisting, so the student sees their status update AND
+  // an unmissable green banner — the SAME wording as the planner's banner, so
+  // there's one save-confirmation across the app. Dismiss-only (no timer): the
+  // dashboard mounts behind a loader on the slow prod DB, so a timed banner
+  // could vanish before it's ever seen.
+  const [showSavedBanner, setShowSavedBanner] = useState(false);
+  useEffect(() => {
+    if (searchParams.get("saved") === "1") {
+      setShowSavedBanner(true);
+      window.history.replaceState({}, "", window.location.pathname);
+    }
+  }, [searchParams]);
 
   // Two-pass approach: always start false (matches SSR), then read localStorage
   // after hydration. This prevents React error #310 (hydration mismatch).
@@ -647,6 +662,36 @@ export function DashboardContent() {
     <div className="bg-mesh space-y-8 p-4 md:p-6">
       {/* Anchored product tour — spotlights the real UI it describes */}
       <AnchoredTour open={tourOpen} onClose={closeTour} />
+
+      {/* Saved confirmation — shown after returning from the semester planner
+          (?saved=1). Same green banner + wording as the planner, so the whole
+          app confirms a save the same way. Dismiss-only. */}
+      {showSavedBanner && (
+        <div
+          role="status"
+          className="animate-fade-in flex items-center gap-3 rounded-xl border border-emerald-400/30 bg-emerald-400/[0.07] p-4"
+        >
+          <span className="flex size-9 shrink-0 items-center justify-center rounded-full bg-emerald-400/15 text-emerald-500">
+            <CheckCircle2 className="size-5" />
+          </span>
+          <div className="min-w-0 flex-1">
+            <p className="text-sm font-semibold text-foreground/85">
+              {tPlanner("planSavedBannerTitle")}
+            </p>
+            <p className="mt-0.5 text-xs text-foreground/55">
+              {tPlanner("planSavedBannerDesc")}
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={() => setShowSavedBanner(false)}
+            aria-label={isHe ? "סגור" : "Close"}
+            className="shrink-0 rounded-md p-1 text-foreground/30 transition-colors hover:text-foreground/60"
+          >
+            <X className="size-4" />
+          </button>
+        </div>
+      )}
 
       {/* Page header */}
       <div className="animate-stagger-1">
