@@ -446,6 +446,21 @@ export function SemesterPlanner({
     return new Set(completedSemesters.map((s) => `${s.year}-${s.semester}`));
   }, [completedSemesters]);
 
+  // Soft planning horizon (מסלול E, step 4): the student's REAL position
+  // (data.year/semester) is the anchor. The current + next semester are
+  // "recommended" to plan; anything further out is "far" and likely to change —
+  // a gentle nudge, never a block (a reservist / mid-degree student must still
+  // be able to plan far ahead). #16: stop fresh users over-planning year 3.
+  const semIndex = (y: number, s: "FALL" | "SPRING") => (y - 1) * 2 + (s === "FALL" ? 0 : 1);
+  const anchorIndex = semIndex(data.year, data.semester);
+  const horizonOf = (y: number, s: "FALL" | "SPRING"): "past" | "near" | "far" => {
+    const i = semIndex(y, s);
+    if (i < anchorIndex) return "past";
+    if (i <= anchorIndex + 1) return "near";
+    return "far";
+  };
+  const activeIsFar = horizonOf(currentYear, currentSemester) === "far";
+
   const handleSwitchSemester = useCallback(
     (targetYear: number, targetSemester: "FALL" | "SPRING") => {
       // Don't switch to the same semester
@@ -568,6 +583,7 @@ export function SemesterPlanner({
               const isActive = year === currentYear && semester === currentSemester;
               const key = `${year}-${semester}`;
               const isCompleted = completedSemesterKeys.has(key);
+              const isFar = !isCompleted && horizonOf(year, semester) === "far";
               const yCfg = YEAR_CONFIG[year];
               const sCfg = SEMESTER_CONFIG[semester];
               const label = isHe
@@ -577,13 +593,16 @@ export function SemesterPlanner({
                 <button
                   key={key}
                   onClick={() => handleSwitchSemester(year, semester)}
+                  title={isFar ? (isHe ? "סמסטר רחוק — עוד יכול להשתנות" : "Far semester — may still change") : undefined}
                   className={cn(
                     "relative flex items-center gap-1 rounded-full px-2.5 py-1 text-[11px] font-medium transition-all",
                     isActive
                       ? "bg-foreground text-background shadow-sm"
                       : isCompleted
                         ? "bg-foreground/10 text-foreground/60 hover:bg-foreground/15"
-                        : "bg-foreground/5 text-foreground/35 hover:bg-foreground/10 hover:text-foreground/50"
+                        : isFar
+                          ? "border border-dashed border-foreground/20 bg-transparent text-foreground/35 hover:text-foreground/50"
+                          : "bg-foreground/5 text-foreground/35 hover:bg-foreground/10 hover:text-foreground/50"
                   )}
                 >
                   {isCompleted && !isActive && (
@@ -594,6 +613,14 @@ export function SemesterPlanner({
               );
             })}
           </div>
+          {/* Soft horizon nudge — only when editing a far semester (E-4). */}
+          {activeIsFar && (
+            <p className="max-w-md text-[11px] leading-snug text-amber-600/80 dark:text-amber-400/70">
+              {isHe
+                ? "זה סמסטר רחוק יחסית — סביר שדברים עוד ישתנו. אפשר לתכנן, רק כדאי להתמקד קודם בסמסטר הקרוב."
+                : "This is a far-off semester — things will likely still change. Plan if you like, but focus on the upcoming one first."}
+            </p>
+          )}
           <button
             onClick={() => setShowDegreeModal(true)}
             className="inline-flex items-center gap-1 rounded-full bg-foreground/5 px-2.5 py-1 text-xs text-foreground/40 hover:text-foreground/60 transition-colors"
