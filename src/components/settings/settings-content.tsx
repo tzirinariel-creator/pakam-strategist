@@ -923,6 +923,7 @@ function ApiKeySection() {
             </button>
           </div>
           <p className="text-xs text-foreground/50">{t("apiKeyInfo")}</p>
+          <p className="text-xs text-foreground/40">{t("apiKeyFreeLimits")}</p>
           <div className="flex flex-wrap items-center gap-3">
             <Button
               onClick={() => saveMutation.mutate({ apiKey: keyInput })}

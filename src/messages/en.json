@@ -285,6 +285,7 @@
     "apiKeyDescription": "Connect an AI key to use your personal assistant — a Google Gemini key works and is completely free.",
     "apiKeyFreeBadge": "Free",
     "apiKeyProvider": "Active provider:",
+    "apiKeyFreeLimits": "Free tier: ~15 requests/minute and ~1,500/day (resets at midnight). Plenty for normal use — and we never charge.",
     "apiKeySet": "API Key configured",
     "apiKeyNotSet": "No API key configured",
     "enterApiKey": "Paste your Gemini or Claude key here",

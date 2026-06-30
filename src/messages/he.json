@@ -285,6 +285,7 @@
     "apiKeyDescription": "חברו מפתח בינה מלאכותית כדי להפעיל את העוזר האישי — אפשר מפתח Gemini של גוגל, חינמי לגמרי.",
     "apiKeyFreeBadge": "חינם",
     "apiKeyProvider": "ספק פעיל:",
+    "apiKeyFreeLimits": "השכבה החינמית: כ-15 בקשות לדקה ו-1,500 ביום (מתאפסת בחצות). מספיק בהרבה לשימוש רגיל — ולעולם לא נגבה כסף.",
     "apiKeySet": "מפתח API מוגדר",
     "apiKeyNotSet": "לא הוגדר מפתח API",
     "enterApiKey": "הדביקו כאן מפתח Gemini או Claude",
