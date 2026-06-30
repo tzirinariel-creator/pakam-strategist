@@ -2,7 +2,7 @@
 
 import { useState, useMemo } from "react";
 import { useTranslations, useLocale } from "next-intl";
-import { ArrowUpDown, ArrowUp, ArrowDown } from "lucide-react";
+import { ArrowUpDown, ArrowUp, ArrowDown, Star } from "lucide-react";
 import {
   Table,
   TableBody,
@@ -28,12 +28,32 @@ type SortField =
   | "courseType"
   | "credits"
   | "yearOffered"
-  | "semesterOffered";
+  | "semesterOffered"
+  | "averageGrade";
 
 type SortDirection = "asc" | "desc";
 
 interface CourseTableProps {
   courses: Course[];
+  /** The student's chosen focus-area discipline — its courses get starred. */
+  focusArea?: string | null;
+}
+
+/** Difficulty level → localized label + color class. */
+function difficultyMeta(
+  level: string | null,
+  isHe: boolean
+): { label: string; cls: string } | null {
+  if (!level) return null;
+  const map: Record<string, { he: string; en: string; cls: string }> = {
+    easy: { he: "קל", en: "Easy", cls: "bg-emerald-400/15 text-emerald-600 dark:text-emerald-400" },
+    moderate: { he: "בינוני", en: "Moderate", cls: "bg-amber-400/15 text-amber-600 dark:text-amber-400" },
+    hard: { he: "קשה", en: "Hard", cls: "bg-orange-400/15 text-orange-600 dark:text-orange-400" },
+    very_hard: { he: "קשה מאוד", en: "Very hard", cls: "bg-red-400/15 text-red-600 dark:text-red-400" },
+  };
+  const m = map[level];
+  if (!m) return null;
+  return { label: isHe ? m.he : m.en, cls: m.cls };
 }
 
 // ---------------------------------------------------------------------------
@@ -72,11 +92,12 @@ function formatSemesters(semesters: string[], locale: string): string {
 // Component
 // ---------------------------------------------------------------------------
 
-export function CourseTable({ courses }: CourseTableProps) {
+export function CourseTable({ courses, focusArea }: CourseTableProps) {
   const t = useTranslations("catalog");
   const tCourseType = useTranslations("courseType");
   const tCommon = useTranslations("common");
   const locale = useLocale();
+  const isHe = locale === "he";
 
   const [sortField, setSortField] = useState<SortField>("code");
   const [sortDirection, setSortDirection] = useState<SortDirection>("asc");
@@ -84,6 +105,16 @@ export function CourseTable({ courses }: CourseTableProps) {
   // ---- Sorting logic ----
   const sortedCourses = useMemo(() => {
     const sorted = [...courses].sort((a, b) => {
+      // Grade sort: keep courses WITHOUT grade data at the bottom, both
+      // directions (so "best grades" / "hardest" never surface empty rows).
+      if (sortField === "averageGrade") {
+        const av = a.averageGrade;
+        const bv = b.averageGrade;
+        if (av == null && bv == null) return 0;
+        if (av == null) return 1;
+        if (bv == null) return -1;
+        return sortDirection === "asc" ? av - bv : bv - av;
+      }
       let cmp = 0;
       switch (sortField) {
         case "code":
@@ -229,6 +260,21 @@ export function CourseTable({ courses }: CourseTableProps) {
               </button>
             </TableHead>
 
+            {/* Average grade + difficulty (#19) */}
+            <TableHead
+              className="select-none text-center"
+              aria-sort={sortField === "averageGrade" ? (sortDirection === "asc" ? "ascending" : "descending") : "none"}
+            >
+              <button
+                type="button"
+                onClick={() => handleSort("averageGrade")}
+                className="inline-flex items-center gap-1 text-foreground/80 font-bold bg-transparent appearance-none cursor-pointer select-none"
+              >
+                {isHe ? "ציון ממוצע" : "Avg grade"}
+                {sortIcon("averageGrade")}
+              </button>
+            </TableHead>
+
             {/* Year - hidden on mobile */}
             <TableHead
               className="hidden select-none lg:table-cell"
@@ -269,12 +315,15 @@ export function CourseTable({ courses }: CourseTableProps) {
         </TableHeader>
 
         <TableBody>
-          {sortedCourses.map((course) => (
+          {sortedCourses.map((course) => {
+            const isFocus = !!focusArea && course.discipline === focusArea;
+            return (
             <TableRow
               key={course.id}
               className={cn(
                 "border-s-3 transition-colors hover:bg-foreground/5",
-                getDisciplineBorderClass(course.discipline)
+                getDisciplineBorderClass(course.discipline),
+                isFocus && "bg-accent-brand/[0.04]"
               )}
             >
               {/* Code */}
@@ -289,6 +338,12 @@ export function CourseTable({ courses }: CourseTableProps) {
                     className="block text-foreground line-clamp-2"
                     title={locale === "he" ? course.nameHe : (course.nameEn ?? course.nameHe)}
                   >
+                    {isFocus && (
+                      <Star
+                        className="me-1 -mt-0.5 inline size-3 fill-accent-brand text-accent-brand"
+                        aria-label={isHe ? "ההתמחות שלך" : "Your focus area"}
+                      />
+                    )}
                     {locale === "he" ? course.nameHe : (course.nameEn ?? course.nameHe)}
                   </span>
                   {locale === "he" ? (
@@ -326,6 +381,34 @@ export function CourseTable({ courses }: CourseTableProps) {
                 {course.credits}
               </TableCell>
 
+              {/* Average grade + difficulty + fail rate (#19) */}
+              <TableCell className="text-center">
+                {course.averageGrade != null ? (
+                  <div className="flex flex-col items-center gap-0.5">
+                    <span className="font-data text-sm font-bold tabular-nums text-foreground/85">
+                      {course.averageGrade.toFixed(1)}
+                    </span>
+                    {(() => {
+                      const d = difficultyMeta(course.difficultyLevel, isHe);
+                      return d ? (
+                        <span className={cn("rounded-full px-1.5 py-0.5 text-[10px] font-medium", d.cls)}>
+                          {d.label}
+                        </span>
+                      ) : null;
+                    })()}
+                    {course.failRate != null && course.failRate >= 1 && (
+                      <span className="text-[10px] text-muted-foreground" dir="ltr">
+                        {Math.round(course.failRate)}% {isHe ? "נכשלים" : "fail"}
+                      </span>
+                    )}
+                  </div>
+                ) : (
+                  <span className="text-xs text-muted-foreground/40" title={isHe ? "אין נתון" : "No data"}>
+                    —
+                  </span>
+                )}
+              </TableCell>
+
               {/* Year */}
               <TableCell className="hidden text-sm text-foreground/70 lg:table-cell tabular">
                 {formatYears(course.yearOffered, locale)}
@@ -349,7 +432,8 @@ export function CourseTable({ courses }: CourseTableProps) {
                 )}
               </TableCell>
             </TableRow>
-          ))}
+            );
+          })}
         </TableBody>
       </Table>
     </div>

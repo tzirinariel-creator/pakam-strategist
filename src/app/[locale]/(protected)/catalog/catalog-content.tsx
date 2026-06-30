@@ -57,6 +57,9 @@ export function CatalogContent() {
     refetch,
   } = api.course.list.useQuery(queryInput);
 
+  // The student's focus area — its courses get starred + tinted in the table.
+  const { data: profile } = api.user.getProfile.useQuery();
+
   // Cast the returned data to our Course type
   const typedCourses = (courses ?? []) as unknown as Course[];
 
@@ -120,7 +123,7 @@ export function CatalogContent() {
       {/* Course Table */}
       {!isLoading && !error && (
         <div className="animate-stagger-3">
-          <CourseTable courses={typedCourses} />
+          <CourseTable courses={typedCourses} focusArea={profile?.focusArea ?? null} />
         </div>
       )}
 
