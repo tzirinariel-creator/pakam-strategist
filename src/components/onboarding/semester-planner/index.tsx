@@ -513,15 +513,6 @@ export function SemesterPlanner({
   // Can we plan more semesters?
   const hasMoreSemesters = currentYear < 3 || (currentYear === 3 && currentSemester === "FALL");
 
-  // ─── Display labels ────────────────────────────────────────────────
-
-  const yearLabel = isHe
-    ? YEAR_CONFIG[currentYear as 1 | 2 | 3]?.nameHe ?? `שנה ${currentYear}`
-    : YEAR_CONFIG[currentYear as 1 | 2 | 3]?.nameEn ?? `Year ${currentYear}`;
-  const semLabel = isHe
-    ? SEMESTER_CONFIG[currentSemester]?.nameHe
-    : SEMESTER_CONFIG[currentSemester]?.nameEn;
-
   // ─── Loading state ─────────────────────────────────────────────────
 
   if (isLoadingCourses) {
