@@ -63,6 +63,12 @@ export function MyStatusHero({
   const effective = credits?.effectiveTotal ?? earned + planned + exempt;
   const remaining = Math.max(0, target - effective);
 
+  // The single "where am I in the degree" number (Project 1 super-number) — the
+  // one line that turns a form into a compass. Pace is a rough ~25-cr/semester
+  // estimate, framed softly so it never reads as a hard promise.
+  const degreePct = target > 0 ? Math.min(100, Math.round((effective / target) * 100)) : 0;
+  const semestersLeft = remaining > 0 ? Math.max(1, Math.ceil(remaining / 25)) : 0;
+
   const pct = (n: number) => `${Math.min((n / target) * 100, 100)}%`;
   // Cumulative widths so the segments stack left→start without overlap.
   const earnedW = pct(earned);
@@ -147,6 +153,27 @@ export function MyStatusHero({
             <span className="opacity-60">{isHe ? "ממוצע" : "GPA"}</span>
           </span>
         )}
+      </div>
+
+      {/* Super-number — the single "where am I in the degree" line (Project 1). */}
+      <div className="mb-4 flex items-baseline gap-2.5">
+        <span className="font-display text-4xl font-bold tabular-nums text-accent-brand" dir="ltr">
+          {degreePct}%
+        </span>
+        <div className="flex flex-col">
+          <span className="text-sm font-semibold text-foreground/80">
+            {isHe ? "מהתואר הושלמו" : "of the degree done"}
+          </span>
+          {remaining > 0 ? (
+            <span className="text-xs text-foreground/50">
+              <Bidi text={isHe ? `עוד כ-${semestersLeft} סמסטרים בקצב רגיל` : `~${semestersLeft} more semesters at a normal pace`} />
+            </span>
+          ) : (
+            <span className="text-xs text-emerald-500">
+              {isHe ? "כל הש״ס הושלמו 🎉" : "all credits complete 🎉"}
+            </span>
+          )}
+        </div>
       </div>
 
       {/* Headline: remaining to complete */}
