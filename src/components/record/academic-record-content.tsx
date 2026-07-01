@@ -17,6 +17,7 @@ import {
 } from "lucide-react";
 import { api } from "@/lib/trpc/react";
 import { ThemedLoader } from "@/components/ui/themed-loader";
+import { PhilosopherKingIcon } from "@/components/ui/philosopher-king-icon";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import {
@@ -202,6 +203,7 @@ function SummaryCard({
   hasFocus: boolean;
   t: ReturnType<typeof useTranslations<"record">>;
 }) {
+  const isHe = useLocale() === "he";
   const totalTarget = CREDIT_REQUIREMENTS.TOTAL;
   const totalPct = Math.min((completedCredits / totalTarget) * 100, 100);
   const focusPct = focusTarget > 0 ? Math.min((focusCredits / focusTarget) * 100, 100) : 0;
@@ -245,6 +247,26 @@ function SummaryCard({
           <Calculator className="h-3 w-3 shrink-0" />
           {t("summaryWeightedAvgHint")}
         </Link>
+        {weightedAvg !== null && (
+          <button
+            type="button"
+            onClick={() =>
+              window.dispatchEvent(
+                new CustomEvent("pk:ask", {
+                  detail: {
+                    prompt: isHe
+                      ? "איך אני יכול/ה לשפר את הממוצע שלי? תן/י לי צעדים קונקרטיים לפי הקורסים שנשארו לי."
+                      : "How can I improve my average? Give me concrete steps based on my remaining courses.",
+                  },
+                })
+              )
+            }
+            className="mt-1 flex items-center gap-1 text-[11px] font-medium text-accent-brand transition-colors hover:text-accent-brand-hover"
+          >
+            <PhilosopherKingIcon className="size-3" />
+            {isHe ? "שאל את המלך איך לשפר" : "Ask the King how to improve"}
+          </button>
+        )}
       </div>
 
       {/* Focus-area progress */}
