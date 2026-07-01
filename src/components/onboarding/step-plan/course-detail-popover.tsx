@@ -105,9 +105,9 @@ export function CourseDetailPopover({ course, children, onDisciplineOverride }: 
                 {course.averageGrade}
               </span>
             )}
-            {course.failRate != null && course.failRate > 0 && (
+            {course.failRate != null && course.failRate >= 1 && (
               <span className="text-foreground/55" dir="ltr">
-                {course.failRate}% {isHe ? "נכשלים" : "fail"}
+                {Math.round(course.failRate)}% {isHe ? "נכשלים" : "fail"}
               </span>
             )}
             <span className="text-foreground/30">{isHe ? "· מנתוני עבר" : "· from past data"}</span>
