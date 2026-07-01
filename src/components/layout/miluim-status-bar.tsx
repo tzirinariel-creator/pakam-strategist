@@ -2,10 +2,11 @@
 
 import { useState } from "react";
 import { Dialog as DialogPrimitive } from "radix-ui";
-import { Shield, X, Check, CalendarClock, Clock, Target, BookOpen, GraduationCap, ChevronLeft, ChevronRight } from "lucide-react";
+import { Shield, X, Check, CalendarClock, Clock, Target, BookOpen, GraduationCap, ChevronLeft, ChevronRight, Sparkles } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 import { api } from "@/lib/trpc/react";
 import { MILUIM_CONFIG } from "@/lib/constants";
+import { buildBenefitGroups, BENEFITS_HONESTY_NOTE } from "@/lib/miluim-benefits";
 import {
   deriveCurrentGroup,
   computeCreditExemption,
@@ -75,6 +76,8 @@ export function MiluimStatusBar() {
   const cfg = MILUIM_CONFIG.GROUPS[group];
   const style = GROUP_STYLE[group as Exclude<MiluimGroupKey, "NONE">];
   const groupName = isHe ? cfg.nameHe : cfg.nameEn;
+  // Grouped, human, honest benefits for THIS group (replaces the old flat list).
+  const benefitGroups = buildBenefitGroups(group, cfg);
 
   // Live quota numbers — exact same path as the credit/binary calculators.
   const creditsUsed = profile.miluimCreditsUsed ?? 0;
@@ -219,24 +222,46 @@ export function MiluimStatusBar() {
                 )}
               </div>
 
-              {/* Full benefits list (authoritative, from the official מתווה) */}
-              <div>
-                <h4 className="mb-2 text-xs font-semibold uppercase tracking-wide text-foreground/45">
-                  {t("allBenefits")}
-                </h4>
-                <ul className="space-y-1.5">
-                  {cfg.benefits.map((b, i) => (
-                    <li key={i} className="flex items-start gap-2 text-sm text-foreground/75">
-                      <Check className={cn("mt-0.5 size-3.5 shrink-0", style.chip)} />
-                      <span className="leading-snug"><Bidi text={b} /></span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
+              {/* Benefits, grouped into human categories with an "auto" chip on
+                  the ones the app applies for you (#7 — was a flat, machine-like
+                  checklist). Copy is code-grounded and honest about auto vs.
+                  request-elsewhere. */}
+              {benefitGroups.map((bg) => (
+                <div key={bg.titleEn}>
+                  <h4 className="mb-2 text-xs font-semibold text-foreground/50">
+                    {isHe ? bg.titleHe : bg.titleEn}
+                  </h4>
+                  <ul className="space-y-2">
+                    {bg.items.map((b, i) => (
+                      <li key={i} className="flex items-start gap-2 text-sm text-foreground/75">
+                        {b.auto ? (
+                          <Sparkles className={cn("mt-0.5 size-3.5 shrink-0", style.chip)} />
+                        ) : (
+                          <Check className="mt-0.5 size-3.5 shrink-0 text-foreground/35" />
+                        )}
+                        <span className="leading-snug">
+                          <Bidi text={isHe ? b.he : b.en} />
+                          {b.auto && (
+                            <span
+                              className={cn(
+                                "ms-1.5 inline-block rounded px-1.5 py-px align-middle text-[10px] font-semibold",
+                                style.bar,
+                                style.chip
+                              )}
+                            >
+                              {isHe ? "אוטומטי" : "auto"}
+                            </span>
+                          )}
+                        </span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              ))}
 
-              {/* Where to realize — honest, generic pointer (no invented procedures) */}
+              {/* Honest "how this works" — what's automatic vs. what to request. */}
               <div className="rounded-xl border border-border/60 bg-foreground/[0.02] p-3.5 text-xs leading-relaxed text-foreground/55">
-                {t("howToRealize")}
+                {isHe ? BENEFITS_HONESTY_NOTE.he : BENEFITS_HONESTY_NOTE.en}
               </div>
             </div>
 
