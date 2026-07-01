@@ -83,6 +83,28 @@ describe("buildRecommendations", () => {
     expect(recs.some((r) => r.id.startsWith("improve-"))).toBe(true);
   });
 
+  it("applies the 80 bar only to PPE_CORE, not every mandatory course (audit fix)", () => {
+    // A PPE_CORE course at 78 is below its 80 bar → worth improving.
+    const ppeCore = buildRecommendations(
+      input({
+        currentYear: 1,
+        amiramScore: 140,
+        courses: [course({ grade: 78, discipline: "PPE_CORE", isMandatory: true, examDateB: null })],
+      })
+    );
+    expect(ppeCore.some((r) => r.id.startsWith("improve-"))).toBe(true);
+
+    // A mandatory Philosophy course at 78 is a solid pass (>=75) → NOT flagged.
+    const philo = buildRecommendations(
+      input({
+        currentYear: 1,
+        amiramScore: 140,
+        courses: [course({ grade: 78, discipline: "PHILOSOPHY", isMandatory: true, examDateB: null })],
+      })
+    );
+    expect(philo.some((r) => r.id.startsWith("improve-"))).toBe(false);
+  });
+
   it("suggests a binary candidate for an eligible miluim student", () => {
     const recs = buildRecommendations(
       input({
@@ -117,11 +139,13 @@ describe("buildRecommendations", () => {
     expect(recs.some((r) => r.id.startsWith("improve-"))).toBe(false);
   });
 
-  it("uses the higher 80 bar for mandatory PPE courses", () => {
-    // grade 78: passes the general 75 bar but fails the mandatory 80 bar.
+  it("uses the higher 80 bar for PPE_CORE courses", () => {
+    // grade 78: passes the general 75 bar but fails the PPE_CORE 80 bar.
     const recs = buildRecommendations(
       input({
-        courses: [course({ grade: 78, isMandatory: true, examDateB: null })],
+        currentYear: 1,
+        amiramScore: 140,
+        courses: [course({ grade: 78, discipline: "PPE_CORE", isMandatory: true, examDateB: null })],
       })
     );
     expect(recs.some((r) => r.id.startsWith("improve-"))).toBe(true);

@@ -102,11 +102,15 @@ function isRetakeWorthy(course: RecCourse): boolean {
   if (course.grade === null) return false;
   // Binary (pass/fail) courses have no numeric grade in play — nothing to retake.
   if (course.isBinary) return false;
-  // PPE-mandatory courses are measured against the higher 80 bar; everything
-  // else against the general 75 transition bar.
-  const bar = course.isMandatory
-    ? GRADE_REQUIREMENTS.YEAR_TRANSITION_PPE_GPA
-    : GRADE_REQUIREMENTS.YEAR_TRANSITION_OVERALL_GPA;
+  // The higher 80 bar applies ONLY to the PPE-dedicated (PPE_CORE) courses —
+  // per the year-transition rule PKM-017; every other course (including other
+  // mandatory ones like Philosophy/Economics/Law) is measured against the
+  // general 75 bar. Using isMandatory here wrongly flagged 75–79 passes in
+  // non-PPE_CORE mandatory courses as retake-worthy (audit finding).
+  const bar =
+    course.discipline === "PPE_CORE"
+      ? GRADE_REQUIREMENTS.YEAR_TRANSITION_PPE_GPA
+      : GRADE_REQUIREMENTS.YEAR_TRANSITION_OVERALL_GPA;
   return course.grade < bar;
 }
 
