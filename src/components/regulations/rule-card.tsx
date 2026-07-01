@@ -13,6 +13,7 @@ import {
 import { useState } from "react";
 import { Link } from "@/i18n/navigation";
 import { Bidi } from "@/lib/bidi";
+import { PhilosopherKingIcon } from "@/components/ui/philosopher-king-icon";
 import { DISCIPLINE_CONFIG, ENGLISH_CONFIG } from "@/lib/constants";
 import type { RegulationResult } from "@/types/regulation";
 
@@ -175,6 +176,29 @@ export function RuleCard({ rule }: RuleCardProps) {
           <p className="text-sm leading-relaxed text-foreground/70">
             <Bidi text={message} />
           </p>
+
+          {/* Ask the King to explain a requirement you're not meeting + how to
+              close it (P2 #7 — context-aware help where the gap actually is). */}
+          {!passed && (
+            <button
+              type="button"
+              onClick={() =>
+                window.dispatchEvent(
+                  new CustomEvent("pk:ask", {
+                    detail: {
+                      prompt: isHe
+                        ? `הסבר לי את הדרישה "${ruleName}" — למה אני לא עומד/ת בה, ומה בדיוק לעשות כדי לסגור אותה?`
+                        : `Explain the requirement "${ruleName}" — why am I not meeting it, and what exactly should I do to close it?`,
+                    },
+                  })
+                )
+              }
+              className="mt-2.5 inline-flex items-center gap-1.5 rounded-lg bg-accent-brand/10 px-2.5 py-1.5 text-xs font-medium text-accent-brand transition-colors hover:bg-accent-brand/20"
+            >
+              <PhilosopherKingIcon className="size-3.5" />
+              {isHe ? "שאל את המלך איך לסגור את זה" : "Ask the King how to close this"}
+            </button>
+          )}
 
           {/* Details data */}
           {rule.details && Object.keys(rule.details).length > 0 && (
