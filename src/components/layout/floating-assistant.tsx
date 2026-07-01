@@ -3,12 +3,13 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useLocale } from "next-intl";
 import { usePathname } from "next/navigation";
-import { Sparkles, X, Send, Zap, Bot, Loader2, Database } from "lucide-react";
+import { X, Send, Zap, Bot, Loader2, Database } from "lucide-react";
 import Markdown from "react-markdown";
 import { toast } from "sonner";
 import { api } from "@/lib/trpc/react";
 import { cn } from "@/lib/utils";
 import { Link } from "@/i18n/navigation";
+import { PhilosopherKingIcon } from "@/components/ui/philosopher-king-icon";
 import { routeQuestion } from "@/lib/ai/answer-router";
 import { suggestedQuestions } from "@/lib/degree-qa";
 import { useDegreeQAContext } from "@/components/mentor/use-qa-context";
@@ -234,16 +235,17 @@ export function FloatingAssistant() {
           ref={fabRef}
           type="button"
           onClick={() => setOpen(true)}
-          aria-label={isHe ? "פתח/י את היועץ" : "Open the assistant"}
+          aria-label={isHe ? "פתח/י את המלך הפילוסוף" : "Open the Philosopher King"}
           className={cn(
             "fixed bottom-20 end-4 z-[65] flex items-center gap-2 rounded-full py-3 shadow-lg md:bottom-6 md:end-6",
-            "bg-accent-brand text-accent-brand-fg transition-all hover:bg-accent-brand-hover hover:shadow-xl press-scale",
+            "bg-accent-brand text-accent-brand-fg ring-1 ring-[#f2c879]/30 transition-all press-scale",
+            "hover:bg-accent-brand-hover hover:shadow-xl hover:ring-[#f2c879]/60",
             "px-4",
           )}
         >
-          <Sparkles className="size-5" />
+          <PhilosopherKingIcon className="size-5 text-[#f2c879]" />
           <span className="hidden text-sm font-semibold sm:inline">
-            {isHe ? "שאל/י את היועץ" : "Ask the advisor"}
+            {isHe ? "המלך הפילוסוף" : "The Philosopher King"}
           </span>
         </button>
       )}
@@ -269,19 +271,19 @@ export function FloatingAssistant() {
               "animate-in fade-in slide-in-from-bottom-4 duration-200",
             )}
           >
-            {/* Header */}
-            <div className="flex items-center gap-2 border-b border-border/60 bg-accent-brand/[0.06] px-4 py-3">
-              <div className="flex size-8 items-center justify-center rounded-lg bg-accent-brand/15 text-accent-brand">
-                <Sparkles className="size-4" />
+            {/* Header — regal indigo with a gold crown (the Philosopher King). */}
+            <div className="flex items-center gap-2.5 border-b border-border/60 bg-gradient-to-b from-accent-brand/[0.12] to-accent-brand/[0.04] px-4 py-3">
+              <div className="flex size-9 items-center justify-center rounded-xl bg-accent-brand text-[#f2c879] shadow-sm ring-1 ring-[#f2c879]/40">
+                <PhilosopherKingIcon className="size-5" />
               </div>
               <div className="min-w-0 flex-1">
-                <p className="text-sm font-bold text-foreground/90">
-                  {isHe ? "היועץ שלך" : "Your advisor"}
+                <p className="font-display text-sm font-bold text-foreground/90">
+                  {isHe ? "המלך הפילוסוף" : "The Philosopher King"}
                 </p>
                 <p className="text-[11px] text-foreground/50">
                   {aiAvailable
-                    ? isHe ? "תשובות מהנתונים שלך + AI חופשי" : "From your data + free AI"
-                    : isHe ? "תשובות מיידיות מהנתונים שלך" : "Instant answers from your data"}
+                    ? isHe ? "יועץ התואר שלך · חוכמה מהנתונים שלך" : "Your degree advisor · wisdom from your data"
+                    : isHe ? "יועץ התואר שלך · תשובות מהנתונים שלך" : "Your degree advisor · answers from your data"}
                 </p>
               </div>
               <button
