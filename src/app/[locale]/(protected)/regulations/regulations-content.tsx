@@ -1,7 +1,7 @@
 "use client";
 
-import { useTranslations } from "next-intl";
-import { Scale, RefreshCw, BookOpen } from "lucide-react";
+import { useTranslations, useLocale } from "next-intl";
+import { Scale, RefreshCw, BookOpen, Info } from "lucide-react";
 import { api } from "@/lib/trpc/react";
 import { ThemedLoader } from "@/components/ui/themed-loader";
 import { Link } from "@/i18n/navigation";
@@ -11,6 +11,7 @@ import { RuleList } from "@/components/regulations/rule-list";
 export function RegulationsContent() {
   const t = useTranslations("regulations");
   const tCommon = useTranslations("common");
+  const isHe = useLocale() === "he";
 
   const {
     data: summary,
@@ -90,6 +91,16 @@ export function RegulationsContent() {
       {/* Compliance data */}
       {summary && (
         <>
+          {/* What this tab is FOR — a plain-language purpose line (#25). */}
+          <div className="flex items-start gap-2.5 rounded-xl border border-border/50 bg-foreground/[0.02] px-4 py-3 text-sm leading-relaxed text-foreground/60">
+            <Info className="mt-0.5 size-4 shrink-0 text-foreground/40" />
+            <span>
+              {isHe
+                ? "כאן רואים אם התוכנית שלך עומדת בכל כללי-התקנון של התואר — ש\"ס, תחום-מיקוד, אנגלית, סמינרים ומילואים. אם משהו לא בסדר או עדיין חסר, זה יסומן כאן כדי שתוכל לתקן בזמן."
+                : "This is where you see whether your plan meets every degree regulation — credits, focus area, English, seminars and reserve duty. Anything wrong or still missing is flagged here so you can fix it in time."}
+            </span>
+          </div>
+
           {/* Overview card */}
           <ComplianceOverview summary={summary} />
 
