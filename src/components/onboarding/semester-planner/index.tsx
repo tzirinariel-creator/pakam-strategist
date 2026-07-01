@@ -645,12 +645,14 @@ export function SemesterPlanner({
         />
       </div>
 
-      {/* Main content — 2-column courses + timetable below */}
-      <div className="animate-stagger-3 w-full max-w-7xl space-y-4">
-        {/* Row 1: Course Pool + My Semester side by side */}
-        <div className="flex flex-col gap-4 lg:flex-row">
-          {/* Course Pool */}
-          <div className="w-full rounded-xl border border-border/40 bg-card/20 p-4 lg:w-[42%] lg:max-h-[480px] lg:overflow-hidden lg:flex lg:flex-col">
+      {/* Main content — the course pool sits BESIDE the selected semester + its
+          LIVE timetable, so every course you pick shows on the schedule
+          instantly instead of being buried at the bottom (gal-3 #19; the
+          Coursicle-style list↔timetable pairing). */}
+      <div className="animate-stagger-3 w-full max-w-7xl">
+        <div className="flex flex-col gap-4 lg:flex-row lg:items-start">
+          {/* Course Pool — browse & add, on the start side */}
+          <div className="w-full rounded-xl border border-border/40 bg-card/20 p-4 lg:w-[38%] lg:max-h-[600px] lg:overflow-hidden lg:flex lg:flex-col">
             <CoursePool
               allCourses={mergedCourses}
               currentYear={currentYear}
@@ -665,8 +667,11 @@ export function SemesterPlanner({
             />
           </div>
 
-          {/* My Semester */}
-          <div className="w-full rounded-xl border border-border/40 bg-card/20 p-4 lg:w-[58%] lg:max-h-[480px] lg:overflow-y-auto">
+          {/* Right column: the selected semester + its live timetable, stacked,
+              so both update the moment you pick a course from the pool. */}
+          <div className="flex w-full flex-col gap-4 lg:w-[62%]">
+            {/* My Semester */}
+            <div className="rounded-xl border border-border/40 bg-card/20 p-4 lg:max-h-[380px] lg:overflow-y-auto">
             <MySemester
               mandatoryCourses={mandatoryCourses}
               selectedCourses={selectedElectives}
@@ -677,11 +682,11 @@ export function SemesterPlanner({
               sessionGroupSelections={sessionGroupSelections}
               onSelectSessionGroup={handleSelectSessionGroup}
             />
-          </div>
-        </div>
+            </div>
 
-        {/* Row 2: Timetable / Exam Gantt — tab toggle */}
-        <div className="w-full rounded-xl border border-border/40 bg-card/20 p-4">
+            {/* Live schedule of the picked courses — right here beside the pool,
+                not at the bottom. Tab-toggles to the exam timeline. */}
+            <div className="rounded-xl border border-border/40 bg-card/20 p-4">
           {/* Tab header */}
           <div className="mb-3 flex items-center justify-between">
             <div className="flex items-center gap-1 rounded-lg bg-foreground/5 p-0.5">
@@ -751,6 +756,8 @@ export function SemesterPlanner({
           {bottomTab === "exams" && (
             <ExamGantt courses={allCurrentCourses} />
           )}
+            </div>
+          </div>
         </div>
       </div>
 
