@@ -18,15 +18,18 @@ import type { QAContext } from "@/lib/degree-qa";
  * from one source of truth. Returns `ready` = whether the core data has loaded
  * (so the caller can hold the free answer until numbers are real, never guess).
  */
-export function useDegreeQAContext(): { ctx: QAContext; ready: boolean } {
+export function useDegreeQAContext(enabled = true): { ctx: QAContext; ready: boolean } {
   const isHe = useLocale() === "he";
 
-  const creditsQuery = api.plan.getCredits.useQuery(undefined, { retry: 1, staleTime: 60_000 });
-  const gradeQuery = api.plan.getGraduationScore.useQuery(undefined, { retry: 1, staleTime: 60_000 });
-  const regulationQuery = api.regulation.checkCompliance.useQuery(undefined, { retry: 1, staleTime: 60_000 });
-  const profileQuery = api.user.getProfile.useQuery(undefined, { retry: 1, staleTime: 60_000 });
-  const semestersQuery = api.user.listMiluimSemesters.useQuery(undefined, { retry: 1, staleTime: 60_000 });
-  const planQuery = api.plan.getUserPlan.useQuery(undefined, { retry: 1, staleTime: 60_000 });
+  // `enabled` lets the floating assistant defer these 6 queries until the King
+  // is actually opened, instead of hitting the DB on every protected page load.
+  const opts = { retry: 1, staleTime: 60_000, enabled };
+  const creditsQuery = api.plan.getCredits.useQuery(undefined, opts);
+  const gradeQuery = api.plan.getGraduationScore.useQuery(undefined, opts);
+  const regulationQuery = api.regulation.checkCompliance.useQuery(undefined, opts);
+  const profileQuery = api.user.getProfile.useQuery(undefined, opts);
+  const semestersQuery = api.user.listMiluimSemesters.useQuery(undefined, opts);
+  const planQuery = api.plan.getUserPlan.useQuery(undefined, opts);
 
   const ctx: QAContext = useMemo(() => {
     const b = creditsQuery.data?.breakdown ?? null;

@@ -43,7 +43,9 @@ export function FloatingAssistant() {
   const [input, setInput] = useState("");
   const [streaming, setStreaming] = useState(false);
 
-  const { ctx, ready } = useDegreeQAContext();
+  // Only load the student's data once the King is opened — the FAB sits on every
+  // protected page, so eager-loading 6 queries per page was needless load.
+  const { ctx, ready } = useDegreeQAContext(open);
   const apiKeyQuery = api.ai.hasApiKey.useQuery(undefined, { staleTime: 60_000 });
   const aiAvailable = !!apiKeyQuery.data?.hasKey || !!apiKeyQuery.data?.sharedAvailable;
 
@@ -51,6 +53,10 @@ export function FloatingAssistant() {
   const inputRef = useRef<HTMLInputElement>(null);
   const abortRef = useRef<AbortController | null>(null);
   const fabRef = useRef<HTMLButtonElement>(null);
+  // The server chat session — carried across turns so the King REMEMBERS the
+  // conversation. Without it every message was stateless (a follow-up like "כן"
+  // got "that's not a question"). Set from the stream's `meta` event.
+  const sessionIdRef = useRef<string | null>(null);
 
   // The full mentor page already IS the assistant — no floating duplicate there.
   const onMentorPage = pathname?.includes("/mentor");
@@ -122,7 +128,7 @@ export function FloatingAssistant() {
   }, []);
 
   const streamLLM = useCallback(
-    async (question: string, planHash: string) => {
+    async (question: string, planHash: string, cacheable: boolean) => {
       const controller = new AbortController();
       abortRef.current = controller;
       setMessages((m) => [...m, { role: "assistant", content: "", source: "llm" }]);
@@ -131,7 +137,8 @@ export function FloatingAssistant() {
         const res = await fetch("/api/chat/stream", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ message: question }),
+          // Carry the session so the King remembers the conversation.
+          body: JSON.stringify({ message: question, sessionId: sessionIdRef.current ?? undefined }),
           signal: controller.signal,
         });
         if (!res.ok) {
@@ -151,8 +158,10 @@ export function FloatingAssistant() {
           for (const line of lines) {
             if (!line.startsWith("data: ")) continue;
             try {
-              const ev = JSON.parse(line.slice(6)) as { type: string; text?: string; error?: string };
-              if (ev.type === "delta" && ev.text) {
+              const ev = JSON.parse(line.slice(6)) as { type: string; text?: string; error?: string; sessionId?: string };
+              if (ev.type === "meta" && ev.sessionId) {
+                sessionIdRef.current = ev.sessionId;
+              } else if (ev.type === "delta" && ev.text) {
                 full += ev.text;
                 setMessages((m) => {
                   const u = [...m];
@@ -168,8 +177,9 @@ export function FloatingAssistant() {
             }
           }
         }
-        // Cache the completed answer for this plan so re-asking spends no quota.
-        if (full.trim()) writeCachedAnswer(question, planHash, full);
+        // Cache only standalone first questions — follow-ups depend on the
+        // conversation, so caching them by text alone would be wrong.
+        if (cacheable && full.trim()) writeCachedAnswer(question, planHash, full);
       } catch (err) {
         if ((err as Error).name === "AbortError") return;
         // Drop the empty streaming bubble and show the free fallback instead.
@@ -224,16 +234,19 @@ export function FloatingAssistant() {
       // Escalation: use the LLM if a key (personal or shared) is available;
       // otherwise degrade to the free answer + a nudge, never an error.
       if (aiAvailable) {
-        // A cached answer for this exact question on the UNCHANGED plan comes
-        // back instantly and spends zero shared quota.
+        // Only the FIRST question of a conversation is a standalone lookup we
+        // can serve from cache; once a session exists, answers are contextual.
+        const isFirst = !sessionIdRef.current;
         const planHash = hashContext(ctx);
-        const cached = readCachedAnswer(question, planHash);
-        if (cached) {
-          setMessages((m) => [...m, { role: "assistant", content: cached, source: "llm" }]);
-          return;
+        if (isFirst) {
+          const cached = readCachedAnswer(question, planHash);
+          if (cached) {
+            setMessages((m) => [...m, { role: "assistant", content: cached, source: "llm" }]);
+            return;
+          }
         }
         setStreaming(true);
-        void streamLLM(question, planHash);
+        void streamLLM(question, planHash, isFirst);
       } else {
         setMessages((m) => [
           ...m,

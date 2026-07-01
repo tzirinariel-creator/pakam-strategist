@@ -9,7 +9,6 @@ import {
   FileText,
   Scale,
   GraduationCap,
-  Sparkles,
   ArrowRight,
   ArrowLeft,
 } from "lucide-react";
@@ -75,7 +74,7 @@ export function RecommendationsWidget({
   return (
     <div className="data-card p-5">
       <div className="mb-4 flex items-center gap-2">
-        <Sparkles className="h-5 w-5 text-accent-brand" />
+        <PhilosopherKingIcon className="h-5 w-5 text-accent-brand" />
         <h3 className="font-display text-base font-bold text-foreground/90">
           {isHe ? "המלצות חכמות" : "Smart recommendations"}
         </h3>

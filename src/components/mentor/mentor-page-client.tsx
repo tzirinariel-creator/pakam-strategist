@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useLocale } from "next-intl";
-import { Zap, Sparkles } from "lucide-react";
+import { Zap } from "lucide-react";
 import { DegreeAssistant } from "./degree-assistant";
 import { MentorChat } from "./mentor-chat";
 import { cn } from "@/lib/utils";
@@ -63,8 +63,8 @@ export function MentorPageClient() {
                 : "text-foreground/55 hover:text-foreground/80"
             )}
           >
-            <Sparkles className="size-3.5" />
-            {isHe ? "עוזר AI חכם" : "Smart AI"}
+            <PhilosopherKingIcon className="size-3.5" />
+            {isHe ? "המלך הפילוסוף" : "The King"}
           </button>
         </div>
         <p className="text-center text-xs text-foreground/45">
