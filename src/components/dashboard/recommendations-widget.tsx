@@ -13,9 +13,9 @@ import {
   ArrowRight,
   ArrowLeft,
 } from "lucide-react";
-import { useLocale } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import { Bidi } from "@/lib/bidi";
+import { PhilosopherKingIcon } from "@/components/ui/philosopher-king-icon";
 import { cn } from "@/lib/utils";
 import type {
   Recommendation,
@@ -89,11 +89,32 @@ export function RecommendationsWidget({
           const Icon = ICON_MAP[rec.icon];
           const s = SEVERITY_STYLE[rec.severity];
           return (
+            <div key={rec.id} className="group relative">
+            {/* Ask the King to expand on this recommendation (P2 step 9) — a
+                sibling of the card link, not nested, so both stay clickable. */}
+            <button
+              type="button"
+              onClick={() =>
+                window.dispatchEvent(
+                  new CustomEvent("pk:ask", {
+                    detail: {
+                      prompt: isHe
+                        ? `הסבר לי את ההמלצה "${rec.titleHe}" — למה זה חשוב לי עכשיו ומה כדאי לעשות?`
+                        : `Explain the recommendation "${rec.titleEn}" — why does it matter for me now and what should I do?`,
+                    },
+                  })
+                )
+              }
+              title={isHe ? "שאל את המלך על זה" : "Ask the King about this"}
+              aria-label={isHe ? "שאל את המלך על זה" : "Ask the King about this"}
+              className="absolute end-2 top-2 z-10 inline-flex size-7 items-center justify-center rounded-lg bg-accent-brand/10 text-accent-brand transition-all hover:bg-accent-brand/20 sm:opacity-0 sm:group-hover:opacity-100"
+            >
+              <PhilosopherKingIcon className="size-3.5" />
+            </button>
             <Link
-              key={rec.id}
               href={rec.href}
               className={cn(
-                "group flex items-start gap-3 rounded-xl border p-3.5 transition-all hover:border-foreground/25 hover:shadow-sm",
+                "flex items-start gap-3 rounded-xl border p-3.5 transition-all hover:border-foreground/25 hover:shadow-sm",
                 s.ring
               )}
             >
@@ -118,6 +139,7 @@ export function RecommendationsWidget({
                 </span>
               </div>
             </Link>
+            </div>
           );
         })}
       </div>
