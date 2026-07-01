@@ -1,5 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { answerDegreeQuestion, type QAContext } from "@/lib/degree-qa";
+import { GRADE_WEIGHTS, SEMINAR_REQUIREMENTS } from "@/lib/constants";
 
 function ctx(over: Partial<QAContext>): QAContext {
   return {
@@ -114,5 +115,21 @@ describe("answerDegreeQuestion", () => {
     // handler's longer, more-specific key should win over a bare 'ממוצע' hit.
     const a = answerDegreeQuestion("עם הממוצע שלי יש לי סיכוי להצטיינות?", ctx({}));
     expect(a.text.toLowerCase()).toMatch(/הצטיינות|honors/);
+  });
+
+  it("states the seminar weight from program config, not a hard-coded 18%", () => {
+    const a = answerDegreeQuestion("כמה סמינרים אני צריך?", ctx({ seminar: 0 }));
+    const pct = Math.round(GRADE_WEIGHTS.SEMINAR_PAPERS * 100);
+    expect(a.text).toContain(`${pct}%`);
+    expect(a.text).toContain(`${SEMINAR_REQUIREMENTS.PAPERS} עבודות`);
+  });
+
+  it("explains bidding as mechanism + the overlap trap, never predicting points", () => {
+    const a = answerDegreeQuestion("איך עובד הבידינג?", ctx({}));
+    expect(a.text).toContain("מכרז");
+    expect(a.text).toMatch(/חופף|מבטל/); // the trap
+    // must NOT invent how many points a course "needs"
+    expect(a.text).not.toMatch(/צריך\s*\d+\s*נקודות/);
+    expect(a.text).not.toMatch(/כדאי להשקיע\s*\d+/);
   });
 });

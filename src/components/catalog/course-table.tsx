@@ -13,7 +13,7 @@ import {
 } from "@/components/ui/table";
 import { DISCIPLINE_CONFIG, SEMESTER_CONFIG, YEAR_CONFIG } from "@/lib/constants";
 import { DisciplineBadge } from "./discipline-badge";
-import { PhilosopherKingIcon } from "@/components/ui/philosopher-king-icon";
+import { AskKingButton } from "@/components/ui/ask-king-button";
 import { cn } from "@/lib/utils";
 import type { Course } from "@/types/degree";
 import type { Discipline } from "@/types/enums";
@@ -388,24 +388,13 @@ export function CourseTable({ courses, focusArea }: CourseTableProps) {
                 </span>
                 {/* Ask the Philosopher King about this specific course (P2 #7).
                     Reveals on row hover; always visible on touch. */}
-                <button
-                  type="button"
-                  onClick={() =>
-                    window.dispatchEvent(
-                      new CustomEvent("pk:ask", {
-                        detail: {
-                          prompt: isHe
-                            ? `ספר לי על "${course.nameHe}" (${course.code}) — כמה הוא קשה, ואיך הוא משתלב לי בתואר?`
-                            : `Tell me about "${course.nameEn ?? course.nameHe}" (${course.code}) — how hard is it, and how does it fit my degree?`,
-                        },
-                      })
-                    )
-                  }
+                <AskKingButton
+                  promptHe={`ספר לי על "${course.nameHe}" (${course.code}) — כמה הוא קשה, ואיך הוא משתלב לי בתואר?`}
+                  promptEn={`Tell me about "${course.nameEn ?? course.nameHe}" (${course.code}) — how hard is it, and how does it fit my degree?`}
+                  labelHe="שאל את המלך על זה"
+                  labelEn="Ask the King"
                   className="mt-1 inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 text-[11px] font-medium text-accent-brand/85 transition-all hover:bg-accent-brand/10 hover:text-accent-brand sm:opacity-0 sm:group-hover:opacity-100"
-                >
-                  <PhilosopherKingIcon className="size-3" />
-                  {isHe ? "שאל את המלך על זה" : "Ask the King"}
-                </button>
+                />
               </TableCell>
 
               {/* Discipline */}

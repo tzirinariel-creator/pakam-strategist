@@ -17,7 +17,7 @@ import {
 } from "lucide-react";
 import { api } from "@/lib/trpc/react";
 import { ThemedLoader } from "@/components/ui/themed-loader";
-import { PhilosopherKingIcon } from "@/components/ui/philosopher-king-icon";
+import { AskKingButton } from "@/components/ui/ask-king-button";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import {
@@ -248,24 +248,13 @@ function SummaryCard({
           {t("summaryWeightedAvgHint")}
         </Link>
         {weightedAvg !== null && (
-          <button
-            type="button"
-            onClick={() =>
-              window.dispatchEvent(
-                new CustomEvent("pk:ask", {
-                  detail: {
-                    prompt: isHe
-                      ? "איך אני יכול/ה לשפר את הממוצע שלי? תן/י לי צעדים קונקרטיים לפי הקורסים שנשארו לי."
-                      : "How can I improve my average? Give me concrete steps based on my remaining courses.",
-                  },
-                })
-              )
-            }
+          <AskKingButton
+            promptHe="איך אני יכול/ה לשפר את הממוצע שלי? תן/י לי צעדים קונקרטיים לפי הקורסים שנשארו לי."
+            promptEn="How can I improve my average? Give me concrete steps based on my remaining courses."
+            labelHe="שאל את המלך איך לשפר"
+            labelEn="Ask the King how to improve"
             className="mt-1 flex items-center gap-1 text-[11px] font-medium text-accent-brand transition-colors hover:text-accent-brand-hover"
-          >
-            <PhilosopherKingIcon className="size-3" />
-            {isHe ? "שאל את המלך איך לשפר" : "Ask the King how to improve"}
-          </button>
+          />
         )}
       </div>
 

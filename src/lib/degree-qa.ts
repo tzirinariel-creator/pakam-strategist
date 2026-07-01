@@ -9,7 +9,7 @@
 // Pure + testable: the UI fills a QAContext from its tRPC queries and calls
 // answerDegreeQuestion().
 
-import { CREDIT_REQUIREMENTS, GRADE_REQUIREMENTS, getEnglishLevel } from "@/lib/constants";
+import { CREDIT_REQUIREMENTS, GRADE_REQUIREMENTS, GRADE_WEIGHTS, SEMINAR_REQUIREMENTS, getEnglishLevel } from "@/lib/constants";
 
 export interface QAContext {
   isHe: boolean;
@@ -268,8 +268,8 @@ const HANDLERS: Handler[] = [
       return {
         text: he(
           c,
-          `סמינרים: ${c.seminar} מתוך ${CREDIT_REQUIREMENTS.SEMINAR_TOTAL} ש״ס${left > 0 ? `, נשארו ${left}` : " ✓"}. 3 עבודות סמינריוניות = 18% מציון הגמר.${planNote}`,
-          `Seminars: ${c.seminar} of ${CREDIT_REQUIREMENTS.SEMINAR_TOTAL} credits${left > 0 ? `, ${left} to go` : " ✓"}. Three seminar papers are 18% of the final grade.${planNote}`
+          `סמינרים: ${c.seminar} מתוך ${CREDIT_REQUIREMENTS.SEMINAR_TOTAL} ש״ס${left > 0 ? `, נשארו ${left}` : " ✓"}. ${SEMINAR_REQUIREMENTS.PAPERS} עבודות סמינריוניות = ${Math.round(GRADE_WEIGHTS.SEMINAR_PAPERS * 100)}% מציון הגמר.${planNote}`,
+          `Seminars: ${c.seminar} of ${CREDIT_REQUIREMENTS.SEMINAR_TOTAL} credits${left > 0 ? `, ${left} to go` : " ✓"}. ${SEMINAR_REQUIREMENTS.PAPERS} seminar papers are ${Math.round(GRADE_WEIGHTS.SEMINAR_PAPERS * 100)}% of the final grade.${planNote}`
         ),
         href: "/planner",
         cta: he(c, "לתכנון", "Plan"),
