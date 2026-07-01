@@ -8,6 +8,7 @@ import { ProtectedShell } from "@/components/layout/protected-shell";
 import { DemoBanner } from "@/components/layout/demo-banner";
 import { MiluimStatusBar } from "@/components/layout/miluim-status-bar";
 import { BannerStack } from "@/components/layout/banner-stack";
+import { FloatingAssistant } from "@/components/layout/floating-assistant";
 
 /**
  * Protected layout — wraps all authenticated pages.
@@ -73,6 +74,9 @@ export default async function ProtectedLayout({
         {/* Mobile bottom nav */}
         <MobileNav />
       </div>
+
+      {/* Always-available AI advisor — one FAB on every protected screen. */}
+      <FloatingAssistant />
     </AppProviders>
   );
 }

@@ -1,0 +1,391 @@
+"use client";
+
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useLocale } from "next-intl";
+import { usePathname } from "next/navigation";
+import { Sparkles, X, Send, Zap, Bot, Loader2, Database } from "lucide-react";
+import Markdown from "react-markdown";
+import { toast } from "sonner";
+import { api } from "@/lib/trpc/react";
+import { cn } from "@/lib/utils";
+import { Link } from "@/i18n/navigation";
+import { routeQuestion } from "@/lib/ai/answer-router";
+import { suggestedQuestions } from "@/lib/degree-qa";
+import { useDegreeQAContext } from "@/components/mentor/use-qa-context";
+
+type Source = "rules" | "llm";
+interface Msg {
+  role: "user" | "assistant";
+  content: string;
+  source?: Source;
+  href?: string;
+  cta?: string;
+  /** The assistant couldn't reach the LLM and offered a free fallback. */
+  needsKey?: boolean;
+}
+
+/**
+ * The always-available floating assistant. One FAB on every protected screen
+ * opens an "ask anything" panel (desktop) / bottom sheet (mobile). Answers run
+ * through the hybrid router: a matched, non-reasoning question is answered
+ * instantly and for free from the student's own data ("מהנתונים שלך"); an
+ * open-ended one escalates to the LLM if a key (personal or shared) is
+ * available, and otherwise degrades to the free answer + a gentle nudge —
+ * never an error. Never auto-opens and never fires the LLM on its own.
+ */
+export function FloatingAssistant() {
+  const isHe = useLocale() === "he";
+  const pathname = usePathname();
+  const [open, setOpen] = useState(false);
+  const [messages, setMessages] = useState<Msg[]>([]);
+  const [input, setInput] = useState("");
+  const [streaming, setStreaming] = useState(false);
+
+  const { ctx, ready } = useDegreeQAContext();
+  const apiKeyQuery = api.ai.hasApiKey.useQuery(undefined, { staleTime: 60_000 });
+  const aiAvailable = !!apiKeyQuery.data?.hasKey || !!apiKeyQuery.data?.sharedAvailable;
+
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
+  const abortRef = useRef<AbortController | null>(null);
+  const fabRef = useRef<HTMLButtonElement>(null);
+
+  // The full mentor page already IS the assistant — no floating duplicate there.
+  const onMentorPage = pathname?.includes("/mentor");
+
+  const chips = useMemo(() => suggestedQuestions(isHe).slice(0, 5), [isHe]);
+
+  useEffect(() => {
+    if (open) {
+      const id = setTimeout(() => inputRef.current?.focus(), 80);
+      return () => clearTimeout(id);
+    }
+  }, [open]);
+
+  useEffect(() => {
+    scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" });
+  }, [messages]);
+
+  // Escape closes; return focus to the FAB.
+  useEffect(() => {
+    if (!open) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        setOpen(false);
+        fabRef.current?.focus();
+      }
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [open]);
+
+  const streamLLM = useCallback(
+    async (question: string) => {
+      const controller = new AbortController();
+      abortRef.current = controller;
+      setMessages((m) => [...m, { role: "assistant", content: "", source: "llm" }]);
+      try {
+        const res = await fetch("/api/chat/stream", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ message: question }),
+          signal: controller.signal,
+        });
+        if (!res.ok) {
+          const data = (await res.json().catch(() => ({}))) as { error?: string };
+          throw new Error(data.error || `HTTP ${res.status}`);
+        }
+        const reader = res.body?.getReader();
+        if (!reader) throw new Error("no body");
+        const decoder = new TextDecoder();
+        let buffer = "";
+        for (;;) {
+          const { done, value } = await reader.read();
+          if (done) break;
+          buffer += decoder.decode(value, { stream: true });
+          const lines = buffer.split("\n\n");
+          buffer = lines.pop() ?? "";
+          for (const line of lines) {
+            if (!line.startsWith("data: ")) continue;
+            try {
+              const ev = JSON.parse(line.slice(6)) as { type: string; text?: string; error?: string };
+              if (ev.type === "delta" && ev.text) {
+                setMessages((m) => {
+                  const u = [...m];
+                  const last = u[u.length - 1];
+                  if (last?.role === "assistant") u[u.length - 1] = { ...last, content: last.content + ev.text };
+                  return u;
+                });
+              } else if (ev.type === "error") {
+                throw new Error(ev.error || "stream error");
+              }
+            } catch {
+              /* skip partial/keepalive lines */
+            }
+          }
+        }
+      } catch (err) {
+        if ((err as Error).name === "AbortError") return;
+        // Drop the empty streaming bubble and show the free fallback instead.
+        setMessages((m) => {
+          const u = m[m.length - 1]?.role === "assistant" && !m[m.length - 1]?.content ? m.slice(0, -1) : m;
+          const fallback = routeQuestion(question, ctx).deterministic;
+          return [
+            ...u,
+            {
+              role: "assistant" as const,
+              content: fallback.text,
+              source: "rules" as const,
+              href: fallback.href,
+              cta: fallback.cta,
+              needsKey: true,
+            },
+          ];
+        });
+        toast.error((err as Error).message || (isHe ? "שגיאה" : "Error"));
+      } finally {
+        setStreaming(false);
+        abortRef.current = null;
+      }
+    },
+    [ctx, isHe],
+  );
+
+  const send = useCallback(
+    (raw: string) => {
+      const question = raw.trim();
+      if (!question || streaming || !ready) return;
+      setInput("");
+      setMessages((m) => [...m, { role: "user", content: question }]);
+
+      const decision = routeQuestion(question, ctx);
+
+      // Free path: a matched, non-reasoning lookup answers instantly.
+      if (!decision.shouldEscalate) {
+        setMessages((m) => [
+          ...m,
+          {
+            role: "assistant",
+            content: decision.deterministic.text,
+            source: "rules",
+            href: decision.deterministic.href,
+            cta: decision.deterministic.cta,
+          },
+        ]);
+        return;
+      }
+
+      // Escalation: use the LLM if a key (personal or shared) is available;
+      // otherwise degrade to the free answer + a nudge, never an error.
+      if (aiAvailable) {
+        setStreaming(true);
+        void streamLLM(question);
+      } else {
+        setMessages((m) => [
+          ...m,
+          {
+            role: "assistant",
+            content: decision.deterministic.text,
+            source: "rules",
+            href: decision.deterministic.href,
+            cta: decision.deterministic.cta,
+            needsKey: true,
+          },
+        ]);
+      }
+    },
+    [ctx, aiAvailable, ready, streaming, streamLLM],
+  );
+
+  if (onMentorPage) return null;
+
+  return (
+    <>
+      {/* FAB — sits above the mobile bottom-nav; mirrors to the inline-end. */}
+      {!open && (
+        <button
+          ref={fabRef}
+          type="button"
+          onClick={() => setOpen(true)}
+          aria-label={isHe ? "פתח/י את היועץ" : "Open the assistant"}
+          className={cn(
+            "fixed bottom-20 end-4 z-[65] flex items-center gap-2 rounded-full py-3 shadow-lg md:bottom-6 md:end-6",
+            "bg-accent-brand text-accent-brand-fg transition-all hover:bg-accent-brand-hover hover:shadow-xl press-scale",
+            "px-4",
+          )}
+        >
+          <Sparkles className="size-5" />
+          <span className="hidden text-sm font-semibold sm:inline">
+            {isHe ? "שאל/י את היועץ" : "Ask the advisor"}
+          </span>
+        </button>
+      )}
+
+      {open && (
+        <>
+          {/* Mobile backdrop */}
+          <div
+            className="fixed inset-0 z-[65] bg-black/40 backdrop-blur-[1px] md:hidden"
+            onClick={() => setOpen(false)}
+            aria-hidden="true"
+          />
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-label={isHe ? "היועץ" : "Advisor"}
+            dir={isHe ? "rtl" : "ltr"}
+            className={cn(
+              "fixed z-[66] flex flex-col overflow-hidden border border-border bg-card shadow-2xl",
+              // Mobile: bottom sheet. Desktop: anchored panel at the inline-end.
+              "inset-x-0 bottom-0 max-h-[85vh] rounded-t-2xl",
+              "md:inset-x-auto md:bottom-6 md:end-6 md:h-[600px] md:max-h-[80vh] md:w-[400px] md:rounded-2xl",
+              "animate-in fade-in slide-in-from-bottom-4 duration-200",
+            )}
+          >
+            {/* Header */}
+            <div className="flex items-center gap-2 border-b border-border/60 bg-accent-brand/[0.06] px-4 py-3">
+              <div className="flex size-8 items-center justify-center rounded-lg bg-accent-brand/15 text-accent-brand">
+                <Sparkles className="size-4" />
+              </div>
+              <div className="min-w-0 flex-1">
+                <p className="text-sm font-bold text-foreground/90">
+                  {isHe ? "היועץ שלך" : "Your advisor"}
+                </p>
+                <p className="text-[11px] text-foreground/50">
+                  {aiAvailable
+                    ? isHe ? "תשובות מהנתונים שלך + AI חופשי" : "From your data + free AI"
+                    : isHe ? "תשובות מיידיות מהנתונים שלך" : "Instant answers from your data"}
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setOpen(false)}
+                aria-label={isHe ? "סגור" : "Close"}
+                className="rounded-md p-1.5 text-foreground/40 transition-colors hover:bg-foreground/10 hover:text-foreground/70"
+              >
+                <X className="size-4" />
+              </button>
+            </div>
+
+            {/* Messages */}
+            <div ref={scrollRef} className="flex-1 space-y-3 overflow-y-auto p-4">
+              {messages.length === 0 && (
+                <div className="flex flex-col gap-3 pt-2">
+                  <p className="text-sm text-foreground/60">
+                    {isHe
+                      ? "שאל/י אותי כל דבר על התואר שלך — אני עונה מהנתונים שלך."
+                      : "Ask me anything about your degree — I answer from your data."}
+                  </p>
+                  <div className="flex flex-wrap gap-1.5">
+                    {chips.map((c) => (
+                      <button
+                        key={c}
+                        type="button"
+                        onClick={() => send(c)}
+                        className="rounded-full border border-border/70 bg-foreground/[0.02] px-3 py-1.5 text-xs text-foreground/70 transition-colors hover:border-accent-brand/40 hover:bg-accent-brand/[0.06] hover:text-foreground/90"
+                      >
+                        {c}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {messages.map((m, i) => (
+                <div key={i} className={cn("flex", m.role === "user" ? "justify-end" : "justify-start")}>
+                  <div
+                    className={cn(
+                      "max-w-[85%] rounded-2xl px-3.5 py-2.5 text-sm leading-relaxed",
+                      m.role === "user"
+                        ? "bg-accent-brand text-accent-brand-fg"
+                        : "border border-border/60 bg-foreground/[0.02] text-foreground/85",
+                    )}
+                  >
+                    {m.role === "assistant" && m.source && (
+                      <span
+                        className={cn(
+                          "mb-1 inline-flex items-center gap-1 rounded px-1.5 py-0.5 text-[10px] font-semibold",
+                          m.source === "rules"
+                            ? "bg-emerald-400/10 text-emerald-600 dark:text-emerald-400"
+                            : "bg-accent-brand/10 text-accent-brand",
+                        )}
+                      >
+                        {m.source === "rules" ? <Database className="size-2.5" /> : <Bot className="size-2.5" />}
+                        {m.source === "rules"
+                          ? isHe ? "מהנתונים שלך" : "From your data"
+                          : isHe ? "תשובת AI" : "AI answer"}
+                      </span>
+                    )}
+                    {m.role === "assistant" && m.source === "llm" ? (
+                      <div className="prose prose-sm max-w-none dark:prose-invert [&_p]:my-1 [&_ul]:my-1">
+                        <Markdown>{m.content || "…"}</Markdown>
+                      </div>
+                    ) : (
+                      <p className="whitespace-pre-line">{m.content}</p>
+                    )}
+                    {m.href && m.cta && (
+                      <Link
+                        href={m.href}
+                        onClick={() => setOpen(false)}
+                        className="mt-1.5 inline-block text-xs font-medium text-accent-brand underline underline-offset-2"
+                      >
+                        {m.cta}
+                      </Link>
+                    )}
+                    {m.needsKey && !aiAvailable && (
+                      <Link
+                        href="/settings"
+                        onClick={() => setOpen(false)}
+                        className="mt-1.5 flex items-center gap-1 text-[11px] font-medium text-accent-brand"
+                      >
+                        <Zap className="size-3" />
+                        {isHe ? "חבר/י מפתח חינמי לתשובות מעמיקות" : "Connect a free key for deeper answers"}
+                      </Link>
+                    )}
+                  </div>
+                </div>
+              ))}
+
+              {streaming && messages[messages.length - 1]?.content === "" && (
+                <div className="flex items-center gap-1.5 px-1 text-xs text-foreground/40">
+                  <Loader2 className="size-3 animate-spin" />
+                  {isHe ? "חושב…" : "Thinking…"}
+                </div>
+              )}
+            </div>
+
+            {/* Input */}
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                send(input);
+              }}
+              className="flex items-center gap-2 border-t border-border/60 p-3"
+            >
+              <input
+                ref={inputRef}
+                value={input}
+                onChange={(e) => setInput(e.target.value)}
+                placeholder={
+                  ready
+                    ? isHe ? "כתוב/י שאלה…" : "Type a question…"
+                    : isHe ? "טוען את הנתונים שלך…" : "Loading your data…"
+                }
+                disabled={!ready || streaming}
+                className="flex-1 rounded-xl border border-border/60 bg-background/50 px-3.5 py-2.5 text-sm outline-none transition-colors focus:border-accent-brand/50 disabled:opacity-60"
+              />
+              <button
+                type="submit"
+                disabled={!input.trim() || streaming || !ready}
+                aria-label={isHe ? "שלח" : "Send"}
+                className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-accent-brand text-accent-brand-fg transition-colors hover:bg-accent-brand-hover disabled:opacity-40"
+              >
+                <Send className="size-4 rtl:-scale-x-100" />
+              </button>
+            </form>
+          </div>
+        </>
+      )}
+    </>
+  );
+}
