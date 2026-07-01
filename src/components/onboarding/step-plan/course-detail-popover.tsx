@@ -83,6 +83,37 @@ export function CourseDetailPopover({ course, children, onDisciplineOverride }: 
           </p>
         )}
 
+        {/* Real difficulty data (from past Arazim grades) — helps a student
+            decide whether an elective is a smart pick (gal-3 #19). */}
+        {(course.difficultyLevel || course.averageGrade != null) && (
+          <div className="flex flex-wrap items-center gap-x-2.5 gap-y-1 rounded-lg bg-foreground/[0.03] px-2.5 py-2 text-[11px]">
+            {course.difficultyLevel &&
+              (() => {
+                const meta = {
+                  easy: { he: "קל", en: "Easy", cls: "text-emerald-500" },
+                  moderate: { he: "בינוני", en: "Moderate", cls: "text-foreground/60" },
+                  hard: { he: "קשה", en: "Hard", cls: "text-amber-500" },
+                  very_hard: { he: "קשה מאוד", en: "Very hard", cls: "text-red-500" },
+                }[course.difficultyLevel];
+                return meta ? (
+                  <span className={cn("font-semibold", meta.cls)}>{isHe ? meta.he : meta.en}</span>
+                ) : null;
+              })()}
+            {course.averageGrade != null && (
+              <span className="text-foreground/55" dir="ltr">
+                {isHe ? "ממוצע " : "avg "}
+                {course.averageGrade}
+              </span>
+            )}
+            {course.failRate != null && course.failRate > 0 && (
+              <span className="text-foreground/55" dir="ltr">
+                {course.failRate}% {isHe ? "נכשלים" : "fail"}
+              </span>
+            )}
+            <span className="text-foreground/30">{isHe ? "· מנתוני עבר" : "· from past data"}</span>
+          </div>
+        )}
+
         {/* Badges */}
         <div className="flex flex-wrap gap-1.5">
           {course.isMandatory && (
