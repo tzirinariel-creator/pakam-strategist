@@ -289,8 +289,32 @@ const HANDLERS: Handler[] = [
 /** The capabilities shown when no intent matches (and as starter chips). */
 export function suggestedQuestions(isHe: boolean): string[] {
   return isHe
-    ? ["כמה ש״ס נשארו לי?", "מה חסר לי לתואר?", "מה הממוצע שלי?", "מה זה בינארי?", "מה הסטטוס באנגלית?", "מה ההטבות שלי במילואים?"]
-    : ["How many credits left?", "What's missing?", "What's my average?", "What is binary?", "My English status?", "My miluim benefits?"];
+    ? [
+        "כמה ש״ס נשארו לי?",
+        "מה חסר לי לתואר?",
+        "מה הממוצע שלי?",
+        "איזה תחום מיקוד לבחור?",
+        "כמה סמינרים צריך?",
+        "מה תנאי מעבר שנה?",
+        "יש לי סיכוי להצטיינות?",
+        "מה הסטטוס שלי באנגלית?",
+        "מה זה בינארי?",
+        "מה ההטבות שלי במילואים?",
+        "איך עובד הבידינג?",
+      ]
+    : [
+        "How many credits left?",
+        "What's missing for my degree?",
+        "What's my average?",
+        "Which focus area should I pick?",
+        "How many seminars do I need?",
+        "How do I advance a year?",
+        "Can I make honors?",
+        "My English status?",
+        "What is binary?",
+        "My miluim benefits?",
+        "How does bidding work?",
+      ];
 }
 
 /**
