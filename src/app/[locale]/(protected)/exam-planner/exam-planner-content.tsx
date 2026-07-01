@@ -16,6 +16,7 @@ import {
   Briefcase,
   AlertTriangle,
   ArrowDown,
+  ListChecks,
   X,
 } from "lucide-react";
 import { useLocale } from "next-intl";
@@ -27,7 +28,10 @@ import {
   generateExamPlan,
   analyzeExamPeriod,
   type ExamInput,
+  type ExamPlanResult,
+  type Difficulty,
 } from "@/lib/exam-planner";
+import { StudySkyline } from "@/components/exam-planner/study-skyline";
 import { downloadGanttCsv, type GanttTask } from "@/lib/excel-export";
 import { cn } from "@/lib/utils";
 
@@ -131,8 +135,9 @@ export function ExamPlannerContent() {
     return m;
   }, [examCourses]);
 
-  // Live recommendations from the current selection (pure, client-side).
-  const recommendations = useMemo(() => {
+  // The chosen exams as planner inputs — lifted out so the live-preview skyline
+  // and the recommendations share one computation (no double generateExamPlan).
+  const previewInputs = useMemo(() => {
     const inputs: ExamInput[] = [];
     for (const c of examCourses) {
       const moed = selected[c.code];
@@ -141,9 +146,16 @@ export function ExamPlannerContent() {
       if (!date) continue;
       inputs.push({ courseCode: c.code, courseName: c.name, examDate: date, credits: c.credits, averageGrade: c.averageGrade, failRate: c.failRate, moed });
     }
-    if (inputs.length === 0) return [];
-    return analyzeExamPeriod(generateExamPlan(inputs), isHe);
-  }, [examCourses, selected, isHe]);
+    return inputs;
+  }, [examCourses, selected]);
+
+  // Live plan + recommendations from the current selection (pure, client-side) —
+  // this is what the preview skyline renders, updating as exams / Moed toggle.
+  const previewPlan = useMemo(() => generateExamPlan(previewInputs), [previewInputs]);
+  const recommendations = useMemo(
+    () => (previewInputs.length === 0 ? [] : analyzeExamPeriod(previewPlan, isHe)),
+    [previewInputs, previewPlan, isHe],
+  );
 
   const selectedCount = Object.values(selected).filter(Boolean).length;
 
@@ -159,11 +171,15 @@ export function ExamPlannerContent() {
   };
 
   // Tasks grouped by day for the timeline.
-  const tasks = tasksQuery.data?.tasks ?? [];
+  const tasks = useMemo(() => tasksQuery.data?.tasks ?? [], [tasksQuery.data]);
   const byDay = useMemo(() => {
     const map = new Map<string, typeof tasks>();
     for (const t of tasks.slice().sort((a, b) => new Date(a.startDate).getTime() - new Date(b.startDate).getTime())) {
-      const key = new Date(t.startDate).toISOString().slice(0, 10);
+      // LOCAL day key (not toISOString/UTC) so an all-day exam stored at local
+      // midnight doesn't roll to the previous day for a UTC+2/+3 (Israel) user —
+      // and so the checklist agrees with the skyline above it on the exam's day.
+      const dt = new Date(t.startDate);
+      const key = `${dt.getFullYear()}-${String(dt.getMonth() + 1).padStart(2, "0")}-${String(dt.getDate()).padStart(2, "0")}`;
       (map.get(key) ?? map.set(key, []).get(key)!).push(t);
     }
     return Array.from(map.entries());
@@ -188,6 +204,60 @@ export function ExamPlannerContent() {
       color: t.color,
       hours: t.notes?.includes("h") ? Number((t.notes.match(/([\d.]+)h/) ?? [])[1]) || null : null,
     }));
+
+  // Adapt the SAVED tasks back into an ExamPlanResult so the committed plan
+  // renders on the very same skyline as the live preview. Study tasks → study
+  // sessions (hours parsed from notes "…2.5h", fallback 2.5); exam tasks → exam
+  // anchors (moed from the title, totalHours = that course's summed study hours).
+  const cleanCourseName = (t: { courseCode: string | null; title: string }) =>
+    (t.courseCode && codeToName.get(t.courseCode)) ||
+    t.title.replace(/^[^:]*:\s*/, "").replace(/\s*\(מועד.*\)\s*$/, "");
+  const diffFromNotes = (notes: string | null): Difficulty =>
+    notes?.includes("high") ? "high" : notes?.includes("low") ? "low" : "medium";
+
+  const persistedPlan = useMemo<ExamPlanResult>(() => {
+    const todayMs = new Date(new Date().setHours(0, 0, 0, 0)).getTime();
+    const dayMs = (d: Date) => { const x = new Date(d); x.setHours(0, 0, 0, 0); return x.getTime(); };
+
+    // Exam anchors first — FUTURE only (a stale saved plan whose exams have all
+    // passed must not degenerate to a single "היום!" column). Their notes carry
+    // the difficulty, which the study sessions (whose notes only carry hours)
+    // inherit per course.
+    const examTasks = tasks.filter((t) => t.taskType === "exam" && dayMs(new Date(t.startDate)) >= todayMs);
+    const examDiffByCourse = new Map<string, Difficulty>();
+    for (const t of examTasks) if (t.courseCode) examDiffByCourse.set(t.courseCode, diffFromNotes(t.notes));
+
+    const sessions = tasks
+      .filter((t) => t.taskType === "study" && dayMs(new Date(t.startDate)) >= todayMs)
+      .map((t) => {
+        const m = t.notes?.match(/([\d.]+)h/);
+        const h = m ? Number(m[1]) : NaN;
+        return {
+          courseCode: t.courseCode ?? "",
+          courseName: cleanCourseName(t),
+          date: new Date(t.startDate),
+          hours: Number.isFinite(h) && h > 0 ? h : 2.5,
+          color: t.color ?? "#6366f1",
+          difficulty: ((t.courseCode && examDiffByCourse.get(t.courseCode)) || "medium") as Difficulty,
+        };
+      });
+    const hoursByCourse = new Map<string, number>();
+    for (const s of sessions) hoursByCourse.set(s.courseCode, (hoursByCourse.get(s.courseCode) ?? 0) + s.hours);
+    const exams = examTasks.map((t) => ({
+      courseCode: t.courseCode ?? "",
+      courseName: cleanCourseName(t),
+      examDate: new Date(t.startDate),
+      // Anchor to the "(מועד ב׳)" suffix — a course whose NAME contains "ב׳"
+      // must not be misread as Moed B.
+      moed: (/\(מועד\s*ב׳\)/.test(t.title) ? "B" : "A") as "A" | "B",
+      difficulty: diffFromNotes(t.notes),
+      totalHours: hoursByCourse.get(t.courseCode ?? "") ?? 2.5,
+      color: t.color ?? "#6366f1",
+    }));
+    return { sessions, exams };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [tasks, codeToName]);
+  const persistedRecs = useMemo(() => analyzeExamPeriod(persistedPlan, isHe), [persistedPlan, isHe]);
 
   const exportIcs = () => {
     const pad = (n: number) => String(n).padStart(2, "0");
@@ -342,6 +412,15 @@ export function ExamPlannerContent() {
         )}
       </div>
 
+      {/* Live-preview skyline — the reverse-plan drawn the moment exams are
+          picked, updating as the student toggles exams / Moed A↔B, before they
+          persist anything. Hidden until at least one exam is selected. */}
+      {previewPlan.exams.length > 0 && (
+        <div className="animate-fade-in">
+          <StudySkyline plan={previewPlan} recommendations={recommendations} isHe={isHe} />
+        </div>
+      )}
+
       {/* Plan-is-ready panel (#10) — explicit "what now" so a generated plan
           doesn't perceptually vanish behind a toast. */}
       {genResult && (
@@ -434,16 +513,29 @@ export function ExamPlannerContent() {
         </button>
       </div>
 
-      {/* Timeline — the actual day-by-day plan; scroll target after generation (#10) */}
+      {/* Committed plan — skyline first, checklist second. Scroll target (#10). */}
       <div ref={timelineRef} aria-hidden className="scroll-mt-4" />
       {tasks.length === 0 ? (
         <div className="animate-stagger-4 rounded-xl border border-dashed border-border/50 bg-foreground/[0.02] p-8 text-center text-sm text-foreground/45">
           {isHe ? "עוד אין משימות. בחר מבחנים למעלה ולחץ \"בנה לי תוכנית\", או הוסף ידנית." : "No tasks yet. Pick exams above and build a plan, or add manually."}
         </div>
       ) : (
-        <div className="animate-stagger-4 space-y-3">
+        <div className="animate-stagger-4 space-y-4">
+          {/* The saved plan on the skyline (hidden when there are no exam
+              anchors — e.g. only manually-added tasks). */}
+          {persistedPlan.exams.length > 0 && (
+            <StudySkyline plan={persistedPlan} recommendations={persistedRecs} isHe={isHe} />
+          )}
+
+          {/* Checklist — mark done / remove. Secondary to the skyline above. */}
+          <div className="mb-1 mt-1 flex items-center gap-2">
+            <ListChecks className="size-4 text-foreground/40" />
+            <h3 className="text-sm font-bold text-foreground/75">{isHe ? "המשימות שלי" : "My tasks"}</h3>
+            <span className="text-xs text-foreground/40">{isHe ? "· סמן שהושלם או הסר" : "· check off or remove"}</span>
+          </div>
           {byDay.map(([day, dayTasks]) => {
-            const d = new Date(day);
+            const [yy, mm, dd] = day.split("-").map(Number);
+            const d = new Date(yy!, mm! - 1, dd!);
             return (
               <div key={day} className="data-card p-3">
                 <div className="mb-2 flex items-baseline gap-2">

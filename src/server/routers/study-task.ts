@@ -280,13 +280,19 @@ export const studyTaskRouter = createTRPCRouter({
           notes: string;
         }[] = [];
 
-        // Exam blocks (all-day on the exam date).
+        // Exam blocks (all-day). Stamp NOON of the exam's calendar day, not
+        // midnight: a local-midnight instant read back on a UTC-negative client
+        // (a student abroad) rolls to the previous day and the anchor lands a
+        // column early. Noon survives ±12h shifts — mirrors the 09:00 offset
+        // used for the study sessions below.
         for (const ex of plan.exams) {
+          const examAt = new Date(ex.examDate);
+          examAt.setHours(12, 0, 0, 0);
           rows.push({
             userId: user.id,
             title: `מבחן: ${ex.courseName} (מועד ${ex.moed === "B" ? "ב׳" : "א׳"})`,
-            startDate: ex.examDate,
-            endDate: ex.examDate,
+            startDate: examAt,
+            endDate: examAt,
             taskType: "exam",
             courseCode: ex.courseCode,
             color: ex.color,
