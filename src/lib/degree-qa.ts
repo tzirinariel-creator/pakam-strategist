@@ -332,6 +332,38 @@ const HANDLERS: Handler[] = [
         cta: he(c, "למסביר הבידינג", "Bidding explainer"),
       }),
   },
+  // ── Graduation forecast: when will I finish ───────────────────────
+  {
+    keys: [
+      "מתי אסיים", "מתי אני מסיים", "מתי אגמור", "מתי אני גומר", "כמה זמן נשאר",
+      "מתי אסיים את התואר", "when do i graduate", "when will i finish", "how much longer",
+      "how long until",
+    ],
+    answer: (c) => {
+      const remaining = Math.max(0, T - c.effectiveTotal);
+      if (remaining === 0) {
+        return {
+          text: he(
+            c,
+            "השלמת את כל הש״ס לתואר 🎉 נשאר רק לוודא שכל הדרישות מולאו — ראה 'המצב שלי'.",
+            "You've completed all degree credits 🎉 Just confirm every requirement is met — see 'My status'."
+          ),
+          href: "/regulations",
+          cta: he(c, "בדיקת דרישות", "Check requirements"),
+        };
+      }
+      const sems = Math.max(1, Math.ceil(remaining / 25));
+      return {
+        text: he(
+          c,
+          `נשארו לך ${remaining} ש״ס — בקצב רגיל (~25 לסמסטר) זה עוד כ-${sems} סמסטרים, תלוי בעומס שתיקח.`,
+          `You have ${remaining} credits left — at a normal pace (~25/semester) that's about ${sems} more semesters, depending on your load.`
+        ),
+        href: "/planner/semester",
+        cta: he(c, "לתכנון", "Plan"),
+      };
+    },
+  },
   // ── Pace ──────────────────────────────────────────────────────────
   {
     keys: ["כמה לסמסטר", "קצב", "per semester", "pace"],

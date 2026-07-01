@@ -90,6 +90,12 @@ describe("answerDegreeQuestion", () => {
     expect(a.text).toContain("משפט");
   });
 
+  it("forecasts graduation from remaining credits", () => {
+    const a = answerDegreeQuestion("מתי אסיים את התואר?", ctx({})); // effectiveTotal 96 → 54 left → ~3 sem
+    expect(a.text).toContain("54");
+    expect(a.text).toMatch(/סמסטרים/);
+  });
+
   it("gives concrete levers for 'how to improve my average'", () => {
     const a = answerDegreeQuestion("איך לשפר את הממוצע שלי?", ctx({ binaryRemaining: 3 }));
     expect(a.text).toMatch(/מנופים|בינארי|כבדים/);
