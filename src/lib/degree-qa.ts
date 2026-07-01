@@ -104,6 +104,50 @@ const HANDLERS: Handler[] = [
       };
     },
   },
+  // ── How to improve the average ────────────────────────────────────
+  {
+    keys: [
+      "לשפר את הממוצע", "להעלות את הממוצע", "לשפר ממוצע", "לשפר את הציונים",
+      "איך לשפר", "improve my average", "raise my average", "improve my grades",
+      "how to improve", "boost my average",
+    ],
+    answer: (c) => {
+      const tips: string[] = [];
+      if (c.binaryRemaining > 0) {
+        tips.push(
+          he(
+            c,
+            `• בינארי: נשארו ${c.binaryRemaining} המרות לעובר/לא־עובר — מוציאות ציון-נמוך מהממוצע (הכי כדאי על ציון נמוך-עובר בקורס כבד).`,
+            `• Binary: ${c.binaryRemaining} pass/fail conversions left — they take a low grade out of your GPA (best on a low pass in a heavy course).`
+          )
+        );
+      }
+      tips.push(
+        he(
+          c,
+          "• קורסים כבדים (יותר ש״ס) שוקלים יותר בממוצע — השקעה בהם מזיזה הכי הרבה.",
+          "• Heavier courses (more credits) weigh more — investing there moves the average most."
+        )
+      );
+      tips.push(
+        he(
+          c,
+          "• קורס שנכשלת בו — חזרה עליו מחליפה את הציון ומעלה את הממוצע.",
+          "• A failed course — retaking it replaces the grade and lifts your average."
+        )
+      );
+      const head = he(
+        c,
+        `מנופים לשיפור הממוצע${c.courseAverage !== null ? ` (כרגע ${c.courseAverage.toFixed(1)})` : ""}:`,
+        `Levers to lift your average${c.courseAverage !== null ? ` (now ${c.courseAverage.toFixed(1)})` : ""}:`
+      );
+      return {
+        text: `${head}\n${tips.join("\n")}`,
+        href: "/graduation",
+        cta: he(c, "למחשבון הציונים", "Grade calculator"),
+      };
+    },
+  },
   // ── Average / GPA ─────────────────────────────────────────────────
   {
     keys: ["ממוצע", "הציון שלי", "gpa", "average", "my grade"],

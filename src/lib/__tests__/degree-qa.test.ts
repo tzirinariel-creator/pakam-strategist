@@ -90,6 +90,19 @@ describe("answerDegreeQuestion", () => {
     expect(a.text).toContain("משפט");
   });
 
+  it("gives concrete levers for 'how to improve my average'", () => {
+    const a = answerDegreeQuestion("איך לשפר את הממוצע שלי?", ctx({ binaryRemaining: 3 }));
+    expect(a.text).toMatch(/מנופים|בינארי|כבדים/);
+    expect(a.text).toContain("3"); // binary conversions remaining
+    expect(a.href).toBe("/graduation");
+  });
+
+  it("does not confuse 'what is my average' with the improve handler", () => {
+    const a = answerDegreeQuestion("מה הממוצע שלי?", ctx({}));
+    expect(a.text).toContain("84"); // the value, not improvement tips
+    expect(a.text).not.toMatch(/מנופים/);
+  });
+
   it("picks the more specific intent by score, not handler order", () => {
     // Mentions the average AND asks specifically about honors — the honors
     // handler's longer, more-specific key should win over a bare 'ממוצע' hit.
