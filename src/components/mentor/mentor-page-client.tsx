@@ -6,6 +6,7 @@ import { Zap, Sparkles } from "lucide-react";
 import { DegreeAssistant } from "./degree-assistant";
 import { MentorChat } from "./mentor-chat";
 import { cn } from "@/lib/utils";
+import { PhilosopherKingIcon } from "@/components/ui/philosopher-king-icon";
 
 /**
  * The degree assistant page with two modes:
@@ -21,6 +22,21 @@ export function MentorPageClient() {
 
   return (
     <div className="flex flex-col gap-4">
+      {/* Identity — the Philosopher King (matches the floating assistant). */}
+      <div className="flex flex-col items-center gap-2 pt-1">
+        <div className="flex size-12 items-center justify-center rounded-2xl bg-accent-brand text-[#f2c879] shadow-sm ring-1 ring-[#f2c879]/40">
+          <PhilosopherKingIcon className="size-7" />
+        </div>
+        <h1 className="font-display text-xl font-bold text-foreground/90">
+          {isHe ? "המלך הפילוסוף" : "The Philosopher King"}
+        </h1>
+        <p className="max-w-sm text-center text-xs leading-relaxed text-foreground/50">
+          {isHe
+            ? "יועץ התואר שלך — חכם, ישיר, ותמיד מהנתונים האמיתיים שלך."
+            : "Your degree advisor — wise, direct, always from your real data."}
+        </p>
+      </div>
+
       {/* Mode toggle */}
       <div className="flex flex-col items-center gap-1.5">
         <div className="inline-flex rounded-xl border border-border/60 bg-card/40 p-1">

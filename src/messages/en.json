@@ -7,7 +7,7 @@
     "dashboard": "Home",
     "planner": "Degree Planner",
     "regulations": "Regulations",
-    "mentor": "Degree Assistant",
+    "mentor": "Philosopher King",
     "syllabus": "Syllabi",
     "catalog": "Course Catalog",
     "calendar": "Calendar",
@@ -220,7 +220,7 @@
     "binaryHint": "Grade is excluded from your average. Up to 5 across the degree (miluim-eligible). Over 25% of hours as binary may forfeit honors."
   },
   "mentor": {
-    "title": "Degree Assistant",
+    "title": "Philosopher King",
     "placeholder": "Ask about your degree, courses, or regulations...",
     "thinking": "Thinking...",
     "noApiKey": "Need an AI key — set it up in Settings (a free Gemini key works)",
