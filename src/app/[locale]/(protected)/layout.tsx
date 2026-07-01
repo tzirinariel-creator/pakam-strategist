@@ -7,6 +7,7 @@ import { MobileNav } from "@/components/layout/mobile-nav";
 import { ProtectedShell } from "@/components/layout/protected-shell";
 import { DemoBanner } from "@/components/layout/demo-banner";
 import { MiluimStatusBar } from "@/components/layout/miluim-status-bar";
+import { BannerStack } from "@/components/layout/banner-stack";
 
 /**
  * Protected layout — wraps all authenticated pages.
@@ -48,11 +49,14 @@ export default async function ProtectedLayout({
 
   return (
     <AppProviders>
-      {/* Demo mode banner — sticky above everything */}
-      <DemoBanner />
-
-      {/* Persistent miluim status bar — always visible for serving students */}
-      <MiluimStatusBar />
+      {/* Top notification bars as one sticky unit — publishes --banner-offset so
+          the fixed sidebar/top-bar sit *below* them instead of being covered (#7). */}
+      <BannerStack>
+        {/* Demo mode banner */}
+        <DemoBanner />
+        {/* Persistent miluim status bar — always visible for serving students */}
+        <MiluimStatusBar />
+      </BannerStack>
 
       <div className="min-h-screen">
         {/* Desktop sidebar */}

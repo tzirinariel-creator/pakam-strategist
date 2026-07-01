@@ -36,7 +36,7 @@ export function TopBar() {
   return (
     <header
       className={cn(
-        "fixed top-0 z-30 flex h-16 items-center justify-between bg-background/70 backdrop-blur-md shadow-[0_1px_0_rgba(0,0,0,0.06)] transition-all duration-300",
+        "fixed top-[var(--banner-offset,0px)] z-30 flex h-16 items-center justify-between bg-background/70 backdrop-blur-md shadow-[0_1px_0_rgba(0,0,0,0.06)] transition-all duration-300",
         "start-0 end-0 px-3 sm:px-6",
         sidebarCollapsed ? "md:start-16" : "md:start-64",
       )}

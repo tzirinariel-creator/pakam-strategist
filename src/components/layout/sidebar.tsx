@@ -107,7 +107,8 @@ export function Sidebar() {
   return (
     <aside
       className={cn(
-        "fixed top-0 start-0 z-40 flex h-screen flex-col border-e border-sidebar-border bg-[color-mix(in_oklch,var(--sidebar)_82%,transparent)] backdrop-blur-md transition-all duration-300",
+        "fixed start-0 z-40 flex flex-col border-e border-sidebar-border bg-[color-mix(in_oklch,var(--sidebar)_82%,transparent)] backdrop-blur-md transition-all duration-300",
+        "top-[var(--banner-offset,0px)] h-[calc(100vh_-_var(--banner-offset,0px))]",
         sidebarCollapsed ? "w-16" : "w-64"
       )}
     >

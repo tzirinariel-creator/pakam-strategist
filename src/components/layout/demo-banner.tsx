@@ -19,7 +19,7 @@ export function DemoBanner() {
   if (!isDemoUser) return null;
 
   return (
-    <div className="sticky top-0 z-[60] flex items-center justify-center gap-2 bg-foreground/90 px-4 py-1 text-xs font-medium text-background backdrop-blur-sm">
+    <div className="flex items-center justify-center gap-2 bg-foreground/90 px-4 py-1 text-xs font-medium text-background backdrop-blur-sm">
       <Eye className="size-3.5 opacity-70" />
       <span>{t("banner")}</span>
     </div>

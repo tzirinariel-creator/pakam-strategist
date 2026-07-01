@@ -92,7 +92,7 @@ export function MiluimStatusBar() {
       <div
         data-tour="miluim"
         className={cn(
-          "sticky top-0 z-[55] flex items-center justify-center gap-2 border-b px-4 py-1 text-xs backdrop-blur-sm",
+          "flex items-center justify-center gap-2 border-b px-4 py-1 text-xs backdrop-blur-sm",
           style.bar
         )}
       >
