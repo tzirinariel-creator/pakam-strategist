@@ -108,6 +108,19 @@ export function FloatingAssistant() {
     return () => window.removeEventListener("keydown", onKey);
   }, [open]);
 
+  // Open (and optionally pre-fill) from anywhere in the app — a course card's
+  // "ask about this" chip dispatches a `pk:ask` CustomEvent with a prompt, so
+  // the King arrives already in the context of that object (Project 2 step 7).
+  useEffect(() => {
+    const onAsk = (e: Event) => {
+      const detail = (e as CustomEvent).detail as { prompt?: string } | undefined;
+      setOpen(true);
+      if (detail?.prompt) setInput(detail.prompt);
+    };
+    window.addEventListener("pk:ask", onAsk as EventListener);
+    return () => window.removeEventListener("pk:ask", onAsk as EventListener);
+  }, []);
+
   const streamLLM = useCallback(
     async (question: string, planHash: string) => {
       const controller = new AbortController();
