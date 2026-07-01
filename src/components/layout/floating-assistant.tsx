@@ -90,6 +90,23 @@ export function FloatingAssistant() {
     return merged.slice(0, 5);
   }, [isHe, pathname]);
 
+  // The King greets you by where you ARE — a present companion, not a blank box.
+  const greeting = useMemo(() => {
+    const p = pathname ?? "";
+    const g = (he: string, en: string) => (isHe ? he : en);
+    if (p.includes("/planner"))
+      return g("אני רואה שאתה בתכנון הסמסטר. שאל אותי מה כדאי לקחת, אם העומס הגיוני, או איך לסגור פער.", "You're planning your semester. Ask me what to take, whether the load makes sense, or how to close a gap.");
+    if (p.includes("/catalog"))
+      return g("אתה מעיין בקטלוג. אעזור לך לבחור קורס שמתאים — קושי, התמחות, או דרישות-קדם.", "Browsing the catalog. I'll help you pick the right course — difficulty, focus area, or prerequisites.");
+    if (p.includes("/regulations"))
+      return g("אתה בתקנון. אסביר כל דרישה, למה היא חשובה, ואיך לסגור אותה.", "You're in the regulations. I'll explain any requirement, why it matters, and how to close it.");
+    if (p.includes("/graduation") || p.includes("/record"))
+      return g("אתה בתיק האקדמי. שאל על הממוצע, ההצטיינות, או איך לשפר.", "You're in your academic record. Ask about your average, honors, or how to improve.");
+    if (p.includes("/exam"))
+      return g("אתה בתכנון הבחינות. שאל אותי איך לפזר את הלמידה, או על מועד ב׳.", "You're in exam planning. Ask me how to spread your studying, or about the second sitting.");
+    return g("שאל/י אותי כל דבר על התואר שלך — אני עונה מהנתונים שלך.", "Ask me anything about your degree — I answer from your data.");
+  }, [pathname, isHe]);
+
   useEffect(() => {
     if (open) {
       const id = setTimeout(() => inputRef.current?.focus(), 80);
@@ -339,11 +356,7 @@ export function FloatingAssistant() {
             <div ref={scrollRef} className="flex-1 space-y-3 overflow-y-auto p-4">
               {messages.length === 0 && (
                 <div className="flex flex-col gap-3 pt-2">
-                  <p className="text-sm text-foreground/60">
-                    {isHe
-                      ? "שאל/י אותי כל דבר על התואר שלך — אני עונה מהנתונים שלך."
-                      : "Ask me anything about your degree — I answer from your data."}
-                  </p>
+                  <p className="text-sm text-foreground/60">{greeting}</p>
                   <div className="flex flex-wrap gap-1.5">
                     {chips.map((c) => (
                       <button
