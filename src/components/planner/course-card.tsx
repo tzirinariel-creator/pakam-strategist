@@ -13,11 +13,12 @@ import {
   Trash2,
   Check,
   GraduationCap,
+  AlertTriangle,
 } from "lucide-react";
 import { useTranslations, useLocale } from "next-intl";
 import { toast } from "sonner";
 import { DisciplineBadge } from "@/components/catalog/discipline-badge";
-import { DISCIPLINE_CONFIG } from "@/lib/constants";
+import { DISCIPLINE_CONFIG, CREDIT_REQUIREMENTS } from "@/lib/constants";
 import { api } from "@/lib/trpc/react";
 import {
   Tooltip,
@@ -268,6 +269,7 @@ function CompletionControl({
   onUpdate: (input: CompletionUpdate) => void;
 }) {
   const tPlanner = useTranslations("planner");
+  const isHe = useLocale() === "he";
   const isCompleted = status === "COMPLETED";
   // Seminar papers can't be pass/fail-converted (excluded type per the מתווה).
   const binaryEligible = courseType !== "SEMINAR";
@@ -284,6 +286,14 @@ function CompletionControl({
   const [gradeValue, setGradeValue] = useState<string>(
     grade !== null ? String(grade) : "",
   );
+
+  // A FAILED course (grade below the passing bar) can never be converted to
+  // binary — binary is for a course you passed but want off your GPA (#10). It
+  // also doesn't count toward the degree until retaken (#31). Driven off the
+  // live input so the warning/guard react as the student types, not 600ms late.
+  const gradeNum = parseInt(gradeValue, 10);
+  const isFailingGrade =
+    gradeValue !== "" && !isNaN(gradeNum) && gradeNum < CREDIT_REQUIREMENTS.PASSING_GRADE;
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // The parent re-keys this control whenever the server status/grade changes,
@@ -397,36 +407,51 @@ function CompletionControl({
 
         {/* Grade input — only when completed */}
         {isCompleted && (
-          <div className="flex items-center gap-2 animate-in fade-in duration-150">
-            <span className="text-xs text-foreground/60">{tPlanner("gradeLabel")}</span>
-            <div className="relative">
-              <input
-                type="number"
-                min={0}
-                max={100}
-                step={1}
-                value={gradeValue}
-                onChange={handleGradeChange}
-                onBlur={handleGradeBlur}
-                placeholder="0–100"
-                dir="ltr"
-                className={cn(
-                  "w-20 rounded-md border border-border/50 bg-background/50 px-2 py-1.5",
-                  "font-mono text-sm text-foreground text-center",
-                  "placeholder:text-foreground/20",
-                  "focus:border-foreground/35 focus:outline-none focus:ring-1 focus:ring-foreground/20 transition-all",
-                )}
-              />
+          <div className="animate-in fade-in duration-150 space-y-1">
+            <div className="flex items-center gap-2">
+              <span className="text-xs text-foreground/60">{tPlanner("gradeLabel")}</span>
+              <div className="relative">
+                <input
+                  type="number"
+                  min={0}
+                  max={100}
+                  step={1}
+                  value={gradeValue}
+                  onChange={handleGradeChange}
+                  onBlur={handleGradeBlur}
+                  placeholder="0–100"
+                  dir="ltr"
+                  aria-invalid={isFailingGrade}
+                  className={cn(
+                    "w-20 rounded-md border bg-background/50 px-2 py-1.5",
+                    "font-mono text-sm text-center",
+                    "placeholder:text-foreground/20",
+                    "focus:outline-none focus:ring-1 transition-all",
+                    isFailingGrade
+                      ? "border-amber-400/60 text-amber-600 focus:border-amber-400 focus:ring-amber-400/30 dark:text-amber-400"
+                      : "border-border/50 text-foreground focus:border-foreground/35 focus:ring-foreground/20",
+                  )}
+                />
+              </div>
+              {grade !== null && !isFailingGrade && (
+                <Check className="size-3.5 text-emerald-400" />
+              )}
             </div>
-            {grade !== null && (
-              <Check className="size-3.5 text-emerald-400" />
+            {isFailingGrade && (
+              <p className="flex items-center gap-1 text-[10px] leading-tight text-amber-600 dark:text-amber-500">
+                <AlertTriangle className="size-3 shrink-0" />
+                {isHe
+                  ? "ציון נכשל — הקורס לא נספר לקרדיט עד שתעבור אותו מחדש."
+                  : "Failing — this course won't count toward credit until you retake and pass it."}
+              </p>
             )}
           </div>
         )}
 
         {/* Binary (pass/fail) conversion — miluim benefit. Only for completed,
-            non-seminar courses that already have a numeric grade entered. */}
-        {isCompleted && binaryEligible && grade !== null && (
+            non-seminar courses with a PASSING numeric grade: a failed course can
+            never be converted to binary (#10). */}
+        {isCompleted && binaryEligible && grade !== null && !isFailingGrade && (
           <div className="space-y-1.5 border-t border-border/30 pt-3">
             <label className="flex items-center gap-2 cursor-pointer text-xs font-medium text-foreground/80">
               <button

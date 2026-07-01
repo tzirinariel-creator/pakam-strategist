@@ -7,6 +7,7 @@ import {
   Search,
   Plus,
   Check,
+  AlertTriangle,
   FolderOpen,
   Sparkles,
   Languages,
@@ -80,6 +81,7 @@ function GradeInput({
   placeholder,
   ariaLabel,
   savedSignal,
+  isHe,
 }: {
   userCourseId: string;
   initialGrade: number | null;
@@ -89,11 +91,20 @@ function GradeInput({
   ariaLabel: string;
   /** Bumped by the parent when THIS course's save mutation succeeds. */
   savedSignal: number;
+  isHe: boolean;
 }) {
   const [value, setValue] = useState<string>(
     initialGrade !== null ? String(initialGrade) : ""
   );
   const [saved, setSaved] = useState(false);
+
+  // A grade under the passing bar is a real event, not a typo to swallow: the
+  // course won't count toward credit until it's retaken and passed, and (unlike
+  // a low *pass*) it can't be converted to binary. We accept the entry but flag
+  // it plainly so the record stays honest (#31).
+  const numVal = parseInt(value, 10);
+  const isFailing =
+    value !== "" && !isNaN(numVal) && numVal < CREDIT_REQUIREMENTS.PASSING_GRADE;
 
   const handleChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const raw = e.target.value;
@@ -132,29 +143,41 @@ function GradeInput({
   }, [savedSignal]);
 
   return (
-    <div className="relative">
-      <input
-        type="number"
-        min={0}
-        max={100}
-        step={1}
-        value={value}
-        onChange={handleChange}
-        onBlur={handleBlur}
-        placeholder={placeholder}
-        aria-label={ariaLabel}
-        dir="ltr"
-        className={cn(
-          "w-20 rounded-md border border-border/50 bg-background/50 px-2 py-1.5",
-          "font-mono text-sm text-foreground text-center",
-          "placeholder:text-foreground/20",
-          "focus:border-foreground/35 focus:outline-none focus:ring-1 focus:ring-foreground/20",
-          "transition-all",
-          saved && "border-emerald-400/50 ring-1 ring-emerald-400/30"
+    <div className="flex flex-col items-center gap-1">
+      <div className="relative">
+        <input
+          type="number"
+          min={0}
+          max={100}
+          step={1}
+          value={value}
+          onChange={handleChange}
+          onBlur={handleBlur}
+          placeholder={placeholder}
+          aria-label={ariaLabel}
+          aria-invalid={isFailing}
+          dir="ltr"
+          className={cn(
+            "w-20 rounded-md border bg-background/50 px-2 py-1.5",
+            "font-mono text-sm text-foreground text-center",
+            "placeholder:text-foreground/20",
+            "focus:outline-none focus:ring-1",
+            "transition-all",
+            isFailing
+              ? "border-amber-400/60 text-amber-600 focus:border-amber-400 focus:ring-amber-400/30 dark:text-amber-400"
+              : "border-border/50 focus:border-foreground/35 focus:ring-foreground/20",
+            saved && !isFailing && "border-emerald-400/50 ring-1 ring-emerald-400/30"
+          )}
+        />
+        {saved && (
+          <Check className="absolute -end-5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-emerald-400 animate-in fade-in" />
         )}
-      />
-      {saved && (
-        <Check className="absolute -end-5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-emerald-400 animate-in fade-in" />
+      </div>
+      {isFailing && (
+        <p className="flex items-center gap-1 text-[10px] leading-tight text-amber-600 dark:text-amber-500">
+          <AlertTriangle className="size-3 shrink-0" />
+          {isHe ? "ציון נכשל — לא נספר לקרדיט. אפשר לחזור על הקורס." : "Failing — won't count toward credit. You can retake it."}
+        </p>
       )}
     </div>
   );
@@ -338,6 +361,7 @@ function CourseRow({
             placeholder={t("gradePlaceholder")}
             ariaLabel={`${t("gradeAria")} — ${courseName}`}
             savedSignal={savedSignal}
+            isHe={locale === "he"}
           />
         </div>
       </td>
