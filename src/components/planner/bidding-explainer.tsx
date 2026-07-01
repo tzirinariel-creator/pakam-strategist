@@ -1,37 +1,27 @@
 "use client";
 
 import { useState } from "react";
-import { Gavel, ChevronDown, AlertTriangle, Check } from "lucide-react";
+import {
+  Gavel,
+  ChevronDown,
+  AlertTriangle,
+  Check,
+  ListOrdered,
+  Trophy,
+  RefreshCw,
+} from "lucide-react";
 import { cn } from "@/lib/utils";
 
 /**
- * Bidding explainer — mechanics + a pre-bid safety checklist for TAU's
- * course-registration auction (מכרז). Verified facts only, ZERO invented point
- * predictions (the total point quota isn't published, so we never guess it).
- * See docs/דומיין-עומק.md.
+ * Bidding explainer — the TAU course-registration auction (מכרז), made concrete.
+ * Instead of an abstract bullet list, it walks the student through the mechanism
+ * in three steps, SHOWS the overlap trap ("last request wins") as a worked
+ * mini-timetable, and ends with a tick-off pre-bid checklist. Verified facts
+ * only, ZERO invented point predictions (the quota isn't published — we never
+ * guess it). See docs/דומיין-עומק.md.
  */
 export function BiddingExplainer({ isHe }: { isHe: boolean }) {
   const [open, setOpen] = useState(false);
-
-  const mechanics: string[] = isHe
-    ? [
-        "מכרז, לא כל-הקודם-זוכה: המציע הגבוה ביותר זוכה בקורס. מתי הקלדת את ההעדפות — לא משנה.",
-        "2 מקצים. בכל מקצה מקבלים את כל הנקודות מחדש.",
-        "מינימום 5 נקודות לקורס. סך הנקודות מתפרסם רק במסך הבידינג עצמו.",
-        "הרצאה + תרגיל = יחידה אחת. הנקודות הולכות לשילוב המועדף בלבד.",
-        "שוויון בסף הקובע → הגרלה אקראית של המחשב.",
-        "ביטול בין מקצים מחזיר את נקודות הקורס לשימוש במקצה הבא.",
-        "פכ\"מ פטור מדרישות-קדם — הן עצה לסדר, לא חסם לרישום.",
-      ]
-    : [
-        "It's an auction, not first-come: the highest bidder wins. When you typed your preferences doesn't matter.",
-        "2 rounds. Every round your full point quota resets.",
-        "Minimum 5 points per course. The total quota appears only on the bidding screen itself.",
-        "Lecture + tutorial are one unit. Points go to your single preferred combination.",
-        "A tie at the cutoff is broken by a random computer draw.",
-        "Cancelling between rounds refunds that course's points for the next round.",
-        "PPE is exempt from prerequisites — they're ordering advice, not a registration gate.",
-      ];
 
   return (
     <div className="data-card overflow-hidden p-0">
@@ -48,10 +38,11 @@ export function BiddingExplainer({ isHe }: { isHe: boolean }) {
           <p className="text-sm font-semibold text-foreground/85">
             {isHe ? "איך עובד הבידינג?" : "How bidding works"}
           </p>
+          {/* Even while collapsed, name the #1 trap so it isn't missed. */}
           <p className="text-xs text-foreground/50">
             {isHe
-              ? "המנגנון + צ'קליסט בטיחות לפני מכרז"
-              : "The mechanics + a pre-bid safety checklist"}
+              ? "מכרז ב-2 מקצים · המלכודת: הבקשה האחרונה מנצחת"
+              : "A 2-round auction · the trap: last request wins"}
           </p>
         </div>
         <ChevronDown
@@ -60,28 +51,10 @@ export function BiddingExplainer({ isHe }: { isHe: boolean }) {
       </button>
 
       {open && (
-        <div className="space-y-3 border-t border-border/50 p-4">
-          {/* The single biggest trap, highlighted */}
-          <div className="flex items-start gap-2 rounded-xl border border-amber-400/30 bg-amber-400/[0.06] p-3">
-            <AlertTriangle className="mt-0.5 size-4 shrink-0 text-amber-500" />
-            <p className="text-xs leading-relaxed text-foreground/75">
-              <span className="font-semibold">
-                {isHe ? "המלכודת הגדולה: " : "The big trap: "}
-              </span>
-              {isHe
-                ? "רישום לקורס שחופף בזמן (אפילו חלקית) לקורס שכבר התקבלת אליו — מבטל אוטומטית את הקודם. הבקשה האחרונה מנצחת. בדוק התנגשויות לפני שאתה מגיש."
-                : "Registering for a course that overlaps in time (even partially) with one you already got — auto-cancels the earlier one. Last request wins. Check for clashes before you bid."}
-            </p>
-          </div>
-
-          <ul className="space-y-1.5">
-            {mechanics.map((m, i) => (
-              <li key={i} className="flex items-start gap-2 text-xs text-foreground/70">
-                <Check className="mt-0.5 size-3.5 shrink-0 text-foreground/40" />
-                <span className="leading-snug">{m}</span>
-              </li>
-            ))}
-          </ul>
+        <div className="space-y-4 border-t border-border/50 p-4">
+          <Steps isHe={isHe} />
+          <OverlapTrap isHe={isHe} />
+          <Checklist isHe={isHe} />
 
           <p className="text-[10px] leading-tight text-foreground/40">
             {isHe
@@ -90,6 +63,151 @@ export function BiddingExplainer({ isHe }: { isHe: boolean }) {
           </p>
         </div>
       )}
+    </div>
+  );
+}
+
+// ── Step 1-2-3: how the auction actually runs ────────────────────────
+
+function Steps({ isHe }: { isHe: boolean }) {
+  const steps = isHe
+    ? [
+        { icon: ListOrdered, title: "מדרגים העדפות", body: "בוחרים קורסים ומקצים לכל אחד נקודות (מינ׳ 5). מתי הקלדת — לא משנה." },
+        { icon: Trophy, title: "מכרז: הגבוה זוכה", body: "המציע הכי גבוה על קורס זוכה במקום. שוויון בסף → הגרלה של המחשב." },
+        { icon: RefreshCw, title: "2 מקצים, איפוס", body: "בכל מקצה מקבלים את כל הנקודות מחדש. ביטול בין מקצים מחזיר נקודות." },
+      ]
+    : [
+        { icon: ListOrdered, title: "Rank your picks", body: "Pick courses and assign points to each (min 5). When you typed doesn't matter." },
+        { icon: Trophy, title: "Auction: top bid wins", body: "The highest bidder for a course wins the seat. A tie at the cutoff → a draw." },
+        { icon: RefreshCw, title: "2 rounds, reset", body: "Every round your full quota resets. Cancelling between rounds refunds points." },
+      ];
+
+  return (
+    <div className="grid gap-2 sm:grid-cols-3">
+      {steps.map((s, i) => {
+        const Icon = s.icon;
+        return (
+          <div key={i} className="relative rounded-xl border border-border/50 bg-foreground/[0.02] p-3">
+            <div className="mb-1.5 flex items-center gap-2">
+              <span className="flex size-6 shrink-0 items-center justify-center rounded-full bg-accent-brand/10 text-[11px] font-bold text-accent-brand">{i + 1}</span>
+              <Icon className="size-4 text-foreground/45" />
+            </div>
+            <p className="text-xs font-bold text-foreground/80">{s.title}</p>
+            <p className="mt-0.5 text-[11px] leading-snug text-foreground/55">{s.body}</p>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+// ── The overlap trap, shown as a worked mini-timetable ───────────────
+
+function OverlapTrap({ isHe }: { isHe: boolean }) {
+  // Mini time axis 08:00–14:00 (6h). Two blocks that partly overlap. Positioned
+  // on an LTR track (time reads left→right in a schedule) so the geometry is
+  // unambiguous in both locales; labels are localized.
+  const AXIS_START = 8;
+  const AXIS_HOURS = 6;
+  const pct = (h: number) => ((h - AXIS_START) / AXIS_HOURS) * 100;
+  const held = { start: 10, end: 12 };
+  const bid = { start: 11, end: 13 };
+
+  return (
+    <div className="rounded-xl border border-amber-400/30 bg-amber-400/[0.06] p-3">
+      <div className="mb-2 flex items-start gap-2">
+        <AlertTriangle className="mt-0.5 size-4 shrink-0 text-amber-500" />
+        <p className="text-xs font-bold text-foreground/80">
+          {isHe ? "המלכודת הגדולה: הבקשה האחרונה מנצחת" : "The big trap: last request wins"}
+        </p>
+      </div>
+
+      {/* Worked example: two courses that overlap on the same day */}
+      <div dir="ltr" className="space-y-1.5">
+        {/* held course */}
+        <div className="relative h-7 rounded-md bg-foreground/[0.04]">
+          <div
+            className="absolute inset-y-0 flex items-center justify-center rounded-md bg-emerald-500/20 text-[10px] font-semibold text-emerald-700 ring-1 ring-emerald-500/40"
+            style={{ insetInlineStart: `${pct(held.start)}%`, width: `${pct(held.end) - pct(held.start)}%` }}
+          >
+            <bdi>{isHe ? "קורס א׳ ✓" : "Course A ✓"}</bdi>
+          </div>
+        </div>
+        {/* new bid course */}
+        <div className="relative h-7 rounded-md bg-foreground/[0.04]">
+          <div
+            className="absolute inset-y-0 flex items-center justify-center rounded-md bg-amber-500/25 text-[10px] font-semibold text-amber-700 ring-1 ring-amber-500/50"
+            style={{ insetInlineStart: `${pct(bid.start)}%`, width: `${pct(bid.end) - pct(bid.start)}%` }}
+          >
+            <bdi>{isHe ? "קורס ב׳ ⚠" : "Course B ⚠"}</bdi>
+          </div>
+          {/* overlap marker */}
+          <div
+            className="absolute inset-y-0 rounded-md border-x border-red-500/50 bg-red-500/10"
+            style={{ insetInlineStart: `${pct(bid.start)}%`, width: `${pct(held.end) - pct(bid.start)}%` }}
+          />
+        </div>
+        {/* axis ticks */}
+        <div className="flex justify-between px-0.5 text-[8px] font-mono text-foreground/30">
+          <span>08:00</span><span>10:00</span><span>12:00</span><span>14:00</span>
+        </div>
+      </div>
+
+      <p className="mt-2 text-[11px] leading-snug text-foreground/70">
+        {isHe
+          ? "כבר יש לך את א׳. מגיש בקשה ל-ב׳ שחופף לו (אפילו שעה) → א׳ מתבטל אוטומטית ונשארת רק עם ב׳. בדוק חפיפות לפני שאתה מגיש."
+          : "You already hold A. Bidding for B, which overlaps it (even by an hour) → A is auto-cancelled and you keep only B. Check for clashes before you bid."}
+      </p>
+    </div>
+  );
+}
+
+// ── Tick-off pre-bid checklist ───────────────────────────────────────
+
+function Checklist({ isHe }: { isHe: boolean }) {
+  const items = isHe
+    ? [
+        "בדקתי שאין חפיפות זמן בין הקורסים שאני רוצה",
+        "הקצבתי לפחות 5 נקודות לכל קורס",
+        "זכרתי: הרצאה + תרגיל = יחידה אחת",
+        "זכרתי: הנקודות מתאפסות בין המקצים",
+        "פכ״מ פטור מדרישות-קדם — לא חוסם רישום",
+      ]
+    : [
+        "Checked there are no time clashes between the courses I want",
+        "Allotted at least 5 points to each course",
+        "Remembered: lecture + tutorial are one unit",
+        "Remembered: points reset between the two rounds",
+        "PPE is exempt from prerequisites — not a registration gate",
+      ];
+  const [done, setDone] = useState<boolean[]>(() => items.map(() => false));
+
+  return (
+    <div>
+      <p className="mb-2 text-xs font-bold text-foreground/70">
+        {isHe ? "צ׳קליסט לפני המכרז" : "Pre-bid checklist"}
+      </p>
+      <ul className="space-y-1">
+        {items.map((m, i) => (
+          <li key={i}>
+            <button
+              type="button"
+              onClick={() => setDone((d) => d.map((v, j) => (j === i ? !v : v)))}
+              className="flex w-full items-start gap-2 rounded-md p-1 text-start transition-colors hover:bg-foreground/[0.03]"
+            >
+              <span
+                className={cn(
+                  "mt-px flex size-4 shrink-0 items-center justify-center rounded border transition-colors",
+                  done[i] ? "border-emerald-400 bg-emerald-400 text-white" : "border-foreground/25",
+                )}
+              >
+                {done[i] && <Check className="size-3" />}
+              </span>
+              <span className={cn("text-[11px] leading-snug", done[i] ? "text-foreground/40 line-through" : "text-foreground/70")}>{m}</span>
+            </button>
+          </li>
+        ))}
+      </ul>
     </div>
   );
 }
