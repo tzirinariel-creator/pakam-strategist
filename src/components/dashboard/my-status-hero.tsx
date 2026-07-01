@@ -15,6 +15,7 @@ import { Link } from "@/i18n/navigation";
 import { CREDIT_REQUIREMENTS, GRADE_REQUIREMENTS, getEnglishLevel } from "@/lib/constants";
 import { roundScore } from "@/lib/grade-calculator";
 import { Bidi } from "@/lib/bidi";
+import { CountUp } from "@/components/ui/count-up";
 
 // Humanities honors annual weighted-average threshold (dean's list), approx and
 // drifts year to year (see docs/דומיין-עומק.md). Shown as a soft reference only.
@@ -173,7 +174,7 @@ export function MyStatusHero({
       {/* Super-number — the single "where am I in the degree" line (Project 1). */}
       <div className="mb-4 flex items-baseline gap-2.5">
         <span className="font-display text-4xl font-bold tabular-nums text-accent-brand" dir="ltr">
-          {degreePct}%
+          <CountUp value={degreePct} />%
         </span>
         <div className="flex flex-col">
           <span className="text-sm font-semibold text-foreground/80">
@@ -196,7 +197,7 @@ export function MyStatusHero({
         <div>
           <div className="flex items-baseline gap-1.5" dir="ltr">
             <span className="font-mono text-3xl font-bold tabular-nums text-foreground/85">
-              {effective}
+              <CountUp value={effective} />
             </span>
             <span className="font-mono text-base text-foreground/40">/ {target}</span>
             <span className="ms-1 text-sm text-foreground/50">{isHe ? "ש״ס" : "cr."}</span>

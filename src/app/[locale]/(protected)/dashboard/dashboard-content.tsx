@@ -8,7 +8,7 @@ import { Link } from "@/i18n/navigation";
 import { api } from "@/lib/trpc/react";
 import { TipCard } from "@/components/shared/tip-card";
 import { getContextualTips, getRandomTip } from "@/lib/tips-engine";
-import { ThemedLoader } from "@/components/ui/themed-loader";
+import { DashboardSkeleton } from "@/components/dashboard/dashboard-skeleton";
 import { Progress } from "@/components/ui/progress";
 import { OnboardingWizard } from "@/components/onboarding/onboarding-wizard";
 import { TourReopenButton, TOUR_DONE_KEY } from "@/components/onboarding/product-tour";
@@ -579,7 +579,7 @@ export function DashboardContent() {
   // Only block on planQuery — it determines onboarding vs dashboard.
   // Other queries can load in the background.
   if (planQuery.isLoading && !loadingTooLong) {
-    return <ThemedLoader />;
+    return <DashboardSkeleton />;
   }
 
   // Loading took too long — show actionable UI instead of endless spinner
