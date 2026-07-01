@@ -43,6 +43,10 @@ export interface QAAnswer {
   text: string;
   href?: string;
   cta?: string;
+  /** True when a handler confidently matched the question; false for the
+   *  capabilities fallback. The hybrid router reads this to decide whether to
+   *  escalate an unanswered question to the LLM. */
+  matched?: boolean;
 }
 
 type Handler = {
@@ -373,7 +377,7 @@ const NORMALIZED_HANDLERS = HANDLERS.map((h) => ({
 export function answerDegreeQuestion(question: string, c: QAContext): QAAnswer {
   const q = normalize(question);
   if (!q) {
-    return { text: he(c, "שאל אותי כל דבר על התואר שלך 🙂", "Ask me anything about your degree 🙂") };
+    return { text: he(c, "שאל אותי כל דבר על התואר שלך 🙂", "Ask me anything about your degree 🙂"), matched: false };
   }
   let best: Handler | null = null;
   let bestScore = 0;
@@ -390,9 +394,10 @@ export function answerDegreeQuestion(question: string, c: QAContext): QAAnswer {
     }
   }
   if (best) {
-    return best.answer(c);
+    return { ...best.answer(c), matched: true };
   }
   return {
+    matched: false,
     text: he(
       c,
       `לא בטוח שהבנתי. אני יכול לעזור עם: כמה ש״ס נשארו, מה חסר לתואר, הממוצע שלך, בינארי, אנגלית/אמירנט, מילואים, סמינרים, תנאי מעבר שנה, התמחות, הצטיינות, ובידינג.`,
