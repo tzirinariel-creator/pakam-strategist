@@ -16,7 +16,7 @@ import {
 } from "@/lib/ai/claude-client";
 import { streamGemini } from "@/lib/ai/gemini-client";
 import { detectProvider } from "@/lib/ai/provider";
-import { decrypt } from "@/lib/crypto";
+import { decrypt, encrypt } from "@/lib/crypto";
 import { buildMentorSystemPrompt } from "@/lib/ai/mentor-prompt";
 import {
   buildUserContext,
@@ -123,17 +123,59 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    if (!user.encryptedClaudeKey) {
+    // 3b. Resolve the key: the student's own BYOK key first, else the app's
+    // SHARED free Gemini key (Ariel's, with billing OFF so it can never be
+    // charged — Google just returns 429 past the free quota). This makes the
+    // assistant work with zero setup while a student who wants no limits can
+    // add their own free key.
+    let encryptedKey: string;
+    let usingSharedKey = false;
+    if (user.encryptedClaudeKey) {
+      encryptedKey = user.encryptedClaudeKey;
+    } else if (process.env.GEMINI_SHARED_KEY) {
+      usingSharedKey = true;
+      encryptedKey = encrypt(process.env.GEMINI_SHARED_KEY);
+    } else {
       return NextResponse.json(
         { error: "No API key configured" },
         { status: 412 }
       );
     }
 
-    // 4. Detect which provider the stored key belongs to (free Gemini or Claude).
+    // Protect the shared free-tier pool: soft per-user + global daily caps so
+    // one student can't drain it. This is fairness only — the HARD guarantee
+    // against any charge is billing-off on the shared key's Google project.
+    if (usingSharedKey) {
+      const perUser = checkRateLimit(`shared-day:${authUser.id}`, {
+        maxRequests: 40,
+        windowSeconds: 86_400,
+      });
+      const global = checkRateLimit("shared-day:__global__", {
+        maxRequests: 800,
+        windowSeconds: 86_400,
+      });
+      if (!perUser.allowed || !global.allowed) {
+        return NextResponse.json(
+          {
+            error:
+              "העוזר המשותף עמוס כרגע — אפשר להוסיף מפתח חינמי משלך בהגדרות לשימוש בלי הגבלה.",
+          },
+          {
+            status: 429,
+            headers: {
+              "Retry-After": String(
+                Math.max(perUser.resetInSeconds, global.resetInSeconds)
+              ),
+            },
+          }
+        );
+      }
+    }
+
+    // 4. Detect which provider the resolved key belongs to (free Gemini or Claude).
     let provider;
     try {
-      provider = detectProvider(decrypt(user.encryptedClaudeKey));
+      provider = detectProvider(decrypt(encryptedKey));
     } catch {
       provider = null;
     }
@@ -143,7 +185,6 @@ export async function POST(request: NextRequest) {
         { status: 400 }
       );
     }
-    const encryptedKey = user.encryptedClaudeKey;
 
     // 5. Load or create chat session
     let chatSession: {

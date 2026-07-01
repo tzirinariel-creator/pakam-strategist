@@ -98,8 +98,12 @@ export const aiRouter = createTRPCRouter({
   hasApiKey: protectedProcedure.query(async ({ ctx }) => {
     const user = await getUser(ctx.db, ctx.userId);
 
+    // Whether the app has a SHARED free key configured — the assistant works
+    // with zero setup when it does, even if the student has no personal key.
+    const sharedAvailable = !!process.env.GEMINI_SHARED_KEY;
+
     if (!user.encryptedClaudeKey) {
-      return { hasKey: false as const, masked: null, provider: null };
+      return { hasKey: false as const, masked: null, provider: null, sharedAvailable };
     }
 
     // Decrypt to mask the original key for display + report which provider.
@@ -109,6 +113,7 @@ export const aiRouter = createTRPCRouter({
         hasKey: true as const,
         masked: maskAnyApiKey(decrypted),
         provider: detectProvider(decrypted),
+        sharedAvailable,
       };
     } catch {
       // If decryption fails, the stored key is corrupt. Clear it.
@@ -116,7 +121,7 @@ export const aiRouter = createTRPCRouter({
         where: { id: user.id },
         data: { encryptedClaudeKey: null },
       });
-      return { hasKey: false as const, masked: null, provider: null };
+      return { hasKey: false as const, masked: null, provider: null, sharedAvailable };
     }
   }),
 
