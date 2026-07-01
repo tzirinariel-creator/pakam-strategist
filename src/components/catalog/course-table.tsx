@@ -101,10 +101,20 @@ export function CourseTable({ courses, focusArea }: CourseTableProps) {
 
   const [sortField, setSortField] = useState<SortField>("code");
   const [sortDirection, setSortDirection] = useState<SortDirection>("asc");
+  // When the student has a focus area, float its courses to the top by default
+  // (#17/#24 — "electives organized by focus area"). Toggleable.
+  const [focusFirst, setFocusFirst] = useState(true);
 
   // ---- Sorting logic ----
   const sortedCourses = useMemo(() => {
     const sorted = [...courses].sort((a, b) => {
+      // Focus-area courses first (when enabled) — the primary ordering, so the
+      // student's discipline surfaces above the chosen column sort.
+      if (focusFirst && focusArea) {
+        const am = a.discipline === focusArea ? 0 : 1;
+        const bm = b.discipline === focusArea ? 0 : 1;
+        if (am !== bm) return am - bm;
+      }
       // Grade sort: keep courses WITHOUT grade data at the bottom, both
       // directions (so "best grades" / "hardest" never surface empty rows).
       if (sortField === "averageGrade") {
@@ -148,7 +158,7 @@ export function CourseTable({ courses, focusArea }: CourseTableProps) {
       return sortDirection === "asc" ? cmp : -cmp;
     });
     return sorted;
-  }, [courses, sortField, sortDirection, locale]);
+  }, [courses, sortField, sortDirection, locale, focusFirst, focusArea]);
 
   function handleSort(field: SortField) {
     if (sortField === field) {
@@ -181,7 +191,20 @@ export function CourseTable({ courses, focusArea }: CourseTableProps) {
 
   // ---- Render ----
   return (
-    <div className="overflow-hidden rounded-lg border border-border/50 bg-card/80">
+    <div className="flex flex-col gap-2">
+      {focusArea && (
+        <label className="inline-flex cursor-pointer select-none items-center gap-2 self-start text-xs text-foreground/60">
+          <input
+            type="checkbox"
+            checked={focusFirst}
+            onChange={(e) => setFocusFirst(e.target.checked)}
+            className="size-3.5"
+          />
+          <Star className="size-3 fill-accent-brand text-accent-brand" />
+          {isHe ? "הצג את קורסי ההתמחות שלי קודם" : "Show my focus-area courses first"}
+        </label>
+      )}
+      <div className="overflow-hidden rounded-lg border border-border/50 bg-card/80">
       <Table>
         <TableHeader>
           <TableRow className="border-b-foreground/20 bg-card hover:bg-card">
@@ -436,6 +459,7 @@ export function CourseTable({ courses, focusArea }: CourseTableProps) {
           })}
         </TableBody>
       </Table>
+      </div>
     </div>
   );
 }
