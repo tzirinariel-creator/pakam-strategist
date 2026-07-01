@@ -1118,6 +1118,48 @@ function MiluimSection() {
           {saved ? t("saved") : t("save")}
         </Button>
 
+        {/* Per-semester service timeline (#12/#3) — so the student sees their
+            WHOLE reserve history, not just the one semester being edited. */}
+        {semestersQuery.data && semestersQuery.data.length > 0 && (
+          <div className="border-t border-border pt-5">
+            <h4 className="mb-2 text-sm font-medium text-foreground/70">
+              {isHe ? "היסטוריית השירות שלך" : "Your service history"}
+            </h4>
+            <div className="flex flex-col gap-1.5">
+              {[...semestersQuery.data]
+                .sort((a, b) =>
+                  a.academicYear - b.academicYear ||
+                  (a.semester === "FALL" ? -1 : 1)
+                )
+                .map((s) => (
+                  <div
+                    key={s.id}
+                    className="flex items-center justify-between rounded-lg bg-foreground/[0.03] px-3 py-2 text-xs"
+                  >
+                    <span className="text-foreground/70">
+                      {isHe
+                        ? `שנה ${s.academicYear} · ${s.semester === "FALL" ? "סמסטר א׳" : "סמסטר ב׳"}`
+                        : `Year ${s.academicYear} · ${s.semester === "FALL" ? "Fall" : "Spring"}`}
+                    </span>
+                    <span className="flex items-center gap-2 text-foreground/60">
+                      <span dir="ltr">
+                        {s.daysServed} {isHe ? "ימים" : "days"}
+                      </span>
+                      {s.isCombat && (
+                        <span className="text-amber-500">{isHe ? "לוחם/ת" : "combat"}</span>
+                      )}
+                      <span className="rounded-full bg-foreground/8 px-2 py-0.5 font-bold text-foreground/70">
+                        {s.derivedGroup === "NONE"
+                          ? "—"
+                          : `${isHe ? "קבוצה " : "Group "}${s.derivedGroup.replace("GROUP_", "")}`}
+                      </span>
+                    </span>
+                  </div>
+                ))}
+            </div>
+          </div>
+        )}
+
         {/* Manual group override — special cases the day-model doesn't capture:
             career service / 300+ days since 7.10.23 → C; bereaved/wounded → G (#9).
             Writes the fallback user.miluimGroup; a per-semester days row, if any,
