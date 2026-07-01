@@ -13,6 +13,7 @@ import { PhilosopherKingIcon } from "@/components/ui/philosopher-king-icon";
 import { routeQuestion } from "@/lib/ai/answer-router";
 import { suggestedQuestions } from "@/lib/degree-qa";
 import { useDegreeQAContext } from "@/components/mentor/use-qa-context";
+import { hashContext, readCachedAnswer, writeCachedAnswer } from "@/lib/ai/answer-cache";
 
 type Source = "rules" | "llm";
 interface Msg {
@@ -108,10 +109,11 @@ export function FloatingAssistant() {
   }, [open]);
 
   const streamLLM = useCallback(
-    async (question: string) => {
+    async (question: string, planHash: string) => {
       const controller = new AbortController();
       abortRef.current = controller;
       setMessages((m) => [...m, { role: "assistant", content: "", source: "llm" }]);
+      let full = "";
       try {
         const res = await fetch("/api/chat/stream", {
           method: "POST",
@@ -138,6 +140,7 @@ export function FloatingAssistant() {
             try {
               const ev = JSON.parse(line.slice(6)) as { type: string; text?: string; error?: string };
               if (ev.type === "delta" && ev.text) {
+                full += ev.text;
                 setMessages((m) => {
                   const u = [...m];
                   const last = u[u.length - 1];
@@ -152,6 +155,8 @@ export function FloatingAssistant() {
             }
           }
         }
+        // Cache the completed answer for this plan so re-asking spends no quota.
+        if (full.trim()) writeCachedAnswer(question, planHash, full);
       } catch (err) {
         if ((err as Error).name === "AbortError") return;
         // Drop the empty streaming bubble and show the free fallback instead.
@@ -206,8 +211,16 @@ export function FloatingAssistant() {
       // Escalation: use the LLM if a key (personal or shared) is available;
       // otherwise degrade to the free answer + a nudge, never an error.
       if (aiAvailable) {
+        // A cached answer for this exact question on the UNCHANGED plan comes
+        // back instantly and spends zero shared quota.
+        const planHash = hashContext(ctx);
+        const cached = readCachedAnswer(question, planHash);
+        if (cached) {
+          setMessages((m) => [...m, { role: "assistant", content: cached, source: "llm" }]);
+          return;
+        }
         setStreaming(true);
-        void streamLLM(question);
+        void streamLLM(question, planHash);
       } else {
         setMessages((m) => [
           ...m,
