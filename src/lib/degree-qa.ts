@@ -330,18 +330,67 @@ export function suggestedQuestions(isHe: boolean): string[] {
 }
 
 /**
+ * Fold the noise that trips plain substring matching, so paraphrases and
+ * typos still land on the right intent: case, Hebrew niqqud/cantillation,
+ * geresh/gershayim/quotes, any other punctuation, and final-letter forms
+ * (ך/ם/ן/ף/ץ → base). Applied to BOTH the question and the keys, so e.g.
+ * "ש״ס", "שס" and "ש\"ס" all match, and "עובר/לא-עובר" matches "עובר לא עובר".
+ */
+function normalize(s: string): string {
+  return s
+    .toLowerCase()
+    .replace(/־/g, " ") // Hebrew maqaf is a word joiner → space, not a mark to drop
+    .replace(/[֑-ׇ]/g, "") // niqqud + cantillation marks
+    .replace(/[׳״'"`]/g, "") // geresh / gershayim / quotes
+    .replace(/[^\p{L}\p{N}\s]/gu, " ") // any remaining punctuation → space
+    .replace(/ך/g, "כ")
+    .replace(/ם/g, "מ")
+    .replace(/ן/g, "נ")
+    .replace(/ף/g, "פ")
+    .replace(/ץ/g, "צ")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+// Keys are normalized once at module load — the matcher runs on every keystroke
+// path, so we don't re-normalize the static key list per call.
+const NORMALIZED_HANDLERS = HANDLERS.map((h) => ({
+  handler: h,
+  keys: h.keys.map(normalize).filter(Boolean),
+}));
+
+/**
  * Answer a free-text degree question from the student's own data. Deterministic;
  * returns a friendly fallback (with capabilities) when no intent matches.
+ *
+ * Matching is a normalized, length-weighted score: each handler earns the
+ * combined length of its keys found in the (normalized) question, and the
+ * highest-scoring handler wins. This fixes two failure modes of the old
+ * first-substring-wins loop — niqqud/geresh/punctuation mismatches that dropped
+ * a real question to the fallback, and an earlier, weaker handler stealing a
+ * question that a later, more-specific handler describes better.
  */
 export function answerDegreeQuestion(question: string, c: QAContext): QAAnswer {
-  const q = question.trim().toLowerCase();
+  const q = normalize(question);
   if (!q) {
     return { text: he(c, "שאל אותי כל דבר על התואר שלך 🙂", "Ask me anything about your degree 🙂") };
   }
-  for (const h of HANDLERS) {
-    if (h.keys.some((k) => q.includes(k.toLowerCase()))) {
-      return h.answer(c);
+  let best: Handler | null = null;
+  let bestScore = 0;
+  for (const { handler, keys } of NORMALIZED_HANDLERS) {
+    let score = 0;
+    for (const k of keys) {
+      // Length-weighted: a longer, more-specific key ("עובר לא עובר") is a much
+      // stronger signal than a short one ("קצב"), so it dominates the winner.
+      if (q.includes(k)) score += k.length;
     }
+    if (score > bestScore) {
+      bestScore = score;
+      best = handler;
+    }
+  }
+  if (best) {
+    return best.answer(c);
   }
   return {
     text: he(

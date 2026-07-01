@@ -69,4 +69,31 @@ describe("answerDegreeQuestion", () => {
     expect(a.text).toContain("לא הזנת");
     expect(a.href).toBe("/settings");
   });
+
+  // ── Normalized matching (step 1) — these paraphrases dropped to the fallback
+  // under the old plain-substring matcher; the normalizer now lands them. ──
+  it("matches a credits question written with niqqud", () => {
+    const a = answerDegreeQuestion("כַּמָּה שֵׂ״ס נִשְׁאֲרוּ לִי?", ctx({}));
+    expect(a.text).toContain("54");
+  });
+
+  it("matches binary when written with hyphens instead of spaces", () => {
+    const a = answerDegreeQuestion("עדיף לי עובר-לא-עובר בקורס הזה?", ctx({}));
+    expect(a.text).toContain("עובר");
+  });
+
+  it("matches 'what's missing' written with a maqaf", () => {
+    const a = answerDegreeQuestion(
+      "מה־חסר לי לתואר?",
+      ctx({ failedRules: [{ nameHe: "משפט", nameEn: "Law", deficit: 6 }] }),
+    );
+    expect(a.text).toContain("משפט");
+  });
+
+  it("picks the more specific intent by score, not handler order", () => {
+    // Mentions the average AND asks specifically about honors — the honors
+    // handler's longer, more-specific key should win over a bare 'ממוצע' hit.
+    const a = answerDegreeQuestion("עם הממוצע שלי יש לי סיכוי להצטיינות?", ctx({}));
+    expect(a.text.toLowerCase()).toMatch(/הצטיינות|honors/);
+  });
 });
