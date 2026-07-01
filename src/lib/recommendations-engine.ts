@@ -354,6 +354,10 @@ export function buildRecommendations(
           !c.isBinary &&
           c.courseType !== "SEMINAR" &&
           c.grade !== null &&
+          // Must have PASSED: you can only convert a passing grade to pass/fail.
+          // A failed course (below the passing grade) is a RETAKE, not a binary
+          // candidate — suggesting binary on a fail is nonsense (#10).
+          c.grade >= CREDIT_REQUIREMENTS.PASSING_GRADE &&
           c.grade < GRADE_REQUIREMENTS.YEAR_TRANSITION_OVERALL_GPA &&
           // a future Moed B → retake the grade instead of locking it as pass/fail
           !(c.examDateB && daysUntil(c.examDateB, input.now) >= 0)

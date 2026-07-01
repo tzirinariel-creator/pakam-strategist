@@ -150,7 +150,7 @@ export function CatalogContent() {
           </p>
           <span className="text-foreground/15">·</span>
           <a
-            href={`mailto:ariel@pakamon.app?subject=${encodeURIComponent(isHe ? "קורס חסר בקטלוג" : "Missing course in catalog")}`}
+            href={`mailto:tzirin.ariel@gmail.com?subject=${encodeURIComponent(isHe ? "קורס חסר בקטלוג פכמון" : "Missing course in the Pakamon catalog")}`}
             className="underline underline-offset-2 transition-colors hover:text-foreground/50"
           >
             {isHe ? "לא מצאתם קורס? דווחו לנו" : "Missing a course? Let us know"}

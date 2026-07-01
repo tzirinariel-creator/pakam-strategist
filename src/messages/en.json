@@ -23,7 +23,7 @@
     "login": "Log In",
     "register": "Sign Up",
     "logout": "Log Out",
-    "loginWithGoogle": "Sign in with Google",
+    "loginWithGoogle": "Continue with Google",
     "loginFailed": "Something went wrong — check your details and try again",
     "email": "Email",
     "password": "Password",
