@@ -132,4 +132,23 @@ describe("answerDegreeQuestion", () => {
     expect(a.text).not.toMatch(/צריך\s*\d+\s*נקודות/);
     expect(a.text).not.toMatch(/כדאי להשקיע\s*\d+/);
   });
+
+  it("answers remaining MANDATORY credits from the student's data", () => {
+    const a = answerDegreeQuestion("כמה חובה נשאר לי?", ctx({ mandatory: 60 }));
+    expect(a.text).toContain("חובה");
+    expect(a.text).toContain("60");
+  });
+
+  it("explains Moed B and warns the last grade counts", () => {
+    const a = answerDegreeQuestion("מתי כדאי ללכת למועד ב׳?", ctx({}));
+    expect(a.text).toMatch(/מועד ב|האחרון קובע/);
+    expect(a.href).toBe("/exam-planner");
+  });
+
+  it("explains the final-grade formula from config weights", () => {
+    const a = answerDegreeQuestion("איך מחשבים ציון גמר?", ctx({}));
+    const semPct = Math.round(GRADE_WEIGHTS.SEMINAR_PAPERS * 100);
+    expect(a.text).toContain(`${semPct}%`);
+    expect(a.text).toMatch(/רפרט|משוקלל/);
+  });
 });

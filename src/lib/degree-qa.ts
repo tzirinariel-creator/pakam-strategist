@@ -200,6 +200,48 @@ const HANDLERS: Handler[] = [
       };
     },
   },
+  // ── Mandatory credits (mirror of electives) ───────────────────────
+  {
+    keys: ["קורסי חובה", "כמה חובה", "חובה נשאר", "חובה", "mandatory", "required credits"],
+    answer: (c) => {
+      const left = Math.max(0, CREDIT_REQUIREMENTS.MANDATORY_TOTAL - c.mandatory);
+      return {
+        text: he(
+          c,
+          `קורסי חובה: יש לך ${c.mandatory} מתוך ${CREDIT_REQUIREMENTS.MANDATORY_TOTAL} ש״ס${left > 0 ? `, נשארו ${left}` : " — הושלם ✓"}.`,
+          `Mandatory: you have ${c.mandatory} of ${CREDIT_REQUIREMENTS.MANDATORY_TOTAL} credits${left > 0 ? `, ${left} to go` : " — done ✓"}.`
+        ),
+        href: "/planner",
+        cta: he(c, "לתכנון", "Plan"),
+      };
+    },
+  },
+  // ── Moed B / retake ───────────────────────────────────────────────
+  {
+    keys: ["מועד ב", "מועד ב׳", "מועד חוזר", "מבחן חוזר", "moed b", "retake", "second sitting"],
+    answer: (c) => ({
+      text: he(
+        c,
+        "מועד ב׳ = הזדמנות שנייה למבחן. שים לב: בישראל הציון האחרון קובע (לא הגבוה) — אז כדאי ללכת רק אם אתה בטוח שתשתפר. שיבוץ הלמידה, פריסה אחורה מכל מבחן ואיזון עומס — במתכנן המבחנים.",
+        "Moed B is a second exam sitting. Note: in Israel the LAST grade counts (not the higher one) — so retake only if you're confident you'll improve. Study spread, reverse-planning and load balancing are in the exam planner."
+      ),
+      href: "/exam-planner",
+      cta: he(c, "למתכנן המבחנים", "Exam planner"),
+    }),
+  },
+  // ── Final-grade formula ───────────────────────────────────────────
+  {
+    keys: ["ציון גמר", "ציון סופי", "איך מחשבים ציון", "שקלול", "final grade", "grade formula", "how is my grade"],
+    answer: (c) => ({
+      text: he(
+        c,
+        `ציון הגמר משוקלל: ${Math.round(GRADE_WEIGHTS.COURSES * 100)}% ממוצע קורסי חובה+בחירה, ${Math.round(GRADE_WEIGHTS.SEMINAR_PAPERS * 100)}% מ-${SEMINAR_REQUIREMENTS.PAPERS} עבודות סמינריוניות, ו-${Math.round(GRADE_WEIGHTS.REFERAT * 100)}% רפרט.`,
+        `Your final grade is weighted: ${Math.round(GRADE_WEIGHTS.COURSES * 100)}% course average, ${Math.round(GRADE_WEIGHTS.SEMINAR_PAPERS * 100)}% from ${SEMINAR_REQUIREMENTS.PAPERS} seminar papers, and ${Math.round(GRADE_WEIGHTS.REFERAT * 100)}% referat.`
+      ),
+      href: "/graduation",
+      cta: he(c, "לצפי הגמר", "Graduation"),
+    }),
+  },
   // ── English / Amiram ──────────────────────────────────────────────
   {
     keys: ["אנגלית", "אמירם", "אמירנט", "english", "amiram"],
