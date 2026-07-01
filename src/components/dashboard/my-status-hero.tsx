@@ -31,6 +31,18 @@ import type { CreditBreakdown, GradeBreakdown } from "@/types/degree";
  * scattering them across separate widgets. This is the command center a
  * mid-degree student lands on.
  */
+/** One PPE leg (philosophy / economics / political science / …): where the
+ *  student stands against that discipline's minimum. Resolved on the dashboard
+ *  from the same audit engine, so home and planner never disagree. */
+export type DisciplineProgress = {
+  nameHe: string;
+  nameEn: string;
+  color: string;
+  earned: number;
+  required: number;
+  met: boolean;
+};
+
 export function MyStatusHero({
   credits,
   grade,
@@ -39,6 +51,7 @@ export function MyStatusHero({
   hasFocusArea,
   amiramScore,
   currentYear,
+  disciplines,
 }: {
   credits: CreditBreakdown | null;
   grade: GradeBreakdown;
@@ -49,6 +62,8 @@ export function MyStatusHero({
   hasFocusArea: boolean;
   /** Amiram/Amirnet English placement score (50–150), or null. */
   amiramScore: number | null;
+  /** Per-discipline progress — the three PPE legs. Empty/undefined hides it. */
+  disciplines?: DisciplineProgress[];
   /** Academic year (1–3). English LEVEL courses are only relevant in year 1 —
    *  the exemption deadline is end of year 1, so year-2+ students shouldn't be
    *  nudged about level courses (#11). The 2 CONTENT courses still count. */
@@ -244,6 +259,51 @@ export function MyStatusHero({
           />
         )}
       </div>
+
+      {/* Per-discipline breakdown — the three PPE legs. Same audit engine as the
+          bar above, so home and planner never disagree (Project 1 step 4). */}
+      {disciplines && disciplines.length > 0 && (
+        <div className="mt-4">
+          <div className="mb-2 text-[11px] font-medium text-foreground/45">
+            {isHe ? "לפי דיסציפלינה" : "By discipline"}
+          </div>
+          <div className="grid grid-cols-2 gap-x-4 gap-y-2.5 sm:grid-cols-3">
+            {disciplines.map((d) => {
+              const dpct =
+                d.required > 0 ? Math.min((d.earned / d.required) * 100, 100) : 0;
+              return (
+                <div key={d.nameEn}>
+                  <div className="flex items-baseline justify-between gap-2 text-[11px]">
+                    <span className="flex items-center gap-1.5 text-foreground/65">
+                      <span
+                        className="size-2 shrink-0 rounded-full"
+                        style={{ backgroundColor: d.color }}
+                      />
+                      {isHe ? d.nameHe : d.nameEn}
+                    </span>
+                    <span
+                      className="font-mono tabular-nums text-foreground/50"
+                      dir="ltr"
+                    >
+                      {d.earned}/{d.required}
+                      {d.met && <span className="text-emerald-500"> ✓</span>}
+                    </span>
+                  </div>
+                  <div className="mt-1 h-1.5 w-full overflow-hidden rounded-full bg-foreground/8">
+                    <div
+                      className="h-full rounded-full transition-all duration-500"
+                      style={{
+                        width: `${dpct}%`,
+                        backgroundColor: d.met ? "rgb(52 211 153)" : d.color,
+                      }}
+                    />
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
 
       {/* Bucket breakdown — the "what's left" by category */}
       <div className="mt-5 grid grid-cols-2 gap-2.5 sm:grid-cols-3 lg:grid-cols-5">

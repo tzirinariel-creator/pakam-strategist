@@ -18,7 +18,8 @@ import { TodaysClasses } from "@/components/dashboard/todays-classes";
 import { ExamCountdown } from "@/components/dashboard/exam-countdown";
 import { RecommendationsWidget } from "@/components/dashboard/recommendations-widget";
 import { StudyPlannerWidget } from "@/components/dashboard/study-planner-widget";
-import { MyStatusHero } from "@/components/dashboard/my-status-hero";
+import { MyStatusHero, type DisciplineProgress } from "@/components/dashboard/my-status-hero";
+import { getActiveProgram } from "@/lib/programs/registry";
 import { buildRecommendations } from "@/lib/recommendations-engine";
 import { binaryCapRemaining, type MiluimGroupKey } from "@/lib/miluim";
 import type { GradeBreakdown, CreditBreakdown } from "@/types/degree";
@@ -541,6 +542,23 @@ export function DashboardContent() {
       }))
       .sort((a, b) => b.deficit - a.deficit)[0] ?? null;
 
+  // Per-discipline progress (the three PPE legs) — resolve the audit engine's
+  // disciplineStatus against the active program for names + colors. Same source
+  // as the credit bar, so the home and planner never disagree (Project 1 #4).
+  const disciplineBreakdown: DisciplineProgress[] = (
+    creditsQuery.data?.disciplineStatus ?? []
+  ).map((s) => {
+    const def = getActiveProgram().disciplines.find((d) => d.id === s.discipline);
+    return {
+      nameHe: def?.nameHe ?? s.discipline,
+      nameEn: def?.nameEn ?? s.discipline,
+      color: def?.color ?? "#8B949E",
+      earned: s.earned,
+      required: s.required,
+      met: s.met,
+    };
+  });
+
   // Allows user to bypass the transition screen and go to dashboard
   const [skipTransition, setSkipTransition] = useState(false);
 
@@ -770,7 +788,7 @@ export function DashboardContent() {
       {/* My status — the unified "where am I in the degree" command center */}
       {hasAnyCourses && (
         <div className="animate-stagger-1" data-tour="status">
-          <MyStatusHero credits={credits} grade={gradeBreakdown} isHe={isHe} topGap={topGap} hasFocusArea={hasFocusArea} amiramScore={profileQuery.data?.amiramScore ?? null} currentYear={currentYear} />
+          <MyStatusHero credits={credits} grade={gradeBreakdown} isHe={isHe} topGap={topGap} hasFocusArea={hasFocusArea} amiramScore={profileQuery.data?.amiramScore ?? null} currentYear={currentYear} disciplines={disciplineBreakdown} />
         </div>
       )}
 
