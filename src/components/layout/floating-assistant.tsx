@@ -53,7 +53,34 @@ export function FloatingAssistant() {
   // The full mentor page already IS the assistant — no floating duplicate there.
   const onMentorPage = pathname?.includes("/mentor");
 
-  const chips = useMemo(() => suggestedQuestions(isHe).slice(0, 5), [isHe]);
+  // Context-aware starter chips: the questions most relevant to the screen the
+  // student is on, so the assistant meets them where they are instead of a
+  // generic menu. Falls back to the general set on the dashboard/home.
+  const chips = useMemo(() => {
+    const all = suggestedQuestions(isHe);
+    const pick = (...needles: string[]) =>
+      needles.map((n) => all.find((q) => q.includes(n))).filter((q): q is string => !!q);
+    const p = pathname ?? "";
+    let scoped: string[] = [];
+    if (p.includes("/planner")) {
+      scoped = pick(isHe ? "מיקוד" : "focus", isHe ? "סמינרים" : "seminars", isHe ? "בידינג" : "bidding");
+    } else if (p.includes("/catalog")) {
+      scoped = pick(isHe ? "מיקוד" : "focus", isHe ? "בינארי" : "binary");
+    } else if (p.includes("/graduation") || p.includes("/record")) {
+      scoped = pick(isHe ? "ממוצע" : "average", isHe ? "הצטיינות" : "honors", isHe ? "בינארי" : "binary");
+    } else if (p.includes("/regulations")) {
+      scoped = pick(isHe ? "חסר" : "missing", isHe ? "מעבר" : "advance");
+    } else if (p.includes("/settings")) {
+      scoped = pick(isHe ? "מילואים" : "miluim", isHe ? "אנגלית" : "English");
+    }
+    // Fill up to 5 with the general list, no duplicates.
+    const merged = [...scoped];
+    for (const q of all) {
+      if (merged.length >= 5) break;
+      if (!merged.includes(q)) merged.push(q);
+    }
+    return merged.slice(0, 5);
+  }, [isHe, pathname]);
 
   useEffect(() => {
     if (open) {
