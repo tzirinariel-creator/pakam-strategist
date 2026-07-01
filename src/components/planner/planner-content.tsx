@@ -9,6 +9,7 @@ import { encodePlan, type SharedCourse } from "@/lib/plan-share";
 import { YearBoard } from "./year-board";
 import { AddCourseModal } from "./add-course-modal";
 import { BiddingExplainer } from "./bidding-explainer";
+import { BiddingOverlapAlert } from "./bidding-overlap-alert";
 import { PlannerLiveTimetable } from "./planner-live-timetable";
 import { CREDIT_REQUIREMENTS } from "@/lib/constants";
 import { api } from "@/lib/trpc/react";
@@ -266,8 +267,10 @@ export function PlannerContent() {
           <div className="animate-stagger-3">
             <YearBoard courses={courses} />
           </div>
-          {/* Bidding explainer — mechanics + pre-bid safety checklist */}
-          <div className="animate-stagger-4">
+          {/* Bidding help — the overlap trap on YOUR real courses, then the
+              mechanics + pre-bid safety checklist. */}
+          <div className="animate-stagger-4 flex flex-col gap-4">
+            <BiddingOverlapAlert courses={courses} />
             <BiddingExplainer isHe={isHe} />
           </div>
         </div>

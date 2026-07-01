@@ -90,6 +90,47 @@ export function detectTimeConflicts(
 }
 
 /**
+ * All time conflicts WITHIN one set of sessions (every unordered pair). Pairs
+ * from the SAME course are skipped: a course's own lecture+tutorial are a single
+ * bidding unit, not a clash. Deduped to one entry per (courseA, courseB, day) —
+ * this powers the personalized bidding overlap alert ("last request wins").
+ */
+export function detectAllConflicts(sessions: SessionInfo[]): ConflictResult[] {
+  const out: ConflictResult[] = [];
+  const seen = new Set<string>();
+
+  for (let i = 0; i < sessions.length; i++) {
+    for (let j = i + 1; j < sessions.length; j++) {
+      const a = sessions[i]!;
+      const b = sessions[j]!;
+      if (a.courseCode === b.courseCode) continue; // same unit, not a clash
+      if (a.dayOfWeek !== b.dayOfWeek) continue;
+
+      const aStart = timeToMinutes(a.startTime);
+      const aEnd = timeToMinutes(a.endTime);
+      const bStart = timeToMinutes(b.startTime);
+      const bEnd = timeToMinutes(b.endTime);
+
+      if (sessionsOverlap(aStart, aEnd, bStart, bEnd)) {
+        const pair = [a.courseCode, b.courseCode].sort().join("|");
+        const key = `${pair}|${a.dayOfWeek}`;
+        if (seen.has(key)) continue;
+        seen.add(key);
+        out.push({
+          existingSession: a,
+          newSession: b,
+          day: a.dayOfWeek,
+          overlapStart: minutesToTime(Math.max(aStart, bStart)),
+          overlapEnd: minutesToTime(Math.min(aEnd, bEnd)),
+        });
+      }
+    }
+  }
+
+  return out;
+}
+
+/**
  * Format a conflict for display.
  */
 export function formatConflict(conflict: ConflictResult, locale: "he" | "en"): string {

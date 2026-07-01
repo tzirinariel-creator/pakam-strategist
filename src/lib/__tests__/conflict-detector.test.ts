@@ -1,6 +1,7 @@
 import { describe, it, expect } from "vitest";
 import {
   detectTimeConflicts,
+  detectAllConflicts,
   formatConflict,
   type SessionInfo,
 } from "@/lib/conflict-detector";
@@ -92,5 +93,44 @@ describe("formatConflict", () => {
     expect(out).toContain("Sunday");
     expect(out).toContain("Micro");
     expect(out).toContain("Stats");
+  });
+});
+
+describe("detectAllConflicts", () => {
+  it("finds a cross-course clash within one set", () => {
+    const s = [
+      session({ id: "a", courseCode: "111", courseName: "Micro", startTime: "10:00", endTime: "12:00" }),
+      session({ id: "b", courseCode: "222", courseName: "Stats", startTime: "11:00", endTime: "13:00" }),
+    ];
+    const out = detectAllConflicts(s);
+    expect(out).toHaveLength(1);
+    expect(out[0]?.overlapStart).toBe("11:00");
+    expect(out[0]?.overlapEnd).toBe("12:00");
+  });
+
+  it("ignores same-course sessions (lecture + tutorial are one bid unit)", () => {
+    const s = [
+      session({ id: "a", courseCode: "111", sessionType: "lecture", startTime: "10:00", endTime: "12:00" }),
+      session({ id: "b", courseCode: "111", sessionType: "tutorial", startTime: "10:00", endTime: "12:00" }),
+    ];
+    expect(detectAllConflicts(s)).toHaveLength(0);
+  });
+
+  it("dedupes multiple overlapping sessions of the same course pair on a day", () => {
+    const s = [
+      session({ id: "a", courseCode: "111", startTime: "10:00", endTime: "12:00" }),
+      session({ id: "b", courseCode: "222", startTime: "10:00", endTime: "11:00" }),
+      session({ id: "c", courseCode: "222", startTime: "11:30", endTime: "12:00" }),
+    ];
+    // 111 overlaps both 222 sessions, but it's the same pair+day → one entry
+    expect(detectAllConflicts(s)).toHaveLength(1);
+  });
+
+  it("returns nothing for a clash-free schedule", () => {
+    const s = [
+      session({ id: "a", courseCode: "111", dayOfWeek: "SUNDAY", startTime: "10:00", endTime: "12:00" }),
+      session({ id: "b", courseCode: "222", dayOfWeek: "MONDAY", startTime: "10:00", endTime: "12:00" }),
+    ];
+    expect(detectAllConflicts(s)).toHaveLength(0);
   });
 });
