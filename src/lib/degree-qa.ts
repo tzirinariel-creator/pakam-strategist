@@ -187,11 +187,23 @@ const HANDLERS: Handler[] = [
       if (!c.miluimGroupName) {
         return { text: he(c, "לא הגדרת שירות מילואים. אם שירתת — עדכן בהגדרות כדי לקבל את ההטבות (פטור ש״ס, בחירת מועדים, בינארי ועוד).", "No miluim service set. If you served, update it in settings to unlock benefits (credit exemption, exam-date choice, binary, and more).") , href: "/settings", cta: he(c, "להגדרות", "Settings") };
       }
+      // Build the entitlements as a natural clause, skipping any that are zero
+      // so we never say "0 credits". Reads like a sentence, not a data dump (#37).
+      const perks: string[] = [];
+      if (c.miluimExemption > 0) {
+        perks.push(he(c, `${c.miluimExemption} ש״ס פטור`, `${c.miluimExemption} exempt credits`));
+      }
+      if (c.binaryRemaining > 0) {
+        perks.push(he(c, `${c.binaryRemaining} המרות לבינארי`, `${c.binaryRemaining} binary conversions`));
+      }
+      const perksClause = perks.length
+        ? he(c, ` מגיע לך ${perks.join(" ו-")}.`, ` You're entitled to ${perks.join(" and ")}.`)
+        : "";
       return {
         text: he(
           c,
-          `אתה ${c.miluimGroupName}. יש לך ${c.miluimExemption} ש״ס פטור${c.binaryRemaining > 0 ? ` ו-${c.binaryRemaining} המרות בינארי` : ""}. לחץ על "ההטבות שלי" בפס המילואים למעלה לכל הפירוט.`,
-          `You're ${c.miluimGroupName}. You have ${c.miluimExemption} exempt credits${c.binaryRemaining > 0 ? ` and ${c.binaryRemaining} binary conversions` : ""}. Tap "My benefits" in the miluim bar above for the full list.`
+          `השירות שלך מסווג ב${c.miluimGroupName}.${perksClause} לפירוט המלא פִּתחו את "ההטבות שלי" בפס המילואים למעלה.`,
+          `Your service is classified as ${c.miluimGroupName}.${perksClause} Open "My benefits" in the miluim bar above for the full breakdown.`
         ),
       };
     },

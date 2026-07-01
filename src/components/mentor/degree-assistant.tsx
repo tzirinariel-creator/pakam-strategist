@@ -56,7 +56,12 @@ export function DegreeAssistant() {
       (profile?.miluimGroup ?? "NONE") as MiluimGroupKey,
       { academicYear: getCurrentAcademicYear(), semester: profile?.currentSemester ?? null }
     );
-    const groupName = group === "NONE" ? null : `קבוצה ${group.replace("GROUP_", "")}`;
+    // Locale-aware so the English assistant says "Group C", not "קבוצה C"
+    // embedded mid-sentence in English (#37).
+    const groupName =
+      group === "NONE"
+        ? null
+        : `${isHe ? "קבוצה" : "Group"} ${group.replace("GROUP_", "")}`;
 
     const failedRules = (regulationQuery.data?.results ?? [])
       .filter((r) => !r.passed && (r.severity === "ERROR" || r.severity === "WARNING"))
