@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useTranslations, useLocale } from "next-intl";
 import { useSearchParams } from "next/navigation";
-import { ArrowRight, AlertTriangle, Target } from "lucide-react";
+import { ArrowRight, AlertTriangle, Target, Eye } from "lucide-react";
 import { toast } from "sonner";
 import { api } from "@/lib/trpc/react";
 import { ThemedLoader } from "@/components/ui/themed-loader";
@@ -194,6 +194,23 @@ export function SemesterPlannerPage() {
               ? ". תכננו את הסמסטר ובחרו קורסים שיקדמו אתכם לשם."
               : ". Plan the semester and pick courses that move you toward it."}
           </p>
+        </div>
+      )}
+
+      {/* What-if preview banner — the planner's running numbers (credits, degree
+          progress, workload) update live as you drag courses, but they're not
+          persisted until you finish. This makes the "it's a preview until you
+          save" contract explicit so a live number is never mistaken for saved
+          state (Project 1 step 9). Sticks below the top bar while you edit. */}
+      {dirty && (
+        <div className="sticky top-[calc(var(--banner-offset,0px)_+_4rem)] z-20 -mx-4 flex flex-wrap items-center gap-x-2 gap-y-0.5 border-y border-amber-400/30 bg-amber-400/[0.08] px-4 py-2 text-xs backdrop-blur-sm md:-mx-6 md:px-6">
+          <Eye className="size-3.5 shrink-0 text-amber-500" />
+          <span className="font-medium text-foreground/80">
+            {isHe ? "תצוגה מקדימה — השינויים עדיין לא נשמרו" : "Preview — your changes aren't saved yet"}
+          </span>
+          <span className="text-foreground/45">
+            {isHe ? "· המספרים מתעדכנים חי; סיימו את התכנון כדי לשמור" : "· numbers update live; finish planning to save"}
+          </span>
         </div>
       )}
 
