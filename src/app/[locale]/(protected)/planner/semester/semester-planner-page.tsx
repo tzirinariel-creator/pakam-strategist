@@ -1,8 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import { useTranslations } from "next-intl";
-import { ArrowRight, AlertTriangle } from "lucide-react";
+import { useTranslations, useLocale } from "next-intl";
+import { useSearchParams } from "next/navigation";
+import { ArrowRight, AlertTriangle, Target } from "lucide-react";
 import { toast } from "sonner";
 import { api } from "@/lib/trpc/react";
 import { ThemedLoader } from "@/components/ui/themed-loader";
@@ -22,8 +23,14 @@ import type { SessionGroupSelections } from "@/components/onboarding/semester-pl
 
 export function SemesterPlannerPage() {
   const t = useTranslations("planner");
+  const isHe = useLocale() === "he";
   const router = useRouter();
   const utils = api.useUtils();
+
+  // The gap the home sent us here to close (Project 1 — home↔planner bridge).
+  // The "my status" hero passes ?goal=<the top unmet requirement> so the planner
+  // opens in context, not as a generic screen.
+  const goal = useSearchParams().get("goal");
 
   // Has the student changed anything that isn't saved yet? Set by the planner on
   // the first edit; cleared on a successful save. Drives the exit guard so the
@@ -175,6 +182,20 @@ export function SemesterPlannerPage() {
         <ArrowRight className="h-3.5 w-3.5" />
         {t("backToPlanner")}
       </button>
+
+      {/* Focus banner — the gap the home sent us to close (Project 1 bridge). */}
+      {goal && (
+        <div className="flex items-start gap-2.5 rounded-xl border border-accent-brand/30 bg-accent-brand/[0.06] px-4 py-3">
+          <Target className="mt-0.5 size-4 shrink-0 text-accent-brand" />
+          <p className="text-sm leading-relaxed text-foreground/75">
+            {isHe ? "באת לסגור: " : "You're here to close: "}
+            <span className="font-semibold text-foreground/90">{goal}</span>
+            {isHe
+              ? ". תכננו את הסמסטר ובחרו קורסים שיקדמו אתכם לשם."
+              : ". Plan the semester and pick courses that move you toward it."}
+          </p>
+        </div>
+      )}
 
       {/* Semester Planner */}
       <SemesterPlanner

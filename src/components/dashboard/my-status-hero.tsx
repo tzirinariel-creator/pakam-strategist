@@ -340,10 +340,16 @@ export function MyStatusHero({
             replaces a dead "keep planning" line that linked nowhere (מסלול E). */}
         <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-2">
           <Link
-            href="/planner/semester"
+            href={
+              topGap
+                ? `/planner/semester?goal=${encodeURIComponent(isHe ? topGap.nameHe : topGap.nameEn)}`
+                : "/planner/semester"
+            }
             className="inline-flex items-center gap-1.5 rounded-lg bg-accent-brand px-3.5 py-2 text-sm font-semibold text-accent-brand-fg shadow-sm transition-colors hover:bg-accent-brand-hover"
           >
-            {isHe ? "תכנן את הסמסטר הקרוב" : "Plan the upcoming semester"}
+            {topGap
+              ? isHe ? "תכנן — נסגור את זה" : "Plan — close this gap"
+              : isHe ? "תכנן את הסמסטר הקרוב" : "Plan the upcoming semester"}
             <Arrow className="size-3.5" />
           </Link>
           <Link
