@@ -151,4 +151,11 @@ describe("answerDegreeQuestion", () => {
     expect(a.text).toContain(`${semPct}%`);
     expect(a.text).toMatch(/רפרט|משוקלל/);
   });
+
+  it("does not force a bare 'פטור' question into the miluim non-sequitur", () => {
+    // A non-miluim student asking generally about an exemption must NOT get
+    // "you haven't set miluim service" — the bare 'פטור' key was over-broad.
+    const a = answerDegreeQuestion("מה הפטור שלי?", ctx({ miluimGroupName: undefined }));
+    expect(a.text).not.toContain("לא הגדרת שירות מילואים");
+  });
 });

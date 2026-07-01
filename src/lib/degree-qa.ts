@@ -272,7 +272,7 @@ const HANDLERS: Handler[] = [
   },
   // ── Miluim ────────────────────────────────────────────────────────
   {
-    keys: ["מילואים", "הטבות", "פטור", "miluim", "reserve", "exemption"],
+    keys: ["מילואים", "הטבות", "פטור מילואים", "miluim", "reserve", "miluim exemption"],
     answer: (c) => {
       if (!c.miluimGroupName) {
         return { text: he(c, "לא הגדרת שירות מילואים. אם שירתת — עדכן בהגדרות כדי לקבל את ההטבות (פטור ש״ס, בחירת מועדים, בינארי ועוד).", "No miluim service set. If you served, update it in settings to unlock benefits (credit exemption, exam-date choice, binary, and more).") , href: "/settings", cta: he(c, "להגדרות", "Settings") };
