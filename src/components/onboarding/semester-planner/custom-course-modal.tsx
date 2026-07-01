@@ -2,7 +2,7 @@
 
 import { useState, useCallback } from "react";
 import { useTranslations, useLocale } from "next-intl";
-import { Plus } from "lucide-react";
+import { Plus, AlertTriangle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -136,6 +136,17 @@ export function CustomCourseModal({
             {isHe ? "לקורסים שלא נמצאים בקטלוג שלנו (בחירות חיצוניות, סדנאות וכו׳)" : "For courses not in our catalog (external electives, workshops, etc.)"}
           </p>
         </DialogHeader>
+
+        {/* Warn before adding an off-catalog course (ז8) — the app can't verify
+            it counts toward the PPE degree, so the student must. */}
+        <div className="mt-1 flex items-start gap-2 rounded-lg border border-amber-400/30 bg-amber-400/[0.06] px-3 py-2 text-xs leading-relaxed text-foreground/70">
+          <AlertTriangle className="mt-0.5 size-3.5 shrink-0 text-amber-500" />
+          <span>
+            {isHe
+              ? "ודא/י שהקורס מאושר לתואר פכ\"מ (מול המזכירות/הידיעון) לפני שמוסיפים — אנחנו לא יכולים לבדוק זאת עבור קורס שאינו בקטלוג."
+              : "Make sure this course is approved for the PPE degree (with the secretariat / catalog) before adding — we can't verify a course that isn't in our catalog."}
+          </span>
+        </div>
 
         <div className="space-y-4 pt-2">
           {/* Course name */}
