@@ -10,8 +10,18 @@
 import { decrypt } from "@/lib/crypto";
 import type { ChatMessage } from "@/lib/ai/claude-client";
 
-/** Free-tier, fast model. */
-export const GEMINI_MODEL = "gemini-2.0-flash";
+/**
+ * Free-tier model. MUST stay on Google's free tier (iron rule: Gemini is always
+ * free for our students). `gemini-2.5-flash-lite` is free for input+output and
+ * carries the highest free daily request quota of the Flash family (~1,000/day),
+ * so a student is very unlikely to hit a limit.
+ *
+ * History: we were on `gemini-2.0-flash`, which Google DEPRECATED (Feb 2026) and
+ * RETIRED on 3 Mar 2026 — after that date every request 404'd, which is what
+ * surfaced as "hit the usage limit on first use" (#34). If Google deprecates
+ * this model too, bump it to the current free Flash-Lite ID (one line).
+ */
+export const GEMINI_MODEL = "gemini-2.5-flash-lite";
 
 const GEMINI_MAX_TOKENS = 4096;
 
