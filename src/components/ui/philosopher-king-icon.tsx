@@ -1,3 +1,4 @@
+import type { CSSProperties } from "react";
 import { cn } from "@/lib/utils";
 
 /**
@@ -11,9 +12,11 @@ import { cn } from "@/lib/utils";
 export function PhilosopherKingIcon({
   className,
   title,
+  style,
 }: {
   className?: string;
   title?: string;
+  style?: CSSProperties;
 }) {
   return (
     <svg
@@ -23,6 +26,7 @@ export function PhilosopherKingIcon({
       aria-label={title}
       aria-hidden={title ? undefined : true}
       className={cn("size-5", className)}
+      style={style}
     >
       {/* Crown body — left peak · center peak (tallest) · right peak */}
       <path

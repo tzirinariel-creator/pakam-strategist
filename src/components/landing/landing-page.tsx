@@ -10,15 +10,17 @@ import {
   Scale,
   ArrowLeft,
   ArrowRight,
-  Sparkles,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { PhilosopherKingIcon } from "@/components/ui/philosopher-king-icon";
 import { cn } from "@/lib/utils";
 import { Bidi } from "@/lib/bidi";
 
 // ─── Feature Card Data ──────────────────────────────────────────────
+// The Philosopher King (the AI advisor) leads — it's the differentiator.
 
 const FEATURES = [
+  { key: "philosopherKing", icon: PhilosopherKingIcon, color: "#5B5BD6" },
   { key: "planner", icon: GraduationCap, color: "#4A90D9" },
   { key: "catalog", icon: BookOpen, color: "#8B5CF6" },
   { key: "calendar", icon: Calendar, color: "#4A90D9" },
@@ -169,10 +171,11 @@ export function LandingPage() {
 
       {/* ── Hero Section ─────────────────────────────────── */}
       <section className="relative overflow-hidden px-4 py-14 sm:px-6 md:py-24">
-        {/* Background depth: soft glows + faint grid */}
+        {/* Background depth — the King's regal indigo + gold, not a generic
+            SaaS blue glow. Kept faint so the content leads. */}
         <div className="bg-mesh pointer-events-none absolute inset-0">
-          <div className="absolute start-1/4 top-0 size-[28rem] rounded-full bg-foreground/[0.04] blur-3xl" />
-          <div className="absolute end-1/4 bottom-0 size-80 rounded-full bg-blue-500/[0.06] blur-3xl" />
+          <div className="absolute start-1/4 top-0 size-[28rem] rounded-full bg-accent-brand/[0.05] blur-3xl" />
+          <div className="absolute end-1/4 bottom-0 size-80 rounded-full bg-[#c99a3b]/[0.05] blur-3xl" />
           <div
             className="absolute inset-0 opacity-[0.025]"
             style={{
@@ -189,7 +192,7 @@ export function LandingPage() {
           {/* Text column */}
           <div className="text-center lg:text-start">
             <div className="eyebrow mb-6 inline-flex items-center gap-2 rounded-full border border-border bg-card px-4 py-1.5 text-foreground/70 shadow-sm">
-              <Sparkles className="size-4" />
+              <PhilosopherKingIcon className="size-4 text-[#c99a3b]" />
               {t("badge")}
             </div>
 

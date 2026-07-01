@@ -886,7 +886,7 @@
     "brand": "Pakamon",
     "login": "Log In",
     "signup": "Sign Up",
-    "badge": "Planning tool for PPE students",
+    "badge": "New · The Philosopher King — your AI degree advisor",
     "heroTitle": "150 credits, 3 years, one discipline to choose — let's sort it out",
     "heroSubtitle": "Course planning, credit tracking, regulation check, and graduation score calculator — all in one place, no spreadsheets",
     "ctaStart": "Let's Start",
@@ -894,6 +894,10 @@
     "featuresTitle": "What's inside",
     "featuresSubtitle": "Everything scattered across Yedion tabs, spreadsheets, and WhatsApp groups — all in one place",
     "features": {
+      "philosopherKing": {
+        "title": "The Philosopher King",
+        "desc": "An AI advisor that knows your degree — ask anything and get answers from your own data, on every screen. Always free."
+      },
       "planner": {
         "title": "Plan 3 Years",
         "desc": "Organize all courses by semester. See how many credits you've earned, what's missing, and where to add"
