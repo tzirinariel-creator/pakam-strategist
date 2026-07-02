@@ -45,24 +45,27 @@ export async function GET(request: NextRequest) {
     return NextResponse.redirect(settingsUrl("google=error"));
   }
 
-  // Verify the logged-in user matches the state parameter (CSRF protection)
+  // Verify the logged-in user matches the state parameter (CSRF protection).
+  // getUser() — not getSession() — so the identity is VERIFIED against the
+  // auth server, not just read from a spoofable cookie; a token write depends
+  // on this check.
   const supabase = await createServerSupabase();
   const {
-    data: { session },
-  } = await supabase.auth.getSession();
+    data: { user },
+  } = await supabase.auth.getUser();
 
-  if (!session) {
-    console.error("[Google OAuth] No active session during callback");
+  if (!user) {
+    console.error("[Google OAuth] No verified user during callback");
     return NextResponse.redirect(settingsUrl("google=error&reason=no_session"));
   }
 
-  if (session.user.id !== userId) {
+  if (user.id !== userId) {
     console.error("[Google OAuth] User ID mismatch — possible CSRF attempt");
     return NextResponse.redirect(settingsUrl("google=error&reason=mismatch"));
   }
 
   // The demo account is read-only — never persist a Google token on the shared row.
-  if (isDemoEmail(session.user.email)) {
+  if (isDemoEmail(user.email)) {
     return NextResponse.redirect(settingsUrl("google=error"));
   }
 

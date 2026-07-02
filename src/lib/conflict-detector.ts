@@ -110,6 +110,9 @@ export function detectAllConflicts(sessions: SessionInfo[]): ConflictResult[] {
       const aEnd = timeToMinutes(a.endTime);
       const bStart = timeToMinutes(b.startTime);
       const bEnd = timeToMinutes(b.endTime);
+      // A malformed time (NaN) must not silently "clear" the pair — skip it
+      // explicitly; the remaining valid pairs still get checked.
+      if (![aStart, aEnd, bStart, bEnd].every(Number.isFinite)) continue;
 
       if (sessionsOverlap(aStart, aEnd, bStart, bEnd)) {
         const pair = [a.courseCode, b.courseCode].sort().join("|");

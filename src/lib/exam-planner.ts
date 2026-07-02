@@ -67,15 +67,22 @@ function addDays(d: Date, n: number): Date {
   return x;
 }
 
+/** LOCAL day key — NOT toISOString(): for Israel (UTC+2/+3) a local-midnight
+ *  date serialized as UTC rolls to the previous day, so blocked-day matching
+ *  would silently miss by one. Must stay consistent with the UI's day keys. */
 function dayKey(d: Date): string {
-  return startOfDay(d).toISOString().slice(0, 10);
+  const x = startOfDay(d);
+  return `${x.getFullYear()}-${String(x.getMonth() + 1).padStart(2, "0")}-${String(x.getDate()).padStart(2, "0")}`;
 }
 
 /** Classify difficulty from the course's historical grade signal. */
 export function classifyDifficulty(averageGrade?: number | null, failRate?: number | null): Difficulty {
   if ((failRate != null && failRate >= 0.2) || (averageGrade != null && averageGrade < 70)) return "high";
-  if (averageGrade != null && averageGrade < 80) return "medium";
-  return "medium"; // default to medium when unknown — safer than under-budgeting
+  // A known-easy course (avg ≥ 80, no fail-rate red flag) budgets fewer hours.
+  // Without this branch "low" was unreachable and easy courses were over-
+  // budgeted at the medium rate, inflating the whole study plan.
+  if (averageGrade != null && averageGrade >= 80) return "low";
+  return "medium"; // <80 or unknown — safer than under-budgeting
 }
 
 function colorFor(index: number): string {

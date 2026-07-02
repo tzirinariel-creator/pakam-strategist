@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState, useEffect } from "react";
+import { useMemo, useState, useEffect, useRef } from "react";
 import { createPortal } from "react-dom";
 import { useLocale } from "next-intl";
 import { CalendarDays, Maximize2, X } from "lucide-react";
@@ -54,19 +54,50 @@ export function PlannerLiveTimetable({ courses }: PlannerLiveTimetableProps) {
   // The sidebar timetable is only ~380px wide, so 5 day-columns become
   // unreadable slivers (the #14 "can't see anything" complaint). Rather than
   // rewrite the working grid, offer a full-width overlay where the same grid
-  // finally has room to breathe. Esc to close + lock body scroll while open.
+  // finally has room to breathe. Esc to close + lock body scroll while open,
+  // move focus into the dialog on open (and trap Tab there), restore it to
+  // the expand trigger on close — aria-modal is a promise, not a decoration.
   const [expanded, setExpanded] = useState(false);
   const [mounted, setMounted] = useState(false);
+  const panelRef = useRef<HTMLDivElement>(null);
+  const closeBtnRef = useRef<HTMLButtonElement>(null);
+  const expandBtnRef = useRef<HTMLButtonElement>(null);
+  // Backdrop close is armed only when the mousedown STARTED on the backdrop —
+  // a text-selection drag that ends over the backdrop must not close it.
+  const backdropArmed = useRef(false);
   useEffect(() => setMounted(true), []);
   useEffect(() => {
     if (!expanded) return;
-    const onKey = (e: KeyboardEvent) => { if (e.key === "Escape") setExpanded(false); };
+    closeBtnRef.current?.focus();
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setExpanded(false);
+      if (e.key === "Tab") {
+        // Minimal focus trap: keep Tab inside the dialog panel.
+        const panel = panelRef.current;
+        if (!panel) return;
+        const focusables = panel.querySelectorAll<HTMLElement>(
+          'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])',
+        );
+        if (focusables.length === 0) return;
+        const first = focusables[0]!;
+        const last = focusables[focusables.length - 1]!;
+        if (e.shiftKey && document.activeElement === first) {
+          e.preventDefault();
+          last.focus();
+        } else if (!e.shiftKey && document.activeElement === last) {
+          e.preventDefault();
+          first.focus();
+        }
+      }
+    };
     window.addEventListener("keydown", onKey);
     const prev = document.body.style.overflow;
     document.body.style.overflow = "hidden";
+    const trigger = expandBtnRef.current;
     return () => {
       window.removeEventListener("keydown", onKey);
       document.body.style.overflow = prev;
+      trigger?.focus();
     };
   }, [expanded]);
 
@@ -130,6 +161,7 @@ export function PlannerLiveTimetable({ courses }: PlannerLiveTimetableProps) {
           {semCourses.length > 0 && (
             <button
               type="button"
+              ref={expandBtnRef}
               onClick={() => setExpanded(true)}
               className="flex size-7 items-center justify-center rounded-md border border-border/60 text-foreground/55 transition-colors hover:bg-foreground/5 hover:text-foreground/80"
               aria-label={isHe ? "הגדל מערכת שעות" : "Expand timetable"}
@@ -176,23 +208,29 @@ export function PlannerLiveTimetable({ courses }: PlannerLiveTimetableProps) {
     {expanded && mounted && createPortal(
       <div
         className="fixed inset-0 z-[80] flex items-center justify-center bg-black/50 p-3 backdrop-blur-sm sm:p-6"
-        onClick={() => setExpanded(false)}
+        onMouseDown={(e) => { backdropArmed.current = e.target === e.currentTarget; }}
+        onClick={(e) => {
+          if (backdropArmed.current && e.target === e.currentTarget) setExpanded(false);
+          backdropArmed.current = false;
+        }}
         role="dialog"
         aria-modal="true"
+        aria-labelledby="timetable-overlay-title"
       >
         <div
+          ref={panelRef}
           className="flex max-h-[92vh] w-full max-w-5xl flex-col overflow-hidden rounded-2xl border border-border/60 bg-card shadow-2xl"
-          onClick={(e) => e.stopPropagation()}
         >
           <div className="flex items-center justify-between gap-2 border-b border-border/50 p-4">
             <div className="flex items-center gap-2">
               <CalendarDays className="size-4 text-foreground/60" />
-              <h2 className="text-sm font-bold text-foreground/85">
+              <h2 id="timetable-overlay-title" className="text-sm font-bold text-foreground/85">
                 {isHe ? `מערכת השעות שלך · ${yearLabel}` : `Your timetable · ${yearLabel}`}
               </h2>
             </div>
             <button
               type="button"
+              ref={closeBtnRef}
               onClick={() => setExpanded(false)}
               className="flex size-8 items-center justify-center rounded-md text-foreground/50 transition-colors hover:bg-foreground/5 hover:text-foreground/80"
               aria-label={isHe ? "סגור" : "Close"}

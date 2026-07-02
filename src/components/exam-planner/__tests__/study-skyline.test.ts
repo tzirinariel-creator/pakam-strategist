@@ -64,11 +64,19 @@ describe("buildSkylineModel", () => {
     expect(m.items.some((i) => i.kind === "rest")).toBe(true);
   });
 
-  it("computes today's load from sessions dated today", () => {
+  it("computes today's load exactly (nearest-first packing leaves today empty)", () => {
+    // 5 credits, medium difficulty → 5 sessions of 2.5h packed onto the 5 days
+    // nearest the exam (Jun 5-9). Today (Jun 1) gets nothing — pinned exactly
+    // so a packing/grouping regression can't hide behind a >= 0 assertion.
     const plan = generateExamPlan([exam({ credits: 5 })], NOW);
     const m = buildSkylineModel(plan, NOW);
-    // the reverse-planner fills the days right up to the exam, incl. today here
-    expect(m.todayHours).toBeGreaterThanOrEqual(0);
-    expect(m.todayCourses).toBeGreaterThanOrEqual(0);
+    expect(m.todayHours).toBe(0);
+    expect(m.todayCourses).toBe(0);
+    const studyDays = m.items.filter((i) => i.kind === "day" && i.bars.length > 0);
+    expect(studyDays).toHaveLength(5);
+    for (const d of studyDays) {
+      if (d.kind === "day") expect(d.sumHours).toBe(2.5);
+    }
+    expect(m.maxDayHours).toBe(2.5);
   });
 });

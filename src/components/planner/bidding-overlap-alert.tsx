@@ -37,12 +37,18 @@ export function BiddingOverlapAlert({ courses }: { courses: UserCourseWithCourse
 
   const semester = profileQuery.data?.currentSemester === "SPRING" ? "SPRING" : "FALL";
 
-  const { conflicts, distinctCourses } = useMemo(() => {
+  const { conflicts, distinctCourses, unscheduledCount } = useMemo(() => {
     const sessions: SessionInfo[] = [];
+    let unscheduled = 0;
     for (const uc of courses) {
       if (uc.plannedYear !== selectedYear || uc.plannedSemester !== semester) continue;
       const c = courseById.get(uc.courseId);
-      if (!c?.scheduleSessions?.length) continue;
+      // A course with no session data can't be clash-checked — count it so the
+      // green "safe to bid" verdict is honest about its coverage.
+      if (!c?.scheduleSessions?.length) {
+        if (c) unscheduled++;
+        continue;
+      }
       const sel = (uc as { selectedGroups?: unknown }).selectedGroups;
       const groups = sel && typeof sel === "object" ? (sel as Record<string, string>) : {};
       const filtered = filterSessionsBySelectedGroups(c.scheduleSessions, groups);
@@ -61,6 +67,7 @@ export function BiddingOverlapAlert({ courses }: { courses: UserCourseWithCourse
     return {
       conflicts: detectAllConflicts(sessions),
       distinctCourses: new Set(sessions.map((s) => s.courseCode)).size,
+      unscheduledCount: unscheduled,
     };
   }, [courses, selectedYear, semester, courseById, isHe]);
 
@@ -75,6 +82,14 @@ export function BiddingOverlapAlert({ courses }: { courses: UserCourseWithCourse
           {isHe
             ? "אין חפיפות זמן בין הקורסים שלך בסמסטר הזה — בטוח להגיש למכרז."
             : "No time clashes between your courses this semester — safe to bid."}
+          {unscheduledCount > 0 && (
+            <span className="text-foreground/45">
+              {" "}
+              {isHe
+                ? `(${unscheduledCount === 1 ? "לקורס אחד" : `ל-${unscheduledCount} קורסים`} אין עדיין שעות בידיעון — לא נבדקו.)`
+                : ` (${unscheduledCount} course${unscheduledCount === 1 ? " has" : "s have"} no published times yet — not checked.)`}
+            </span>
+          )}
         </p>
       </div>
     );
@@ -86,7 +101,7 @@ export function BiddingOverlapAlert({ courses }: { courses: UserCourseWithCourse
         <AlertTriangle className="size-4 shrink-0 text-amber-500" />
         <h3 className="text-sm font-bold text-foreground/85">
           {isHe
-            ? `שים לב — ${conflicts.length} חפיפות בקורסים שלך`
+            ? `שים לב — ${conflicts.length === 1 ? "חפיפה אחת" : conflicts.length === 2 ? "שתי חפיפות" : `${conflicts.length} חפיפות`} בקורסים שלך`
             : `Heads up — ${conflicts.length} clash${conflicts.length > 1 ? "es" : ""} in your courses`}
         </h3>
       </div>

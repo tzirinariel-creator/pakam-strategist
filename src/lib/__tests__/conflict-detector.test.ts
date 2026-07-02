@@ -133,4 +133,15 @@ describe("detectAllConflicts", () => {
     ];
     expect(detectAllConflicts(s)).toHaveLength(0);
   });
+
+  it("a malformed time doesn't hide the OTHER valid clashes", () => {
+    const s = [
+      session({ id: "bad", courseCode: "999", startTime: "", endTime: "" }),
+      session({ id: "a", courseCode: "111", startTime: "10:00", endTime: "12:00" }),
+      session({ id: "b", courseCode: "222", startTime: "11:00", endTime: "13:00" }),
+    ];
+    const out = detectAllConflicts(s);
+    expect(out).toHaveLength(1); // the 111×222 clash still reported
+    expect([out[0]?.existingSession.courseCode, out[0]?.newSession.courseCode].sort()).toEqual(["111", "222"]);
+  });
 });

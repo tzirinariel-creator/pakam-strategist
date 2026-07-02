@@ -22,6 +22,9 @@ describe("exam-planner", () => {
     expect(classifyDifficulty(85, 0.3)).toBe("high");
     expect(classifyDifficulty(76, 0.1)).toBe("medium");
     expect(classifyDifficulty(null, null)).toBe("medium");
+    // Known-easy course budgets fewer hours — "low" must be reachable.
+    expect(classifyDifficulty(85, 0.05)).toBe("low");
+    expect(classifyDifficulty(90, null)).toBe("low");
   });
 
   it("lays study sessions BEFORE the exam, never on/after it", () => {
@@ -40,9 +43,14 @@ describe("exam-planner", () => {
     expect(hard.exams[0]!.totalHours).toBeGreaterThan(easy.exams[0]!.totalHours);
   });
 
-  it("skips blocked/unavailable days", () => {
+  it("skips blocked/unavailable days (matched on LOCAL dates)", () => {
     const { sessions } = generateExamPlan([exam({})], NOW, ["2026-06-14"]);
-    expect(sessions.some((s) => s.date.toISOString().slice(0, 10) === "2026-06-14")).toBe(false);
+    // Compare on local date parts — session dates are local midnights, and a
+    // UTC (toISOString) comparison shifts a day for Israel and hides misses.
+    const localKey = (d: Date) =>
+      `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+    expect(sessions.length).toBeGreaterThan(0);
+    expect(sessions.some((s) => localKey(s.date) === "2026-06-14")).toBe(false);
   });
 
   it("flags exams that are too close together", () => {

@@ -137,7 +137,7 @@ function OverlapTrap({ isHe }: { isHe: boolean }) {
         {/* held course */}
         <div className="relative h-7 rounded-md bg-foreground/[0.04]">
           <div
-            className="absolute inset-y-0 flex items-center justify-center rounded-md bg-emerald-500/20 text-[10px] font-semibold text-emerald-700 ring-1 ring-emerald-500/40"
+            className="absolute inset-y-0 flex items-center justify-center rounded-md bg-emerald-500/20 text-[10px] font-semibold text-emerald-700 ring-1 ring-emerald-500/40 dark:text-emerald-300"
             style={{ insetInlineStart: `${pct(held.start)}%`, width: `${pct(held.end) - pct(held.start)}%` }}
           >
             <bdi>{isHe ? "קורס א׳ ✓" : "Course A ✓"}</bdi>
@@ -146,7 +146,7 @@ function OverlapTrap({ isHe }: { isHe: boolean }) {
         {/* new bid course */}
         <div className="relative h-7 rounded-md bg-foreground/[0.04]">
           <div
-            className="absolute inset-y-0 flex items-center justify-center rounded-md bg-amber-500/25 text-[10px] font-semibold text-amber-700 ring-1 ring-amber-500/50"
+            className="absolute inset-y-0 flex items-center justify-center rounded-md bg-amber-500/25 text-[10px] font-semibold text-amber-700 ring-1 ring-amber-500/50 dark:text-amber-300"
             style={{ insetInlineStart: `${pct(bid.start)}%`, width: `${pct(bid.end) - pct(bid.start)}%` }}
           >
             <bdi>{isHe ? "קורס ב׳ ⚠" : "Course B ⚠"}</bdi>
@@ -202,10 +202,13 @@ function Checklist({ isHe }: { isHe: boolean }) {
           <li key={i}>
             <button
               type="button"
+              role="checkbox"
+              aria-checked={done[i]}
               onClick={() => setDone((d) => d.map((v, j) => (j === i ? !v : v)))}
               className="flex w-full items-start gap-2 rounded-md p-1 text-start transition-colors hover:bg-foreground/[0.03]"
             >
               <span
+                aria-hidden
                 className={cn(
                   "mt-px flex size-4 shrink-0 items-center justify-center rounded border transition-colors",
                   done[i] ? "border-emerald-400 bg-emerald-400 text-white" : "border-foreground/25",

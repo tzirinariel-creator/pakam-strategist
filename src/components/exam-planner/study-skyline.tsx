@@ -225,6 +225,13 @@ function countdownClasses(days: number): string {
   return "bg-foreground/5 text-foreground/70";
 }
 
+/** Natural-Hebrew countdown — never "בעוד 1 ימים". */
+function hebCountdown(days: number): string {
+  if (days === 1) return "מחר";
+  if (days === 2) return "בעוד יומיים";
+  return `בעוד ${days} ימים`;
+}
+
 // ── Component ─────────────────────────────────────────────────────────
 
 interface StudySkylineProps {
@@ -282,7 +289,9 @@ export function StudySkyline({ plan, recommendations, isHe, now }: StudySkylineP
   const { firstExam, peak } = model;
 
   return (
-    <div className="data-card overflow-hidden p-0">
+    // overflow-clip (not hidden): clip doesn't create a scroll container, so
+    // the verdict rail's sticky top-0 actually sticks against the viewport.
+    <div className="data-card overflow-clip p-0">
       {/* ── Band 1 · Verdict rail (sticky, never scrolls) ── */}
       <div className="sticky top-0 z-10 flex flex-col gap-2 border-b border-border/60 bg-card/95 p-3 backdrop-blur sm:flex-row sm:items-stretch sm:gap-0">
         {/* Start */}
@@ -294,7 +303,7 @@ export function StudySkyline({ plan, recommendations, isHe, now }: StudySkylineP
               <span className="size-2 shrink-0 rounded-full" style={{ backgroundColor: firstExam.color }} />
               <span className="truncate text-sm font-bold text-foreground/85">{firstExam.courseName}</span>
               <span className={cn("shrink-0 rounded-full px-1.5 py-0.5 text-[10px] font-semibold", countdownClasses(firstExam.days))} dir={isHe ? "rtl" : "ltr"}>
-                {firstExam.days <= 0 ? (isHe ? "היום!" : "Today!") : isHe ? `בעוד ${firstExam.days} ימים` : `in ${firstExam.days}d`}
+                {firstExam.days <= 0 ? (isHe ? "היום!" : "Today!") : isHe ? hebCountdown(firstExam.days) : `in ${firstExam.days}d`}
               </span>
             </div>
           </div>
@@ -306,7 +315,12 @@ export function StudySkyline({ plan, recommendations, isHe, now }: StudySkylineP
             <p className="text-[10px] font-medium uppercase tracking-wide text-foreground/40">{isHe ? "העומס היום" : "Today's load"}</p>
             {model.todayHours > 0 ? (
               <p className="text-sm font-bold text-foreground/85" dir={isHe ? "rtl" : "ltr"}>
-                {model.todayHours} {isHe ? "שע׳" : "h"} <span className="text-xs font-normal text-foreground/45">· {model.todayCourses} {isHe ? "קורסים" : "courses"}</span>
+                {model.todayHours} {isHe ? "שע׳" : "h"}{" "}
+                <span className="text-xs font-normal text-foreground/45">
+                  · {isHe
+                    ? model.todayCourses === 1 ? "קורס אחד" : `${model.todayCourses} קורסים`
+                    : `${model.todayCourses} course${model.todayCourses === 1 ? "" : "s"}`}
+                </span>
               </p>
             ) : (
               <p className="flex items-center gap-1 text-sm font-bold text-emerald-500">
@@ -337,7 +351,10 @@ export function StudySkyline({ plan, recommendations, isHe, now }: StudySkylineP
       <div className="relative">
         <div
           ref={scrollRef}
-          className="overflow-x-auto px-3 pt-3"
+          tabIndex={0}
+          role="region"
+          aria-label={isHe ? "ציר הלמידה עד הבחינות" : "Study timeline up to your exams"}
+          className="overflow-x-auto px-3 pt-3 focus-visible:outline-2 focus-visible:outline-accent-brand/50"
           style={{ direction: isHe ? "rtl" : "ltr" }}
         >
           <div className="flex items-end" style={{ gap: `${gap}px`, minWidth: "min-content" }}>
@@ -431,8 +448,10 @@ export function StudySkyline({ plan, recommendations, isHe, now }: StudySkylineP
             })}
           </div>
         </div>
-        {/* trailing-edge fade — hints more days off-screen (logical/future edge) */}
-        <div className={cn("pointer-events-none absolute inset-y-0 w-8", isHe ? "left-0 bg-gradient-to-l" : "right-0 bg-gradient-to-r", "from-card to-transparent")} />
+        {/* trailing-edge fade — hints more days off-screen. Opaque at the OUTER
+            (future) edge, fading toward the content: in RTL the future edge is
+            LEFT, so the gradient runs to-r (card at left → transparent inward). */}
+        <div className={cn("pointer-events-none absolute inset-y-0 w-8", isHe ? "left-0 bg-gradient-to-r" : "right-0 bg-gradient-to-l", "from-card to-transparent")} />
       </div>
 
       {/* ── Band 3 · Legend ── */}
@@ -449,8 +468,14 @@ export function StudySkyline({ plan, recommendations, isHe, now }: StudySkylineP
           <button
             key={c.courseCode}
             type="button"
+            // Click TOGGLES the highlight (touch/keyboard path; also unsticks
+            // iOS, where mouseleave never fires); hover still previews it.
+            onClick={() => setHoveredCourse((h) => (h === c.courseCode ? null : c.courseCode))}
             onMouseEnter={() => setHoveredCourse(c.courseCode)}
             onMouseLeave={() => setHoveredCourse(null)}
+            onFocus={() => setHoveredCourse(c.courseCode)}
+            onBlur={() => setHoveredCourse(null)}
+            aria-pressed={hoveredCourse === c.courseCode}
             className={cn("flex items-center gap-1.5 rounded-md px-1.5 py-1 text-start transition-opacity", hoveredCourse && hoveredCourse !== c.courseCode ? "opacity-40" : "")}
           >
             <span className="size-2.5 shrink-0 rounded-full" style={{ backgroundColor: c.color }} />

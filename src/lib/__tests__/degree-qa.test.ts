@@ -152,6 +152,11 @@ describe("answerDegreeQuestion", () => {
     expect(a.text).toMatch(/רפרט|משוקלל/);
   });
 
+  it("routes 'נקודות זכות' to credits, not to the bidding handler", () => {
+    const a = answerDegreeQuestion("כמה נקודות זכות יש לי?", ctx({}));
+    expect(a.text).not.toContain("מכרז");
+  });
+
   it("does not force a bare 'פטור' question into the miluim non-sequitur", () => {
     // A non-miluim student asking generally about an exemption must NOT get
     // "you haven't set miluim service" — the bare 'פטור' key was over-broad.

@@ -64,7 +64,10 @@ function he<T>(c: QAContext, heVal: T, enVal: T): T {
 const HANDLERS: Handler[] = [
   // ── Credits remaining ─────────────────────────────────────────────
   {
-    keys: ["כמה נשאר", "כמה ש", "נשארו לי", "כמה עוד", "credits left", "how many credit", "remaining"],
+    // "נקודות זכות" is here on purpose: the bidding handler has a bare
+    // "נקודות" key, and without the longer (higher-scoring) key a credits
+    // question like "כמה נקודות זכות יש לי" would be hijacked to bidding.
+    keys: ["כמה נשאר", "כמה ש", "נשארו לי", "כמה עוד", "נקודות זכות", "credits left", "how many credit", "remaining"],
     answer: (c) => {
       const remaining = Math.max(0, T - c.effectiveTotal);
       return {

@@ -1,3 +1,11 @@
+/* Layer order — declared BEFORE the Tailwind import so our custom `pakam-ui`
+   layer slots in FRONT of `utilities`. Custom component classes (.data-card)
+   live in pakam-ui so per-call-site utilities (p-0, bg-amber-*, overflow-clip,
+   fixed) can override them. NOTE: the name must NOT be `components` — Tailwind
+   v4 intercepts `@layer components` blocks for back-compat and emits their
+   contents UNLAYERED, which silently defeats the whole mechanism. */
+@layer theme, base, components, pakam-ui, utilities;
+
 @import "tailwindcss";
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
@@ -358,40 +366,48 @@ h4, h5, h6 {
 .gauge-green { color: var(--alert-green); }
 .gauge-gold { color: var(--foreground); }
 
-/* Data card — clean minimal style */
-.data-card {
-  background: var(--card);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-lg);
-  padding: 1rem;
-  position: relative;
-  overflow: hidden;
-  box-shadow: var(--shadow-card);
-  transition: transform 0.25s var(--ease-out-soft), box-shadow 0.25s var(--ease-out-soft),
-    border-color 0.25s var(--ease-out-soft), background 0.25s var(--ease-out-soft);
-}
+/* Data card — clean minimal style.
+   Lives in the custom `pakam-ui` layer ON PURPOSE (ordered before utilities,
+   see the top of this file): unlayered author CSS beats Tailwind's layered
+   utilities, which silently killed padding/background/border/overflow
+   utilities on any element that also carries .data-card (and was the root
+   cause of the ".data-card overrides `fixed`" gotcha). In pakam-ui,
+   utilities win — as every call site already assumes. */
+@layer pakam-ui {
+  .data-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 1rem;
+    position: relative;
+    overflow: hidden;
+    box-shadow: var(--shadow-card);
+    transition: transform 0.25s var(--ease-out-soft), box-shadow 0.25s var(--ease-out-soft),
+      border-color 0.25s var(--ease-out-soft), background 0.25s var(--ease-out-soft);
+  }
 
-.data-card::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  inset-inline-start: 0;
-  width: 3px;
-  height: 100%;
-  background: linear-gradient(180deg, var(--accent-brand) 0%, transparent 100%);
-  opacity: 0;
-  transition: opacity 0.2s ease;
-}
+  .data-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    inset-inline-start: 0;
+    width: 3px;
+    height: 100%;
+    background: linear-gradient(180deg, var(--accent-brand) 0%, transparent 100%);
+    opacity: 0;
+    transition: opacity 0.2s ease;
+  }
 
-.data-card:hover {
-  background: var(--card-hover);
-  border-color: var(--foreground-secondary);
-  transform: translateY(-3px);
-  box-shadow: var(--shadow-elevated);
-}
+  .data-card:hover {
+    background: var(--card-hover);
+    border-color: var(--foreground-secondary);
+    transform: translateY(-3px);
+    box-shadow: var(--shadow-elevated);
+  }
 
-.data-card:hover::before {
-  opacity: 1;
+  .data-card:hover::before {
+    opacity: 1;
+  }
 }
 
 /* =========================================
