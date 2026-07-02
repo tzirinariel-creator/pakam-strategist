@@ -19,6 +19,7 @@ import { api } from "@/lib/trpc/react";
 import { ThemedLoader } from "@/components/ui/themed-loader";
 import { AskKingButton } from "@/components/ui/ask-king-button";
 import { GradeSheetScanner } from "@/components/record/grade-sheet-scanner";
+import { BinaryAdvisor } from "@/components/record/binary-advisor";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import {
@@ -920,6 +921,12 @@ export function AcademicRecordContent() {
       {/* AI grade-sheet scanner — upload a Yedion photo/PDF, review, apply. */}
       <div className="animate-stagger-2">
         <GradeSheetScanner />
+      </div>
+
+      {/* Miluim binary-conversion advisor — exact average impact, advisory only.
+          Renders nothing for non-miluim students or when out of quota. */}
+      <div className="animate-stagger-2">
+        <BinaryAdvisor />
       </div>
 
       {/* Completed courses grouped by year·semester */}
