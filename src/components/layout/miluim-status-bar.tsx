@@ -222,6 +222,16 @@ export function MiluimStatusBar() {
                 )}
               </div>
 
+              {/* Per-semester service timeline (#12/#30) — the group is
+                  reassigned EVERY semester, so show the student their own
+                  history: days served → derived group, with "now" marked. */}
+              <ServiceTimeline
+                semesters={semestersQuery.data ?? []}
+                currentYear={getCurrentAcademicYear()}
+                currentSemester={profile.currentSemester}
+                isHe={isHe}
+              />
+
               {/* Benefits, grouped into human categories with an "auto" chip on
                   the ones the app applies for you (#7 — was a flat, machine-like
                   checklist). Copy is code-grounded and honest about auto vs.
@@ -280,6 +290,93 @@ export function MiluimStatusBar() {
         </DialogPrimitive.Portal>
       </DialogPrimitive.Root>
     </>
+  );
+}
+
+/** Per-semester service history — the group is reassigned every semester, so
+ *  the student sees exactly which service produced which group, and which row
+ *  is "now". Data comes straight from the MiluimSemester rows (read-only). */
+function ServiceTimeline({
+  semesters,
+  currentYear,
+  currentSemester,
+  isHe,
+}: {
+  semesters: {
+    academicYear: number;
+    semester: string;
+    daysServed: number;
+    isCombat: boolean;
+    derivedGroup: string;
+  }[];
+  currentYear: number;
+  currentSemester: string | null | undefined;
+  isHe: boolean;
+}) {
+  const semLabel = (s: string) =>
+    isHe ? (s === "FALL" ? "סמסטר א׳" : "סמסטר ב׳") : s === "FALL" ? "Fall" : "Spring";
+  // SUMMER folds onto SPRING for miluim purposes (same rule the resolver uses).
+  const nowSem = currentSemester === "SUMMER" ? "SPRING" : currentSemester;
+
+  return (
+    <div>
+      <h4 className="mb-2 text-xs font-semibold text-foreground/50">
+        {isHe ? "השירות שלי לפי סמסטרים" : "My service by semester"}
+      </h4>
+      {semesters.length === 0 ? (
+        <p className="rounded-xl border border-dashed border-border/60 bg-foreground/[0.02] p-3 text-xs leading-relaxed text-foreground/50">
+          {isHe
+            ? "הקבוצה נקבעת מחדש לכל סמסטר לפי ימי השירות בו. עוד לא הוזן שירות לפי סמסטרים — אפשר לעדכן בהגדרות (הכפתור למטה)."
+            : "Your group is re-derived each semester from that semester's service days. No per-semester service entered yet — update it in settings (button below)."}
+        </p>
+      ) : (
+        <ul className="space-y-1.5">
+          {semesters.map((s) => {
+            const isNow = s.academicYear === currentYear && s.semester === nowSem;
+            const g = s.derivedGroup as MiluimGroupKey;
+            const chip = g !== "NONE" ? GROUP_STYLE[g as Exclude<MiluimGroupKey, "NONE">] : null;
+            return (
+              <li
+                key={`${s.academicYear}-${s.semester}`}
+                className={cn(
+                  "flex flex-wrap items-center gap-2 rounded-lg border px-3 py-2 text-xs",
+                  isNow ? "border-foreground/25 bg-foreground/[0.03]" : "border-border/50",
+                )}
+              >
+                <span className="font-medium text-foreground/75" dir={isHe ? "rtl" : "ltr"}>
+                  <bdi>{s.academicYear}–{(s.academicYear + 1) % 100}</bdi> · {semLabel(s.semester)}
+                </span>
+                {isNow && (
+                  <span className="rounded bg-foreground/10 px-1.5 py-px text-[10px] font-semibold text-foreground/70">
+                    {isHe ? "עכשיו" : "now"}
+                  </span>
+                )}
+                <span className="text-foreground/50">
+                  {isHe
+                    ? s.daysServed === 1 ? "יום שירות אחד" : `${s.daysServed} ימי שירות`
+                    : `${s.daysServed} day${s.daysServed === 1 ? "" : "s"} served`}
+                </span>
+                {s.isCombat && (
+                  <span className="rounded bg-red-500/10 px-1.5 py-px text-[10px] font-semibold text-red-500">
+                    {isHe ? "לוחם/ת" : "combat"}
+                  </span>
+                )}
+                <span
+                  className={cn(
+                    "ms-auto inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 text-[10px] font-bold",
+                    chip ? cn(chip.bar, chip.chip) : "bg-foreground/5 text-foreground/45",
+                  )}
+                >
+                  {g === "NONE"
+                    ? isHe ? "ללא קבוצה" : "no group"
+                    : isHe ? `קבוצה ${shortGroup(g)}` : `Group ${shortGroup(g)}`}
+                </span>
+              </li>
+            );
+          })}
+        </ul>
+      )}
+    </div>
   );
 }
 
