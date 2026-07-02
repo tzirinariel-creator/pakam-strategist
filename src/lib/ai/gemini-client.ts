@@ -35,6 +35,59 @@ interface GeminiStreamChunk {
 }
 
 /**
+ * One-shot VISION call (image → text), non-streaming. Used by the AI scanners
+ * (grade sheet / syllabus). Same free-tier model, same header auth; throws
+ * { status, message } like streamGemini so routes map errors uniformly.
+ */
+export async function generateGeminiVision(
+  encryptedKey: string,
+  system: string,
+  prompt: string,
+  imageBase64: string,
+  mimeType: string,
+): Promise<string> {
+  const apiKey = decrypt(encryptedKey);
+  if (!validateGeminiKey(apiKey)) {
+    throw { status: 400, message: "Invalid Gemini key format" };
+  }
+
+  const url =
+    `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}` +
+    `:generateContent`;
+
+  const res = await fetch(url, {
+    method: "POST",
+    headers: { "Content-Type": "application/json", "x-goog-api-key": apiKey },
+    body: JSON.stringify({
+      systemInstruction: { parts: [{ text: system }] },
+      contents: [
+        {
+          role: "user",
+          parts: [
+            { text: prompt },
+            { inline_data: { mime_type: mimeType, data: imageBase64 } },
+          ],
+        },
+      ],
+      generationConfig: { maxOutputTokens: GEMINI_MAX_TOKENS, temperature: 0 },
+    }),
+  });
+
+  if (!res.ok) {
+    let detail = "";
+    try {
+      detail = await res.text();
+    } catch {
+      /* status is enough */
+    }
+    throw { status: res.status || 500, message: detail || "Gemini vision request failed" };
+  }
+
+  const data = (await res.json()) as GeminiStreamChunk;
+  return (data.candidates?.[0]?.content?.parts ?? []).map((p) => p.text ?? "").join("");
+}
+
+/**
  * Stream a Gemini response as plain text chunks.
  *
  * @throws { status, message } on a non-OK response so the route can map codes
