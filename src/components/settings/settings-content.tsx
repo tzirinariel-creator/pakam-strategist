@@ -29,6 +29,7 @@ import { cn } from "@/lib/utils";
 import { Bidi } from "@/lib/bidi";
 import { DISCIPLINE_CONFIG, FOCUS_DISCIPLINE_IDS, MILUIM_CONFIG } from "@/lib/constants";
 import { deriveGroupFromDays, getCurrentAcademicYear } from "@/lib/miluim";
+import { ConnectGeminiGuide } from "@/components/settings/connect-gemini-guide";
 import { MiluimDayCombatInputs } from "@/components/miluim/miluim-day-combat-inputs";
 import { api } from "@/lib/trpc/react";
 import { useUIStore } from "@/stores/ui-store";
@@ -899,6 +900,9 @@ function ApiKeySection() {
         </div>
       ) : (
         <div className="flex flex-col gap-3">
+          {/* Guided onboarding + plain-words privacy — a student who never
+              heard "API key" should get through this in two minutes. */}
+          <ConnectGeminiGuide />
           <div className="relative">
             <Input
               type={showKey ? "text" : "password"}
