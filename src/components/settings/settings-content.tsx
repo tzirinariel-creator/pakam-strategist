@@ -1081,6 +1081,22 @@ function MiluimSection() {
     });
   };
 
+  // Mount gate: the section holds Radix Selects, and its per-semester list
+  // renders conditionally on client-hydrated query data (which SSR doesn't
+  // have). That shifts Radix's internal useId between server and client and
+  // trips a hydration mismatch on aria-controls (#6). Rendering an identical
+  // skeleton on SSR + the first client render, then the real content after
+  // mount, keeps the trees in sync — the Selects only appear post-hydration.
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
+  if (!mounted) {
+    return (
+      <SectionCard icon={Shield} title={t("title")} description={t("description")}>
+        <div className="h-40 animate-pulse rounded-xl bg-foreground/[0.03]" />
+      </SectionCard>
+    );
+  }
+
   return (
     <SectionCard icon={Shield} title={t("title")} description={t("description")}>
       <div className="flex flex-col gap-5">
