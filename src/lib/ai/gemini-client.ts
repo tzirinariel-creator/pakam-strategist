@@ -98,6 +98,8 @@ export async function* streamGemini(
   system: string,
   messages: ChatMessage[],
   signal?: AbortSignal,
+  /** Optional image attached to the CURRENT (last) user turn — "photo & ask". */
+  image?: { base64: string; mimeType: string },
 ): AsyncGenerator<string> {
   const apiKey = decrypt(encryptedKey);
   if (!validateGeminiKey(apiKey)) {
@@ -111,8 +113,14 @@ export async function* streamGemini(
   // Gemini uses role "model" for the assistant; "user" stays "user".
   const contents = messages.map((m) => ({
     role: m.role === "assistant" ? "model" : "user",
-    parts: [{ text: m.content }],
+    parts: [{ text: m.content }] as ({ text: string } | { inline_data: { mime_type: string; data: string } })[],
   }));
+  // Attach the image to the last user turn so the model answers about it.
+  if (image && contents.length > 0) {
+    contents[contents.length - 1]!.parts.push({
+      inline_data: { mime_type: image.mimeType, data: image.base64 },
+    });
+  }
 
   const res = await fetch(url, {
     method: "POST",

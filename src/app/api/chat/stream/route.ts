@@ -28,11 +28,16 @@ import { checkRateLimit } from "@/lib/rate-limit";
 import { isDemoEmail, DEMO_READONLY_MESSAGE } from "@/server/trpc/demo";
 
 // Input validation schema — prevents abuse & injection
+const CHAT_IMAGE_MIME = new Set(["image/jpeg", "image/png", "image/webp", "image/heic"]);
+
 const streamInputSchema = z.object({
   sessionId: z.uuid().optional(),
   message: z.string().min(1).max(10000),
   // The client router's verified answer for THIS question, when it matched.
   deterministicHint: z.string().max(2000).optional(),
+  // Optional attached image ("photo & ask") — Gemini vision only.
+  imageBase64: z.string().min(100).max(5_000_000).optional(),
+  imageMime: z.string().refine((m) => CHAT_IMAGE_MIME.has(m), "Unsupported image type").optional(),
 });
 
 // -------------------------------------------------------------------
@@ -111,7 +116,8 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const { sessionId, message, deterministicHint } = parsed.data;
+    const { sessionId, message, deterministicHint, imageBase64, imageMime } = parsed.data;
+    const hasImage = !!(imageBase64 && imageMime);
 
     // 3. Get user
     const user = await prisma.user.findUnique({
@@ -188,6 +194,20 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Image chat is Gemini-vision only (the shared free key is Gemini). A Claude
+    // BYOK user gets a clear, honest boundary instead of a silent drop.
+    if (hasImage && provider !== "gemini") {
+      return NextResponse.json(
+        {
+          error:
+            locale === "en"
+              ? "Image questions need a Google Gemini key. Add a free one in settings (or remove your Claude key to use the shared Gemini key)."
+              : "שאלות עם תמונה עובדות עם מפתח Gemini של גוגל. הוסיפו מפתח חינמי בהגדרות (או הסירו את מפתח Claude כדי להשתמש במפתח המשותף).",
+        },
+        { status: 415 }
+      );
+    }
+
     // 5. Load or create chat session
     let chatSession: {
       id: string;
@@ -258,7 +278,8 @@ export async function POST(request: NextRequest) {
       signal: AbortSignal,
     ): Promise<void> => {
       if (provider === "gemini") {
-        for await (const text of streamGemini(encryptedKey, systemPrompt, chatHistory, signal)) {
+        const image = hasImage ? { base64: imageBase64!, mimeType: imageMime! } : undefined;
+        for await (const text of streamGemini(encryptedKey, systemPrompt, chatHistory, signal, image)) {
           onText(text);
         }
         return;

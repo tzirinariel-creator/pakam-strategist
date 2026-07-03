@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useLocale } from "next-intl";
 import { usePathname } from "next/navigation";
-import { X, Send, Zap, Bot, Loader2, Database, Mic } from "lucide-react";
+import { X, Send, Zap, Bot, Loader2, Database, Mic, ImagePlus } from "lucide-react";
 import Markdown from "react-markdown";
 import { toast } from "sonner";
 import { api } from "@/lib/trpc/react";
@@ -12,6 +12,7 @@ import { Link } from "@/i18n/navigation";
 import { PhilosopherKingIcon } from "@/components/ui/philosopher-king-icon";
 import { routeQuestion } from "@/lib/ai/answer-router";
 import { suggestedQuestions } from "@/lib/degree-qa";
+import { fileToBase64 } from "@/lib/upload";
 
 /** Minimal surface of the browser SpeechRecognition API we use. */
 interface SpeechRecognitionLike {
@@ -36,6 +37,8 @@ interface Msg {
   cta?: string;
   /** The assistant couldn't reach the LLM and offered a free fallback. */
   needsKey?: boolean;
+  /** A thumbnail (object URL) for an image the student attached to the turn. */
+  imagePreview?: string;
 }
 
 /**
@@ -53,6 +56,27 @@ export function FloatingAssistant() {
   const [open, setOpen] = useState(false);
   const [messages, setMessages] = useState<Msg[]>([]);
   const [input, setInput] = useState("");
+
+  // ── Image attach ("photo & ask", Gemini vision) ──
+  const imageInputRef = useRef<HTMLInputElement>(null);
+  const [attachedImage, setAttachedImage] = useState<{ b64: string; mime: string; preview: string } | null>(null);
+  const attachImage = async (file: File) => {
+    try {
+      const { b64, mime } = await fileToBase64(file);
+      // Revoke a prior preview before replacing it.
+      setAttachedImage((prev) => {
+        if (prev) URL.revokeObjectURL(prev.preview);
+        return { b64, mime, preview: URL.createObjectURL(file) };
+      });
+    } catch {
+      toast.error(isHe ? "לא ניתן לצרף את התמונה" : "Couldn't attach the image");
+    }
+  };
+  const clearImage = () =>
+    setAttachedImage((prev) => {
+      if (prev) URL.revokeObjectURL(prev.preview);
+      return null;
+    });
 
   // ── Voice input (free, in-browser SpeechRecognition; he-IL) ──
   // Hidden entirely when the browser doesn't support it (e.g. Firefox).
@@ -197,7 +221,13 @@ export function FloatingAssistant() {
   }, []);
 
   const streamLLM = useCallback(
-    async (question: string, planHash: string, cacheable: boolean, deterministicHint?: string) => {
+    async (
+      question: string,
+      planHash: string,
+      cacheable: boolean,
+      deterministicHint?: string,
+      image?: { b64: string; mime: string },
+    ) => {
       const controller = new AbortController();
       abortRef.current = controller;
       setMessages((m) => [...m, { role: "assistant", content: "", source: "llm" }]);
@@ -212,6 +242,8 @@ export function FloatingAssistant() {
             message: question,
             sessionId: sessionIdRef.current ?? undefined,
             deterministicHint,
+            imageBase64: image?.b64,
+            imageMime: image?.mime,
           }),
           signal: controller.signal,
         });
@@ -284,7 +316,38 @@ export function FloatingAssistant() {
   const send = useCallback(
     (raw: string) => {
       const question = raw.trim();
-      if (!question || streaming || !ready) return;
+      const image = attachedImage;
+      // An image needs a question OR defaults to a "what is this" prompt; text
+      // alone still needs content.
+      if ((!question && !image) || streaming || !ready) return;
+
+      // ── Image path: always goes to the King (vision), bypassing the free
+      //    router + cache. Needs a key; if none, tell the student where to add one.
+      if (image) {
+        const q = question || (isHe ? "מה זה? עזור/י לי להבין את זה בהקשר של התואר." : "What is this? Help me understand it in my degree context.");
+        setInput("");
+        clearImage();
+        setMessages((m) => [...m, { role: "user", content: q, imagePreview: image.preview }]);
+        if (!aiAvailable) {
+          setMessages((m) => [
+            ...m,
+            {
+              role: "assistant",
+              content: isHe
+                ? "כדי לשאול על תמונה צריך מפתח Gemini חינמי (או המפתח המשותף). אפשר להוסיף בהגדרות."
+                : "Asking about an image needs a free Gemini key (or the shared key). Add one in settings.",
+              source: "rules",
+              needsKey: true,
+            },
+          ]);
+          return;
+        }
+        setStreaming(true);
+        void streamLLM(q, hashContext(ctx), false, undefined, { b64: image.b64, mime: image.mime });
+        return;
+      }
+
+      if (!question) return;
       setInput("");
       setMessages((m) => [...m, { role: "user", content: question }]);
 
@@ -343,7 +406,7 @@ export function FloatingAssistant() {
         ]);
       }
     },
-    [ctx, aiAvailable, ready, streaming, streamLLM],
+    [ctx, aiAvailable, ready, streaming, streamLLM, attachedImage, isHe],
   );
 
   if (onMentorPage) return null;
@@ -462,6 +525,14 @@ export function FloatingAssistant() {
                           : isHe ? "תשובת AI" : "AI answer"}
                       </span>
                     )}
+                    {m.imagePreview && (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img
+                        src={m.imagePreview}
+                        alt=""
+                        className="mb-1.5 max-h-40 w-auto rounded-lg border border-border/40"
+                      />
+                    )}
                     {m.role === "assistant" && m.source === "llm" ? (
                       <div className="prose prose-sm max-w-none dark:prose-invert [&_p]:my-1 [&_ul]:my-1">
                         <Markdown>{m.content || "…"}</Markdown>
@@ -500,6 +571,18 @@ export function FloatingAssistant() {
               )}
             </div>
 
+            {/* Attached-image preview strip */}
+            {attachedImage && (
+              <div className="flex items-center gap-2 border-t border-border/60 px-3 pt-3">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={attachedImage.preview} alt="" className="size-12 rounded-lg border border-border/50 object-cover" />
+                <span className="flex-1 text-xs text-foreground/55">{isHe ? "תמונה מצורפת — שאל/י עליה" : "Image attached — ask about it"}</span>
+                <button type="button" onClick={clearImage} aria-label={isHe ? "הסר תמונה" : "Remove image"} className="rounded-md p-1 text-foreground/40 hover:text-foreground/70">
+                  <X className="size-4" />
+                </button>
+              </div>
+            )}
+
             {/* Input */}
             <form
               onSubmit={(e) => {
@@ -509,12 +592,35 @@ export function FloatingAssistant() {
               className="flex items-center gap-2 border-t border-border/60 p-3"
             >
               <input
+                ref={imageInputRef}
+                type="file"
+                accept="image/jpeg,image/png,image/webp,image/heic"
+                className="hidden"
+                onChange={(e) => {
+                  const f = e.target.files?.[0];
+                  if (f) void attachImage(f);
+                  e.target.value = "";
+                }}
+              />
+              <button
+                type="button"
+                onClick={() => imageInputRef.current?.click()}
+                disabled={!ready || streaming}
+                aria-label={isHe ? "צרף תמונה" : "Attach an image"}
+                title={isHe ? "צלם ושאל" : "Photo & ask"}
+                className="flex size-10 shrink-0 items-center justify-center rounded-xl border border-border/60 text-foreground/55 transition-colors hover:bg-foreground/5 hover:text-foreground/80 disabled:opacity-40"
+              >
+                <ImagePlus className="size-4" />
+              </button>
+              <input
                 ref={inputRef}
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
                 placeholder={
                   ready
-                    ? isHe ? "כתוב/י שאלה…" : "Type a question…"
+                    ? attachedImage
+                      ? isHe ? "שאל/י על התמונה…" : "Ask about the image…"
+                      : isHe ? "כתוב/י שאלה…" : "Type a question…"
                     : isHe ? "טוען את הנתונים שלך…" : "Loading your data…"
                 }
                 disabled={!ready || streaming}
