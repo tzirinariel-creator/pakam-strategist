@@ -455,6 +455,18 @@ export function DashboardContent() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [hasPlanData, tourChecked]);
 
+  // #29 — a one-time, dismissible nudge to the WRITTEN beginner guide for
+  // year-1 students (the tour is a 1-minute spotlight; the guide is the deep
+  // manual). Assumed dismissed until localStorage is read — no flash.
+  const [guideNudgeDismissed, setGuideNudgeDismissed] = useState(true);
+  useEffect(() => {
+    setGuideNudgeDismissed(localStorage.getItem("pakamon-guide-nudge-done") === "true");
+  }, []);
+  const dismissGuideNudge = useCallback(() => {
+    setGuideNudgeDismissed(true);
+    localStorage.setItem("pakamon-guide-nudge-done", "true");
+  }, []);
+
   // Clear onboarding flag once data is successfully loaded
   const handleOnboardingSuccess = useCallback(() => {
     if (typeof window !== "undefined") {
@@ -680,6 +692,41 @@ export function DashboardContent() {
     <div className="bg-mesh space-y-8 p-4 md:p-6">
       {/* Anchored product tour — spotlights the real UI it describes */}
       <AnchoredTour open={tourOpen} onClose={closeTour} />
+
+      {/* #29 — year-1 nudge to the written beginner guide (once, dismissible,
+          never while the tour is open so the two don't stack). */}
+      {currentYear === 1 && !guideNudgeDismissed && !tourOpen && (
+        <div className="animate-fade-in flex items-center gap-3 rounded-xl border border-accent-brand/25 bg-accent-brand/[0.05] p-4">
+          <span className="flex size-9 shrink-0 items-center justify-center rounded-full bg-accent-brand/10 text-accent-brand">
+            <GraduationCap className="size-5" />
+          </span>
+          <div className="min-w-0 flex-1">
+            <p className="text-sm font-semibold text-foreground/85">
+              {isHe ? "חדש/ה בפכ״מ? יש לנו מדריך שכתוב בשבילך" : "New to PPE? There's a guide written for you"}
+            </p>
+            <p className="text-xs text-foreground/55">
+              {isHe
+                ? "כל מה שמבלבל בשנה א׳ — נ״ז, תחום מיקוד, בידינג, אנגלית — מוסבר במקום אחד."
+                : "Everything confusing in year 1 — credits, focus area, bidding, English — explained in one place."}
+            </p>
+          </div>
+          <Link
+            href="/guide"
+            onClick={dismissGuideNudge}
+            className="shrink-0 rounded-lg bg-accent-brand px-3 py-2 text-sm font-semibold text-accent-brand-fg transition-colors hover:bg-accent-brand-hover"
+          >
+            {isHe ? "למדריך" : "Open guide"}
+          </Link>
+          <button
+            type="button"
+            onClick={dismissGuideNudge}
+            aria-label={isHe ? "סגור" : "Dismiss"}
+            className="shrink-0 rounded-md p-1 text-foreground/30 transition-colors hover:text-foreground/60"
+          >
+            <X className="size-4" />
+          </button>
+        </div>
+      )}
 
       {/* Saved confirmation — shown after returning from the semester planner
           (?saved=1). Same green banner + wording as the planner, so the whole
