@@ -145,7 +145,7 @@ export function FloatingAssistant() {
   }, []);
 
   const streamLLM = useCallback(
-    async (question: string, planHash: string, cacheable: boolean) => {
+    async (question: string, planHash: string, cacheable: boolean, deterministicHint?: string) => {
       const controller = new AbortController();
       abortRef.current = controller;
       setMessages((m) => [...m, { role: "assistant", content: "", source: "llm" }]);
@@ -154,8 +154,13 @@ export function FloatingAssistant() {
         const res = await fetch("/api/chat/stream", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          // Carry the session so the King remembers the conversation.
-          body: JSON.stringify({ message: question, sessionId: sessionIdRef.current ?? undefined }),
+          // Carry the session so the King remembers the conversation, and the
+          // router's verified answer (if any) so the model can't contradict it.
+          body: JSON.stringify({
+            message: question,
+            sessionId: sessionIdRef.current ?? undefined,
+            deterministicHint,
+          }),
           signal: controller.signal,
         });
         if (!res.ok) {
@@ -263,7 +268,15 @@ export function FloatingAssistant() {
           }
         }
         setStreaming(true);
-        void streamLLM(question, planHash, isFirst);
+        // When the router ALSO has a verified deterministic answer, hand it to
+        // the LLM as an authoritative base — so the King expands on the exact
+        // numbers instead of re-deriving (and possibly contradicting) them.
+        void streamLLM(
+          question,
+          planHash,
+          isFirst,
+          decision.matched ? decision.deterministic.text : undefined,
+        );
       } else {
         setMessages((m) => [
           ...m,

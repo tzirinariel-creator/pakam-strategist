@@ -17,7 +17,7 @@ import {
 import { streamGemini } from "@/lib/ai/gemini-client";
 import { detectProvider } from "@/lib/ai/provider";
 import { decrypt, encrypt } from "@/lib/crypto";
-import { buildMentorSystemPrompt } from "@/lib/ai/mentor-prompt";
+import { buildMentorSystemPrompt, buildDeterministicHintBlock } from "@/lib/ai/mentor-prompt";
 import {
   buildUserContext,
   generateTitle,
@@ -31,6 +31,8 @@ import { isDemoEmail, DEMO_READONLY_MESSAGE } from "@/server/trpc/demo";
 const streamInputSchema = z.object({
   sessionId: z.uuid().optional(),
   message: z.string().min(1).max(10000),
+  // The client router's verified answer for THIS question, when it matched.
+  deterministicHint: z.string().max(2000).optional(),
 });
 
 // -------------------------------------------------------------------
@@ -109,7 +111,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const { sessionId, message } = parsed.data;
+    const { sessionId, message, deterministicHint } = parsed.data;
 
     // 3. Get user
     const user = await prisma.user.findUnique({
@@ -242,7 +244,11 @@ export async function POST(request: NextRequest) {
 
     // 7. Build system prompt
     const mentorContext = await buildUserContext(prisma, user);
-    const systemPrompt = buildMentorSystemPrompt(mentorContext, getProgramById(user.programId));
+    // Append the client router's verified answer (if any) as an authoritative
+    // base — the model expands on the app's numbers, never contradicts them.
+    const systemPrompt =
+      buildMentorSystemPrompt(mentorContext, getProgramById(user.programId)) +
+      (deterministicHint ? buildDeterministicHintBlock(deterministicHint) : "");
 
     // 8. Provider-agnostic producer — yields text to `onText` as it streams.
     //    The Claude path keeps its exact SDK calls; the Gemini path streams via

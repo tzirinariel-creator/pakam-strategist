@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { buildMentorSystemPrompt, type MentorContext } from "@/lib/ai/mentor-prompt";
+import { buildMentorSystemPrompt, buildDeterministicHintBlock, type MentorContext } from "@/lib/ai/mentor-prompt";
 import { getActiveProgram } from "@/lib/programs/registry";
 
 function ctx(over: Partial<MentorContext> = {}): MentorContext {
@@ -35,6 +35,15 @@ describe("buildMentorSystemPrompt — grounding (P2 step 4)", () => {
     const prompt = buildMentorSystemPrompt(ctx({ earnedCredits: 75, courseAverage: 84.3 }), program);
     expect(prompt).toContain("75");
     expect(prompt).toContain("84.3");
+  });
+});
+
+describe("buildDeterministicHintBlock", () => {
+  it("frames the verified answer as an authoritative, non-contradictable base", () => {
+    const block = buildDeterministicHintBlock("נשארו לך 54 ש\"ס.");
+    expect(block).toContain("תשובה מחושבת מראש");
+    expect(block).toContain("נשארו לך 54");
+    expect(block).toContain("אל תסתור");
   });
 });
 

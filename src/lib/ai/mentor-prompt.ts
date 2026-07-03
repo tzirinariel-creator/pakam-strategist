@@ -268,6 +268,21 @@ ${regulationBlock}
 מכסת-הנקודות של הבידינג **אינה מתפרסמת** ומשתנה כל סמסטר. **לעולם אל תנחש ואל תמליץ כמה נקודות דרושות לקורס, ואל תעריך סיכויי-זכייה או "מחיר-סף".** הסבר רק את המנגנון והבטיחות: מכרז — המציע הגבוה זוכה ותזמון-ההקלדה לא משנה; 2 מקצים שבהם כל הנקודות מתאפסות; מינימום 5 נקודות לקורס; הרצאה+תרגיל = יחידה אחת; ומלכודת-החפיפה — רישום לקורס שחופף (אפילו חלקית) לקורס שכבר קיבלת מבטל אוטומטית את הקודם ("הבקשה האחרונה מנצחת"). אם שואלים "כמה נקודות" — הסבר שאי-אפשר לדעת, ותן אסטרטגיית-בטיחות (תעדוף אישי, בדיקת-חפיפות, שמירה על מינימום 5) בלי אף מספר.${miluimSection}`;
 }
 
+/**
+ * Wrap the deterministic engine's verified answer as an authoritative block
+ * appended to the system prompt. The model must ADOPT it as the factual base
+ * (expand, personalize — never contradict); this closes the audit gap where an
+ * escalated question discarded the app's own correct answer.
+ */
+export function buildDeterministicHintBlock(text: string): string {
+  return `
+
+## תשובה מחושבת מראש (מנוע-הבקרה של האפליקציה)
+המערכת כבר חישבה תשובה מאומתת לשאלה הנוכחית:
+"${text}"
+אמץ אותה כבסיס העובדתי: הרחב, הסבר והתאם אישית — אבל אל תסתור את המספרים והקביעות שבה.`;
+}
+
 // -------------------------------------------------------------------
 // Miluim section — only included when program.features.miluim is true
 // -------------------------------------------------------------------
