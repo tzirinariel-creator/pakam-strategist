@@ -438,6 +438,8 @@ export function suggestedQuestions(isHe: boolean): string[] {
         "מה זה בינארי?",
         "מה ההטבות שלי במילואים?",
         "איך עובד הבידינג?",
+        "מתי כדאי ללכת למועד ב׳?",
+        "איך מחשבים ציון גמר?",
       ]
     : [
         "How many credits left?",
@@ -451,6 +453,8 @@ export function suggestedQuestions(isHe: boolean): string[] {
         "What is binary?",
         "My miluim benefits?",
         "How does bidding work?",
+        "When should I retake (Moed B)?",
+        "How is my final grade computed?",
       ];
 }
 

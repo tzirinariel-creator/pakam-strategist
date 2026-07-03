@@ -80,6 +80,10 @@ export function FloatingAssistant() {
       scoped = pick(isHe ? "חסר" : "missing", isHe ? "מעבר" : "advance");
     } else if (p.includes("/settings")) {
       scoped = pick(isHe ? "מילואים" : "miluim", isHe ? "אנגלית" : "English");
+    } else if (p.includes("/exam") || p.includes("/calendar")) {
+      // The greeting talks exams — the chips must too (audit: the King offered
+      // a capability here but surfaced unrelated questions).
+      scoped = pick(isHe ? "מועד ב" : "Moed B", isHe ? "ציון גמר" : "final grade", isHe ? "מעבר" : "advance");
     }
     // Fill up to 5 with the general list, no duplicates.
     const merged = [...scoped];
