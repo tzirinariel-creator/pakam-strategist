@@ -17,7 +17,11 @@ import {
 import { streamGemini } from "@/lib/ai/gemini-client";
 import { detectProvider } from "@/lib/ai/provider";
 import { decrypt, encrypt } from "@/lib/crypto";
-import { buildMentorSystemPrompt, buildDeterministicHintBlock } from "@/lib/ai/mentor-prompt";
+import {
+  buildMentorSystemPrompt,
+  buildDeterministicHintBlock,
+  isSafeDeterministicHint,
+} from "@/lib/ai/mentor-prompt";
 import {
   buildUserContext,
   generateTitle,
@@ -264,11 +268,17 @@ export async function POST(request: NextRequest) {
 
     // 7. Build system prompt
     const mentorContext = await buildUserContext(prisma, user);
-    // Append the client router's verified answer (if any) as an authoritative
-    // base — the model expands on the app's numbers, never contradicts them.
+    // Append the client router's answer (if any) as a reference block. The
+    // hint is client-supplied body text, so it is gated (a bidding-prediction
+    // shape drops it entirely) and the block itself subordinates it to the
+    // safety rules and the server-computed status.
+    const safeHint =
+      deterministicHint && isSafeDeterministicHint(deterministicHint)
+        ? deterministicHint
+        : undefined;
     const systemPrompt =
       buildMentorSystemPrompt(mentorContext, getProgramById(user.programId)) +
-      (deterministicHint ? buildDeterministicHintBlock(deterministicHint) : "");
+      (safeHint ? buildDeterministicHintBlock(safeHint) : "");
 
     // 8. Provider-agnostic producer — yields text to `onText` as it streams.
     //    The Claude path keeps its exact SDK calls; the Gemini path streams via
