@@ -32,6 +32,7 @@ import {
   type Difficulty,
 } from "@/lib/exam-planner";
 import { StudySkyline } from "@/components/exam-planner/study-skyline";
+import { SyllabusScanner } from "@/components/exam-planner/syllabus-scanner";
 import { downloadGanttCsv, type GanttTask } from "@/lib/excel-export";
 import { cn } from "@/lib/utils";
 
@@ -494,6 +495,11 @@ export function ExamPlannerContent() {
           </ul>
         </div>
       )}
+
+      {/* Syllabus scanner — exams + deadlines straight from the course PDF */}
+      <div className="animate-stagger-3">
+        <SyllabusScanner />
+      </div>
 
       {/* Add manual task */}
       <div className="animate-stagger-3 data-card flex flex-wrap items-end gap-2 p-4">
