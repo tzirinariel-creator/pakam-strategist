@@ -33,6 +33,7 @@ import {
 } from "@/lib/exam-planner";
 import { StudySkyline } from "@/components/exam-planner/study-skyline";
 import { SyllabusScanner } from "@/components/exam-planner/syllabus-scanner";
+import { planFromStudyTasks } from "@/lib/plan-from-tasks";
 import { downloadGanttCsv, type GanttTask } from "@/lib/excel-export";
 import { cn } from "@/lib/utils";
 
@@ -207,57 +208,12 @@ export function ExamPlannerContent() {
     }));
 
   // Adapt the SAVED tasks back into an ExamPlanResult so the committed plan
-  // renders on the very same skyline as the live preview. Study tasks → study
-  // sessions (hours parsed from notes "…2.5h", fallback 2.5); exam tasks → exam
-  // anchors (moed from the title, totalHours = that course's summed study hours).
-  const cleanCourseName = (t: { courseCode: string | null; title: string }) =>
-    (t.courseCode && codeToName.get(t.courseCode)) ||
-    t.title.replace(/^[^:]*:\s*/, "").replace(/\s*\(מועד.*\)\s*$/, "");
-  const diffFromNotes = (notes: string | null): Difficulty =>
-    notes?.includes("high") ? "high" : notes?.includes("low") ? "low" : "medium";
-
-  const persistedPlan = useMemo<ExamPlanResult>(() => {
-    const todayMs = new Date(new Date().setHours(0, 0, 0, 0)).getTime();
-    const dayMs = (d: Date) => { const x = new Date(d); x.setHours(0, 0, 0, 0); return x.getTime(); };
-
-    // Exam anchors first — FUTURE only (a stale saved plan whose exams have all
-    // passed must not degenerate to a single "היום!" column). Their notes carry
-    // the difficulty, which the study sessions (whose notes only carry hours)
-    // inherit per course.
-    const examTasks = tasks.filter((t) => t.taskType === "exam" && dayMs(new Date(t.startDate)) >= todayMs);
-    const examDiffByCourse = new Map<string, Difficulty>();
-    for (const t of examTasks) if (t.courseCode) examDiffByCourse.set(t.courseCode, diffFromNotes(t.notes));
-
-    const sessions = tasks
-      .filter((t) => t.taskType === "study" && dayMs(new Date(t.startDate)) >= todayMs)
-      .map((t) => {
-        const m = t.notes?.match(/([\d.]+)h/);
-        const h = m ? Number(m[1]) : NaN;
-        return {
-          courseCode: t.courseCode ?? "",
-          courseName: cleanCourseName(t),
-          date: new Date(t.startDate),
-          hours: Number.isFinite(h) && h > 0 ? h : 2.5,
-          color: t.color ?? "#6366f1",
-          difficulty: ((t.courseCode && examDiffByCourse.get(t.courseCode)) || "medium") as Difficulty,
-        };
-      });
-    const hoursByCourse = new Map<string, number>();
-    for (const s of sessions) hoursByCourse.set(s.courseCode, (hoursByCourse.get(s.courseCode) ?? 0) + s.hours);
-    const exams = examTasks.map((t) => ({
-      courseCode: t.courseCode ?? "",
-      courseName: cleanCourseName(t),
-      examDate: new Date(t.startDate),
-      // Anchor to the "(מועד ב׳)" suffix — a course whose NAME contains "ב׳"
-      // must not be misread as Moed B.
-      moed: (/\(מועד\s*ב׳\)/.test(t.title) ? "B" : "A") as "A" | "B",
-      difficulty: diffFromNotes(t.notes),
-      totalHours: hoursByCourse.get(t.courseCode ?? "") ?? 2.5,
-      color: t.color ?? "#6366f1",
-    }));
-    return { sessions, exams };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [tasks, codeToName]);
+  // renders on the very same skyline as the live preview. Extracted to a pure,
+  // round-trip-tested lib (persist-shape → reconstruct).
+  const persistedPlan = useMemo<ExamPlanResult>(
+    () => planFromStudyTasks(tasks, codeToName),
+    [tasks, codeToName],
+  );
   const persistedRecs = useMemo(() => analyzeExamPeriod(persistedPlan, isHe), [persistedPlan, isHe]);
 
   const exportIcs = () => {
