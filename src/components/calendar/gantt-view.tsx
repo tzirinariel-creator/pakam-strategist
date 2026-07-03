@@ -24,6 +24,7 @@ import { toast } from "sonner";
 import { DISCIPLINE_CONFIG, ALL_DISCIPLINE_IDS, SEMESTER_CONFIG, YEAR_CONFIG } from "@/lib/constants";
 import { cn } from "@/lib/utils";
 import { api } from "@/lib/trpc/react";
+import { invalidatePlanData } from "@/lib/trpc/invalidate-plan";
 import {
   Popover,
   PopoverContent,
@@ -381,14 +382,14 @@ function CoursePopover({
   const removeMutation = api.plan.removeCourse.useMutation({
     onSuccess: () => {
       toast.success(t("courseRemoved"));
-      void utils.plan.getUserPlan.invalidate();
+      invalidatePlanData(utils); // #23 — removal changes credits/forecast/compliance
     },
   });
 
   const updateMutation = api.plan.updateCourse.useMutation({
     onSuccess: () => {
       toast.success(t("courseMoved"));
-      void utils.plan.getUserPlan.invalidate();
+      invalidatePlanData(utils); // #23
     },
   });
 

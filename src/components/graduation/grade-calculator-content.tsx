@@ -16,6 +16,7 @@ import {
   FolderOpen,
 } from "lucide-react";
 import { api } from "@/lib/trpc/react";
+import { invalidatePlanData } from "@/lib/trpc/invalidate-plan";
 import { ThemedLoader } from "@/components/ui/themed-loader";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
@@ -812,9 +813,9 @@ export function GradeCalculatorContent() {
   const utils = api.useUtils();
   const updateCourseMutation = api.plan.updateCourse.useMutation({
     onSuccess: (_data, variables) => {
-      // Invalidate both plan and graduation score queries
-      void utils.plan.getUserPlan.invalidate();
-      void utils.plan.getGraduationScore.invalidate();
+      // A grade change can flip earned credits + compliance too, not just the
+      // forecast — invalidate the whole set (#23).
+      invalidatePlanData(utils);
       setSavedSignals((prev) => ({
         ...prev,
         [variables.userCourseId]: (prev[variables.userCourseId] ?? 0) + 1,

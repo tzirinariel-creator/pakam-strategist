@@ -11,6 +11,7 @@ import {
   type UserCourseLite,
 } from "@/lib/grade-sheet";
 import { fileToBase64, SCANNER_ACCEPT } from "@/lib/upload";
+import { invalidatePlanData } from "@/lib/trpc/invalidate-plan";
 import { cn } from "@/lib/utils";
 
 /**
@@ -99,7 +100,7 @@ export function GradeSheetScanner() {
     if (ok > 0) {
       toast.success(isHe ? `עודכנו ${ok} ציונים מהגיליון` : `Updated ${ok} grades from the sheet`);
       setRows(null);
-      void utils.plan.getUserPlan.invalidate();
+      invalidatePlanData(utils);
     }
   };
 

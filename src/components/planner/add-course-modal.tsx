@@ -17,6 +17,7 @@ import { SEMESTER_CONFIG, YEAR_CONFIG } from "@/lib/constants";
 import { toast } from "sonner";
 import { usePlannerStore } from "@/stores/planner-store";
 import { api } from "@/lib/trpc/react";
+import { invalidatePlanData } from "@/lib/trpc/invalidate-plan";
 import { detectTimeConflicts, formatConflict, type SessionInfo } from "@/lib/conflict-detector";
 import { cn } from "@/lib/utils";
 
@@ -69,7 +70,8 @@ export function AddCourseModal() {
   const utils = api.useUtils();
   const addCourseMutation = api.plan.addCourse.useMutation({
     onSuccess: () => {
-      void utils.plan.getUserPlan.invalidate();
+      // Adding a course changes credits, forecast and compliance (#23).
+      invalidatePlanData(utils);
       void utils.schedule.getScheduleForSemester.invalidate();
       toast.success(t("courseAdded"));
     },

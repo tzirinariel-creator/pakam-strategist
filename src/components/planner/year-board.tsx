@@ -18,6 +18,7 @@ import { CourseCardOverlay } from "./course-card";
 import { toast } from "sonner";
 import { usePlannerStore } from "@/stores/planner-store";
 import { api } from "@/lib/trpc/react";
+import { invalidatePlanData } from "@/lib/trpc/invalidate-plan";
 import type { UserCourseWithCourse } from "@/types/degree";
 import type { Semester } from "@/types/enums";
 import { cn } from "@/lib/utils";
@@ -55,7 +56,9 @@ export function YearBoard({ courses }: YearBoardProps) {
   const utils = api.useUtils();
   const updateCourse = api.plan.updateCourse.useMutation({
     onSuccess: () => {
-      utils.plan.getUserPlan.invalidate();
+      // Moving a course between years/semesters changes per-period credits,
+      // graduation forecast and compliance — invalidate the whole set (#23).
+      invalidatePlanData(utils);
       setShowSaved(true);
       if (savedTimer.current) clearTimeout(savedTimer.current);
       savedTimer.current = setTimeout(() => setShowSaved(false), 2500);

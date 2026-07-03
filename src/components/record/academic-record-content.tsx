@@ -16,6 +16,7 @@ import {
   GraduationCap,
 } from "lucide-react";
 import { api } from "@/lib/trpc/react";
+import { invalidatePlanData } from "@/lib/trpc/invalidate-plan";
 import { ThemedLoader } from "@/components/ui/themed-loader";
 import { AskKingButton } from "@/components/ui/ask-king-button";
 import { GradeSheetScanner } from "@/components/record/grade-sheet-scanner";
@@ -737,11 +738,7 @@ export function AcademicRecordContent() {
     staleTime: 5 * 60 * 1000,
   });
 
-  const invalidateAll = useCallback(() => {
-    void utils.plan.getUserPlan.invalidate();
-    void utils.plan.getCredits.invalidate();
-    void utils.plan.getGraduationScore.invalidate();
-  }, [utils]);
+  const invalidateAll = useCallback(() => invalidatePlanData(utils), [utils]);
 
   // Per-course "saved" counters — bumped only on a confirmed mutation success,
   // so the GradeInput checkmark reflects a real save (never a fire-and-forget
