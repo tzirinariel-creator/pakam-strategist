@@ -41,15 +41,16 @@ export function PlannerLiveTimetable({ courses }: PlannerLiveTimetableProps) {
     [allCourses]
   );
 
-  // Default the semester to the student's current one (until they toggle it).
+  // The semester lives in the SHARED planner store (null = follow the
+  // profile's current semester) so the bidding alert + worksheet follow the
+  // same toggle instead of silently diverging (audit finding).
   const profileQuery = api.user.getProfile.useQuery();
-  const [semester, setSemester] = useState<"FALL" | "SPRING">("FALL");
-  const [touched, setTouched] = useState(false);
-  useEffect(() => {
-    if (touched) return;
-    const cur = profileQuery.data?.currentSemester;
-    if (cur === "FALL" || cur === "SPRING") setSemester(cur);
-  }, [profileQuery.data?.currentSemester, touched]);
+  const selectedSemester = usePlannerStore((s) => s.selectedSemester);
+  const setSelectedSemester = usePlannerStore((s) => s.setSelectedSemester);
+  const profileSemester =
+    profileQuery.data?.currentSemester === "SPRING" ? "SPRING" : "FALL";
+  const semester = selectedSemester ?? profileSemester;
+  const setSemester = setSelectedSemester;
 
   // The sidebar timetable is only ~380px wide, so 5 day-columns become
   // unreadable slivers (the #14 "can't see anything" complaint). Rather than
@@ -142,10 +143,7 @@ export function PlannerLiveTimetable({ courses }: PlannerLiveTimetableProps) {
               <button
                 key={s}
                 type="button"
-                onClick={() => {
-                  setSemester(s);
-                  setTouched(true);
-                }}
+                onClick={() => setSemester(s)}
                 className={cn(
                   "px-2.5 py-1 transition-colors",
                   semester === s

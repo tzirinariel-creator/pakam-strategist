@@ -35,7 +35,11 @@ export function BiddingOverlapAlert({ courses }: { courses: UserCourseWithCourse
     [allCourses],
   );
 
-  const semester = profileQuery.data?.currentSemester === "SPRING" ? "SPRING" : "FALL";
+  // Follow the SAME semester the live timetable shows (shared store; null =
+  // the profile's current semester) — the alert must describe what's on screen.
+  const selectedSemester = usePlannerStore((s) => s.selectedSemester);
+  const semester =
+    selectedSemester ?? (profileQuery.data?.currentSemester === "SPRING" ? "SPRING" : "FALL");
 
   const { conflicts, distinctCourses, unscheduledCount } = useMemo(() => {
     const sessions: SessionInfo[] = [];

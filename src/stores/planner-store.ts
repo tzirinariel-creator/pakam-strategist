@@ -6,6 +6,13 @@ interface PlannerState {
   selectedYear: number;
   setSelectedYear: (year: number) => void;
 
+  // Which semester the planner tools look at. null = follow the student's
+  // current semester from the profile. SHARED by the live timetable, the
+  // bidding overlap alert and the bidding worksheet — so toggling Fall/Spring
+  // moves all three together (they used to silently diverge).
+  selectedSemester: "FALL" | "SPRING" | null;
+  setSelectedSemester: (s: "FALL" | "SPRING") => void;
+
   // Add course modal
   showAddCourseModal: boolean;
   targetSemester: Semester | null;
@@ -18,6 +25,9 @@ interface PlannerState {
 export const usePlannerStore = create<PlannerState>()((set) => ({
   selectedYear: 1,
   setSelectedYear: (year) => set({ selectedYear: year }),
+
+  selectedSemester: null,
+  setSelectedSemester: (s) => set({ selectedSemester: s }),
 
   showAddCourseModal: false,
   targetSemester: null,

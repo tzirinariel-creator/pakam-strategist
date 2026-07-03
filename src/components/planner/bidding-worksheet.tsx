@@ -66,7 +66,11 @@ export function BiddingWorksheet({ courses }: { courses: UserCourseWithCourse[] 
   const profileQuery = api.user.getProfile.useQuery();
   const allCourses = (coursesQuery.data ?? []) as CourseWithSchedule[];
   const courseById = useMemo(() => new Map(allCourses.map((c) => [c.id, c])), [allCourses]);
-  const semester = profileQuery.data?.currentSemester === "SPRING" ? "SPRING" : "FALL";
+  // Follow the SAME semester the live timetable shows (shared store; null =
+  // the profile's current semester) — the worksheet plans the visible semester.
+  const selectedSemester = usePlannerStore((s) => s.selectedSemester);
+  const semester =
+    selectedSemester ?? (profileQuery.data?.currentSemester === "SPRING" ? "SPRING" : "FALL");
 
   // The semester's courses as worksheet rows + their clash set (same assembly
   // the overlap alert uses: group-filtered real sessions).
