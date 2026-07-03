@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useLocale } from "next-intl";
 import { usePathname } from "next/navigation";
-import { X, Send, Zap, Bot, Loader2, Database } from "lucide-react";
+import { X, Send, Zap, Bot, Loader2, Database, Mic } from "lucide-react";
 import Markdown from "react-markdown";
 import { toast } from "sonner";
 import { api } from "@/lib/trpc/react";
@@ -12,6 +12,18 @@ import { Link } from "@/i18n/navigation";
 import { PhilosopherKingIcon } from "@/components/ui/philosopher-king-icon";
 import { routeQuestion } from "@/lib/ai/answer-router";
 import { suggestedQuestions } from "@/lib/degree-qa";
+
+/** Minimal surface of the browser SpeechRecognition API we use. */
+interface SpeechRecognitionLike {
+  lang: string;
+  interimResults: boolean;
+  continuous: boolean;
+  onresult: ((e: { results: ArrayLike<ArrayLike<{ transcript: string }>> }) => void) | null;
+  onend: (() => void) | null;
+  onerror: (() => void) | null;
+  start: () => void;
+  stop: () => void;
+}
 import { useDegreeQAContext } from "@/components/mentor/use-qa-context";
 import { hashContext, readCachedAnswer, writeCachedAnswer } from "@/lib/ai/answer-cache";
 
@@ -41,6 +53,42 @@ export function FloatingAssistant() {
   const [open, setOpen] = useState(false);
   const [messages, setMessages] = useState<Msg[]>([]);
   const [input, setInput] = useState("");
+
+  // ── Voice input (free, in-browser SpeechRecognition; he-IL) ──
+  // Hidden entirely when the browser doesn't support it (e.g. Firefox).
+  const [speechSupported, setSpeechSupported] = useState(false);
+  const [listening, setListening] = useState(false);
+  const recognitionRef = useRef<{ stop: () => void } | null>(null);
+  useEffect(() => {
+    const w = window as unknown as { SpeechRecognition?: unknown; webkitSpeechRecognition?: unknown };
+    setSpeechSupported(!!(w.SpeechRecognition ?? w.webkitSpeechRecognition));
+  }, []);
+  const toggleListening = () => {
+    if (listening) {
+      recognitionRef.current?.stop();
+      return;
+    }
+    const w = window as unknown as {
+      SpeechRecognition?: new () => SpeechRecognitionLike;
+      webkitSpeechRecognition?: new () => SpeechRecognitionLike;
+    };
+    const Ctor = w.SpeechRecognition ?? w.webkitSpeechRecognition;
+    if (!Ctor) return;
+    const rec = new Ctor();
+    rec.lang = isHe ? "he-IL" : "en-US";
+    rec.interimResults = true;
+    rec.continuous = false;
+    rec.onresult = (e) => {
+      let text = "";
+      for (let i = 0; i < e.results.length; i++) text += e.results[i]?.[0]?.transcript ?? "";
+      if (text) setInput(text);
+    };
+    rec.onend = () => setListening(false);
+    rec.onerror = () => setListening(false);
+    recognitionRef.current = rec;
+    setListening(true);
+    rec.start();
+  };
   const [streaming, setStreaming] = useState(false);
 
   // Only load the student's data once the King is opened — the FAB sits on every
@@ -472,6 +520,24 @@ export function FloatingAssistant() {
                 disabled={!ready || streaming}
                 className="flex-1 rounded-xl border border-border/60 bg-background/50 px-3.5 py-2.5 text-sm outline-none transition-colors focus:border-accent-brand/50 disabled:opacity-60"
               />
+              {speechSupported && (
+                <button
+                  type="button"
+                  onClick={toggleListening}
+                  disabled={!ready || streaming}
+                  aria-label={isHe ? "דבר/י אל המלך" : "Speak to the King"}
+                  aria-pressed={listening}
+                  title={isHe ? "קלט קולי" : "Voice input"}
+                  className={cn(
+                    "flex size-10 shrink-0 items-center justify-center rounded-xl border transition-colors disabled:opacity-40",
+                    listening
+                      ? "animate-pulse border-red-400/60 bg-red-500/10 text-red-500"
+                      : "border-border/60 text-foreground/55 hover:bg-foreground/5 hover:text-foreground/80",
+                  )}
+                >
+                  <Mic className="size-4" />
+                </button>
+              )}
               <button
                 type="submit"
                 disabled={!input.trim() || streaming || !ready}
