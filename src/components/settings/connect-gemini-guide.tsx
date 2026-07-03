@@ -20,7 +20,7 @@ export function ConnectGeminiGuide() {
       ]
     : [
         { icon: ExternalLink, text: <>Open <a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener noreferrer" className="font-medium text-accent-brand underline-offset-2 hover:underline">Google AI Studio</a> and sign in with your regular Google account.</> },
-        { icon: MousePointerClick, text: <>Click <b>Create API key</b>. That's it — no credit card, and the free tier is plenty for the assistant.</> },
+        { icon: MousePointerClick, text: <>Click <b>Create API key</b>. That&apos;s it — no credit card, and the free tier is plenty for the assistant.</> },
         { icon: ClipboardPaste, text: <>Copy the key and paste it in the field below. From that moment the Philosopher King runs on your own quota.</> },
       ];
 
