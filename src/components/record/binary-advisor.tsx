@@ -52,6 +52,13 @@ export function BinaryAdvisor() {
     academicYear: getCurrentAcademicYear(),
     semester: profile.currentSemester,
   });
+  // Retroactively converting an already-graded course to pass/fail (removing it
+  // from the average) is a miluim accommodation — not the general BA pass/fail
+  // option chosen at registration. So the "כהטבת מילואים" copy below, and this
+  // whole advisor, only make sense for an actual reservist. Without this gate a
+  // non-miluim student sees "you have 5 miluim conversions left" (the universal
+  // BA_DEGREE_CAP fallback), which is simply wrong. (persona review #26)
+  if (!group || group === "NONE") return null;
   const quotaLeft = binaryCapRemaining(profile.miluimBinaryUsed ?? 0, group);
   if (quotaLeft <= 0) return null;
 

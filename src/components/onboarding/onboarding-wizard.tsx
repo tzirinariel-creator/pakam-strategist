@@ -47,7 +47,12 @@ const STEP_HISTORY = 2;
 const STEP_PLANNER = 3;
 const STEP_READY = 4;
 
-function getDefaultSemester(): "FALL" | "SPRING" {
+function getDefaultSemester(year: number): "FALL" | "SPRING" {
+  // A first-year student's "starting now" is almost always the fall intake —
+  // the standard PPE cohort begins in סמסטר א׳. The calendar heuristic below
+  // would mislabel someone registering over the summer (Mar–Jul) as סמסטר ב׳,
+  // so year-1 always defaults to FALL. (persona review #26)
+  if (year <= 1) return "FALL";
   const month = new Date().getMonth(); // 0-indexed
   // Mar(2)-Jul(6) = SPRING, Aug(7)-Feb(1) = FALL
   // August is FALL because students register for the upcoming academic year
@@ -100,7 +105,7 @@ export function OnboardingWizard() {
   const [data, setData] = useState<OnboardingData>({
     program: getProgramById(null).programCode, // Default program, user selects in StepWelcome
     year: 1,
-    semester: getDefaultSemester(),
+    semester: getDefaultSemester(1),
     focusArea: null,
     miluimGroup: "NONE",
     amirantScore: null,
