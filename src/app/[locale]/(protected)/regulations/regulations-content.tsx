@@ -34,6 +34,13 @@ export function RegulationsContent() {
             <p className="text-sm text-foreground/60">
               {t("subtitle")}
             </p>
+            {/* #25 — why this tab exists, in plain words (was: cryptic rule
+                codes with no context of where this fits in the flow). */}
+            <p className="mt-1 max-w-2xl text-xs leading-relaxed text-foreground/45">
+              {isHe
+                ? "בקצרה: כאן המערכת בודקת בשבילך שהתוכנית שבנית עומדת בכל דרישות התקנון של פכ״מ — לפני שאתה נרשם בפועל. ירוק = הכול תקין; כל דרישה שלא נסגרה מוסברת, עם מה בדיוק לעשות."
+                : "In short: this is where the app checks that the plan you built meets every PPE regulation — before you actually register. Green = all good; anything unmet is explained, with exactly what to do."}
+            </p>
           </div>
         </div>
 
