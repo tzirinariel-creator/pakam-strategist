@@ -152,6 +152,17 @@ describe("answerDegreeQuestion", () => {
     expect(a.text).toMatch(/רפרט|משוקלל/);
   });
 
+  it("tells an exempt student English does not affect the average", () => {
+    const a = answerDegreeQuestion("מה הסטטוס שלי באנגלית?", ctx({ amiramScore: 140 }));
+    expect(a.text).toMatch(/פטור/);
+    expect(a.text).toMatch(/לא משפיע/);
+  });
+
+  it("tells a non-exempt student the Advanced-2 grade counts toward the average (#36)", () => {
+    const a = answerDegreeQuestion("מה הסטטוס שלי באנגלית?", ctx({ amiramScore: 100 }));
+    expect(a.text).toContain("נספר בממוצע");
+  });
+
   it("routes 'נקודות זכות' to credits, not to the bidding handler", () => {
     const a = answerDegreeQuestion("כמה נקודות זכות יש לי?", ctx({}));
     expect(a.text).not.toContain("מכרז");

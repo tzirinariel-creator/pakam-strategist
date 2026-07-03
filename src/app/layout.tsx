@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Rubik, JetBrains_Mono } from "next/font/google";
 import { getLocale } from "next-intl/server";
 import "./globals.css";
@@ -42,6 +42,16 @@ export const metadata: Metadata = {
       "תכנון אקדמי חכם לתואר פילוסופיה, כלכלה ומדע המדינה — אוניברסיטת תל אביב",
     images: ["/og-image.png"],
   },
+  // PWA: iOS standalone launch ("add to home screen") with the app title.
+  appleWebApp: {
+    capable: true,
+    title: "פכמון",
+    statusBarStyle: "default",
+  },
+};
+
+export const viewport: Viewport = {
+  themeColor: "#5B5BD6",
 };
 
 export default async function RootLayout({
