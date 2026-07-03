@@ -240,5 +240,14 @@ export async function buildUserContext(
     currentCourses,
     availableNextSemester,
     currentSemesterCredits,
+    // The sub-breakdown the free engine already answers with — keeps the LLM
+    // quantitatively at parity (elective/mandatory/seminar questions).
+    creditDetail: {
+      planned: creditResult.breakdown.planned,
+      mandatory: creditResult.breakdown.mandatory,
+      elective: creditResult.breakdown.elective,
+      seminar: creditResult.breakdown.seminar,
+      englishCourseCount: creditResult.breakdown.englishCourseCount,
+    },
   };
 }

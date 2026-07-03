@@ -40,6 +40,16 @@ export interface MentorContext {
   availableNextSemester: CourseInfo[];
   /** Total credits in current semester. */
   currentSemesterCredits: number;
+  /** Credit sub-breakdown — the same numbers the free deterministic engine
+   *  answers with; without them the LLM is systematically weaker on
+   *  quantitative sub-questions (audit finding). Optional for back-compat. */
+  creditDetail?: {
+    planned: number;
+    mandatory: number;
+    elective: number;
+    seminar: number;
+    englishCourseCount: number;
+  } | null;
 }
 
 export interface CourseInfo {
@@ -208,7 +218,12 @@ export function buildMentorSystemPrompt(
   סה"כ ש"ס (כולל מתוכננות): ${context.totalCredits}
   ש"ס בתחום ההתמחות: ${context.focusAreaCredits} מתוך ${program.creditRequirements.focusAreaMin} נדרשות
   ממוצע קורסים: ${avgLabel}
-  ש"ס בסמסטר הנוכחי: ${context.currentSemesterCredits}
+  ש"ס בסמסטר הנוכחי: ${context.currentSemesterCredits}${
+    context.creditDetail
+      ? `
+  פירוק ש"ס שהושלמו: חובה ${context.creditDetail.mandatory} מתוך ${program.creditRequirements.mandatoryCredits ?? "?"} · בחירה ${context.creditDetail.elective} מתוך ${program.creditRequirements.electiveCredits ?? "?"} · סמינרים ${context.creditDetail.seminar} מתוך ${program.creditRequirements.seminarCredits ?? "?"} · מתוכננות ${context.creditDetail.planned} · קורסי אנגלית שהושלמו: ${context.creditDetail.englishCourseCount}`
+      : ""
+  }
 
 ## קורסים שהסטודנט סיים (עם ציונים):
 ${completedBlock}
