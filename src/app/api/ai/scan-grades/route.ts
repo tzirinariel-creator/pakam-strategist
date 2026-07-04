@@ -39,11 +39,15 @@ export async function POST(request: NextRequest) {
           noKey: "Scanning needs a Gemini key — add a free one in settings, or try again later when the shared key is available.",
           unreadable: "Couldn't read the sheet — try a sharper, straighter photo of the grades table.",
           rateLimit: "Scan limit reached for now — try again later.",
+          badKey: "The Gemini key was rejected — check the key in settings (or remove it to use the shared key).",
+          unavailable: "The scanner is temporarily unavailable — please try again later.",
         }
       : {
           noKey: "הסריקה צריכה מפתח Gemini — הוסיפו מפתח חינמי בהגדרות, או נסו שוב מאוחר יותר כשהמפתח המשותף פנוי.",
           unreadable: "לא הצלחנו לקרוא את הגיליון — נסו צילום חד וישר יותר של טבלת הציונים.",
           rateLimit: "הגעתם למגבלת הסריקות לעכשיו — נסו שוב מאוחר יותר.",
+          badKey: "מפתח ה-Gemini נדחה — בדקו את המפתח בהגדרות (או הסירו אותו כדי להשתמש במפתח המשותף).",
+          unavailable: "הסורק אינו זמין כרגע — נסו שוב מאוחר יותר.",
         };
 
   try {
@@ -135,8 +139,18 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ rows });
   } catch (e) {
     const status = (e as { status?: number })?.status;
+    // Distinguish real causes instead of blaming the photo (and making the user
+    // burn scan quota re-shooting a sheet when the key/model is the problem).
     if (status === 429) {
       return NextResponse.json({ error: errs.rateLimit }, { status: 429 });
+    }
+    if (status === 400 || status === 401 || status === 403) {
+      return NextResponse.json({ error: errs.badKey }, { status: 400 });
+    }
+    if (status === 404) {
+      // Retired model — the #34 failure mode; surface it, don't hide it.
+      console.error("[scan-grades] provider 404 (model retired?):", e);
+      return NextResponse.json({ error: errs.unavailable }, { status: 503 });
     }
     console.error("[scan-grades] failed:", e);
     return NextResponse.json({ error: errs.unreadable }, { status: 500 });

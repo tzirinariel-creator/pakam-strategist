@@ -20,6 +20,7 @@ import { toast } from "sonner";
 import { DisciplineBadge } from "@/components/catalog/discipline-badge";
 import { DISCIPLINE_CONFIG, CREDIT_REQUIREMENTS } from "@/lib/constants";
 import { api } from "@/lib/trpc/react";
+import { invalidatePlanData } from "@/lib/trpc/invalidate-plan";
 import {
   Tooltip,
   TooltipTrigger,
@@ -63,9 +64,9 @@ export function CourseCard({ userCourse, disabled }: CourseCardProps) {
   const utils = api.useUtils();
   const removeMutation = api.plan.removeCourse.useMutation({
     onSuccess: () => {
-      void utils.plan.getUserPlan.invalidate();
-      void utils.plan.getCredits.invalidate();
-      void utils.plan.getGraduationScore.invalidate();
+      // Full set (incl. checkCompliance) — removing a course can flip a
+      // requirement's status, same as every other planner surface. (audit #7)
+      invalidatePlanData(utils);
       toast.success(tPlanner("courseRemoved"));
     },
     onError: () => {
@@ -75,12 +76,7 @@ export function CourseCard({ userCourse, disabled }: CourseCardProps) {
 
   const updateMutation = api.plan.updateCourse.useMutation({
     onSuccess: () => {
-      void utils.plan.getUserPlan.invalidate();
-      void utils.plan.getCredits.invalidate();
-      void utils.plan.getGraduationScore.invalidate();
-      void utils.regulation.checkCompliance.invalidate();
-      // Binary toggles change the miluim binary quota shown in the status bar.
-      void utils.user.getProfile.invalidate();
+      invalidatePlanData(utils);
     },
     onError: () => {
       toast.error(tPlanner("statusSaveError"));

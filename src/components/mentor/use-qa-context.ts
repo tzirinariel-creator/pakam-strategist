@@ -73,7 +73,11 @@ export function useDegreeQAContext(enabled = true): { ctx: QAContext; ready: boo
       currentYear: profile?.currentYear ?? 1,
       amiramScore: profile?.amiramScore ?? null,
       miluimGroupName: groupName,
-      binaryRemaining: binaryCapRemaining(profile?.miluimBinaryUsed ?? 0, group),
+      // Retroactive binary conversion (dropping a graded course from the GPA)
+      // is a miluim accommodation. binaryCapRemaining falls back to the
+      // universal BA cap of 5 for group NONE, so gate it: a non-reservist has
+      // 0 of this lever, and the King must not offer it to them.
+      binaryRemaining: group === "NONE" ? 0 : binaryCapRemaining(profile?.miluimBinaryUsed ?? 0, group),
       failedRules,
       seminarPlannedCount:
         planQuery.data?.courses?.filter((c) => c.course.courseType === "SEMINAR").length ?? 0,

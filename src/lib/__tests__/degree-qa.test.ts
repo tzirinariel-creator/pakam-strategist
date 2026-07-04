@@ -104,6 +104,17 @@ describe("answerDegreeQuestion", () => {
     expect(a.href).toBe("/graduation");
   });
 
+  it("does NOT offer the binary lever to a non-reservist (audit HIGH #2)", () => {
+    // A non-miluim student whose binaryRemaining is the universal BA fallback
+    // of 5 must not be told he has miluim pass/fail conversions.
+    const a = answerDegreeQuestion(
+      "איך לשפר את הממוצע שלי?",
+      ctx({ miluimGroupName: null, binaryRemaining: 5 }),
+    );
+    expect(a.text).not.toMatch(/בינארי|pass\/fail/);
+    expect(a.text).toMatch(/כבדים|מנופים/); // still gives the non-miluim levers
+  });
+
   it("does not confuse 'what is my average' with the improve handler", () => {
     const a = answerDegreeQuestion("מה הממוצע שלי?", ctx({}));
     expect(a.text).toContain("84"); // the value, not improvement tips

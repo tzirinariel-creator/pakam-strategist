@@ -48,4 +48,50 @@ describe("matchExtractedToCourses", () => {
     expect(m[0]?.matchKind).toBe("none");
     expect(m[0]?.match).toBeNull();
   });
+
+  // Audit HIGH: a superset name (advanced variant, no code) must NOT silently
+  // overwrite the base course's grade. It may match, but as low-confidence
+  // "fuzzy" that is never auto-applied.
+  it("treats an advanced-variant name as fuzzy, never auto-applied", () => {
+    const plan: UserCourseLite[] = [
+      { userCourseId: "u1", courseCode: "0621-1500", nameHe: "מבוא לתורת הקבוצות", currentGrade: 88, status: "COMPLETED" },
+    ];
+    const m = matchExtractedToCourses(
+      [{ courseCode: null, courseName: "מבוא לתורת הקבוצות המתקדם", grade: 55, credits: null, passText: null }],
+      plan,
+    );
+    expect(m[0]?.matchKind).toBe("fuzzy");
+    expect(m[0]?.autoApplySafe).toBe(false); // stays unchecked in the UI
+  });
+
+  it("does not match a short common prefix like 'מבוא' to anything", () => {
+    const m = matchExtractedToCourses(
+      [{ courseCode: null, courseName: "מבוא", grade: 90, credits: null, passText: null }],
+      COURSES,
+    );
+    expect(m[0]?.matchKind).toBe("none");
+  });
+
+  it("flags a same-code retake as ambiguous and never auto-applies it", () => {
+    const retakes: UserCourseLite[] = [
+      { userCourseId: "a", courseCode: "0651-1001", nameHe: "מיקרו (מועד ראשון)", currentGrade: 55, status: "FAILED" },
+      { userCourseId: "b", courseCode: "0651-1001", nameHe: "מיקרו (חזרה)", currentGrade: null, status: "IN_PROGRESS" },
+    ];
+    const m = matchExtractedToCourses(
+      [{ courseCode: "0651-1001", courseName: "מיקרו", grade: 78, credits: null, passText: null }],
+      retakes,
+    );
+    expect(m[0]?.matchKind).toBe("code");
+    expect(m[0]?.ambiguous).toBe(true);
+    expect(m[0]?.autoApplySafe).toBe(false);
+    expect(m[0]?.match?.userCourseId).toBe("b"); // prefers the not-yet-graded sitting
+  });
+
+  it("keeps exact matches auto-applyable", () => {
+    const m = matchExtractedToCourses(
+      [{ courseCode: "0651-1001", courseName: "מיקרו", grade: 90, credits: 4, passText: null }],
+      COURSES,
+    );
+    expect(m[0]?.autoApplySafe).toBe(true);
+  });
 });

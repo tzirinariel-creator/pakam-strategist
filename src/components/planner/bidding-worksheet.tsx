@@ -49,6 +49,11 @@ const SESSION_TYPE_HE: Record<string, string> = {
   tutorial: "תרגיל",
   lab: "מעבדה",
 };
+const SESSION_TYPE_EN: Record<string, string> = {
+  lecture: "Lecture",
+  tutorial: "Tutorial",
+  lab: "Lab",
+};
 
 interface Row {
   courseCode: string;
@@ -83,8 +88,9 @@ export function BiddingWorksheet({ courses }: { courses: UserCourseWithCourse[] 
       if (!c) continue;
       const sel = (uc as { selectedGroups?: unknown }).selectedGroups;
       const groups = sel && typeof sel === "object" ? (sel as Record<string, string>) : {};
+      const typeLabels = isHe ? SESSION_TYPE_HE : SESSION_TYPE_EN;
       const groupLabel = Object.entries(groups)
-        .map(([type, code]) => `${SESSION_TYPE_HE[type] ?? type} ${code}`)
+        .map(([type, code]) => `${typeLabels[type] ?? type} ${code}`)
         .join(" · ") || null;
       out.push({ courseCode: c.code, courseName: isHe ? c.nameHe : (c.nameEn ?? c.nameHe), groupLabel, hasClash: false });
       if (c.scheduleSessions?.length) {
@@ -155,8 +161,14 @@ export function BiddingWorksheet({ courses }: { courses: UserCourseWithCourse[] 
       round,
       sortedRows.map((r) => ({ ...r, points: alloc[r.courseCode] ?? null })),
     );
-    await navigator.clipboard.writeText(sheet);
-    toast.success(isHe ? "הועתק — הדבק ליד מסך-הבידינג בידיעון" : "Copied — paste next to the Yedion bidding screen");
+    try {
+      await navigator.clipboard.writeText(sheet);
+      toast.success(isHe ? "הועתק — הדבק ליד מסך-הבידינג בידיעון" : "Copied — paste next to the Yedion bidding screen");
+    } catch {
+      // Clipboard can be blocked (permissions, insecure context, older Safari).
+      // Never leave the click as a silent dead end.
+      toast.error(isHe ? "ההעתקה נחסמה — סמן/י והעתק/י ידנית" : "Copy was blocked — select and copy manually");
+    }
   };
 
   if (rows.length === 0) return null;
@@ -334,7 +346,7 @@ export function BiddingWorksheet({ courses }: { courses: UserCourseWithCourse[] 
 
           <button
             type="button"
-            onClick={copySheet}
+            onClick={() => void copySheet()}
             className="inline-flex items-center gap-1.5 rounded-lg border border-border/60 bg-card/40 px-3 py-2 text-sm text-foreground/70 transition-colors hover:border-foreground/25 hover:text-foreground/90"
           >
             <Copy className="size-4" />

@@ -31,6 +31,15 @@ export function SyllabusScanner() {
     setResult(null);
     try {
       const { b64, mime } = await fileToBase64(file);
+      if (b64.length > 5_000_000) {
+        // Heavy PDFs exceed the server cap; guide to a photo instead. (audit #11)
+        toast.error(
+          isHe
+            ? "הקובץ גדול מדי — צלמו את קטע לוח-הזמנים במקום PDF כבד (עד ~3.5MB)."
+            : "File too large — photograph the schedule section instead of a heavy PDF (max ~3.5MB).",
+        );
+        return;
+      }
       const res = await fetch("/api/ai/scan-syllabus", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -56,19 +65,44 @@ export function SyllabusScanner() {
     setApplying(true);
     let ok = 0;
     let failed = 0;
+    let skipped = 0;
+
+    // Re-scanning the same syllabus would otherwise create a second copy of
+    // every task. Build a set of the existing tasks (title + day) and skip any
+    // row that already exists. Degrade to no-dedup if the list can't be read.
+    const dayKey = (d: Date | string) => {
+      const x = new Date(d);
+      return `${x.getFullYear()}-${x.getMonth()}-${x.getDate()}`;
+    };
+    const existing = new Set<string>();
+    try {
+      const res = await utils.studyTask.list.fetch(undefined);
+      for (const t of res?.tasks ?? []) {
+        existing.add(`${t.title}|${dayKey(t.startDate)}`);
+      }
+    } catch {
+      /* no cached/fetchable list — proceed without dedup */
+    }
+
     for (const i of checked) {
       const item = result.items[i];
       if (!item) continue;
       const when = syllabusDateToLocalNoon(item.date);
       const prefix = result.courseName ? `${result.courseName} — ` : "";
       const moedSuffix = item.kind === "exam" && item.moed ? ` (מועד ${item.moed === "B" ? "ב׳" : "א׳"})` : "";
+      const title = `${prefix}${item.title}${moedSuffix}`.slice(0, 200);
+      if (existing.has(`${title}|${dayKey(when)}`)) {
+        skipped++;
+        continue;
+      }
       try {
         await createMutation.mutateAsync({
-          title: `${prefix}${item.title}${moedSuffix}`.slice(0, 200),
+          title,
           startDate: when,
           endDate: when,
           taskType: item.kind === "exam" ? "exam" : "assignment",
         });
+        existing.add(`${title}|${dayKey(when)}`); // guard against dupes within one batch too
         ok++;
       } catch (e) {
         failed++;
@@ -79,9 +113,15 @@ export function SyllabusScanner() {
     }
     setApplying(false);
     if (ok > 0) {
-      toast.success(isHe ? `נוספו ${ok} תאריכים מהסילבוס ללוח שלך` : `Added ${ok} syllabus dates to your plan`);
+      const skipNote = skipped > 0 ? (isHe ? ` (${skipped} כבר היו קיימים)` : ` (${skipped} already existed)`) : "";
+      toast.success(
+        (isHe ? `נוספו ${ok} תאריכים מהסילבוס ללוח שלך` : `Added ${ok} syllabus dates to your plan`) + skipNote,
+      );
       setResult(null);
       void utils.studyTask.list.invalidate();
+    } else if (skipped > 0 && failed === 0) {
+      toast.message(isHe ? "כל התאריכים כבר קיימים בלוח" : "All these dates are already on your plan");
+      setResult(null);
     }
   };
 
@@ -143,6 +183,7 @@ export function SyllabusScanner() {
                     type="button"
                     role="checkbox"
                     aria-checked={checked.has(i)}
+                    aria-label={isHe ? `הוסף ליומן: ${item.title}` : `Add to calendar: ${item.title}`}
                     onClick={() =>
                       setChecked((s) => {
                         const n = new Set(s);

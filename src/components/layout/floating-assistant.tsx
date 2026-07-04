@@ -326,8 +326,12 @@ export function FloatingAssistant() {
       if (image) {
         const q = question || (isHe ? "מה זה? עזור/י לי להבין את זה בהקשר של התואר." : "What is this? Help me understand it in my degree context.");
         setInput("");
+        // Persist the bubble thumbnail as a data URL — a stable copy that
+        // survives clearImage() revoking the live attach preview's object URL
+        // (otherwise the sent image renders broken).
+        const bubbleSrc = `data:${image.mime};base64,${image.b64}`;
         clearImage();
-        setMessages((m) => [...m, { role: "user", content: q, imagePreview: image.preview }]);
+        setMessages((m) => [...m, { role: "user", content: q, imagePreview: bubbleSrc }]);
         if (!aiAvailable) {
           setMessages((m) => [
             ...m,
@@ -594,7 +598,7 @@ export function FloatingAssistant() {
               <input
                 ref={imageInputRef}
                 type="file"
-                accept="image/jpeg,image/png,image/webp,image/heic"
+                accept="image/jpeg,image/png,image/webp"
                 className="hidden"
                 onChange={(e) => {
                   const f = e.target.files?.[0];
@@ -646,7 +650,7 @@ export function FloatingAssistant() {
               )}
               <button
                 type="submit"
-                disabled={!input.trim() || streaming || !ready}
+                disabled={(!input.trim() && !attachedImage) || streaming || !ready}
                 aria-label={isHe ? "שלח" : "Send"}
                 className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-accent-brand text-accent-brand-fg transition-colors hover:bg-accent-brand-hover disabled:opacity-40"
               >

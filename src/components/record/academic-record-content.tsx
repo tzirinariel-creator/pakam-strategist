@@ -855,7 +855,11 @@ export function AcademicRecordContent() {
     [completedCourses]
   );
   const weightedAvg = useMemo(() => {
-    const graded = completedCourses.filter((c) => c.grade !== null);
+    // Exclude binary-converted courses — the same filter as BinaryAdvisor's
+    // weightedAverage and the King's context, so this number agrees with what
+    // the student sees on /graduation and hears from the assistant. A converted
+    // course keeps its numeric grade but must NOT count toward the average.
+    const graded = completedCourses.filter((c) => c.grade !== null && !c.isBinary);
     const totalCredits = graded.reduce((s, c) => s + c.course.credits, 0);
     if (totalCredits === 0) return null;
     const weightedSum = graded.reduce((s, c) => s + (c.grade ?? 0) * c.course.credits, 0);

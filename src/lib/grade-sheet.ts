@@ -57,47 +57,96 @@ export interface UserCourseLite {
 
 export interface MatchedRow extends ExtractedRow {
   match: UserCourseLite | null;
-  /** exact code match beats a name match; none = student picks manually. */
-  matchKind: "code" | "name" | "none";
+  /**
+   * How confident the match is:
+   * - "code"  = exact course-code match (high confidence)
+   * - "name"  = exact normalized-name match (high confidence)
+   * - "fuzzy" = risky substring/superset name collision — MUST be confirmed by
+   *   the student, never auto-applied (a truncated OCR name like an intro
+   *   course can otherwise bind to its advanced variant and overwrite it)
+   * - "none"  = no match; student picks manually.
+   */
+  matchKind: "code" | "name" | "fuzzy" | "none";
   /** True when the sheet's grade differs from what's already recorded. */
   changesGrade: boolean;
+  /**
+   * More than one of the student's courses could be this row (a retake sharing
+   * a code, or several names colliding on the fragment). Even with a match set,
+   * the UI must NOT auto-apply an ambiguous row.
+   */
+  ambiguous: boolean;
+  /**
+   * Safe to pre-select for one-click apply: a high-confidence, unambiguous
+   * match that actually changes the grade. Fuzzy/ambiguous rows are false.
+   */
+  autoApplySafe: boolean;
 }
 
 export function matchExtractedToCourses(
   rows: ExtractedRow[],
   userCourses: UserCourseLite[],
 ): MatchedRow[] {
-  const byCode = new Map(userCourses.map((c) => [c.courseCode.replace(/\s/g, ""), c]));
+  // Group by code so retakes (same code appearing twice) are detected, not
+  // silently collapsed to whichever course happened to be last in the list.
+  const byCode = new Map<string, UserCourseLite[]>();
+  for (const c of userCourses) {
+    const key = c.courseCode.replace(/\s/g, "");
+    if (!key) continue;
+    const list = byCode.get(key);
+    if (list) list.push(c);
+    else byCode.set(key, [c]);
+  }
   const withNorm = userCourses.map((c) => ({ c, norm: normalizeName(c.nameHe) }));
 
   return rows.map((r) => {
     let match: UserCourseLite | null = null;
     let matchKind: MatchedRow["matchKind"] = "none";
+    let ambiguous = false;
 
     if (r.courseCode) {
-      const hit = byCode.get(r.courseCode.replace(/\s/g, ""));
-      if (hit) {
-        match = hit;
+      const hits = byCode.get(r.courseCode.replace(/\s/g, ""));
+      if (hits && hits.length > 0) {
+        // Retake: prefer the not-yet-graded instance, but flag it so the
+        // student confirms which sitting the grade belongs to.
+        match = hits.find((h) => h.currentGrade == null) ?? hits[0]!;
         matchKind = "code";
+        ambiguous = hits.length > 1;
       }
     }
     if (!match) {
       const norm = normalizeName(r.courseName);
       if (norm.length >= 4) {
-        const hit = withNorm.find((x) => x.norm === norm) ??
-          withNorm.find((x) => x.norm.includes(norm) || norm.includes(x.norm));
-        if (hit) {
-          match = hit.c;
+        const exact = withNorm.filter((x) => x.norm === norm);
+        if (exact.length >= 1) {
+          match = exact[0]!.c;
           matchKind = "name";
+          ambiguous = exact.length > 1; // two courses with the same name
+        } else if (norm.length >= 8) {
+          // Only allow a substring/superset match when it is LONG (short
+          // fragments like "מבוא" collide with everything) and UNAMBIGUOUS
+          // (exactly one candidate). Even then it is "fuzzy" — never auto-applied.
+          const contains = withNorm.filter(
+            (x) => x.norm.includes(norm) || norm.includes(x.norm),
+          );
+          if (contains.length === 1) {
+            match = contains[0]!.c;
+            matchKind = "fuzzy";
+          } else if (contains.length > 1) {
+            ambiguous = true; // multiple plausible courses → force manual choice
+          }
         }
       }
     }
 
+    const changesGrade = match != null && r.grade != null && match.currentGrade !== r.grade;
     return {
       ...r,
       match,
       matchKind,
-      changesGrade: match != null && r.grade != null && match.currentGrade !== r.grade,
+      changesGrade,
+      ambiguous,
+      autoApplySafe:
+        changesGrade && !ambiguous && (matchKind === "code" || matchKind === "name"),
     };
   });
 }

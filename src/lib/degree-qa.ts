@@ -116,7 +116,10 @@ const HANDLERS: Handler[] = [
     ],
     answer: (c) => {
       const tips: string[] = [];
-      if (c.binaryRemaining > 0) {
+      // Binary conversion is a miluim lever — only offer it to a reservist
+      // (miluimGroupName set). binaryRemaining alone can be the universal BA
+      // fallback of 5 for a non-reservist; don't present that as a GPA lever.
+      if (c.miluimGroupName && c.binaryRemaining > 0) {
         tips.push(
           he(
             c,

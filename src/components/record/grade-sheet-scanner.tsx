@@ -49,6 +49,17 @@ export function GradeSheetScanner() {
     setRows(null);
     try {
       const { b64, mime } = await fileToBase64(file);
+      // Photos are downscaled in fileToBase64; PDFs pass through, so a heavy PDF
+      // can exceed the server cap and fail with an opaque platform error. Catch
+      // it here with a clear, localized hint instead. (audit #11)
+      if (b64.length > 5_000_000) {
+        toast.error(
+          isHe
+            ? "הקובץ גדול מדי — צלמו את העמוד עצמו במקום להעלות PDF כבד (עד ~3.5MB)."
+            : "File too large — photograph the page itself instead of a heavy PDF (max ~3.5MB).",
+        );
+        return;
+      }
       const res = await fetch("/api/ai/scan-grades", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -64,8 +75,10 @@ export function GradeSheetScanner() {
         userCourses,
       );
       setRows(matched);
-      // Pre-check only rows that are matched AND actually change something.
-      setChecked(new Set(matched.map((r, i) => (r.match && r.changesGrade ? i : -1)).filter((i) => i >= 0)));
+      // Pre-check ONLY high-confidence, unambiguous matches. A fuzzy (substring)
+      // or ambiguous (retake / colliding) match is left UNCHECKED so a wrong
+      // course can never be overwritten by the default one-click apply.
+      setChecked(new Set(matched.map((r, i) => (r.autoApplySafe ? i : -1)).filter((i) => i >= 0)));
     } catch {
       toast.error(isHe ? "הסריקה נכשלה — נסו שוב" : "Scan failed — try again");
     } finally {
@@ -161,6 +174,7 @@ export function GradeSheetScanner() {
                     type="button"
                     role="checkbox"
                     aria-checked={checked.has(i)}
+                    aria-label={isHe ? `עדכן ציון ל${r.courseName}` : `Update grade for ${r.courseName}`}
                     disabled={!applicable}
                     onClick={() =>
                       setChecked((s) => {
@@ -186,9 +200,18 @@ export function GradeSheetScanner() {
                   </span>
                   {r.match ? (
                     r.changesGrade ? (
-                      <span className="rounded bg-emerald-400/10 px-1.5 py-px text-[10px] font-semibold text-emerald-600">
-                        {isHe ? `יעודכן: ${r.match.nameHe}` : `Will update: ${r.match.nameHe}`}
-                      </span>
+                      r.autoApplySafe ? (
+                        <span className="rounded bg-emerald-400/10 px-1.5 py-px text-[10px] font-semibold text-emerald-600">
+                          {isHe ? `יעודכן: ${r.match.nameHe}` : `Will update: ${r.match.nameHe}`}
+                        </span>
+                      ) : (
+                        // Low-confidence (fuzzy/ambiguous) — left unchecked; the
+                        // student must confirm this is really the right course.
+                        <span className="flex items-center gap-1 rounded bg-amber-500/10 px-1.5 py-px text-[10px] font-semibold text-amber-600">
+                          <AlertTriangle className="size-2.5" />
+                          {isHe ? `ודאו: ${r.match.nameHe}?` : `Verify: ${r.match.nameHe}?`}
+                        </span>
+                      )
                     ) : (
                       <span className="rounded bg-foreground/5 px-1.5 py-px text-[10px] text-foreground/45">
                         {isHe ? "כבר מעודכן" : "Already current"}

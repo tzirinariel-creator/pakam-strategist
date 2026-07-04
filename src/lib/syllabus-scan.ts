@@ -12,7 +12,15 @@ import { z } from "zod/v4";
 const isoDate = z
   .string()
   .regex(/^\d{4}-\d{2}-\d{2}$/)
-  .refine((s) => !Number.isNaN(new Date(`${s}T12:00:00`).getTime()), "invalid date");
+  // Reject impossible calendar dates. `new Date("2026-02-30T…")` rolls over to
+  // Mar 2 instead of failing, so the task would land on a different day than
+  // the row the student approved. Build with the SAME local constructor used
+  // to materialize the task and assert the components round-trip unchanged.
+  .refine((s) => {
+    const [y, m, d] = s.split("-").map(Number);
+    const dt = new Date(y!, m! - 1, d!, 12, 0, 0, 0);
+    return dt.getFullYear() === y && dt.getMonth() === m! - 1 && dt.getDate() === d;
+  }, "invalid calendar date");
 
 export const syllabusItemSchema = z.object({
   kind: z.enum(["exam", "assignment"]),

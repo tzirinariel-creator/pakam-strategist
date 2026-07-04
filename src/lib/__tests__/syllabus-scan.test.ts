@@ -23,6 +23,16 @@ describe("parseSyllabus", () => {
   it("rejects an impossible calendar date", () => {
     expect(parseSyllabus('{"courseName":null,"items":[{"kind":"exam","title":"x","date":"2026-13-45","moed":null}]}')).toBeNull();
   });
+
+  // Audit HIGH #6: these pass the ISO regex and Date() rolls them over to a
+  // real-but-different day (Feb 30 → Mar 2), so without a round-trip check the
+  // task lands on a day the student never approved.
+  it("rejects rollover dates that Date() would silently shift", () => {
+    expect(parseSyllabus('{"courseName":null,"items":[{"kind":"exam","title":"x","date":"2026-02-30","moed":null}]}')).toBeNull();
+    expect(parseSyllabus('{"courseName":null,"items":[{"kind":"assignment","title":"x","date":"2026-04-31","moed":null}]}')).toBeNull();
+    // a real leap-year edge stays valid
+    expect(parseSyllabus('{"courseName":null,"items":[{"kind":"exam","title":"x","date":"2028-02-29","moed":null}]}')?.items).toHaveLength(1);
+  });
 });
 
 describe("syllabusDateToLocalNoon", () => {
