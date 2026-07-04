@@ -55,9 +55,9 @@ const STEPS: Step[] = [
   },
   {
     selector: null,
-    titleHe: "זהו, אתה מוכן 🚀",
+    titleHe: "זהו, את/ה מוכן/ה 🚀",
     titleEn: "You're all set 🚀",
-    bodyHe: "תתחיל מהמתכנן או מתכנון המבחנים — ואם תרצה, העוזר עונה על כל שאלה.",
+    bodyHe: "תתחיל/י מהמתכנן או מתכנון המבחנים — ואם תרצה/י, העוזר עונה על כל שאלה.",
     bodyEn: "Start from the planner or exam planner — and the assistant answers any question.",
   },
 ];

@@ -7,6 +7,7 @@ import { useSearchParams } from "next/navigation";
 import { Link } from "@/i18n/navigation";
 import { api } from "@/lib/trpc/react";
 import { firstNameOf } from "@/lib/personal-address";
+import { usePersonalAddress } from "@/components/personal/use-personal-address";
 import { TipCard } from "@/components/shared/tip-card";
 import { getContextualTips, getRandomTip } from "@/lib/tips-engine";
 import { DashboardSkeleton } from "@/components/dashboard/dashboard-skeleton";
@@ -251,10 +252,11 @@ function WelcomeHomeCard({
   onDismiss: () => void;
 }) {
   const Arrow = isHe ? ArrowLeft : ArrowRight;
+  const { firstName, g: pg } = usePersonalAddress();
   const steps: { href: string; label: string; icon: React.ComponentType<{ className?: string }> }[] = [
-    { href: "/calendar", label: t("welcomeStepSchedule"), icon: Calendar },
-    { href: "/record", label: t("welcomeStepRecord"), icon: Pencil },
-    { href: "/regulations", label: t("welcomeStepRegulations"), icon: Scale },
+    { href: "/calendar", label: isHe ? pg("בדוק את מערכת השעות שלך", "בדקי את מערכת השעות שלך", "בדוק/י את מערכת השעות שלך") : t("welcomeStepSchedule"), icon: Calendar },
+    { href: "/record", label: isHe ? pg("הוסף ציונים וקורסים מהעבר", "הוסיפי ציונים וקורסים מהעבר", "הוסף/י ציונים וקורסים מהעבר") : t("welcomeStepRecord"), icon: Pencil },
+    { href: "/regulations", label: isHe ? pg("בדוק שאתה עומד בתקנון", "בדקי שאת עומדת בתקנון", "בדוק/י שאת/ה עומד/ת בתקנון") : t("welcomeStepRegulations"), icon: Scale },
   ];
 
   return (
@@ -268,7 +270,7 @@ function WelcomeHomeCard({
         <X className="size-4" />
       </button>
       <h2 className="font-display text-xl font-bold text-foreground/90">
-        {t("welcomeHomeTitle")}
+        {firstName ? `${firstName}, ` : ""}{t("welcomeHomeTitle")}
       </h2>
       <p className="mt-1 text-sm text-foreground/55">
         {t("welcomeHomeSubtitle")}
@@ -391,6 +393,8 @@ export function DashboardContent() {
     retry: 1,
     enabled: hasPlanData,
   });
+  // Gendered next-action labels (unknown gender → inclusive "/" form).
+  const { g: pgd } = usePersonalAddress();
 
   // Google Calendar status — check if connected
   const googleStatus = api.schedule.getGoogleStatus.useQuery(undefined, {
@@ -824,7 +828,13 @@ export function DashboardContent() {
                 {t("pastCoursesTitle")}
               </p>
               <p className="mt-0.5 text-xs text-foreground/50">
-                {t("pastCoursesDesc")}
+                {isHe
+                  ? pgd(
+                      "סמן אותם והזן ציונים כדי לראות את ההתקדמות האמיתית שלך",
+                      "סמני אותם והזני ציונים כדי לראות את ההתקדמות האמיתית שלך",
+                      "סמן/י אותם והזן/י ציונים כדי לראות את ההתקדמות האמיתית שלך"
+                    )
+                  : t("pastCoursesDesc")}
               </p>
             </div>
             <span className="shrink-0 flex items-center gap-1 text-xs font-medium text-foreground/60">
@@ -938,7 +948,7 @@ export function DashboardContent() {
         if (!hasGrades) {
           actions.push({
             icon: Calculator,
-            label: t("actionEnterGrades"),
+            label: isHe ? pgd("הזן ציונים", "הזני ציונים", "הזן/י ציונים") : t("actionEnterGrades"),
             description: t("actionEnterGradesDesc"),
             href: "/graduation",
             color: "bg-emerald-500/10 text-emerald-400",
@@ -949,7 +959,7 @@ export function DashboardContent() {
         if (!hasFocusArea) {
           actions.push({
             icon: Target,
-            label: t("actionPickFocus"),
+            label: isHe ? pgd("בחר תחום מיקוד", "בחרי תחום מיקוד", "בחר/י תחום מיקוד") : t("actionPickFocus"),
             description: t("actionPickFocusDesc"),
             href: "/settings",
             color: "bg-violet-500/10 text-violet-400",
@@ -960,7 +970,7 @@ export function DashboardContent() {
         if (currentYear >= 2 && earnedCredits < 20) {
           actions.push({
             icon: GraduationCap,
-            label: t("actionAddPast"),
+            label: isHe ? pgd("הוסף קורסי עבר", "הוסיפי קורסי עבר", "הוסף/י קורסי עבר") : t("actionAddPast"),
             description: t("actionAddPastDesc"),
             href: "/record",
             color: "bg-amber-500/10 text-amber-400",
@@ -971,7 +981,7 @@ export function DashboardContent() {
         if (actions.length === 0) {
           actions.push({
             icon: Pencil,
-            label: t("actionEditPlan"),
+            label: isHe ? pgd("ערוך את התוכנית", "ערכי את התוכנית", "ערוך/י את התוכנית") : t("actionEditPlan"),
             description: t("actionEditPlanDesc"),
             href: "/planner",
             color: "bg-orange-500/10 text-orange-400",

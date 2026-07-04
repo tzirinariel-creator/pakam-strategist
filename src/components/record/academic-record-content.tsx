@@ -18,6 +18,7 @@ import {
 import { api } from "@/lib/trpc/react";
 import { invalidatePlanData } from "@/lib/trpc/invalidate-plan";
 import { countsTowardAverage } from "@/lib/grade-calculator";
+import { usePersonalAddress } from "@/components/personal/use-personal-address";
 import { ThemedLoader } from "@/components/ui/themed-loader";
 import { AskKingButton } from "@/components/ui/ask-king-button";
 import { GradeSheetScanner } from "@/components/record/grade-sheet-scanner";
@@ -652,13 +653,14 @@ function EmptyState({
   onAddFirstCourse: () => void;
   t: ReturnType<typeof useTranslations<"record">>;
 }) {
+  const { firstName } = usePersonalAddress();
   return (
     <div className="data-card mx-auto w-full max-w-lg p-8 text-center">
       <div className="mb-5 flex justify-center">
         <FolderOpen className="h-14 w-14 text-foreground/70" />
       </div>
       <h2 className="mb-2 font-display text-2xl font-bold text-foreground/85">
-        {t("emptyTitle")}
+        {firstName ? `${firstName}, ` : ""}{t("emptyTitle")}
       </h2>
       <p className="mb-6 text-foreground/60">
         {hasAnyCourses ? t("emptyDesc") : t("emptyDescNoCourses")}
