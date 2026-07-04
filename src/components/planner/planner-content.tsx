@@ -36,6 +36,12 @@ export function PlannerContent() {
     retry: 1,
   });
 
+  // Degree-progress headline is driven by the SAME source as the dashboard hero
+  // and the King (getCredits.breakdown.effectiveTotal), so the "X / 150" number
+  // never disagrees between screens. A raw sum of every course's credits counted
+  // failed/exempt courses and ignored the miluim exemption. (audit #11)
+  const creditsQuery = api.plan.getCredits.useQuery(undefined, { retry: 1 });
+
   // Save confirmation (#18): the planner page redirects here with ?saved=1 after
   // persisting. Show an unmissable banner (the transient toast was easy to miss
   // mid-navigation) and strip the param so a refresh won't re-show it. It's
@@ -136,11 +142,19 @@ export function PlannerContent() {
     );
   }
 
-  const totalCredits = courses.reduce((sum, uc) => sum + uc.course.credits, 0);
-  const completedCredits = courses
-    .filter((uc) => uc.status === "COMPLETED")
-    .reduce((sum, uc) => sum + uc.course.credits, 0);
+  const breakdown = creditsQuery.data?.breakdown;
   const target = CREDIT_REQUIREMENTS.TOTAL;
+  // effectiveTotal = earned + planned + miluim exemption (capped) — the degree
+  // completion number the dashboard/King show. Fall back to a raw sum only until
+  // the query resolves.
+  const totalCredits =
+    breakdown?.effectiveTotal ??
+    courses.reduce((sum, uc) => sum + uc.course.credits, 0);
+  const completedCredits =
+    breakdown?.earned ??
+    courses
+      .filter((uc) => uc.status === "COMPLETED")
+      .reduce((sum, uc) => sum + uc.course.credits, 0);
   const progressPercent = Math.min((totalCredits / target) * 100, 100);
 
   return (
