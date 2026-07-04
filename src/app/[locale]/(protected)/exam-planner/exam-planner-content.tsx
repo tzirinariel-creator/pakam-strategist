@@ -33,6 +33,7 @@ import {
 } from "@/lib/exam-planner";
 import { StudySkyline } from "@/components/exam-planner/study-skyline";
 import { SyllabusScanner } from "@/components/exam-planner/syllabus-scanner";
+import { MoedBenefitBanner } from "@/components/exam-planner/moed-benefit-banner";
 import { planFromStudyTasks } from "@/lib/plan-from-tasks";
 import { downloadGanttCsv, type GanttTask } from "@/lib/excel-export";
 import { cn } from "@/lib/utils";
@@ -285,6 +286,9 @@ export function ExamPlannerContent() {
           </div>
         )}
       </div>
+
+      {/* Miluim exam benefit (2-of-3 sittings) — only for eligible reservists */}
+      <MoedBenefitBanner />
 
       {/* Generate panel */}
       <div className="animate-stagger-2 data-card p-5">
