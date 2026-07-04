@@ -163,6 +163,15 @@ describe("answerDegreeQuestion", () => {
     expect(a.text).toMatch(/רפרט|משוקלל/);
   });
 
+  it("genders the English exemption answer by the student's gender", () => {
+    const male = answerDegreeQuestion("מה הסטטוס באנגלית?", ctx({ amiramScore: 140, gender: "male" }));
+    expect(male.text).toContain("אתה פטור");
+    const female = answerDegreeQuestion("מה הסטטוס באנגלית?", ctx({ amiramScore: 140, gender: "female" }));
+    expect(female.text).toContain("את פטורה");
+    const unknown = answerDegreeQuestion("מה הסטטוס באנגלית?", ctx({ amiramScore: 140, gender: null }));
+    expect(unknown.text).toContain("את/ה פטור/ה"); // neutral fallback
+  });
+
   it("tells an exempt student English does not affect the average", () => {
     const a = answerDegreeQuestion("מה הסטטוס שלי באנגלית?", ctx({ amiramScore: 140 }));
     expect(a.text).toMatch(/פטור/);

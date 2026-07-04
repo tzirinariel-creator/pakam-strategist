@@ -31,6 +31,8 @@ export interface QAContext {
   focusAreaNameHe: string | null;
   focusAreaNameEn: string | null;
   currentYear: number;
+  /** "male" | "female" | null — for gendered second-person phrasing. */
+  gender?: "male" | "female" | null;
   amiramScore: number | null;
   miluimGroupName: string | null; // localized group name, or null if NONE
   binaryRemaining: number;
@@ -59,6 +61,16 @@ const T = CREDIT_REQUIREMENTS.TOTAL;
 
 function he<T>(c: QAContext, heVal: T, enVal: T): T {
   return c.isHe ? heVal : enVal;
+}
+
+/**
+ * Gendered Hebrew fragment for second-person phrasing. Unknown gender → the
+ * neutral inclusive form (today's copy), so it's always safe to adopt. English
+ * has no grammatical gender, so callers just inline the English separately.
+ *   `${gm(c, "אתה פטור", "את פטורה", "את/ה פטור/ה")}`
+ */
+function gm(c: QAContext, male: string, female: string, neutral: string): string {
+  return c.gender === "male" ? male : c.gender === "female" ? female : neutral;
 }
 
 const HANDLERS: Handler[] = [
@@ -269,10 +281,10 @@ const HANDLERS: Handler[] = [
       // year 1, so a year-2+ student shouldn't be told to take level courses —
       // they should already be exempt (#11). The CONTENT courses still stand.
       const lvlTxt = lvl.isExempt
-        ? he(c, `אתה פטור מקורסי רמה (אמירנט ${c.amiramScore}).`, `You're exempt from level courses (Amiram ${c.amiramScore}).`)
+        ? he(c, `${gm(c, "אתה פטור", "את פטורה", "את/ה פטור/ה")} מקורסי רמה (אמירנט ${c.amiramScore}).`, `You're exempt from level courses (Amiram ${c.amiramScore}).`)
         : c.currentYear <= 1
-          ? he(c, `אתה ב${lvl.nameHe} (אמירנט ${c.amiramScore}) — ${lvl.levelCourses} קורסי רמה. חובה להגיע לפטור (134+) עד סוף שנה א׳.`, `You're at ${lvl.nameEn} (Amiram ${c.amiramScore}) — ${lvl.levelCourses} level course(s). You must reach exemption (134+) by the end of Year 1.`)
-          : he(c, `אתה ב${lvl.nameHe} (אמירנט ${c.amiramScore}), אבל הדדליין לפטור היה סוף שנה א׳ — אם עדיין אין לך פטור, פנה לייעוץ אקדמי (קורסי-התוכן באנגלית עדיין נדרשים).`, `You're at ${lvl.nameEn} (Amiram ${c.amiramScore}), but the exemption deadline was the end of Year 1 — if you're still not exempt, see academic advising (the English content courses are still required).`);
+          ? he(c, `${gm(c, "אתה", "את", "את/ה")} ב${lvl.nameHe} (אמירנט ${c.amiramScore}) — ${lvl.levelCourses} קורסי רמה. חובה להגיע לפטור (134+) עד סוף שנה א׳.`, `You're at ${lvl.nameEn} (Amiram ${c.amiramScore}) — ${lvl.levelCourses} level course(s). You must reach exemption (134+) by the end of Year 1.`)
+          : he(c, `${gm(c, "אתה", "את", "את/ה")} ב${lvl.nameHe} (אמירנט ${c.amiramScore}), אבל הדדליין לפטור היה סוף שנה א׳ — אם עדיין אין לך פטור, ${gm(c, "פנה", "פני", "פנה/י")} לייעוץ אקדמי (קורסי-התוכן באנגלית עדיין נדרשים).`, `You're at ${lvl.nameEn} (Amiram ${c.amiramScore}), but the exemption deadline was the end of Year 1 — if you're still not exempt, see academic advising (the English content courses are still required).`);
       // #36 (owner-verified 4.7): English grades do NOT count toward the PPE
       // degree average — Ariel confirmed against a real transcript. (Earlier
       // research had inferred the opposite; the owner's check overrides it.)

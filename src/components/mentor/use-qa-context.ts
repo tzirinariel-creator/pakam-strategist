@@ -71,6 +71,7 @@ export function useDegreeQAContext(enabled = true): { ctx: QAContext; ready: boo
       focusAreaNameHe: focusCfg?.nameHe ?? null,
       focusAreaNameEn: focusCfg?.nameEn ?? null,
       currentYear: profile?.currentYear ?? 1,
+      gender: profile?.gender === "male" || profile?.gender === "female" ? profile.gender : null,
       amiramScore: profile?.amiramScore ?? null,
       miluimGroupName: groupName,
       // Retroactive binary conversion (dropping a graded course from the GPA)
