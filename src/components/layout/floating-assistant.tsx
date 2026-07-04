@@ -22,7 +22,7 @@ interface SpeechRecognitionLike {
   continuous: boolean;
   onresult: ((e: { results: ArrayLike<ArrayLike<{ transcript: string }>> }) => void) | null;
   onend: (() => void) | null;
-  onerror: (() => void) | null;
+  onerror: ((e: { error?: string }) => void) | null;
   start: () => void;
   stop: () => void;
 }
@@ -110,10 +110,27 @@ export function FloatingAssistant() {
       if (text) setInput(text);
     };
     rec.onend = () => setListening(false);
-    rec.onerror = () => setListening(false);
+    // Surface WHY it stopped instead of failing silently — the #1 reason voice
+    // "doesn't work" on desktop is a denied/blocked mic permission with no feedback.
+    rec.onerror = (e) => {
+      setListening(false);
+      const err = e?.error;
+      if (err === "not-allowed" || err === "service-not-allowed") {
+        toast.error(isHe ? "אין גישה למיקרופון — אפשר/י אותה בהגדרות הדפדפן ונסה/י שוב." : "No microphone access — allow it in your browser settings and try again.");
+      } else if (err === "no-speech") {
+        toast.error(isHe ? "לא נקלט קול — נסה/י שוב." : "No speech detected — try again.");
+      } else if (err && err !== "aborted") {
+        toast.error(isHe ? "הקלטה נכשלה — נסה/י שוב." : "Voice input failed — try again.");
+      }
+    };
     recognitionRef.current = rec;
     setListening(true);
-    rec.start();
+    try {
+      rec.start();
+    } catch {
+      // start() throws if a previous session is still finalizing — reset quietly.
+      setListening(false);
+    }
   };
   const [streaming, setStreaming] = useState(false);
 
