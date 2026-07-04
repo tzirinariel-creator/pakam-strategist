@@ -74,7 +74,7 @@ export function GuideContent() {
         <ul className="space-y-1.5">
           <Li>{isHe ? "שנה א׳ = קורסי חובה. אל תתחכם — קח הכל ותתמקד בממוצע טוב." : "Year 1 = mandatory courses. Take them all, aim for a good GPA."}</Li>
           <Li>{isHe ? "בחר תחום התמחות מוקדם — הוא משפיע על כל התכנון." : "Choose your focus area early — it drives the whole plan."}</Li>
-          <Li>{isHe ? "קח אנגלית מוקדם — ש״ס קלות שמשחררות לחץ אחר כך." : "Take English early — easy credits that relieve pressure later."}</Li>
+          <Li>{isHe ? "כדאי לקחת אנגלית מוקדם — קורסים קלים יחסית שמורידים עומס בהמשך." : "Take English early — relatively easy courses that ease your load later."}</Li>
           <Li>{isHe ? "אל תשים 3 קורסים כבדים באותו סמסטר." : "Don't stack 3 heavy courses in one semester."}</Li>
           <Li>{isHe ? "מעבר שנה: " : "Year transition: "}<Bidi text={isHe ? "ממוצע 75 כללי + 80 בקורסי פכ\"מ" : "75 overall + 80 in PPE courses"} />.</Li>
         </ul>

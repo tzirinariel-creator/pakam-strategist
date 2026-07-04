@@ -132,8 +132,8 @@ const PLANNING_TIPS: Tip[] = [
   },
   {
     id: "pt-2",
-    textEn: "Take English courses in Years 1-2 — easy credits that count toward 150 and relieve pressure later.",
-    textHe: "קחו קורסי אנגלית בשנה א׳-ב׳ — ש\"ס קלות שנספרות ל-150 ומשחררות לחץ אחר כך.",
+    textEn: "It's worth taking your English courses early (Years 1-2): they're relatively easy, count toward the degree, and ease your load later.",
+    textHe: "כדאי לקחת את קורסי-האנגלית כבר בשנה א׳–ב׳: הם קלים יחסית, נספרים לתואר, ומורידים עומס בהמשך.",
     category: "planning_tip",
     icon: Globe,
   },

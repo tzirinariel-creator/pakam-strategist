@@ -128,7 +128,7 @@ export function MyStatusHero({
     },
     {
       key: "focus",
-      label: isHe ? "התמחות" : "Focus",
+      label: isHe ? "תחום מיקוד" : "Focus",
       icon: Target,
       current: credits?.focusArea ?? 0,
       target: credits?.focusAreaTarget ?? CREDIT_REQUIREMENTS.FOCUS_AREA_MIN,
@@ -396,7 +396,7 @@ export function MyStatusHero({
           </p>
         ) : (
           <p className="text-xs text-foreground/45">
-            {isHe ? `${pg("אתה בכיוון הנכון", "את בכיוון הנכון", "את/ה בכיוון הנכון")} 🎯` : "You're on track 🎯"}
+            {isHe ? "אין כרגע דרישה שחסרה — ממשיכים לצבור ש״ס לפי התוכנית." : "No missing requirement right now — keep accumulating credits per your plan."}
           </p>
         )}
         {/* The single, clear bridge from "my status" to "where I plan". This
