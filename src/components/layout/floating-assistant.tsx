@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useLocale } from "next-intl";
 import { usePathname } from "next/navigation";
+import { usePersonalAddress } from "@/components/personal/use-personal-address";
 import { X, Send, Zap, Bot, Loader2, Database, Mic, ImagePlus } from "lucide-react";
 import Markdown from "react-markdown";
 import { toast } from "sonner";
@@ -53,6 +54,7 @@ interface Msg {
 export function FloatingAssistant() {
   const isHe = useLocale() === "he";
   const pathname = usePathname();
+  const { gender } = usePersonalAddress();
   const [open, setOpen] = useState(false);
   const [messages, setMessages] = useState<Msg[]>([]);
   const [input, setInput] = useState("");
@@ -167,21 +169,33 @@ export function FloatingAssistant() {
   }, [isHe, pathname]);
 
   // The King greets you by where you ARE — a present companion, not a blank box.
+  // Hebrew is gendered by the student's gender (unknown → inclusive "/" form).
   const greeting = useMemo(() => {
     const p = pathname ?? "";
-    const g = (he: string, en: string) => (isHe ? he : en);
+    const gg = (m: string, f: string, n: string) =>
+      gender === "male" ? m : gender === "female" ? f : n;
+    const you = gg("אתה", "את", "את/ה");
+    const ask = gg("שאל", "שאלי", "שאל/י");
+    if (!isHe) {
+      if (p.includes("/planner")) return "You're planning your semester. Ask me what to take, whether the load makes sense, or how to close a gap.";
+      if (p.includes("/catalog")) return "Browsing the catalog. I'll help you pick the right course — difficulty, focus area, or prerequisites.";
+      if (p.includes("/regulations")) return "You're in the regulations. I'll explain any requirement, why it matters, and how to close it.";
+      if (p.includes("/graduation") || p.includes("/record")) return "You're in your academic record. Ask about your average, honors, or how to improve.";
+      if (p.includes("/exam")) return "You're in exam planning. Ask me how to spread your studying, or about the second sitting.";
+      return "Ask me anything about your degree — I answer from your data.";
+    }
     if (p.includes("/planner"))
-      return g("אני רואה שאתה בתכנון הסמסטר. שאל אותי מה כדאי לקחת, אם העומס הגיוני, או איך לסגור פער.", "You're planning your semester. Ask me what to take, whether the load makes sense, or how to close a gap.");
+      return `אני רואה ש${you} בתכנון הסמסטר. ${ask} אותי מה כדאי לקחת, אם העומס הגיוני, או איך לסגור פער.`;
     if (p.includes("/catalog"))
-      return g("אתה מעיין בקטלוג. אעזור לך לבחור קורס שמתאים — קושי, התמחות, או דרישות-קדם.", "Browsing the catalog. I'll help you pick the right course — difficulty, focus area, or prerequisites.");
+      return `${gg("אתה מעיין", "את מעיינת", "את/ה מעיין/ת")} בקטלוג. אעזור לך לבחור קורס שמתאים — קושי, התמחות, או דרישות-קדם.`;
     if (p.includes("/regulations"))
-      return g("אתה בתקנון. אסביר כל דרישה, למה היא חשובה, ואיך לסגור אותה.", "You're in the regulations. I'll explain any requirement, why it matters, and how to close it.");
+      return `${you} בתקנון. אסביר כל דרישה, למה היא חשובה, ואיך לסגור אותה.`;
     if (p.includes("/graduation") || p.includes("/record"))
-      return g("אתה בתיק האקדמי. שאל על הממוצע, ההצטיינות, או איך לשפר.", "You're in your academic record. Ask about your average, honors, or how to improve.");
+      return `${you} בתיק האקדמי. ${ask} על הממוצע, ההצטיינות, או איך לשפר.`;
     if (p.includes("/exam"))
-      return g("אתה בתכנון הבחינות. שאל אותי איך לפזר את הלמידה, או על מועד ב׳.", "You're in exam planning. Ask me how to spread your studying, or about the second sitting.");
-    return g("שאל/י אותי כל דבר על התואר שלך — אני עונה מהנתונים שלך.", "Ask me anything about your degree — I answer from your data.");
-  }, [pathname, isHe]);
+      return `${you} בתכנון הבחינות. ${ask} אותי איך לפזר את הלמידה, או על מועד ב׳.`;
+    return `${ask} אותי כל דבר על התואר שלך — אני עונה מהנתונים שלך.`;
+  }, [pathname, isHe, gender]);
 
   useEffect(() => {
     if (open) {

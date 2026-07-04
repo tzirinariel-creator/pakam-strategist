@@ -99,7 +99,7 @@ const HANDLERS: Handler[] = [
         return {
           text: he(
             c,
-            "אין דרישות שאתה מפר כרגע 👍 מה שנשאר זה לצבור את הש״ס שחסרים — ראה 'המצב שלי' בדשבורד.",
+            `אין דרישות ${gm(c, "שאתה מפר", "שאת מפרה", "שאת/ה מפר/ה")} כרגע 👍 מה שנשאר זה לצבור את הש״ס שחסרים — ${gm(c, "ראה", "ראי", "ראה/י")} 'המצב שלי' בדשבורד.`,
             "You're not violating any requirement right now 👍 What's left is accumulating the remaining credits — see 'My status' on the dashboard."
           ),
           href: "/regulations",
@@ -172,7 +172,7 @@ const HANDLERS: Handler[] = [
     answer: (c) => {
       if (c.courseAverage === null) {
         return {
-          text: he(c, "עדיין אין לך ציונים שמורים. הזן ציונים במחשבון הציונים ואראה לך את הממוצע.", "No grades recorded yet. Enter grades in the calculator and I'll show your average."),
+          text: he(c, `עדיין אין לך ציונים שמורים. ${gm(c, "הזן", "הזיני", "הזן/י")} ציונים במחשבון הציונים ואראה לך את הממוצע.`, "No grades recorded yet. Enter grades in the calculator and I'll show your average."),
           href: "/graduation",
           cta: he(c, "למחשבון הציונים", "Grade calculator"),
         };
@@ -197,7 +197,7 @@ const HANDLERS: Handler[] = [
         'Binary = convert a numeric grade to pass/fail. The course still counts for the degree, but the grade leaves your average. Miluim benefit: up to 5 courses across the degree, and ≤25% of yearly hours to keep honors. Best used on a low pass in a heavy course.'
       );
       const quota = c.miluimGroupName
-        ? he(c, ` נשארו לך ${c.binaryRemaining} מתוך 5. סמן בכרטיס הקורס במתכנן (לקורס שהושלם עם ציון).`, ` You have ${c.binaryRemaining} of 5 left. Mark it on the course card in the planner.`)
+        ? he(c, ` נשארו לך ${c.binaryRemaining} מתוך 5. ${gm(c, "סמן", "סמני", "סמן/י")} בכרטיס הקורס במתכנן (לקורס שהושלם עם ציון).`, ` You have ${c.binaryRemaining} of 5 left. Mark it on the course card in the planner.`)
         : he(c, " (זמין לזכאי מילואים בלבד.)", " (Available to miluim-eligible students only.)");
       return { text: base + quota, href: "/planner", cta: he(c, "למתכנן", "Open planner") };
     },
@@ -272,7 +272,7 @@ const HANDLERS: Handler[] = [
       );
       if (!lvl) {
         return {
-          text: he(c, `${content} לא הזנת ציון אמירנט — הוסף אותו בהגדרות כדי לדעת אם אתה פטור או צריך קורסי רמה.`, `${content} You haven't entered an Amirnet score — add it in settings to see if you're exempt or owe level courses.`),
+          text: he(c, `${content} לא הזנת ציון אמירנט — ${gm(c, "הוסף", "הוסיפי", "הוסף/י")} אותו בהגדרות כדי לדעת אם ${gm(c, "אתה פטור או צריך", "את פטורה או צריכה", "את/ה פטור/ה או צריך/ה")} קורסי רמה.`, `${content} You haven't entered an Amirnet score — add it in settings to see if you're exempt or owe level courses.`),
           href: "/settings",
           cta: he(c, "להגדרות", "Settings"),
         };
@@ -531,7 +531,7 @@ const NORMALIZED_HANDLERS = HANDLERS.map((h) => ({
 export function answerDegreeQuestion(question: string, c: QAContext): QAAnswer {
   const q = normalize(question);
   if (!q) {
-    return { text: he(c, "שאל אותי כל דבר על התואר שלך 🙂", "Ask me anything about your degree 🙂"), matched: false };
+    return { text: he(c, `${gm(c, "שאל", "שאלי", "שאל/י")} אותי כל דבר על התואר שלך 🙂`, "Ask me anything about your degree 🙂"), matched: false };
   }
   let best: Handler | null = null;
   let bestScore = 0;

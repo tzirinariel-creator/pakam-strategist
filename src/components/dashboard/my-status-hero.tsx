@@ -12,6 +12,7 @@ import {
   CheckCircle2,
 } from "lucide-react";
 import { Link } from "@/i18n/navigation";
+import { usePersonalAddress } from "@/components/personal/use-personal-address";
 import { CREDIT_REQUIREMENTS, GRADE_REQUIREMENTS, getEnglishLevel } from "@/lib/constants";
 import { roundScore } from "@/lib/grade-calculator";
 import { Bidi } from "@/lib/bidi";
@@ -75,6 +76,7 @@ export function MyStatusHero({
 
   const earned = credits?.earned ?? 0;
   const planned = credits?.planned ?? 0;
+  const { g: pg } = usePersonalAddress();
   const exempt = credits?.miluimExemption ?? 0;
   const effective = credits?.effectiveTotal ?? earned + planned + exempt;
   const remaining = Math.max(0, target - effective);
@@ -394,7 +396,7 @@ export function MyStatusHero({
           </p>
         ) : (
           <p className="text-xs text-foreground/45">
-            {isHe ? "אתה בכיוון הנכון 🎯" : "You're on track 🎯"}
+            {isHe ? `${pg("אתה בכיוון הנכון", "את בכיוון הנכון", "את/ה בכיוון הנכון")} 🎯` : "You're on track 🎯"}
           </p>
         )}
         {/* The single, clear bridge from "my status" to "where I plan". This
