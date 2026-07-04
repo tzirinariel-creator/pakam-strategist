@@ -119,7 +119,7 @@ export function SemesterSummary({
         <div className="space-y-1.5">
           <div className="flex items-center justify-between text-xs">
             <span className="text-foreground/50">{t("creditsPlannedSoFar")}</span>
-            <span className="font-mono font-medium text-foreground/70">
+            <span className="font-mono font-medium text-foreground/70" dir="ltr">
               {totalCredits}/150
             </span>
           </div>

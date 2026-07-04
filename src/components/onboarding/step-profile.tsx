@@ -45,6 +45,16 @@ export function StepProfile({ data, onUpdate }: StepProfileProps) {
     onUpdate({ miluimGroup: g });
   };
 
+  // Explicitly picking a group (a special case like career-service, or the
+  // manual selector) overrides the day model. Clear the day inputs too — else a
+  // day count entered earlier would re-derive a different group on save and
+  // silently win over the explicit choice (audit #12).
+  const setExplicitGroup = (g: MiluimGroupKey) => {
+    setDays(null);
+    setIsCombat(false);
+    onUpdate({ miluimGroup: g, miluimDays: null, miluimCombat: false });
+  };
+
   const yearOptions = [
     { value: 1, label: t("yearA") },
     { value: 2, label: t("yearB") },
@@ -396,7 +406,7 @@ export function StepProfile({ data, onUpdate }: StepProfileProps) {
                     <p className="text-[10px] text-foreground/30"><Bidi text={tm("specialCasesHint")} /></p>
                     {/* 300+ */}
                     <button
-                      onClick={() => onUpdate({ miluimGroup: "GROUP_C" })}
+                      onClick={() => setExplicitGroup("GROUP_C")}
                       className="w-full rounded-lg border border-amber-500/20 bg-amber-500/5 px-3 py-2 text-start text-[11px] text-foreground/60 hover:border-amber-500/30 transition-all"
                     >
                       <span className="flex items-center gap-1.5 font-medium text-amber-500">
@@ -409,7 +419,7 @@ export function StepProfile({ data, onUpdate }: StepProfileProps) {
                         (owner-confirmed 4.7). A career soldier isn't a "300+
                         combat days" case, so they get their own explicit path. */}
                     <button
-                      onClick={() => onUpdate({ miluimGroup: "GROUP_C" })}
+                      onClick={() => setExplicitGroup("GROUP_C")}
                       className="w-full rounded-lg border border-amber-500/20 bg-amber-500/5 px-3 py-2 text-start text-[11px] text-foreground/60 hover:border-amber-500/30 transition-all"
                     >
                       <span className="flex items-center gap-1.5 font-medium text-amber-500">
@@ -420,7 +430,7 @@ export function StepProfile({ data, onUpdate }: StepProfileProps) {
                     </button>
                     {/* Bereaved → G */}
                     <button
-                      onClick={() => onUpdate({ miluimGroup: "GROUP_G" })}
+                      onClick={() => setExplicitGroup("GROUP_G")}
                       className="w-full rounded-lg border border-foreground/15 bg-card px-3 py-2 text-start text-[11px] text-foreground/60 hover:border-foreground/30 transition-all"
                     >
                       <span className="font-medium">{tm("specialBereaved")}</span>
@@ -428,7 +438,7 @@ export function StepProfile({ data, onUpdate }: StepProfileProps) {
                     </button>
                     {/* Wounded → G */}
                     <button
-                      onClick={() => onUpdate({ miluimGroup: "GROUP_G" })}
+                      onClick={() => setExplicitGroup("GROUP_G")}
                       className="w-full rounded-lg border border-foreground/15 bg-card px-3 py-2 text-start text-[11px] text-foreground/60 hover:border-foreground/30 transition-all"
                     >
                       <span className="font-medium">{tm("specialWounded")}</span>
@@ -436,7 +446,7 @@ export function StepProfile({ data, onUpdate }: StepProfileProps) {
                     </button>
                     {/* Spouse → B (depends on partner; B as a sensible default, refine manually) */}
                     <button
-                      onClick={() => onUpdate({ miluimGroup: "GROUP_B" })}
+                      onClick={() => setExplicitGroup("GROUP_B")}
                       className="w-full rounded-lg border border-foreground/15 bg-card px-3 py-2 text-start text-[11px] text-foreground/60 hover:border-foreground/30 transition-all"
                     >
                       <span className="font-medium">{tm("specialSpouse")}</span>
@@ -471,7 +481,7 @@ export function StepProfile({ data, onUpdate }: StepProfileProps) {
                       return (
                         <button
                           key={groupKey}
-                          onClick={() => onUpdate({ miluimGroup: groupKey })}
+                          onClick={() => setExplicitGroup(groupKey)}
                           className={cn(
                             "rounded-xl border-2 px-4 py-2.5 text-start text-sm transition-all",
                             isSelected

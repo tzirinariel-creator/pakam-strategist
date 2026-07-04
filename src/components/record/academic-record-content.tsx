@@ -17,6 +17,7 @@ import {
 } from "lucide-react";
 import { api } from "@/lib/trpc/react";
 import { invalidatePlanData } from "@/lib/trpc/invalidate-plan";
+import { countsTowardAverage } from "@/lib/grade-calculator";
 import { ThemedLoader } from "@/components/ui/themed-loader";
 import { AskKingButton } from "@/components/ui/ask-king-button";
 import { GradeSheetScanner } from "@/components/record/grade-sheet-scanner";
@@ -855,11 +856,11 @@ export function AcademicRecordContent() {
     [completedCourses]
   );
   const weightedAvg = useMemo(() => {
-    // Exclude binary-converted courses — the same filter as BinaryAdvisor's
-    // weightedAverage and the King's context, so this number agrees with what
-    // the student sees on /graduation and hears from the assistant. A converted
-    // course keeps its numeric grade but must NOT count toward the average.
-    const graded = completedCourses.filter((c) => c.grade !== null && !c.isBinary);
+    // Use the ONE shared definition (excludes seminar, binary AND English) so
+    // this number agrees with the dashboard, the King and /graduation — not a
+    // near-copy that drifts. (audit: /record was excluding binary but still
+    // counting seminars and English.)
+    const graded = completedCourses.filter(countsTowardAverage);
     const totalCredits = graded.reduce((s, c) => s + c.course.credits, 0);
     if (totalCredits === 0) return null;
     const weightedSum = graded.reduce((s, c) => s + (c.grade ?? 0) * c.course.credits, 0);

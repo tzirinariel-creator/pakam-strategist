@@ -57,22 +57,30 @@ function simpleAverage(values: number[]): number | null {
  * - Referat grade: the single submissionGrade where submissionType === "REFERAT".
  *   If multiple referats exist, we take the most recent (highest attemptNumber).
  */
+/**
+ * The single source of truth for "does this course's numeric grade count toward
+ * the credit-weighted degree average?" Every surface (dashboard hero, the King,
+ * /graduation, /record) MUST use this so they never disagree.
+ * Excludes: non-completed / ungraded; SEMINAR (its grade is in the seminar
+ * buckets); miluim binary/pass-fail (grade removed by design); and ENGLISH
+ * (owner-verified 4.7 — English grades do NOT count toward the PPE average).
+ */
+export function countsTowardAverage(uc: UserCourseWithCourse): boolean {
+  return (
+    uc.status === "COMPLETED" &&
+    uc.grade !== null &&
+    uc.course.courseType !== "SEMINAR" &&
+    uc.course.courseType !== "ENGLISH" &&
+    !uc.isBinary
+  );
+}
+
 export function calculateGrades(
   courses: UserCourseWithCourse[]
 ): GradeBreakdown {
-  // Filter to completed courses with a grade.
-  const completed = courses.filter(
-    (uc) => uc.status === "COMPLETED" && uc.grade !== null
-  );
-
   // ----- Course average (credit-weighted) -----
-  // Exclude SEMINAR courses — their submissionGrade is counted separately
-  // in the seminar paper / referat buckets below. Also exclude miluim
-  // binary (pass/fail) courses — by definition their numeric grade does NOT
-  // count toward the average (the course still counts for degree credit, which
-  // the credit calculator handles separately).
-  const gradedCourses = completed
-    .filter((uc) => uc.course.courseType !== "SEMINAR" && !uc.isBinary)
+  const gradedCourses = courses
+    .filter(countsTowardAverage)
     .map((uc) => ({
       grade: uc.grade!,
       weight: uc.course.credits,

@@ -571,7 +571,7 @@ export const MILUIM_CONFIG = {
   // Social involvement exemption — per official doc section 6
   SOCIAL_INVOLVEMENT_EXEMPTION: {
     credits: 2,                    // 2 ש"ס פטור (חוק מעורבות חברתית)
-    descHe: "סטודנטים ממשיכים: 2 ש\"ס פטור בגין מילואים בתשפ\"ו (אם לא מימשו בעבר, ובתנאי שסה\"כ פטורי המלחמה ≤ 10 ש\"ס)",
+    descHe: "סטודנטים ממשיכים: 2 ש\"ס פטור בגין מילואים בתשפ\"ו (אם לא מימשו בעבר, ובתנאי שסה\"כ פטורי המלחמה עד 10 ש\"ס)",
     descEn: "Continuing students: 2 SH\"S exemption for reserve service in 5786 (if not used before, total war exemptions ≤ 10)",
     onlyIfNotUsedBefore: true,
     maxTotalWarExemptions: 10,

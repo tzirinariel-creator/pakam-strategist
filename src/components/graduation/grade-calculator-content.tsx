@@ -26,7 +26,7 @@ import {
   SEMESTER_CONFIG,
   YEAR_CONFIG,
 } from "@/lib/constants";
-import { roundScore } from "@/lib/grade-calculator";
+import { roundScore, countsTowardAverage } from "@/lib/grade-calculator";
 import type { UserCourseWithCourse, GradeBreakdown } from "@/types/degree";
 import type { CourseStatus, Semester } from "@/types/enums";
 
@@ -229,9 +229,7 @@ function SemesterGpaDisplay({
   courses: UserCourseWithCourse[];
   label: string;
 }) {
-  const graded = courses.filter(
-    (c) => c.status === "COMPLETED" && c.grade !== null
-  );
+  const graded = courses.filter(countsTowardAverage);
   if (graded.length === 0) return null;
 
   const totalCredits = graded.reduce((sum, c) => sum + c.course.credits, 0);
@@ -490,10 +488,9 @@ function ScoreDashboard({
   const score = roundScore(breakdown.weightedScore);
   const courseAvg = roundScore(breakdown.courseAverage);
 
-  // Overall GPA (all completed with grades, credit-weighted)
-  const completed = allCourses.filter(
-    (c) => c.status === "COMPLETED" && c.grade !== null
-  );
+  // Overall GPA — same definition as everywhere else (excludes seminar,
+  // binary and English), so it matches the course-average shown beside it.
+  const completed = allCourses.filter(countsTowardAverage);
   const totalCreditsCompleted = completed.reduce(
     (s, c) => s + c.course.credits,
     0
@@ -593,9 +590,7 @@ function ReverseCalculator({
   const [target, setTarget] = useState(80);
 
   const result = useMemo(() => {
-    const completed = allCourses.filter(
-      (c) => c.status === "COMPLETED" && c.grade !== null
-    );
+    const completed = allCourses.filter(countsTowardAverage);
     const remaining = allCourses.filter(
       (c) => c.status === "PLANNED" || c.status === "IN_PROGRESS"
     );

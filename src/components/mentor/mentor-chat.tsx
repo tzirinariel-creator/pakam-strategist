@@ -327,7 +327,10 @@ export function MentorChat() {
   // No API key state
   // -------------------------------------------------------------------
 
-  if (apiKeyQuery.data && !apiKeyQuery.data.hasKey) {
+  // The assistant is usable with a personal key OR the app's shared free key —
+  // same rule as the floating King. Without this, a student on the shared key
+  // could chat from the bubble but hit a "connect a key" wall on this page.
+  if (apiKeyQuery.data && !apiKeyQuery.data.hasKey && !apiKeyQuery.data.sharedAvailable) {
     return (
       <div className="flex h-full items-center justify-center p-8">
         <div className="mx-auto max-w-md text-center">
@@ -538,7 +541,7 @@ export function MentorChat() {
                 onKeyDown={handleKeyDown}
                 placeholder={t("placeholder")}
                 aria-label={t("placeholder")}
-                disabled={isStreaming || !apiKeyQuery.data?.hasKey}
+                disabled={isStreaming || !(apiKeyQuery.data?.hasKey || apiKeyQuery.data?.sharedAvailable)}
                 rows={1}
                 className={cn(
                   "w-full resize-none rounded-xl border border-border bg-muted/50 px-4 py-3 text-sm outline-none transition-colors",

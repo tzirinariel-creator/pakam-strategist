@@ -565,7 +565,7 @@ export function InsightsBar({
                   {isHe ? focusAreaCfg.nameHe : focusAreaCfg.nameEn}
                 </span>
               </div>
-              <span className="font-mono text-[9px] text-foreground/30 shrink-0">
+              <span className="font-mono text-[9px] text-foreground/30 shrink-0" dir="ltr">
                 {focusAreaCredits}/{CREDIT_REQUIREMENTS.FOCUS_AREA_MIN}
               </span>
             </div>

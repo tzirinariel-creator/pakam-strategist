@@ -260,7 +260,7 @@ const HANDLERS: Handler[] = [
       );
       if (!lvl) {
         return {
-          text: he(c, `${content} לא הזנת ציון אמירם — הוסף אותו בהגדרות כדי לדעת אם אתה פטור או צריך קורסי רמה.`, `${content} You haven't entered an Amiram score — add it in settings to see if you're exempt or owe level courses.`),
+          text: he(c, `${content} לא הזנת ציון אמירנט — הוסף אותו בהגדרות כדי לדעת אם אתה פטור או צריך קורסי רמה.`, `${content} You haven't entered an Amirnet score — add it in settings to see if you're exempt or owe level courses.`),
           href: "/settings",
           cta: he(c, "להגדרות", "Settings"),
         };
@@ -269,10 +269,10 @@ const HANDLERS: Handler[] = [
       // year 1, so a year-2+ student shouldn't be told to take level courses —
       // they should already be exempt (#11). The CONTENT courses still stand.
       const lvlTxt = lvl.isExempt
-        ? he(c, `אתה פטור מקורסי רמה (אמירם ${c.amiramScore}).`, `You're exempt from level courses (Amiram ${c.amiramScore}).`)
+        ? he(c, `אתה פטור מקורסי רמה (אמירנט ${c.amiramScore}).`, `You're exempt from level courses (Amiram ${c.amiramScore}).`)
         : c.currentYear <= 1
-          ? he(c, `אתה ב${lvl.nameHe} (אמירם ${c.amiramScore}) — ${lvl.levelCourses} קורסי רמה. חובה להגיע לפטור (134+) עד סוף שנה א׳.`, `You're at ${lvl.nameEn} (Amiram ${c.amiramScore}) — ${lvl.levelCourses} level course(s). You must reach exemption (134+) by the end of Year 1.`)
-          : he(c, `אתה ב${lvl.nameHe} (אמירם ${c.amiramScore}), אבל הדדליין לפטור היה סוף שנה א׳ — אם עדיין אין לך פטור, פנה לייעוץ אקדמי (קורסי-התוכן באנגלית עדיין נדרשים).`, `You're at ${lvl.nameEn} (Amiram ${c.amiramScore}), but the exemption deadline was the end of Year 1 — if you're still not exempt, see academic advising (the English content courses are still required).`);
+          ? he(c, `אתה ב${lvl.nameHe} (אמירנט ${c.amiramScore}) — ${lvl.levelCourses} קורסי רמה. חובה להגיע לפטור (134+) עד סוף שנה א׳.`, `You're at ${lvl.nameEn} (Amiram ${c.amiramScore}) — ${lvl.levelCourses} level course(s). You must reach exemption (134+) by the end of Year 1.`)
+          : he(c, `אתה ב${lvl.nameHe} (אמירנט ${c.amiramScore}), אבל הדדליין לפטור היה סוף שנה א׳ — אם עדיין אין לך פטור, פנה לייעוץ אקדמי (קורסי-התוכן באנגלית עדיין נדרשים).`, `You're at ${lvl.nameEn} (Amiram ${c.amiramScore}), but the exemption deadline was the end of Year 1 — if you're still not exempt, see academic advising (the English content courses are still required).`);
       // #36 (owner-verified 4.7): English grades do NOT count toward the PPE
       // degree average — Ariel confirmed against a real transcript. (Earlier
       // research had inferred the opposite; the owner's check overrides it.)
@@ -347,7 +347,15 @@ const HANDLERS: Handler[] = [
     keys: ["התמחות", "תחום מיקוד", "מיקוד", "focus", "specialization"],
     answer: (c) => {
       if (!c.hasFocusArea) {
-        return { text: he(c, `עוד לא בחרת תחום התמחות. הוא דורש ${c.focusAreaTarget} ש״ס בדיסציפלינה אחת וקובע גם את הסיווג בשירות המדינה. בחר בהגדרות.`, `You haven't chosen a focus area. It needs ${c.focusAreaTarget} credits in one discipline and sets your civil-service track. Choose in settings.`), href: "/settings", cta: he(c, "לבחירה", "Choose") };
+        return {
+          text: he(
+            c,
+            `ההתמחות היא ${c.focusAreaTarget} ש״ס באחת משלוש הדיסציפלינות, והיא גם קובעת את הסיווג בשירות-המדינה:\n• פילוסופיה — חשיבה, אתיקה, לוגיקה ותורת-המדע.\n• כלכלה — הדיסציפלינה הכמותית ביותר: מודלים, נתונים ומדיניות.\n• מדע המדינה — ממשל, יחסים בין-לאומיים ומדיניות ציבורית.\nאיך בוחרים: לפי מה שהכי מסקרן אותך ללמוד לעומק (${c.focusAreaTarget} ש״ס זה הרבה) ולפי הכיוון שתרצה להתקדם אליו. שווה לעיין בקטלוג ולראות אילו קורסים מדברים אליך — בוחרים בהגדרות, ואפשר לשנות בהמשך.`,
+            `Your focus is ${c.focusAreaTarget} credits in one of three disciplines, and it also sets your civil-service track:\n• Philosophy — reasoning, ethics, logic, philosophy of science.\n• Economics — the most quantitative track: models, data, policy.\n• Political Science — government, international relations, public policy.\nHow to choose: by what you'd most want to study in depth (${c.focusAreaTarget} credits is a lot) and the direction you want to head. Browse the catalog to see which courses speak to you — you choose in settings and can change it later.`
+          ),
+          href: "/catalog",
+          cta: he(c, "עיין בקורסים לפי תחום", "Browse courses by discipline"),
+        };
       }
       const name = c.isHe ? c.focusAreaNameHe : c.focusAreaNameEn;
       const left = Math.max(0, c.focusAreaTarget - c.focusAreaCredits);

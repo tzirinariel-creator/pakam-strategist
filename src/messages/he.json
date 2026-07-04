@@ -458,7 +458,9 @@
       "monday": "שני",
       "tuesday": "שלישי",
       "wednesday": "רביעי",
-      "thursday": "חמישי"
+      "thursday": "חמישי",
+      "friday": "שישי",
+      "saturday": "שבת"
     },
     "examPeriod": "תקופת מבחנים",
     "examCountdown": "{days} ימים למבחנים",

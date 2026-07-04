@@ -81,6 +81,16 @@ describe("calculateGrades", () => {
     expect(r.completedCredits).toBe(4);
   });
 
+  it("excludes ENGLISH courses from the course average (owner-verified #36)", () => {
+    const r = calculateGrades([
+      uc({ grade: 90, credits: 4, courseType: "MANDATORY" }),
+      uc({ grade: 60, credits: 2, courseType: "ENGLISH" }), // English grade must NOT drag the average down
+    ]);
+    expect(r.courseAverage).toBe(90);
+    expect(r.totalGradedCourses).toBe(1);
+    expect(r.completedCredits).toBe(4);
+  });
+
   it("averages seminar papers (simple mean)", () => {
     const r = calculateGrades([
       uc({ courseType: "SEMINAR", submissionType: "PAPER", submissionGrade: 90 }),
