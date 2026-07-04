@@ -28,6 +28,17 @@ describe("weightedAverage", () => {
   it("returns null with no graded credits", () => {
     expect(weightedAverage([])).toBeNull();
   });
+
+  it("excludes SEMINAR and ENGLISH so it matches the canonical GPA (verification 4.7)", () => {
+    const avg = weightedAverage([
+      course({ grade: 90, credits: 6, courseType: "MANDATORY" }),
+      course({ grade: 60, credits: 2, courseType: "MANDATORY" }),
+      course({ grade: 100, credits: 4, courseType: "SEMINAR" }), // excluded
+      course({ grade: 100, credits: 2, courseType: "ENGLISH" }), // excluded
+    ]);
+    // Only the two mandatory courses: (90*6 + 60*2) / 8 = 82.5
+    expect(avg).toBeCloseTo(82.5);
+  });
 });
 
 describe("rankBinaryCandidates", () => {

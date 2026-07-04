@@ -985,6 +985,11 @@ function year1WeightedAverage(
       uc.plannedYear === 1 &&
       uc.status === "COMPLETED" &&
       uc.grade !== null &&
+      // Binary-converted courses are out of the GPA everywhere else — so they
+      // must not count in the BLOCKING year-1→2 transition gate either. A
+      // reservist who converts a weak year-1 course to protect standing would
+      // otherwise be misled by a gate that still counts that grade.
+      !uc.isBinary &&
       match(uc)
   );
   if (courses.length === 0) return { average: null, courseCount: 0 };

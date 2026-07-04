@@ -65,18 +65,6 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: DEMO_READONLY_MESSAGE }, { status: 403 });
     }
 
-    // Vision calls are heavier than chat: 10 scans/day per user.
-    const perUser = checkRateLimit(`scan-day:${authUser.id}`, {
-      maxRequests: 10,
-      windowSeconds: 86_400,
-    });
-    if (!perUser.allowed) {
-      return NextResponse.json(
-        { error: errs.rateLimit },
-        { status: 429, headers: { "Retry-After": String(perUser.resetInSeconds) } },
-      );
-    }
-
     const parsed = scanInputSchema.safeParse(await request.json());
     if (!parsed.success) {
       return NextResponse.json({ error: "Invalid input" }, { status: 400 });
@@ -106,6 +94,21 @@ export async function POST(request: NextRequest) {
     }
     if (!encryptedKey) {
       return NextResponse.json({ error: errs.noKey }, { status: 412 });
+    }
+
+    // Per-user daily quota — checked AFTER auth/validation/key-resolution so a
+    // failed attempt (bad input 400, no key 412) never burns one of the 10
+    // daily scans. checkRateLimit increments the counter, so it must run only on
+    // a genuine scan attempt. (verification 4.7)
+    const perUser = checkRateLimit(`scan-day:${authUser.id}`, {
+      maxRequests: 10,
+      windowSeconds: 86_400,
+    });
+    if (!perUser.allowed) {
+      return NextResponse.json(
+        { error: errs.rateLimit },
+        { status: 429, headers: { "Retry-After": String(perUser.resetInSeconds) } },
+      );
     }
 
     if (usingSharedKey) {

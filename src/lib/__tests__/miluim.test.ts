@@ -5,6 +5,7 @@ import {
   computeCreditExemption,
   binaryDegreeCap,
   binaryCapRemaining,
+  hasMiluimBinaryBenefit,
   honorsBinaryPercent,
   honorsBinaryStatus,
   getCurrentAcademicYear,
@@ -375,5 +376,18 @@ describe("new miluim rules never block (no ERROR severity)", () => {
       const r = summary.results.find((x) => x.ruleId === id);
       expect(["WARNING", "INFO"]).toContain(r?.severity);
     }
+  });
+});
+
+describe("hasMiluimBinaryBenefit — the single binary-eligibility gate (verification 4.7)", () => {
+  it("grants the binary benefit only to groups B and C", () => {
+    expect(hasMiluimBinaryBenefit("GROUP_B")).toBe(true);
+    expect(hasMiluimBinaryBenefit("GROUP_C")).toBe(true);
+  });
+  it("denies it to A, G and NONE (config binary cap 0) so every surface agrees", () => {
+    expect(hasMiluimBinaryBenefit("GROUP_A")).toBe(false);
+    expect(hasMiluimBinaryBenefit("GROUP_G")).toBe(false);
+    expect(hasMiluimBinaryBenefit("NONE")).toBe(false);
+    expect(hasMiluimBinaryBenefit(null)).toBe(false);
   });
 });

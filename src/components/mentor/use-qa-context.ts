@@ -7,6 +7,7 @@ import { DISCIPLINE_CONFIG, CREDIT_REQUIREMENTS } from "@/lib/constants";
 import {
   deriveCurrentGroup,
   binaryCapRemaining,
+  hasMiluimBinaryBenefit,
   getCurrentAcademicYear,
   type MiluimGroupKey,
 } from "@/lib/miluim";
@@ -74,11 +75,11 @@ export function useDegreeQAContext(enabled = true): { ctx: QAContext; ready: boo
       gender: profile?.gender === "male" || profile?.gender === "female" ? profile.gender : null,
       amiramScore: profile?.amiramScore ?? null,
       miluimGroupName: groupName,
-      // Retroactive binary conversion (dropping a graded course from the GPA)
-      // is a miluim accommodation. binaryCapRemaining falls back to the
-      // universal BA cap of 5 for group NONE, so gate it: a non-reservist has
-      // 0 of this lever, and the King must not offer it to them.
-      binaryRemaining: group === "NONE" ? 0 : binaryCapRemaining(profile?.miluimBinaryUsed ?? 0, group),
+      // Binary conversion is a miluim benefit only groups B/C actually grant.
+      // binaryCapRemaining falls back to the universal BA cap of 5 for any
+      // non-NONE group, so gate on the single hasMiluimBinaryBenefit source —
+      // A/G/NONE get 0, and the King never offers them a phantom conversion.
+      binaryRemaining: hasMiluimBinaryBenefit(group) ? binaryCapRemaining(profile?.miluimBinaryUsed ?? 0, group) : 0,
       failedRules,
       seminarPlannedCount:
         planQuery.data?.courses?.filter((c) => c.course.courseType === "SEMINAR").length ?? 0,

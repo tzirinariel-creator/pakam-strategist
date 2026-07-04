@@ -12,6 +12,7 @@ import { DISCIPLINE_CONFIG } from "@/lib/constants";
 import {
   deriveCurrentGroup,
   binaryCapRemaining,
+  hasMiluimBinaryBenefit,
   getCurrentAcademicYear,
   type MiluimGroupKey,
 } from "@/lib/miluim";
@@ -92,7 +93,8 @@ export function DegreeAssistant() {
       currentYear: profile?.currentYear ?? 1,
       amiramScore: profile?.amiramScore ?? null,
       miluimGroupName: groupName,
-      binaryRemaining: binaryCapRemaining(profile?.miluimBinaryUsed ?? 0, group),
+      // Same single gate as use-qa-context — only B/C get binary; A/G/NONE = 0.
+      binaryRemaining: hasMiluimBinaryBenefit(group) ? binaryCapRemaining(profile?.miluimBinaryUsed ?? 0, group) : 0,
       failedRules,
       seminarPlannedCount:
         planQuery.data?.courses?.filter((c) => c.course.courseType === "SEMINAR").length ?? 0,

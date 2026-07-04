@@ -61,18 +61,6 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: DEMO_READONLY_MESSAGE }, { status: 403 });
     }
 
-    // Shared daily budget with the grades scanner (same vision quota class).
-    const perUser = checkRateLimit(`scan-day:${authUser.id}`, {
-      maxRequests: 10,
-      windowSeconds: 86_400,
-    });
-    if (!perUser.allowed) {
-      return NextResponse.json(
-        { error: errs.rateLimit },
-        { status: 429, headers: { "Retry-After": String(perUser.resetInSeconds) } },
-      );
-    }
-
     const parsed = scanInputSchema.safeParse(await request.json());
     if (!parsed.success) {
       return NextResponse.json({ error: "Invalid input" }, { status: 400 });
@@ -100,6 +88,19 @@ export async function POST(request: NextRequest) {
     }
     if (!encryptedKey) {
       return NextResponse.json({ error: errs.noKey }, { status: 412 });
+    }
+
+    // Per-user daily quota AFTER auth/validation/key-resolution — a failed
+    // attempt (bad input, no key) must not burn a daily scan. (verification 4.7)
+    const perUser = checkRateLimit(`scan-day:${authUser.id}`, {
+      maxRequests: 10,
+      windowSeconds: 86_400,
+    });
+    if (!perUser.allowed) {
+      return NextResponse.json(
+        { error: errs.rateLimit },
+        { status: 429, headers: { "Retry-After": String(perUser.resetInSeconds) } },
+      );
     }
 
     if (usingSharedKey) {

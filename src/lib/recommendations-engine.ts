@@ -14,6 +14,7 @@
 // recommendation isn't shown.
 
 import { CREDIT_REQUIREMENTS, GRADE_REQUIREMENTS, getEnglishLevel } from "@/lib/constants";
+import { hasMiluimBinaryBenefit, type MiluimGroupKey } from "@/lib/miluim";
 
 // -------------------------------------------------------------------
 // Types
@@ -345,11 +346,12 @@ export function buildRecommendations(
 
   // 8. Binary candidate (miluim benefit) — a low-grade, heavy, non-seminar
   //    course drags the credit-weighted GPA; converting it to pass/fail removes
-  //    the drag while keeping the credit. Only for miluim-eligible students
-  //    (groups B/C/G) with conversions left. Excludes seminars and courses with
-  //    a future Moed B (where retaking the grade is the better move).
+  //    the drag while keeping the credit. Only for groups that actually grant
+  //    the binary benefit (B/C — the single hasMiluimBinaryBenefit gate, so this
+  //    agrees with the "My benefits" window and the record advisor). Excludes
+  //    seminars and courses with a future Moed B (retaking is the better move).
   const binaryEligible =
-    ["GROUP_B", "GROUP_C", "GROUP_G"].includes(input.miluimGroup) &&
+    hasMiluimBinaryBenefit(input.miluimGroup as MiluimGroupKey) &&
     input.binaryRemaining > 0;
   if (binaryEligible) {
     const candidate = completed

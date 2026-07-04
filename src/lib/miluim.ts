@@ -190,6 +190,20 @@ export function binaryDegreeCap(group?: MiluimGroupKey | null): number {
 }
 
 /**
+ * Whether a group actually GRANTS the miluim binary-conversion benefit
+ * (retroactively removing a graded course from the average). This is the ONE
+ * gate every surface must use so they never disagree: the "My benefits" window,
+ * the dashboard recommendations, the record advisor and the King all agree.
+ * Per MILUIM_CONFIG only groups B and C set binaryGradeDegreeCap > 0; A, G and
+ * NONE do not get this benefit (their config cap is 0). If the מתווה says
+ * otherwise for a group, change its config cap — not this gate.
+ */
+export function hasMiluimBinaryBenefit(group?: MiluimGroupKey | null): boolean {
+  if (!group || group === "NONE") return false;
+  return (MILUIM_CONFIG.GROUPS[group]?.binaryGradeDegreeCap ?? 0) > 0;
+}
+
+/**
  * The honors (rector/dean) binary ceiling as a PERCENT of the year's course
  * hours: binary-converted course hours must be ≤ this percent to stay an
  * excellence candidate (domain §6). Reads MILUIM_CONFIG.BINARY_GRADE.

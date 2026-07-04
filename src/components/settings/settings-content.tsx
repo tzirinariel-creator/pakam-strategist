@@ -1072,7 +1072,11 @@ function MiluimSection() {
     if (!profileQuery.data) return;
     setCreditsUsed(profileQuery.data.miluimCreditsUsed ?? 0);
     setBinaryUsedInput(profileQuery.data.miluimBinaryUsed ?? 0);
-    setManualGroup(profileQuery.data.miluimGroup ?? "NONE");
+    setManualGroup(
+      profileQuery.data.miluimCareerService
+        ? "CAREER_SERVICE"
+        : (profileQuery.data.miluimGroup ?? "NONE")
+    );
   }, [profileQuery.data]);
 
   const upsertMutation = api.user.upsertMiluimSemester.useMutation({
@@ -1243,19 +1247,24 @@ function MiluimSection() {
           </label>
           <p className="mb-2.5 text-xs text-foreground/45">
             {isHe
-              ? "שירות-קבע / 300+ ימים מ-7.10.23 ← קבוצה C · שכול או נפגע-פעולה ← קבוצה G. אם זה המצב שלך, בחר כאן."
-              : "Career service / 300+ days since Oct 7 2023 → Group C · bereaved or wounded → Group G. If that's you, pick it here."}
+              ? "300+ ימי-לחימה מ-7.10.23 ← קבוצה C · שכול או נפגע-פעולה ← קבוצה G · משרת/ת קבע בתוכנית שירות ← האפשרות הייעודית למטה. אם זה המצב שלך, בחר כאן."
+              : "300+ combat days since Oct 7 2023 → Group C · bereaved or wounded → Group G · career service → the dedicated option below. If that's you, pick it here."}
           </p>
           <Select
             value={manualGroup}
             onValueChange={(g) => {
               setManualGroup(g);
-              updateProfileMutation.mutate({
-                miluimGroup: g as "NONE" | "GROUP_A" | "GROUP_B" | "GROUP_C" | "GROUP_G",
-                // A manual group pick here is not the career-service path — clear
-                // any stale career-service flag so the label stays correct.
-                miluimCareerService: false,
-              });
+              if (g === "CAREER_SERVICE") {
+                // Career service in a service-track program → Group C, WITH the
+                // marker so the label reads "משרת/ת קבע", not "35+ reserve days".
+                updateProfileMutation.mutate({ miluimGroup: "GROUP_C", miluimCareerService: true });
+              } else {
+                updateProfileMutation.mutate({
+                  miluimGroup: g as "NONE" | "GROUP_A" | "GROUP_B" | "GROUP_C" | "GROUP_G",
+                  // A plain group pick is not career service — clear the flag.
+                  miluimCareerService: false,
+                });
+              }
             }}
           >
             <SelectTrigger className="w-full sm:w-72" aria-labelledby="miluim-manual-group-label">
@@ -1267,6 +1276,9 @@ function MiluimSection() {
                   {isHe ? MILUIM_CONFIG.GROUPS[g].nameHe : MILUIM_CONFIG.GROUPS[g].nameEn}
                 </SelectItem>
               ))}
+              <SelectItem value="CAREER_SERVICE">
+                {isHe ? "משרת/ת קבע (בתוכנית שירות) — קבוצה C" : "Career service (service-track) — Group C"}
+              </SelectItem>
             </SelectContent>
           </Select>
           {/* Make the day-row precedence visible: if the student set a manual

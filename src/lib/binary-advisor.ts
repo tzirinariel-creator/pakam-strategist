@@ -25,9 +25,22 @@ export interface BinaryCandidate {
   delta: number;
 }
 
-/** Credit-weighted average over graded, non-binary courses. */
+/**
+ * Credit-weighted average over the courses that count toward the degree GPA —
+ * the SAME definition as grade-calculator.countsTowardAverage: exclude binary
+ * (pass/fail), SEMINAR and ENGLISH. Using the same rule here means the advisor's
+ * "current average" and every "would raise it to X" match the number the
+ * dashboard/King/graduation show (else the advice — and the value piped into the
+ * King prompt — would be wrong).
+ */
 export function weightedAverage(courses: GradedCourseLite[]): number | null {
-  const pool = courses.filter((c) => !c.isBinary && c.credits > 0);
+  const pool = courses.filter(
+    (c) =>
+      !c.isBinary &&
+      c.credits > 0 &&
+      (c.courseType ?? "").toUpperCase() !== "SEMINAR" &&
+      (c.courseType ?? "").toUpperCase() !== "ENGLISH",
+  );
   const credits = pool.reduce((s, c) => s + c.credits, 0);
   if (credits === 0) return null;
   return pool.reduce((s, c) => s + c.grade * c.credits, 0) / credits;
