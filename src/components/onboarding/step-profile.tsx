@@ -405,6 +405,19 @@ export function StepProfile({ data, onUpdate }: StepProfileProps) {
                       </span>
                       <span className="block mt-0.5 text-foreground/30">{tm("special300Desc")}</span>
                     </button>
+                    {/* Career service in a service-track program → Group C
+                        (owner-confirmed 4.7). A career soldier isn't a "300+
+                        combat days" case, so they get their own explicit path. */}
+                    <button
+                      onClick={() => onUpdate({ miluimGroup: "GROUP_C" })}
+                      className="w-full rounded-lg border border-amber-500/20 bg-amber-500/5 px-3 py-2 text-start text-[11px] text-foreground/60 hover:border-amber-500/30 transition-all"
+                    >
+                      <span className="flex items-center gap-1.5 font-medium text-amber-500">
+                        <Shield className="h-3 w-3" />
+                        <Bidi text={tm("specialCareer")} />
+                      </span>
+                      <span className="block mt-0.5 text-foreground/30">{tm("specialCareerDesc")}</span>
+                    </button>
                     {/* Bereaved → G */}
                     <button
                       onClick={() => onUpdate({ miluimGroup: "GROUP_G" })}

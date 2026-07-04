@@ -169,9 +169,10 @@ describe("answerDegreeQuestion", () => {
     expect(a.text).toMatch(/לא משפיע/);
   });
 
-  it("tells a non-exempt student the Advanced-2 grade counts toward the average (#36)", () => {
+  it("tells a non-exempt student English does NOT count toward the average (#36, owner-verified)", () => {
     const a = answerDegreeQuestion("מה הסטטוס שלי באנגלית?", ctx({ amiramScore: 100 }));
-    expect(a.text).toContain("נספר בממוצע");
+    expect(a.text).toMatch(/אינו נכנס לממוצע|לא משפיע/);
+    expect(a.text).not.toMatch(/נספר בממוצע/);
   });
 
   it("routes 'נקודות זכות' to credits, not to the bidding handler", () => {

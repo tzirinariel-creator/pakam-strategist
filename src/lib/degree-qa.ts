@@ -273,11 +273,12 @@ const HANDLERS: Handler[] = [
         : c.currentYear <= 1
           ? he(c, `אתה ב${lvl.nameHe} (אמירם ${c.amiramScore}) — ${lvl.levelCourses} קורסי רמה. חובה להגיע לפטור (134+) עד סוף שנה א׳.`, `You're at ${lvl.nameEn} (Amiram ${c.amiramScore}) — ${lvl.levelCourses} level course(s). You must reach exemption (134+) by the end of Year 1.`)
           : he(c, `אתה ב${lvl.nameHe} (אמירם ${c.amiramScore}), אבל הדדליין לפטור היה סוף שנה א׳ — אם עדיין אין לך פטור, פנה לייעוץ אקדמי (קורסי-התוכן באנגלית עדיין נדרשים).`, `You're at ${lvl.nameEn} (Amiram ${c.amiramScore}), but the exemption deadline was the end of Year 1 — if you're still not exempt, see academic advising (the English content courses are still required).`);
-      // #36 (resolved): the Advanced-2 English grade DOES count toward the
-      // degree average; an exemption means there's simply no English grade.
+      // #36 (owner-verified 4.7): English grades do NOT count toward the PPE
+      // degree average — Ariel confirmed against a real transcript. (Earlier
+      // research had inferred the opposite; the owner's check overrides it.)
       const avgNote = lvl.isExempt
-        ? he(c, "כפטור — אין לך ציון-אנגלית, אז אנגלית לא משפיעה על הממוצע.", "As exempt, you have no English grade, so English doesn't affect your average.")
-        : he(c, "לתשומת לבך: ציון הקורס 'מתקדמים ב'' נספר בממוצע התואר.", "Note: the 'Advanced 2' course grade counts toward your degree average.");
+        ? he(c, "כפטור — אין לך ציון-אנגלית, ואנגלית לא משפיעה על הממוצע.", "As exempt, you have no English grade, and English doesn't affect your average.")
+        : he(c, "טוב לדעת: ציון קורסי-האנגלית אינו נכנס לממוצע התואר.", "Good to know: your English course grades don't count toward the degree average.");
       return { text: `${content} ${lvlTxt} ${avgNote}` };
     },
   },

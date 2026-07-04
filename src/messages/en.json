@@ -625,6 +625,8 @@
       "specialCasesToggle": "Special cases",
       "specialCasesHint": "300+ days, bereaved family, spouse of a casualty, retroactive calc, regular-army front-line — tap for details.",
       "special300": "Combat, 300+ days since Oct 7 2023",
+      "specialCareer": "Career service (service-track program)",
+      "specialCareerDesc": "Career service in a service-track program is classified as Group C",
       "special300Desc": "Automatic Group C, support through degree end",
       "specialBereaved": "Bereaved family member",
       "specialBereavedDesc": "First-degree relative of a fallen soldier — handled by the Dean of Students",
