@@ -126,6 +126,8 @@ function ProfileSection() {
   });
 
   const [displayName, setDisplayName] = useState<string>("");
+  const [firstName, setFirstName] = useState<string>("");
+  const [gender, setGender] = useState<string>(""); // "" | "male" | "female"
   const [amirantScore, setAmirantScore] = useState<string>("");
   const [focusArea, setFocusArea] = useState<string>("");
   const [currentYear, setCurrentYear] = useState<string>("");
@@ -136,6 +138,8 @@ function ProfileSection() {
   useEffect(() => {
     if (profileQuery.data) {
       setDisplayName(profileQuery.data.displayName ?? "");
+      setFirstName(profileQuery.data.firstName ?? "");
+      setGender(profileQuery.data.gender ?? "");
       setAmirantScore(
         profileQuery.data.amiramScore != null
           ? String(profileQuery.data.amiramScore)
@@ -155,6 +159,9 @@ function ProfileSection() {
     if (trimmedName) {
       input.displayName = trimmedName;
     }
+    // Personal address — first name (for greetings) + gender (for gendered copy).
+    input.firstName = firstName.trim() || null;
+    input.gender = gender === "male" || gender === "female" ? gender : null;
     // AMIRANT/English-placement score — clamp into the 50–150 zod range, or
     // clear it (null) when the field is emptied.
     const trimmedScore = amirantScore.trim();
@@ -254,6 +261,42 @@ function ProfileSection() {
             maxLength={100}
             placeholder={t("displayNamePlaceholder")}
           />
+        </div>
+
+        {/* Personal address — first name + gender for a personalized, gendered UI */}
+        <div className="flex flex-col gap-1.5">
+          <label htmlFor="settings-first-name" className="text-sm font-medium text-foreground/80">
+            {t("firstNameLabel")}
+          </label>
+          <p className="text-xs text-foreground/40">{t("firstNameHint")}</p>
+          <Input
+            id="settings-first-name"
+            value={firstName}
+            onChange={(e) => setFirstName(e.target.value)}
+            maxLength={50}
+            placeholder={t("firstNamePlaceholder")}
+          />
+          <div className="mt-1 grid grid-cols-3 gap-2">
+            {([
+              { value: "female", label: t("genderFemale") },
+              { value: "male", label: t("genderMale") },
+              { value: "", label: t("genderNeutral") },
+            ]).map((opt) => (
+              <button
+                key={opt.value || "neutral"}
+                type="button"
+                onClick={() => setGender(opt.value)}
+                className={cn(
+                  "rounded-lg border px-3 py-2 text-xs font-medium transition-colors",
+                  gender === opt.value
+                    ? "border-foreground bg-foreground/10 text-foreground/80"
+                    : "border-border bg-card text-foreground/55 hover:border-foreground/30"
+                )}
+              >
+                {opt.label}
+              </button>
+            ))}
+          </div>
         </div>
 
         {/* AMIRANT / English-placement score */}
