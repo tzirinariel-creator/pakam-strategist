@@ -13,6 +13,7 @@ import type { UserCourseWithCourse } from "@/types/degree";
 import type { Semester } from "@/types/enums";
 import type { PrismaClient, MiluimGroup } from "@prisma/client";
 import { calculateCredits } from "@/lib/credit-calculator";
+import { firstNameOf } from "@/lib/personal-address";
 import { calculateGrades } from "@/lib/grade-calculator";
 import { runRegulationEngine } from "@/lib/regulations/rule-engine";
 import { computeCreditExemption, deriveCurrentGroup, getCurrentAcademicYear } from "@/lib/miluim";
@@ -34,6 +35,10 @@ export interface UserForContext {
   focusArea: string | null;
   currentYear: number;
   currentSemester: string;
+  /** Personal address — so the King greets by name and in the right gender. */
+  firstName?: string | null;
+  displayName?: string | null;
+  gender?: string | null;
   /** AMIRANT English placement score (DB column kept as amiramScore). */
   amiramScore?: number | null;
   /** Miluim fields — so the mentor's credit total + regulation list match the
@@ -226,6 +231,8 @@ export async function buildUserContext(
     }));
 
   return {
+    firstName: firstNameOf(user),
+    gender: user.gender === "male" || user.gender === "female" ? user.gender : null,
     focusArea: user.focusArea as MentorContext["focusArea"],
     // effectiveTotal (credits + miluim exemption) — the same figure the "My
     // status" hero headlines, so the mentor narrates the same number (#19).

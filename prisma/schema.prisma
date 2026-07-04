@@ -89,6 +89,9 @@ model User {
   supabaseId             String    @unique
   email                  String    @unique
   displayName            String?
+  firstName              String?   // for a personal, name-based salutation
+  lastName               String?
+  gender                 String?   // "male" | "female" — drives gendered Hebrew address
   avatarUrl              String?
   focusArea              String?
   currentYear            Int       @default(1)
@@ -101,6 +104,7 @@ model User {
   locale                 String    @default("he")
   theme                  String    @default("dark")
   miluimGroup            MiluimGroup @default(NONE)
+  miluimCareerService    Boolean   @default(false) // Group C via career service (not 35+ reserve days) — drives the correct label
   miluimCreditsUsed      Int       @default(0) // max 10 across the degree (credit-exemption-used counter)
   miluimBinaryUsed       Int       @default(0) // binary (pass/fail) conversions used across the degree (BA cap 5)
   amiramScore            Int?      // Amiram English proficiency score

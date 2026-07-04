@@ -49,10 +49,10 @@ export function StepProfile({ data, onUpdate }: StepProfileProps) {
   // manual selector) overrides the day model. Clear the day inputs too — else a
   // day count entered earlier would re-derive a different group on save and
   // silently win over the explicit choice (audit #12).
-  const setExplicitGroup = (g: MiluimGroupKey) => {
+  const setExplicitGroup = (g: MiluimGroupKey, career = false) => {
     setDays(null);
     setIsCombat(false);
-    onUpdate({ miluimGroup: g, miluimDays: null, miluimCombat: false });
+    onUpdate({ miluimGroup: g, miluimDays: null, miluimCombat: false, miluimCareerService: career });
   };
 
   const yearOptions = [
@@ -148,6 +148,43 @@ export function StepProfile({ data, onUpdate }: StepProfileProps) {
       </div>
 
       <div className="mt-8 w-full max-w-xl space-y-6">
+        {/* Personal address — name + gender, so the whole app talks to the
+            student personally and in the right gender. Both optional. */}
+        <div className="animate-stagger-1">
+          <h3 className="mb-1 text-sm font-medium text-foreground/70">
+            {t("personalTitle")}
+          </h3>
+          <p className="mb-3 text-xs text-foreground/40">{t("personalHint")}</p>
+          <input
+            type="text"
+            value={data.firstName ?? ""}
+            onChange={(e) => onUpdate({ firstName: e.target.value || null })}
+            placeholder={t("firstNamePlaceholder")}
+            maxLength={50}
+            className="w-full rounded-xl border-2 border-border bg-card px-4 py-3 text-sm text-foreground/80 outline-none transition-colors focus:border-foreground/40"
+          />
+          <div className="mt-3 grid grid-cols-2 gap-3">
+            {([
+              { value: "female" as const, label: t("genderFemale") },
+              { value: "male" as const, label: t("genderMale") },
+            ]).map((option) => (
+              <button
+                key={option.value}
+                type="button"
+                onClick={() => onUpdate({ gender: option.value })}
+                className={cn(
+                  "rounded-xl border-2 px-4 py-2.5 text-sm font-medium transition-all",
+                  data.gender === option.value
+                    ? "border-foreground bg-foreground/10 text-foreground/80 shadow-sm"
+                    : "border-border bg-card text-foreground/60 hover:border-foreground/30"
+                )}
+              >
+                {option.label}
+              </button>
+            ))}
+          </div>
+        </div>
+
         {/* Year selection */}
         <div className="animate-stagger-2">
           <h3 className="mb-3 text-sm font-medium text-foreground/70">
@@ -419,7 +456,7 @@ export function StepProfile({ data, onUpdate }: StepProfileProps) {
                         (owner-confirmed 4.7). A career soldier isn't a "300+
                         combat days" case, so they get their own explicit path. */}
                     <button
-                      onClick={() => setExplicitGroup("GROUP_C")}
+                      onClick={() => setExplicitGroup("GROUP_C", true)}
                       className="w-full rounded-lg border border-amber-500/20 bg-amber-500/5 px-3 py-2 text-start text-[11px] text-foreground/60 hover:border-amber-500/30 transition-all"
                     >
                       <span className="flex items-center gap-1.5 font-medium text-amber-500">

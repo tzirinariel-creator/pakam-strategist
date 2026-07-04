@@ -75,7 +75,23 @@ export function MiluimStatusBar() {
 
   const cfg = MILUIM_CONFIG.GROUPS[group];
   const style = GROUP_STYLE[group as Exclude<MiluimGroupKey, "NONE">];
-  const groupName = isHe ? cfg.nameHe : cfg.nameEn;
+  // A career soldier is classified as Group C but did NOT serve 35+ reserve
+  // days — show a career-service label instead of the reservist criteria.
+  const isCareerService = !!profile.miluimCareerService && group === "GROUP_C";
+  const groupName = isCareerService
+    ? isHe
+      ? "קבוצה C — משרת/ת קבע"
+      : "Group C — career service"
+    : isHe
+      ? cfg.nameHe
+      : cfg.nameEn;
+  const groupDesc = isCareerService
+    ? isHe
+      ? "משרת/ת קבע בתוכנית שירות — מסווג/ת לקבוצה C עם מלוא הטבות הקבוצה."
+      : "Career service in a service-track program — classified as Group C with the full Group C benefits."
+    : isHe
+      ? cfg.descHe
+      : cfg.descEn;
   // Grouped, human, honest benefits for THIS group (replaces the old flat list).
   const benefitGroups = buildBenefitGroups(group, cfg);
 
@@ -147,7 +163,7 @@ export function MiluimStatusBar() {
                   <Bidi text={groupName} />
                 </DialogPrimitive.Title>
                 <DialogPrimitive.Description className="mt-0.5 text-xs leading-relaxed text-foreground/55">
-                  <Bidi text={isHe ? cfg.descHe : cfg.descEn} />
+                  <Bidi text={groupDesc} />
                 </DialogPrimitive.Description>
               </div>
               <DialogPrimitive.Close

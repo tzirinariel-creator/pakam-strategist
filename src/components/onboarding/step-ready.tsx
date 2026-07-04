@@ -157,7 +157,12 @@ export function StepReady({ data, plannedSemesters, completedCourses, allCourses
           // stale focus and (b) was the focus-desync in #22.
           focusArea: data.focusArea ?? null,
           miluimGroup: data.miluimGroup,
+          miluimCareerService: data.miluimCareerService ?? false,
           amiramScore: data.amirantScore,
+          // Personal address — name + gender for a personalized, gendered UI.
+          firstName: data.firstName ?? null,
+          lastName: data.lastName ?? null,
+          gender: data.gender ?? null,
         }),
         15000,
       );

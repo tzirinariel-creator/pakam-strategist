@@ -6,6 +6,7 @@ import { useLocale, useTranslations } from "next-intl";
 import { useSearchParams } from "next/navigation";
 import { Link } from "@/i18n/navigation";
 import { api } from "@/lib/trpc/react";
+import { firstNameOf } from "@/lib/personal-address";
 import { TipCard } from "@/components/shared/tip-card";
 import { getContextualTips, getRandomTip } from "@/lib/tips-engine";
 import { DashboardSkeleton } from "@/components/dashboard/dashboard-skeleton";
@@ -763,7 +764,8 @@ export function DashboardContent() {
         <div className="flex items-start justify-between gap-3">
           <h1 className="font-display text-2xl font-bold text-foreground md:text-3xl">
             {(() => {
-              const name = profileQuery.data?.displayName;
+              // Prefer the first name — a warmer, shorter greeting ("היי דני").
+              const name = firstNameOf(profileQuery.data);
               // In Hebrew, only greet by name if it's actually a Hebrew name —
               // never jam a Latin name into a Hebrew greeting ("היי Ariel").
               const isHebrewName = !!name && /[֐-׿]/.test(name);

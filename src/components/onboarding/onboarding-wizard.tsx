@@ -36,6 +36,12 @@ export interface OnboardingData {
    */
   miluimDays?: number | null;
   miluimCombat?: boolean;
+  /** Group C via career service (not 35+ reserve days) — drives the label. */
+  miluimCareerService?: boolean;
+  /** Personal address — name + gender for a personalized, gendered UI. */
+  firstName?: string | null;
+  lastName?: string | null;
+  gender?: "male" | "female" | null;
 }
 
 // Welcome → Profile → History → SemesterPlanner → Ready
@@ -109,6 +115,10 @@ export function OnboardingWizard() {
     focusArea: null,
     miluimGroup: "NONE",
     amirantScore: null,
+    miluimCareerService: false,
+    firstName: null,
+    lastName: null,
+    gender: null,
   });
 
   const updateData = useCallback((updates: Partial<OnboardingData>) => {

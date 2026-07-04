@@ -20,6 +20,9 @@ export const userRouter = createTRPCRouter({
         supabaseId: true,
         email: true,
         displayName: true,
+        firstName: true,
+        lastName: true,
+        gender: true,
         avatarUrl: true,
         focusArea: true,
         currentYear: true,
@@ -27,6 +30,7 @@ export const userRouter = createTRPCRouter({
         locale: true,
         theme: true,
         miluimGroup: true,
+        miluimCareerService: true,
         miluimCreditsUsed: true,
         miluimBinaryUsed: true,
         amiramScore: true,
@@ -46,6 +50,10 @@ export const userRouter = createTRPCRouter({
     .input(
       z.object({
         displayName: z.string().min(1).max(100).optional(),
+        // Personal address: name + gender for a personalized, gendered UI.
+        firstName: z.string().max(50).nullable().optional(),
+        lastName: z.string().max(50).nullable().optional(),
+        gender: z.enum(["male", "female"]).nullable().optional(),
         focusArea: disciplineEnum.nullable().optional(),
         currentYear: z.number().int().min(1).max(4).optional(),
         currentSemester: z.enum(["FALL", "SPRING", "SUMMER"]).optional(),
@@ -54,6 +62,8 @@ export const userRouter = createTRPCRouter({
         miluimGroup: z
           .enum(["NONE", "GROUP_A", "GROUP_B", "GROUP_C", "GROUP_G"])
           .optional(),
+        // Group C via career service (not 35+ reserve days) — drives the label.
+        miluimCareerService: z.boolean().optional(),
         miluimCreditsUsed: z.number().int().min(0).max(10).optional(),
         // Binary (pass/fail) conversions used across the BA (cap 5, domain §6).
         miluimBinaryUsed: z.number().int().min(0).max(5).optional(),
@@ -70,6 +80,9 @@ export const userRouter = createTRPCRouter({
           supabaseId: true,
           email: true,
           displayName: true,
+          firstName: true,
+          lastName: true,
+          gender: true,
           avatarUrl: true,
           focusArea: true,
           currentYear: true,
@@ -77,6 +90,7 @@ export const userRouter = createTRPCRouter({
           locale: true,
           theme: true,
           miluimGroup: true,
+          miluimCareerService: true,
           miluimCreditsUsed: true,
           miluimBinaryUsed: true,
           amiramScore: true,
