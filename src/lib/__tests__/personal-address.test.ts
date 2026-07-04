@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { firstNameOf, gendered, normalizeGender } from "@/lib/personal-address";
+import { firstNameOf, gendered, normalizeGender, greetNameForLocale } from "@/lib/personal-address";
 
 describe("firstNameOf", () => {
   it("prefers an explicit firstName", () => {
@@ -28,6 +28,22 @@ describe("gendered", () => {
     expect(gendered(null, forms)).toBe("מוזמן/ת");
     expect(gendered(undefined, forms)).toBe("מוזמן/ת");
     expect(gendered("nonsense" as unknown as null, forms)).toBe("מוזמן/ת");
+  });
+});
+
+describe("greetNameForLocale", () => {
+  it("shows a Hebrew name in Hebrew", () => {
+    expect(greetNameForLocale({ firstName: "דני" }, true)).toBe("דני");
+  });
+  it("hides a Latin name in Hebrew (never 'היי Dan')", () => {
+    expect(greetNameForLocale({ firstName: "Dan" }, true)).toBeNull();
+  });
+  it("allows any name in English", () => {
+    expect(greetNameForLocale({ firstName: "Dan" }, false)).toBe("Dan");
+    expect(greetNameForLocale({ firstName: "דני" }, false)).toBe("דני");
+  });
+  it("returns null when there is no name", () => {
+    expect(greetNameForLocale(null, true)).toBeNull();
   });
 });
 

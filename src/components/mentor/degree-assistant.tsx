@@ -7,7 +7,7 @@ import { useLocale } from "next-intl";
 import { toast } from "sonner";
 import { api } from "@/lib/trpc/react";
 import { Link } from "@/i18n/navigation";
-import { firstNameOf, gendered, normalizeGender } from "@/lib/personal-address";
+import { greetNameForLocale, gendered, normalizeGender } from "@/lib/personal-address";
 import { DISCIPLINE_CONFIG } from "@/lib/constants";
 import {
   deriveCurrentGroup,
@@ -140,7 +140,7 @@ export function DegreeAssistant() {
         <div>
           <h1 className="font-display text-xl font-bold text-foreground/90">
             {isHe
-              ? `${firstNameOf(profileQuery.data) ? `${firstNameOf(profileQuery.data)}, ` : ""}${gendered(normalizeGender(profileQuery.data?.gender), { m: "שאל", f: "שאלי", n: "שאל/י" })} אותי על התואר שלך`
+              ? `${greetNameForLocale(profileQuery.data, true) ? `${greetNameForLocale(profileQuery.data, true)}, ` : ""}${gendered(normalizeGender(profileQuery.data?.gender), { m: "שאל", f: "שאלי", n: "שאל/י" })} אותי על התואר שלך`
               : "Ask about your degree"}
           </h1>
           <p className="text-xs text-foreground/50">

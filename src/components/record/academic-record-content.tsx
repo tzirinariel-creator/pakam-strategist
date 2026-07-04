@@ -653,14 +653,14 @@ function EmptyState({
   onAddFirstCourse: () => void;
   t: ReturnType<typeof useTranslations<"record">>;
 }) {
-  const { firstName } = usePersonalAddress();
+  const { greetName } = usePersonalAddress();
   return (
     <div className="data-card mx-auto w-full max-w-lg p-8 text-center">
       <div className="mb-5 flex justify-center">
         <FolderOpen className="h-14 w-14 text-foreground/70" />
       </div>
       <h2 className="mb-2 font-display text-2xl font-bold text-foreground/85">
-        {firstName ? `${firstName}, ` : ""}{t("emptyTitle")}
+        {greetName ? `${greetName}, ` : ""}{t("emptyTitle")}
       </h2>
       <p className="mb-6 text-foreground/60">
         {hasAnyCourses ? t("emptyDesc") : t("emptyDescNoCourses")}

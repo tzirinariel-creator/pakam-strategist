@@ -1252,6 +1252,9 @@ function MiluimSection() {
               setManualGroup(g);
               updateProfileMutation.mutate({
                 miluimGroup: g as "NONE" | "GROUP_A" | "GROUP_B" | "GROUP_C" | "GROUP_G",
+                // A manual group pick here is not the career-service path — clear
+                // any stale career-service flag so the label stays correct.
+                miluimCareerService: false,
               });
             }}
           >

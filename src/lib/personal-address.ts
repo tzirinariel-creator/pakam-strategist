@@ -52,3 +52,18 @@ export function gendered(
 export function greetingName(p?: PersonProfile | null): string | null {
   return firstNameOf(p);
 }
+
+/**
+ * The first name to use in a greeting, guarded by script: in Hebrew we never
+ * jam a Latin name into Hebrew text ("היי Dan"), so a non-Hebrew name returns
+ * null (caller shows the generic greeting). English accepts any name.
+ */
+export function greetNameForLocale(
+  p: PersonProfile | null | undefined,
+  isHe: boolean
+): string | null {
+  const n = firstNameOf(p);
+  if (!n) return null;
+  if (isHe && !/[֐-׿]/.test(n)) return null;
+  return n;
+}

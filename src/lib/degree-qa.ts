@@ -172,7 +172,7 @@ const HANDLERS: Handler[] = [
     answer: (c) => {
       if (c.courseAverage === null) {
         return {
-          text: he(c, `עדיין אין לך ציונים שמורים. ${gm(c, "הזן", "הזיני", "הזן/י")} ציונים במחשבון הציונים ואראה לך את הממוצע.`, "No grades recorded yet. Enter grades in the calculator and I'll show your average."),
+          text: he(c, `עדיין אין לך ציונים שמורים. ${gm(c, "הזן", "הזני", "הזן/י")} ציונים במחשבון הציונים ואראה לך את הממוצע.`, "No grades recorded yet. Enter grades in the calculator and I'll show your average."),
           href: "/graduation",
           cta: he(c, "למחשבון הציונים", "Grade calculator"),
         };
@@ -272,7 +272,7 @@ const HANDLERS: Handler[] = [
       );
       if (!lvl) {
         return {
-          text: he(c, `${content} לא הזנת ציון אמירנט — ${gm(c, "הוסף", "הוסיפי", "הוסף/י")} אותו בהגדרות כדי לדעת אם ${gm(c, "אתה פטור או צריך", "את פטורה או צריכה", "את/ה פטור/ה או צריך/ה")} קורסי רמה.`, `${content} You haven't entered an Amirnet score — add it in settings to see if you're exempt or owe level courses.`),
+          text: he(c, `${content} לא הזנת ציון אמירנט — ${gm(c, "הוסף", "הוסיפי", "הוסף/י")} אותו בהגדרות כדי לדעת אם ${gm(c, "אתה פטור או צריך", "את פטורה או צריכה", "את/ה פטור/ה או צריך/ה")} קורסי רמה.`, `${content} You haven't entered an Amiram score — add it in settings to see if you're exempt or owe level courses.`),
           href: "/settings",
           cta: he(c, "להגדרות", "Settings"),
         };

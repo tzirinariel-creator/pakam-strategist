@@ -326,7 +326,7 @@ export function StepProfile({ data, onUpdate }: StepProfileProps) {
                         setServed(false);
                         setDays(null);
                         setIsCombat(false);
-                        onUpdate({ miluimGroup: "NONE", miluimDays: null, miluimCombat: false });
+                        onUpdate({ miluimGroup: "NONE", miluimDays: null, miluimCombat: false, miluimCareerService: false });
                       }}
                       className={cn(
                         "rounded-lg border px-3 py-2.5 text-xs transition-all",
@@ -355,7 +355,8 @@ export function StepProfile({ data, onUpdate }: StepProfileProps) {
                           const v = e.target.value === "" ? null : parseInt(e.target.value, 10);
                           setDays(v);
                           applyDerived(deriveGroup(v ?? 0, isCombat));
-                          onUpdate({ miluimDays: v, miluimCombat: isCombat });
+                          // Day-derived path → never career service; clear the flag.
+                          onUpdate({ miluimDays: v, miluimCombat: isCombat, miluimCareerService: false });
                         }}
                         placeholder={tm("q2DaysPlaceholder")}
                         className="w-full rounded-lg border border-border bg-card px-3 py-2 text-sm text-foreground placeholder:text-foreground/25 focus:border-foreground/30 focus:outline-none transition-colors"
@@ -371,7 +372,7 @@ export function StepProfile({ data, onUpdate }: StepProfileProps) {
                           onClick={() => {
                             setIsCombat(true);
                             applyDerived(deriveGroup(days ?? 0, true));
-                            onUpdate({ miluimDays: days, miluimCombat: true });
+                            onUpdate({ miluimDays: days, miluimCombat: true, miluimCareerService: false });
                           }}
                           className={cn(
                             "flex items-center justify-center gap-1.5 rounded-lg border px-3 py-2 text-xs transition-all",
@@ -387,7 +388,7 @@ export function StepProfile({ data, onUpdate }: StepProfileProps) {
                           onClick={() => {
                             setIsCombat(false);
                             applyDerived(deriveGroup(days ?? 0, false));
-                            onUpdate({ miluimDays: days, miluimCombat: false });
+                            onUpdate({ miluimDays: days, miluimCombat: false, miluimCareerService: false });
                           }}
                           className={cn(
                             "rounded-lg border px-3 py-2 text-xs transition-all",

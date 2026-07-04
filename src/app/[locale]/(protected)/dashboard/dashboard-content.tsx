@@ -252,7 +252,7 @@ function WelcomeHomeCard({
   onDismiss: () => void;
 }) {
   const Arrow = isHe ? ArrowLeft : ArrowRight;
-  const { firstName, g: pg } = usePersonalAddress();
+  const { greetName, g: pg } = usePersonalAddress();
   const steps: { href: string; label: string; icon: React.ComponentType<{ className?: string }> }[] = [
     { href: "/calendar", label: isHe ? pg("בדוק את מערכת השעות שלך", "בדקי את מערכת השעות שלך", "בדוק/י את מערכת השעות שלך") : t("welcomeStepSchedule"), icon: Calendar },
     { href: "/record", label: isHe ? pg("הוסף ציונים וקורסים מהעבר", "הוסיפי ציונים וקורסים מהעבר", "הוסף/י ציונים וקורסים מהעבר") : t("welcomeStepRecord"), icon: Pencil },
@@ -270,7 +270,7 @@ function WelcomeHomeCard({
         <X className="size-4" />
       </button>
       <h2 className="font-display text-xl font-bold text-foreground/90">
-        {firstName ? `${firstName}, ` : ""}{t("welcomeHomeTitle")}
+        {greetName ? `${greetName}, ` : ""}{t("welcomeHomeTitle")}
       </h2>
       <p className="mt-1 text-sm text-foreground/55">
         {t("welcomeHomeSubtitle")}

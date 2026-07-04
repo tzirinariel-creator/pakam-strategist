@@ -65,7 +65,7 @@ export function GuideContent() {
           <Li><Bidi text={isHe ? "12 ש״ס סמינרים" : "12 seminar credits"} /> {isHe ? "(3 עבודות + רפרט)." : "(3 papers + a referat)."}</Li>
           <Li><Bidi text={isHe ? "35 ש״ס בחירה" : "35 elective credits"} />.</Li>
           <Li>{isHe ? "התמחות: " : "Focus area: "}<Bidi text={isHe ? "60 ש״ס" : "60 credits"} /> {isHe ? "בתחום אחד (פילוסופיה / כלכלה / מדע המדינה)." : "in one discipline."}</Li>
-          <Li>{isHe ? "2 קורסי אנגלית (תוכן), ולפי ציון האמירנט — אולי קורסי-רמה." : "2 English content courses; level courses depend on your Amirnet score."}</Li>
+          <Li>{isHe ? "2 קורסי אנגלית (תוכן), ולפי ציון האמירנט — אולי קורסי-רמה." : "2 English content courses; level courses depend on your Amiram score."}</Li>
           <Li>{isHe ? "ציון גמר = " : "Final grade = "}<Bidi text={isHe ? "78% קורסים + 18% סמינרים + 4% רפרט" : "78% courses + 18% seminars + 4% referat"} />.</Li>
         </ul>
       </Section>
