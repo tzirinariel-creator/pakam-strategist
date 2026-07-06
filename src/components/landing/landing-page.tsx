@@ -8,24 +8,24 @@ import {
   BarChart3,
   BookOpen,
   Scale,
+  FileText,
   ArrowLeft,
   ArrowRight,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { PhilosopherKingIcon } from "@/components/ui/philosopher-king-icon";
 import { cn } from "@/lib/utils";
-import { Bidi } from "@/lib/bidi";
 
 // ─── Feature Card Data ──────────────────────────────────────────────
-// The Philosopher King (the AI advisor) leads — it's the differentiator.
+// The King has his own dedicated strip above — the grid holds the six tools.
 
 const FEATURES = [
-  { key: "philosopherKing", icon: PhilosopherKingIcon, color: "#5B5BD6" },
   { key: "planner", icon: GraduationCap, color: "#4A90D9" },
   { key: "catalog", icon: BookOpen, color: "#8B5CF6" },
   { key: "calendar", icon: Calendar, color: "#4A90D9" },
   { key: "grades", icon: BarChart3, color: "#2ECC71" },
   { key: "regulations", icon: Scale, color: "#E74C3C" },
+  { key: "syllabus", icon: FileText, color: "#0D9488" },
 ] as const;
 
 // ─── Product Preview (a styled mini-planner — "show, don't tell") ────
@@ -241,6 +241,95 @@ export function LandingPage() {
         </div>
       </section>
 
+      {/* ── Proof collage — the argument IS the layout: four crooked "notes"
+             (the Yedion, the PDF, the spreadsheet, the WhatsApp group) resolving
+             into one straight Pakamon card. True, visual, human. ── */}
+      <section className="border-t border-border/50 px-4 py-16 sm:px-6 sm:py-20">
+        <div className="mx-auto max-w-6xl">
+          <h2 className="mx-auto mb-12 max-w-2xl text-center font-display text-2xl font-bold tracking-tight text-foreground md:text-3xl">
+            {t("proofTitle")}
+          </h2>
+          <div className="flex flex-col items-center gap-8 lg:flex-row lg:justify-center lg:gap-6">
+            {/* The mess — four tilted, dashed chips */}
+            <div className="flex max-w-md flex-wrap items-start justify-center gap-3">
+              {([
+                { title: t("proof.chip1Title"), body: t("proof.chip1Body"), rotate: "-rotate-2", mono: false },
+                { title: t("proof.chip2Title"), body: t("proof.chip2Body"), rotate: "rotate-1", mono: false },
+                { title: t("proof.chip3Title"), body: t("proof.chip3Body"), rotate: "rotate-2", mono: true },
+                { title: t("proof.chip4Title"), body: t("proof.chip4Body"), rotate: "-rotate-1", mono: false },
+              ] as const).map((chip) => (
+                <div
+                  key={chip.title}
+                  className={cn(
+                    "w-[calc(50%-0.375rem)] max-w-[220px] rounded-lg border border-dashed border-foreground/25 bg-muted/40 px-3.5 py-3 sm:w-auto",
+                    chip.rotate,
+                  )}
+                >
+                  <p className="text-sm font-bold text-foreground/75">{chip.title}</p>
+                  <p
+                    className={cn("mt-1 text-xs leading-relaxed text-foreground/50", chip.mono && "font-mono")}
+                    dir={chip.mono ? "ltr" : undefined}
+                  >
+                    {chip.body}
+                  </p>
+                </div>
+              ))}
+            </div>
+            {/* The arrow — points from the mess to the answer */}
+            <Arrow className="size-7 shrink-0 rotate-90 text-foreground/30 lg:rotate-0" />
+            {/* The answer — one straight card with the app's window chrome */}
+            <div className="w-full max-w-sm overflow-hidden rounded-2xl border border-border bg-card shadow-xl shadow-black/10">
+              <div className="flex items-center gap-1.5 border-b border-border/60 bg-muted/40 px-4 py-2.5">
+                <span className="size-2.5 rounded-full bg-[#ff5f57]" />
+                <span className="size-2.5 rounded-full bg-[#febc2e]" />
+                <span className="size-2.5 rounded-full bg-[#28c840]" />
+                <div className="mx-auto flex items-center gap-1.5 text-[10px] text-muted-foreground">
+                  <PhilosopherKingIcon className="size-3 text-[#c99a3b]" />
+                  <span>{t("proof.afterTitle")}</span>
+                </div>
+              </div>
+              <div className="px-5 py-5">
+                <p className="text-sm leading-relaxed text-foreground/75">{t("proof.afterBody")}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ── The King strip — the ONE dark band on the page. ── */}
+      <section
+        className="px-4 py-16 sm:px-6 sm:py-20"
+        style={{ backgroundColor: "color-mix(in srgb, var(--accent-brand) 25%, #14142e)" }}
+      >
+        <div className="mx-auto grid max-w-6xl items-center gap-10 lg:grid-cols-2">
+          <div className="text-center lg:text-start">
+            <h2 className="font-display text-2xl font-bold tracking-tight text-white md:text-3xl">
+              {t("king.title")}
+            </h2>
+            <p className="mx-auto mt-4 max-w-lg text-base leading-relaxed text-white/75 lg:mx-0">
+              {t("king.subtitle")}
+            </p>
+          </div>
+          {/* Mock chat — the King's contract voice: answer first, real numbers. */}
+          <div className="mx-auto w-full max-w-md rounded-2xl border border-white/10 bg-white/[0.06] p-4">
+            <div className="flex justify-end">
+              <div className="max-w-[85%] rounded-2xl bg-white/10 px-3.5 py-2.5 text-sm leading-relaxed text-white/90">
+                {t("king.chatQ")}
+              </div>
+            </div>
+            <div className="mt-3 flex items-start gap-2.5">
+              <span className="mt-1 flex size-7 shrink-0 items-center justify-center rounded-lg bg-accent-brand text-[#f2c879] ring-1 ring-[#f2c879]/40">
+                <PhilosopherKingIcon className="size-4" />
+              </span>
+              <div className="max-w-[85%] rounded-2xl bg-white px-3.5 py-2.5 text-sm leading-relaxed text-foreground">
+                {t("king.chatA")}
+              </div>
+            </div>
+            <p className="mt-3 text-center text-xs text-white/50">{t("king.chatCaption")}</p>
+          </div>
+        </div>
+      </section>
+
       {/* ── Features Grid ────────────────────────────────── */}
       <section className="border-t border-border/50 bg-card/30 px-4 py-16 sm:px-6 sm:py-24">
         <div className="mx-auto max-w-6xl">
@@ -288,20 +377,59 @@ export function LandingPage() {
         </div>
       </section>
 
-      {/* ── University Badge ─────────────────────────────── */}
-      <section className="px-4 py-14 sm:px-6 sm:py-16">
-        <div className="mx-auto max-w-3xl text-center">
-          <div className="inline-flex items-center gap-3 rounded-2xl border border-border bg-card px-6 py-4 shadow-sm">
-            <GraduationCap className="size-8 text-foreground/80" />
-            <div className="text-start">
-              <p className="font-bold text-lg text-foreground">
-                {t("universityTitle")}
-              </p>
-              <p className="text-sm text-muted-foreground">
-                {t("universitySubtitle")}
-              </p>
-            </div>
+      {/* ── Founder band — quiet, no card; reads like a letter. ── */}
+      <section className="px-4 py-16 sm:px-6 sm:py-20">
+        <div className="mx-auto max-w-2xl border-t border-border/60 pt-10 text-center">
+          <p className="eyebrow text-muted-foreground">{t("founder.eyebrow")}</p>
+          <h2 className="mt-3 font-display text-2xl font-bold tracking-tight text-foreground">
+            {t("founder.title")}
+          </h2>
+          <p className="mt-5 text-base leading-relaxed text-foreground/70">
+            {t("founder.body")}
+          </p>
+          <div className="mt-6 flex flex-wrap items-center justify-center gap-2">
+            {[t("founder.chip1"), t("founder.chip2"), t("founder.chip3")].map((c) => (
+              <span
+                key={c}
+                className="rounded-full border border-border/70 px-3 py-1 text-xs text-muted-foreground"
+              >
+                {c}
+              </span>
+            ))}
           </div>
+          <p className="mt-5 text-xs text-muted-foreground/70">{t("founder.meta")}</p>
+          <Link
+            href="/about"
+            className="mt-3 inline-flex items-center gap-1.5 text-sm font-medium text-accent-brand transition-colors hover:underline"
+          >
+            {t("founder.link")}
+            <Arrow className="size-3.5" />
+          </Link>
+        </div>
+      </section>
+
+      {/* ── Final CTA ─────────────────────────────────────── */}
+      <section className="border-t border-border/50 bg-card/30 px-4 py-14 sm:px-6 sm:py-16">
+        <div className="mx-auto max-w-2xl text-center">
+          <h2 className="font-display text-2xl font-bold tracking-tight text-foreground">
+            {t("finalCta.title")}
+          </h2>
+          <div className="mt-6 flex flex-col items-center justify-center gap-3 sm:flex-row">
+            <Button
+              size="lg"
+              className="w-full bg-foreground px-8 text-background shadow-lg shadow-foreground/20 hover:bg-foreground/90 sm:w-auto"
+              asChild
+            >
+              <Link href="/signup">
+                {t("ctaStart")}
+                <Arrow className="ms-2 size-4" />
+              </Link>
+            </Button>
+            <Button variant="outline" size="lg" className="w-full px-8 sm:w-auto" asChild>
+              <Link href="/login">{t("ctaLogin")}</Link>
+            </Button>
+          </div>
+          <p className="mt-4 text-sm text-muted-foreground">{t("finalCta.note")}</p>
         </div>
       </section>
 

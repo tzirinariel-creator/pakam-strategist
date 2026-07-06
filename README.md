@@ -9,6 +9,8 @@ A full-stack web app that helps students in Tel Aviv University's **PPE program*
 Built in Hebrew (RTL) and English, fully internationalized.
 
 > Built largely with **Claude Code** as a hands-on exercise in shipping a real, deployed product end-to-end — schema, API, UI, and AI integration.
+>
+> **How it was built:** the full engineering story — architecture decisions, the AI-safety design, and the AI-native process — is in [docs/CASE_STUDY.md](docs/CASE_STUDY.md).
 
 ---
 

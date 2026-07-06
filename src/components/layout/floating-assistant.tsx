@@ -15,6 +15,8 @@ import { api } from "@/lib/trpc/react";
 import { cn } from "@/lib/utils";
 import { Link } from "@/i18n/navigation";
 import { PhilosopherKingIcon } from "@/components/ui/philosopher-king-icon";
+import { ReferentIcon } from "@/components/ui/referent-icon";
+import type { MentorPersona } from "@/lib/ai/mentor-prompt";
 import { routeQuestion } from "@/lib/ai/answer-router";
 import { suggestedQuestions } from "@/lib/degree-qa";
 import { fileToBase64 } from "@/lib/upload";
@@ -76,6 +78,18 @@ export function FloatingAssistant() {
   const { gender } = usePersonalAddress();
   const [open, setOpen] = useState(false);
   const [messages, setMessages] = useState<Msg[]>([]);
+  // Advisor persona — a device-local choice (Settings → "דמות היועץ"), re-read on
+  // every open so a change in Settings applies without a reload. Server-validated.
+  const [persona, setPersona] = useState<MentorPersona>("king");
+  useEffect(() => {
+    if (!open) return;
+    try {
+      setPersona(localStorage.getItem("pk-persona") === "referent" ? "referent" : "king");
+    } catch {
+      /* default king */
+    }
+  }, [open]);
+  const isReferent = persona === "referent";
   const [input, setInput] = useState("");
 
   // ── Image attach ("photo & ask", Gemini vision) ──
@@ -350,6 +364,7 @@ export function FloatingAssistant() {
             deterministicHint,
             imageBase64: image?.b64,
             imageMime: image?.mime,
+            persona,
           }),
           signal: controller.signal,
         });
@@ -416,7 +431,7 @@ export function FloatingAssistant() {
         abortRef.current = null;
       }
     },
-    [ctx, isHe],
+    [ctx, isHe, persona],
   );
 
   const send = useCallback(
@@ -555,9 +570,15 @@ export function FloatingAssistant() {
             "px-4",
           )}
         >
-          <PhilosopherKingIcon className="size-5 text-[#f2c879]" />
+          {isReferent ? (
+            <ReferentIcon className="size-5 text-[#79C2B5]" />
+          ) : (
+            <PhilosopherKingIcon className="size-5 text-[#f2c879]" />
+          )}
           <span className="hidden text-sm font-semibold sm:inline">
-            {isHe ? "המלך הפילוסוף" : "The Philosopher King"}
+            {isReferent
+              ? isHe ? "הרפרנט" : "The Referent"
+              : isHe ? "המלך הפילוסוף" : "The Philosopher King"}
           </span>
         </button>
       )}
@@ -586,20 +607,28 @@ export function FloatingAssistant() {
             {/* Header — regal indigo with a gold crown (the Philosopher King). */}
             <div className="flex items-center gap-2.5 border-b border-border/60 bg-gradient-to-b from-accent-brand/[0.12] to-accent-brand/[0.04] px-4 py-3">
               <div className="flex size-9 items-center justify-center rounded-xl bg-accent-brand text-[#f2c879] shadow-sm ring-1 ring-[#f2c879]/40">
-                <PhilosopherKingIcon
-                  className="size-5"
-                  state={streaming ? "thinking" : "idle"}
-                  dot={proactiveNudge ? (proactiveNudge.severity as "critical" | "warning") : null}
-                />
+                {isReferent ? (
+                  <ReferentIcon className="size-5 text-[#79C2B5]" />
+                ) : (
+                  <PhilosopherKingIcon
+                    className="size-5"
+                    state={streaming ? "thinking" : "idle"}
+                    dot={proactiveNudge ? (proactiveNudge.severity as "critical" | "warning") : null}
+                  />
+                )}
               </div>
               <div className="min-w-0 flex-1">
                 <p className="font-display text-sm font-bold text-foreground/90">
-                  {isHe ? "המלך הפילוסוף" : "The Philosopher King"}
+                  {isReferent
+                    ? isHe ? "הרפרנט" : "The Referent"
+                    : isHe ? "המלך הפילוסוף" : "The Philosopher King"}
                 </p>
                 <p className="text-[11px] text-foreground/50">
-                  {aiAvailable
-                    ? isHe ? "יועץ התואר שלך · חוכמה מהנתונים שלך" : "Your degree advisor · wisdom from your data"
-                    : isHe ? "יועץ התואר שלך · תשובות מהנתונים שלך" : "Your degree advisor · answers from your data"}
+                  {isReferent
+                    ? isHe ? "שנה ג׳ שכבר עבר את זה · דוגרי, מהנתונים שלך" : "A final-year who's been through it · straight talk, from your data"
+                    : aiAvailable
+                      ? isHe ? "יועץ התואר שלך · חוכמה מהנתונים שלך" : "Your degree advisor · wisdom from your data"
+                      : isHe ? "יועץ התואר שלך · תשובות מהנתונים שלך" : "Your degree advisor · answers from your data"}
                 </p>
               </div>
               <button

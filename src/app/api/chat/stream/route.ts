@@ -20,6 +20,7 @@ import {
   buildMentorSystemPrompt,
   buildDeterministicHintBlock,
   isSafeDeterministicHint,
+  type MentorPersona,
 } from "@/lib/ai/mentor-prompt";
 import {
   buildUserContext,
@@ -47,6 +48,9 @@ const streamInputSchema = z.object({
   // Optional attached image ("photo & ask") — Gemini vision only.
   imageBase64: z.string().min(100).max(5_000_000).optional(),
   imageMime: z.string().refine((m) => CHAT_IMAGE_MIME.has(m), "Unsupported image type").optional(),
+  // Advisor persona — a validated client preference (stored per-device for now;
+  // moves to the profile when the mentorPersona column migration runs).
+  persona: z.enum(["king", "referent"]).optional(),
 });
 
 // -------------------------------------------------------------------
@@ -125,7 +129,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const { sessionId, message, deterministicHint, imageBase64, imageMime } = parsed.data;
+    const { sessionId, message, deterministicHint, imageBase64, imageMime, persona } = parsed.data;
     const hasImage = !!(imageBase64 && imageMime);
 
     // 3. Get user
@@ -282,7 +286,7 @@ export async function POST(request: NextRequest) {
         ? deterministicHint
         : undefined;
     const systemPrompt =
-      buildMentorSystemPrompt(mentorContext, getProgramById(user.programId)) +
+      buildMentorSystemPrompt(mentorContext, getProgramById(user.programId), (persona as MentorPersona) ?? "king") +
       (safeHint ? buildDeterministicHintBlock(safeHint) : "");
 
     // 8. Provider-agnostic producer — yields text to `onText` as it streams.

@@ -901,9 +901,9 @@
     "brand": "Pakamon",
     "login": "Log In",
     "signup": "Sign Up",
-    "badge": "New · The Philosopher King — your AI degree advisor",
-    "heroTitle": "150 credits, 3 years, one discipline to choose — let's sort it out",
-    "heroSubtitle": "Course planning, credit tracking, regulation check, and graduation score calculator — all in one place, no spreadsheets",
+    "badge": "The Philosopher King included — always free",
+    "heroTitle": "Three departments, one degree — and nobody's counting your credits",
+    "heroSubtitle": "Pakamon keeps count: 117 real courses, prerequisites, the regulations and your final grade — computed from your data, no spreadsheets.",
     "ctaStart": "Let's Start",
     "ctaLogin": "I have an account",
     "featuresTitle": "What's inside",
@@ -940,7 +940,7 @@
     },
     "universityTitle": "Built for PPE at Tel Aviv University",
     "universitySubtitle": "All courses, requirements, and regulations — updated for 2025-26",
-    "footer": "Pakamon — All rights reserved",
+    "footer": "Built by a PPE student, for PPE students. Not officially affiliated with Tel Aviv University.",
     "footerAbout": "About",
     "footerFaq": "FAQ",
     "footerPrivacy": "Privacy",
@@ -949,6 +949,40 @@
       "courses": "real courses",
       "disciplines": "disciplines",
       "credits": "credits to graduate"
+    },
+    "proofTitle": "The information exists. It's just scattered across four places that don't talk to each other.",
+    "proof": {
+      "chip1Title": "The Yedion",
+      "chip1Body": "An ASP.NET table from the 2000s. Search? Sort of.",
+      "chip2Title": "The regulations",
+      "chip2Body": "A PDF. 40 pages. All of them.",
+      "chip3Title": "The spreadsheet",
+      "chip3Body": "degree-plan-FINAL-v3(2).xlsx",
+      "chip4Title": "The WhatsApp group",
+      "chip4Body": "\"does this count as an elective?\" — third time this week.",
+      "afterTitle": "Pakamon",
+      "afterBody": "Courses, regulations and your grades — connected. One question, one answer, from your data."
+    },
+    "king": {
+      "title": "Someone here actually read all 40 pages of the regulations",
+      "subtitle": "The Philosopher King — Pakamon's AI advisor. Wired to your plan, your grades and the rulebook; answers first, no throat-clearing, and never makes up numbers. Always free.",
+      "chatQ": "How many credits until I close year 2?",
+      "chatA": "9 credits: 5 in economics, 4 elective. Micro II (5 cr) closes economics — you already meet its prerequisites. For the elective, 12 courses are open in spring; three fit your timetable with zero clashes.",
+      "chatCaption": "Sample conversation. Yours is computed from your own plan and grades."
+    },
+    "founder": {
+      "eyebrow": "Who built this",
+      "title": "A first-year PPE student who got fed up with spreadsheets",
+      "body": "Pakamon started as genuine frustration: the course catalog is an ASP.NET table from the 2000s, the regulations are a 40-page PDF, and no tool connects the two. So I built one. Not a startup, not a final project — I just needed it. A few weeks in, friends from the program asked for access. Then their friends. Now it's here, open to everyone.",
+      "chip1": "No subscription",
+      "chip2": "No ads",
+      "chip3": "Not official — always confirm with the department",
+      "meta": "Built for PPE at Tel Aviv University · Updated for 2025–26",
+      "link": "The full story"
+    },
+    "finalCta": {
+      "title": "Signing up takes less time than finding a course in the Yedion",
+      "note": "Free. No credit card, no subscription — and it stays that way."
     }
   },
   "about": {

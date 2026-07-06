@@ -153,3 +153,33 @@ describe("buildMentorSystemPrompt — verbatim fact rendering", () => {
     expect(prompt).toContain("קשה");
   });
 });
+
+describe("personas — one brain, two voices", () => {
+  const program = getActiveProgram();
+
+  it("default build is byte-identical to an explicit 'king' build (back-compat)", () => {
+    const a = buildMentorSystemPrompt(ctx(), program);
+    const b = buildMentorSystemPrompt(ctx(), program, "king");
+    expect(a).toBe(b);
+    expect(a).toContain('אתה "המלך הפילוסוף"');
+    expect(a).toContain("דון מקיימברידג'");
+  });
+
+  it("the referent swaps identity + name everywhere the persona is cited", () => {
+    const p = buildMentorSystemPrompt(ctx(), program, "referent");
+    expect(p).toContain('אתה "הרפרנט"');
+    expect(p).toContain('הישאר "הרפרנט"'); // boundaries block renamed too
+    expect(p).not.toContain("דון מקיימברידג'");
+    expect(p).toContain("אגף התקציבים");
+  });
+
+  it("SAFETY survives every persona: bidding zero-prediction + authoritative facts + contract", () => {
+    for (const persona of ["king", "referent"] as const) {
+      const p = buildMentorSystemPrompt(ctx(), program, persona);
+      expect(p).toContain("לעולם אל תנחש ואל תמליץ כמה נקודות דרושות לקורס");
+      expect(p).toContain("עובדות מוסמכות");
+      expect(p).toContain("חוזה-התשובה");
+      expect(p).toContain("בלי אימוג׳י");
+    }
+  });
+});

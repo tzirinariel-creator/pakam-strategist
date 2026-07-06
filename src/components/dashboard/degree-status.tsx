@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import {
   BookOpen,
   Scale,
@@ -9,6 +10,7 @@ import {
   ArrowLeft,
   ArrowRight,
   CheckCircle2,
+  ChevronDown,
 } from "lucide-react";
 import { Link } from "@/i18n/navigation";
 import { CREDIT_REQUIREMENTS, getEnglishLevel } from "@/lib/constants";
@@ -63,6 +65,10 @@ export function DegreeStatus({
   const Arrow = isHe ? ArrowLeft : ArrowRight;
   const target = CREDIT_REQUIREMENTS.TOTAL;
   const isHero = variant === "hero";
+  // Detail (disciplines + buckets) folds behind an expander so the hero reads
+  // as ONE compass line. Year-1 students start expanded (they still need the
+  // bucket map to understand the degree); returning students start collapsed.
+  const [showDetail, setShowDetail] = useState(currentYear <= 1);
 
   const earned = credits?.earned ?? 0;
   const planned = credits?.planned ?? 0;
@@ -71,7 +77,6 @@ export function DegreeStatus({
   const remaining = Math.max(0, target - effective);
 
   const degreePct = target > 0 ? Math.min(100, Math.round((effective / target) * 100)) : 0;
-  const semestersLeft = remaining > 0 ? Math.max(1, Math.ceil(remaining / 25)) : 0;
 
   const pct = (n: number) => `${Math.min((n / target) * 100, 100)}%`;
   // Cumulative widths so the segments stack start→end without overlap.
@@ -150,17 +155,7 @@ export function DegreeStatus({
           <span className={cn("font-semibold text-foreground/80", isHero ? "text-sm" : "text-xs")}>
             {isHe ? "מהתואר הושלמו" : "of the degree done"}
           </span>
-          {remaining > 0 ? (
-            <span className="text-xs text-foreground/50">
-              <Bidi
-                text={
-                  isHe
-                    ? `עוד כ-${semestersLeft} סמסטרים בקצב רגיל`
-                    : `~${semestersLeft} more semesters at a normal pace`
-                }
-              />
-            </span>
-          ) : (
+          {remaining <= 0 && (
             <span className="text-xs text-emerald-500">
               {isHe ? "כל הש״ס הושלמו" : "all credits complete"}
             </span>
@@ -238,8 +233,24 @@ export function DegreeStatus({
         )}
       </div>
 
+      {/* Detail expander — the disciplines + buckets map folds away so the hero
+          reads as a compass, not a form. Year-1 defaults open (see above). */}
+      {isHero && (
+        <button
+          type="button"
+          onClick={() => setShowDetail((s) => !s)}
+          aria-expanded={showDetail}
+          className="mt-3 inline-flex items-center gap-1.5 text-xs font-medium text-foreground/55 transition-colors hover:text-foreground/80"
+        >
+          <ChevronDown className={cn("size-3.5 transition-transform", showDetail && "rotate-180")} />
+          {showDetail
+            ? isHe ? "הסתר פירוט" : "Hide breakdown"
+            : isHe ? "הצג פירוט לפי דיסציפלינה וקטגוריה" : "Show breakdown by discipline & category"}
+        </button>
+      )}
+
       {/* Per-discipline breakdown — the three PPE legs (hero only). */}
-      {isHero && disciplines && disciplines.length > 0 && (
+      {isHero && showDetail && disciplines && disciplines.length > 0 && (
         <div className="mt-4">
           <div className="mb-2 text-[11px] font-medium text-foreground/45">
             {isHe ? "לפי דיסציפלינה" : "By discipline"}
@@ -279,7 +290,7 @@ export function DegreeStatus({
       )}
 
       {/* Bucket breakdown — the "what's left" by category (hero only). */}
-      {isHero && (
+      {isHero && showDetail && (
         <div className="mt-5 grid grid-cols-2 gap-2.5 sm:grid-cols-3 lg:grid-cols-5">
           {buckets.map((b) => {
             const met = b.current >= b.target;
