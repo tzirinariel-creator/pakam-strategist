@@ -74,8 +74,8 @@ export const ruleTotalCredits: RegulationRule = (ctx: RuleContext) => {
       ? `Total credits met: ${current}/${required} SH"S.`
       : `Total credits insufficient: ${current}/${required} SH"S. Need ${required - current} more.`,
     passed
-      ? `דרישת ש"ס כוללת מתקיימת: ${current}/${required} ש"ס.`
-      : `דרישת ש"ס כוללת לא מתקיימת: ${current}/${required} ש"ס. חסרות ${required - current} ש"ס.`,
+      ? `דרישת ש״ס כוללת מתקיימת: ${current}/${required} ש״ס.`
+      : `דרישת ש״ס כוללת לא מתקיימת: ${current}/${required} ש״ס. חסרות ${required - current} ש״ס.`,
     { current, required, deficit: Math.max(0, required - current) }
   );
 };
@@ -101,7 +101,7 @@ export const ruleMandatoryCredits: RegulationRule = (ctx: RuleContext) => {
       true,
       "INFO",
       "No mandatory-credit minimum defined for this program.",
-      "אין דרישת מינימום ש\"ס חובה בתוכנית זו.",
+      "אין דרישת מינימום ש״ס חובה בתוכנית זו.",
       { current: 0, required: 0 }
     );
   }
@@ -119,8 +119,8 @@ export const ruleMandatoryCredits: RegulationRule = (ctx: RuleContext) => {
       ? `Mandatory credits met: ${current}/${required} SH"S.`
       : `Mandatory credits insufficient: ${current}/${required} SH"S. Need ${required - current} more.`,
     passed
-      ? `נקודות חובה מתקיימות: ${current}/${required} ש"ס. (נכון לתשפ"ו)`
-      : `נקודות חובה לא מספיקות: ${current}/${required} ש"ס. חסרות ${required - current} ש"ס. (נכון לתשפ"ו)`,
+      ? `נקודות חובה מתקיימות: ${current}/${required} ש״ס. (נכון לתשפ"ו)`
+      : `נקודות חובה לא מספיקות: ${current}/${required} ש״ס. חסרות ${required - current} ש״ס. (נכון לתשפ"ו)`,
     { current, required, deficit: Math.max(0, required - current) }
   );
 };
@@ -141,7 +141,7 @@ export const ruleSeminarCredits: RegulationRule = (ctx: RuleContext) => {
       true,
       "INFO",
       "No seminar-credit minimum defined for this program.",
-      "אין דרישת מינימום ש\"ס סמינריונים בתוכנית זו.",
+      "אין דרישת מינימום ש״ס סמינריונים בתוכנית זו.",
       { current: 0, required: 0 }
     );
   }
@@ -159,8 +159,8 @@ export const ruleSeminarCredits: RegulationRule = (ctx: RuleContext) => {
       ? `Seminar credits met: ${current}/${required} SH"S.`
       : `Seminar credits insufficient: ${current}/${required} SH"S. Need ${required - current} more.`,
     passed
-      ? `נקודות סמינריונים מתקיימות: ${current}/${required} ש"ס. (נכון לתשפ"ו)`
-      : `נקודות סמינריונים לא מספיקות: ${current}/${required} ש"ס. חסרות ${required - current} ש"ס. (נכון לתשפ"ו)`,
+      ? `נקודות סמינריונים מתקיימות: ${current}/${required} ש״ס. (נכון לתשפ"ו)`
+      : `נקודות סמינריונים לא מספיקות: ${current}/${required} ש״ס. חסרות ${required - current} ש״ס. (נכון לתשפ"ו)`,
     { current, required, deficit: Math.max(0, required - current) }
   );
 };
@@ -180,7 +180,7 @@ export const ruleElectiveCredits: RegulationRule = (ctx: RuleContext) => {
       true,
       "INFO",
       "No elective-credit minimum defined for this program.",
-      "אין דרישת מינימום ש\"ס בחירה בתוכנית זו.",
+      "אין דרישת מינימום ש״ס בחירה בתוכנית זו.",
       { current: 0, required: 0 }
     );
   }
@@ -198,8 +198,8 @@ export const ruleElectiveCredits: RegulationRule = (ctx: RuleContext) => {
       ? `Elective credits met: ${current}/${required} SH"S.`
       : `Elective credits insufficient: ${current}/${required} SH"S. Need ${required - current} more.`,
     passed
-      ? `נקודות בחירה מתקיימות: ${current}/${required} ש"ס. (נכון לתשפ"ו)`
-      : `נקודות בחירה לא מספיקות: ${current}/${required} ש"ס. חסרות ${required - current} ש"ס. (נכון לתשפ"ו)`,
+      ? `נקודות בחירה מתקיימות: ${current}/${required} ש״ס. (נכון לתשפ"ו)`
+      : `נקודות בחירה לא מספיקות: ${current}/${required} ש״ס. חסרות ${required - current} ש״ס. (נכון לתשפ"ו)`,
     { current, required, deficit: Math.max(0, required - current) }
   );
 };
@@ -225,7 +225,7 @@ function createDisciplineCreditsRule(disc: DisciplineDefinition): RegulationRule
         true,
         "INFO",
         `No minimum credits required for ${disc.nameEn}.`,
-        `אין דרישת מינימום ש"ס ב${disc.nameHe}.`,
+        `אין דרישת מינימום ש״ס ב${disc.nameHe}.`,
         { current, required: 0, discipline: disc.id }
       );
     }
@@ -242,8 +242,8 @@ function createDisciplineCreditsRule(disc: DisciplineDefinition): RegulationRule
         ? `${disc.nameEn} credits met: ${current}/${required} SH"S.`
         : `${disc.nameEn} credits insufficient: ${current}/${required} SH"S. Need ${required - current} more.`,
       passed
-        ? `נקודות ${disc.nameHe} מתקיימות: ${current}/${required} ש"ס.`
-        : `נקודות ${disc.nameHe} לא מספיקות: ${current}/${required} ש"ס. חסרות ${required - current} ש"ס.`,
+        ? `נקודות ${disc.nameHe} מתקיימות: ${current}/${required} ש״ס.`
+        : `נקודות ${disc.nameHe} לא מספיקות: ${current}/${required} ש״ס. חסרות ${required - current} ש״ס.`,
       { current, required, discipline: disc.id, deficit: Math.max(0, required - current) }
     );
   };
@@ -279,7 +279,7 @@ export const ruleFocusAreaCredits: RegulationRule = (ctx: RuleContext) => {
       false,
       "WARNING",
       `No focus area selected. You must choose a focus area discipline to meet the ${required} SH"S requirement.`,
-      `לא נבחר תחום מיקוד. עליך לבחור דיסציפלינת מיקוד כדי לעמוד בדרישת ${required} ש"ס.`,
+      `לא נבחר תחום מיקוד. עליך לבחור דיסציפלינת מיקוד כדי לעמוד בדרישת ${required} ש״ס.`,
       { current: 0, required, focusArea: null }
     );
   }
@@ -304,8 +304,8 @@ export const ruleFocusAreaCredits: RegulationRule = (ctx: RuleContext) => {
       ? `Focus area (${disciplineNameEn}) credits met: ${current}/${required} SH"S.`
       : `Focus area (${disciplineNameEn}) credits insufficient: ${current}/${required} SH"S. Need ${required - current} more.`,
     passed
-      ? `נקודות תחום מיקוד (${disciplineNameHe}) מתקיימות: ${current}/${required} ש"ס.`
-      : `נקודות תחום מיקוד (${disciplineNameHe}) לא מספיקות: ${current}/${required} ש"ס. חסרות ${required - current} ש"ס.`,
+      ? `נקודות תחום מיקוד (${disciplineNameHe}) מתקיימות: ${current}/${required} ש״ס.`
+      : `נקודות תחום מיקוד (${disciplineNameHe}) לא מספיקות: ${current}/${required} ש״ס. חסרות ${required - current} ש״ס.`,
     { current, required, focusArea, deficit: Math.max(0, required - current) }
   );
 };
@@ -456,13 +456,13 @@ export const ruleMandatoryCourses: RegulationRule = (ctx: RuleContext) => {
   let messageHe: string;
   if (passed) {
     messageEn = `All mandatory courses completed (${mandatoryCreditsCurrent}/${mandatoryCreditsRequired} SH"S).`;
-    messageHe = `כל קורסי החובה הושלמו (${mandatoryCreditsCurrent}/${mandatoryCreditsRequired} ש"ס).`;
+    messageHe = `כל קורסי החובה הושלמו (${mandatoryCreditsCurrent}/${mandatoryCreditsRequired} ש״ס).`;
   } else if (!allRowsComplete) {
     messageEn = `${completedCount}/${totalMandatory} added mandatory courses completed. ${incomplete.length} remaining.`;
     messageHe = `${completedCount}/${totalMandatory} מקורסי החובה שנוספו הושלמו. נותרו ${incomplete.length} קורסים.`;
   } else {
     messageEn = `Added mandatory courses are complete, but required mandatory courses are still missing: ${mandatoryCreditsCurrent}/${mandatoryCreditsRequired} SH"S (${creditsShort} short).`;
-    messageHe = `קורסי החובה שנוספו הושלמו, אך עדיין חסרים קורסי חובה נדרשים: ${mandatoryCreditsCurrent}/${mandatoryCreditsRequired} ש"ס (חסרות ${creditsShort}).`;
+    messageHe = `קורסי החובה שנוספו הושלמו, אך עדיין חסרים קורסי חובה נדרשים: ${mandatoryCreditsCurrent}/${mandatoryCreditsRequired} ש״ס (חסרות ${creditsShort}).`;
   }
 
   // Severity: an unmet mandatory requirement is mid-degree PROGRESS (courses not
@@ -630,7 +630,7 @@ export const ruleEnglishLevel: RegulationRule = (ctx: RuleContext) => {
       : `AMIRANT ${score} → ${nameEn}: ${levelCourses} preparatory level course(s) still needed (not counted in the 150 credits). The 2 English content courses still apply.`,
     isExempt
       ? `אמירנט ${score} → ${nameHe}: פטור מקורסי רמה. עדיין נדרשים 2 קורסי תוכן באנגלית. (נכון לתשפ\"ו)`
-      : `אמירנט ${score} → ${nameHe}: נדרשים עוד ${levelCourses} קורסי רמה (לא נספרים ב-150 ש\"ס). עדיין נדרשים 2 קורסי תוכן באנגלית. (נכון לתשפ\"ו)`,
+      : `אמירנט ${score} → ${nameHe}: נדרשים עוד ${levelCourses} קורסי רמה (לא נספרים ב-150 ש״ס). עדיין נדרשים 2 קורסי תוכן באנגלית. (נכון לתשפ\"ו)`,
     { amirantScore: score, level, levelCourses, isExempt, isRejected }
   );
 };

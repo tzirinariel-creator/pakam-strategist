@@ -638,6 +638,18 @@ h4, h5, h6 {
 }
 .animate-rise { animation: rise-in 0.55s var(--ease-out-soft) both; }
 
+/* Philosopher King — the center "orb of the Good" breathes while the King
+   considers (wired to LLM streaming). Present-tense, not attention-seeking;
+   auto-disabled by the reduced-motion guard below. */
+@keyframes pk-orb-breathe {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.35; }
+}
+.pk-king--thinking .pk-king-orb {
+  animation: pk-orb-breathe 1.6s ease-in-out infinite;
+  transform-origin: center;
+}
+
 /* (Film grain removed — Studio Clarity uses a clean neutral canvas, no paper texture.) */
 
 @layer base {

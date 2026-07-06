@@ -94,7 +94,7 @@ export function BinaryAdvisor() {
             <span className="min-w-0 flex-1 truncate text-foreground/80">
               {course.nameHe}
               <span className="ms-1.5 text-foreground/40" dir="ltr">
-                {course.grade} · {course.credits} {isHe ? 'ש"ס' : "cr"}
+                {course.grade} · {course.credits} {isHe ? 'ש״ס' : "cr"}
               </span>
             </span>
             <span className="inline-flex items-center gap-1 rounded-md bg-emerald-400/10 px-2 py-1 font-bold text-emerald-600" dir="ltr">

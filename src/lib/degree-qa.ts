@@ -99,8 +99,8 @@ const HANDLERS: Handler[] = [
         return {
           text: he(
             c,
-            `אין דרישות ${gm(c, "שאתה מפר", "שאת מפרה", "שאת/ה מפר/ה")} כרגע 👍 מה שנשאר זה לצבור את הש״ס שחסרים — ${gm(c, "ראה", "ראי", "ראה/י")} 'המצב שלי' בדשבורד.`,
-            "You're not violating any requirement right now 👍 What's left is accumulating the remaining credits — see 'My status' on the dashboard."
+            `אין דרישות ${gm(c, "שאתה מפר", "שאת מפרה", "שאת/ה מפר/ה")} כרגע. מה שנשאר זה לצבור את הש״ס שחסרים — ${gm(c, "ראה", "ראי", "ראה/י")} 'המצב שלי' בדשבורד.`,
+            "You're not violating any requirement right now. What's left is accumulating the remaining credits — see 'My status' on the dashboard."
           ),
           href: "/regulations",
           cta: he(c, "לפירוט הדרישות", "View requirements"),
@@ -362,7 +362,7 @@ const HANDLERS: Handler[] = [
         return {
           text: he(
             c,
-            `ההתמחות היא ${c.focusAreaTarget} ש״ס באחת משלוש הדיסציפלינות, והיא גם קובעת את הסיווג בשירות-המדינה:\n• פילוסופיה — חשיבה, אתיקה, לוגיקה ותורת-המדע.\n• כלכלה — הדיסציפלינה הכמותית ביותר: מודלים, נתונים ומדיניות.\n• מדע המדינה — ממשל, יחסים בין-לאומיים ומדיניות ציבורית.\nאיך בוחרים: לפי מה שהכי מסקרן אותך ללמוד לעומק (${c.focusAreaTarget} ש״ס זה הרבה) ולפי הכיוון שתרצה להתקדם אליו. שווה לעיין בקטלוג ולראות אילו קורסים מדברים אליך — בוחרים בהגדרות, ואפשר לשנות בהמשך.`,
+            `תחום המיקוד הוא ${c.focusAreaTarget} ש״ס באחת משלוש הדיסציפלינות, והיא גם קובעת את הסיווג בשירות-המדינה:\n• פילוסופיה — חשיבה, אתיקה, לוגיקה ותורת-המדע.\n• כלכלה — הדיסציפלינה הכמותית ביותר: מודלים, נתונים ומדיניות.\n• מדע המדינה — ממשל, יחסים בין-לאומיים ומדיניות ציבורית.\nאיך בוחרים: לפי מה שהכי מסקרן אותך ללמוד לעומק (${c.focusAreaTarget} ש״ס זה הרבה) ולפי הכיוון שתרצה להתקדם אליו. שווה לעיין בקטלוג ולראות אילו קורסים מדברים אליך — בוחרים בהגדרות, ואפשר לשנות בהמשך.`,
             `Your focus is ${c.focusAreaTarget} credits in one of three disciplines, and it also sets your civil-service track:\n• Philosophy — reasoning, ethics, logic, philosophy of science.\n• Economics — the most quantitative track: models, data, policy.\n• Political Science — government, international relations, public policy.\nHow to choose: by what you'd most want to study in depth (${c.focusAreaTarget} credits is a lot) and the direction you want to head. Browse the catalog to see which courses speak to you — you choose in settings and can change it later.`
           ),
           href: "/catalog",
@@ -374,7 +374,7 @@ const HANDLERS: Handler[] = [
       return {
         text: he(
           c,
-          `התמחות: ${name ?? ""} — ${c.focusAreaCredits} מתוך ${c.focusAreaTarget} ש״ס${left > 0 ? `, נשארו ${left}` : " ✓"}.`,
+          `תחום מיקוד: ${name ?? ""} — ${c.focusAreaCredits} מתוך ${c.focusAreaTarget} ש״ס${left > 0 ? `, נשארו ${left}` : " ✓"}.`,
           `Focus: ${name ?? ""} — ${c.focusAreaCredits} of ${c.focusAreaTarget} credits${left > 0 ? `, ${left} to go` : " ✓"}.`
         ),
       };
@@ -419,8 +419,8 @@ const HANDLERS: Handler[] = [
         return {
           text: he(
             c,
-            "השלמת את כל הש״ס לתואר 🎉 נשאר רק לוודא שכל הדרישות מולאו — ראה 'המצב שלי'.",
-            "You've completed all degree credits 🎉 Just confirm every requirement is met — see 'My status'."
+            "השלמת את כל הש״ס לתואר. נשאר רק לוודא שכל הדרישות מולאו — ראה 'המצב שלי'.",
+            "You've completed all degree credits. Just confirm every requirement is met — see 'My status'."
           ),
           href: "/regulations",
           cta: he(c, "בדיקת דרישות", "Check requirements"),
@@ -531,7 +531,7 @@ const NORMALIZED_HANDLERS = HANDLERS.map((h) => ({
 export function answerDegreeQuestion(question: string, c: QAContext): QAAnswer {
   const q = normalize(question);
   if (!q) {
-    return { text: he(c, `${gm(c, "שאל", "שאלי", "שאל/י")} אותי כל דבר על התואר שלך 🙂`, "Ask me anything about your degree 🙂"), matched: false };
+    return { text: he(c, `${gm(c, "שאל", "שאלי", "שאל/י")} אותי כל דבר על התואר שלך`, "Ask me anything about your degree"), matched: false };
   }
   let best: Handler | null = null;
   let bestScore = 0;
@@ -554,7 +554,7 @@ export function answerDegreeQuestion(question: string, c: QAContext): QAAnswer {
     matched: false,
     text: he(
       c,
-      `לא בטוח שהבנתי. אני יכול לעזור עם: כמה ש״ס נשארו, מה חסר לתואר, הממוצע שלך, בינארי, אנגלית/אמירנט, מילואים, סמינרים, תנאי מעבר שנה, התמחות, הצטיינות, ובידינג.`,
+      `לא בטוח שהבנתי. אני יכול לעזור עם: כמה ש״ס נשארו, מה חסר לתואר, הממוצע שלך, בינארי, אנגלית/אמירנט, מילואים, סמינרים, תנאי מעבר שנה, תחום מיקוד, הצטיינות, ובידינג.`,
       `Not sure I got that. I can help with: credits left, what's missing, your average, binary, English/Amiram, miluim, seminars, year-transition rules, focus area, honors, and bidding.`
     ),
   };

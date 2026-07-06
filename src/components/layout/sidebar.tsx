@@ -35,17 +35,31 @@ const NAV_ICONS = {
   guide: Compass,
 } as const;
 
-const NAV_ITEMS = [
-  { key: "dashboard", href: "/dashboard" },
-  { key: "planner", href: "/planner" },
-  { key: "catalog", href: "/catalog" },
-  { key: "calendar", href: "/calendar" },
-  { key: "examPlanner", href: "/exam-planner" },
-  { key: "record", href: "/record" },
-  { key: "graduation", href: "/graduation" },
-  { key: "regulations", href: "/regulations" },
-  { key: "mentor", href: "/mentor" },
-  { key: "guide", href: "/guide" },
+// Grouped by tier instead of a flat 10-peer list (the "tab-jungle"). The King
+// (mentor) is dropped from the sidebar — it already floats as a FAB on every
+// screen — but the /mentor route stays resolvable. Every route is preserved.
+const NAV_GROUPS: readonly (readonly { key: keyof typeof NAV_ICONS; href: string }[])[] = [
+  // The primary loop: where am I → plan it → verify it.
+  [
+    { key: "dashboard", href: "/dashboard" },
+    { key: "planner", href: "/planner" },
+    { key: "regulations", href: "/regulations" },
+  ],
+  // The academic file — log completed grades + forecast the final score.
+  [
+    { key: "record", href: "/record" },
+    { key: "graduation", href: "/graduation" },
+  ],
+  // Seasonal / schedule spokes.
+  [
+    { key: "examPlanner", href: "/exam-planner" },
+    { key: "calendar", href: "/calendar" },
+  ],
+  // Reference / one-read.
+  [
+    { key: "catalog", href: "/catalog" },
+    { key: "guide", href: "/guide" },
+  ],
 ] as const;
 
 // Pinned to the bottom of the sidebar, separated from the main nav.
@@ -134,7 +148,14 @@ export function Sidebar() {
       {/* Navigation */}
       <TooltipProvider>
         <nav className="flex-1 space-y-1 overflow-y-auto px-2 py-4">
-          {NAV_ITEMS.map((item) => renderNavItem(item))}
+          {NAV_GROUPS.map((group, i) => (
+            <div
+              key={i}
+              className={cn("space-y-1", i > 0 && "mt-2 border-t border-sidebar-border/60 pt-2")}
+            >
+              {group.map((item) => renderNavItem(item))}
+            </div>
+          ))}
         </nav>
 
         {/* Settings — pinned at the bottom, separated from the main nav */}

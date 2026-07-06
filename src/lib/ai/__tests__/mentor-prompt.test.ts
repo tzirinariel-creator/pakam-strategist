@@ -91,7 +91,7 @@ describe("buildMentorSystemPrompt — credit sub-breakdown parity", () => {
       ctx({ creditDetail: { planned: 13, mandatory: 60, elective: 8, seminar: 0, englishCourseCount: 3 } }),
       program,
     );
-    expect(prompt).toContain("פירוק ש\"ס שהושלמו");
+    expect(prompt).toContain("פירוק ש״ס שהושלמו");
     expect(prompt).toContain("חובה 60");
     expect(prompt).toContain("בחירה 8");
     expect(prompt).toContain("מתוכננות 13");

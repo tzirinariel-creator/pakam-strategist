@@ -63,6 +63,14 @@ export function CatalogContent() {
   // Cast the returned data to our Course type
   const typedCourses = (courses ?? []) as unknown as Course[];
 
+  // The FULL (unfiltered) catalog — used only so the course-detail panel can
+  // resolve prerequisites to clickable names even when the visible table is
+  // filtered by discipline/search (a prereq may live outside the current filter).
+  const { data: allCoursesRaw } = api.course.list.useQuery(undefined, {
+    staleTime: 5 * 60 * 1000,
+  });
+  const allCourses = (allCoursesRaw ?? courses ?? []) as unknown as Course[];
+
   // Real data-freshness signal: the most recent per-course sync timestamp.
   // Answers "how up-to-date is this?" with a concrete date, not a static year.
   const freshestSync = useMemo(() => {
@@ -123,17 +131,19 @@ export function CatalogContent() {
       {/* Course Table */}
       {!isLoading && !error && (
         <div className="animate-stagger-3">
-          <CourseTable courses={typedCourses} focusArea={profile?.focusArea ?? null} />
+          <CourseTable courses={typedCourses} allCourses={allCourses} focusArea={profile?.focusArea ?? null} />
         </div>
       )}
 
-      {/* Data freshness + missing course */}
+      {/* Data provenance — two HONEST statements, not one that implies grades are
+          official. Facts come from the Yedion; the average+difficulty are a
+          computed estimate from historical data (Arazim), not a TAU figure. (#8/#15) */}
       {!isLoading && !error && typedCourses.length > 0 && (
-        <div className="flex items-center gap-3 text-xs text-foreground/30">
+        <div className="flex flex-col gap-1 text-xs text-foreground/30">
           <p>
             {isHe
-              ? "נתונים מידיעון אוניברסיטת תל אביב · תשפ״ו"
-              : "Data from Tel Aviv University Yedion · 2025/26"}
+              ? "עובדות הקורס (שם, ש״ס, שעות, דרישות קדם) — מידיעון אוניברסיטת תל אביב, תשפ״ו"
+              : "Course facts (name, credits, hours, prerequisites) — from the Tel Aviv University Yedion, 2025/26"}
             {freshestSync && (
               <>
                 {" · "}
@@ -148,10 +158,14 @@ export function CatalogContent() {
               </>
             )}
           </p>
-          <span className="text-foreground/15">·</span>
+          <p>
+            {isHe
+              ? "ציון ממוצע וקושי — הערכה מנתוני עבר, לא ציון רשמי של האוניברסיטה"
+              : "Average grade and difficulty — an estimate from historical data, not an official university figure"}
+          </p>
           <a
             href={`mailto:tzirin.ariel@gmail.com?subject=${encodeURIComponent(isHe ? "קורס חסר בקטלוג פכמון" : "Missing course in the Pakamon catalog")}`}
-            className="underline underline-offset-2 transition-colors hover:text-foreground/50"
+            className="w-fit underline underline-offset-2 transition-colors hover:text-foreground/50"
           >
             {isHe ? "לא מצאתם קורס? דווחו לנו" : "Missing a course? Let us know"}
           </a>

@@ -126,7 +126,7 @@ export function CourseBubble({
         {/* Focus area badge */}
         {recommended && (
           <span className="shrink-0 rounded-full bg-foreground/8 px-1 py-0 text-[8px] font-medium text-foreground/40">
-            {isHe ? "התמחות" : "Focus"}
+            {isHe ? "מיקוד" : "Focus"}
           </span>
         )}
 

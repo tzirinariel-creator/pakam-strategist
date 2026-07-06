@@ -6,7 +6,7 @@
   "nav": {
     "dashboard": "Home",
     "planner": "Degree Planner",
-    "regulations": "Regulations",
+    "regulations": "Degree check",
     "mentor": "Philosopher King",
     "syllabus": "Syllabi",
     "catalog": "Course Catalog",
@@ -96,7 +96,7 @@
     "error": "Couldn't move the course — try again"
   },
   "regulations": {
-    "title": "Academic Regulations",
+    "title": "Degree check",
     "subtitle": "Your status against the degree requirements",
     "passed": "Passed",
     "failed": "Failed",
@@ -129,7 +129,7 @@
     "passedSection": "Requirements Met",
     "noRules": "No rules found to check — try refreshing the page",
     "noCourses": "No courses added yet",
-    "noCoursesDescription": "Once you add courses, we'll automatically check that your plan meets all 25 requirements.",
+    "noCoursesDescription": "Once you add courses, we'll automatically check that your plan meets all the regulation requirements.",
     "goToPlanner": "Go to Planner",
     "fixInPlanner": "Fix in Planner",
     "severityError": "Required",
@@ -195,7 +195,7 @@
     "conflictWarning": "Schedule conflict",
     "conflictWith": "Conflicts with {course} on {day} ({time})",
     "loginAgain": "Please log in again",
-    "backToPlanner": "Back to plan",
+    "backToPlanner": "Back to the planning board",
     "modifySemesterPlan": "Modify semester plan",
     "saveError": "Couldn't save — try refreshing and saving again",
     "removeError": "Couldn't remove the course — try again",
@@ -254,7 +254,7 @@
     "profileDescription": "Affects recommended courses, transition requirements, and your reports",
     "email": "Email",
     "focusArea": "Focus Area",
-    "focusAreaHint": "60 credits in one discipline = official specialization. Affects your job classification.",
+    "focusAreaHint": "60 credits in one discipline = your official focus area. Affects your job classification.",
     "focusOptions": {
       "philosophy": "Philosophy",
       "economics": "Economics",
@@ -598,7 +598,7 @@
     "featurePlan": "Plan 3 Years",
     "featurePlanDesc": "All courses organized by semester — see where you're headed",
     "featureRegulations": "Regulation Check",
-    "featureRegulationsDesc": "25 regulation rules checked automatically in the background",
+    "featureRegulationsDesc": "PPE regulation rules checked automatically in the background",
     "featureMentor": "AI Mentor",
     "featureMentorDesc": "Questions about your degree? The mentor knows the regulations",
     "featurePersonalized": "Fits Your Year",
@@ -610,7 +610,7 @@
     "howItWorksStep1": "Tell us about you",
     "howItWorksStep2": "Build your schedule",
     "howItWorksStep3": "All saved",
-    "focusHint": "The discipline where you accumulate 60+ credits becomes your official specialization. Not sure? Pick 'Undecided' and decide later.",
+    "focusHint": "The discipline where you accumulate 60+ credits becomes your official focus area. Not sure? Pick 'Undecided' and decide later.",
     "miluim": {
       "sectionTitle": "Reserve duty (Miluim)",
       "optionalHint": "Only relevant if you served this year. You can skip and revisit this from settings later.",
@@ -931,7 +931,7 @@
       },
       "regulations": {
         "title": "Regulation Check",
-        "desc": "25 PPE regulation rules — discipline credits, seminar requirements, year transitions — checked automatically"
+        "desc": "PPE regulation rules — discipline credits, seminar requirements, year transitions — checked automatically"
       },
       "syllabus": {
         "title": "Syllabus Analysis",
@@ -947,7 +947,7 @@
     "footerTerms": "Terms",
     "stats": {
       "courses": "real courses",
-      "rules": "regulation rules",
+      "disciplines": "disciplines",
       "credits": "credits to graduate"
     }
   },
@@ -1079,7 +1079,7 @@
     "degreePlanner": "Degree Planner",
     "degreePlannerDesc": "Organize courses by semester",
     "checkRegulations": "Regulation Check",
-    "checkRegulationsDesc": "Meeting all 25 requirements?",
+    "checkRegulationsDesc": "Meeting all the regulation requirements?",
     "aiMentor": "AI Mentor",
     "aiMentorDesc": "Questions? The mentor knows the rules",
     "weeklySchedule": "Weekly Schedule",
@@ -1248,7 +1248,7 @@
     "seminarsLabel": "Seminars",
     "disciplineBreakdownTitle": "Breakdown by discipline",
     "creditsSuffix": "credits",
-    "focusAreaTitle": "Specialization (focus area)",
+    "focusAreaTitle": "Focus area",
     "minCreditsInOneDiscipline": "credits minimum in one discipline",
     "focusAreaExplanation": "The focus area determines your civil service classification. You need at least 60 credits in one discipline to be classified in that field.",
     "seminarsTitle": "Seminars",

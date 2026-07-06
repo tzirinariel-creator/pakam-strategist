@@ -12,6 +12,7 @@ import {
   type MiluimGroupKey,
 } from "@/lib/miluim";
 import type { QAContext } from "@/lib/degree-qa";
+import { buildRecommendations, type Recommendation } from "@/lib/recommendations-engine";
 
 /**
  * Builds the deterministic-QA context from the student's own tRPC data, shared
@@ -19,7 +20,9 @@ import type { QAContext } from "@/lib/degree-qa";
  * from one source of truth. Returns `ready` = whether the core data has loaded
  * (so the caller can hold the free answer until numbers are real, never guess).
  */
-export function useDegreeQAContext(enabled = true): { ctx: QAContext; ready: boolean } {
+export function useDegreeQAContext(
+  enabled = true,
+): { ctx: QAContext; ready: boolean; recommendations: Recommendation[] } {
   const isHe = useLocale() === "he";
 
   // `enabled` lets the floating assistant defer these 6 queries until the King
@@ -94,6 +97,39 @@ export function useDegreeQAContext(enabled = true): { ctx: QAContext; ready: boo
     isHe,
   ]);
 
+  // Proactive recommendations — the SAME engine the dashboard uses, computed
+  // from the queries already in hand (zero extra network). The floating King
+  // uses rec[0] (critical/warning only) to volunteer the single most pressing
+  // gap when the student opens it — note #10 ("a mentor who says nothing…").
+  const recommendations = useMemo<Recommendation[]>(() => {
+    const b = creditsQuery.data?.breakdown ?? null;
+    const profile = profileQuery.data;
+    const miluimGroup = profile?.miluimGroup ?? "NONE";
+    return buildRecommendations({
+      courses: (planQuery.data?.courses ?? []).map((uc) => ({
+        status: uc.status,
+        grade: uc.grade,
+        courseType: uc.course.courseType,
+        isMandatory: uc.course.isMandatory,
+        isBinary: uc.isBinary,
+        credits: uc.course.credits,
+        nameHe: uc.course.nameHe,
+        nameEn: uc.course.nameEn,
+        examDateB: uc.course.examDateB,
+        discipline: (uc.disciplineOverride ?? uc.course.discipline) as string,
+      })),
+      courseAverage: gradeQuery.data?.courseAverage ?? null,
+      englishCourseCount: b?.englishCourseCount ?? 0,
+      amiramScore: profile?.amiramScore ?? null,
+      hasFocusArea: !!profile?.focusArea,
+      currentYear: profile?.currentYear ?? 1,
+      miluimGroup,
+      binaryRemaining: binaryCapRemaining(profile?.miluimBinaryUsed ?? 0, miluimGroup as MiluimGroupKey),
+      regulationResults: regulationQuery.data?.results ?? [],
+      now: new Date(),
+    });
+  }, [creditsQuery.data, gradeQuery.data, regulationQuery.data, profileQuery.data, planQuery.data]);
+
   const ready = !!creditsQuery.data && !!profileQuery.data;
-  return { ctx, ready };
+  return { ctx, ready, recommendations };
 }

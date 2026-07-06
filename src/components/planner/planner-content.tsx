@@ -12,7 +12,7 @@ import { BiddingExplainer } from "./bidding-explainer";
 import { BiddingOverlapAlert } from "./bidding-overlap-alert";
 import { BiddingWorksheet } from "./bidding-worksheet";
 import { PlannerLiveTimetable } from "./planner-live-timetable";
-import { CREDIT_REQUIREMENTS } from "@/lib/constants";
+import { DegreeStatus } from "@/components/dashboard/degree-status";
 import { api } from "@/lib/trpc/react";
 import { ThemedLoader } from "@/components/ui/themed-loader";
 import { cn } from "@/lib/utils";
@@ -21,7 +21,6 @@ import { Bidi } from "@/lib/bidi";
 
 export function PlannerContent() {
   const t = useTranslations("planner");
-  const tCredits = useTranslations("credits");
   const tCommon = useTranslations("common");
   const tOnboarding = useTranslations("onboarding");
   const isHe = useLocale() === "he";
@@ -142,20 +141,9 @@ export function PlannerContent() {
     );
   }
 
+  // The canonical credit breakdown the dashboard/King show — fed straight into
+  // the shared <DegreeStatus> so the board mirrors home instead of re-deriving.
   const breakdown = creditsQuery.data?.breakdown;
-  const target = CREDIT_REQUIREMENTS.TOTAL;
-  // effectiveTotal = earned + planned + miluim exemption (capped) — the degree
-  // completion number the dashboard/King show. Fall back to a raw sum only until
-  // the query resolves.
-  const totalCredits =
-    breakdown?.effectiveTotal ??
-    courses.reduce((sum, uc) => sum + uc.course.credits, 0);
-  const completedCredits =
-    breakdown?.earned ??
-    courses
-      .filter((uc) => uc.status === "COMPLETED")
-      .reduce((sum, uc) => sum + uc.course.credits, 0);
-  const progressPercent = Math.min((totalCredits / target) * 100, 100);
 
   return (
     <div className="flex flex-col gap-5 p-4 md:p-6">
@@ -235,43 +223,12 @@ export function PlannerContent() {
         </div>
       </div>
 
-      {/* Credit summary bar */}
-      <div className="animate-stagger-2 data-card flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        {/* Left side: progress ring + numbers */}
-        <div className="flex items-center gap-4">
-          {/* Progress text */}
-          <div className="flex flex-col gap-0.5">
-            <div className="flex items-baseline gap-1.5">
-              <span className="text-2xl font-bold text-foreground/80">
-                {totalCredits}
-              </span>
-              <span className="text-sm text-muted-foreground">
-                / {target} {tCredits("title")}
-              </span>
-            </div>
-            <span className="text-xs text-muted-foreground">
-              {tCredits("completed")}: {completedCredits} | {tCredits("remaining")}: {target - totalCredits > 0 ? target - totalCredits : 0}
-            </span>
-          </div>
-        </div>
-
-        {/* Right side: progress bar */}
-        <div className="flex min-w-0 flex-1 flex-col gap-1 sm:max-w-xs">
-          <div className="h-2.5 w-full overflow-hidden rounded-full bg-muted/40">
-            <div
-              className={cn(
-                "h-full rounded-full transition-all duration-500",
-                progressPercent >= 100
-                  ? "bg-emerald-500"
-                  : "bg-foreground",
-              )}
-              style={{ width: `${progressPercent}%` }}
-            />
-          </div>
-          <span className="text-end text-[10px] text-muted-foreground">
-            {Math.round(progressPercent)}%
-          </span>
-        </div>
+      {/* Status summary — the SAME render as home ("המצב שלי"): one super-number,
+          one 4-segment bar. The board now MIRRORS home instead of drawing a
+          second, differently-styled credit bar of the same number (the
+          "three surfaces" confusion). One getCredits shape, one visual. */}
+      <div className="animate-stagger-2 data-card p-4">
+        <DegreeStatus variant="compact" credits={breakdown ?? null} isHe={isHe} />
       </div>
 
       {/* Main content — plan board beside a live timetable (#21). On wide

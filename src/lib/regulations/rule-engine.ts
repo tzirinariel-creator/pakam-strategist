@@ -57,7 +57,7 @@ export interface RegulationStudentContext {
   miluimGroup?: string | null;
   /** Binary (pass/fail) conversions already used across the degree. */
   miluimBinaryUsed?: number;
-  /** Credit exemptions (ש"ס) already used across the degree. */
+  /** Credit exemptions (ש״ס) already used across the degree. */
   miluimCreditsUsed?: number;
 }
 

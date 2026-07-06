@@ -25,6 +25,13 @@ export const GEMINI_MODEL = "gemini-2.5-flash-lite";
 
 const GEMINI_MAX_TOKENS = 4096;
 
+// Chat-only tuning (streamGemini is the King's chat; the scanners use
+// generateGeminiVision and stay deterministic). A moderate temperature makes
+// the voice human instead of robotic, and a tight output cap backstops the
+// "answer in 2-4 sentences" contract so a rambling essay can't slip through.
+const GEMINI_CHAT_TEMPERATURE = 0.55;
+const GEMINI_CHAT_MAX_TOKENS = 800;
+
 /** Google AI Studio keys: legacy "AIza…" or the newer "AQ.…" auth keys. */
 export function validateGeminiKey(key: string): boolean {
   return /^(AIza[0-9A-Za-z_-]{30,}|AQ\.[A-Za-z0-9._-]{20,})$/.test(key.trim());
@@ -131,7 +138,10 @@ export async function* streamGemini(
     body: JSON.stringify({
       systemInstruction: { parts: [{ text: system }] },
       contents,
-      generationConfig: { maxOutputTokens: GEMINI_MAX_TOKENS },
+      generationConfig: {
+        maxOutputTokens: GEMINI_CHAT_MAX_TOKENS,
+        temperature: GEMINI_CHAT_TEMPERATURE,
+      },
     }),
     signal,
   });

@@ -25,6 +25,28 @@ export interface Course {
   averageGrade: number | null;
   difficultyLevel: string | null;
   failRate: number | null;
+  /** Which semester the grade data is from, e.g. "2024b". Shown so a student
+   *  can judge how current the (unofficial, estimated) average is. */
+  gradeDataYear: string | null;
+  medianGrade: number | null;
+  gradeStdDev: number | null;
+  /** "arazim" | "manual" | "estimated" — provenance of the grade stats. */
+  gradeDataSource: string | null;
+  /** Weekly sessions — present when the course.list query includes them (the
+   *  catalog does). Optional because some Course consumers don't select it. */
+  scheduleSessions?: {
+    id: string;
+    courseCode: string;
+    dayOfWeek: string;
+    startTime: string;
+    endTime: string;
+    sessionType: string;
+    semester: string;
+    room: string | null;
+    building: string | null;
+    groupCode: string | null;
+    lecturerName: string | null;
+  }[];
 }
 
 export interface UserCourse {

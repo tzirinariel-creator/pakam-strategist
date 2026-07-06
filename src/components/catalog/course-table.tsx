@@ -13,6 +13,7 @@ import {
 } from "@/components/ui/table";
 import { DISCIPLINE_CONFIG, SEMESTER_CONFIG, YEAR_CONFIG } from "@/lib/constants";
 import { DisciplineBadge } from "./discipline-badge";
+import { CourseDetailModal } from "./course-detail-modal";
 import { AskKingButton } from "@/components/ui/ask-king-button";
 import { cn } from "@/lib/utils";
 import type { Course } from "@/types/degree";
@@ -36,6 +37,10 @@ type SortDirection = "asc" | "desc";
 
 interface CourseTableProps {
   courses: Course[];
+  /** The FULL (unfiltered) catalog for the detail panel's prerequisite
+   *  resolution — a prereq may sit outside the currently-filtered `courses`.
+   *  Falls back to `courses` when not provided. */
+  allCourses?: Course[];
   /** The student's chosen focus-area discipline — its courses get starred. */
   focusArea?: string | null;
 }
@@ -55,6 +60,19 @@ function difficultyMeta(
   const m = map[level];
   if (!m) return null;
   return { label: isHe ? m.he : m.en, cls: m.cls };
+}
+
+/** Format the grade-data semester (e.g. "2024b") into a short "from …" hint so
+ *  a student sees how current the estimate is. Returns null when unparseable. */
+function formatGradeDataYear(raw: string | null, isHe: boolean): string | null {
+  if (!raw) return null;
+  const match = raw.trim().match(/^(\d{4})\s*([abc])?$/i);
+  if (!match) return null;
+  const year = match[1];
+  const semLetter = (match[2] ?? "").toLowerCase();
+  const semHe = semLetter === "a" ? "א׳" : semLetter === "b" ? "ב׳" : semLetter === "c" ? "קיץ" : "";
+  const semEn = semLetter === "a" ? "Fall" : semLetter === "b" ? "Spring" : semLetter === "c" ? "Summer" : "";
+  return isHe ? `מ־${semHe ? semHe + " " : ""}${year}` : `from ${semEn ? semEn + " " : ""}${year}`;
 }
 
 // ---------------------------------------------------------------------------
@@ -93,7 +111,7 @@ function formatSemesters(semesters: string[], locale: string): string {
 // Component
 // ---------------------------------------------------------------------------
 
-export function CourseTable({ courses, focusArea }: CourseTableProps) {
+export function CourseTable({ courses, allCourses, focusArea }: CourseTableProps) {
   const t = useTranslations("catalog");
   const tCourseType = useTranslations("courseType");
   const tCommon = useTranslations("common");
@@ -102,6 +120,8 @@ export function CourseTable({ courses, focusArea }: CourseTableProps) {
 
   const [sortField, setSortField] = useState<SortField>("code");
   const [sortDirection, setSortDirection] = useState<SortDirection>("asc");
+  // The course whose detail panel is open (row-name click). null = closed.
+  const [detailCourse, setDetailCourse] = useState<Course | null>(null);
   // When the student has a focus area, float its courses to the top by default
   // (#17/#24 — "electives organized by focus area"). Toggleable.
   const [focusFirst, setFocusFirst] = useState(true);
@@ -202,7 +222,7 @@ export function CourseTable({ courses, focusArea }: CourseTableProps) {
             className="size-3.5"
           />
           <Star className="size-3 fill-accent-brand text-accent-brand" />
-          {isHe ? "הצג את קורסי ההתמחות שלי קודם" : "Show my focus-area courses first"}
+          {isHe ? "הצג את קורסי המיקוד שלי קודם" : "Show my focus-area courses first"}
         </label>
       )}
       <div className="overflow-hidden rounded-lg border border-border/50 bg-card/80">
@@ -284,7 +304,8 @@ export function CourseTable({ courses, focusArea }: CourseTableProps) {
               </button>
             </TableHead>
 
-            {/* Average grade + difficulty (#19) */}
+            {/* Average grade + difficulty (#19). The header carries an honest
+                "where from" tooltip — this is an estimate, not an official grade. */}
             <TableHead
               className="select-none text-center"
               aria-sort={sortField === "averageGrade" ? (sortDirection === "asc" ? "ascending" : "descending") : "none"}
@@ -292,6 +313,11 @@ export function CourseTable({ courses, focusArea }: CourseTableProps) {
               <button
                 type="button"
                 onClick={() => handleSort("averageGrade")}
+                title={
+                  isHe
+                    ? "הערכה מנתוני עבר (ערזים), לא ציון רשמי של האוניברסיטה"
+                    : "An estimate from historical data (Arazim), not an official university grade"
+                }
                 className="inline-flex items-center gap-1 text-foreground/80 font-bold bg-transparent appearance-none cursor-pointer select-none"
               >
                 {isHe ? "ציון ממוצע" : "Avg grade"}
@@ -358,18 +384,20 @@ export function CourseTable({ courses, focusArea }: CourseTableProps) {
               {/* Name */}
               <TableCell className="font-medium">
                 <div>
-                  <span
-                    className="block text-foreground line-clamp-2"
-                    title={locale === "he" ? course.nameHe : (course.nameEn ?? course.nameHe)}
+                  <button
+                    type="button"
+                    onClick={() => setDetailCourse(course)}
+                    className="block text-start text-foreground line-clamp-2 transition-colors hover:text-accent-brand"
+                    title={isHe ? "לחצו לפרטי הקורס" : "Click for course details"}
                   >
                     {isFocus && (
                       <Star
                         className="me-1 -mt-0.5 inline size-3 fill-accent-brand text-accent-brand"
-                        aria-label={isHe ? "ההתמחות שלך" : "Your focus area"}
+                        aria-label={isHe ? "תחום המיקוד שלך" : "Your focus area"}
                       />
                     )}
                     {locale === "he" ? course.nameHe : (course.nameEn ?? course.nameHe)}
-                  </span>
+                  </button>
                   {locale === "he" ? (
                     course.nameEn && (
                       <span className="ms-2 text-xs text-muted-foreground hidden sm:inline">
@@ -434,6 +462,12 @@ export function CourseTable({ courses, focusArea }: CourseTableProps) {
                         {Math.round(course.failRate)}% {isHe ? "נכשלים" : "fail"}
                       </span>
                     )}
+                    {(() => {
+                      const from = formatGradeDataYear(course.gradeDataYear, isHe);
+                      return from ? (
+                        <span className="text-[9px] text-muted-foreground/50">{from}</span>
+                      ) : null;
+                    })()}
                   </div>
                 ) : (
                   <span className="text-xs text-muted-foreground/40" title={isHe ? "אין נתון" : "No data"}>
@@ -470,6 +504,14 @@ export function CourseTable({ courses, focusArea }: CourseTableProps) {
         </TableBody>
       </Table>
       </div>
+
+      {/* Course detail — opens on a course-name click (portal dialog). */}
+      <CourseDetailModal
+        course={detailCourse}
+        courses={allCourses ?? courses}
+        onOpenCourse={(c) => setDetailCourse(c)}
+        onClose={() => setDetailCourse(null)}
+      />
     </div>
   );
 }

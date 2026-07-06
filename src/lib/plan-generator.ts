@@ -79,6 +79,10 @@ export interface ScheduleSessionLike {
   startTime: string;
   endTime: string;
   sessionType: string;
+  /** Which semester this session runs in. A course offered in both FALL and
+   *  SPRING carries sessions for each; the timetable must filter to the
+   *  selected semester or it paints both onto one grid (phantom conflicts). */
+  semester?: string | null;
   room?: string | null;
   building?: string | null;
   groupCode?: string | null;

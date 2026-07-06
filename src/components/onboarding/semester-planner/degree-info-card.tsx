@@ -133,7 +133,7 @@ export function DegreeInfoCard() {
       </Section>
 
       {/* ── Section 3: Focus Area ────────────────────────────────── */}
-      <Section icon={Target} title="התמחות (תחום מיקוד)">
+      <Section icon={Target} title="תחום מיקוד">
         <div className="space-y-2">
           <div className="flex items-baseline gap-2">
             <span className="font-mono text-lg font-bold text-foreground/80">
@@ -282,7 +282,7 @@ export function DegreeInfoCard() {
       <Section icon={BookOpen} title="מילון מונחים">
         <dl className="space-y-2 text-xs">
           {([
-            ["ש״ס", "שעות סמסטריאליות — נקודות הזכות שצוברים לתואר."],
+            ["ש״ס", "שעות סמסטריאליות — יחידת הספירה של התואר. צריך לצבור 150 כדי לסיים."],
             ["סמינר / סמינריון", "קורס מתקדם שבו כותבים עבודת מחקר. צריך 4 כאלה לתואר."],
             ["רפרט", "עבודה סמינריונית מצומצמת — נספרת 4% מציון התואר."],
             ["תחום מיקוד", "הדיסציפלינה שבה מתמחים (60 ש״ס) — קובעת את הסיווג בשירות המדינה."],

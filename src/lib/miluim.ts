@@ -127,7 +127,7 @@ export function deriveCurrentGroup(
 }
 
 /**
- * The credit exemption (ש"ס פטור) granted RIGHT NOW for a group, accounting for
+ * The credit exemption (ש״ס פטור) granted RIGHT NOW for a group, accounting for
  * how much has already been used across the degree.
  *
  *   computeCreditExemption(group, alreadyUsed)
@@ -137,7 +137,7 @@ export function deriveCurrentGroup(
  *
  * Mirrors the existing inline math in plan.getCredits / regulation.checkCompliance:
  * with alreadyUsed = 0 this is exactly `min(group rate, 10)` — i.e. identical to
- * today. The degree cap (10 ש"ס for a BA) is per MILUIM_CONFIG. Never multiply by
+ * today. The degree cap (10 ש״ס for a BA) is per MILUIM_CONFIG. Never multiply by
  * year (that over-grants — see domain §6 "BUG to fix").
  *
  * @param group        A MiluimGroupKey, or null/NONE for no exemption.

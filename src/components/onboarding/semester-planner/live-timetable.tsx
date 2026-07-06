@@ -37,10 +37,19 @@ export function LiveTimetable({ courses, currentSemester, sessionGroupSelections
         continue;
       }
 
+      // A course offered in both semesters carries sessions for each. Keep only
+      // the ones that run in the semester being viewed — otherwise SPRING blocks
+      // land on the FALL grid and the app invents time conflicts that don't
+      // exist. Sessions without a semester tag (rare, e.g. custom courses) are
+      // kept rather than hidden.
+      const semesterSessions = course.scheduleSessions.filter(
+        (s) => !s.semester || s.semester === currentSemester
+      );
+
       // Filter sessions based on user's group selection for this course
       const courseGroupSelections = sessionGroupSelections?.[course.code] ?? {};
       const filteredSessions = filterSessionsBySelectedGroups(
-        course.scheduleSessions,
+        semesterSessions,
         courseGroupSelections
       );
 

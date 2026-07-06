@@ -59,7 +59,7 @@ export const TAU_PPE_2025: ProgramDefinition = {
       // MANDATORY credit a complete student is guaranteed to earn:
       //   9 (4 PPE_CORE mandatory courses) + 4 (PPE seminar 0651-3001) = 13.
       // The would-be 15 is short by 2 ש"ז — the unpublished future PPE course
-      // (domain rules §9b: "עתיד להתווסף קורס ייעודי נוסף של 2-4 ש"ס"). We pin the
+      // (domain rules §9b: "עתיד להתווסף קורס ייעודי נוסף של 2-4 ש״ס"). We pin the
       // DISC-PPE_CORE minimum to what the catalog actually delivers (13) so a
       // doc-correct COMPLETE plan reconciles instead of permanently red-flagging
       // students for credits no published course can supply. Revisit when TAU
@@ -86,7 +86,7 @@ export const TAU_PPE_2025: ProgramDefinition = {
   // COMPLETE plan earns 89 (MANDATORY courses) + 4 (PPE seminar 0651-3001) +
   // 8 (the "pick any two" LAW_FOUNDATION basket) = 101 mandatory ש"ז from the
   // PUBLISHED catalog. The remaining 2 ש"ז is an unpublished future PPE course
-  // (domain rules §9b: "עתיד להתווסף קורס ייעודי נוסף של 2-4 ש"ס") — no catalog
+  // (domain rules §9b: "עתיד להתווסף קורס ייעודי נוסף של 2-4 ש״ס") — no catalog
   // course can supply it yet, so requiring 103 permanently red-flags a complete
   // student. Revisit when TAU publishes the missing 2-ש"ז PPE course.
   creditRequirements: {

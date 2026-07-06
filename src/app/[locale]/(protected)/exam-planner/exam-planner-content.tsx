@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState, useRef, useEffect } from "react";
+import { useMemo, useState } from "react";
 import {
   CalendarClock,
   Sparkles,
@@ -8,28 +8,27 @@ import {
   Plus,
   Trash2,
   Check,
-  CheckCircle2,
-  FileSpreadsheet,
-  CalendarPlus,
   GraduationCap,
   BookOpen,
   Briefcase,
   AlertTriangle,
-  ArrowDown,
-  ListChecks,
-  X,
+  ChevronDown,
+  Clock,
+  Share2,
+  FileSpreadsheet,
+  CalendarPlus,
 } from "lucide-react";
 import { useLocale } from "next-intl";
 import { toast } from "sonner";
 import { Link } from "@/i18n/navigation";
 import { api } from "@/lib/trpc/react";
+import { usePersonalAddress } from "@/components/personal/use-personal-address";
 import { ThemedLoader } from "@/components/ui/themed-loader";
 import {
   generateExamPlan,
   analyzeExamPeriod,
   type ExamInput,
   type ExamPlanResult,
-  type Difficulty,
 } from "@/lib/exam-planner";
 import { StudySkyline } from "@/components/exam-planner/study-skyline";
 import { SyllabusScanner } from "@/components/exam-planner/syllabus-scanner";
@@ -39,6 +38,7 @@ import { downloadGanttCsv, type GanttTask } from "@/lib/excel-export";
 import { cn } from "@/lib/utils";
 
 type Moed = "A" | "B";
+type StudyTask = { id: string; title: string; startDate: string | Date; endDate: string | Date; taskType: string; courseCode: string | null; color: string | null; notes: string | null; completed: boolean };
 
 const TYPE_META: Record<string, { he: string; en: string; icon: React.ComponentType<{ className?: string }> }> = {
   exam: { he: "מבחן", en: "Exam", icon: GraduationCap },
@@ -47,8 +47,22 @@ const TYPE_META: Record<string, { he: string; en: string; icon: React.ComponentT
   custom: { he: "אישי", en: "Personal", icon: Briefcase },
 };
 
+/** Hours a study session is worth — stored in `notes` as "2.5h" by the planner. */
+function taskHours(t: StudyTask): number | null {
+  if (!t.notes) return null;
+  const m = t.notes.match(/([\d.]+)h/);
+  return m ? Number(m[1]) || null : null;
+}
+
+/** Local YYYY-MM-DD key (never UTC) so an all-day exam at local midnight doesn't
+ *  roll to the previous day for an Israel (UTC+2/+3) user. */
+function dayKey(d: Date): string {
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+}
+
 export function ExamPlannerContent() {
   const isHe = useLocale() === "he";
+  const { greetName, g } = usePersonalAddress();
   const utils = api.useUtils();
 
   const planQuery = api.plan.getUserPlan.useQuery();
@@ -56,80 +70,40 @@ export function ExamPlannerContent() {
 
   const invalidate = () => utils.studyTask.list.invalidate();
 
-  // After generating, the day-by-day plan lands far below the fold (past the
-  // recommendations + manual-add form) — so it perceptually "vanished" behind a
-  // toast (#10). We now (a) show an explicit "plan is ready → what's next" panel
-  // right where the student is looking, and (b) auto-scroll to the timeline so
-  // the concrete schedule is the thing they actually land on.
-  const [genResult, setGenResult] = useState<{ sessions: number } | null>(null);
-  const [pendingScroll, setPendingScroll] = useState(false);
-  const timelineRef = useRef<HTMLDivElement>(null);
-  const scrollToPlan = () =>
-    timelineRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
-
   const generateMutation = api.studyTask.generateExamPlan.useMutation({
     onSuccess: (r) => {
       void invalidate();
-      const sessions = r.sessions ?? 0;
-      setGenResult({ sessions });
-      setPendingScroll(true);
-      toast.success(isHe ? `נוצרה תוכנית: ${sessions} מפגשי לימוד` : `Plan created: ${sessions} study sessions`);
+      toast.success(isHe ? `נבנתה תוכנית: ${r.sessions ?? 0} מפגשי לימוד` : `Plan built: ${r.sessions ?? 0} study sessions`);
     },
     onError: () => toast.error(isHe ? "יצירת התוכנית נכשלה" : "Failed to generate plan"),
   });
   const createMutation = api.studyTask.create.useMutation({ onSuccess: () => void invalidate() });
   const toggleMutation = api.studyTask.toggleComplete.useMutation({ onSuccess: () => void invalidate() });
   const deleteMutation = api.studyTask.delete.useMutation({ onSuccess: () => void invalidate() });
+  const updateMutation = api.studyTask.update.useMutation({ onSuccess: () => void invalidate() });
 
-  // Courses that have an UPCOMING exam date (Moed A or B). Past sittings are
-  // dropped so a student can't pick an exam that already happened (#13) — the
-  // reverse-planner silently produces nothing for a past date, which read as
-  // "lets you pick exams that already passed". Each sitting is filtered
-  // independently: a course with a past Moed A but a future Moed B still shows,
-  // offering only the B sitting.
+  // Courses with an UPCOMING exam sitting (past sittings dropped — #13).
   const examCourses = useMemo(() => {
     const now = new Date();
     now.setHours(0, 0, 0, 0);
-    const futureOnly = (d: Date | null): Date | null =>
-      d && d.getTime() >= now.getTime() ? d : null;
-
-    const out: {
-      code: string;
-      name: string;
-      credits: number;
-      examDateA: Date | null;
-      examDateB: Date | null;
-      averageGrade: number | null;
-      failRate: number | null;
-    }[] = [];
+    const futureOnly = (d: Date | null): Date | null => (d && d.getTime() >= now.getTime() ? d : null);
+    const out: { code: string; name: string; credits: number; examDateA: Date | null; examDateB: Date | null; averageGrade: number | null; failRate: number | null }[] = [];
     const seen = new Set<string>();
     for (const uc of planQuery.data?.courses ?? []) {
       const c = uc.course;
       if (seen.has(c.code)) continue;
-      // Skip a course already passed (graded) — no point planning its exam.
       if (uc.status === "COMPLETED" && uc.grade != null) continue;
       const examDateA = futureOnly(c.examDateA ? new Date(c.examDateA) : null);
       const examDateB = futureOnly(c.examDateB ? new Date(c.examDateB) : null);
-      if (!examDateA && !examDateB) continue; // both sittings past (or none)
+      if (!examDateA && !examDateB) continue;
       seen.add(c.code);
-      out.push({
-        code: c.code,
-        name: c.nameHe,
-        credits: c.credits,
-        examDateA,
-        examDateB,
-        averageGrade: c.averageGrade,
-        failRate: c.failRate,
-      });
+      out.push({ code: c.code, name: c.nameHe, credits: c.credits, examDateA, examDateB, averageGrade: c.averageGrade, failRate: c.failRate });
     }
     return out;
   }, [planQuery.data]);
 
-  // Distinguish "no plan at all" (mid-degree student who hasn't planned) from
-  // "plan has no upcoming exams" — so #16's empty state guides instead of dead-ends.
   const hasAnyPlannedCourses = (planQuery.data?.courses?.length ?? 0) > 0;
 
-  // Selection: code → chosen moed (or undefined = not selected).
   const [selected, setSelected] = useState<Record<string, Moed | undefined>>({});
 
   const codeToName = useMemo(() => {
@@ -138,8 +112,6 @@ export function ExamPlannerContent() {
     return m;
   }, [examCourses]);
 
-  // The chosen exams as planner inputs — lifted out so the live-preview skyline
-  // and the recommendations share one computation (no double generateExamPlan).
   const previewInputs = useMemo(() => {
     const inputs: ExamInput[] = [];
     for (const c of examCourses) {
@@ -152,20 +124,12 @@ export function ExamPlannerContent() {
     return inputs;
   }, [examCourses, selected]);
 
-  // Live plan + recommendations from the current selection (pure, client-side) —
-  // this is what the preview skyline renders, updating as exams / Moed toggle.
   const previewPlan = useMemo(() => generateExamPlan(previewInputs), [previewInputs]);
-  const recommendations = useMemo(
-    () => (previewInputs.length === 0 ? [] : analyzeExamPeriod(previewPlan, isHe)),
-    [previewInputs, previewPlan, isHe],
-  );
-
+  const previewRecs = useMemo(() => (previewInputs.length === 0 ? [] : analyzeExamPeriod(previewPlan, isHe)), [previewInputs, previewPlan, isHe]);
   const selectedCount = Object.values(selected).filter(Boolean).length;
 
   const handleGenerate = () => {
-    const exams = examCourses
-      .filter((c) => selected[c.code])
-      .map((c) => ({ courseCode: c.code, moed: selected[c.code] as Moed }));
+    const exams = examCourses.filter((c) => selected[c.code]).map((c) => ({ courseCode: c.code, moed: selected[c.code] as Moed }));
     if (exams.length === 0) {
       toast.error(isHe ? "בחר לפחות מבחן אחד" : "Pick at least one exam");
       return;
@@ -173,29 +137,15 @@ export function ExamPlannerContent() {
     generateMutation.mutate({ exams });
   };
 
-  // Tasks grouped by day for the timeline.
-  const tasks = useMemo(() => tasksQuery.data?.tasks ?? [], [tasksQuery.data]);
+  const tasks = useMemo(() => (tasksQuery.data?.tasks ?? []) as StudyTask[], [tasksQuery.data]);
   const byDay = useMemo(() => {
-    const map = new Map<string, typeof tasks>();
+    const map = new Map<string, StudyTask[]>();
     for (const t of tasks.slice().sort((a, b) => new Date(a.startDate).getTime() - new Date(b.startDate).getTime())) {
-      // LOCAL day key (not toISOString/UTC) so an all-day exam stored at local
-      // midnight doesn't roll to the previous day for a UTC+2/+3 (Israel) user —
-      // and so the checklist agrees with the skyline above it on the exam's day.
-      const dt = new Date(t.startDate);
-      const key = `${dt.getFullYear()}-${String(dt.getMonth() + 1).padStart(2, "0")}-${String(dt.getDate()).padStart(2, "0")}`;
+      const key = dayKey(new Date(t.startDate));
       (map.get(key) ?? map.set(key, []).get(key)!).push(t);
     }
     return Array.from(map.entries());
   }, [tasks]);
-
-  // Once the freshly-generated tasks have rendered (the list refetches async
-  // over the slow prod DB), scroll the student to the actual plan.
-  useEffect(() => {
-    if (pendingScroll && tasks.length > 0) {
-      scrollToPlan();
-      setPendingScroll(false);
-    }
-  }, [pendingScroll, tasks.length]);
 
   const toGantt = (): GanttTask[] =>
     tasks.map((t) => ({
@@ -205,16 +155,10 @@ export function ExamPlannerContent() {
       date: new Date(t.startDate),
       taskType: t.taskType,
       color: t.color,
-      hours: t.notes?.includes("h") ? Number((t.notes.match(/([\d.]+)h/) ?? [])[1]) || null : null,
+      hours: taskHours(t),
     }));
 
-  // Adapt the SAVED tasks back into an ExamPlanResult so the committed plan
-  // renders on the very same skyline as the live preview. Extracted to a pure,
-  // round-trip-tested lib (persist-shape → reconstruct).
-  const persistedPlan = useMemo<ExamPlanResult>(
-    () => planFromStudyTasks(tasks, codeToName),
-    [tasks, codeToName],
-  );
+  const persistedPlan = useMemo<ExamPlanResult>(() => planFromStudyTasks(tasks, codeToName), [tasks, codeToName]);
   const persistedRecs = useMemo(() => analyzeExamPeriod(persistedPlan, isHe), [persistedPlan, isHe]);
 
   const exportIcs = () => {
@@ -234,10 +178,19 @@ export function ExamPlannerContent() {
     a.click();
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
-    toast.success(isHe ? "יוצא ל-ICS — אפשר לייבא ליומן Google" : "Exported ICS — import to Google Calendar");
+    toast.success(isHe ? "יוצא ליומן — אפשר לייבא ל-Google Calendar" : "Exported — import to Google Calendar");
   };
 
-  // Manual add form.
+  // Push a task one day later (both start + end) — the existing update mutation,
+  // no schema change. Lets a student slip a session without deleting + re-adding.
+  const pushDay = (t: StudyTask) => {
+    const start = new Date(t.startDate);
+    const end = new Date(t.endDate);
+    start.setDate(start.getDate() + 1);
+    end.setDate(end.getDate() + 1);
+    updateMutation.mutate({ id: t.id, startDate: start, endDate: end });
+  };
+
   const [addTitle, setAddTitle] = useState("");
   const [addDate, setAddDate] = useState("");
   const [addType, setAddType] = useState<"assignment" | "custom" | "study">("assignment");
@@ -256,217 +209,71 @@ export function ExamPlannerContent() {
 
   if (planQuery.isLoading) return <ThemedLoader />;
 
-  return (
-    <div className="flex flex-col gap-5 p-4 md:p-6">
-      {/* Header + exports */}
-      <div className="animate-stagger-1 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <div className="flex items-center gap-3">
-          <div className="flex size-10 items-center justify-center rounded-xl bg-accent-brand-muted text-accent-brand">
-            <CalendarClock className="size-5" />
-          </div>
-          <div>
-            <h1 className="font-display text-2xl font-bold text-foreground/85">
-              {isHe ? "תכנון תקופת המבחנים" : "Exam-period planner"}
-            </h1>
-            <p className="text-xs text-foreground/50">
-              {isHe ? "בחר מבחנים ואבנה לך תוכנית לימוד חכמה — אחורה מכל מבחן." : "Pick exams and I'll reverse-plan your study schedule."}
-            </p>
-          </div>
-        </div>
-        {tasks.length > 0 && (
-          <div className="flex items-center gap-2">
-            <button type="button" onClick={() => downloadGanttCsv(toGantt(), isHe)} className="inline-flex items-center gap-1.5 rounded-lg border border-border/60 bg-card/40 px-3 py-2 text-sm text-foreground/70 transition-colors hover:border-foreground/25 hover:text-foreground/90">
-              <FileSpreadsheet className="size-4" />
-              {isHe ? "טבלה לאקסל" : "Excel table"}
-            </button>
-            <button type="button" onClick={exportIcs} className="inline-flex items-center gap-1.5 rounded-lg border border-border/60 bg-card/40 px-3 py-2 text-sm text-foreground/70 transition-colors hover:border-foreground/25 hover:text-foreground/90">
-              <CalendarPlus className="size-4" />
-              {isHe ? "ליומן Google" : "To Google Cal"}
-            </button>
-          </div>
-        )}
+  const hasPlan = tasks.length > 0;
+
+  // ── Shared sub-renders ────────────────────────────────────────────────
+  const pickExamsPanel = (
+    <div className="data-card p-5">
+      <div className="mb-3 flex items-center gap-2">
+        <Wand2 className="size-5 text-accent-brand" />
+        <h2 className="font-display text-base font-bold text-foreground/85">{isHe ? "בחר מבחנים" : "Pick exams"}</h2>
+        {selectedCount > 0 && <span className="ms-auto text-xs text-foreground/50">{selectedCount} {isHe ? "נבחרו" : "selected"}</span>}
       </div>
-
-      {/* Miluim exam benefit (2-of-3 sittings) — only for eligible reservists */}
-      <MoedBenefitBanner />
-
-      {/* Generate panel */}
-      <div className="animate-stagger-2 data-card p-5">
-        <div className="mb-3 flex items-center gap-2">
-          <Wand2 className="size-5 text-accent-brand" />
-          <h2 className="font-display text-base font-bold text-foreground/85">{isHe ? "בחר מבחנים" : "Pick exams"}</h2>
-          {selectedCount > 0 && <span className="ms-auto text-xs text-foreground/50">{selectedCount} {isHe ? "נבחרו" : "selected"}</span>}
-        </div>
-
-        {examCourses.length === 0 ? (
-          !hasAnyPlannedCourses ? (
-            // No plan at all — guide the (often mid-degree) student to build one.
-            <div className="flex flex-col items-start gap-2">
-              <p className="text-sm text-foreground/60">
-                {isHe
-                  ? "עוד אין לך תכנית לימודים. בנה תכנית קודם — ואז נמשוך משם את תאריכי המבחנים."
-                  : "You don't have a study plan yet. Build one first — exam dates come from there."}
-              </p>
-              <Link
-                href="/planner"
-                className="inline-flex items-center gap-1.5 rounded-lg bg-accent-brand px-3 py-2 text-sm font-semibold text-accent-brand-fg transition-colors hover:bg-accent-brand-hover"
-              >
-                <GraduationCap className="size-4" />
-                {isHe ? "לבניית התכנית" : "Build my plan"}
-              </Link>
-            </div>
-          ) : (
-            <p className="text-sm text-foreground/50">
-              {isHe
-                ? "אין מבחנים קרובים בתכנית שלך. (מבחנים שכבר עברו אינם מוצגים.)"
-                : "No upcoming exams in your plan. (Past sittings are hidden.)"}
+      {examCourses.length === 0 ? (
+        !hasAnyPlannedCourses ? (
+          <div className="flex flex-col items-start gap-2">
+            <p className="text-sm text-foreground/60">
+              {isHe ? "עוד אין לך תכנית לימודים. בנה תכנית קודם — ואז נמשוך משם את תאריכי המבחנים." : "You don't have a study plan yet. Build one first — exam dates come from there."}
             </p>
-          )
+            <Link href="/planner" className="inline-flex items-center gap-1.5 rounded-lg bg-accent-brand px-3 py-2 text-sm font-semibold text-accent-brand-fg transition-colors hover:bg-accent-brand-hover">
+              <GraduationCap className="size-4" />
+              {isHe ? "לבניית התכנית" : "Build my plan"}
+            </Link>
+          </div>
         ) : (
-          <div className="space-y-2">
-            {examCourses.map((c) => {
-              const sel = selected[c.code];
-              return (
-                <div key={c.code} className={cn("flex flex-wrap items-center gap-2 rounded-lg border p-2.5", sel ? "border-accent-brand/30 bg-accent-brand/[0.04]" : "border-border/50")}>
-                  <button
-                    type="button"
-                    onClick={() => setSelected((s) => ({ ...s, [c.code]: sel ? undefined : c.examDateA ? "A" : "B" }))}
-                    className={cn("flex size-5 shrink-0 items-center justify-center rounded-md border transition-colors", sel ? "border-accent-brand bg-accent-brand text-accent-brand-fg" : "border-foreground/30")}
-                    aria-label="select"
-                  >
-                    {sel && <Check className="size-3.5" />}
-                  </button>
-                  <span className="min-w-0 flex-1 truncate text-sm text-foreground/80">{c.name}</span>
-                  <span className="font-mono text-[10px] text-foreground/40">{c.credits} ש״ס</span>
-                  {/* Moed A/B toggle */}
-                  <div className="flex overflow-hidden rounded-md border border-border/60 text-xs">
-                    {(["A", "B"] as Moed[]).map((m) => {
-                      const date = m === "A" ? c.examDateA : c.examDateB;
-                      const active = sel === m;
-                      return (
-                        <button
-                          key={m}
-                          type="button"
-                          disabled={!date}
-                          onClick={() => setSelected((s) => ({ ...s, [c.code]: m }))}
-                          className={cn("px-2.5 py-1 transition-colors disabled:opacity-30", active ? "bg-accent-brand text-accent-brand-fg" : "text-foreground/55 hover:bg-foreground/5")}
-                          title={date ? date.toLocaleDateString(isHe ? "he-IL" : "en-US") : isHe ? "אין מועד" : "no sitting"}
-                        >
-                          {isHe ? `מועד ${m === "A" ? "א׳" : "ב׳"}` : `Moed ${m}`}
-                        </button>
-                      );
-                    })}
-                  </div>
+          <p className="text-sm text-foreground/50">
+            {isHe ? "אין מבחנים קרובים בתכנית שלך. (מבחנים שכבר עברו אינם מוצגים.)" : "No upcoming exams in your plan. (Past sittings are hidden.)"}
+          </p>
+        )
+      ) : (
+        <div className="space-y-2">
+          {examCourses.map((c) => {
+            const sel = selected[c.code];
+            return (
+              <div key={c.code} className={cn("flex flex-wrap items-center gap-2 rounded-lg border p-2.5", sel ? "border-accent-brand/30 bg-accent-brand/[0.04]" : "border-border/50")}>
+                <button type="button" onClick={() => setSelected((s) => ({ ...s, [c.code]: sel ? undefined : c.examDateA ? "A" : "B" }))} className={cn("flex size-5 shrink-0 items-center justify-center rounded-md border transition-colors", sel ? "border-accent-brand bg-accent-brand text-accent-brand-fg" : "border-foreground/30")} aria-label="select">
+                  {sel && <Check className="size-3.5" />}
+                </button>
+                <span className="min-w-0 flex-1 truncate text-sm text-foreground/80">{c.name}</span>
+                <span className="font-mono text-[10px] text-foreground/40">{c.credits} ש״ס</span>
+                <div className="flex overflow-hidden rounded-md border border-border/60 text-xs">
+                  {(["A", "B"] as Moed[]).map((m) => {
+                    const date = m === "A" ? c.examDateA : c.examDateB;
+                    const active = sel === m;
+                    return (
+                      <button key={m} type="button" disabled={!date} onClick={() => setSelected((s) => ({ ...s, [c.code]: m }))} className={cn("px-2.5 py-1 transition-colors disabled:opacity-30", active ? "bg-accent-brand text-accent-brand-fg" : "text-foreground/55 hover:bg-foreground/5")} title={date ? date.toLocaleDateString(isHe ? "he-IL" : "en-US") : isHe ? "אין מועד" : "no sitting"}>
+                        {isHe ? `מועד ${m === "A" ? "א׳" : "ב׳"}` : `Moed ${m}`}
+                      </button>
+                    );
+                  })}
                 </div>
-              );
-            })}
-            <button
-              type="button"
-              onClick={handleGenerate}
-              disabled={selectedCount === 0 || generateMutation.isPending}
-              className="mt-2 inline-flex w-full items-center justify-center gap-2 rounded-lg bg-accent-brand px-4 py-2.5 text-sm font-semibold text-accent-brand-fg transition-colors hover:bg-accent-brand-hover disabled:opacity-40"
-            >
-              <Sparkles className="size-4" />
-              {generateMutation.isPending ? (isHe ? "בונה תוכנית…" : "Building…") : isHe ? "בנה לי תוכנית לימוד" : "Build my study plan"}
-            </button>
-          </div>
-        )}
-      </div>
-
-      {/* Live-preview skyline — the reverse-plan drawn the moment exams are
-          picked, updating as the student toggles exams / Moed A↔B, before they
-          persist anything. Hidden until at least one exam is selected. */}
-      {previewPlan.exams.length > 0 && (
-        <div className="animate-fade-in">
-          <StudySkyline plan={previewPlan} recommendations={recommendations} isHe={isHe} />
-        </div>
-      )}
-
-      {/* Plan-is-ready panel (#10) — explicit "what now" so a generated plan
-          doesn't perceptually vanish behind a toast. */}
-      {genResult && (
-        <div role="status" className="animate-fade-in data-card border-emerald-400/30 bg-emerald-400/[0.06] p-4">
-          <div className="flex items-start gap-3">
-            <span className="flex size-9 shrink-0 items-center justify-center rounded-full bg-emerald-400/15 text-emerald-500">
-              <CheckCircle2 className="size-5" />
-            </span>
-            <div className="min-w-0 flex-1">
-              <p className="text-sm font-bold text-foreground/85">
-                {isHe ? "התוכנית מוכנה!" : "Your plan is ready!"}
-              </p>
-              <p className="mt-0.5 text-xs text-foreground/60">
-                {isHe
-                  ? `בנינו לך ${genResult.sessions} מפגשי לימוד עד המבחנים. הנה מה אפשר לעשות עכשיו:`
-                  : `We built ${genResult.sessions} study sessions up to your exams. Here's what you can do now:`}
-              </p>
-              <div className="mt-3 flex flex-wrap gap-2">
-                <button
-                  type="button"
-                  onClick={scrollToPlan}
-                  className="inline-flex items-center gap-1.5 rounded-lg bg-accent-brand px-3 py-2 text-sm font-semibold text-accent-brand-fg transition-colors hover:bg-accent-brand-hover"
-                >
-                  <ArrowDown className="size-4" />
-                  {isHe ? "צפו בתוכנית" : "View the plan"}
-                </button>
-                <button
-                  type="button"
-                  onClick={() => downloadGanttCsv(toGantt(), isHe)}
-                  className="inline-flex items-center gap-1.5 rounded-lg border border-border/60 bg-card/40 px-3 py-2 text-sm text-foreground/70 transition-colors hover:border-foreground/25 hover:text-foreground/90"
-                >
-                  <FileSpreadsheet className="size-4" />
-                  {isHe ? "טבלה לאקסל" : "Excel table"}
-                </button>
-                <button
-                  type="button"
-                  onClick={exportIcs}
-                  className="inline-flex items-center gap-1.5 rounded-lg border border-border/60 bg-card/40 px-3 py-2 text-sm text-foreground/70 transition-colors hover:border-foreground/25 hover:text-foreground/90"
-                >
-                  <CalendarPlus className="size-4" />
-                  {isHe ? "ליומן Google" : "To Google Cal"}
-                </button>
               </div>
-            </div>
-            <button
-              type="button"
-              onClick={() => setGenResult(null)}
-              aria-label={isHe ? "סגור" : "Close"}
-              className="shrink-0 rounded-md p-1 text-foreground/30 transition-colors hover:text-foreground/60"
-            >
-              <X className="size-4" />
-            </button>
-          </div>
+            );
+          })}
+          <button type="button" onClick={handleGenerate} disabled={selectedCount === 0 || generateMutation.isPending} className="mt-2 inline-flex w-full items-center justify-center gap-2 rounded-lg bg-accent-brand px-4 py-2.5 text-sm font-semibold text-accent-brand-fg transition-colors hover:bg-accent-brand-hover disabled:opacity-40">
+            <Sparkles className="size-4" />
+            {generateMutation.isPending ? (isHe ? "בונה תוכנית…" : "Building…") : hasPlan ? (isHe ? "עדכן את התוכנית" : "Update the plan") : isHe ? "בנה לי תוכנית לימוד" : "Build my study plan"}
+          </button>
         </div>
       )}
+    </div>
+  );
 
-      {/* Live recommendations */}
-      {recommendations.length > 0 && (
-        <div className="animate-stagger-3 data-card p-4">
-          <div className="mb-2 flex items-center gap-2">
-            <Sparkles className="size-4 text-accent-brand" />
-            <h3 className="text-sm font-bold text-foreground/85">{isHe ? "המלצות" : "Recommendations"}</h3>
-          </div>
-          <ul className="space-y-1.5">
-            {recommendations.map((r, i) => (
-              <li key={i} className={cn("flex items-start gap-2 text-xs leading-relaxed", r.kind === "clash" || r.kind === "deferB" ? "text-amber-600" : "text-foreground/70")}>
-                {(r.kind === "clash" || r.kind === "deferB") && <AlertTriangle className="mt-0.5 size-3.5 shrink-0" />}
-                <span>{isHe ? r.textHe : r.textEn}</span>
-              </li>
-            ))}
-          </ul>
-        </div>
-      )}
-
-      {/* Syllabus scanner — exams + deadlines straight from the course PDF */}
-      <div className="animate-stagger-3">
-        <SyllabusScanner />
-      </div>
-
-      {/* Add manual task */}
-      <div className="animate-stagger-3 data-card flex flex-wrap items-end gap-2 p-4">
-        <div className="flex min-w-0 flex-1 flex-col gap-1">
-          <label className="text-[11px] text-foreground/50">{isHe ? "הוסף מטלה / משמרת / לימוד" : "Add task / shift / study"}</label>
-          <input value={addTitle} onChange={(e) => setAddTitle(e.target.value)} placeholder={isHe ? "למשל: הגשת עבודה במאקרו" : "e.g. Macro assignment due"} className="rounded-lg border border-border/60 bg-card px-3 py-2 text-sm focus:border-foreground/30 focus:outline-none" />
-        </div>
+  const manualAddCard = (
+    <div className="data-card p-4">
+      <label className="mb-1.5 block text-[11px] font-medium text-foreground/55">{isHe ? "הוספה ידנית — מטלה, משמרת או לימוד" : "Add manually — task, shift, or study"}</label>
+      <div className="flex flex-wrap items-end gap-2">
+        <input value={addTitle} onChange={(e) => setAddTitle(e.target.value)} placeholder={isHe ? "למשל: הגשת עבודה במאקרו" : "e.g. Macro assignment due"} className="min-w-0 flex-1 rounded-lg border border-border/60 bg-card px-3 py-2 text-sm focus:border-foreground/30 focus:outline-none" />
         <input type="date" value={addDate} onChange={(e) => setAddDate(e.target.value)} className="rounded-lg border border-border/60 bg-card px-3 py-2 text-sm text-foreground/80 focus:border-foreground/30 focus:outline-none" />
         <select value={addType} onChange={(e) => setAddType(e.target.value as typeof addType)} className="rounded-lg border border-border/60 bg-card px-3 py-2 text-sm text-foreground/80 focus:outline-none">
           <option value="assignment">{isHe ? "מטלה" : "Assignment"}</option>
@@ -478,58 +285,235 @@ export function ExamPlannerContent() {
           {isHe ? "הוסף" : "Add"}
         </button>
       </div>
+    </div>
+  );
 
-      {/* Committed plan — skyline first, checklist second. Scroll target (#10). */}
-      <div ref={timelineRef} aria-hidden className="scroll-mt-4" />
-      {tasks.length === 0 ? (
-        <div className="animate-stagger-4 rounded-xl border border-dashed border-border/50 bg-foreground/[0.02] p-8 text-center text-sm text-foreground/45">
-          {isHe ? "עוד אין משימות. בחר מבחנים למעלה ולחץ \"בנה לי תוכנית\", או הוסף ידנית." : "No tasks yet. Pick exams above and build a plan, or add manually."}
+  const recsCard = (recs: { kind: string; textHe: string; textEn: string }[]) =>
+    recs.length > 0 ? (
+      <div className="data-card p-4">
+        <div className="mb-2 flex items-center gap-2">
+          <Sparkles className="size-4 text-accent-brand" />
+          <h3 className="text-sm font-bold text-foreground/85">{isHe ? "המלצות" : "Recommendations"}</h3>
         </div>
-      ) : (
-        <div className="animate-stagger-4 space-y-4">
-          {/* The saved plan on the skyline (hidden when there are no exam
-              anchors — e.g. only manually-added tasks). */}
-          {persistedPlan.exams.length > 0 && (
-            <StudySkyline plan={persistedPlan} recommendations={persistedRecs} isHe={isHe} />
-          )}
+        <ul className="space-y-1.5">
+          {recs.map((r, i) => (
+            <li key={i} className={cn("flex items-start gap-2 text-xs leading-relaxed", r.kind === "clash" || r.kind === "deferB" ? "text-amber-600" : "text-foreground/70")}>
+              {(r.kind === "clash" || r.kind === "deferB") && <AlertTriangle className="mt-0.5 size-3.5 shrink-0" />}
+              <span>{isHe ? r.textHe : r.textEn}</span>
+            </li>
+          ))}
+        </ul>
+      </div>
+    ) : null;
 
-          {/* Checklist — mark done / remove. Secondary to the skyline above. */}
-          <div className="mb-1 mt-1 flex items-center gap-2">
-            <ListChecks className="size-4 text-foreground/40" />
-            <h3 className="text-sm font-bold text-foreground/75">{isHe ? "המשימות שלי" : "My tasks"}</h3>
-            <span className="text-xs text-foreground/40">{isHe ? "· סמן שהושלם או הסר" : "· check off or remove"}</span>
+  // Personalized, gendered header line — reads like a person, not a form.
+  const headerTitle = hasPlan
+    ? isHe ? "תקופת המבחנים שלך" : "Your exam period"
+    : greetName
+      ? isHe ? `${g("יאללה", "יאללה", "יאללה")} ${greetName}, ${g("בוא נסדר", "בואי נסדר", "בוא/י נסדר")} את תקופת המבחנים` : `Let's sort your exam period, ${greetName}`
+      : isHe ? "תכנון תקופת המבחנים" : "Exam-period planner";
+
+  return (
+    <div className="flex flex-col gap-5 p-4 md:p-6">
+      {/* Personalized header + a single share menu (ICS primary, CSV secondary). */}
+      <div className="animate-stagger-1 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex items-center gap-3">
+          <div className="flex size-10 items-center justify-center rounded-xl bg-accent-brand-muted text-accent-brand">
+            <CalendarClock className="size-5" />
           </div>
-          {byDay.map(([day, dayTasks]) => {
-            const [yy, mm, dd] = day.split("-").map(Number);
-            const d = new Date(yy!, mm! - 1, dd!);
+          <div>
+            <h1 className="font-display text-2xl font-bold text-foreground/85">{headerTitle}</h1>
+            <p className="text-xs text-foreground/50">
+              {isHe ? "לוח לימוד חכם — אחורה מכל מבחן." : "A smart study schedule, reverse-planned from each exam."}
+            </p>
+          </div>
+        </div>
+        {hasPlan && <ShareMenu isHe={isHe} onIcs={exportIcs} onCsv={() => downloadGanttCsv(toGantt(), isHe)} />}
+      </div>
+
+      {hasPlan ? (
+        // ── STATE B — the daily driver: skyline hero → today-first agenda ──
+        <>
+          {persistedPlan.exams.length > 0 && (
+            <div className="animate-stagger-2">
+              <StudySkyline plan={persistedPlan} recommendations={persistedRecs} isHe={isHe} />
+            </div>
+          )}
+          <Agenda byDay={byDay} isHe={isHe} onToggle={(id) => toggleMutation.mutate({ id })} onDelete={(id) => deleteMutation.mutate({ id })} onPush={pushDay} />
+          {recsCard(persistedRecs)}
+          <Disclosure title={isHe ? "הוסף עוד תאריכים / כלים" : "Add more dates / tools"}>
+            <div className="flex flex-col gap-4">
+              <MoedBenefitBanner />
+              {pickExamsPanel}
+              <SyllabusScanner />
+              {manualAddCard}
+            </div>
+          </Disclosure>
+        </>
+      ) : (
+        // ── STATE A — setup: pick exams → live-preview skyline ──
+        <>
+          <MoedBenefitBanner />
+          <div className="animate-stagger-2">{pickExamsPanel}</div>
+          {previewPlan.exams.length > 0 && (
+            <div className="animate-fade-in">
+              <StudySkyline plan={previewPlan} recommendations={previewRecs} isHe={isHe} />
+            </div>
+          )}
+          {recsCard(previewRecs)}
+          <Disclosure title={isHe ? "עוד דרכים להוסיף תאריכים" : "Other ways to add dates"}>
+            <div className="flex flex-col gap-4">
+              <SyllabusScanner />
+              {manualAddCard}
+            </div>
+          </Disclosure>
+        </>
+      )}
+    </div>
+  );
+}
+
+// ── Share menu — one button, ICS (useful) primary, CSV (utility) secondary ──
+function ShareMenu({ isHe, onIcs, onCsv }: { isHe: boolean; onIcs: () => void; onCsv: () => void }) {
+  const [open, setOpen] = useState(false);
+  return (
+    <div className="relative" onKeyDown={(e) => e.key === "Escape" && setOpen(false)}>
+      <button type="button" onClick={() => setOpen((o) => !o)} aria-expanded={open} className="inline-flex items-center gap-1.5 rounded-lg border border-border/60 bg-card/40 px-3 py-2 text-sm text-foreground/70 transition-colors hover:border-foreground/25 hover:text-foreground/90">
+        <Share2 className="size-4" />
+        {isHe ? "שיתוף / ייצוא" : "Share / export"}
+        <ChevronDown className={cn("size-3.5 transition-transform", open && "rotate-180")} />
+      </button>
+      {open && (
+        <>
+          <div className="fixed inset-0 z-10" onClick={() => setOpen(false)} aria-hidden />
+          <div className="absolute z-20 mt-1 flex w-56 flex-col gap-0.5 rounded-xl border border-border bg-card p-1 shadow-lg end-0">
+            <button type="button" onClick={() => { setOpen(false); onIcs(); }} className="flex items-center gap-2 rounded-lg px-3 py-2 text-start text-sm text-foreground/80 transition-colors hover:bg-foreground/5">
+              <CalendarPlus className="size-4 text-accent-brand" />
+              <span className="flex-1">{isHe ? "הוסף ליומן Google" : "Add to Google Calendar"}</span>
+            </button>
+            <button type="button" onClick={() => { setOpen(false); onCsv(); }} className="flex items-center gap-2 rounded-lg px-3 py-2 text-start text-xs text-foreground/55 transition-colors hover:bg-foreground/5">
+              <FileSpreadsheet className="size-3.5" />
+              <span className="flex-1">{isHe ? "הורד טבלה (CSV)" : "Download table (CSV)"}</span>
+            </button>
+          </div>
+        </>
+      )}
+    </div>
+  );
+}
+
+// ── Disclosure — collapsed secondary tools so they don't shout on first load ──
+function Disclosure({ title, children }: { title: string; children: React.ReactNode }) {
+  const [open, setOpen] = useState(false);
+  return (
+    <div className="animate-stagger-4">
+      <button type="button" onClick={() => setOpen((o) => !o)} aria-expanded={open} className="flex w-full items-center gap-2 rounded-xl border border-border/50 bg-foreground/[0.02] px-4 py-2.5 text-sm font-medium text-foreground/65 transition-colors hover:bg-foreground/[0.04]">
+        <ChevronDown className={cn("size-4 transition-transform", open && "rotate-180")} />
+        {title}
+      </button>
+      {open && <div className="mt-3">{children}</div>}
+    </div>
+  );
+}
+
+// ── Agenda — TODAY-first, hours-aware, with inline done / push / remove ──
+function Agenda({
+  byDay,
+  isHe,
+  onToggle,
+  onDelete,
+  onPush,
+}: {
+  byDay: [string, StudyTask[]][];
+  isHe: boolean;
+  onToggle: (id: string) => void;
+  onDelete: (id: string) => void;
+  onPush: (t: StudyTask) => void;
+}) {
+  const [showTail, setShowTail] = useState(false);
+  const todayKey = dayKey(new Date());
+  // Only future/today days (a past auto-generated session is noise once it's gone).
+  const upcoming = byDay.filter(([k]) => k >= todayKey);
+  if (upcoming.length === 0) {
+    return (
+      <div className="rounded-xl border border-dashed border-border/50 bg-foreground/[0.02] p-8 text-center text-sm text-foreground/45">
+        {isHe ? "אין משימות קרובות. הוסף מבחנים כדי לבנות תוכנית." : "No upcoming tasks. Add exams to build a plan."}
+      </div>
+    );
+  }
+  const head = upcoming.slice(0, 3);
+  const tail = upcoming.slice(3);
+
+  const dayTotal = (list: StudyTask[]) => list.reduce((s, t) => s + (taskHours(t) ?? 0), 0);
+
+  const renderDay = (key: string, list: StudyTask[], isToday: boolean) => {
+    const [yy, mm, dd] = key.split("-").map(Number);
+    const d = new Date(yy!, mm! - 1, dd!);
+    const hours = dayTotal(list);
+    // Load tint echoes the skyline thresholds (2.5 / 5h).
+    const loadColor = hours >= 5 ? "bg-red-400/70" : hours >= 2.5 ? "bg-amber-400/70" : "bg-emerald-400/70";
+    return (
+      <div key={key} className={cn("data-card p-3.5", isToday && "border-accent-brand/40 ring-1 ring-accent-brand/20")}>
+        <div className="mb-2.5 flex items-center gap-2">
+          <span className={cn("text-sm font-bold", isToday ? "text-accent-brand" : "text-foreground/80")}>
+            {isToday ? (isHe ? "היום" : "Today") : d.toLocaleDateString(isHe ? "he-IL" : "en-US", { weekday: "long", day: "numeric", month: "short" })}
+          </span>
+          {isToday && <span className="text-[11px] text-foreground/45">{d.toLocaleDateString(isHe ? "he-IL" : "en-US", { day: "numeric", month: "short" })}</span>}
+          {hours > 0 && (
+            <span className="ms-auto flex items-center gap-1.5">
+              <span className="h-1.5 w-10 overflow-hidden rounded-full bg-foreground/10">
+                <span className={cn("block h-full rounded-full", loadColor)} style={{ width: `${Math.min((hours / 6) * 100, 100)}%` }} />
+              </span>
+              <span className="font-mono text-[11px] tabular-nums text-foreground/60" dir="ltr">
+                <Clock className="mb-0.5 me-0.5 inline size-3" />{hours} {isHe ? "שע׳" : "h"}
+              </span>
+            </span>
+          )}
+        </div>
+        <div className="space-y-1.5">
+          {list.map((t) => {
+            const meta = TYPE_META[t.taskType] ?? TYPE_META.custom!;
+            const Icon = meta.icon;
+            const h = taskHours(t);
+            const isExam = t.taskType === "exam";
             return (
-              <div key={day} className="data-card p-3">
-                <div className="mb-2 flex items-baseline gap-2">
-                  <span className="text-sm font-bold text-foreground/80">{d.toLocaleDateString(isHe ? "he-IL" : "en-US", { weekday: "short", day: "numeric", month: "short" })}</span>
-                </div>
-                <div className="space-y-1.5">
-                  {dayTasks.map((t) => {
-                    const meta = TYPE_META[t.taskType] ?? TYPE_META.custom!;
-                    const Icon = meta.icon;
-                    return (
-                      <div key={t.id} className="flex items-center gap-2 rounded-lg border border-border/40 p-2" style={{ borderInlineStartWidth: 3, borderInlineStartColor: t.color ?? "var(--border)" }}>
-                        <button type="button" onClick={() => toggleMutation.mutate({ id: t.id })} className={cn("flex size-5 shrink-0 items-center justify-center rounded-full border transition-colors", t.completed ? "border-emerald-400 bg-emerald-400 text-white" : "border-foreground/25 hover:border-foreground/40")} aria-label="toggle">
-                          {t.completed && <Check className="size-3" />}
-                        </button>
-                        <Icon className="size-3.5 shrink-0 text-foreground/40" />
-                        <span className={cn("min-w-0 flex-1 truncate text-sm", t.completed ? "text-foreground/40 line-through" : "text-foreground/80")}>{t.title}</span>
-                        <span className="shrink-0 rounded-full bg-foreground/[0.06] px-1.5 py-0.5 text-[9px] text-foreground/50">{isHe ? meta.he : meta.en}</span>
-                        <button type="button" onClick={() => deleteMutation.mutate({ id: t.id })} className="shrink-0 rounded-md p-1 text-foreground/30 transition-colors hover:bg-red-500/10 hover:text-red-400" aria-label="delete">
-                          <Trash2 className="size-3.5" />
-                        </button>
-                      </div>
-                    );
-                  })}
-                </div>
+              <div key={t.id} className="flex items-center gap-2 rounded-lg border border-border/40 p-2" style={{ borderInlineStartWidth: 3, borderInlineStartColor: t.color ?? "var(--border)" }}>
+                {!isExam && (
+                  <button type="button" onClick={() => onToggle(t.id)} className={cn("flex size-5 shrink-0 items-center justify-center rounded-full border transition-colors", t.completed ? "border-emerald-400 bg-emerald-400 text-white" : "border-foreground/25 hover:border-foreground/40")} aria-label={isHe ? "סמן שהושלם" : "toggle done"}>
+                    {t.completed && <Check className="size-3" />}
+                  </button>
+                )}
+                <Icon className={cn("size-3.5 shrink-0", isExam ? "text-accent-brand" : "text-foreground/40")} />
+                <span className={cn("min-w-0 flex-1 truncate text-sm", t.completed ? "text-foreground/40 line-through" : "text-foreground/80")}>{t.title}</span>
+                {h != null && <span className="shrink-0 font-mono text-[10px] tabular-nums text-foreground/45" dir="ltr">{h}{isHe ? "שע׳" : "h"}</span>}
+                <span className="shrink-0 rounded-full bg-foreground/[0.06] px-1.5 py-0.5 text-[9px] text-foreground/50">{isHe ? meta.he : meta.en}</span>
+                {!isExam && (
+                  <button type="button" onClick={() => onPush(t)} className="shrink-0 rounded-md p-1 text-foreground/30 transition-colors hover:bg-foreground/10 hover:text-foreground/60" title={isHe ? "דחה ביום" : "Push a day"} aria-label={isHe ? "דחה ביום" : "push a day"}>
+                    <span className="text-xs font-bold">+1</span>
+                  </button>
+                )}
+                <button type="button" onClick={() => onDelete(t.id)} className="shrink-0 rounded-md p-1 text-foreground/30 transition-colors hover:bg-red-500/10 hover:text-red-400" aria-label={isHe ? "הסר" : "delete"}>
+                  <Trash2 className="size-3.5" />
+                </button>
               </div>
             );
           })}
         </div>
+      </div>
+    );
+  };
+
+  return (
+    <div className="animate-stagger-3 flex flex-col gap-3">
+      {head.map(([key, list]) => renderDay(key, list, key === todayKey))}
+      {tail.length > 0 && (
+        <>
+          {showTail && tail.map(([key, list]) => renderDay(key, list, false))}
+          <button type="button" onClick={() => setShowTail((s) => !s)} className="flex items-center justify-center gap-1.5 rounded-xl border border-border/50 bg-foreground/[0.02] px-4 py-2 text-xs font-medium text-foreground/55 transition-colors hover:bg-foreground/[0.04]">
+            <ChevronDown className={cn("size-3.5 transition-transform", showTail && "rotate-180")} />
+            {showTail ? (isHe ? "הסתר" : "Hide") : isHe ? `שאר התוכנית (${tail.length} ימים)` : `Rest of the plan (${tail.length} days)`}
+          </button>
+        </>
       )}
     </div>
   );

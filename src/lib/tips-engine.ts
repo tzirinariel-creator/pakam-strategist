@@ -71,7 +71,7 @@ const FUN_FACTS: Tip[] = [
   {
     id: "ff-4",
     textEn: "Your focus area doesn't just affect your degree — it determines your civil service classification.",
-    textHe: "תחום ההתמחות לא רק בשביל האקדמיה — הוא קובע את הסיווג שלכם בשירות המדינה.",
+    textHe: "תחום המיקוד לא רק בשביל האקדמיה — הוא קובע את הסיווג שלכם בשירות המדינה.",
     category: "fun_fact",
     icon: Briefcase,
   },
@@ -85,7 +85,7 @@ const FUN_FACTS: Tip[] = [
   {
     id: "ff-6",
     textEn: "The focus area requires 60 credits — that's 40% of your entire degree in one discipline.",
-    textHe: "תחום ההתמחות דורש 60 ש\"ס — זה 40% מכל התואר בדיסציפלינה אחת.",
+    textHe: "תחום המיקוד דורש 60 ש\"ס — זה 40% מכל התואר בדיסציפלינה אחת.",
     category: "fun_fact",
     icon: Target,
   },
@@ -140,7 +140,7 @@ const PLANNING_TIPS: Tip[] = [
   {
     id: "pt-3",
     textEn: "Your focus area needs 60 credits. Before deciding, see which disciplines you already have courses in — pick one where you're already building momentum.",
-    textHe: "תחום ההתמחות דורש 60 ש\"ס. לפני שבוחרים — בדקו באילו תחומים כבר צברתם קורסים, ובחרו תחום שכבר יש לכם בו תאוצה.",
+    textHe: "תחום המיקוד דורש 60 ש\"ס. לפני שבוחרים — בדקו באילו תחומים כבר צברתם קורסים, ובחרו תחום שכבר יש לכם בו תאוצה.",
     category: "planning_tip",
     icon: Compass,
   },

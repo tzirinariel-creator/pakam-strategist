@@ -121,7 +121,7 @@ function PlannerPreview({ isRTL }: { isRTL: boolean }) {
           {isRTL ? "תקנון" : "Regulations"}
         </span>
         <span className="rounded-full bg-[#2ECC71]/15 px-2 py-0.5 font-medium text-[#1f9d55]">
-          {isRTL ? <><bdi dir="ltr">4 / 17</bdi> כללים</> : "4 / 17 rules"}
+          {isRTL ? "עומד בתקנון ✓" : "Compliant ✓"}
         </span>
       </div>
     </div>
@@ -138,7 +138,7 @@ export function LandingPage() {
 
   const stats = [
     { value: "117", label: t("stats.courses") },
-    { value: "17", label: t("stats.rules") },
+    { value: "3", label: t("stats.disciplines") },
     { value: "150", label: t("stats.credits") },
   ];
 

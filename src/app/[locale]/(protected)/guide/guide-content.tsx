@@ -54,7 +54,7 @@ export function GuideContent() {
         </p>
         <p className="mt-1.5 text-foreground/55">
           {isHe
-            ? "לומדים ב-3 פקולטות שונות, כל אחת עם מזכירות וחוקים משלה. תחום ההתמחות שתבחר קובע גם את הסיווג שלך בשירות המדינה."
+            ? "לומדים ב-3 פקולטות שונות, כל אחת עם מזכירות וחוקים משלה. תחום המיקוד שתבחר קובע גם את הסיווג שלך בשירות המדינה."
             : "You study across 3 faculties, each with its own rules. Your focus area even sets your civil-service track."}
         </p>
       </Section>
@@ -64,7 +64,7 @@ export function GuideContent() {
           <Li><Bidi text={isHe ? "103 ש״ס חובה" : "103 mandatory credits"} /> {isHe ? "— הליבה של התואר." : "— the core."}</Li>
           <Li><Bidi text={isHe ? "12 ש״ס סמינרים" : "12 seminar credits"} /> {isHe ? "(3 עבודות + רפרט)." : "(3 papers + a referat)."}</Li>
           <Li><Bidi text={isHe ? "35 ש״ס בחירה" : "35 elective credits"} />.</Li>
-          <Li>{isHe ? "התמחות: " : "Focus area: "}<Bidi text={isHe ? "60 ש״ס" : "60 credits"} /> {isHe ? "בתחום אחד (פילוסופיה / כלכלה / מדע המדינה)." : "in one discipline."}</Li>
+          <Li>{isHe ? "תחום מיקוד: " : "Focus area: "}<Bidi text={isHe ? "60 ש״ס" : "60 credits"} /> {isHe ? "בתחום אחד (פילוסופיה / כלכלה / מדע המדינה)." : "in one discipline."}</Li>
           <Li>{isHe ? "2 קורסי אנגלית (תוכן), ולפי ציון האמירנט — אולי קורסי-רמה." : "2 English content courses; level courses depend on your Amiram score."}</Li>
           <Li>{isHe ? "ציון גמר = " : "Final grade = "}<Bidi text={isHe ? "78% קורסים + 18% סמינרים + 4% רפרט" : "78% courses + 18% seminars + 4% referat"} />.</Li>
         </ul>
@@ -73,7 +73,7 @@ export function GuideContent() {
       <Section icon={Sparkles} title={isHe ? "איך לתכנן חכם" : "How to plan smartly"}>
         <ul className="space-y-1.5">
           <Li>{isHe ? "שנה א׳ = קורסי חובה. אל תתחכם — קח הכל ותתמקד בממוצע טוב." : "Year 1 = mandatory courses. Take them all, aim for a good GPA."}</Li>
-          <Li>{isHe ? "בחר תחום התמחות מוקדם — הוא משפיע על כל התכנון." : "Choose your focus area early — it drives the whole plan."}</Li>
+          <Li>{isHe ? "בחר תחום מיקוד מוקדם — הוא משפיע על כל התכנון." : "Choose your focus area early — it drives the whole plan."}</Li>
           <Li>{isHe ? "כדאי לקחת אנגלית מוקדם — קורסים קלים יחסית שמורידים עומס בהמשך." : "Take English early — relatively easy courses that ease your load later."}</Li>
           <Li>{isHe ? "אל תשים 3 קורסים כבדים באותו סמסטר." : "Don't stack 3 heavy courses in one semester."}</Li>
           <Li>{isHe ? "מעבר שנה: " : "Year transition: "}<Bidi text={isHe ? "ממוצע 75 כללי + 80 בקורסי פכ\"מ" : "75 overall + 80 in PPE courses"} />.</Li>
@@ -86,7 +86,7 @@ export function GuideContent() {
           <ToolLi href="/planner" label={isHe ? "מתכנן התואר" : "Degree planner"} desc={isHe ? "גרור קורסים בין סמסטרים, סמן הושלמו." : "Drag courses across semesters."} arrow={Arrow} />
           <ToolLi href="/exam-planner" label={isHe ? "תכנון מבחנים" : "Exam planner"} desc={isHe ? "תוכנית-לימוד חכמה אחורה מכל מבחן." : "A smart reverse-planned study schedule."} arrow={Arrow} />
           <ToolLi href="/regulations" label={isHe ? "תקנון" : "Regulations"} desc={isHe ? "הסטטוס שלך מול כל דרישות התואר." : "Your status against every requirement."} arrow={Arrow} />
-          <ToolLi href="/mentor" label={isHe ? "עוזר התואר" : "Degree assistant"} desc={isHe ? "שאל כל שאלה — תשובות מהנתונים שלך." : "Ask anything — answered from your data."} arrow={Arrow} />
+          <ToolLi href="/mentor" label={isHe ? "המלך הפילוסוף" : "The Philosopher King"} desc={isHe ? "יועץ התואר — זמין מכל מסך דרך כפתור הכתר, עונה מהנתונים שלך." : "Your degree advisor — the crown button on any screen; answers from your data."} arrow={Arrow} />
         </ul>
       </Section>
 

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useTranslations, useLocale } from "next-intl";
 import { useSearchParams } from "next/navigation";
 import { ArrowRight, AlertTriangle, Target, Eye } from "lucide-react";
@@ -17,6 +17,9 @@ import {
   DialogDescription,
 } from "@/components/ui/dialog";
 import type { CourseWithSchedule } from "@/lib/plan-generator";
+import type { CreditBreakdown } from "@/types/degree";
+import { cn } from "@/lib/utils";
+import { resolveGoalBucket } from "@/lib/goal-bucket";
 import { getProgramById } from "@/lib/programs/registry";
 import type { OnboardingData } from "@/components/onboarding/onboarding-wizard";
 import type { SessionGroupSelections } from "@/components/onboarding/semester-planner/live-timetable";
@@ -61,6 +64,21 @@ export function SemesterPlannerPage() {
   // earned credits/grades are never touched by a plan edit — no fragile re-write.
   const planQuery = api.plan.getUserPlan.useQuery();
   const savePlan = api.plan.savePlan.useMutation();
+
+  // Pre-edit credit breakdown (SERVER-computed) captured once at mount — the
+  // "before" for the save-return narrative ("עלית מ-X% ל-Y%"). Captured into a
+  // ref so a later cache invalidation on save can't overwrite it.
+  const creditsQuery = api.plan.getCredits.useQuery();
+  const beforeBreakdownRef = useRef<CreditBreakdown | null>(null);
+  useEffect(() => {
+    // Capture ONCE: the first server value is the true pre-edit baseline; the
+    // post-save invalidation must not overwrite it before the stash happens.
+    if (beforeBreakdownRef.current === null && creditsQuery.data?.breakdown) {
+      beforeBreakdownRef.current = creditsQuery.data.breakdown;
+    }
+  }, [creditsQuery.data]);
+  // The live bucket the ?goal maps to (for the gap-meter in the focus banner).
+  const goalBucket = resolveGoalBucket(goal, creditsQuery.data?.breakdown, isHe);
 
   const isLoading =
     profileQuery.isLoading || coursesQuery.isLoading || planQuery.isLoading;
@@ -160,6 +178,16 @@ export function SemesterPlannerPage() {
 
       // Saved — the edits are now persisted, so the exit guard can stand down.
       setDirty(false);
+
+      // Stash the pre-edit breakdown so the dashboard can name what moved
+      // ("עלית מ-68% ל-74%") instead of a generic "נשמר". Best-effort only —
+      // wrapped so a storage failure can NEVER block the save/redirect.
+      try {
+        const before = beforeBreakdownRef.current;
+        if (before) sessionStorage.setItem("pk:saveDelta", JSON.stringify(before));
+      } catch {
+        /* sessionStorage unavailable — the banner just falls back to generic */
+      }
       // Return HOME (not to the board) so the student immediately SEES the
       // status update — closing the home<->planning loop that was the heart of
       // the disconnect (מסלול E). The dashboard shows the same unmissable green
@@ -183,17 +211,42 @@ export function SemesterPlannerPage() {
         {t("backToPlanner")}
       </button>
 
-      {/* Focus banner — the gap the home sent us to close (Project 1 bridge). */}
+      {/* Focus banner — the gap the home sent us to close. Now carries INTENT:
+          when the goal maps to a known requirement bucket it shows the LIVE gap
+          status (e.g. "סמינרים — 0/12"), not just an echo of the name. */}
       {goal && (
         <div className="flex items-start gap-2.5 rounded-xl border border-accent-brand/30 bg-accent-brand/[0.06] px-4 py-3">
           <Target className="mt-0.5 size-4 shrink-0 text-accent-brand" />
-          <p className="text-sm leading-relaxed text-foreground/75">
-            {isHe ? "באת לסגור: " : "You're here to close: "}
-            <span className="font-semibold text-foreground/90">{goal}</span>
-            {isHe
-              ? ". תכננו את הסמסטר ובחרו קורסים שיקדמו אתכם לשם."
-              : ". Plan the semester and pick courses that move you toward it."}
-          </p>
+          <div className="min-w-0 flex-1">
+            <p className="text-sm leading-relaxed text-foreground/75">
+              {isHe ? "באת לסגור: " : "You're here to close: "}
+              <span className="font-semibold text-foreground/90">{goal}</span>
+              {goalBucket
+                ? isHe
+                  ? " — כל קורס שתוסיפו בתחום הזה מקרב אתכם ליעד."
+                  : " — every course you add here moves you toward it."
+                : isHe
+                  ? ". תכננו את הסמסטר ובחרו קורסים שיקדמו אתכם לשם."
+                  : ". Plan the semester and pick courses that move you toward it."}
+            </p>
+            {goalBucket && (
+              <div className="mt-2 flex items-center gap-2">
+                <div className="h-1.5 w-32 overflow-hidden rounded-full bg-foreground/10">
+                  <div
+                    className={cn(
+                      "h-full rounded-full transition-all duration-500",
+                      goalBucket.met ? "bg-emerald-400" : "bg-accent-brand",
+                    )}
+                    style={{ width: `${goalBucket.target > 0 ? Math.min((goalBucket.current / goalBucket.target) * 100, 100) : 0}%` }}
+                  />
+                </div>
+                <span className="font-mono text-xs tabular-nums text-foreground/70" dir="ltr">
+                  {goalBucket.current}/{goalBucket.target} {goalBucket.unit}
+                  {goalBucket.met && <span className="text-emerald-500"> ✓</span>}
+                </span>
+              </div>
+            )}
+          </div>
         </div>
       )}
 

@@ -45,7 +45,7 @@ const SEMESTER_INTROS: Record<string, SemesterIntroData> = {
     creditRangeEn: "Recommended: 27-29 credits",
   },
   "2-FALL": {
-    titleHe: "שנה ב׳ סמסטר א׳ — התמחות",
+    titleHe: "שנה ב׳ סמסטר א׳ — תחום מיקוד",
     titleEn: "Year 2 Fall — Specialization Begins",
     descHe:
       "סמינר ראשון (בפילוסופיה או מד״מ), קורסי בחירה מתקדמים, והקורס האינטגרטיבי שמחבר בין כל התחומים.",
@@ -60,7 +60,7 @@ const SEMESTER_INTROS: Record<string, SemesterIntroData> = {
     titleHe: "שנה ב׳ סמסטר ב׳ — עומק",
     titleEn: "Year 2 Spring — Going Deeper",
     descHe:
-      "סמינר שני, קורסי משפט, ובחירות בתחום ההתמחות. חשוב לוודא שאתם עומדים בממוצע 75 כללי + 80 בפכ״מ.",
+      "סמינר שני, קורסי משפט, ובחירות בתחום המיקוד. חשוב לוודא שאתם עומדים בממוצע 75 כללי + 80 בפכ״מ.",
     descEn:
       "Second seminar, law courses, and focus area electives. Make sure you meet the 75 overall + 80 PPE GPA threshold.",
     icon: GraduationCap,

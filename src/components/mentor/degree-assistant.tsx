@@ -157,7 +157,7 @@ export function DegreeAssistant() {
       <div className="flex-1 space-y-3 overflow-y-auto rounded-xl">
         {turns.length === 0 && (
           <div className="rounded-xl border border-dashed border-border/50 bg-foreground/[0.02] p-5 text-center text-sm text-foreground/50">
-            {isHe ? "בחר שאלה למטה, או כתוב שאלה משלך 👇" : "Pick a question below, or type your own 👇"}
+            {isHe ? "בחר שאלה למטה, או כתוב שאלה משלך" : "Pick a question below, or type your own"}
           </div>
         )}
         {turns.map((turn, i) => (

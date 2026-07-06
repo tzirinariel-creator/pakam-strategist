@@ -25,6 +25,8 @@ import { getActiveProgram } from "@/lib/programs/registry";
 import { buildRecommendations } from "@/lib/recommendations-engine";
 import { binaryCapRemaining, type MiluimGroupKey } from "@/lib/miluim";
 import type { GradeBreakdown, CreditBreakdown } from "@/types/degree";
+import { diffBreakdown } from "@/lib/degree-delta";
+import { Bidi } from "@/lib/bidi";
 
 // -----------------------------------------------------------------------
 // Post-Onboarding Transition — auto-retries plan fetch after saving
@@ -322,9 +324,19 @@ export function DashboardContent() {
   // dashboard mounts behind a loader on the slow prod DB, so a timed banner
   // could vanish before it's ever seen.
   const [showSavedBanner, setShowSavedBanner] = useState(false);
+  // The pre-edit breakdown the planner stashed on save (consume-once), so the
+  // banner can name what MOVED ("עלית מ-68% ל-74%") instead of a generic "נשמר".
+  const [savedBefore, setSavedBefore] = useState<CreditBreakdown | null>(null);
   useEffect(() => {
     if (searchParams.get("saved") === "1") {
       setShowSavedBanner(true);
+      try {
+        const raw = sessionStorage.getItem("pk:saveDelta");
+        if (raw) setSavedBefore(JSON.parse(raw) as CreditBreakdown);
+        sessionStorage.removeItem("pk:saveDelta"); // consume once
+      } catch {
+        /* storage unavailable — banner falls back to the generic wording */
+      }
       window.history.replaceState({}, "", window.location.pathname);
     }
   }, [searchParams]);
@@ -489,6 +501,12 @@ export function DashboardContent() {
 
   // Derive data
   const credits: CreditBreakdown | null = creditsQuery.data?.breakdown ?? null;
+
+  // Save-return narrative: diff the pre-edit breakdown (stashed by the planner)
+  // against the freshly-loaded post-save one. Both are SERVER values, so the
+  // "68% → 74%" can never disagree with the canonical status above.
+  const saveDelta =
+    showSavedBanner && savedBefore && credits ? diffBreakdown(savedBefore, credits) : null;
   const gradeBreakdown: GradeBreakdown = gradeQuery.data ?? {
     courseAverage: null,
     seminarPaperAverage: null,
@@ -745,12 +763,44 @@ export function DashboardContent() {
             <CheckCircle2 className="size-5" />
           </span>
           <div className="min-w-0 flex-1">
-            <p className="text-sm font-semibold text-foreground/85">
-              {tPlanner("planSavedBannerTitle")}
-            </p>
-            <p className="mt-0.5 text-xs text-foreground/55">
-              {tPlanner("planSavedBannerDesc")}
-            </p>
+            {saveDelta && saveDelta.closedLaneHe ? (
+              // A requirement bucket crossed from unmet → met with this save.
+              <>
+                <p className="text-sm font-semibold text-foreground/85">
+                  {isHe
+                    ? `סגרת ${saveDelta.closedLaneHe} — ${saveDelta.toPct}% מהתואר`
+                    : `You closed ${saveDelta.closedLaneEn} — ${saveDelta.toPct}% of the degree`}
+                </p>
+                <p className="mt-0.5 text-xs text-foreground/55">
+                  {tPlanner("planSavedBannerDesc")}
+                </p>
+              </>
+            ) : saveDelta && saveDelta.toPct > saveDelta.fromPct ? (
+              // Degree % moved forward. Numbers are LTR inside Hebrew — wrap them.
+              <>
+                <p className="text-sm font-semibold text-foreground/85">
+                  <Bidi
+                    text={
+                      isHe
+                        ? `עלית מ-${saveDelta.fromPct}% ל-${saveDelta.toPct}% בתואר`
+                        : `You moved from ${saveDelta.fromPct}% to ${saveDelta.toPct}% of the degree`
+                    }
+                  />
+                </p>
+                <p className="mt-0.5 text-xs text-foreground/55">
+                  {isHe ? "ממשיכים לפי התוכנית." : "Keep going per your plan."}
+                </p>
+              </>
+            ) : (
+              <>
+                <p className="text-sm font-semibold text-foreground/85">
+                  {tPlanner("planSavedBannerTitle")}
+                </p>
+                <p className="mt-0.5 text-xs text-foreground/55">
+                  {tPlanner("planSavedBannerDesc")}
+                </p>
+              </>
+            )}
           </div>
           <button
             type="button"

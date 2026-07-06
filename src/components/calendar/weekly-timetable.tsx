@@ -210,7 +210,11 @@ export function WeeklyTimetable({ sessions }: WeeklyTimetableProps) {
   const totalHours = slots.reduce((sum, s) => sum + (s.endHour - s.startHour), 0);
 
   return (
-    <div className="flex flex-col gap-4">
+    // @container: the agenda↔grid switch below keys off THIS element's width,
+    // not the viewport — so the same component shows a readable day-agenda in the
+    // narrow planner rail (~380px) and the full grid on a wide calendar page,
+    // instead of cramming 5 columns into a sliver (#14/#18).
+    <div className="@container flex flex-col gap-4">
       {/* Stats bar */}
       <div className="flex flex-wrap items-center gap-x-4 gap-y-2 rounded-lg border border-border/50 bg-card/50 px-4 py-2.5 text-xs text-muted-foreground">
         <div className="flex items-center gap-1.5">
@@ -239,8 +243,9 @@ export function WeeklyTimetable({ sessions }: WeeklyTimetableProps) {
         )}
       </div>
 
-      {/* Mobile agenda — vertical list grouped by day (< md) */}
-      <div className="flex flex-col gap-3 md:hidden">
+      {/* Agenda — vertical list grouped by day. Shown when the CONTAINER is
+          narrow (planner rail / phone), hidden once there's room for the grid. */}
+      <div className="flex flex-col gap-3 @2xl:hidden">
         {dayOrder.map((dayIdx) => {
           const dayKey = DAY_KEYS[dayIdx];
           const isToday = dayIdx === currentDay;
@@ -328,8 +333,9 @@ export function WeeklyTimetable({ sessions }: WeeklyTimetableProps) {
         })}
       </div>
 
-      {/* Timetable grid — md:+ (no horizontal scroll; columns fill the width) */}
-      <div className="hidden rounded-xl border border-border bg-card shadow-sm md:block">
+      {/* Timetable grid — shown once the CONTAINER is wide enough (@2xl) to fit
+          the columns without shrinking them into unreadable slivers. */}
+      <div className="hidden rounded-xl border border-border bg-card shadow-sm @2xl:block">
         <div className="w-full">
           {/* Day headers */}
           <div

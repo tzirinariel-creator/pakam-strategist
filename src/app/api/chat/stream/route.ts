@@ -11,7 +11,6 @@ import { prisma } from "@/lib/db";
 import {
   createClaudeClient,
   CLAUDE_MODEL,
-  MAX_TOKENS,
   type ChatMessage,
 } from "@/lib/ai/claude-client";
 import { streamGemini } from "@/lib/ai/gemini-client";
@@ -31,8 +30,14 @@ import { getProgramById } from "@/lib/programs/registry";
 import { checkRateLimit } from "@/lib/rate-limit";
 import { isDemoEmail, DEMO_READONLY_MESSAGE } from "@/server/trpc/demo";
 
+// Chat-only Claude tuning (BYOK users). Mirrors the Gemini chat path: a short
+// output cap backstops the "2-4 sentences" answer contract, and a moderate
+// temperature keeps the King's voice human rather than robotic.
+const CHAT_MAX_TOKENS = 800;
+const CHAT_TEMPERATURE = 0.6;
+
 // Input validation schema — prevents abuse & injection
-const CHAT_IMAGE_MIME = new Set(["image/jpeg", "image/png", "image/webp", "image/heic"]);
+const CHAT_IMAGE_MIME = new Set(["image/jpeg", "image/png", "image/webp", "image/heic", "image/heif"]);
 
 const streamInputSchema = z.object({
   sessionId: z.uuid().optional(),
@@ -299,7 +304,11 @@ export async function POST(request: NextRequest) {
       const stream = client.messages.stream(
         {
           model: CLAUDE_MODEL,
-          max_tokens: MAX_TOKENS,
+          // Chat answers stay short by contract; cap output well below the
+          // scanner's MAX_TOKENS so a rambling essay can't slip through, and use
+          // a moderate temperature so the King reads human, not robotic.
+          max_tokens: CHAT_MAX_TOKENS,
+          temperature: CHAT_TEMPERATURE,
           system: systemPrompt,
           messages: chatHistory.map((m) => ({ role: m.role, content: m.content })),
         },

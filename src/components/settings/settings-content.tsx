@@ -411,12 +411,37 @@ function ProfileSection() {
 function AppearanceSection() {
   const t = useTranslations("settings");
   const locale = useLocale();
+  const isHe = locale === "he";
   const { theme, setTheme } = useUIStore();
   const router = useRouter();
   const pathname = usePathname();
 
   const handleLocaleSwitch = (newLocale: "he" | "en") => {
     router.replace(pathname, { locale: newLocale });
+  };
+
+  // The King's proactive suggestion (note #12) — a global opt-out kept in
+  // localStorage (pk-proactive-off). ON = the King may surface one critical gap
+  // when you open him; OFF = he stays quiet until asked.
+  const [proactiveOn, setProactiveOn] = useState(true);
+  useEffect(() => {
+    try {
+      setProactiveOn(!localStorage.getItem("pk-proactive-off"));
+    } catch {
+      /* storage unavailable — default on */
+    }
+  }, []);
+  const toggleProactive = () => {
+    setProactiveOn((prev) => {
+      const next = !prev;
+      try {
+        if (next) localStorage.removeItem("pk-proactive-off");
+        else localStorage.setItem("pk-proactive-off", "1");
+      } catch {
+        /* ignore */
+      }
+      return next;
+    });
   };
 
   return (
@@ -500,6 +525,35 @@ function AppearanceSection() {
               <span className="text-sm font-medium">{t("english")}</span>
             </button>
           </div>
+        </div>
+
+        {/* King proactive suggestion — global opt-out (note #12) */}
+        <div className="flex items-center justify-between gap-4">
+          <div className="min-w-0">
+            <label className="text-sm font-medium text-foreground/80">
+              {isHe ? "המלך יציף פער קריטי כשאני פותח אותו" : "Let the King surface one critical gap when I open him"}
+            </label>
+            <p className="mt-0.5 text-xs text-foreground/50">
+              {isHe ? "הצעה אחת, פעם ביום, כשפותחים את המלך — אף פעם לא מעצמו." : "One suggestion, once a day, only when you open the King — never on its own."}
+            </p>
+          </div>
+          <button
+            type="button"
+            role="switch"
+            aria-checked={proactiveOn}
+            onClick={toggleProactive}
+            className={cn(
+              "relative inline-flex h-6 w-11 shrink-0 items-center rounded-full transition-colors",
+              proactiveOn ? "bg-accent-brand" : "bg-foreground/20",
+            )}
+          >
+            <span
+              className={cn(
+                "inline-block size-4 rounded-full bg-white transition-transform",
+                proactiveOn ? "translate-x-6 rtl:-translate-x-6" : "translate-x-1 rtl:-translate-x-1",
+              )}
+            />
+          </button>
         </div>
       </div>
     </SectionCard>

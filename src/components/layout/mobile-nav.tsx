@@ -14,7 +14,6 @@ import {
   CalendarClock,
   Calculator,
   FolderOpen,
-  Bot,
   Compass,
   X,
 } from "lucide-react";
@@ -34,7 +33,6 @@ const MORE_MENU_ITEMS = [
   { key: "graduation", href: "/graduation", icon: Calculator },
   { key: "guide", href: "/guide", icon: Compass },
   { key: "settings", href: "/settings", icon: Settings },
-  { key: "mentor", href: "/mentor", icon: Bot },
 ] as const;
 
 export function MobileNav() {

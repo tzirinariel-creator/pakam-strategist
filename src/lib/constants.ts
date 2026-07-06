@@ -342,7 +342,7 @@ export const EVENT_COLORS = {
 // Cross-referenced: February 2026
 // ────────────────────────────────────────────────────────────────────
 export const MILUIM_CONFIG = {
-  // Credit exemption caps (ש"ס פטור) — per official doc section 3
+  // Credit exemption caps (ש״ס פטור) — per official doc section 3
   MAX_CREDIT_EXEMPTIONS_DEGREE: 10,  // max across entire BA degree (all groups)
   // Binary grade caps — per official doc section 4
   BINARY_GRADE: {
@@ -388,7 +388,7 @@ export const MILUIM_CONFIG = {
       descEn: "Reservists: up to 20 cumulative days/semester",
       criteria: "משרתי מילואים: עד 20 ימים בסמסטר",
       criteriaEn: "Reservists: ≤20 days/semester",
-      creditExemptionPerYear: 2,   // 2 ש"ס — for NEW students with 10+ days
+      creditExemptionPerYear: 2,   // 2 ש״ס — for NEW students with 10+ days
       binaryGradePerYear: 0,
       binaryGradeDegreeCap: 0,
       isCombat: false,
@@ -412,7 +412,7 @@ export const MILUIM_CONFIG = {
       descEn: "21–34 days of service in a semester. Also included: combat soldiers with 14–20 days, anyone with 35+ cumulative days during the year, 60+ days before the semester starts, or 100+ days in the previous year.",
       criteria: "21-34 ימים/סמסטר | לוחמים 14-20 | 35+ בשנה | 60+ לפני סמסטר | 100+ בתשפ\"ה",
       criteriaEn: "21-34 days/sem | combat 14-20 | 35+ in year | 60+ pre-semester | 100+ prev year",
-      creditExemptionPerYear: 6,   // 6 ש"ס per year
+      creditExemptionPerYear: 6,   // 6 ש״ס per year
       binaryGradePerYear: 2,       // BA: 2 courses/year; MA: 1 course/year
       binaryGradeDegreeCap: 5,     // BA: max 5 across degree
       isCombat: false,
@@ -443,7 +443,7 @@ export const MILUIM_CONFIG = {
       descEn: "35+ days of service in a semester (or 100+ days in semester A, which also grants Group C in semester B). Combat soldiers: from 21 days per semester.",
       criteria: "35+ ימים/סמסטר | 100+ בסמ׳ א׳→גם ב׳ | לוחמים: 21+",
       criteriaEn: "35+ days/sem | 100+ in sem A→also B | Combat: 21+",
-      creditExemptionPerYear: 8,   // 8 ש"ס per year
+      creditExemptionPerYear: 8,   // 8 ש״ס per year
       binaryGradePerYear: 3,       // BA: 3 courses/year; MA: 2 courses/year
       binaryGradeDegreeCap: 5,     // BA: max 5 across degree
       isCombat: false,
@@ -476,8 +476,8 @@ export const MILUIM_CONFIG = {
       descEn: "War casualties, bereaved families, wounded, security forces, regular army, first-degree relatives of fallen — handled by Dean of Students",
       criteria: "נפגעי מלחמה, שכולים, פצועים, כוחות ביטחון, סדיר",
       criteriaEn: "War casualties, bereaved, wounded, security forces, regular army",
-      creditExemptionPerYear: 3,   // 3 ש"ס (new students only)
-      binaryGradePerYear: 0,       // 6 ש"ס binary (for new students who weren't in previous מתווה)
+      creditExemptionPerYear: 3,   // 3 ש״ס (new students only)
+      binaryGradePerYear: 0,       // 6 ש״ס binary (for new students who weren't in previous מתווה)
       binaryGradeDegreeCap: 0,
       isCombat: false,
       attendanceExempt: true,
@@ -570,8 +570,8 @@ export const MILUIM_CONFIG = {
   },
   // Social involvement exemption — per official doc section 6
   SOCIAL_INVOLVEMENT_EXEMPTION: {
-    credits: 2,                    // 2 ש"ס פטור (חוק מעורבות חברתית)
-    descHe: "סטודנטים ממשיכים: 2 ש\"ס פטור בגין מילואים בתשפ\"ו (אם לא מימשו בעבר, ובתנאי שסה\"כ פטורי המלחמה עד 10 ש\"ס)",
+    credits: 2,                    // 2 ש״ס פטור (חוק מעורבות חברתית)
+    descHe: "סטודנטים ממשיכים: 2 ש״ס פטור בגין מילואים בתשפ\"ו (אם לא מימשו בעבר, ובתנאי שסה\"כ פטורי המלחמה עד 10 ש״ס)",
     descEn: "Continuing students: 2 SH\"S exemption for reserve service in 5786 (if not used before, total war exemptions ≤ 10)",
     onlyIfNotUsedBefore: true,
     maxTotalWarExemptions: 10,

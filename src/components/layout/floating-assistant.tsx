@@ -4,7 +4,11 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useLocale } from "next-intl";
 import { usePathname } from "next/navigation";
 import { usePersonalAddress } from "@/components/personal/use-personal-address";
-import { X, Send, Zap, Bot, Loader2, Database, Mic, ImagePlus } from "lucide-react";
+import {
+  X, Send, Zap, Bot, Loader2, Database, Mic, ImagePlus,
+  CalendarClock, TrendingDown, TrendingUp, Languages, Target, FileText, Scale, GraduationCap, ArrowLeft,
+} from "lucide-react";
+import type { Recommendation, RecommendationIcon } from "@/lib/recommendations-engine";
 import Markdown from "react-markdown";
 import { toast } from "sonner";
 import { api } from "@/lib/trpc/react";
@@ -28,6 +32,21 @@ interface SpeechRecognitionLike {
 }
 import { useDegreeQAContext } from "@/components/mentor/use-qa-context";
 import { hashContext, readCachedAnswer, writeCachedAnswer } from "@/lib/ai/answer-cache";
+
+// Image types the chat vision route accepts (mirror of CHAT_IMAGE_MIME in the
+// stream route). HEIC/HEIF cover iPhone photos — omitting them from `accept`
+// silently blocked the picker from even offering them, which read as "it didn't
+// take my image". The `.heic`/`.heif` extension hints help browsers that don't
+// map the MIME in the file picker.
+const CHAT_IMAGE_ACCEPT =
+  "image/jpeg,image/png,image/webp,image/heic,image/heif,.heic,.heif";
+const CHAT_IMAGE_MIME_SET = new Set([
+  "image/jpeg",
+  "image/png",
+  "image/webp",
+  "image/heic",
+  "image/heif",
+]);
 
 type Source = "rules" | "llm";
 interface Msg {
@@ -63,6 +82,18 @@ export function FloatingAssistant() {
   const imageInputRef = useRef<HTMLInputElement>(null);
   const [attachedImage, setAttachedImage] = useState<{ b64: string; mime: string; preview: string } | null>(null);
   const attachImage = async (file: File) => {
+    // Reject an unsupported type up front with a clear reason, instead of
+    // attaching it and letting the server 415 it (or silently doing nothing).
+    // An empty file.type (some HEIC pickers) is allowed through — the server
+    // validates it. This mirrors the route's CHAT_IMAGE_MIME set.
+    if (file.type && !CHAT_IMAGE_MIME_SET.has(file.type)) {
+      toast.error(
+        isHe
+          ? "פורמט לא נתמך — אפשר JPG, PNG, WEBP או תמונה מהטלפון (HEIC)."
+          : "Unsupported format — use JPG, PNG, WEBP, or a phone photo (HEIC).",
+      );
+      return;
+    }
     try {
       const { b64, mime } = await fileToBase64(file);
       // Revoke a prior preview before replacing it.
@@ -136,9 +167,53 @@ export function FloatingAssistant() {
 
   // Only load the student's data once the King is opened — the FAB sits on every
   // protected page, so eager-loading 6 queries per page was needless load.
-  const { ctx, ready } = useDegreeQAContext(open);
+  const { ctx, ready, recommendations } = useDegreeQAContext(open);
+
+  // ── Proactive suggestion (note #10, restrained per note #12) ──
+  // The single most pressing gap (critical/warning only), surfaced ONLY when the
+  // student opens the King (never unprompted), once per rec-id per day, globally
+  // opt-out-able. A herald delivering one line, then silence — not Clippy.
+  // Track WHICH rec was dismissed (not a bare boolean) so dismissing gap A never
+  // suppresses a later, different critical gap B in the same session.
+  const [dismissedRecId, setDismissedRecId] = useState<string | null>(null);
+  const topRec = useMemo(
+    () => recommendations.find((r) => r.severity === "critical" || r.severity === "warning") ?? null,
+    [recommendations],
+  );
+  const [nudgeAllowed, setNudgeAllowed] = useState(false);
+  useEffect(() => {
+    if (!open || !topRec) {
+      setNudgeAllowed(false);
+      return;
+    }
+    try {
+      if (localStorage.getItem("pk-proactive-off")) {
+        setNudgeAllowed(false);
+        return;
+      }
+      const seen = localStorage.getItem(`pk-rec-nudge:${topRec.id}`);
+      setNudgeAllowed(seen !== new Date().toISOString().slice(0, 10));
+    } catch {
+      setNudgeAllowed(false);
+    }
+  }, [open, topRec]);
+  const proactiveNudge = nudgeAllowed && topRec && dismissedRecId !== topRec.id ? topRec : null;
+  const markNudgeSeen = () => {
+    if (topRec) {
+      try {
+        localStorage.setItem(`pk-rec-nudge:${topRec.id}`, new Date().toISOString().slice(0, 10));
+      } catch {
+        /* storage unavailable — the in-memory dismiss still hides it this session */
+      }
+      setDismissedRecId(topRec.id);
+    }
+  };
   const apiKeyQuery = api.ai.hasApiKey.useQuery(undefined, { staleTime: 60_000 });
   const aiAvailable = !!apiKeyQuery.data?.hasKey || !!apiKeyQuery.data?.sharedAvailable;
+  // A student who added their OWN Claude key won't fall back to the shared free
+  // Gemini key — but image chat is Gemini-vision only, so that path 415s. Knowing
+  // the provider lets us explain the fix BEFORE sending, instead of after.
+  const keyProvider = apiKeyQuery.data?.provider ?? null;
 
   const scrollRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -202,16 +277,16 @@ export function FloatingAssistant() {
       return "Ask me anything about your degree — I answer from your data.";
     }
     if (p.includes("/planner"))
-      return `אני רואה ש${you} בתכנון הסמסטר. ${ask} אותי מה כדאי לקחת, אם העומס הגיוני, או איך לסגור פער.`;
+      return `תכנון הסמסטר. ${ask} מה כדאי לקחת, אם העומס מאוזן, או איך לסגור פער — אענה מהמספרים שלך.`;
     if (p.includes("/catalog"))
-      return `${gg("אתה מעיין", "את מעיינת", "את/ה מעיין/ת")} בקטלוג. אעזור לך לבחור קורס שמתאים — קושי, התמחות, או דרישות-קדם.`;
+      return `הקטלוג פתוח. ${ask} על קורס — כמה הוא קשה, איך הוא משתלב בתחום המיקוד, או דרישות-הקדם.`;
     if (p.includes("/regulations"))
-      return `${you} בתקנון. אסביר כל דרישה, למה היא חשובה, ואיך לסגור אותה.`;
+      return `בדיקת המסלול. ${ask} על כל דרישה — למה היא חשובה, ומה בדיוק לעשות כדי לסגור אותה.`;
     if (p.includes("/graduation") || p.includes("/record"))
-      return `${you} בתיק האקדמי. ${ask} על הממוצע, ההצטיינות, או איך לשפר.`;
+      return `התיק האקדמי. ${ask} על הממוצע, על ההצטיינות, או איך לשפר ציון לפני שהוא ננעל.`;
     if (p.includes("/exam"))
-      return `${you} בתכנון הבחינות. ${ask} אותי איך לפזר את הלמידה, או על מועד ב׳.`;
-    return `${ask} אותי כל דבר על התואר שלך — אני עונה מהנתונים שלך.`;
+      return `תקופת המבחנים. ${ask} איך לפזר את הלמידה נכון, או מתי מועד ב׳ באמת שווה.`;
+    return `${ask} כל דבר על התואר — אני עונה מהמספרים שלך, לא בכלליות.`;
   }, [pathname, isHe, gender]);
 
   useEffect(() => {
@@ -377,6 +452,24 @@ export function FloatingAssistant() {
           ]);
           return;
         }
+        // The student has their own Claude key, so the shared free Gemini key
+        // isn't used for them — but image questions are Gemini-vision only.
+        // Explain the fix here instead of letting the server 415.
+        if (keyProvider === "anthropic") {
+          setMessages((m) => [
+            ...m,
+            {
+              role: "assistant",
+              content: isHe
+                ? "שאלות עם תמונה עובדות עם Gemini (חינמי), לא עם Claude. אפשר להסיר את מפתח Claude בהגדרות כדי להשתמש במפתח המשותף החינמי — או להוסיף מפתח Gemini."
+                : "Image questions use Gemini (free), not Claude. Remove your Claude key in settings to use the shared free key — or add a Gemini key.",
+              source: "rules",
+              href: "/settings",
+              cta: isHe ? "להגדרות" : "Settings",
+            },
+          ]);
+          return;
+        }
         setStreaming(true);
         void streamLLM(q, hashContext(ctx), false, undefined, { b64: image.b64, mime: image.mime });
         return;
@@ -441,7 +534,7 @@ export function FloatingAssistant() {
         ]);
       }
     },
-    [ctx, aiAvailable, ready, streaming, streamLLM, attachedImage, isHe],
+    [ctx, aiAvailable, keyProvider, ready, streaming, streamLLM, attachedImage, isHe],
   );
 
   if (onMentorPage) return null;
@@ -480,7 +573,7 @@ export function FloatingAssistant() {
           <div
             role="dialog"
             aria-modal="true"
-            aria-label={isHe ? "היועץ" : "Advisor"}
+            aria-label={isHe ? "המלך הפילוסוף" : "The Philosopher King"}
             dir={isHe ? "rtl" : "ltr"}
             className={cn(
               "fixed z-[66] flex flex-col overflow-hidden border border-border bg-card shadow-2xl",
@@ -493,7 +586,11 @@ export function FloatingAssistant() {
             {/* Header — regal indigo with a gold crown (the Philosopher King). */}
             <div className="flex items-center gap-2.5 border-b border-border/60 bg-gradient-to-b from-accent-brand/[0.12] to-accent-brand/[0.04] px-4 py-3">
               <div className="flex size-9 items-center justify-center rounded-xl bg-accent-brand text-[#f2c879] shadow-sm ring-1 ring-[#f2c879]/40">
-                <PhilosopherKingIcon className="size-5" />
+                <PhilosopherKingIcon
+                  className="size-5"
+                  state={streaming ? "thinking" : "idle"}
+                  dot={proactiveNudge ? (proactiveNudge.severity as "critical" | "warning") : null}
+                />
               </div>
               <div className="min-w-0 flex-1">
                 <p className="font-display text-sm font-bold text-foreground/90">
@@ -519,6 +616,17 @@ export function FloatingAssistant() {
             <div ref={scrollRef} className="flex-1 space-y-3 overflow-y-auto p-4">
               {messages.length === 0 && (
                 <div className="flex flex-col gap-3 pt-2">
+                  {proactiveNudge && (
+                    <ProactiveNudgeCard
+                      rec={proactiveNudge}
+                      isHe={isHe}
+                      onAct={() => {
+                        markNudgeSeen();
+                        setOpen(false);
+                      }}
+                      onDismiss={markNudgeSeen}
+                    />
+                  )}
                   <p className="text-sm text-foreground/60">{greeting}</p>
                   <div className="flex flex-wrap gap-1.5">
                     {chips.map((c) => (
@@ -532,6 +640,18 @@ export function FloatingAssistant() {
                       </button>
                     ))}
                   </div>
+                  {/* Quota transparency (note #25): when the student is on the
+                      shared free key (no BYOK), say so calmly — with the free way
+                      out of the small daily cap. BYOK users never see this. */}
+                  {!apiKeyQuery.data?.hasKey && apiKeyQuery.data?.sharedAvailable && (
+                    <p className="text-[11px] leading-relaxed text-foreground/40">
+                      {isHe ? "עוזר משותף חינם. " : "Free shared assistant. "}
+                      <Link href="/settings" className="text-accent-brand/80 underline-offset-2 hover:underline">
+                        {isHe ? "חברו מפתח Gemini משלכם" : "Connect your own Gemini key"}
+                      </Link>
+                      {isHe ? " לשימוש בלי הגבלה." : " for unlimited use."}
+                    </p>
+                  )}
                 </div>
               )}
 
@@ -629,7 +749,7 @@ export function FloatingAssistant() {
               <input
                 ref={imageInputRef}
                 type="file"
-                accept="image/jpeg,image/png,image/webp"
+                accept={CHAT_IMAGE_ACCEPT}
                 className="hidden"
                 onChange={(e) => {
                   const f = e.target.files?.[0];
@@ -692,5 +812,70 @@ export function FloatingAssistant() {
         </>
       )}
     </>
+  );
+}
+
+// Recommendation icon → Lucide (mirrors the dashboard widget's map).
+const REC_ICON: Record<RecommendationIcon, React.ComponentType<{ className?: string }>> = {
+  calendarClock: CalendarClock,
+  trendingDown: TrendingDown,
+  trendingUp: TrendingUp,
+  languages: Languages,
+  target: Target,
+  fileText: FileText,
+  scale: Scale,
+  graduationCap: GraduationCap,
+};
+
+/**
+ * The King's proactive nudge — ONE pressing gap, delivered plainly, then silence.
+ * A restrained inset card (not a toast, not a popup), severity-tinted, with an
+ * "act on it" link and a bare dismiss. Only ever shown in the empty state when
+ * the student opened the King themselves.
+ */
+function ProactiveNudgeCard({
+  rec,
+  isHe,
+  onAct,
+  onDismiss,
+}: {
+  rec: Recommendation;
+  isHe: boolean;
+  onAct: () => void;
+  onDismiss: () => void;
+}) {
+  const Icon = REC_ICON[rec.icon] ?? Target;
+  const critical = rec.severity === "critical";
+  return (
+    <div
+      className={cn(
+        "relative rounded-xl border p-3",
+        critical ? "border-red-400/40 bg-red-400/[0.06]" : "border-amber-400/40 bg-amber-400/[0.06]",
+      )}
+    >
+      <button
+        type="button"
+        onClick={onDismiss}
+        aria-label={isHe ? "הבנתי, אל תזכיר שוב היום" : "Got it, don't remind me today"}
+        className="absolute end-2 top-2 rounded-md p-1 text-foreground/30 transition-colors hover:text-foreground/60"
+      >
+        <X className="size-3.5" />
+      </button>
+      <div className="flex items-start gap-2.5 pe-5">
+        <Icon className={cn("mt-0.5 size-4 shrink-0", critical ? "text-red-400" : "text-amber-500")} />
+        <div className="min-w-0 flex-1">
+          <p className="text-sm font-bold text-foreground/85">{isHe ? rec.titleHe : rec.titleEn}</p>
+          <p className="mt-0.5 text-xs leading-relaxed text-foreground/60">{isHe ? rec.bodyHe : rec.bodyEn}</p>
+          <Link
+            href={rec.href}
+            onClick={onAct}
+            className="mt-2 inline-flex items-center gap-1 text-xs font-semibold text-accent-brand transition-colors hover:underline"
+          >
+            {isHe ? rec.ctaHe : rec.ctaEn}
+            <ArrowLeft className="size-3 ltr:rotate-180" />
+          </Link>
+        </div>
+      </div>
+    </div>
   );
 }
