@@ -150,7 +150,7 @@ export function DegreeInfoCard() {
               {/* The focus area determines your civil service classification (shinuy).
                   You must accumulate at least 60 credits in a single discipline
                   to be classified under that field. */}
-              תחום המיקוד קובע את סיווג המשרה בשירות המדינה (שינוי).
+              תחום המיקוד קובע את סיווג המשרה בשירות המדינה.
               יש לצבור לפחות 60 ש״ס בתחום אחד כדי להיות מסווג בתחום זה.
             </p>
           </div>

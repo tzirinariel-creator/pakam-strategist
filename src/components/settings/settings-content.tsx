@@ -626,7 +626,7 @@ function AppearanceSection() {
               {isHe ? "המלך יציף פער קריטי כשאני פותח אותו" : "Let the King surface one critical gap when I open him"}
             </label>
             <p className="mt-0.5 text-xs text-foreground/50">
-              {isHe ? "הצעה אחת, פעם ביום, כשפותחים את המלך — אף פעם לא מעצמו." : "One suggestion, once a day, only when you open the King — never on its own."}
+              {isHe ? "כשתפתחו את המלך והוא יראה משהו שדורש טיפול — הוא יגיד. בלי לקפוץ לבד, ולא יותר מפעם ביום." : "When you open the King and something needs attention, he'll say so. Never uninvited, never more than once a day."}
             </p>
           </div>
           <button

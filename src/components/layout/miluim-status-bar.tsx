@@ -413,7 +413,7 @@ function InfoStat({
       className="flex flex-col items-center gap-1 rounded-xl border border-border/60 bg-foreground/[0.02] p-2.5 text-center"
     >
       <Icon className="size-4 text-foreground/55" />
-      <span className="font-data text-sm font-bold text-foreground/85" dir="ltr">
+      <span className="font-data text-sm font-bold text-foreground/85" dir="auto">
         {value}
       </span>
       <span className="text-[10px] leading-tight text-foreground/50">{label}</span>
