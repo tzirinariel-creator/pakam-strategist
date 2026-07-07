@@ -191,14 +191,25 @@ export function GradeSheetScanner() {
                   >
                     {checked.has(i) && <Check className="size-3" />}
                   </button>
-                  <span className="min-w-0 flex-1 truncate text-foreground/80">
+                  <span className="min-w-0 flex-1 truncate text-foreground/80" dir="auto">
                     {r.courseName}
                     {r.courseCode && <span className="ms-1 text-foreground/40" dir="ltr">{r.courseCode}</span>}
                   </span>
+                  {r.semester && (
+                    <span className="rounded bg-foreground/5 px-1.5 py-px font-data text-[10px] text-foreground/45" dir="ltr">
+                      {r.semester}
+                    </span>
+                  )}
                   <span className="font-mono font-bold text-foreground/85" dir="ltr">
                     {r.grade ?? r.passText ?? "—"}
                   </span>
-                  {r.match ? (
+                  {r.inProgress && r.grade == null && !r.passText ? (
+                    // The sheet prints *** for enrolled-not-yet-graded — a calm
+                    // fact, not a warning and not "unreadable gibberish".
+                    <span className="rounded bg-accent-brand/10 px-1.5 py-px text-[10px] font-semibold text-accent-brand">
+                      {isHe ? "בלימוד — עדיין אין ציון" : "In progress — no grade yet"}
+                    </span>
+                  ) : r.match ? (
                     r.changesGrade ? (
                       r.autoApplySafe ? (
                         <span className="rounded bg-emerald-400/10 px-1.5 py-px text-[10px] font-semibold text-emerald-600">

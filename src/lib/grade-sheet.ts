@@ -16,6 +16,10 @@ export const extractedRowSchema = z.object({
   credits: z.number().min(0).max(20).nullable(),
   /** Binary pass marks like "עובר"/"פטור" come back as passText, not a grade. */
   passText: z.string().max(30).nullable(),
+  /** "2025/1" — from the semester header line above the row's block. */
+  semester: z.string().max(12).nullish(),
+  /** The sheet prints *** in the grade column for enrolled-not-yet-graded. */
+  inProgress: z.boolean().nullish(),
 });
 
 export const extractionSchema = z.object({
@@ -24,15 +28,34 @@ export const extractionSchema = z.object({
 
 export type ExtractedRow = z.infer<typeof extractedRowSchema>;
 
+// The teaching-mode column (ש' / ת' / ש'+ת' / שו"ת) sits right next to the
+// course-name column on the sheet; when the model glues it onto the name we
+// strip it — it is metadata, not part of any real course name. Quote marks
+// vary by OCR (' ׳ ’ " ״), so match all of them.
+const MODE_TOKEN = `(?:ש[׳'’]?\\+ת[׳'’]?|שו["״]ת|ש[׳'’]|ת[׳'’])`;
+const MODE_AT_EDGES = new RegExp(`^${MODE_TOKEN}\\s+|\\s+${MODE_TOKEN}$`, "g");
+
 /** Parse the model's text output (may be wrapped in ```json fences). */
 export function parseExtraction(text: string): ExtractedRow[] | null {
   const stripped = text.replace(/```json|```/g, "").trim();
   const start = stripped.indexOf("{");
   const end = stripped.lastIndexOf("}");
   if (start < 0 || end <= start) return null;
+  // TAU zero-pads grades to three digits (089 = 89). If the model echoes the
+  // padding, `"grade":089` is invalid JSON and would kill the WHOLE scan —
+  // strip leading zeros on the grade field only (course codes are quoted).
+  const jsonText = stripped
+    .slice(start, end + 1)
+    .replace(/("grade"\s*:\s*)0+(\d)/g, "$1$2");
   try {
-    const parsed = extractionSchema.safeParse(JSON.parse(stripped.slice(start, end + 1)));
-    return parsed.success ? parsed.data.rows : null;
+    const parsed = extractionSchema.safeParse(JSON.parse(jsonText));
+    if (!parsed.success) return null;
+    return parsed.data.rows.map((r) => ({
+      ...r,
+      courseName:
+        r.courseName.replace(MODE_AT_EDGES, "").replace(MODE_AT_EDGES, "").trim() ||
+        r.courseName,
+    }));
   } catch {
     return null;
   }
@@ -151,10 +174,29 @@ export function matchExtractedToCourses(
   });
 }
 
-/** The vision system prompt — read ONLY what is on the sheet, never invent. */
-export const GRADE_SHEET_SYSTEM = `אתה קורא גיליון ציונים של סטודנט מאוניברסיטת תל אביב (צילום או PDF).
-חלץ אך ורק את מה שכתוב בתמונה — אל תמציא, אל תשלים ואל תנחש ציון שלא מופיע.
+/**
+ * The vision system prompt — read ONLY what is on the sheet, never invent.
+ * Written against the REAL TAU "אישור קורסים וציונים" layout (verified on an
+ * actual transcript, July 2026): RTL table, zero-padded grades, *** for
+ * in-progress, a teaching-mode column that must not leak into names.
+ */
+export const GRADE_SHEET_SYSTEM = `אתה קורא "אישור קורסים וציונים" רשמי של אוניברסיטת תל אביב (צילום או PDF, עברית, כיוון ימין-לשמאל).
+
+מבנה המסמך:
+- כותרות-סמסטר בצורת: שנה"ל תש… סמסטר YYYY/N (למשל "סמסטר 2025/1"). כל שורות הקורסים שמתחת שייכות לסמסטר הזה, עד לכותרת-הסמסטר הבאה.
+- בטבלת הקורסים, סדר העמודות מימין לשמאל: מס' קורס (בפורמט NNNN-NNNN) · שם הקורס · ציון קובע · אופן הוראה · שעות סמס' · משקל · הערות.
+- עמודת "ציון קובע" מודפסת בריפוד אפסים לשלוש ספרות: 089 פירושו 89, 096 פירושו 96. החזר תמיד את המספר האמיתי (89) בלי אפס מוביל.
+- *** בעמודת הציון = הקורס עדיין בלימוד ואין לו ציון. אל תמציא ציון: grade=null ו-inProgress=true.
+- עמודת "אופן הוראה" מכילה קיצורים כמו ש', ת', ש'+ת', שו"ת — זה סוג השיעור, לא חלק משם הקורס. לעולם אל תכלול אותם ב-courseName.
+- גם עמודת "הערות" (למשל "לא לשקלול") אינה חלק משם הקורס.
+- דלג על שורות שאינן קורסים: "ממוצע משוקלל…", "ממוצע בחוג", "דרישות כלל אוניברסיטאיות", "מפתח סימולי…", "סיכום מצב לימודים", כותרות עמוד וכותרות הטבלה עצמן.
+
 החזר JSON בלבד, בפורמט:
-{"rows":[{"courseCode":"0651-1001" או null,"courseName":"שם הקורס","grade":85 או null,"credits":4 או null,"passText":"עובר" או null}]}
-כללים: ציון הוא מספר 0-100 שמופיע במפורש; "עובר"/"נכשל"/"פטור" הולכים ל-passText ולא ל-grade.
-קוד-קורס הוא בפורמט ספרות-מקף-ספרות אם מופיע. אם שדה לא ברור — null. אל תוסיף טקסט מחוץ ל-JSON.`;
+{"rows":[{"courseCode":"0651-1001" או null,"courseName":"שם הקורס","grade":89 או null,"credits":4 או null,"passText":"עובר" או null,"semester":"2025/1" או null,"inProgress":false}]}
+
+כללים:
+- חלץ אך ורק את מה שכתוב במסמך — אל תמציא, אל תשלים ואל תנחש ציון שלא מופיע.
+- כל שורת קורס בטבלה חייבת להופיע ב-rows — כולל ציונים נמוכים, קורסי-פטור וקורסים בלימוד. אל תדלג על אף קורס.
+- "עובר"/"נכשל"/"פטור" הולכים ל-passText ולא ל-grade.
+- credits = עמודת "משקל".
+- אם שדה לא ברור — null. אל תוסיף שום טקסט מחוץ ל-JSON.`;

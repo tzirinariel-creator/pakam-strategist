@@ -17,6 +17,63 @@ describe("parseExtraction", () => {
     expect(parseExtraction("sorry, I cannot read this")).toBeNull();
     expect(parseExtraction('{"rows":[{"courseCode":null,"courseName":"x","grade":150,"credits":null,"passText":null}]}')).toBeNull();
   });
+
+  // The REAL TAU sheet zero-pads grades to 3 digits (089 = 89). A model that
+  // echoes the padding emits invalid JSON (`"grade":089`) — this used to kill
+  // the whole scan, which is why users saw "only 100s survive". (note #31)
+  it("repairs zero-padded grades the sheet prints (089 → 89)", () => {
+    const rows = parseExtraction(
+      '{"rows":[' +
+        '{"courseCode":"0618-1018","courseName":"מבוא לפילוסופיה של המוסר","grade":089,"credits":2,"passText":null},' +
+        '{"courseCode":"0618-1012","courseName":"מבוא ללוגיקה","grade":100,"credits":4,"passText":null},' +
+        '{"courseCode":"0651-1019","courseName":"תרגיל צמוד","grade": 092,"credits":2,"passText":null}]}',
+    );
+    expect(rows).toHaveLength(3);
+    expect(rows?.map((r) => r.grade)).toEqual([89, 100, 92]);
+  });
+
+  // The teaching-mode column (ש' / ש'+ת' / שו"ת) sits next to the name column;
+  // when the model glues it onto the name the UI showed "gibberish". (note #24)
+  it("strips teaching-mode tokens glued onto course names", () => {
+    const rows = parseExtraction(
+      '{"rows":[' +
+        '{"courseCode":null,"courseName":"מבוא ללוגיקה ש\'+ת\'","grade":100,"credits":4,"passText":null},' +
+        '{"courseCode":null,"courseName":"חשבונאות לכלכלנים שו\\"ת","grade":85,"credits":2,"passText":null},' +
+        '{"courseCode":null,"courseName":"ש\' מבוא לפילוסופיה חדשה","grade":90,"credits":2,"passText":null},' +
+        '{"courseCode":null,"courseName":"קריאה מודרכת א\'","grade":95,"credits":2,"passText":null}]}',
+    );
+    expect(rows?.map((r) => r.courseName)).toEqual([
+      "מבוא ללוגיקה",
+      "חשבונאות לכלכלנים",
+      "מבוא לפילוסופיה חדשה",
+      "קריאה מודרכת א'", // ordinal letters are PART of real names — never stripped
+    ]);
+  });
+
+  // *** in the grade column = enrolled, not yet graded — must come back as an
+  // in-progress row, not get skipped or invented. Semester header context
+  // ("סמסטר 2025/1") rides along per row. (note #26)
+  it("keeps in-progress rows and per-row semester from the sheet", () => {
+    const rows = parseExtraction(
+      '{"rows":[' +
+        '{"courseCode":"0651-1005","courseName":"סטטיסטיקה לפכ\\"מ","grade":null,"credits":5,"passText":null,"semester":"2025/2","inProgress":true},' +
+        '{"courseCode":"0651-1007","courseName":"מתמטיקה לפכ\\"מ","grade":100,"credits":5,"passText":null,"semester":"2025/1","inProgress":false}]}',
+    );
+    expect(rows).toHaveLength(2);
+    expect(rows?.[0]?.inProgress).toBe(true);
+    expect(rows?.[0]?.grade).toBeNull();
+    expect(rows?.[0]?.semester).toBe("2025/2");
+    expect(rows?.[1]?.semester).toBe("2025/1");
+  });
+
+  it("stays backward-compatible when the model omits the new fields", () => {
+    const rows = parseExtraction(
+      '{"rows":[{"courseCode":"0651-1001","courseName":"מיקרו","grade":88,"credits":4,"passText":null}]}',
+    );
+    expect(rows).toHaveLength(1);
+    expect(rows?.[0]?.semester ?? null).toBeNull();
+    expect(rows?.[0]?.inProgress ?? false).toBe(false);
+  });
 });
 
 describe("matchExtractedToCourses", () => {
