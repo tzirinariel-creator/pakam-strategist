@@ -183,3 +183,19 @@ describe("personas — one brain, two voices", () => {
     }
   });
 });
+
+// ── exam-period block (#15) — appended ONLY when a plan exists ──
+describe("examPeriodBlock", () => {
+  const program = getActiveProgram();
+  it("absent context → prompt does not mention the exam period (back-compat)", () => {
+    const p = buildMentorSystemPrompt(ctx(), program, "king");
+    expect(p).not.toContain("תקופת המבחנים של הסטודנט");
+  });
+
+  it("present block → appears exactly once, after the miluim section", () => {
+    const block = "\n\n## תקופת המבחנים של הסטודנט (מתוך תוכנית-הלימוד השמורה באפליקציה — מקור-אמת, אל תמציא תאריכים):\n  • מתמטיקה — 20.1 (מועד א׳), 5 שעות לימוד מתוכננות";
+    const p = buildMentorSystemPrompt(ctx({ examPeriodBlock: block }), program, "king");
+    expect(p.split("תקופת המבחנים של הסטודנט").length).toBe(2);
+    expect(p.indexOf("תקופת המבחנים של הסטודנט")).toBeGreaterThan(p.indexOf("מכסת-הנקודות של הבידינג"));
+  });
+});

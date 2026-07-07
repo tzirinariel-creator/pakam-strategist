@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   CalendarClock,
   CalendarRange,
@@ -25,12 +25,20 @@ import { Link } from "@/i18n/navigation";
 import { api } from "@/lib/trpc/react";
 import { usePersonalAddress } from "@/components/personal/use-personal-address";
 import { ThemedLoader } from "@/components/ui/themed-loader";
+import { AskKingButton } from "@/components/ui/ask-king-button";
 import {
   generateExamPlan,
   analyzeExamPeriod,
+  recommendMoed,
   type ExamInput,
   type ExamPlanResult,
 } from "@/lib/exam-planner";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { StudySkyline } from "@/components/exam-planner/study-skyline";
 import { SyllabusScanner } from "@/components/exam-planner/syllabus-scanner";
 import { MoedBenefitBanner } from "@/components/exam-planner/moed-benefit-banner";
@@ -82,6 +90,9 @@ export function ExamPlannerContent() {
   const toggleMutation = api.studyTask.toggleComplete.useMutation({ onSuccess: () => void invalidate() });
   const deleteMutation = api.studyTask.delete.useMutation({ onSuccess: () => void invalidate() });
   const updateMutation = api.studyTask.update.useMutation({ onSuccess: () => void invalidate() });
+  // Silent twin for whole-day pushes — the caller invalidates ONCE at the end
+  // instead of firing N refetches for N moved tasks.
+  const batchUpdateMutation = api.studyTask.update.useMutation();
 
   // Courses with an UPCOMING exam sitting (past sittings dropped — #13).
   const examCourses = useMemo(() => {
@@ -106,6 +117,8 @@ export function ExamPlannerContent() {
   const hasAnyPlannedCourses = (planQuery.data?.courses?.length ?? 0) > 0;
 
   const [selected, setSelected] = useState<Record<string, Moed | undefined>>({});
+  // Skyline→agenda link (#37); n bumps so re-clicking the same day re-scrolls.
+  const [focusDay, setFocusDay] = useState<{ key: string; n: number } | null>(null);
 
   const codeToName = useMemo(() => {
     const m = new Map<string, string>();
@@ -192,6 +205,46 @@ export function ExamPlannerContent() {
     updateMutation.mutate({ id: t.id, startDate: start, endDate: end });
   };
 
+  // Push a WHOLE day (#37): every open study/assignment slips +1; the exam
+  // itself never moves. One invalidate at the end, not N refetches.
+  const pushWholeDay = async (list: StudyTask[]) => {
+    const movable = list.filter((t) => t.taskType !== "exam" && !t.completed);
+    if (movable.length === 0) return;
+    try {
+      await Promise.all(
+        movable.map((t) => {
+          const start = new Date(t.startDate);
+          const end = new Date(t.endDate);
+          start.setDate(start.getDate() + 1);
+          end.setDate(end.getDate() + 1);
+          return batchUpdateMutation.mutateAsync({ id: t.id, startDate: start, endDate: end });
+        }),
+      );
+      toast.success(isHe ? "היום נדחה במלואו למחר" : "Day pushed to tomorrow");
+    } catch {
+      toast.error(isHe ? "חלק מהמשימות לא נדחו — נסו שוב" : "Some tasks didn't move — try again");
+    } finally {
+      void invalidate();
+    }
+  };
+
+  // Quick-add a 2.5h study session to a given day (#37) — one chip tap.
+  // notes WITHOUT "[auto]" so "עדכן את התוכנית" never wipes manual additions.
+  const quickAdd = (key: string, course: { code: string; name: string; color: string | null }) => {
+    const [yy, mm, dd] = key.split("-").map(Number);
+    const start = new Date(yy!, mm! - 1, dd!, 9, 0, 0, 0);
+    const end = new Date(start.getTime() + 2.5 * 3600000);
+    createMutation.mutate({
+      title: isHe ? `לימוד: ${course.name}` : `Study: ${course.name}`,
+      startDate: start,
+      endDate: end,
+      taskType: "study",
+      courseCode: course.code,
+      color: course.color ?? undefined,
+      notes: "2.5h",
+    });
+  };
+
   const [addTitle, setAddTitle] = useState("");
   const [addDate, setAddDate] = useState("");
   const [addType, setAddType] = useState<"assignment" | "custom" | "study">("assignment");
@@ -240,9 +293,17 @@ export function ExamPlannerContent() {
         <div className="space-y-2">
           {examCourses.map((c) => {
             const sel = selected[c.code];
+            // Recommend a sitting against the OTHER selected exams' chosen
+            // dates (#32): default A (last grade counts — B is the safety
+            // net), B only when A is crowded and B is not.
+            const otherChosenDates = examCourses
+              .filter((o) => o.code !== c.code && selected[o.code])
+              .map((o) => (selected[o.code] === "B" ? o.examDateB : o.examDateA))
+              .filter((d): d is Date => !!d);
+            const recommended = recommendMoed(c, otherChosenDates);
             return (
               <div key={c.code} className={cn("flex flex-wrap items-center gap-2 rounded-lg border p-2.5", sel ? "border-accent-brand/30 bg-accent-brand/[0.04]" : "border-border/50")}>
-                <button type="button" onClick={() => setSelected((s) => ({ ...s, [c.code]: sel ? undefined : c.examDateA ? "A" : "B" }))} className={cn("flex size-5 shrink-0 items-center justify-center rounded-md border transition-colors", sel ? "border-accent-brand bg-accent-brand text-accent-brand-fg" : "border-foreground/30")} aria-label="select">
+                <button type="button" onClick={() => setSelected((s) => ({ ...s, [c.code]: sel ? undefined : (recommended ?? "A") }))} className={cn("flex size-5 shrink-0 items-center justify-center rounded-md border transition-colors", sel ? "border-accent-brand bg-accent-brand text-accent-brand-fg" : "border-foreground/30")} aria-label="select">
                   {sel && <Check className="size-3.5" />}
                 </button>
                 <span className="min-w-0 flex-1 truncate text-sm text-foreground/80">{c.name}</span>
@@ -251,9 +312,20 @@ export function ExamPlannerContent() {
                   {(["A", "B"] as Moed[]).map((m) => {
                     const date = m === "A" ? c.examDateA : c.examDateB;
                     const active = sel === m;
+                    const isRec = recommended === m && !!date;
                     return (
-                      <button key={m} type="button" disabled={!date} onClick={() => setSelected((s) => ({ ...s, [c.code]: m }))} className={cn("px-2.5 py-1 transition-colors disabled:opacity-30", active ? "bg-accent-brand text-accent-brand-fg" : "text-foreground/55 hover:bg-foreground/5")} title={date ? date.toLocaleDateString(isHe ? "he-IL" : "en-US") : isHe ? "אין מועד" : "no sitting"}>
-                        {isHe ? `מועד ${m === "A" ? "א׳" : "ב׳"}` : `Moed ${m}`}
+                      <button key={m} type="button" disabled={!date} onClick={() => setSelected((s) => ({ ...s, [c.code]: m }))} className={cn("flex flex-col items-center px-2.5 py-1 transition-colors disabled:opacity-30", active ? "bg-accent-brand text-accent-brand-fg" : "text-foreground/55 hover:bg-foreground/5")}>
+                        <span className="flex items-center gap-1 leading-tight">
+                          {isHe ? `מועד ${m === "A" ? "א׳" : "ב׳"}` : `Moed ${m}`}
+                          {isRec && !active && (
+                            <span className="rounded-full bg-accent-brand/10 px-1 text-[11px] font-semibold text-accent-brand">
+                              {isHe ? "מומלץ" : "rec."}
+                            </span>
+                          )}
+                        </span>
+                        <span className="font-mono text-[10px] tabular-nums leading-tight opacity-80" dir="ltr">
+                          {date ? `${date.getDate()}.${date.getMonth() + 1}` : "—"}
+                        </span>
                       </button>
                     );
                   })}
@@ -289,12 +361,24 @@ export function ExamPlannerContent() {
     </div>
   );
 
-  const recsCard = (recs: { kind: string; textHe: string; textEn: string }[]) =>
+  // withKing only on the SAVED plan (#15): in preview state there is no
+  // persisted StudyTask yet, so the King would just point back to this screen.
+  const recsCard = (recs: { kind: string; textHe: string; textEn: string }[], withKing = false) =>
     recs.length > 0 ? (
       <div className="data-card p-4">
         <div className="mb-2 flex items-center gap-2">
           <Lightbulb className="size-4 text-accent-brand" />
           <h3 className="text-sm font-bold text-foreground/85">{isHe ? "המלצות" : "Recommendations"}</h3>
+          {withKing && (
+            <AskKingButton
+              promptHe="בוא נחשוב יחד על תוכנית המבחנים שלי — תשאל אותי מה שחסר לך, ואז תגיד מה היית משנה."
+              promptEn="Let's think through my exam plan together — ask me what you need, then tell me what you'd change."
+              labelHe="לחשוב על זה עם המלך"
+              labelEn="Think it through with the King"
+              className="ms-auto inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 text-[11px] font-medium text-accent-brand/85 transition-colors hover:bg-accent-brand/10 hover:text-accent-brand"
+              iconClassName="size-3"
+            />
+          )}
         </div>
         <ul className="space-y-1.5">
           {recs.map((r, i) => (
@@ -337,11 +421,26 @@ export function ExamPlannerContent() {
         <>
           {persistedPlan.exams.length > 0 && (
             <div className="animate-stagger-2">
-              <StudySkyline plan={persistedPlan} recommendations={persistedRecs} isHe={isHe} />
+              <StudySkyline
+                plan={persistedPlan}
+                recommendations={persistedRecs}
+                isHe={isHe}
+                onDayClick={(key) => setFocusDay((f) => ({ key, n: (f?.n ?? 0) + 1 }))}
+              />
             </div>
           )}
-          <Agenda byDay={byDay} isHe={isHe} onToggle={(id) => toggleMutation.mutate({ id })} onDelete={(id) => deleteMutation.mutate({ id })} onPush={pushDay} />
-          {recsCard(persistedRecs)}
+          <Agenda
+            byDay={byDay}
+            isHe={isHe}
+            onToggle={(id) => toggleMutation.mutate({ id })}
+            onDelete={(id) => deleteMutation.mutate({ id })}
+            onPush={pushDay}
+            onPushDay={(list) => void pushWholeDay(list)}
+            courses={persistedPlan.exams.map((e) => ({ code: e.courseCode, name: e.courseName, color: e.color }))}
+            onQuickAdd={quickAdd}
+            focusDay={focusDay}
+          />
+          {recsCard(persistedRecs, true)}
           <Disclosure title={isHe ? "הוסף עוד תאריכים / כלים" : "Add more dates / tools"}>
             <div className="flex flex-col gap-4">
               <MoedBenefitBanner />
@@ -374,32 +473,28 @@ export function ExamPlannerContent() {
   );
 }
 
-// ── Share menu — one button, ICS (useful) primary, CSV (utility) secondary ──
+// ── Share menu — Radix DropdownMenu (portal), so a transformed/stacking
+// ancestor can never trap it under sibling cards again (#34). ICS primary,
+// CSV secondary; RTL comes from the RadixDirection provider.
 function ShareMenu({ isHe, onIcs, onCsv }: { isHe: boolean; onIcs: () => void; onCsv: () => void }) {
-  const [open, setOpen] = useState(false);
   return (
-    <div className="relative" onKeyDown={(e) => e.key === "Escape" && setOpen(false)}>
-      <button type="button" onClick={() => setOpen((o) => !o)} aria-expanded={open} className="inline-flex items-center gap-1.5 rounded-lg border border-border/60 bg-card/40 px-3 py-2 text-sm text-foreground/70 transition-colors hover:border-foreground/25 hover:text-foreground/90">
+    <DropdownMenu>
+      <DropdownMenuTrigger className="inline-flex items-center gap-1.5 rounded-lg border border-border/60 bg-card/40 px-3 py-2 text-sm text-foreground/70 transition-colors hover:border-foreground/25 hover:text-foreground/90">
         <Share2 className="size-4" />
         {isHe ? "שיתוף / ייצוא" : "Share / export"}
-        <ChevronDown className={cn("size-3.5 transition-transform", open && "rotate-180")} />
-      </button>
-      {open && (
-        <>
-          <div className="fixed inset-0 z-10" onClick={() => setOpen(false)} aria-hidden />
-          <div className="absolute z-20 mt-1 flex w-56 flex-col gap-0.5 rounded-xl border border-border bg-card p-1 shadow-lg end-0">
-            <button type="button" onClick={() => { setOpen(false); onIcs(); }} className="flex items-center gap-2 rounded-lg px-3 py-2 text-start text-sm text-foreground/80 transition-colors hover:bg-foreground/5">
-              <CalendarPlus className="size-4 text-accent-brand" />
-              <span className="flex-1">{isHe ? "הוסף ליומן Google" : "Add to Google Calendar"}</span>
-            </button>
-            <button type="button" onClick={() => { setOpen(false); onCsv(); }} className="flex items-center gap-2 rounded-lg px-3 py-2 text-start text-xs text-foreground/55 transition-colors hover:bg-foreground/5">
-              <FileSpreadsheet className="size-3.5" />
-              <span className="flex-1">{isHe ? "הורד טבלה (CSV)" : "Download table (CSV)"}</span>
-            </button>
-          </div>
-        </>
-      )}
-    </div>
+        <ChevronDown className="size-3.5" />
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="end" className="w-56 rounded-xl">
+        <DropdownMenuItem onSelect={onIcs} className="gap-2 text-sm text-foreground/80">
+          <CalendarPlus className="size-4 text-accent-brand" />
+          {isHe ? "הוסף ליומן Google" : "Add to Google Calendar"}
+        </DropdownMenuItem>
+        <DropdownMenuItem onSelect={onCsv} className="gap-2 text-xs text-foreground/55">
+          <FileSpreadsheet className="size-3.5" />
+          {isHe ? "הורד טבלה (CSV)" : "Download table (CSV)"}
+        </DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
   );
 }
 
@@ -424,17 +519,49 @@ function Agenda({
   onToggle,
   onDelete,
   onPush,
+  onPushDay,
+  courses,
+  onQuickAdd,
+  focusDay,
 }: {
   byDay: [string, StudyTask[]][];
   isHe: boolean;
   onToggle: (id: string) => void;
   onDelete: (id: string) => void;
   onPush: (t: StudyTask) => void;
+  onPushDay: (list: StudyTask[]) => void;
+  courses: { code: string; name: string; color: string | null }[];
+  onQuickAdd: (dayKey: string, course: { code: string; name: string; color: string | null }) => void;
+  /** Skyline day-click target — n bumps so re-clicking the same day re-scrolls. */
+  focusDay: { key: string; n: number } | null;
 }) {
   const [showTail, setShowTail] = useState(false);
+  const [addingDay, setAddingDay] = useState<string | null>(null);
+  const [highlight, setHighlight] = useState<string | null>(null);
   const todayKey = dayKey(new Date());
   // Only future/today days (a past auto-generated session is noise once it's gone).
   const upcoming = byDay.filter(([k]) => k >= todayKey);
+
+  // Skyline day-click (#37): open the tail if needed, scroll to the day card,
+  // flash a ring for 2s. Runs before the empty-state return (hooks order).
+  useEffect(() => {
+    if (!focusDay) return;
+    const inTail = upcoming.slice(3).some(([k]) => k === focusDay.key);
+    if (inTail) setShowTail(true);
+    const raf = requestAnimationFrame(() => {
+      document
+        .getElementById(`agenda-day-${focusDay.key}`)
+        ?.scrollIntoView({ behavior: "smooth", block: "center" });
+    });
+    setHighlight(focusDay.key);
+    const t = setTimeout(() => setHighlight(null), 2000);
+    return () => {
+      cancelAnimationFrame(raf);
+      clearTimeout(t);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- fire per click (n bump), not on list churn
+  }, [focusDay]);
+
   if (upcoming.length === 0) {
     return (
       <div className="rounded-xl border border-dashed border-border/50 bg-foreground/[0.02] p-8 text-center text-sm text-foreground/45">
@@ -451,11 +578,20 @@ function Agenda({
     const [yy, mm, dd] = key.split("-").map(Number);
     const d = new Date(yy!, mm! - 1, dd!);
     const hours = dayTotal(list);
+    const hasMovable = list.some((t) => t.taskType !== "exam" && !t.completed);
     // Load tint echoes the skyline thresholds (2.5 / 5h).
     const loadColor = hours >= 5 ? "bg-red-400/70" : hours >= 2.5 ? "bg-amber-400/70" : "bg-emerald-400/70";
     return (
-      <div key={key} className={cn("data-card p-3.5", isToday && "border-accent-brand/40 ring-1 ring-accent-brand/20")}>
-        <div className="mb-2.5 flex items-center gap-2">
+      <div
+        key={key}
+        id={`agenda-day-${key}`}
+        className={cn(
+          "data-card p-3.5",
+          isToday && "border-accent-brand/40 ring-1 ring-accent-brand/20",
+          highlight === key && "ring-2 ring-accent-brand/40",
+        )}
+      >
+        <div className="mb-2.5 flex flex-wrap items-center gap-2">
           <span className={cn("text-sm font-bold", isToday ? "text-accent-brand" : "text-foreground/80")}>
             {isToday ? (isHe ? "היום" : "Today") : d.toLocaleDateString(isHe ? "he-IL" : "en-US", { weekday: "long", day: "numeric", month: "short" })}
           </span>
@@ -470,7 +606,45 @@ function Agenda({
               </span>
             </span>
           )}
+          <span className={cn("flex items-center gap-1", hours === 0 && "ms-auto")}>
+            {courses.length > 0 && (
+              <button
+                type="button"
+                onClick={() => setAddingDay((a) => (a === key ? null : key))}
+                className="rounded-md px-1.5 py-0.5 text-[11px] font-medium text-foreground/45 transition-colors hover:bg-foreground/10 hover:text-foreground/70"
+              >
+                {isHe ? "+ לימוד" : "+ study"}
+              </button>
+            )}
+            {hasMovable && (
+              <button
+                type="button"
+                onClick={() => onPushDay(list)}
+                className="rounded-md px-1.5 py-0.5 text-[11px] font-medium text-foreground/45 transition-colors hover:bg-foreground/10 hover:text-foreground/70"
+              >
+                {isHe ? "דחה יום" : "Push day"}
+              </button>
+            )}
+          </span>
         </div>
+        {addingDay === key && courses.length > 0 && (
+          <div className="mb-2 flex flex-wrap gap-1.5">
+            {courses.map((c) => (
+              <button
+                key={c.code}
+                type="button"
+                onClick={() => {
+                  onQuickAdd(key, c);
+                  setAddingDay(null);
+                }}
+                className="flex items-center gap-1.5 rounded-lg border border-border/50 px-2 py-1 text-xs text-foreground/70 transition-colors hover:bg-foreground/5"
+              >
+                <span className="size-2 rounded-full" style={{ backgroundColor: c.color ?? "var(--accent-brand)" }} />
+                {c.name}
+              </button>
+            ))}
+          </div>
+        )}
         <div className="space-y-1.5">
           {list.map((t) => {
             const meta = TYPE_META[t.taskType] ?? TYPE_META.custom!;

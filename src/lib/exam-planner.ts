@@ -212,3 +212,23 @@ export function analyzeExamPeriod(plan: ExamPlanResult, isHe: boolean, now: Date
 
   return recs;
 }
+
+/**
+ * Which sitting to recommend (#32). Default is ALWAYS Moed A — the last grade
+ * counts, so B is the safety net and sitting A keeps it in reserve. Recommend
+ * B only when A is tight (<3 days from another chosen exam) and B is not.
+ * Null = the course has no scheduled sittings at all.
+ */
+export function recommendMoed(
+  course: { examDateA: Date | null; examDateB: Date | null },
+  otherChosenDates: Date[],
+): "A" | "B" | null {
+  if (!course.examDateA && !course.examDateB) return null;
+  if (!course.examDateA) return "B";
+  if (!course.examDateB) return "A";
+  const tight = (d: Date) =>
+    otherChosenDates.some(
+      (o) => Math.abs(startOfDay(o).getTime() - startOfDay(d).getTime()) < 3 * 86400000,
+    );
+  return tight(course.examDateA) && !tight(course.examDateB) ? "B" : "A";
+}

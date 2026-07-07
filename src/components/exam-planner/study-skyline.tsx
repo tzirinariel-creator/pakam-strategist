@@ -239,9 +239,12 @@ interface StudySkylineProps {
   recommendations: ExamRecommendation[];
   isHe: boolean;
   now?: Date;
+  /** Day-column click → jump to that day in the agenda (#37). Omitted on the
+   *  setup-preview skyline, which stays read-only. */
+  onDayClick?: (dayKey: string) => void;
 }
 
-export function StudySkyline({ plan, recommendations, isHe, now }: StudySkylineProps) {
+export function StudySkyline({ plan, recommendations, isHe, now, onDayClick }: StudySkylineProps) {
   const scrollRef = useRef<HTMLDivElement>(null);
   const [hoveredCourse, setHoveredCourse] = useState<string | null>(null);
   const [isNarrow, setIsNarrow] = useState(false);
@@ -385,7 +388,21 @@ export function StudySkyline({ plan, recommendations, isHe, now }: StudySkylineP
                 "bg-red-500/[0.06]";
 
               return (
-                <div key={item.key} className="flex shrink-0 flex-col items-center" style={{ width: `${cellW}px` }}>
+                <div
+                  key={item.key}
+                  className={cn("flex shrink-0 flex-col items-center", onDayClick && "cursor-pointer")}
+                  style={{ width: `${cellW}px` }}
+                  {...(onDayClick
+                    ? {
+                        role: "button" as const,
+                        tabIndex: 0,
+                        onClick: () => onDayClick(item.key),
+                        onKeyDown: (e: React.KeyboardEvent) => {
+                          if (e.key === "Enter") onDayClick(item.key);
+                        },
+                      }
+                    : {})}
+                >
                   {/* Pennant / start marker rail (fixed height so baselines align) */}
                   <div className="relative flex h-5 w-full items-end justify-center">
                     {hasExam && (

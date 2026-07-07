@@ -17,6 +17,7 @@ import { firstNameOf } from "@/lib/personal-address";
 import { calculateGrades } from "@/lib/grade-calculator";
 import { runRegulationEngine } from "@/lib/regulations/rule-engine";
 import { computeCreditExemption, deriveCurrentGroup, getCurrentAcademicYear } from "@/lib/miluim";
+import { buildExamPeriodBlock } from "@/lib/ai/exam-facts";
 
 // -------------------------------------------------------------------
 // Types
@@ -127,6 +128,20 @@ export async function buildUserContext(
     where: { userId: user.id },
     include: { course: true },
   })) as unknown as UserCourseWithCourse[];
+
+  // The saved exam-period plan (#15) — lets the advisor plan WITH the student
+  // instead of inventing dates. Tiny select; negligible at this user count.
+  const studyTasks = await db.studyTask.findMany({
+    where: { userId: user.id },
+    select: {
+      taskType: true,
+      startDate: true,
+      notes: true,
+      courseCode: true,
+      title: true,
+      color: true,
+    },
+  });
 
   // Resolve the miluim credit exemption EXACTLY like plan.getCredits /
   // regulation.checkCompliance so the mentor's numbers match the dashboard (#19).
@@ -256,5 +271,6 @@ export async function buildUserContext(
       seminar: creditResult.breakdown.seminar,
       englishCourseCount: creditResult.breakdown.englishCourseCount,
     },
+    examPeriodBlock: buildExamPeriodBlock(studyTasks),
   };
 }

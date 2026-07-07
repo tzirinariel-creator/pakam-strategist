@@ -27,10 +27,11 @@ const GEMINI_MAX_TOKENS = 4096;
 
 // Chat-only tuning (streamGemini is the King's chat; the scanners use
 // generateGeminiVision and stay deterministic). A moderate temperature makes
-// the voice human instead of robotic, and a tight output cap backstops the
-// "answer in 2-4 sentences" contract so a rambling essay can't slip through.
+// the voice human instead of robotic. The token cap is a SAFETY NET only —
+// brevity is enforced by the answer contract in the prompt, not a guillotine:
+// 800 used to cut legitimate exam-planning answers mid-word (owner note #36).
 const GEMINI_CHAT_TEMPERATURE = 0.55;
-const GEMINI_CHAT_MAX_TOKENS = 800;
+const GEMINI_CHAT_MAX_TOKENS = 2000;
 
 /** Google AI Studio keys: legacy "AIza…" or the newer "AQ.…" auth keys. */
 export function validateGeminiKey(key: string): boolean {
@@ -38,7 +39,10 @@ export function validateGeminiKey(key: string): boolean {
 }
 
 interface GeminiStreamChunk {
-  candidates?: { content?: { parts?: { text?: string }[] } }[];
+  candidates?: {
+    content?: { parts?: { text?: string }[] };
+    finishReason?: string;
+  }[];
 }
 
 /**
@@ -107,6 +111,8 @@ export async function* streamGemini(
   signal?: AbortSignal,
   /** Optional image attached to the CURRENT (last) user turn — "photo & ask". */
   image?: { base64: string; mimeType: string },
+  /** Out-param: set truncated=true when Gemini stopped on MAX_TOKENS (#36). */
+  state?: { truncated?: boolean },
 ): AsyncGenerator<string> {
   const apiKey = decrypt(encryptedKey);
   if (!validateGeminiKey(apiKey)) {
@@ -161,6 +167,27 @@ export async function* streamGemini(
   const decoder = new TextDecoder();
   let buffer = "";
 
+  // Shared by the loop and the final flush — the LAST chunk is where Gemini
+  // reports finishReason, so it must be parsed even without a trailing newline.
+  const parseLine = function* (line: string): Generator<string> {
+    const trimmed = line.trim();
+    if (!trimmed.startsWith("data:")) return;
+    const json = trimmed.slice(5).trim();
+    if (!json || json === "[DONE]") return;
+    try {
+      const obj = JSON.parse(json) as GeminiStreamChunk;
+      const cand = obj.candidates?.[0];
+      if (cand?.finishReason === "MAX_TOKENS" && state) state.truncated = true;
+      const parts = cand?.content?.parts;
+      if (Array.isArray(parts)) {
+        const text = parts.map((p) => p.text ?? "").join("");
+        if (text) yield text;
+      }
+    } catch {
+      // ignore keep-alive / partial lines that aren't valid JSON yet
+    }
+  };
+
   while (true) {
     const { done, value } = await reader.read();
     if (done) break;
@@ -169,20 +196,12 @@ export async function* streamGemini(
     // Keep the last (possibly partial) line in the buffer.
     buffer = lines.pop() ?? "";
     for (const line of lines) {
-      const trimmed = line.trim();
-      if (!trimmed.startsWith("data:")) continue;
-      const json = trimmed.slice(5).trim();
-      if (!json || json === "[DONE]") continue;
-      try {
-        const obj = JSON.parse(json) as GeminiStreamChunk;
-        const parts = obj.candidates?.[0]?.content?.parts;
-        if (Array.isArray(parts)) {
-          const text = parts.map((p) => p.text ?? "").join("");
-          if (text) yield text;
-        }
-      } catch {
-        // ignore keep-alive / partial lines that aren't valid JSON yet
-      }
+      yield* parseLine(line);
     }
+  }
+  // Flush: a final data: line without a trailing newline would otherwise be
+  // dropped — losing both its text and the finishReason honesty signal.
+  if (buffer.trim()) {
+    yield* parseLine(buffer);
   }
 }

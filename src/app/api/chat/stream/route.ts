@@ -31,10 +31,11 @@ import { getProgramById } from "@/lib/programs/registry";
 import { checkRateLimit } from "@/lib/rate-limit";
 import { isDemoEmail, DEMO_READONLY_MESSAGE } from "@/server/trpc/demo";
 
-// Chat-only Claude tuning (BYOK users). Mirrors the Gemini chat path: a short
-// output cap backstops the "2-4 sentences" answer contract, and a moderate
-// temperature keeps the King's voice human rather than robotic.
-const CHAT_MAX_TOKENS = 800;
+// Chat-only Claude tuning (BYOK users). Mirrors the Gemini chat path: the
+// token cap is a SAFETY NET only (brevity is enforced by the answer contract
+// in the prompt — 800 used to cut planning answers mid-word, owner note #36),
+// and a moderate temperature keeps the King's voice human rather than robotic.
+const CHAT_MAX_TOKENS = 2000;
 const CHAT_TEMPERATURE = 0.6;
 
 // Input validation schema — prevents abuse & injection
@@ -71,6 +72,7 @@ export async function POST(request: NextRequest) {
           overloaded: "The AI service is overloaded. Please try again shortly.",
           generic: "Failed to get response",
           notSaved: "Reply could not be saved — it may disappear on refresh.",
+          truncated: 'I stopped before the end — type "continue" and I\'ll pick up from there.',
         }
       : {
           invalidKey: "מפתח ה-API שגוי או שפג תוקפו",
@@ -78,6 +80,7 @@ export async function POST(request: NextRequest) {
           overloaded: "השירות עמוס כעת. נסה שוב בעוד רגע.",
           generic: "שליחת התשובה נכשלה. נסה שוב.",
           notSaved: "לא ניתן היה לשמור את התשובה — ייתכן שהיא תיעלם ברענון.",
+          truncated: 'נעצרתי לפני הסוף. כתבו "המשך" ואמשיך מאותה נקודה.',
         };
 
   try {
@@ -292,25 +295,26 @@ export async function POST(request: NextRequest) {
     // 8. Provider-agnostic producer — yields text to `onText` as it streams.
     //    The Claude path keeps its exact SDK calls; the Gemini path streams via
     //    REST. The client is aborted if the user disconnects (request.signal).
+    //    Returns TRUE when the provider stopped on its token cap (#36) so the
+    //    stream can say so honestly instead of ending mid-word.
     const produce = async (
       onText: (text: string) => void,
       signal: AbortSignal,
-    ): Promise<void> => {
+    ): Promise<boolean> => {
       if (provider === "gemini") {
         const image = hasImage ? { base64: imageBase64!, mimeType: imageMime! } : undefined;
-        for await (const text of streamGemini(encryptedKey, systemPrompt, chatHistory, signal, image)) {
+        const state: { truncated?: boolean } = {};
+        for await (const text of streamGemini(encryptedKey, systemPrompt, chatHistory, signal, image, state)) {
           onText(text);
         }
-        return;
+        return state.truncated === true;
       }
       // Claude (unchanged semantics): create client, register text handler, finalize.
       const client = createClaudeClient(encryptedKey);
       const stream = client.messages.stream(
         {
           model: CLAUDE_MODEL,
-          // Chat answers stay short by contract; cap output well below the
-          // scanner's MAX_TOKENS so a rambling essay can't slip through, and use
-          // a moderate temperature so the King reads human, not robotic.
+          // The cap is a safety net; brevity comes from the answer contract.
           max_tokens: CHAT_MAX_TOKENS,
           temperature: CHAT_TEMPERATURE,
           system: systemPrompt,
@@ -319,7 +323,8 @@ export async function POST(request: NextRequest) {
         { signal }
       );
       stream.on("text", onText);
-      await stream.finalMessage();
+      const final = await stream.finalMessage();
+      return final.stop_reason === "max_tokens";
     };
 
     // 9. Create a ReadableStream that forwards events
@@ -346,7 +351,7 @@ export async function POST(request: NextRequest) {
           );
 
           // Stream text deltas (Claude or Gemini, same forwarding).
-          await produce((text) => {
+          const truncated = await produce((text) => {
             fullResponse += text;
             controller.enqueue(
               encoder.encode(
@@ -354,6 +359,23 @@ export async function POST(request: NextRequest) {
               )
             );
           }, request.signal);
+
+          // Honesty on truncation (#36): if the cap still cut the answer, say
+          // so and invite "המשך" — the history is persisted, so continuing works.
+          if (truncated && fullResponse.trim()) {
+            const note = `\n\n${streamErrors.truncated}`;
+            fullResponse += note; // persisted too — the record stays honest
+            controller.enqueue(
+              encoder.encode(
+                `data: ${JSON.stringify({ type: "delta", text: note })}\n\n`
+              )
+            );
+            // Typed event so the client can skip caching a cut answer — a
+            // cached "המשך" invitation would reach a King with no history.
+            controller.enqueue(
+              encoder.encode(`data: ${JSON.stringify({ type: "truncated" })}\n\n`)
+            );
+          }
 
           // Persist BEFORE closing the stream, so a DB failure is surfaced to the
           // user instead of silently losing a reply they already saw on screen.

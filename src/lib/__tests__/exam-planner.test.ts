@@ -68,3 +68,31 @@ describe("exam-planner", () => {
     expect(recs[0]?.kind).toBe("start");
   });
 });
+
+// ── recommendMoed (#32): default A (last grade counts), B only when A is tight ──
+import { recommendMoed } from "@/lib/exam-planner";
+
+describe("recommendMoed", () => {
+  const d = (day: number) => new Date(2026, 0, day);
+
+  it("null when the course has no sittings", () => {
+    expect(recommendMoed({ examDateA: null, examDateB: null }, [])).toBeNull();
+  });
+
+  it("the only existing sitting wins", () => {
+    expect(recommendMoed({ examDateA: null, examDateB: d(20) }, [])).toBe("B");
+    expect(recommendMoed({ examDateA: d(10), examDateB: null }, [])).toBe("A");
+  });
+
+  it("defaults to A when nothing is crowded", () => {
+    expect(recommendMoed({ examDateA: d(10), examDateB: d(30) }, [d(20)])).toBe("A");
+  });
+
+  it("recommends B when A is <3 days from another chosen exam and B is free", () => {
+    expect(recommendMoed({ examDateA: d(10), examDateB: d(30) }, [d(11)])).toBe("B");
+  });
+
+  it("stays on A when BOTH sittings are crowded (no invented advantage)", () => {
+    expect(recommendMoed({ examDateA: d(10), examDateB: d(30) }, [d(11), d(29)])).toBe("A");
+  });
+});

@@ -376,6 +376,7 @@ export function FloatingAssistant() {
         if (!reader) throw new Error("no body");
         const decoder = new TextDecoder();
         let buffer = "";
+        let wasTruncated = false;
         for (;;) {
           const { done, value } = await reader.read();
           if (done) break;
@@ -404,6 +405,10 @@ export function FloatingAssistant() {
                 if (last?.role === "assistant") u[u.length - 1] = { ...last, content: last.content + ev.text };
                 return u;
               });
+            } else if (ev.type === "truncated") {
+              // A cut answer invites "המשך" — serving it from cache later would
+              // reach a King with no session history. Never cache it. (#36)
+              wasTruncated = true;
             } else if (ev.type === "error") {
               throw new Error(ev.error || "stream error");
             }
@@ -411,7 +416,7 @@ export function FloatingAssistant() {
         }
         // Cache only standalone first questions — follow-ups depend on the
         // conversation, so caching them by text alone would be wrong.
-        if (cacheable && full.trim()) writeCachedAnswer(question, planHash, full);
+        if (cacheable && full.trim() && !wasTruncated) writeCachedAnswer(question, planHash, full);
       } catch (err) {
         if ((err as Error).name === "AbortError") return;
         // Drop the empty streaming bubble and show the free fallback instead.

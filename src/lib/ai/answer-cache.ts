@@ -8,7 +8,8 @@
 
 import type { QAContext } from "@/lib/degree-qa";
 
-const NS = "pk-ai-cache-v1";
+// v2: flushes answers cached before the #36 truncation fix (cut mid-word).
+const NS = "pk-ai-cache-v2";
 const MAX_ENTRIES = 50;
 
 /**
