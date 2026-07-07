@@ -24,7 +24,7 @@ export function MentorPageClient() {
     <div className="flex flex-col gap-4">
       {/* Identity — the Philosopher King (matches the floating assistant). */}
       <div className="flex flex-col items-center gap-2 pt-1">
-        <div className="flex size-12 items-center justify-center rounded-2xl bg-accent-brand text-[#f2c879] shadow-sm ring-1 ring-[#f2c879]/40">
+        <div className="flex size-12 items-center justify-center rounded-2xl bg-accent-brand text-crown-gold-bright shadow-sm ring-1 ring-crown-gold-bright/40">
           <PhilosopherKingIcon className="size-7" />
         </div>
         <h1 className="font-display text-xl font-bold text-foreground/90">

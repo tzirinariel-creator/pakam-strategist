@@ -45,6 +45,14 @@
   --accent-gold-hover: #333333;
   --accent-gold-muted: rgba(0, 0, 0, 0.06);
 
+  /* The King's gold — EXCLUSIVE to the Philosopher King (crown, FAB ring,
+     chat header, landing King strip). Never success/rating/decoration.
+     The Referent gets his own teal; the dark King band is defined once. */
+  --crown-gold: #c99a3b;
+  --crown-gold-bright: #f2c879;
+  --referent-teal: #79C2B5;
+  --king-band: color-mix(in srgb, #5B5BD6 25%, #14142e);
+
   /* Discipline Colors — PPE program (harmonized oklch) */
   --discipline-philosophy: oklch(0.6 0.13 230);
   --discipline-economics: oklch(0.68 0.16 152);
@@ -197,6 +205,9 @@
   --color-accent-foreground: var(--accent-foreground);
   --color-popover: var(--popover);
   --color-popover-foreground: var(--popover-foreground);
+  --color-crown-gold: var(--crown-gold);
+  --color-crown-gold-bright: var(--crown-gold-bright);
+  --color-referent-teal: var(--referent-teal);
   --color-accent-gold: var(--accent-gold);
   --color-accent-gold-hover: var(--accent-gold-hover);
   --color-accent-gold-muted: var(--accent-gold-muted);
@@ -386,7 +397,10 @@ h4, h5, h6 {
       border-color 0.25s var(--ease-out-soft), background 0.25s var(--ease-out-soft);
   }
 
-  .data-card::before {
+  /* Hover honesty: a STATIC surface must not animate as if clickable.
+     .data-card stays calm; add .data-card-interactive to cards that actually
+     navigate/act — only they lift, tint, and show the accent stripe. */
+  .data-card-interactive::before {
     content: '';
     position: absolute;
     top: 0;
@@ -398,14 +412,14 @@ h4, h5, h6 {
     transition: opacity 0.2s ease;
   }
 
-  .data-card:hover {
+  .data-card-interactive:hover {
     background: var(--card-hover);
     border-color: var(--foreground-secondary);
     transform: translateY(-3px);
     box-shadow: var(--shadow-elevated);
   }
 
-  .data-card:hover::before {
+  .data-card-interactive:hover::before {
     opacity: 1;
   }
 }

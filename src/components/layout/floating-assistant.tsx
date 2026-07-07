@@ -570,15 +570,15 @@ export function FloatingAssistant() {
           aria-label={isHe ? "פתח/י את המלך הפילוסוף" : "Open the Philosopher King"}
           className={cn(
             "fixed bottom-20 end-4 z-[65] flex items-center gap-2 rounded-full py-3 shadow-lg md:bottom-6 md:end-6",
-            "bg-accent-brand text-accent-brand-fg ring-1 ring-[#f2c879]/30 transition-all press-scale",
-            "hover:bg-accent-brand-hover hover:shadow-xl hover:ring-[#f2c879]/60",
+            "bg-accent-brand text-accent-brand-fg ring-1 ring-crown-gold-bright/30 transition-all press-scale",
+            "hover:bg-accent-brand-hover hover:shadow-xl hover:ring-crown-gold-bright/60",
             "px-4",
           )}
         >
           {isReferent ? (
-            <ReferentIcon className="size-5 text-[#79C2B5]" />
+            <ReferentIcon className="size-5 text-referent-teal" />
           ) : (
-            <PhilosopherKingIcon className="size-5 text-[#f2c879]" />
+            <PhilosopherKingIcon className="size-5 text-crown-gold-bright" />
           )}
           <span className="hidden text-sm font-semibold sm:inline">
             {isReferent
@@ -611,9 +611,9 @@ export function FloatingAssistant() {
           >
             {/* Header — regal indigo with a gold crown (the Philosopher King). */}
             <div className="flex items-center gap-2.5 border-b border-border/60 bg-gradient-to-b from-accent-brand/[0.12] to-accent-brand/[0.04] px-4 py-3">
-              <div className="flex size-9 items-center justify-center rounded-xl bg-accent-brand text-[#f2c879] shadow-sm ring-1 ring-[#f2c879]/40">
+              <div className="flex size-9 items-center justify-center rounded-xl bg-accent-brand text-crown-gold-bright shadow-sm ring-1 ring-crown-gold-bright/40">
                 {isReferent ? (
-                  <ReferentIcon className="size-5 text-[#79C2B5]" />
+                  <ReferentIcon className="size-5 text-referent-teal" />
                 ) : (
                   <PhilosopherKingIcon
                     className="size-5"

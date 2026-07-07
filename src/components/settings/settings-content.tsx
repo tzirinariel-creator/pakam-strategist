@@ -439,7 +439,7 @@ function PersonaSection() {
     {
       id: "king" as const,
       Icon: PhilosopherKingIcon,
-      tint: "#c99a3b",
+      tint: "var(--crown-gold)",
       name: isHe ? "המלך הפילוסוף" : "The Philosopher King",
       desc: isHe ? "סמכותי, חד, ישר לעניין. חוכמה מהנתונים שלך." : "Authoritative, sharp, straight to the point. Wisdom from your data.",
       tag: isHe ? "ברירת המחדל" : "Default",
@@ -447,7 +447,7 @@ function PersonaSection() {
     {
       id: "referent" as const,
       Icon: ReferentIcon,
-      tint: "#79C2B5",
+      tint: "var(--referent-teal)",
       name: isHe ? "הרפרנט" : "The Referent",
       desc: isHe ? "שנה ג׳ שכבר עבר את זה. דוגרי, בגובה העיניים, מכיר את המלכודות." : "A final-year who's been through it. Straight talk, knows the traps.",
       tag: null,

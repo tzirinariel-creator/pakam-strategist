@@ -90,7 +90,7 @@ export function MobileNav() {
                       className={cn(
                         "flex flex-col items-center gap-1.5 rounded-xl px-2 py-3 text-xs transition-colors min-h-[44px]",
                         isActive
-                          ? "bg-foreground/10 text-foreground/80"
+                          ? "bg-accent-brand-muted text-accent-brand font-semibold"
                           : "text-muted-foreground hover:bg-muted hover:text-foreground"
                       )}
                     >
@@ -119,7 +119,7 @@ export function MobileNav() {
               className={cn(
                 "flex flex-col items-center gap-0.5 px-4 py-2 text-xs transition-colors min-h-[44px] min-w-[44px] justify-center",
                 isActive
-                  ? "text-foreground/80"
+                  ? "text-accent-brand font-semibold"
                   : "text-muted-foreground hover:text-foreground"
               )}
             >
@@ -135,7 +135,7 @@ export function MobileNav() {
           className={cn(
             "flex flex-col items-center gap-0.5 px-4 py-2 text-xs transition-colors min-h-[44px] min-w-[44px] justify-center",
             moreOpen || isMoreActive
-              ? "text-foreground/80"
+              ? "text-accent-brand font-semibold"
               : "text-muted-foreground hover:text-foreground"
           )}
         >

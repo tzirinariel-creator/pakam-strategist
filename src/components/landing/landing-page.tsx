@@ -175,7 +175,7 @@ export function LandingPage() {
             SaaS blue glow. Kept faint so the content leads. */}
         <div className="bg-mesh pointer-events-none absolute inset-0">
           <div className="absolute start-1/4 top-0 size-[28rem] rounded-full bg-accent-brand/[0.05] blur-3xl" />
-          <div className="absolute end-1/4 bottom-0 size-80 rounded-full bg-[#c99a3b]/[0.05] blur-3xl" />
+          <div className="absolute end-1/4 bottom-0 size-80 rounded-full bg-crown-gold/[0.05] blur-3xl" />
           <div
             className="absolute inset-0 opacity-[0.025]"
             style={{
@@ -192,7 +192,7 @@ export function LandingPage() {
           {/* Text column */}
           <div className="text-center lg:text-start">
             <div className="eyebrow mb-6 inline-flex items-center gap-2 rounded-full border border-border bg-card px-4 py-1.5 text-foreground/70 shadow-sm">
-              <PhilosopherKingIcon className="size-4 text-[#c99a3b]" />
+              <PhilosopherKingIcon className="size-4 text-crown-gold" />
               {t("badge")}
             </div>
 
@@ -284,7 +284,7 @@ export function LandingPage() {
                 <span className="size-2.5 rounded-full bg-[#febc2e]" />
                 <span className="size-2.5 rounded-full bg-[#28c840]" />
                 <div className="mx-auto flex items-center gap-1.5 text-[10px] text-muted-foreground">
-                  <PhilosopherKingIcon className="size-3 text-[#c99a3b]" />
+                  <PhilosopherKingIcon className="size-3 text-crown-gold" />
                   <span>{t("proof.afterTitle")}</span>
                 </div>
               </div>
@@ -299,7 +299,7 @@ export function LandingPage() {
       {/* ── The King strip — the ONE dark band on the page. ── */}
       <section
         className="px-4 py-16 sm:px-6 sm:py-20"
-        style={{ backgroundColor: "color-mix(in srgb, var(--accent-brand) 25%, #14142e)" }}
+        style={{ backgroundColor: "var(--king-band)" }}
       >
         <div className="mx-auto grid max-w-6xl items-center gap-10 lg:grid-cols-2">
           <div className="text-center lg:text-start">
@@ -318,7 +318,7 @@ export function LandingPage() {
               </div>
             </div>
             <div className="mt-3 flex items-start gap-2.5">
-              <span className="mt-1 flex size-7 shrink-0 items-center justify-center rounded-lg bg-accent-brand text-[#f2c879] ring-1 ring-[#f2c879]/40">
+              <span className="mt-1 flex size-7 shrink-0 items-center justify-center rounded-lg bg-accent-brand text-crown-gold-bright ring-1 ring-crown-gold-bright/40">
                 <PhilosopherKingIcon className="size-4" />
               </span>
               <div className="max-w-[85%] rounded-2xl bg-white px-3.5 py-2.5 text-sm leading-relaxed text-zinc-900">

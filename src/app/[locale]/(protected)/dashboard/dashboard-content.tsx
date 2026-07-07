@@ -165,7 +165,7 @@ function QuickActionCard({
   return (
     <Link
       href={href}
-      className="data-card group flex items-center gap-3 p-4 transition-all hover:border-foreground/20 hover:shadow-md press-scale"
+      className="data-card data-card-interactive group flex items-center gap-3 p-4 transition-all press-scale"
     >
       <div className={cn("rounded-lg p-2.5 transition-transform group-hover:scale-110", color)}>
         <Icon className="h-5 w-5" />

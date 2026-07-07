@@ -7,6 +7,7 @@ import { api } from "@/lib/trpc/react";
 import { ThemedLoader } from "@/components/ui/themed-loader";
 import { CourseFilters, type CourseFiltersState } from "@/components/catalog/course-filters";
 import { CourseTable } from "@/components/catalog/course-table";
+import { PageHeader } from "@/components/ui/page-header";
 import type { Course } from "@/types/degree";
 import type { Discipline, CourseType } from "@/types/enums";
 
@@ -84,18 +85,8 @@ export function CatalogContent() {
 
   return (
     <div className="flex flex-col gap-6 p-4 md:p-6">
-      {/* Header */}
-      <div className="animate-stagger-1 flex flex-col gap-2">
-        <div className="flex items-center gap-3">
-          <BookOpen className="h-8 w-8 text-foreground/80" />
-          <h1 className="font-display text-2xl font-bold text-foreground/80 md:text-3xl">
-            {t("title")}
-          </h1>
-        </div>
-        <p className="text-sm text-foreground/60 md:text-base">
-          {t("subtitle")}
-        </p>
-      </div>
+      {/* Header — the ONE canonical page header (קו-עיצובי pattern #1). */}
+      <PageHeader icon={BookOpen} title={t("title")} subtitle={t("subtitle")} />
 
       {/* Filters */}
       <div className="animate-stagger-2">

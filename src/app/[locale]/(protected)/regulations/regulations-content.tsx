@@ -7,6 +7,7 @@ import { ThemedLoader } from "@/components/ui/themed-loader";
 import { Link } from "@/i18n/navigation";
 import { ComplianceOverview } from "@/components/regulations/compliance-overview";
 import { RuleList } from "@/components/regulations/rule-list";
+import { PageHeader } from "@/components/ui/page-header";
 
 export function RegulationsContent() {
   const t = useTranslations("regulations");
@@ -22,32 +23,24 @@ export function RegulationsContent() {
 
   return (
     <div className="flex flex-col gap-6 p-4 md:p-6 animate-fade-in">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <Scale className="h-8 w-8 text-foreground/80" />
-          <div className="flex flex-col gap-0.5">
-            <h1 className="font-display text-2xl font-bold text-foreground/80 md:text-3xl">
-              {t("title")}
-            </h1>
-            <p className="text-sm text-foreground/60">
-              {t("subtitle")}
-            </p>
-          </div>
-        </div>
-
-        {/* Refresh button */}
-        {summary && (
-          <button
-            onClick={() => refetch()}
-            disabled={isFetching}
-            className="flex items-center gap-2 rounded-md border border-foreground/20 bg-foreground/10 px-3 py-2 text-sm text-foreground/80 transition-colors hover:bg-foreground/15 disabled:opacity-50"
-          >
-            <RefreshCw className={`h-4 w-4 ${isFetching ? "animate-spin" : ""}`} />
-            {t("refresh")}
-          </button>
-        )}
-      </div>
+      {/* Header — the ONE canonical page header (קו-עיצובי pattern #1). */}
+      <PageHeader
+        icon={Scale}
+        title={t("title")}
+        subtitle={t("subtitle")}
+        actions={
+          summary && (
+            <button
+              onClick={() => refetch()}
+              disabled={isFetching}
+              className="flex items-center gap-2 rounded-md border border-foreground/20 bg-foreground/10 px-3 py-2 text-sm text-foreground/80 transition-colors hover:bg-foreground/15 disabled:opacity-50"
+            >
+              <RefreshCw className={`h-4 w-4 ${isFetching ? "animate-spin" : ""}`} />
+              {t("refresh")}
+            </button>
+          )
+        }
+      />
 
       {/* Loading state */}
       {isLoading && <ThemedLoader />}
