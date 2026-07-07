@@ -101,7 +101,7 @@ function PlannerPreview({ isRTL }: { isRTL: boolean }) {
                   className="rounded-md border border-border/50 border-s-2 bg-background px-2 py-1.5"
                   style={{ borderInlineStartColor: c.color }}
                 >
-                  <div className="truncate text-[9px] font-medium text-foreground/90">
+                  <div className="truncate text-[11px] font-medium text-foreground/90">
                     {isRTL ? c.he : c.en}
                   </div>
                   <div className="text-[8px] text-muted-foreground">
@@ -321,7 +321,7 @@ export function LandingPage() {
               <span className="mt-1 flex size-7 shrink-0 items-center justify-center rounded-lg bg-accent-brand text-[#f2c879] ring-1 ring-[#f2c879]/40">
                 <PhilosopherKingIcon className="size-4" />
               </span>
-              <div className="max-w-[85%] rounded-2xl bg-white px-3.5 py-2.5 text-sm leading-relaxed text-foreground">
+              <div className="max-w-[85%] rounded-2xl bg-white px-3.5 py-2.5 text-sm leading-relaxed text-zinc-900">
                 {t("king.chatA")}
               </div>
             </div>

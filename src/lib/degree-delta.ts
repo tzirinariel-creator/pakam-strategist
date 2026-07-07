@@ -50,7 +50,11 @@ export function diffBreakdown(
   let closedLaneEn: string | null = null;
   if (before && after) {
     for (const m of LANE_META) {
-      const target = m.lane === "focusArea" ? after.focusAreaTarget || m.target : m.target;
+      // ?? (not ||): an EXPLICIT focusAreaTarget of 0 (a program with no focus
+      // requirement, e.g. Law) must stay 0 — falling back to 60 would fabricate
+      // a "closed lane" banner. Zero/negative targets can never "close".
+      const target = m.lane === "focusArea" ? (after.focusAreaTarget ?? m.target) : m.target;
+      if (target <= 0) continue;
       const b = Number(before[m.field] ?? 0);
       const a = Number(after[m.field] ?? 0);
       if (b < target && a >= target) {

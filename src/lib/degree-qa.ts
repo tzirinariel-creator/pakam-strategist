@@ -110,7 +110,7 @@ const HANDLERS: Handler[] = [
         .slice()
         .sort((a, b) => b.deficit - a.deficit)
         .slice(0, 3)
-        .map((r) => `• ${c.isHe ? r.nameHe : r.nameEn}${r.deficit > 0 ? ` (${r.deficit} ש״ס)` : ""}`)
+        .map((r) => `• ${c.isHe ? r.nameHe : r.nameEn}${r.deficit > 0 ? ` (${r.deficit} ${c.isHe ? "ש״ס" : "cr"})` : ""}`)
         .join("\n");
       return {
         text: he(c, `הדרישות הכי בוערות שחסרות לך:\n${top}`, `Your most pressing missing requirements:\n${top}`),

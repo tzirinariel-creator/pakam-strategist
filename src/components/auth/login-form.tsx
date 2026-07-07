@@ -152,7 +152,11 @@ export function LoginForm() {
         setError(data.error ?? t("unexpectedError"));
         return;
       }
-      router.push("/planner");
+      // Land on the dashboard (the "המצב שלי" wow screen) AND trigger the demo
+      // reset — ?reset=demo is what makes resetDemoUser fire, so every demo
+      // visitor gets a fresh, full plan instead of the previous stranger's
+      // leftovers (board finding: the reset was dead code without this).
+      router.push("/dashboard?reset=demo");
       router.refresh();
     } catch {
       setError(t("unexpectedError"));

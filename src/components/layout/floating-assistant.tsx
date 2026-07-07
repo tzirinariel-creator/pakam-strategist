@@ -384,23 +384,28 @@ export function FloatingAssistant() {
           buffer = lines.pop() ?? "";
           for (const line of lines) {
             if (!line.startsWith("data: ")) continue;
+            // Parse inside a guard (keepalive/partial lines aren't valid JSON) —
+            // but HANDLE the event OUTSIDE it, so a server "error" event reaches
+            // the outer catch (fallback + message) instead of being swallowed as
+            // a parse skip and leaving a stuck "…" bubble forever.
+            let ev: { type: string; text?: string; error?: string; sessionId?: string };
             try {
-              const ev = JSON.parse(line.slice(6)) as { type: string; text?: string; error?: string; sessionId?: string };
-              if (ev.type === "meta" && ev.sessionId) {
-                sessionIdRef.current = ev.sessionId;
-              } else if (ev.type === "delta" && ev.text) {
-                full += ev.text;
-                setMessages((m) => {
-                  const u = [...m];
-                  const last = u[u.length - 1];
-                  if (last?.role === "assistant") u[u.length - 1] = { ...last, content: last.content + ev.text };
-                  return u;
-                });
-              } else if (ev.type === "error") {
-                throw new Error(ev.error || "stream error");
-              }
+              ev = JSON.parse(line.slice(6));
             } catch {
-              /* skip partial/keepalive lines */
+              continue; /* partial/keepalive line */
+            }
+            if (ev.type === "meta" && ev.sessionId) {
+              sessionIdRef.current = ev.sessionId;
+            } else if (ev.type === "delta" && ev.text) {
+              full += ev.text;
+              setMessages((m) => {
+                const u = [...m];
+                const last = u[u.length - 1];
+                if (last?.role === "assistant") u[u.length - 1] = { ...last, content: last.content + ev.text };
+                return u;
+              });
+            } else if (ev.type === "error") {
+              throw new Error(ev.error || "stream error");
             }
           }
         }
@@ -516,7 +521,7 @@ export function FloatingAssistant() {
       if (aiAvailable) {
         // Only the FIRST question of a conversation is a standalone lookup we
         // can serve from cache; once a session exists, answers are contextual.
-        const isFirst = !sessionIdRef.current;
+        const isFirst = !sessionIdRef.current && messages.length === 0;
         const planHash = hashContext(ctx);
         if (isFirst) {
           const cached = readCachedAnswer(question, planHash);
@@ -549,7 +554,7 @@ export function FloatingAssistant() {
         ]);
       }
     },
-    [ctx, aiAvailable, keyProvider, ready, streaming, streamLLM, attachedImage, isHe],
+    [ctx, aiAvailable, keyProvider, ready, streaming, streamLLM, attachedImage, isHe, messages.length],
   );
 
   if (onMentorPage) return null;

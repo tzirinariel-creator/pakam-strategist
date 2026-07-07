@@ -71,6 +71,12 @@ describe("diffBreakdown", () => {
     expect(diffBreakdown(before, after).closedLaneHe).toBe("אנגלית");
   });
 
+  it("focusAreaTarget=0 (Law: no focus requirement) never fabricates a closed lane", () => {
+    const before = bd({ focusArea: 0, focusAreaTarget: 0 });
+    const after = bd({ focusArea: 10, focusAreaTarget: 0 });
+    expect(diffBreakdown(before, after).closedLaneHe).toBeNull();
+  });
+
   it("null inputs degrade to 0% with no closed lane", () => {
     const d = diffBreakdown(null, null);
     expect(d.fromPct).toBe(0);
