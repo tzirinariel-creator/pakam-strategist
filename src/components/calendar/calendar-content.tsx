@@ -11,6 +11,7 @@ import {
   ClipboardCheck,
   Download,
   RefreshCw,
+  Share2,
 } from "lucide-react";
 import { toast } from "sonner";
 import { api } from "@/lib/trpc/react";
@@ -21,6 +22,7 @@ import { WeeklyTimetable } from "./weekly-timetable";
 import { GanttView } from "./gantt-view";
 import { ExamSchedule } from "@/components/exam/exam-schedule";
 import { downloadICSFromSessions } from "@/lib/ics-export";
+import { buildWeekShareText } from "@/lib/week-share";
 import type { Semester } from "@/types/enums";
 
 // ─── Types ───────────────────────────────────────────────────────────
@@ -161,6 +163,23 @@ export function CalendarContent() {
     }
   };
 
+  // "Share my week" (#3/#16): the timetable as WhatsApp text, ending with a
+  // link to the landing page — the second viral loop.
+  const handleWhatsAppShare = () => {
+    const sessions = scheduleData?.sessions;
+    if (!sessions || sessions.length === 0) {
+      toast.error(t("exportEmpty"));
+      return;
+    }
+    const label = semesterOptions.find((o) => o.key === activeSemester)?.label ?? activeSemester;
+    const text = buildWeekShareText(sessions, {
+      semesterLabel: label,
+      isHe: locale === "he",
+      appUrl: `${window.location.origin}/${locale}`,
+    });
+    window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, "_blank", "noopener");
+  };
+
   // ─── Loading state ───────────────────────────────────────────────
 
   if (isLoading) {
@@ -252,6 +271,19 @@ export function CalendarContent() {
             >
               <Download className="size-3.5" />
               <span className="hidden sm:inline">{t("exportICSFile")}</span>
+            </button>
+          )}
+
+          {/* Share the week on WhatsApp — same dress as the ICS button */}
+          {semesterCourses.length > 0 && viewMode !== "exams" && (
+            <button
+              type="button"
+              onClick={handleWhatsAppShare}
+              className="flex items-center gap-1.5 rounded-lg border border-border bg-card px-3 py-1.5 text-sm font-medium text-foreground/70 transition-colors hover:bg-foreground/5 hover:text-foreground"
+              title={locale === "he" ? "שיתוף השבוע בוואטסאפ" : "Share week on WhatsApp"}
+            >
+              <Share2 className="size-3.5" />
+              <span className="hidden sm:inline">{locale === "he" ? "שיתוף בוואטסאפ" : "Share on WhatsApp"}</span>
             </button>
           )}
 

@@ -1,13 +1,14 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { Share2, Copy, AlertTriangle, GraduationCap } from "lucide-react";
 import { useLocale } from "next-intl";
 import { toast } from "sonner";
-import { useRouter } from "@/i18n/navigation";
+import { Link, useRouter } from "@/i18n/navigation";
 import { api } from "@/lib/trpc/react";
-import { decodePlan } from "@/lib/plan-share";
+import { decodePlan, rememberSharedPlanReturn } from "@/lib/plan-share";
+import { createClient } from "@/lib/supabase/client";
 import { SEMESTER_CONFIG, YEAR_CONFIG } from "@/lib/constants";
 import { ThemedLoader } from "@/components/ui/themed-loader";
 
@@ -19,6 +20,17 @@ export function SharedPlanContent() {
 
   const shared = useMemo(() => decodePlan(token), [token]);
   const coursesQuery = api.course.list.useQuery(undefined, { staleTime: 5 * 60 * 1000 });
+
+  // The page is PUBLIC now — a logged-out friend sees a join CTA instead of
+  // the import button (which needs an account anyway; plan.savePlan is
+  // protected and would just error).
+  const [isLoggedIn, setIsLoggedIn] = useState<boolean | null>(null);
+  useEffect(() => {
+    createClient()
+      .auth.getSession()
+      .then(({ data }) => setIsLoggedIn(!!data.session))
+      .catch(() => setIsLoggedIn(false));
+  }, []);
 
   const [confirming, setConfirming] = useState(false);
   const importMutation = api.plan.savePlan.useMutation({
@@ -113,29 +125,55 @@ export function SharedPlanContent() {
         );
       })}
 
-      <div className="data-card flex flex-col gap-2 p-4">
-        {confirming && (
-          <p className="flex items-start gap-2 text-xs text-amber-600">
-            <AlertTriangle className="mt-0.5 size-3.5 shrink-0" />
+      {isLoggedIn === false ? (
+        // Logged-out friend → the join CTA. The return path is remembered so
+        // that after signup/login they land right back on this plan.
+        <div className="data-card flex flex-col gap-3 p-4">
+          <p className="text-sm text-foreground/70">
             {isHe
-              ? "שים לב: ההעתקה תחליף את התכנון הנוכחי שלך. ללחוץ שוב כדי לאשר."
-              : "Heads up: importing replaces your current plan. Click again to confirm."}
+              ? "ככה נראה תכנון תואר בפכמון. אפשר להעתיק את התוכנית הזו ולהתאים אותה לעצמך."
+              : "This is what degree planning looks like in Pakamon. Copy this plan and make it yours."}
           </p>
-        )}
-        <button
-          type="button"
-          onClick={handleImport}
-          disabled={resolved.length === 0 || importMutation.isPending}
-          className="inline-flex items-center justify-center gap-2 rounded-lg bg-accent-brand px-4 py-2.5 text-sm font-semibold text-accent-brand-fg transition-colors hover:bg-accent-brand-hover disabled:opacity-40"
-        >
-          <Copy className="size-4" />
-          {importMutation.isPending
-            ? isHe ? "מעתיק…" : "Importing…"
-            : confirming
-              ? isHe ? "כן, החלף את התכנון שלי" : "Yes, replace my plan"
-              : isHe ? "העתק לתכנון שלי" : "Copy to my plan"}
-        </button>
-      </div>
+          <Link
+            href="/signup"
+            onClick={rememberSharedPlanReturn}
+            className="inline-flex items-center justify-center gap-2 rounded-lg bg-accent-brand px-4 py-2.5 text-sm font-semibold text-accent-brand-fg transition-colors hover:bg-accent-brand-hover"
+          >
+            {isHe ? "רוצה לתכנן ככה את התואר? הצטרפות לפכמון" : "Want to plan like this? Join Pakamon"}
+          </Link>
+          <Link
+            href="/login"
+            onClick={rememberSharedPlanReturn}
+            className="text-center text-xs text-foreground/55 underline underline-offset-4 hover:text-foreground/80"
+          >
+            {isHe ? "כבר רשומים? התחברות והעתקה לתכנון שלך" : "Already registered? Log in and copy it"}
+          </Link>
+        </div>
+      ) : (
+        <div className="data-card flex flex-col gap-2 p-4">
+          {confirming && (
+            <p className="flex items-start gap-2 text-xs text-amber-600">
+              <AlertTriangle className="mt-0.5 size-3.5 shrink-0" />
+              {isHe
+                ? "שים לב: ההעתקה תחליף את התכנון הנוכחי שלך. ללחוץ שוב כדי לאשר."
+                : "Heads up: importing replaces your current plan. Click again to confirm."}
+            </p>
+          )}
+          <button
+            type="button"
+            onClick={handleImport}
+            disabled={resolved.length === 0 || importMutation.isPending || isLoggedIn === null}
+            className="inline-flex items-center justify-center gap-2 rounded-lg bg-accent-brand px-4 py-2.5 text-sm font-semibold text-accent-brand-fg transition-colors hover:bg-accent-brand-hover disabled:opacity-40"
+          >
+            <Copy className="size-4" />
+            {importMutation.isPending
+              ? isHe ? "מעתיק…" : "Importing…"
+              : confirming
+                ? isHe ? "כן, החלף את התכנון שלי" : "Yes, replace my plan"
+                : isHe ? "העתק לתכנון שלי" : "Copy to my plan"}
+          </button>
+        </div>
+      )}
     </div>
   );
 }

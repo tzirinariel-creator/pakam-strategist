@@ -14,15 +14,59 @@ export interface SharedCourse {
   s: "FALL" | "SPRING" | "SUMMER";
 }
 
+// UTF-8-safe base64 — btoa/atob are Latin-1 only, so any future Hebrew field
+// in the token (a name, a label) would THROW. Course codes are ASCII today;
+// this is immunization, not a behavior change.
 function toBase64(s: string): string {
-  if (typeof btoa !== "undefined") return btoa(s);
-  // Node / test fallback
-  return Buffer.from(s, "utf8").toString("base64");
+  const bytes = new TextEncoder().encode(s);
+  if (typeof btoa !== "undefined") {
+    let bin = "";
+    for (const b of bytes) bin += String.fromCharCode(b);
+    return btoa(bin);
+  }
+  return Buffer.from(bytes).toString("base64");
 }
 
 function fromBase64(s: string): string {
-  if (typeof atob !== "undefined") return atob(s);
+  if (typeof atob !== "undefined") {
+    const bin = atob(s);
+    return new TextDecoder().decode(Uint8Array.from(bin, (ch) => ch.charCodeAt(0)));
+  }
   return Buffer.from(s, "base64").toString("utf8");
+}
+
+// ---- return-after-auth (closes the viral loop) ----------------------------
+// A logged-out friend opens a shared plan, clicks join/login, and must land
+// BACK on the plan afterwards. Stored WITHOUT the locale prefix (the i18n
+// router adds its own — keeping it would produce /he/he/… → 404), consumed
+// once on the dashboard (which every auth path — password, OAuth, email
+// confirm — ultimately reaches), relative paths only (no open redirect),
+// 24h expiry.
+const RETURN_KEY = "pakamon.shared-plan-return";
+
+export function rememberSharedPlanReturn(): void {
+  try {
+    const path =
+      window.location.pathname.replace(/^\/(he|en)(?=\/|$)/, "") + window.location.search;
+    if (!path.startsWith("/") || path.startsWith("//")) return;
+    localStorage.setItem(RETURN_KEY, JSON.stringify({ path, ts: Date.now() }));
+  } catch {
+    /* storage blocked — the CTA still works, just without the return */
+  }
+}
+
+export function consumeSharedPlanReturn(): string | null {
+  try {
+    const raw = localStorage.getItem(RETURN_KEY);
+    localStorage.removeItem(RETURN_KEY);
+    if (!raw) return null;
+    const { path, ts } = JSON.parse(raw) as { path?: string; ts?: number };
+    if (typeof path !== "string" || !path.startsWith("/") || path.startsWith("//")) return null;
+    if (typeof ts !== "number" || Date.now() - ts > 24 * 60 * 60 * 1000) return null;
+    return path;
+  } catch {
+    return null;
+  }
 }
 
 /** Pack a plan into a URL-safe token. */

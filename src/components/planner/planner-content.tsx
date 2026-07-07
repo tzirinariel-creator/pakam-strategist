@@ -5,7 +5,8 @@ import { useSearchParams } from "next/navigation";
 import { useTranslations, useLocale } from "next-intl";
 import { GraduationCap, AlertTriangle, CalendarDays, Scale, Share2, CheckCircle2, X } from "lucide-react";
 import { toast } from "sonner";
-import { encodePlan, type SharedCourse } from "@/lib/plan-share";
+import { type SharedCourse } from "@/lib/plan-share";
+import { SharePlanDialog } from "./share-plan-dialog";
 import { YearBoard } from "./year-board";
 import { AddCourseModal } from "./add-course-modal";
 import { BiddingExplainer } from "./bidding-explainer";
@@ -50,6 +51,7 @@ export function PlannerContent() {
   // It clears on its own when the student navigates away.
   const searchParams = useSearchParams();
   const [showSavedBanner, setShowSavedBanner] = useState(false);
+  const [shareOpen, setShareOpen] = useState(false);
   useEffect(() => {
     if (searchParams.get("saved") === "1") {
       setShowSavedBanner(true);
@@ -93,24 +95,19 @@ export function PlannerContent() {
   const courses = planData?.courses ?? [];
 
   // Share the plan as a link (no backend): pack course codes + placement into a
-  // base64url token. A friend opens /shared-plan?d=… and can copy it.
-  const handleShare = async () => {
-    const shared: SharedCourse[] = courses.map((uc) => ({
-      c: uc.course.code,
-      y: uc.plannedYear,
-      s: uc.plannedSemester as SharedCourse["s"],
-    }));
-    if (shared.length === 0) {
+  // base64url token. The dialog shows exactly what a friend will (and won't)
+  // see before anything leaves the device — no more deaf copy-to-clipboard.
+  const sharedCourses: SharedCourse[] = courses.map((uc) => ({
+    c: uc.course.code,
+    y: uc.plannedYear,
+    s: uc.plannedSemester as SharedCourse["s"],
+  }));
+  const handleShare = () => {
+    if (sharedCourses.length === 0) {
       toast.error(isHe ? "אין קורסים לשיתוף" : "No courses to share");
       return;
     }
-    const url = `${window.location.origin}/${isHe ? "he" : "en"}/shared-plan?d=${encodePlan(shared)}`;
-    try {
-      await navigator.clipboard.writeText(url);
-      toast.success(isHe ? "הקישור הועתק — שלח לחבר" : "Link copied — send it to a friend");
-    } catch {
-      toast.error(isHe ? "ההעתקה נכשלה" : "Copy failed");
-    }
+    setShareOpen(true);
   };
 
   // ------ Zero-course empty state ------
@@ -213,6 +210,7 @@ export function PlannerContent() {
             <Share2 className="h-4 w-4" />
             {isHe ? "שתף" : "Share"}
           </button>
+          <SharePlanDialog open={shareOpen} onOpenChange={setShareOpen} courses={sharedCourses} />
           <Link
             href="/planner/semester"
             className="flex items-center gap-2 rounded-lg border border-border/40 bg-card/40 px-4 py-2 text-sm text-foreground/60 transition-colors hover:border-foreground/20 hover:bg-card/60 hover:text-foreground/80"

@@ -4,7 +4,8 @@ import { useState, useEffect, useRef, useCallback } from "react";
 import { GraduationCap, Scale, Pencil, Target, ArrowRight, ArrowLeft, Calendar, X, RefreshCw, Calculator, CheckCircle2 } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 import { useSearchParams } from "next/navigation";
-import { Link } from "@/i18n/navigation";
+import { Link, useRouter } from "@/i18n/navigation";
+import { consumeSharedPlanReturn } from "@/lib/plan-share";
 import { api } from "@/lib/trpc/react";
 import { firstNameOf } from "@/lib/personal-address";
 import { usePersonalAddress } from "@/components/personal/use-personal-address";
@@ -316,6 +317,16 @@ export function DashboardContent() {
   const searchParams = useSearchParams();
   const fromOnboarding = searchParams.get("from") === "onboarding";
   const resetDemo = searchParams.get("reset") === "demo";
+  const router = useRouter();
+
+  // Close the viral loop: a friend who opened a shared plan, clicked join and
+  // authenticated (password / OAuth / email-confirm — ALL paths end here)
+  // returns to the plan they came for instead of a cold dashboard.
+  useEffect(() => {
+    const back = consumeSharedPlanReturn();
+    if (back) router.replace(back);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- once on mount
+  }, []);
 
   // Save confirmation (מסלול E + #18): the semester planner now returns home
   // with ?saved=1 after persisting, so the student sees their status update AND
