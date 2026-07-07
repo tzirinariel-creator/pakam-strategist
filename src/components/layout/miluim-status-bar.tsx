@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { Dialog as DialogPrimitive } from "radix-ui";
-import { Shield, X, Check, CalendarClock, Clock, Target, BookOpen, GraduationCap, ChevronLeft, ChevronRight, Sparkles } from "lucide-react";
+import { Shield, X, Check, CalendarClock, Clock, Target, BookOpen, GraduationCap, ChevronLeft, ChevronRight, BadgeCheck } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 import { api } from "@/lib/trpc/react";
 import { MILUIM_CONFIG } from "@/lib/constants";
@@ -261,7 +261,7 @@ export function MiluimStatusBar() {
                     {bg.items.map((b, i) => (
                       <li key={i} className="flex items-start gap-2 text-sm text-foreground/75">
                         {b.auto ? (
-                          <Sparkles className={cn("mt-0.5 size-3.5 shrink-0", style.chip)} />
+                          <BadgeCheck className={cn("mt-0.5 size-3.5 shrink-0", style.chip)} />
                         ) : (
                           <Check className="mt-0.5 size-3.5 shrink-0 text-foreground/35" />
                         )}

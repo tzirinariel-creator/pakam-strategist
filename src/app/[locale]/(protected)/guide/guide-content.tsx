@@ -7,7 +7,7 @@ import {
   LayoutGrid,
   Shield,
   Gavel,
-  Sparkles,
+  Lightbulb,
   ArrowLeft,
   ArrowRight,
 } from "lucide-react";
@@ -70,7 +70,7 @@ export function GuideContent() {
         </ul>
       </Section>
 
-      <Section icon={Sparkles} title={isHe ? "איך לתכנן חכם" : "How to plan smartly"}>
+      <Section icon={Lightbulb} title={isHe ? "איך לתכנן חכם" : "How to plan smartly"}>
         <ul className="space-y-1.5">
           <Li>{isHe ? "שנה א׳ = קורסי חובה. אל תתחכם — קח הכל ותתמקד בממוצע טוב." : "Year 1 = mandatory courses. Take them all, aim for a good GPA."}</Li>
           <Li>{isHe ? "בחר תחום מיקוד מוקדם — הוא משפיע על כל התכנון." : "Choose your focus area early — it drives the whole plan."}</Li>

@@ -2,7 +2,7 @@
 
 import { useMemo, useState, useCallback } from "react";
 import { useTranslations, useLocale } from "next-intl";
-import { Search, Plus, X, GraduationCap, Check, Sparkles, Languages } from "lucide-react";
+import { Search, Plus, X, GraduationCap, Check, Star, Languages } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { DISCIPLINE_CONFIG, SEMESTER_CONFIG, YEAR_CONFIG } from "@/lib/constants";
 import type { CourseWithSchedule } from "@/lib/plan-generator";
@@ -403,7 +403,7 @@ export function StepHistory({
                                     config.badgeClass
                                   )}
                                 >
-                                  <Sparkles className="h-2.5 w-2.5" />
+                                  <Star className="h-2.5 w-2.5" />
                                   {t("historyFocusBadge")}
                                 </span>
                               )}

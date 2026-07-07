@@ -3,8 +3,9 @@
 import { useMemo, useState } from "react";
 import {
   CalendarClock,
-  Sparkles,
-  Wand2,
+  CalendarRange,
+  ListChecks,
+  Lightbulb,
   Plus,
   Trash2,
   Check,
@@ -215,7 +216,7 @@ export function ExamPlannerContent() {
   const pickExamsPanel = (
     <div className="data-card p-5">
       <div className="mb-3 flex items-center gap-2">
-        <Wand2 className="size-5 text-accent-brand" />
+        <ListChecks className="size-5 text-accent-brand" />
         <h2 className="font-display text-base font-bold text-foreground/85">{isHe ? "בחר מבחנים" : "Pick exams"}</h2>
         {selectedCount > 0 && <span className="ms-auto text-xs text-foreground/50">{selectedCount} {isHe ? "נבחרו" : "selected"}</span>}
       </div>
@@ -261,7 +262,7 @@ export function ExamPlannerContent() {
             );
           })}
           <button type="button" onClick={handleGenerate} disabled={selectedCount === 0 || generateMutation.isPending} className="mt-2 inline-flex w-full items-center justify-center gap-2 rounded-lg bg-accent-brand px-4 py-2.5 text-sm font-semibold text-accent-brand-fg transition-colors hover:bg-accent-brand-hover disabled:opacity-40">
-            <Sparkles className="size-4" />
+            <CalendarRange className="size-4" />
             {generateMutation.isPending ? (isHe ? "בונה תוכנית…" : "Building…") : hasPlan ? (isHe ? "עדכן את התוכנית" : "Update the plan") : isHe ? "בנה לי תוכנית לימוד" : "Build my study plan"}
           </button>
         </div>
@@ -292,7 +293,7 @@ export function ExamPlannerContent() {
     recs.length > 0 ? (
       <div className="data-card p-4">
         <div className="mb-2 flex items-center gap-2">
-          <Sparkles className="size-4 text-accent-brand" />
+          <Lightbulb className="size-4 text-accent-brand" />
           <h3 className="text-sm font-bold text-foreground/85">{isHe ? "המלצות" : "Recommendations"}</h3>
         </div>
         <ul className="space-y-1.5">

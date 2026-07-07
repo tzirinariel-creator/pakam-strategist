@@ -14,9 +14,9 @@ import {
   CalendarClock,
   Calculator,
   FolderOpen,
-  Bot,
   Compass,
 } from "lucide-react";
+import { PhilosopherKingIcon } from "@/components/ui/philosopher-king-icon";
 import { cn } from "@/lib/utils";
 import { useUIStore } from "@/stores/ui-store";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
@@ -31,7 +31,7 @@ const NAV_ICONS = {
   graduation: Calculator,
   regulations: Scale,
   settings: Settings,
-  mentor: Bot,
+  mentor: PhilosopherKingIcon,
   guide: Compass,
 } as const;
 

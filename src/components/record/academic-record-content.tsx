@@ -9,7 +9,7 @@ import {
   Check,
   AlertTriangle,
   FolderOpen,
-  Sparkles,
+  Star,
   Languages,
   Trash2,
   Calculator,
@@ -347,7 +347,7 @@ function CourseRow({
                   (DISCIPLINE_CONFIG[discipline] ?? DISCIPLINE_CONFIG["GENERAL"])?.badgeClass
                 )}
               >
-                <Sparkles className="h-2.5 w-2.5" />
+                <Star className="h-2.5 w-2.5" />
                 {t("focusBadge")}
               </span>
             )}

@@ -22,7 +22,7 @@ import {
   ExternalLink,
   Shield,
   Swords,
-  Bot,
+  Drama,
 } from "lucide-react";
 import { useTranslations, useLocale } from "next-intl";
 import { toast } from "sonner";
@@ -456,7 +456,7 @@ function PersonaSection() {
 
   return (
     <SectionCard
-      icon={Bot}
+      icon={Drama}
       title={isHe ? "דמות היועץ" : "Advisor persona"}
       description={isHe ? "אותם נתונים, אותם כללים — קול אחר. ההחלפה חלה מההודעה הבאה." : "Same data, same rules — a different voice. Applies from the next message."}
     >

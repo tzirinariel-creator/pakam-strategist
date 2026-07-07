@@ -11,13 +11,13 @@ import {
   Plus,
   Trash2,
   MessageSquare,
-  Bot,
   User,
   Settings,
   Loader2,
   ChevronRight,
   ChevronLeft,
 } from "lucide-react";
+import { PhilosopherKingIcon } from "@/components/ui/philosopher-king-icon";
 import { toast } from "sonner";
 import { Link } from "@/i18n/navigation";
 import Markdown from "react-markdown";
@@ -295,7 +295,7 @@ export function MentorChat() {
       <div className="flex h-full items-center justify-center p-8">
         <div className="mx-auto max-w-md text-center">
           <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-muted">
-            <Bot className="h-8 w-8 text-muted-foreground" />
+            <PhilosopherKingIcon className="h-8 w-8 text-muted-foreground" />
           </div>
           <h2 className="mb-2 text-xl font-bold">{t("title")}</h2>
           <p className="mb-6 text-sm text-muted-foreground">
@@ -335,7 +335,7 @@ export function MentorChat() {
       <div className="flex h-full items-center justify-center p-8">
         <div className="mx-auto max-w-md text-center">
           <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-muted">
-            <Bot className="h-8 w-8 text-muted-foreground" />
+            <PhilosopherKingIcon className="h-8 w-8 text-muted-foreground" />
           </div>
           <h2 className="mb-2 text-xl font-bold">{t("title")}</h2>
           <p className="mb-6 text-sm text-muted-foreground">
@@ -449,7 +449,7 @@ export function MentorChat() {
             <SidebarToggleIcon className="h-4 w-4" />
           </Button>
           <div className="flex items-center gap-2">
-            <Bot className="h-5 w-5 text-muted-foreground" />
+            <PhilosopherKingIcon className="h-5 w-5 text-muted-foreground" />
             <h2 className="font-display text-sm font-semibold">{t("title")}</h2>
           </div>
         </div>
@@ -465,7 +465,7 @@ export function MentorChat() {
               /* Empty state — clean welcome */
               <div className="flex flex-col items-center justify-center py-20">
                 <div className="mb-5 flex h-14 w-14 items-center justify-center rounded-2xl bg-muted">
-                  <Bot className="h-7 w-7 text-foreground/50" />
+                  <PhilosopherKingIcon className="h-7 w-7 text-foreground/50" />
                 </div>
                 <h3 className="mb-1.5 font-display text-lg font-bold">{t("title")}</h3>
                 <p className="mb-6 max-w-sm text-center text-sm text-muted-foreground leading-relaxed">
@@ -491,7 +491,7 @@ export function MentorChat() {
                   >
                     {msg.role === "assistant" && (
                       <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-muted">
-                        <Bot className="h-4 w-4 text-foreground/60" />
+                        <PhilosopherKingIcon className="h-4 w-4 text-foreground/60" />
                       </div>
                     )}
                     <div

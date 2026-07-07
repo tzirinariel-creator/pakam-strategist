@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useLocale } from "next-intl";
-import { X, BookOpen, GraduationCap, Award, Sparkles, FileText } from "lucide-react";
+import { X, BookOpen, GraduationCap, Award, Flag, FileText } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Bidi } from "@/lib/bidi";
 
@@ -87,7 +87,7 @@ const SEMESTER_INTROS: Record<string, SemesterIntroData> = {
       "סמסטר אחרון. השלמת קורסים, סמינר אחרון אם צריך, ווידוא 150 ש״ס + כל הדרישות.",
     descEn:
       "Final semester. Complete remaining courses, last seminar if needed, and verify you've hit 150 credits + all requirements.",
-    icon: Sparkles,
+    icon: Flag,
     color: "bg-emerald-500/10 border-emerald-500/20 text-emerald-600",
     creditRangeHe: "מומלץ: 10-20 ש״ס",
     creditRangeEn: "Recommended: 10-20 credits",

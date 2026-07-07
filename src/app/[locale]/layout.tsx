@@ -3,6 +3,7 @@ import { getMessages, setRequestLocale } from "next-intl/server";
 import { routing } from "@/i18n/routing";
 import { notFound } from "next/navigation";
 import { Toaster } from "@/components/ui/sonner";
+import { RadixDirection } from "@/components/providers/radix-direction";
 
 export function generateStaticParams() {
   return routing.locales.map((locale) => ({ locale }));
@@ -27,8 +28,10 @@ export default async function LocaleLayout({
 
   return (
     <NextIntlClientProvider messages={messages}>
-      {children}
-      <Toaster />
+      <RadixDirection dir={locale === "he" ? "rtl" : "ltr"}>
+        {children}
+        <Toaster />
+      </RadixDirection>
     </NextIntlClientProvider>
   );
 }

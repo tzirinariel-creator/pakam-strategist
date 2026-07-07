@@ -11,7 +11,7 @@ import {
   BookOpen,
   FileText,
   ClipboardCheck,
-  Sparkles,
+  NotebookPen,
   ArrowLeft,
   ArrowRight,
 } from "lucide-react";
@@ -25,7 +25,7 @@ const TASK_TYPE_ICONS: Record<string, React.ComponentType<{ className?: string }
   study: BookOpen,
   assignment: FileText,
   exam: ClipboardCheck,
-  custom: Sparkles,
+  custom: NotebookPen,
 };
 
 const TASK_TYPE_COLORS: Record<string, string> = {
@@ -213,7 +213,7 @@ export function StudyPlannerWidget({
               const totalDays = Math.max(1, daysBetween(startDate, endDate));
               const elapsed = Math.max(0, daysBetween(startDate, now));
               const progressPct = Math.min(100, (elapsed / totalDays) * 100);
-              const TaskIcon = TASK_TYPE_ICONS[task.taskType] ?? Sparkles;
+              const TaskIcon = TASK_TYPE_ICONS[task.taskType] ?? NotebookPen;
               const taskColor = task.color ?? TASK_TYPE_COLORS[task.taskType] ?? "#6B7280";
 
               return (

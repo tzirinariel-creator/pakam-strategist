@@ -2,7 +2,7 @@
 
 import { useState, useMemo } from "react";
 import { useTranslations, useLocale } from "next-intl";
-import { Shield, ChevronDown, Swords, Check, Sparkles, FileText } from "lucide-react";
+import { Shield, ChevronDown, Swords, Check, BadgeCheck, FileText } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Bidi } from "@/lib/bidi";
 import { MILUIM_CONFIG, AMIRNET_CONFIG, DISCIPLINE_CONFIG, FOCUS_DISCIPLINE_IDS } from "@/lib/constants";
@@ -553,7 +553,7 @@ export function StepProfile({ data, onUpdate }: StepProfileProps) {
                   {/* (1) Auto-applied — the exemption */}
                   <div className="rounded-xl border border-emerald-500/25 bg-emerald-500/5 p-3">
                     <div className="flex items-center gap-1.5 mb-1.5">
-                      <Sparkles className="h-3.5 w-3.5 text-emerald-500" />
+                      <BadgeCheck className="h-3.5 w-3.5 text-emerald-500" />
                       <p className="text-xs font-semibold text-emerald-600">{tm("appliedTitle")}</p>
                     </div>
                     <p className="text-[11px] text-foreground/40 mb-2">{tm("appliedSubtitle")}</p>

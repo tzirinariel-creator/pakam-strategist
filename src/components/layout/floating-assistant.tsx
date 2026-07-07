@@ -5,7 +5,7 @@ import { useLocale } from "next-intl";
 import { usePathname } from "next/navigation";
 import { usePersonalAddress } from "@/components/personal/use-personal-address";
 import {
-  X, Send, Zap, Bot, Loader2, Database, Mic, ImagePlus,
+  X, Send, Zap, Loader2, Database, Mic, ImagePlus,
   CalendarClock, TrendingDown, TrendingUp, Languages, Target, FileText, Scale, GraduationCap, ArrowLeft,
 } from "lucide-react";
 import type { Recommendation, RecommendationIcon } from "@/lib/recommendations-engine";
@@ -708,7 +708,7 @@ export function FloatingAssistant() {
                             : "bg-accent-brand/10 text-accent-brand",
                         )}
                       >
-                        {m.source === "rules" ? <Database className="size-2.5" /> : <Bot className="size-2.5" />}
+                        {m.source === "rules" ? <Database className="size-2.5" /> : <PhilosopherKingIcon className="size-2.5" />}
                         {m.source === "rules"
                           ? isHe ? "מהנתונים שלך" : "From your data"
                           : isHe ? "תשובת AI" : "AI answer"}
