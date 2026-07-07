@@ -2,7 +2,8 @@
 
 import { useState } from "react";
 import { Dialog as DialogPrimitive } from "radix-ui";
-import { Shield, X, Check, CalendarClock, Clock, Target, BookOpen, GraduationCap, ChevronLeft, ChevronRight, BadgeCheck } from "lucide-react";
+import { Shield, X, Check, CalendarClock, Clock, Target, BookOpen, GraduationCap, ChevronLeft, ChevronRight, BadgeCheck, Minus, Plus } from "lucide-react";
+import { toast } from "sonner";
 import { useLocale, useTranslations } from "next-intl";
 import { api } from "@/lib/trpc/react";
 import { MILUIM_CONFIG } from "@/lib/constants";
@@ -59,6 +60,15 @@ export function MiluimStatusBar() {
     retry: 1,
     staleTime: 60_000,
     enabled: !!profileQuery.data,
+  });
+
+  // The quota counters are editable RIGHT HERE — where the decision lives —
+  // not only buried in Settings (note #46). Same mutation Settings uses.
+  const utils = api.useUtils();
+  const updateQuota = api.user.updateProfile.useMutation({
+    onSuccess: () => utils.user.getProfile.invalidate(),
+    onError: (e) =>
+      toast.error(e.message || (isHe ? "העדכון נכשל" : "Update failed")),
   });
 
   const profile = profileQuery.data;
@@ -177,33 +187,22 @@ export function MiluimStatusBar() {
             <div className="flex-1 space-y-5 overflow-y-auto p-5">
               {/* Quota cards: credit exemption + binary conversions */}
               <div className="grid grid-cols-2 gap-3">
-                <div className="rounded-xl border border-border/60 bg-foreground/[0.02] p-3.5">
-                  <div className="flex items-center gap-1.5 text-[11px] font-medium text-foreground/50">
-                    <GraduationCap className="size-3.5" />
-                    {t("creditExemption")}
-                  </div>
-                  <div className="mt-1 flex items-baseline gap-1" dir="ltr">
-                    <span className="font-mono text-xl font-bold text-foreground/85">
-                      {creditsUsed}
-                    </span>
-                    <span className="font-mono text-sm text-foreground/40">/ {creditCap}</span>
-                  </div>
-                  <p className="mt-0.5 text-[10px] leading-tight text-foreground/45">
-                    <Bidi text={t("creditExemptionHint", { perYear: cfg.creditExemptionPerYear, available: creditExemption })} />
-                  </p>
-                </div>
-                <div className="rounded-xl border border-border/60 bg-foreground/[0.02] p-3.5">
-                  <div className="flex items-center gap-1.5 text-[11px] font-medium text-foreground/50">
-                    <Check className="size-3.5" />
-                    {t("binaryQuota")}
-                  </div>
-                  <div className="mt-1 flex items-baseline gap-1" dir="ltr">
-                    <span className="font-mono text-xl font-bold text-foreground/85">
-                      {binaryUsed}
-                    </span>
-                    <span className="font-mono text-sm text-foreground/40">/ {binaryCap}</span>
-                  </div>
-                  <p className="mt-0.5 text-[10px] leading-tight text-foreground/45">
+                <QuotaCard
+                  icon={GraduationCap}
+                  label={t("creditExemption")}
+                  used={creditsUsed}
+                  cap={creditCap}
+                  hint={<Bidi text={t("creditExemptionHint", { perYear: cfg.creditExemptionPerYear, available: creditExemption })} />}
+                  onChange={(next) => updateQuota.mutate({ miluimCreditsUsed: next })}
+                  pending={updateQuota.isPending}
+                  isHe={isHe}
+                />
+                <QuotaCard
+                  icon={Check}
+                  label={t("binaryQuota")}
+                  used={binaryUsed}
+                  cap={binaryCap}
+                  hint={
                     <Bidi
                       text={
                         binaryCap > 0
@@ -211,8 +210,11 @@ export function MiluimStatusBar() {
                           : t("binaryNone")
                       }
                     />
-                  </p>
-                </div>
+                  }
+                  onChange={binaryCap > 0 ? (next) => updateQuota.mutate({ miluimBinaryUsed: next }) : undefined}
+                  pending={updateQuota.isPending}
+                  isHe={isHe}
+                />
               </div>
 
               {/* Headline benefits as an infographic (icon · value · label) —
@@ -392,6 +394,73 @@ function ServiceTimeline({
           })}
         </ul>
       )}
+    </div>
+  );
+}
+
+/**
+ * A quota card the student can update IN PLACE (note #46): the counters used
+ * to be read-only here and editable only deep in Settings — but the moment
+ * you learn "you have 2 conversions left" is exactly the moment you realize
+ * one was already spent. Stepper writes through the same updateProfile
+ * mutation Settings uses; demo accounts get the server's read-only error.
+ */
+function QuotaCard({
+  icon: Icon,
+  label,
+  used,
+  cap,
+  hint,
+  onChange,
+  pending,
+  isHe,
+}: {
+  icon: React.ComponentType<{ className?: string }>;
+  label: string;
+  used: number;
+  cap: number;
+  hint: React.ReactNode;
+  onChange?: (next: number) => void;
+  pending: boolean;
+  isHe: boolean;
+}) {
+  const stepBtn =
+    "flex size-6 items-center justify-center rounded-md border border-border/60 text-foreground/50 transition-colors hover:bg-foreground/5 hover:text-foreground/80 disabled:opacity-25 disabled:hover:bg-transparent";
+  return (
+    <div className="rounded-xl border border-border/60 bg-foreground/[0.02] p-3.5">
+      <div className="flex items-center gap-1.5 text-[11px] font-medium text-foreground/50">
+        <Icon className="size-3.5" />
+        {label}
+      </div>
+      <div className="mt-1 flex items-center justify-between gap-2">
+        <div className="flex items-baseline gap-1" dir="ltr">
+          <span className="font-mono text-xl font-bold text-foreground/85">{used}</span>
+          <span className="font-mono text-sm text-foreground/40">/ {cap}</span>
+        </div>
+        {onChange && (
+          <div className="flex items-center gap-1" dir="ltr">
+            <button
+              type="button"
+              disabled={pending || used <= 0}
+              onClick={() => onChange(used - 1)}
+              aria-label={isHe ? `הפחתת ניצול — ${label}` : `Decrease used — ${label}`}
+              className={stepBtn}
+            >
+              <Minus className="size-3" />
+            </button>
+            <button
+              type="button"
+              disabled={pending || used >= cap}
+              onClick={() => onChange(used + 1)}
+              aria-label={isHe ? `הוספת ניצול — ${label}` : `Increase used — ${label}`}
+              className={stepBtn}
+            >
+              <Plus className="size-3" />
+            </button>
+          </div>
+        )}
+      </div>
+      <p className="mt-0.5 text-[10px] leading-tight text-foreground/45">{hint}</p>
     </div>
   );
 }
