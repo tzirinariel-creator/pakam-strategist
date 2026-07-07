@@ -16,12 +16,12 @@ export function ConnectGeminiGuide() {
     ? [
         { icon: ExternalLink, text: <>פותחים את <a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener noreferrer" className="font-medium text-accent-brand underline-offset-2 hover:underline">Google AI Studio</a> ומתחברים עם חשבון הגוגל הרגיל שלכם.</> },
         { icon: MousePointerClick, text: <>לוחצים על <b>Create API key</b>. זהו — לא מבקשים כרטיס אשראי, והשכבה החינמית מספיקה בשפע לשימוש בעוזר.</> },
-        { icon: ClipboardPaste, text: <>מעתיקים את המפתח שנוצר ומדביקים אותו בשדה כאן למטה. מרגע זה המלך הפילוסוף עובד עם המכסה האישית שלכם.</> },
+        { icon: ClipboardPaste, text: <>מעתיקים את המפתח שנוצר ומדביקים אותו בשדה כאן למטה. מרגע זה היועץ שלכם עובד עם המכסה האישית שלכם.</> },
       ]
     : [
         { icon: ExternalLink, text: <>Open <a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener noreferrer" className="font-medium text-accent-brand underline-offset-2 hover:underline">Google AI Studio</a> and sign in with your regular Google account.</> },
         { icon: MousePointerClick, text: <>Click <b>Create API key</b>. That&apos;s it — no credit card, and the free tier is plenty for the assistant.</> },
-        { icon: ClipboardPaste, text: <>Copy the key and paste it in the field below. From that moment the Philosopher King runs on your own quota.</> },
+        { icon: ClipboardPaste, text: <>Copy the key and paste it in the field below. From that moment your advisor runs on your own quota.</> },
       ];
 
   return (

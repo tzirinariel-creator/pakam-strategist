@@ -1,12 +1,13 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useLocale } from "next-intl";
 import { Zap } from "lucide-react";
 import { DegreeAssistant } from "./degree-assistant";
 import { MentorChat } from "./mentor-chat";
 import { cn } from "@/lib/utils";
 import { PhilosopherKingIcon } from "@/components/ui/philosopher-king-icon";
+import { ReferentIcon } from "@/components/ui/referent-icon";
 
 /**
  * The degree assistant page with two modes:
@@ -19,21 +20,44 @@ import { PhilosopherKingIcon } from "@/components/ui/philosopher-king-icon";
 export function MentorPageClient() {
   const isHe = useLocale() === "he";
   const [mode, setMode] = useState<"quick" | "ai">("quick");
+  // Same device-local persona the FAB honors — a Referent user must not land
+  // here and meet the King (#47).
+  const [persona, setPersona] = useState<"king" | "referent">("king");
+  useEffect(() => {
+    try {
+      setPersona(localStorage.getItem("pk-persona") === "referent" ? "referent" : "king");
+    } catch {
+      /* default king */
+    }
+  }, []);
+  const isReferent = persona === "referent";
+  const advisorName = isReferent
+    ? isHe ? "הרפרנט" : "The Referent"
+    : isHe ? "המלך הפילוסוף" : "The Philosopher King";
 
   return (
     <div className="flex flex-col gap-4">
-      {/* Identity — the Philosopher King (matches the floating assistant). */}
+      {/* Identity — matches the floating assistant, persona-aware. */}
       <div className="flex flex-col items-center gap-2 pt-1">
-        <div className="flex size-12 items-center justify-center rounded-2xl bg-accent-brand text-crown-gold-bright shadow-sm ring-1 ring-crown-gold-bright/40">
-          <PhilosopherKingIcon className="size-7" />
+        <div
+          className={cn(
+            "flex size-12 items-center justify-center rounded-2xl shadow-sm ring-1",
+            isReferent
+              ? "bg-referent-teal/15 text-referent-teal ring-referent-teal/40"
+              : "bg-accent-brand text-crown-gold-bright ring-crown-gold-bright/40",
+          )}
+        >
+          {isReferent ? <ReferentIcon className="size-7" /> : <PhilosopherKingIcon className="size-7" />}
         </div>
-        <h1 className="font-display text-xl font-bold text-foreground/90">
-          {isHe ? "המלך הפילוסוף" : "The Philosopher King"}
-        </h1>
+        <h1 className="font-display text-xl font-bold text-foreground/90">{advisorName}</h1>
         <p className="max-w-sm text-center text-xs leading-relaxed text-foreground/50">
-          {isHe
-            ? "יועץ התואר שלך — חכם, ישיר, ותמיד מהנתונים האמיתיים שלך."
-            : "Your degree advisor — wise, direct, always from your real data."}
+          {isReferent
+            ? isHe
+              ? "שנה ג׳ שכבר עבר את זה — דוגרי, ותמיד מהנתונים האמיתיים שלך."
+              : "A final-year who's been through it — straight talk, always from your real data."
+            : isHe
+              ? "יועץ התואר שלך — חכם, ישיר, ותמיד מהנתונים האמיתיים שלך."
+              : "Your degree advisor — wise, direct, always from your real data."}
         </p>
       </div>
 
@@ -63,8 +87,8 @@ export function MentorPageClient() {
                 : "text-foreground/55 hover:text-foreground/80"
             )}
           >
-            <PhilosopherKingIcon className="size-3.5" />
-            {isHe ? "המלך הפילוסוף" : "The King"}
+            {isReferent ? <ReferentIcon className="size-3.5" /> : <PhilosopherKingIcon className="size-3.5" />}
+            {advisorName}
           </button>
         </div>
         <p className="text-center text-xs text-foreground/45">

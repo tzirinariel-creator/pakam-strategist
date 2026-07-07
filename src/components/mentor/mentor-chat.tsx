@@ -136,6 +136,14 @@ export function MentorChat() {
           body: JSON.stringify({
             sessionId: activeSessionId ?? undefined,
             message: messageText.trim(),
+            // Same device-local persona the FAB sends — one voice everywhere (#47).
+            persona: (() => {
+              try {
+                return localStorage.getItem("pk-persona") === "referent" ? "referent" : "king";
+              } catch {
+                return "king";
+              }
+            })(),
           }),
           signal: controller.signal,
         });
