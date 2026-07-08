@@ -115,7 +115,7 @@ export function ExamCountdown() {
                 <span className="text-lg font-bold leading-none tabular">
                   {exam.daysLeft}
                 </span>
-                <span className="text-[9px] leading-none mt-0.5">
+                <span className="text-[11px] leading-none mt-0.5">
                   {t("daysShort")}
                 </span>
               </div>
@@ -136,7 +136,7 @@ export function ExamCountdown() {
 
               {/* Today badge */}
               {exam.daysLeft === 0 && (
-                <span className="shrink-0 rounded-full bg-red-400/20 px-2 py-0.5 text-[10px] font-bold text-red-400 animate-pulse">
+                <span className="shrink-0 rounded-full bg-red-400/20 px-2 py-0.5 text-[11px] font-bold text-red-400 animate-pulse">
                   {isHe ? "היום" : "Today"}
                 </span>
               )}
@@ -146,7 +146,7 @@ export function ExamCountdown() {
       </div>
 
       {/* Legend — what the colors and A/B labels mean (#8). */}
-      <div className="mt-3 flex flex-wrap items-center gap-x-3 gap-y-1 border-t border-border/40 pt-2 text-[10px] text-foreground/45">
+      <div className="mt-3 flex flex-wrap items-center gap-x-3 gap-y-1 border-t border-border/40 pt-2 text-xs text-foreground/45">
         <span className="inline-flex items-center gap-1">
           <span className="size-2 rounded-full bg-red-400/70" />
           {isHe ? "עד 3 ימים" : "≤3 days"}

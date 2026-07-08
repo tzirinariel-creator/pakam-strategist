@@ -301,11 +301,11 @@ export function StudySkyline({ plan, recommendations, isHe, now, onDayClick }: S
         <div className="flex items-center gap-2 sm:flex-1 sm:pe-4">
           <Flag className="size-4 shrink-0 text-accent-brand" />
           <div className="min-w-0">
-            <p className="text-[10px] font-medium uppercase tracking-wide text-foreground/40">{isHe ? "מתחילים מ" : "Start with"}</p>
+            <p className="text-xs font-medium uppercase tracking-wide text-foreground/40">{isHe ? "מתחילים מ" : "Start with"}</p>
             <div className="flex items-center gap-1.5">
               <span className="size-2 shrink-0 rounded-full" style={{ backgroundColor: firstExam.color }} />
               <span className="truncate text-sm font-bold text-foreground/85">{firstExam.courseName}</span>
-              <span className={cn("shrink-0 rounded-full px-1.5 py-0.5 text-[10px] font-semibold", countdownClasses(firstExam.days))} dir={isHe ? "rtl" : "ltr"}>
+              <span className={cn("shrink-0 rounded-full px-1.5 py-0.5 text-[11px] font-semibold", countdownClasses(firstExam.days))} dir={isHe ? "rtl" : "ltr"}>
                 {firstExam.days <= 0 ? (isHe ? "היום!" : "Today!") : isHe ? hebCountdown(firstExam.days) : `in ${firstExam.days}d`}
               </span>
             </div>
@@ -315,7 +315,7 @@ export function StudySkyline({ plan, recommendations, isHe, now, onDayClick }: S
         <div className="flex gap-2 sm:contents">
           {/* Today's load */}
           <div className="flex-1 border-border/60 sm:border-s sm:px-4">
-            <p className="text-[10px] font-medium uppercase tracking-wide text-foreground/40">{isHe ? "העומס היום" : "Today's load"}</p>
+            <p className="text-xs font-medium uppercase tracking-wide text-foreground/40">{isHe ? "העומס היום" : "Today's load"}</p>
             {model.todayHours > 0 ? (
               <p className="text-sm font-bold text-foreground/85" dir={isHe ? "rtl" : "ltr"}>
                 {model.todayHours} {isHe ? "שע׳" : "h"}{" "}
@@ -335,7 +335,7 @@ export function StudySkyline({ plan, recommendations, isHe, now, onDayClick }: S
 
           {/* Peak day */}
           <div className={cn("flex-1 rounded-md border-border/60 sm:border-s sm:px-4", model.hasOverload && "bg-red-400/5")}>
-            <p className="flex items-center gap-1 text-[10px] font-medium uppercase tracking-wide text-foreground/40">
+            <p className="flex items-center gap-1 text-xs font-medium uppercase tracking-wide text-foreground/40">
               {model.hasOverload && <AlertTriangle className="size-3 text-red-500" />}
               {isHe ? "היום הכי עמוס" : "Heaviest day"}
             </p>
@@ -368,10 +368,10 @@ export function StudySkyline({ plan, recommendations, isHe, now, onDayClick }: S
                     <div className="flex items-center justify-center" style={{ height: `${cellH}px` }}>
                       <div className="flex flex-col items-center gap-1 rounded-lg border border-dashed border-border/40 px-1 py-2 text-center">
                         <Coffee className="size-3.5 text-foreground/25" />
-                        <span className="text-[9px] leading-tight text-foreground/35">{item.count} {isHe ? "ימים חופשיים" : "free days"}</span>
+                        <span className="text-xs leading-tight text-foreground/35">{item.count} {isHe ? "ימים חופשיים" : "free days"}</span>
                       </div>
                     </div>
-                    <div className="mt-1 h-[26px] w-full border-t border-border/30 pt-0.5 text-center text-[8px] text-foreground/30" dir={isHe ? "rtl" : "ltr"}>
+                    <div className="mt-1 h-[26px] w-full border-t border-border/30 pt-0.5 text-center text-[10px] text-foreground/30" dir={isHe ? "rtl" : "ltr"}>
                       {item.from.getDate()}–{item.to.getDate()}
                     </div>
                   </div>
@@ -407,7 +407,7 @@ export function StudySkyline({ plan, recommendations, isHe, now, onDayClick }: S
                   <div className="relative flex h-5 w-full items-end justify-center">
                     {hasExam && (
                       <div
-                        className={cn("flex items-center gap-0.5 rounded-sm px-1 py-px text-[9px] font-bold text-white shadow-sm", clash ? "ring-1 ring-amber-400" : "")}
+                        className={cn("flex items-center gap-0.5 rounded-sm px-1 py-px text-[10px] font-bold text-white shadow-sm", clash ? "ring-1 ring-amber-400" : "")}
                         style={{ backgroundColor: "#ef4444", borderInlineStart: `2px solid ${item.exams[0]!.color}` }}
                         title={item.exams.map((e) => `${e.courseName} — ${moedLabel(e.moed, isHe)}`).join(" · ")}
                       >
@@ -416,7 +416,7 @@ export function StudySkyline({ plan, recommendations, isHe, now, onDayClick }: S
                       </div>
                     )}
                     {!hasExam && item.isFirstStudy && (
-                      <span className="flex items-center gap-0.5 whitespace-nowrap rounded-sm bg-accent-brand/10 px-1 py-px text-[8px] font-semibold text-accent-brand" title={isHe ? "מתחילים כאן" : "Start here"}>
+                      <span className="flex items-center gap-0.5 whitespace-nowrap rounded-sm bg-accent-brand/10 px-1 py-px text-[11px] font-semibold text-accent-brand" title={isHe ? "מתחילים כאן" : "Start here"}>
                         <Flag className="size-2" />
                         {isHe ? "כאן" : "here"}
                       </span>
@@ -451,11 +451,11 @@ export function StudySkyline({ plan, recommendations, isHe, now, onDayClick }: S
 
                   {/* Date footer */}
                   <div className={cn("mt-1 flex h-[26px] w-full flex-col items-center justify-center border-t pt-0.5", item.isWeekend ? "border-border/20" : "border-border/30")}>
-                    <span className={cn("text-[8px] leading-none", item.isToday ? "font-bold text-accent-brand" : item.isWeekend ? "text-foreground/25" : "text-foreground/40")}>
+                    <span className={cn("text-[10px] leading-none", item.isToday ? "font-bold text-accent-brand" : item.isWeekend ? "text-foreground/25" : "text-foreground/40")}>
                       {(isHe ? HE_WEEKDAYS : EN_WEEKDAYS)[item.date.getDay()]}
                     </span>
                     {item.isToday ? (
-                      <span className="mt-0.5 rounded-full bg-accent-brand px-1 text-[9px] font-bold leading-tight text-accent-brand-fg">{item.date.getDate()}</span>
+                      <span className="mt-0.5 rounded-full bg-accent-brand px-1 text-[10px] font-bold leading-tight text-accent-brand-fg">{item.date.getDate()}</span>
                     ) : (
                       <span className={cn("font-mono text-[10px] leading-tight tabular-nums", item.isWeekend ? "text-foreground/25" : "text-foreground/45")}>{item.date.getDate()}</span>
                     )}
@@ -497,7 +497,7 @@ export function StudySkyline({ plan, recommendations, isHe, now, onDayClick }: S
           >
             <span className="size-2.5 shrink-0 rounded-full" style={{ backgroundColor: c.color }} />
             <span className="max-w-[130px] truncate text-xs text-foreground/70">{c.courseName}</span>
-            <span className="text-[10px] text-foreground/40" dir={isHe ? "rtl" : "ltr"}>{c.totalHours}{isHe ? "ש׳" : "h"} · {moedLabel(c.moed, isHe)}</span>
+            <span className="text-[11px] text-foreground/40" dir={isHe ? "rtl" : "ltr"}>{c.totalHours}{isHe ? "ש׳" : "h"} · {moedLabel(c.moed, isHe)}</span>
           </button>
         ))}
       </div>

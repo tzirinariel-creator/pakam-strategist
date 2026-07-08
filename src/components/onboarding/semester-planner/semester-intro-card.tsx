@@ -138,7 +138,7 @@ export function SemesterIntroCard({ year, semester }: SemesterIntroCardProps) {
 
           {/* Credit range guidance */}
           {data.creditRangeHe && (
-            <div className="mt-1.5 inline-flex items-center gap-1 rounded-md bg-black/5 px-2 py-0.5 text-[10px] font-medium opacity-80">
+            <div className="mt-1.5 inline-flex items-center gap-1 rounded-md bg-black/5 px-2 py-0.5 text-xs font-medium opacity-80">
               <span><Bidi text={isHe ? data.creditRangeHe! : data.creditRangeEn!} /></span>
             </div>
           )}
@@ -147,7 +147,7 @@ export function SemesterIntroCard({ year, semester }: SemesterIntroCardProps) {
           {year >= 2 && (
             <div className="mt-2 flex items-start gap-1.5 rounded-lg bg-black/5 p-2">
               <FileText className="h-3 w-3 shrink-0 mt-0.5 opacity-60" />
-              <div className="text-[10px] leading-relaxed opacity-70 space-y-0.5">
+              <div className="text-xs leading-relaxed opacity-70 space-y-0.5">
                 <span className="font-semibold">
                   {isHe ? "תזכורת סמינרים:" : "Seminar rules:"}
                 </span>

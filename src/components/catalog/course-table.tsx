@@ -452,20 +452,20 @@ export function CourseTable({ courses, allCourses, focusArea }: CourseTableProps
                     {(() => {
                       const d = difficultyMeta(course.difficultyLevel, isHe);
                       return d ? (
-                        <span className={cn("rounded-full px-1.5 py-0.5 text-[10px] font-medium", d.cls)}>
+                        <span className={cn("rounded-full px-1.5 py-0.5 text-[11px] font-medium", d.cls)}>
                           {d.label}
                         </span>
                       ) : null;
                     })()}
                     {course.failRate != null && course.failRate >= 1 && (
-                      <span className="text-[10px] text-muted-foreground" dir="ltr">
+                      <span className="text-[11px] text-muted-foreground" dir="ltr">
                         {Math.round(course.failRate)}% {isHe ? "נכשלים" : "fail"}
                       </span>
                     )}
                     {(() => {
                       const from = formatGradeDataYear(course.gradeDataYear, isHe);
                       return from ? (
-                        <span className="text-[9px] text-muted-foreground/50">{from}</span>
+                        <span className="text-[11px] text-muted-foreground/50">{from}</span>
                       ) : null;
                     })()}
                   </div>

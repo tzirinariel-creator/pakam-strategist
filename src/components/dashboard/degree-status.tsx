@@ -220,7 +220,7 @@ export function DegreeStatus({
           />
         )}
       </div>
-      <div className="mt-1.5 flex flex-wrap items-center gap-x-4 gap-y-1 text-[10px] text-foreground/50">
+      <div className="mt-1.5 flex flex-wrap items-center gap-x-4 gap-y-1 text-[11px] text-foreground/50">
         <Legend className="bg-foreground" label={isHe ? `${earned} הושלמו` : `${earned} done`} />
         {planned > 0 && (
           <Legend className="bg-foreground/30" label={isHe ? `${planned} מתוכננים` : `${planned} planned`} />
@@ -341,7 +341,7 @@ export function DegreeStatus({
                 {b.key === "english" && englishLevel && (
                   <p
                     className={cn(
-                      "mt-1 text-[10px] leading-tight",
+                      "mt-1 text-xs leading-tight",
                       englishLevel.isExempt ? "text-emerald-500/80" : "text-amber-500/90",
                     )}
                   >

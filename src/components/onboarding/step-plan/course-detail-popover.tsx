@@ -63,7 +63,7 @@ export function CourseDetailPopover({ course, children, onDisciplineOverride }: 
               {isHe ? course.nameHe : (course.nameEn ?? course.nameHe)}
             </span>
           </div>
-          <div className="mt-1 flex items-center gap-2 text-[10px] text-foreground/40">
+          <div className="mt-1 flex items-center gap-2 text-xs text-foreground/40">
             <span className="font-mono">{course.code}</span>
             <span>·</span>
             <span>{course.credits} {t("nz")}</span>
@@ -117,13 +117,13 @@ export function CourseDetailPopover({ course, children, onDisciplineOverride }: 
         {/* Badges */}
         <div className="flex flex-wrap gap-1.5">
           {course.isMandatory && (
-            <span className="inline-flex items-center gap-1 rounded-full bg-foreground/10 border border-foreground/30 px-2 py-0.5 text-[10px] font-medium text-foreground/80">
+            <span className="inline-flex items-center gap-1 rounded-full bg-foreground/10 border border-foreground/30 px-2 py-0.5 text-[11px] font-medium text-foreground/80">
               <Lock className="h-2.5 w-2.5" />
               {t("mandatory")}
             </span>
           )}
           {course.attendanceMandatory && (
-            <span className="inline-flex items-center gap-1 rounded-full bg-foreground/5 border border-foreground/10 px-2 py-0.5 text-[10px] text-foreground/50">
+            <span className="inline-flex items-center gap-1 rounded-full bg-foreground/5 border border-foreground/10 px-2 py-0.5 text-[11px] text-foreground/50">
               <Users className="h-2.5 w-2.5" />
               {t("attendanceRequired")}
             </span>
@@ -131,7 +131,7 @@ export function CourseDetailPopover({ course, children, onDisciplineOverride }: 
           <button
             onClick={() => onDisciplineOverride ? setShowDisciplineSelect((v) => !v) : undefined}
             className={cn(
-              "inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[10px]",
+              "inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[11px]",
               onDisciplineOverride && "cursor-pointer hover:opacity-80"
             )}
             style={{
@@ -145,7 +145,7 @@ export function CourseDetailPopover({ course, children, onDisciplineOverride }: 
             {onDisciplineOverride && <Pencil className="inline h-2.5 w-2.5 opacity-40" />}
           </button>
           {course.submissionType !== "NONE" && (
-            <span className="inline-flex items-center gap-1 rounded-full bg-foreground/5 border border-foreground/10 px-2 py-0.5 text-[10px] text-foreground/50">
+            <span className="inline-flex items-center gap-1 rounded-full bg-foreground/5 border border-foreground/10 px-2 py-0.5 text-[11px] text-foreground/50">
               <BookOpen className="h-2.5 w-2.5" />
               {course.submissionType === "EXAM" ? t("exam") : course.submissionType === "PAPER" ? t("paper") : t("referat")}
             </span>
@@ -166,7 +166,7 @@ export function CourseDetailPopover({ course, children, onDisciplineOverride }: 
                         setShowDisciplineSelect(false);
                       }}
                       className={cn(
-                        "rounded-full border px-2 py-0.5 text-[9px] transition-all",
+                        "rounded-full border px-2 py-0.5 text-[11px] transition-all",
                         isActive
                           ? "font-medium"
                           : "opacity-60 hover:opacity-100"
@@ -188,7 +188,7 @@ export function CourseDetailPopover({ course, children, onDisciplineOverride }: 
         {/* Schedule */}
         {course.scheduleSessions && course.scheduleSessions.length > 0 && (
           <div className="space-y-1">
-            <div className="text-[10px] font-medium text-foreground/40 uppercase tracking-wider">
+            <div className="text-[11px] font-medium text-foreground/40 uppercase tracking-wider">
               {t("schedule")}
             </div>
             {course.scheduleSessions.map((session, i) => (
@@ -198,11 +198,11 @@ export function CourseDetailPopover({ course, children, onDisciplineOverride }: 
                 <span dir="ltr" className="font-mono text-[10px]">
                   {session.startTime}–{session.endTime}
                 </span>
-                <span className="text-[10px] text-foreground/30">
+                <span className="text-[11px] text-foreground/30">
                   {session.sessionType === "lecture" ? (isHe ? "הרצאה" : "Lecture") : session.sessionType === "tutorial" ? (isHe ? "תרגול" : "Tutorial") : session.sessionType}
                 </span>
                 {session.room && (
-                  <span className="text-[10px] text-foreground/20">
+                  <span className="text-[11px] text-foreground/20">
                     {session.building ? `${session.building} ` : ""}{session.room}
                   </span>
                 )}
@@ -214,7 +214,7 @@ export function CourseDetailPopover({ course, children, onDisciplineOverride }: 
         {/* Exam dates */}
         {(course.examDateA || course.examDateB) && (
           <div className="space-y-1">
-            <div className="text-[10px] font-medium text-foreground/40 uppercase tracking-wider">
+            <div className="text-[11px] font-medium text-foreground/40 uppercase tracking-wider">
               {t("examDates")}
             </div>
             <div className="flex gap-3 text-xs text-foreground/60">
@@ -249,7 +249,7 @@ export function CourseDetailPopover({ course, children, onDisciplineOverride }: 
         {/* Prerequisites */}
         {course.prerequisites.length > 0 && (
           <div className="space-y-1">
-            <div className="text-[10px] font-medium text-foreground/40 uppercase tracking-wider">
+            <div className="text-[11px] font-medium text-foreground/40 uppercase tracking-wider">
               {t("prerequisites")}
             </div>
             <div className="flex flex-wrap gap-1">

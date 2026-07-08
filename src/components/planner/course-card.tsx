@@ -172,7 +172,7 @@ export function CourseCard({ userCourse, disabled }: CourseCardProps) {
           <span className="text-[10px] font-mono text-muted-foreground/60">{course.code}</span>
           <DisciplineBadge
             discipline={userCourse.disciplineOverride ?? course.discipline}
-            className="text-[10px] px-1.5 py-0"
+            className="text-[11px] px-1.5 py-0"
           />
           {userCourse.grade !== null && userCourse.status === "COMPLETED" && !userCourse.isBinary && (
             <GradeWithTooltip
@@ -184,7 +184,7 @@ export function CourseCard({ userCourse, disabled }: CourseCardProps) {
           )}
           {userCourse.isBinary && userCourse.status === "COMPLETED" && (
             <span
-              className="inline-flex items-center rounded-full bg-amber-500/15 px-1.5 py-0 text-[9px] font-medium text-amber-600"
+              className="inline-flex items-center rounded-full bg-amber-500/15 px-1.5 py-0 text-[11px] font-medium text-amber-600"
               title={tPlanner("binaryHint")}
             >
               {tPlanner("binaryBadge")}
@@ -198,7 +198,7 @@ export function CourseCard({ userCourse, disabled }: CourseCardProps) {
         <span className="text-sm font-bold tabular text-foreground/80">
           {course.credits}
         </span>
-        <span className="text-[9px] text-muted-foreground leading-none">
+        <span className="text-[11px] text-muted-foreground leading-none">
           {t(userCourse.status)}
         </span>
       </div>
@@ -222,7 +222,7 @@ export function CourseCard({ userCourse, disabled }: CourseCardProps) {
         className={cn(
           "absolute -top-1.5 -end-1.5 z-20 flex items-center justify-center rounded-full border transition-all",
           confirmRemove
-            ? "size-auto gap-1 border-red-400/60 bg-red-500/90 px-2 py-0.5 text-[10px] font-medium text-white"
+            ? "size-auto gap-1 border-red-400/60 bg-red-500/90 px-2 py-0.5 text-[11px] font-medium text-white"
             : "size-5 border-border/60 bg-card text-muted-foreground/50 opacity-0 hover:border-red-400/60 hover:bg-red-500/10 hover:text-red-400 group-hover:opacity-100 focus:opacity-100 focus:ring-2 focus:ring-red-400/60 focus:outline-none",
         )}
         title={tPlanner("removeCourse")}
@@ -434,7 +434,7 @@ function CompletionControl({
               )}
             </div>
             {isFailingGrade && (
-              <p className="flex items-center gap-1 text-[10px] leading-tight text-amber-600 dark:text-amber-500">
+              <p className="flex items-center gap-1 text-xs leading-tight text-amber-600 dark:text-amber-500">
                 <AlertTriangle className="size-3 shrink-0" />
                 {isHe
                   ? "ציון נכשל — הקורס לא נספר לקרדיט עד שתעבור אותו מחדש."
@@ -469,7 +469,7 @@ function CompletionControl({
               </button>
               <span>{tPlanner("markBinary")}</span>
             </label>
-            <p className="text-[10px] leading-tight text-foreground/45">
+            <p className="text-xs leading-tight text-foreground/45">
               {tPlanner("binaryHint")}
             </p>
           </div>
@@ -570,7 +570,7 @@ export function CourseCardOverlay({
         </span>
         <DisciplineBadge
           discipline={userCourse.disciplineOverride ?? course.discipline}
-          className="text-[10px] px-1.5 py-0"
+          className="text-[11px] px-1.5 py-0"
         />
       </div>
 

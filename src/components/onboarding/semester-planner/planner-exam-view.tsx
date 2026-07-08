@@ -146,7 +146,7 @@ export function PlannerExamView({ courses }: PlannerExamViewProps) {
                 <span className="text-sm font-medium text-foreground/80 truncate flex-1">
                   {entry.courseName}
                 </span>
-                <span className="text-[10px] font-mono text-foreground/30">
+                <span className="text-[11px] font-mono text-foreground/30">
                   {entry.credits} {t("credits")}
                 </span>
               </div>
@@ -160,7 +160,7 @@ export function PlannerExamView({ courses }: PlannerExamViewProps) {
                       className="h-2 w-2 rounded-full"
                       style={{ backgroundColor: color }}
                     />
-                    <div className="text-[10px]">
+                    <div className="text-[11px]">
                       <span className="text-foreground/40">{t("moedA")}</span>
                       <span className="mx-1 text-foreground/15">·</span>
                       <span className="font-mono font-medium text-foreground/70">
@@ -193,7 +193,7 @@ export function PlannerExamView({ courses }: PlannerExamViewProps) {
                       className="h-2 w-2 rounded-full bg-background"
                       style={{ border: `2px solid ${color}` }}
                     />
-                    <div className="text-[10px]">
+                    <div className="text-[11px]">
                       <span className="text-foreground/40">{t("moedB")}</span>
                       <span className="mx-1 text-foreground/15">·</span>
                       <span className="font-mono font-medium text-foreground/70">
@@ -209,7 +209,7 @@ export function PlannerExamView({ courses }: PlannerExamViewProps) {
       </div>
 
       {/* Legend */}
-      <div className="flex items-center justify-center gap-4 text-[9px] text-foreground/30">
+      <div className="flex items-center justify-center gap-4 text-[11px] text-foreground/30">
         <div className="flex items-center gap-1.5">
           <div className="h-2.5 w-2.5 rounded-full bg-foreground/30" />
           <span>{t("moedA")}</span>
@@ -224,7 +224,7 @@ export function PlannerExamView({ courses }: PlannerExamViewProps) {
       {tightGaps > 0 && (
         <div className="flex items-start gap-2 rounded-lg border border-amber-500/20 bg-amber-500/5 px-3 py-2">
           <AlertTriangle className="mt-0.5 h-3.5 w-3.5 shrink-0 text-amber-500/60" />
-          <p className="text-[10px] leading-relaxed text-amber-600/70">
+          <p className="text-xs leading-relaxed text-amber-600/70">
             {isHe
               ? "יש קורסים עם פחות מ-14 יום בין מועד א׳ למועד ב׳"
               : "Some courses have less than 14 days between Moed A and Moed B"}

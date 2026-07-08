@@ -327,7 +327,7 @@ export function WeeklyTimetable({ sessions, previewSessions }: WeeklyTimetablePr
                             </span>
                           )}
                           {hasConflict && (
-                            <span className="mt-1 flex w-fit items-center gap-1 rounded bg-red-500/10 px-1.5 py-0.5 text-[10px] font-bold text-red-400">
+                            <span className="mt-1 flex w-fit items-center gap-1 rounded bg-red-500/10 px-1.5 py-0.5 text-[11px] font-bold text-red-400">
                               <AlertTriangle className="size-2.5" />
                               {t("conflict")}
                             </span>
@@ -472,7 +472,7 @@ export function WeeklyTimetable({ sessions, previewSessions }: WeeklyTimetablePr
                       borderColor: color,
                     }}
                   >
-                    <span className="truncate text-[10px] font-semibold leading-tight text-foreground/70">
+                    <span className="truncate text-[11px] font-semibold leading-tight text-foreground/70">
                       {slot.courseName}
                     </span>
                     <span className="truncate font-mono text-[10px] text-muted-foreground" dir="ltr">
@@ -536,7 +536,7 @@ export function WeeklyTimetable({ sessions, previewSessions }: WeeklyTimetablePr
                     <span
                       className={cn(
                         "truncate font-semibold leading-tight text-foreground/90",
-                        isNarrow || isShort ? "text-[10px]" : "text-xs",
+                        isNarrow || isShort ? "text-[11px]" : "text-xs",
                       )}
                     >
                       {slot.courseName}
@@ -546,7 +546,7 @@ export function WeeklyTimetable({ sessions, previewSessions }: WeeklyTimetablePr
                     {!isShort && (
                       <span className={cn(
                         "mt-0.5 truncate text-muted-foreground",
-                        isNarrow ? "text-[9px]" : "text-[10px]",
+                        isNarrow ? "text-[11px]" : "text-[11px]",
                       )}>
                         {slot.courseCode} · {sessionTypeText}
                       </span>
@@ -556,7 +556,7 @@ export function WeeklyTimetable({ sessions, previewSessions }: WeeklyTimetablePr
                     {heightPx >= ROW_HEIGHT * 1.2 && !isNarrow && (
                       <div className="mt-auto flex flex-col gap-0.5">
                         {locationText && (
-                          <span className="flex items-center gap-1 truncate text-[10px] text-muted-foreground">
+                          <span className="flex items-center gap-1 truncate text-[11px] text-muted-foreground">
                             <MapPin className="size-2.5 shrink-0 opacity-60" />
                             {locationText}
                           </span>
@@ -566,7 +566,7 @@ export function WeeklyTimetable({ sessions, previewSessions }: WeeklyTimetablePr
                             {slot.startTimeStr}–{slot.endTimeStr}
                           </span>
                           {hasConflict && (
-                            <span className="flex items-center gap-0.5 rounded bg-red-500/10 px-1 py-0.5 text-[9px] font-bold text-red-400">
+                            <span className="flex items-center gap-0.5 rounded bg-red-500/10 px-1 py-0.5 text-[11px] font-bold text-red-400">
                               <AlertTriangle className="size-2.5" />
                               {t("conflict")}
                             </span>
@@ -577,7 +577,7 @@ export function WeeklyTimetable({ sessions, previewSessions }: WeeklyTimetablePr
 
                     {/* Narrow block: just time */}
                     {isNarrow && !isShort && (
-                      <span className="mt-auto font-mono text-[9px] text-muted-foreground/60" dir="ltr">
+                      <span className="mt-auto font-mono text-[10px] text-muted-foreground/60" dir="ltr">
                         {slot.startTimeStr}
                       </span>
                     )}

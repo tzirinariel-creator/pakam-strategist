@@ -139,7 +139,7 @@ export function LiveTimetable({ courses, currentSemester, sessionGroupSelections
       {coursesWithoutSchedule.length > 0 && (
         <div className="flex items-start gap-2 rounded-lg border border-dashed border-amber-500/20 bg-amber-500/5 px-3 py-2">
           <CalendarX2 className="mt-0.5 h-3.5 w-3.5 shrink-0 text-amber-500/60" />
-          <div className="text-[10px] leading-relaxed text-amber-600/70">
+          <div className="text-xs leading-relaxed text-amber-600/70">
             <span className="font-medium">
               {t("coursesWithoutSchedule", { count: coursesWithoutSchedule.length })}
             </span>

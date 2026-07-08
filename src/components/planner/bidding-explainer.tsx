@@ -66,7 +66,7 @@ export function BiddingExplainer({ isHe }: { isHe: boolean }) {
             iconClassName="size-3.5"
           />
 
-          <p className="text-[10px] leading-tight text-foreground/40">
+          <p className="text-xs leading-tight text-foreground/40">
             {isHe
               ? "מנגנון יציב. איננו מנחשים כמה נקודות צריך לקורס — זה משתנה כל סמסטר ולא מתפרסם מראש."
               : "Stable mechanism. We don't guess how many points a course needs — it changes each semester and isn't published in advance."}
@@ -137,7 +137,7 @@ function OverlapTrap({ isHe }: { isHe: boolean }) {
         {/* held course */}
         <div className="relative h-7 rounded-md bg-foreground/[0.04]">
           <div
-            className="absolute inset-y-0 flex items-center justify-center rounded-md bg-emerald-500/20 text-[10px] font-semibold text-emerald-700 ring-1 ring-emerald-500/40 dark:text-emerald-300"
+            className="absolute inset-y-0 flex items-center justify-center rounded-md bg-emerald-500/20 text-[11px] font-semibold text-emerald-700 ring-1 ring-emerald-500/40 dark:text-emerald-300"
             style={{ insetInlineStart: `${pct(held.start)}%`, width: `${pct(held.end) - pct(held.start)}%` }}
           >
             <bdi>{isHe ? "קורס א׳ ✓" : "Course A ✓"}</bdi>
@@ -146,7 +146,7 @@ function OverlapTrap({ isHe }: { isHe: boolean }) {
         {/* new bid course */}
         <div className="relative h-7 rounded-md bg-foreground/[0.04]">
           <div
-            className="absolute inset-y-0 flex items-center justify-center rounded-md bg-amber-500/25 text-[10px] font-semibold text-amber-700 ring-1 ring-amber-500/50 dark:text-amber-300"
+            className="absolute inset-y-0 flex items-center justify-center rounded-md bg-amber-500/25 text-[11px] font-semibold text-amber-700 ring-1 ring-amber-500/50 dark:text-amber-300"
             style={{ insetInlineStart: `${pct(bid.start)}%`, width: `${pct(bid.end) - pct(bid.start)}%` }}
           >
             <bdi>{isHe ? "קורס ב׳ ⚠" : "Course B ⚠"}</bdi>

@@ -18,6 +18,7 @@ export const TOUR_DONE_KEY = "pakamon-tour-done";
 
 interface Step {
   selector: string | null; // null → centered card
+  conditional?: boolean; // skip if its target element isn't on the page (e.g. the miluim bar for a student who never served)
   titleHe: string;
   titleEn: string;
   bodyHe: string;
@@ -50,6 +51,7 @@ const STEPS: Step[] = [
   },
   {
     selector: '[data-tour="miluim"]',
+    conditional: true,
     titleHe: "ההטבות שלכם במילואים",
     titleEn: "Your miluim benefits",
     bodyHe: "אם שירתתם — הפס הזה תמיד מראה את הקבוצה וההטבות שלכם. לחיצה פותחת את כל הפירוט.",
@@ -113,8 +115,23 @@ export function AnchoredTour({ open, onClose }: { open: boolean; onClose: () => 
     onClose();
   }, [onClose]);
 
-  const next = () => (isLast ? close() : setStep((s) => s + 1));
-  const back = () => setStep((s) => Math.max(0, s - 1));
+  // A conditional step (e.g. miluim, absent for a non-server) is skipped so the
+  // spotlight never lands on a missing target and shows an irrelevant card.
+  const isPresent = (i: number) => {
+    const s = STEPS[i]!;
+    return !s.conditional || (!!s.selector && typeof document !== "undefined" && !!document.querySelector(s.selector));
+  };
+  const next = () => {
+    if (isLast) return close();
+    let i = step + 1;
+    while (i < total - 1 && !isPresent(i)) i++;
+    setStep(i);
+  };
+  const back = () => {
+    let i = step - 1;
+    while (i > 0 && !isPresent(i)) i--;
+    setStep(Math.max(0, i));
+  };
 
   if (!open || !mounted) return null;
 
@@ -162,7 +179,7 @@ export function AnchoredTour({ open, onClose }: { open: boolean; onClose: () => 
           {isHe ? "חזרה" : "Back"}
         </button>
         <div className="flex items-center gap-1.5">
-          {STEPS.map((_, i) => (
+          {STEPS.map((_, i) => i).filter(isPresent).map((i) => (
             <span key={i} className={cn("h-1.5 rounded-full transition-all", i === step ? "w-5 bg-accent-brand" : "w-1.5 bg-foreground/15")} />
           ))}
         </div>

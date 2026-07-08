@@ -68,7 +68,7 @@ function PlannerPreview({ isRTL }: { isRTL: boolean }) {
         <span className="size-2.5 rounded-full bg-[#ff5f57]" />
         <span className="size-2.5 rounded-full bg-[#febc2e]" />
         <span className="size-2.5 rounded-full bg-[#28c840]" />
-        <div className="mx-auto flex items-center gap-1.5 text-[10px] text-muted-foreground">
+        <div className="mx-auto flex items-center gap-1.5 text-xs text-muted-foreground">
           <GraduationCap className="size-3" />
           <span>{isRTL ? "תכנון התואר" : "Degree planner"}</span>
         </div>
@@ -91,7 +91,7 @@ function PlannerPreview({ isRTL }: { isRTL: boolean }) {
       <div className="grid grid-cols-3 gap-2 p-4">
         {PREVIEW_SEMESTERS.map((sem) => (
           <div key={sem.en}>
-            <div className="mb-2 text-[10px] font-medium text-muted-foreground">
+            <div className="mb-2 text-[11px] font-medium text-muted-foreground">
               {isRTL ? sem.he : sem.en}
             </div>
             <div className="space-y-1.5">
@@ -104,7 +104,7 @@ function PlannerPreview({ isRTL }: { isRTL: boolean }) {
                   <div className="truncate text-[11px] font-medium text-foreground/90">
                     {isRTL ? c.he : c.en}
                   </div>
-                  <div className="text-[8px] text-muted-foreground">
+                  <div className="text-[10px] text-muted-foreground">
                     {c.credits} {isRTL ? "ש״ס" : "cr"}
                   </div>
                 </div>
@@ -115,7 +115,7 @@ function PlannerPreview({ isRTL }: { isRTL: boolean }) {
       </div>
 
       {/* Footer chip — compliance */}
-      <div className="flex items-center justify-between border-t border-border/60 bg-muted/30 px-4 py-2.5 text-[10px]">
+      <div className="flex items-center justify-between border-t border-border/60 bg-muted/30 px-4 py-2.5 text-xs">
         <span className="flex items-center gap-1.5 text-muted-foreground">
           <Scale className="size-3" />
           {isRTL ? "תקנון" : "Regulations"}
@@ -283,7 +283,7 @@ export function LandingPage() {
                 <span className="size-2.5 rounded-full bg-[#ff5f57]" />
                 <span className="size-2.5 rounded-full bg-[#febc2e]" />
                 <span className="size-2.5 rounded-full bg-[#28c840]" />
-                <div className="mx-auto flex items-center gap-1.5 text-[10px] text-muted-foreground">
+                <div className="mx-auto flex items-center gap-1.5 text-xs text-muted-foreground">
                   <PhilosopherKingIcon className="size-3 text-crown-gold" />
                   <span>{t("proof.afterTitle")}</span>
                 </div>

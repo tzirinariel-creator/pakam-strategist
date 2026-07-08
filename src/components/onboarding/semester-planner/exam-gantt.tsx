@@ -245,13 +245,13 @@ export function ExamGantt({ courses }: ExamGanttProps) {
             {isHe ? "ציר זמן מבחנים" : "Exam Timeline"}
           </span>
           {conflictDays.size > 0 && (
-            <span className="flex items-center gap-1 rounded-full bg-red-500/10 px-2 py-0.5 text-[10px] font-medium text-red-500">
+            <span className="flex items-center gap-1 rounded-full bg-red-500/10 px-2 py-0.5 text-[11px] font-medium text-red-500">
               <AlertTriangle className="h-2.5 w-2.5" />
               {isHe ? "התנגשות" : "Conflict"}
             </span>
           )}
           {tightGaps.length > 0 && conflictDays.size === 0 && (
-            <span className="flex items-center gap-1 rounded-full bg-amber-500/10 px-2 py-0.5 text-[10px] font-medium text-amber-500">
+            <span className="flex items-center gap-1 rounded-full bg-amber-500/10 px-2 py-0.5 text-[11px] font-medium text-amber-500">
               {isHe ? "צפוף" : "Tight"}
             </span>
           )}
@@ -291,7 +291,7 @@ export function ExamGantt({ courses }: ExamGanttProps) {
                 <th
                   key={`dow-${i}`}
                   className={cn(
-                    "border-e border-b border-border/10 text-[8px] font-normal text-foreground/25 py-0.5",
+                    "border-e border-b border-border/10 text-[10px] font-normal text-foreground/25 py-0.5",
                     d.isToday && "bg-foreground/5 font-bold text-foreground/60",
                     d.isWeekend && "bg-foreground/[0.02]",
                   )}
@@ -304,7 +304,7 @@ export function ExamGantt({ courses }: ExamGanttProps) {
             {/* Date number row */}
             <tr>
               <th
-                className="sticky start-0 z-20 border-e border-b border-border/20 bg-card px-2 text-start text-[10px] font-medium text-foreground/40"
+                className="sticky start-0 z-20 border-e border-b border-border/20 bg-card px-2 text-start text-[11px] font-medium text-foreground/40"
                 style={{ width: `${labelWidth}px` }}
               >
                 {isHe ? "קורס" : "Course"}
@@ -360,7 +360,7 @@ export function ExamGantt({ courses }: ExamGanttProps) {
                         className="h-2 w-2 shrink-0 rounded-full"
                         style={{ backgroundColor: event.color }}
                       />
-                      <span className="text-[10px] font-medium text-foreground/70 truncate leading-tight">
+                      <span className="text-[11px] font-medium text-foreground/70 truncate leading-tight">
                         {event.courseName}
                       </span>
                     </div>
@@ -395,7 +395,7 @@ export function ExamGantt({ courses }: ExamGanttProps) {
                         {isMoedA && (
                           <div
                             className={cn(
-                              "absolute inset-1 flex items-center justify-center rounded-md text-[9px] font-bold cursor-default",
+                              "absolute inset-1 flex items-center justify-center rounded-md text-[10px] font-bold cursor-default",
                               hasConflict ? "ring-1 ring-red-500/60" : "",
                             )}
                             style={{
@@ -415,7 +415,7 @@ export function ExamGantt({ courses }: ExamGanttProps) {
                         {/* Moed B cell */}
                         {isMoedB && (
                           <div
-                            className="absolute inset-1 flex items-center justify-center rounded-md text-[9px] font-medium cursor-default border border-dashed"
+                            className="absolute inset-1 flex items-center justify-center rounded-md text-[10px] font-medium cursor-default border border-dashed"
                             style={{
                               backgroundColor: `${event.color}10`,
                               color: `${event.color}99`,
@@ -437,13 +437,13 @@ export function ExamGantt({ courses }: ExamGanttProps) {
       </div>
 
       {/* Legend */}
-      <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-1 text-[9px] text-foreground/30">
+      <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-1 text-[11px] text-foreground/30">
         <div className="flex items-center gap-1.5">
-          <div className="h-3 w-4 rounded-sm bg-foreground/15 flex items-center justify-center text-[7px] font-bold text-foreground/50">A</div>
+          <div className="h-3 w-4 rounded-sm bg-foreground/15 flex items-center justify-center text-[10px] font-bold text-foreground/50">A</div>
           <span>{isHe ? "מועד א׳" : "Moed A"}</span>
         </div>
         <div className="flex items-center gap-1.5">
-          <div className="h-3 w-4 rounded-sm border border-dashed border-foreground/20 flex items-center justify-center text-[7px] text-foreground/30">B</div>
+          <div className="h-3 w-4 rounded-sm border border-dashed border-foreground/20 flex items-center justify-center text-[10px] text-foreground/30">B</div>
           <span>{isHe ? "מועד ב׳" : "Moed B"}</span>
         </div>
         {conflictDays.size > 0 && (
@@ -458,7 +458,7 @@ export function ExamGantt({ courses }: ExamGanttProps) {
       {tightGaps.length > 0 && (
         <div className="flex items-start gap-2 rounded-lg border border-amber-500/20 bg-amber-500/5 px-3 py-2">
           <AlertTriangle className="mt-0.5 h-3.5 w-3.5 shrink-0 text-amber-500/60" />
-          <div className="text-[10px] leading-relaxed text-amber-600/70">
+          <div className="text-xs leading-relaxed text-amber-600/70">
             {isHe
               ? `${tightGaps.length} זוג/ות מבחנים עם פחות מ-3 ימים ביניהם`
               : `${tightGaps.length} exam pair(s) with less than 3 days gap`

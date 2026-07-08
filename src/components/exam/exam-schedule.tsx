@@ -405,7 +405,7 @@ export function ExamSchedule() {
             );
           })}
           <span className="inline-flex items-center gap-1.5">
-            <Badge variant="outline" className="text-[9px]">{t("moedB")}</Badge>
+            <Badge variant="outline" className="text-[11px]">{t("moedB")}</Badge>
             {isRTL ? "מועד חוזר" : "retake"}
           </span>
           <span className="inline-flex items-center gap-1.5">
@@ -446,7 +446,7 @@ export function ExamSchedule() {
                     {group.label}
                   </span>
                   {group.isMoedB && (
-                    <Badge variant="outline" className="text-[10px]">
+                    <Badge variant="outline" className="text-[11px]">
                       {t("moedB")}
                     </Badge>
                   )}
@@ -504,7 +504,7 @@ export function ExamSchedule() {
 
                       {/* Semester badge */}
                       <div className="hidden sm:block">
-                        <Badge variant="outline" className="text-[10px]">
+                        <Badge variant="outline" className="text-[11px]">
                           {locale === "he"
                             ? (YEAR_CONFIG[exam.plannedYear as keyof typeof YEAR_CONFIG]?.nameHe ?? `${exam.plannedYear}`)
                             : (YEAR_CONFIG[exam.plannedYear as keyof typeof YEAR_CONFIG]?.nameEn ?? `Year ${exam.plannedYear}`)}

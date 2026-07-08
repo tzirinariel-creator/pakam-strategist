@@ -1389,8 +1389,8 @@ function MiluimSection() {
           </label>
           <p className="mb-2.5 text-xs text-foreground/45">
             {isHe
-              ? "300+ ימי-לחימה מ-7.10.23 ← קבוצה C · שכול או נפגע-פעולה ← קבוצה G · משרת/ת קבע בתוכנית שירות ← האפשרות הייעודית למטה. אם זה המצב שלכם, בחרו כאן."
-              : "300+ combat days since Oct 7 2023 → Group C · bereaved or wounded → Group G · career service → the dedicated option below. If that's you, pick it here."}
+              ? <Bidi text="300+ ימי-לחימה מ-7.10.23 ← קבוצה C · שכול או נפגע-פעולה ← קבוצה G · משרת/ת קבע בתוכנית שירות ← האפשרות הייעודית למטה. אם זה המצב שלכם, בחרו כאן." />
+              : <Bidi text="300+ combat days since Oct 7 2023 → Group C · bereaved or wounded → Group G · career service → the dedicated option below. If that's you, pick it here." />}
           </p>
           <Select
             value={manualGroup}
@@ -1465,7 +1465,7 @@ function MiluimSection() {
                 }
                 className="w-full rounded-md border border-border bg-card px-3 py-1.5 font-mono text-sm text-foreground focus:border-foreground/30 focus:outline-none"
               />
-              <p className="text-[10px] text-foreground/30">
+              <p className="text-xs text-foreground/30">
                 {t("creditExemptionUsedHint")}
               </p>
             </div>
@@ -1490,7 +1490,7 @@ function MiluimSection() {
                 }
                 className="w-full rounded-md border border-border bg-card px-3 py-1.5 font-mono text-sm text-foreground focus:border-foreground/30 focus:outline-none"
               />
-              <p className="text-[10px] text-foreground/30">{t("binaryUsedHint")}</p>
+              <p className="text-xs text-foreground/30">{t("binaryUsedHint")}</p>
             </div>
           </div>
 

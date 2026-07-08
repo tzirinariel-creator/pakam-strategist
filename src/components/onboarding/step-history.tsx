@@ -388,18 +388,18 @@ export function StepHistory({
                               <span className="font-mono text-[10px] text-foreground/40">
                                 {course.code}
                               </span>
-                              <span className="font-mono text-[10px] text-foreground/40">
+                              <span className="font-mono text-[11px] text-foreground/40">
                                 · {course.credits} {t("nz")}
                               </span>
                               {isElective && (
-                                <span className="rounded-full bg-foreground/8 px-1.5 py-0.5 text-[9px] font-medium text-foreground/50">
+                                <span className="rounded-full bg-foreground/8 px-1.5 py-0.5 text-[11px] font-medium text-foreground/50">
                                   {t("historyElectiveBadge")}
                                 </span>
                               )}
                               {countsForFocus && config && (
                                 <span
                                   className={cn(
-                                    "inline-flex items-center gap-0.5 rounded-full px-1.5 py-0.5 text-[9px] font-medium",
+                                    "inline-flex items-center gap-0.5 rounded-full px-1.5 py-0.5 text-[11px] font-medium",
                                     config.badgeClass
                                   )}
                                 >
@@ -408,7 +408,7 @@ export function StepHistory({
                                 </span>
                               )}
                               {isEnglish && (
-                                <span className="inline-flex items-center gap-0.5 rounded-full bg-blue-500/10 px-1.5 py-0.5 text-[9px] font-medium text-blue-500">
+                                <span className="inline-flex items-center gap-0.5 rounded-full bg-blue-500/10 px-1.5 py-0.5 text-[11px] font-medium text-blue-500">
                                   <Languages className="h-2.5 w-2.5" />
                                   {t("historyEnglishBadge")}
                                 </span>
@@ -507,7 +507,7 @@ export function StepHistory({
                       {countsForFocus && config && (
                         <span
                           className={cn(
-                            "shrink-0 rounded-full px-1.5 py-0.5 text-[9px] font-medium",
+                            "shrink-0 rounded-full px-1.5 py-0.5 text-[11px] font-medium",
                             config.badgeClass
                           )}
                         >
@@ -515,11 +515,11 @@ export function StepHistory({
                         </span>
                       )}
                       {isEnglish && (
-                        <span className="shrink-0 rounded-full bg-blue-500/10 px-1.5 py-0.5 text-[9px] font-medium text-blue-500">
+                        <span className="shrink-0 rounded-full bg-blue-500/10 px-1.5 py-0.5 text-[11px] font-medium text-blue-500">
                           {t("historyEnglishBadge")}
                         </span>
                       )}
-                      <span className="shrink-0 font-mono text-[10px] text-foreground/40">
+                      <span className="shrink-0 font-mono text-[11px] text-foreground/40">
                         {course.credits} {t("nz")}
                       </span>
                     </button>

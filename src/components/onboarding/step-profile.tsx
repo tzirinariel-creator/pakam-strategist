@@ -291,7 +291,7 @@ export function StepProfile({ data, onUpdate }: StepProfileProps) {
               </span>
             </div>
             {hasGroup && exemptionShown > 0 && (
-              <span className="rounded-full bg-emerald-500/10 px-2.5 py-1 text-[10px] font-bold text-emerald-500">
+              <span className="rounded-full bg-emerald-500/10 px-2.5 py-1 text-[11px] font-bold text-emerald-500">
                 {tm("collapsedExempt", { credits: exemptionShown })}
               </span>
             )}
@@ -361,7 +361,7 @@ export function StepProfile({ data, onUpdate }: StepProfileProps) {
                         placeholder={tm("q2DaysPlaceholder")}
                         className="w-full rounded-lg border border-border bg-card px-3 py-2 text-sm text-foreground placeholder:text-foreground/25 focus:border-foreground/30 focus:outline-none transition-colors"
                       />
-                      <p className="text-[10px] text-foreground/30">{tm("q2DaysHint")}</p>
+                      <p className="text-xs text-foreground/30">{tm("q2DaysHint")}</p>
                     </div>
 
                     {/* Combat */}
@@ -423,7 +423,7 @@ export function StepProfile({ data, onUpdate }: StepProfileProps) {
                             ),
                           })}
                         </p>
-                        <p className="mt-1.5 text-[10px] text-foreground/30">{tm("editLater")}</p>
+                        <p className="mt-1.5 text-xs text-foreground/30">{tm("editLater")}</p>
                       </div>
                     )}
                   </div>
@@ -441,7 +441,7 @@ export function StepProfile({ data, onUpdate }: StepProfileProps) {
                 </button>
                 {showSpecialCases && (
                   <div className="mt-2 space-y-1.5 animate-in fade-in duration-200">
-                    <p className="text-[10px] text-foreground/30"><Bidi text={tm("specialCasesHint")} /></p>
+                    <p className="text-xs text-foreground/30"><Bidi text={tm("specialCasesHint")} /></p>
                     {/* 300+ */}
                     <button
                       onClick={() => setExplicitGroup("GROUP_C")}
@@ -530,7 +530,7 @@ export function StepProfile({ data, onUpdate }: StepProfileProps) {
                           <div className="flex items-center justify-between">
                             <span className="font-medium"><Bidi text={isHe ? group.nameHe : group.nameEn} /></span>
                             {groupKey !== "NONE" && (
-                              <span className="rounded-full bg-foreground/5 px-1.5 py-0.5 text-[9px] font-mono text-foreground/40">
+                              <span className="rounded-full bg-foreground/5 px-1.5 py-0.5 text-[10px] font-mono text-foreground/40">
                                 {Math.min(group.creditExemptionPerYear, MILUIM_CONFIG.MAX_CREDIT_EXEMPTIONS_DEGREE)} {isHe ? "ש״ס" : "cr."}
                               </span>
                             )}
@@ -570,7 +570,7 @@ export function StepProfile({ data, onUpdate }: StepProfileProps) {
                         <FileText className="h-3.5 w-3.5 text-foreground/50" />
                         <p className="text-xs font-semibold text-foreground/70">{tm("entitlementsTitle")}</p>
                       </div>
-                      <span className="rounded-full bg-foreground/5 px-2 py-0.5 text-[9px] font-medium text-foreground/40">
+                      <span className="rounded-full bg-foreground/5 px-2 py-0.5 text-[11px] font-medium text-foreground/40">
                         {tm("asof")}
                       </span>
                     </div>
@@ -581,7 +581,7 @@ export function StepProfile({ data, onUpdate }: StepProfileProps) {
                           <span className="mt-1 h-1.5 w-1.5 shrink-0 rounded-full bg-foreground/25" />
                           <div className="leading-snug">
                             <span className="text-[11px] font-medium text-foreground/70"><Bidi text={ent.title} /></span>
-                            <span className="block text-[10px] text-foreground/40"><Bidi text={ent.desc} /></span>
+                            <span className="block text-xs text-foreground/40"><Bidi text={ent.desc} /></span>
                           </div>
                         </li>
                       ))}
@@ -624,11 +624,11 @@ export function StepProfile({ data, onUpdate }: StepProfileProps) {
             )}
           </div>
           {amirnetStatus?.detail && (
-            <p className={cn("mt-1.5 text-[10px]", amirnetStatus.color.replace("text-", "text-") + "/70")}>
+            <p className={cn("mt-1.5 text-xs", amirnetStatus.color.replace("text-", "text-") + "/70")}>
               <Bidi text={amirnetStatus.detail} />
             </p>
           )}
-          <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-[10px] text-foreground/30">
+          <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-[11px] text-foreground/30">
             <span><Bidi text={isHe ? "134+ = פטור" : "134+ = exempt"} /></span>
             <span><Bidi text={isHe ? "120-133 = מתקדמים ב׳" : "120-133 = adv. B"} /></span>
             <span><Bidi text={isHe ? "100-119 = מתקדמים א׳" : "100-119 = adv. A"} /></span>

@@ -180,7 +180,7 @@ function GradeInput({
         )}
       </div>
       {isFailing && (
-        <p className="flex items-center gap-1 text-[10px] leading-tight text-amber-600 dark:text-amber-500">
+        <p className="flex items-center gap-1 text-xs leading-tight text-amber-600 dark:text-amber-500">
           <AlertTriangle className="size-3 shrink-0" />
           {isHe ? "ציון נכשל — לא נספר לקרדיט. אפשר לחזור על הקורס." : "Failing — won't count toward credit. You can retake it."}
         </p>
@@ -337,14 +337,14 @@ function CourseRow({
           <div className="flex flex-wrap items-center gap-1.5">
             <span dir="ltr" className="font-mono text-[10px] text-foreground/40">{course.code}</span>
             {isElective && (
-              <span className="rounded-full bg-foreground/8 px-1.5 py-0.5 text-[9px] font-medium text-foreground/50">
+              <span className="rounded-full bg-foreground/8 px-1.5 py-0.5 text-[11px] font-medium text-foreground/50">
                 {t("electiveBadge")}
               </span>
             )}
             {countsForFocus && (
               <span
                 className={cn(
-                  "inline-flex items-center gap-0.5 rounded-full px-1.5 py-0.5 text-[9px] font-medium",
+                  "inline-flex items-center gap-0.5 rounded-full px-1.5 py-0.5 text-[11px] font-medium",
                   (DISCIPLINE_CONFIG[discipline] ?? DISCIPLINE_CONFIG["GENERAL"])?.badgeClass
                 )}
               >
@@ -353,19 +353,19 @@ function CourseRow({
               </span>
             )}
             {english && (
-              <span className="inline-flex items-center gap-0.5 rounded-full bg-blue-500/10 px-1.5 py-0.5 text-[9px] font-medium text-blue-500">
+              <span className="inline-flex items-center gap-0.5 rounded-full bg-blue-500/10 px-1.5 py-0.5 text-[11px] font-medium text-blue-500">
                 <Languages className="h-2.5 w-2.5" />
                 {t("englishBadge")}
               </span>
             )}
             {/* Make the silent "not in average" automation visible (#30). */}
             {english && (
-              <span className="inline-flex items-center rounded-full bg-foreground/5 px-1.5 py-0.5 text-[9px] text-foreground/45">
+              <span className="inline-flex items-center rounded-full bg-foreground/5 px-1.5 py-0.5 text-[11px] text-foreground/45">
                 {t("notInAvgEnglish")}
               </span>
             )}
             {isBinary && (
-              <span className="inline-flex items-center rounded-full bg-foreground/5 px-1.5 py-0.5 text-[9px] text-foreground/45">
+              <span className="inline-flex items-center rounded-full bg-foreground/5 px-1.5 py-0.5 text-[11px] text-foreground/45">
                 {t("notInAvgBinary")}
               </span>
             )}
@@ -618,7 +618,7 @@ function AddCourse({
                 {countsForFocus && config && (
                   <span
                     className={cn(
-                      "shrink-0 rounded-full px-1.5 py-0.5 text-[9px] font-medium",
+                      "shrink-0 rounded-full px-1.5 py-0.5 text-[11px] font-medium",
                       config.badgeClass
                     )}
                   >
@@ -626,7 +626,7 @@ function AddCourse({
                   </span>
                 )}
                 {english && (
-                  <span className="shrink-0 rounded-full bg-blue-500/10 px-1.5 py-0.5 text-[9px] font-medium text-blue-500">
+                  <span className="shrink-0 rounded-full bg-blue-500/10 px-1.5 py-0.5 text-[11px] font-medium text-blue-500">
                     {t("englishBadge")}
                   </span>
                 )}
