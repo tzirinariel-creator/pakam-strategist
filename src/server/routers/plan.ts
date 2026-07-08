@@ -169,6 +169,28 @@ export const planRouter = createTRPCRouter({
         });
       }
 
+      // Duplicate guard (#35 root cause 1): moving a course into a semester
+      // that already holds another row of the SAME course (a retake) used to
+      // create two rows side by side — addCourse checks this, updateCourse
+      // didn't. CONFLICT is mapped to a friendly toast by the movers.
+      if (input.plannedYear !== undefined || input.plannedSemester !== undefined) {
+        const targetYear = input.plannedYear ?? existing.plannedYear;
+        const targetSemester = input.plannedSemester ?? existing.plannedSemester;
+        const twin = await ctx.db.userCourse.findFirst({
+          where: {
+            userId: user.id,
+            courseId: existing.courseId,
+            plannedYear: targetYear,
+            plannedSemester: targetSemester,
+            id: { not: existing.id },
+          },
+          select: { id: true },
+        });
+        if (twin) {
+          throw new TRPCError({ code: "CONFLICT", message: "COURSE_ALREADY_IN_SEMESTER" });
+        }
+      }
+
       const { userCourseId, attempt, selectedGroups, disciplineOverride, ...updateFields } =
         input;
 

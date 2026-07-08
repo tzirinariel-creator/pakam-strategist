@@ -18,6 +18,7 @@ import { calculateGrades } from "@/lib/grade-calculator";
 import { runRegulationEngine } from "@/lib/regulations/rule-engine";
 import { computeCreditExemption, deriveCurrentGroup, getCurrentAcademicYear } from "@/lib/miluim";
 import { buildExamPeriodBlock } from "@/lib/ai/exam-facts";
+import { getAcademicNow } from "@/lib/academic-calendar";
 
 // -------------------------------------------------------------------
 // Types
@@ -272,5 +273,20 @@ export async function buildUserContext(
       englishCourseCount: creditResult.breakdown.englishCourseCount,
     },
     examPeriodBlock: buildExamPeriodBlock(studyTasks),
+    academicNowLine: buildAcademicNowLine(),
   };
+}
+
+/** One honest calendar line for the system prompt — from the calendar module,
+ *  never the fossilized profile pair (#39). */
+function buildAcademicNowLine(): string {
+  const a = getAcademicNow();
+  const sem = a.semester === "FALL" ? "סמסטר א׳" : "סמסטר ב׳";
+  const phase =
+    a.phase === "teaching"
+      ? `לימודים (מסתיימים ב-${a.dates.teachingEnd.getDate()}.${a.dates.teachingEnd.getMonth() + 1})`
+      : a.phase === "exams"
+        ? "תקופת בחינות"
+        : `חופשה (הלימודים חוזרים ב-${a.nextTeachingStart.getDate()}.${a.nextTeachingStart.getMonth() + 1})`;
+  return `עכשיו: ${sem} ${a.labelHe}, שלב: ${phase}`;
 }

@@ -1,4 +1,5 @@
 import { z } from "zod/v4";
+import { getAcademicNow, deriveYearOfStudy } from "@/lib/academic-calendar";
 import { TRPCError } from "@trpc/server";
 import { createTRPCRouter, protectedProcedure } from "../trpc/init";
 import { seedDemoData } from "@/lib/demo-data";
@@ -27,6 +28,7 @@ export const userRouter = createTRPCRouter({
         focusArea: true,
         currentYear: true,
         currentSemester: true,
+        startYear: true,
         locale: true,
         theme: true,
         miluimGroup: true,
@@ -57,6 +59,8 @@ export const userRouter = createTRPCRouter({
         focusArea: disciplineEnum.nullable().optional(),
         currentYear: z.number().int().min(1).max(4).optional(),
         currentSemester: z.enum(["FALL", "SPRING", "SUMMER"]).optional(),
+        // The degree-start anchor (#43): the derived year/semester flow from it.
+        startYear: z.number().int().min(2020).max(2030).optional(),
         locale: z.enum(["he", "en"]).optional(),
         theme: z.enum(["dark", "light"]).optional(),
         miluimGroup: z
@@ -72,9 +76,22 @@ export const userRouter = createTRPCRouter({
       })
     )
     .mutation(async ({ ctx, input }) => {
+      // Keep the startYear anchor and the legacy year/semester cache in sync
+      // in BOTH directions (#43): onboarding sends currentYear → derive the
+      // anchor; settings sends startYear → refresh the cached pair so every
+      // legacy fallback reader stays current.
+      const data: typeof input & { startYear?: number } = { ...input };
+      const acadNow = getAcademicNow();
+      if (input.currentYear !== undefined && input.startYear === undefined) {
+        data.startYear = acadNow.startYear - (input.currentYear - 1);
+      }
+      if (input.startYear !== undefined) {
+        data.currentYear = deriveYearOfStudy(input.startYear, input.currentYear ?? 1);
+        data.currentSemester = acadNow.semester;
+      }
       const updated = await ctx.db.user.update({
         where: { supabaseId: ctx.userId },
-        data: input,
+        data,
         select: {
           id: true,
           supabaseId: true,
@@ -87,6 +104,7 @@ export const userRouter = createTRPCRouter({
           focusArea: true,
           currentYear: true,
           currentSemester: true,
+          startYear: true,
           locale: true,
           theme: true,
           miluimGroup: true,
@@ -196,6 +214,7 @@ export const userRouter = createTRPCRouter({
         focusArea: true,
         currentYear: true,
         currentSemester: true,
+        startYear: true,
         locale: true,
         theme: true,
         miluimGroup: true,

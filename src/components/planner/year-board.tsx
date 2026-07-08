@@ -63,7 +63,13 @@ export function YearBoard({ courses }: YearBoardProps) {
       if (savedTimer.current) clearTimeout(savedTimer.current);
       savedTimer.current = setTimeout(() => setShowSaved(false), 2500);
     },
-    onError: () => {
+    onError: (e) => {
+      // Friendly duplicate message (#35): the server now refuses to move a
+      // course into a semester that already holds its retake twin.
+      if (e.message === "COURSE_ALREADY_IN_SEMESTER") {
+        toast.error(isHe ? "הקורס כבר נמצא בסמסטר הזה" : "This course is already in that semester");
+        return;
+      }
       toast.error(tCredits("error") ?? "Error moving course");
     },
   });

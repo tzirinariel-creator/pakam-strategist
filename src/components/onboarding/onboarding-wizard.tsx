@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useCallback, useRef, useMemo, useEffect } from "react";
+import { getPlanningAnchor } from "@/lib/academic-calendar";
 import { ChevronRight, ChevronLeft } from "lucide-react";
 import { useTranslations, useLocale } from "next-intl";
 import { cn } from "@/lib/utils";
@@ -55,14 +56,11 @@ const STEP_READY = 4;
 
 function getDefaultSemester(year: number): "FALL" | "SPRING" {
   // A first-year student's "starting now" is almost always the fall intake —
-  // the standard PPE cohort begins in סמסטר א׳. The calendar heuristic below
-  // would mislabel someone registering over the summer (Mar–Jul) as סמסטר ב׳,
-  // so year-1 always defaults to FALL. (persona review #26)
+  // the standard PPE cohort begins in סמסטר א׳. (persona review #26)
+  // Everyone else gets the PLANNING ANCHOR from the academic calendar — the
+  // month heuristic was replaced by the verified TAU date table (#39).
   if (year <= 1) return "FALL";
-  const month = new Date().getMonth(); // 0-indexed
-  // Mar(2)-Jul(6) = SPRING, Aug(7)-Feb(1) = FALL
-  // August is FALL because students register for the upcoming academic year
-  return month >= 2 && month <= 6 ? "SPRING" : "FALL";
+  return getPlanningAnchor().semester;
 }
 
 // In-progress onboarding is persisted here so a refresh or an accidental

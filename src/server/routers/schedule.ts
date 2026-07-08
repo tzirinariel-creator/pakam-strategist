@@ -9,7 +9,7 @@ import {
   deleteEventsFromGoogle,
   type PushableEvent,
 } from "@/lib/google-calendar";
-import { SEMESTER_TEACHING_DATES } from "@/lib/constants";
+import { getAcademicNow, getTeachingRange } from "@/lib/academic-calendar";
 
 export const scheduleRouter = createTRPCRouter({
   /**
@@ -162,9 +162,14 @@ export const scheduleRouter = createTRPCRouter({
         submissionType: string;
       }[] = [];
 
+      // De-dupe by course code (#35 root cause 2): a retake has TWO UserCourse
+      // rows sharing the same Course.examDateA/B — the exam would show twice in
+      // the exams tab and the home countdown. The rows arrive ordered by
+      // year/semester asc, so the LAST write per code = the latest attempt.
+      const byCode = new Map<string, (typeof exams)[number]>();
       for (const uc of userCourses) {
         if (uc.course.examDateA || uc.course.examDateB) {
-          exams.push({
+          byCode.set(uc.course.code, {
             userCourseId: uc.id,
             courseCode: uc.course.code,
             courseName: uc.course.nameHe,
@@ -181,6 +186,7 @@ export const scheduleRouter = createTRPCRouter({
           });
         }
       }
+      exams.push(...byCode.values());
 
       // Sort by examDateA
       exams.sort((a, b) => {
@@ -312,17 +318,15 @@ export const scheduleRouter = createTRPCRouter({
         LAB: "מעבדה",
       };
 
-      // Semester teaching ranges — shared with the .ics export via
-      // SEMESTER_TEACHING_DATES (TAU 2025/26) so both export paths place classes
-      // on identical dates. SUMMER isn't a teaching semester for PPE; fall back to
-      // a short fixed window so the sync still works if a summer course exists.
+      // Semester teaching ranges — from THE academic-calendar module (verified
+      // TAU dates), shared with the .ics export so both paths place classes on
+      // identical dates. SUMMER isn't a teaching semester for PPE — use the
+      // current year's summer-session window from the same module.
+      const acadNow = getAcademicNow();
       const semesterDates: Record<string, { start: Date; end: Date }> = {
-        FALL: SEMESTER_TEACHING_DATES.FALL,
-        SPRING: SEMESTER_TEACHING_DATES.SPRING,
-        SUMMER: {
-          start: new Date(2026, 6, 6), // Jul 6 2026
-          end: new Date(2026, 7, 29), // Aug 29 2026
-        },
+        FALL: getTeachingRange("FALL"),
+        SPRING: getTeachingRange("SPRING"),
+        SUMMER: acadNow.summer ?? { start: acadNow.nextTeachingStart, end: acadNow.nextTeachingStart },
       };
 
       const semRange = semesterDates[input.semester];

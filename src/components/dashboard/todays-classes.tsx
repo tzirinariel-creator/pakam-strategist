@@ -4,6 +4,7 @@ import { useMemo } from "react";
 import { Clock, MapPin, User, BookOpen } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 import { api } from "@/lib/trpc/react";
+import { getAcademicNow } from "@/lib/academic-calendar";
 import { cn } from "@/lib/utils";
 
 const JS_DAY_TO_SESSION: Record<number, string> = {
@@ -46,9 +47,14 @@ export function TodaysClasses({ currentYear, currentSemester }: TodaysClassesPro
   const isHe = locale === "he";
   const t = useTranslations("dashboard");
 
+  // Truth-gate (#39): outside the teaching phase there ARE no classes —
+  // showing them would be a lie. A calm one-liner replaces the list.
+  const acadNow = getAcademicNow();
+  const teaching = acadNow.phase === "teaching";
+
   const { data, isLoading } = api.schedule.getScheduleForSemester.useQuery(
     { year: currentYear, semester: currentSemester },
-    { retry: 1, staleTime: 5 * 60 * 1000 }
+    { retry: 1, staleTime: 5 * 60 * 1000, enabled: teaching }
   );
 
   const todayDayName = JS_DAY_TO_SESSION[new Date().getDay()] ?? "SUNDAY";
@@ -59,6 +65,28 @@ export function TodaysClasses({ currentYear, currentSemester }: TodaysClassesPro
       .filter((s) => s.dayOfWeek === todayDayName)
       .sort((a, b) => (a.startTime ?? "").localeCompare(b.startTime ?? ""));
   }, [data?.sessions, todayDayName]);
+
+  // After ALL hooks (hooks order must not depend on the phase):
+  if (!teaching) {
+    const returnDate = acadNow.nextTeachingStart.toLocaleDateString(isHe ? "he-IL" : "en-US", {
+      day: "numeric",
+      month: "long",
+    });
+    return (
+      <div className="data-card flex items-center gap-3 p-4 border-emerald-400/20 bg-emerald-400/5">
+        <BookOpen className="h-5 w-5 text-emerald-400 shrink-0" />
+        <p className="text-sm text-emerald-400">
+          {acadNow.phase === "exams"
+            ? isHe
+              ? "תקופת בחינות — אין יותר שיעורים הסמסטר"
+              : "Exam period — no more classes this semester"
+            : isHe
+              ? `חופשת סמסטר — הלימודים חוזרים ב־${returnDate}`
+              : `Semester break — classes resume on ${returnDate}`}
+        </p>
+      </div>
+    );
+  }
 
   // Don't render anything while loading or on weekends with no classes
   if (isLoading) return null;

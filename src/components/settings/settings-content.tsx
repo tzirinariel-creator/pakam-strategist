@@ -27,8 +27,9 @@ import {
 import { useTranslations, useLocale } from "next-intl";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
+import { getAcademicNow, deriveYearOfStudy, hebrewYearLabel } from "@/lib/academic-calendar";
 import { Bidi } from "@/lib/bidi";
-import { DISCIPLINE_CONFIG, FOCUS_DISCIPLINE_IDS, MILUIM_CONFIG } from "@/lib/constants";
+import { DISCIPLINE_CONFIG, FOCUS_DISCIPLINE_IDS, MILUIM_CONFIG, YEAR_CONFIG } from "@/lib/constants";
 import { deriveGroupFromDays, getCurrentAcademicYear } from "@/lib/miluim";
 import { ConnectGeminiGuide } from "@/components/settings/connect-gemini-guide";
 import { PhilosopherKingIcon } from "@/components/ui/philosopher-king-icon";
@@ -133,8 +134,7 @@ function ProfileSection() {
   const [gender, setGender] = useState<string>(""); // "" | "male" | "female"
   const [amirantScore, setAmirantScore] = useState<string>("");
   const [focusArea, setFocusArea] = useState<string>("");
-  const [currentYear, setCurrentYear] = useState<string>("");
-  const [currentSemester, setCurrentSemester] = useState<string>("");
+  const [startYear, setStartYear] = useState<string>("");
   const [saved, setSaved] = useState(false);
 
   // Populate from query data
@@ -149,8 +149,14 @@ function ProfileSection() {
           : ""
       );
       setFocusArea(profileQuery.data.focusArea ?? "UNDECIDED");
-      setCurrentYear(String(profileQuery.data.currentYear ?? ""));
-      setCurrentSemester(profileQuery.data.currentSemester ?? "");
+      // The start-year anchor replaces the year+semester questions (#43);
+      // legacy profiles without it get a derived guess from the stored year.
+      setStartYear(
+        String(
+          profileQuery.data.startYear ??
+            getAcademicNow().startYear - ((profileQuery.data.currentYear ?? 1) - 1),
+        ),
+      );
     }
   }, [profileQuery.data]);
 
@@ -181,11 +187,9 @@ function ProfileSection() {
     } else {
       input.focusArea = null;
     }
-    if (currentYear) {
-      input.currentYear = Number(currentYear);
-    }
-    if (currentSemester) {
-      input.currentSemester = currentSemester as "FALL" | "SPRING" | "SUMMER";
+    if (startYear) {
+      // The server derives currentYear/currentSemester from the anchor.
+      input.startYear = Number(startYear);
     }
     updateMutation.mutate(input as Parameters<typeof updateMutation.mutate>[0]);
   };
@@ -198,17 +202,13 @@ function ProfileSection() {
     { value: "UNDECIDED", label: t("focusOptions.undecided") },
   ];
 
-  const yearOptions = [
-    { value: "1", label: t("yearOptions.1") },
-    { value: "2", label: t("yearOptions.2") },
-    { value: "3", label: t("yearOptions.3") },
-  ] as const;
-
-  const semesterOptions = [
-    { value: "FALL", label: t("semesterOptions.A") },
-    { value: "SPRING", label: t("semesterOptions.B") },
-    { value: "SUMMER", label: t("semesterOptions.summer") },
-  ] as const;
+  // Degree-start years: this academic year back to -5 (the derived line below
+  // shows what the calendar concludes from the choice).
+  const nowStartYear = getAcademicNow().startYear;
+  const startYearOptions = Array.from({ length: 6 }, (_, i) => {
+    const y = nowStartYear - i;
+    return { value: String(y), label: `${hebrewYearLabel(y)} · ${y}/${(y + 1) % 100}` };
+  });
 
   if (profileQuery.isLoading) {
     return (
@@ -351,42 +351,38 @@ function ProfileSection() {
           </Select>
         </div>
 
-        {/* Academic Year */}
+        {/* Degree start year — the ONE anchor; year + semester are derived
+            from the academic calendar, so the app never asks "which semester
+            is it" again (#43). */}
         <div className="flex flex-col gap-1.5">
-          <label id="settings-year-label" className="text-sm font-medium text-foreground/80">
-            {t("academicYear")}
+          <label id="settings-start-year-label" className="text-sm font-medium text-foreground/80">
+            {isHe ? "שנת תחילת התואר" : "Degree start year"}
           </label>
-          <Select value={currentYear} onValueChange={setCurrentYear}>
-            <SelectTrigger className="w-full" aria-labelledby="settings-year-label">
-              <SelectValue placeholder={t("academicYear")} />
+          <Select value={startYear} onValueChange={setStartYear}>
+            <SelectTrigger className="w-full" aria-labelledby="settings-start-year-label">
+              <SelectValue placeholder={isHe ? "שנת תחילת התואר" : "Degree start year"} />
             </SelectTrigger>
             <SelectContent>
-              {yearOptions.map((opt) => (
+              {startYearOptions.map((opt) => (
                 <SelectItem key={opt.value} value={opt.value}>
                   {opt.label}
                 </SelectItem>
               ))}
             </SelectContent>
           </Select>
-        </div>
-
-        {/* Current Semester */}
-        <div className="flex flex-col gap-1.5">
-          <label id="settings-semester-label" className="text-sm font-medium text-foreground/80">
-            {t("semester")}
-          </label>
-          <Select value={currentSemester} onValueChange={setCurrentSemester}>
-            <SelectTrigger className="w-full" aria-labelledby="settings-semester-label">
-              <SelectValue placeholder={t("semester")} />
-            </SelectTrigger>
-            <SelectContent>
-              {semesterOptions.map((opt) => (
-                <SelectItem key={opt.value} value={opt.value}>
-                  {opt.label}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+          {startYear && (() => {
+            const acadNow = getAcademicNow();
+            const y = deriveYearOfStudy(Number(startYear), 1);
+            const yearName = YEAR_CONFIG[y as 1 | 2 | 3]?.[isHe ? "nameHe" : "nameEn"] ?? String(y);
+            const semName = acadNow.semester === "FALL" ? (isHe ? "סמסטר א׳" : "Semester A") : (isHe ? "סמסטר ב׳" : "Semester B");
+            return (
+              <p className="text-sm text-foreground/55">
+                {isHe
+                  ? `לפי הלוח האקדמי: ${yearName} · ${semName} ${acadNow.labelHe}`
+                  : `By the academic calendar: ${yearName} · ${semName} ${acadNow.labelHe}`}
+              </p>
+            );
+          })()}
         </div>
 
         {/* Save button */}
@@ -696,8 +692,8 @@ function GoogleCalendarSection() {
   // Set defaults from profile
   useEffect(() => {
     if (profileQuery.data) {
-      setSyncYear(String(profileQuery.data.currentYear ?? 1));
-      setSyncSemester(profileQuery.data.currentSemester ?? "FALL");
+      setSyncYear(String(deriveYearOfStudy(profileQuery.data.startYear, profileQuery.data.currentYear ?? 1)));
+      setSyncSemester(getAcademicNow().semester);
     }
   }, [profileQuery.data]);
 

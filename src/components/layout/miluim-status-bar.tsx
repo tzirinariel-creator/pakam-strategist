@@ -6,6 +6,7 @@ import { Shield, X, Check, CalendarClock, Clock, Target, BookOpen, GraduationCap
 import { toast } from "sonner";
 import { useLocale, useTranslations } from "next-intl";
 import { api } from "@/lib/trpc/react";
+import { getAcademicNow } from "@/lib/academic-calendar";
 import { MILUIM_CONFIG } from "@/lib/constants";
 import { buildBenefitGroups, BENEFITS_HONESTY_NOTE } from "@/lib/miluim-benefits";
 import {
@@ -77,7 +78,7 @@ export function MiluimStatusBar() {
   const group = deriveCurrentGroup(
     semestersQuery.data ?? [],
     profile.miluimGroup,
-    { academicYear: getCurrentAcademicYear(), semester: profile.currentSemester }
+    { academicYear: getCurrentAcademicYear(), semester: getAcademicNow().semester }
   );
 
   // Non-serving students get no bar at all.
@@ -246,7 +247,7 @@ export function MiluimStatusBar() {
               <ServiceTimeline
                 semesters={semestersQuery.data ?? []}
                 currentYear={getCurrentAcademicYear()}
-                currentSemester={profile.currentSemester}
+                currentSemester={getAcademicNow().semester}
                 isHe={isHe}
               />
 

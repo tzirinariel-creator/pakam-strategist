@@ -6,6 +6,7 @@ import { useLocale, useTranslations } from "next-intl";
 import { useSearchParams } from "next/navigation";
 import { Link, useRouter } from "@/i18n/navigation";
 import { consumeSharedPlanReturn } from "@/lib/plan-share";
+import { getAcademicNow, deriveYearOfStudy } from "@/lib/academic-calendar";
 import { api } from "@/lib/trpc/react";
 import { firstNameOf } from "@/lib/personal-address";
 import { usePersonalAddress } from "@/components/personal/use-personal-address";
@@ -544,7 +545,13 @@ export function DashboardContent() {
   const isNewUser = courseCount < 4;
   const hasFocusArea = !!profileQuery.data?.focusArea;
   const hasGrades = gradeBreakdown.totalGradedCourses > 0;
-  const currentYear = profileQuery.data?.currentYear ?? 1;
+  // Year + semester are DERIVED from the calendar (single source of truth,
+  // #39/#43) — the stored profile pair is only a legacy fallback.
+  const acadNow = getAcademicNow();
+  const currentYear = deriveYearOfStudy(
+    profileQuery.data?.startYear,
+    profileQuery.data?.currentYear ?? 1,
+  );
 
   // Smart recommendations — deterministic, data-backed. Computed from data the
   // dashboard already holds (plan, grades, credits, regulations, profile), so
@@ -843,11 +850,11 @@ export function DashboardContent() {
             <TourReopenButton onClick={() => setTourOpen(true)} />
           </div>
         </div>
-        {profileQuery.data?.currentYear && profileQuery.data?.currentSemester && (
+        {profileQuery.data && (
           <p className="mt-1 text-sm text-foreground/50">
             {isHe ? "פכ\"מ" : "PPE"} · {t("semesterContext", {
-              semester: profileQuery.data.currentSemester === "FALL" ? (isHe ? "א׳" : "A") : (isHe ? "ב׳" : "B"),
-              year: profileQuery.data.currentYear,
+              semester: acadNow.semester === "FALL" ? (isHe ? "א׳" : "A") : (isHe ? "ב׳" : "B"),
+              year: currentYear,
             })}
           </p>
         )}
@@ -876,7 +883,7 @@ export function DashboardContent() {
 
       {/* Returning-student prompt — year ≥ 2 with nothing marked completed yet */}
       {(credits?.earned ?? 0) === 0 &&
-        (profileQuery.data?.currentYear ?? 1) >= 2 && (
+        currentYear >= 2 && (
           <Link
             href="/planner"
             className="animate-stagger-2 group flex items-center gap-4 rounded-xl border border-foreground/15 bg-foreground/[0.03] p-5 transition-all hover:border-foreground/25 hover:bg-foreground/[0.05]"
@@ -914,7 +921,7 @@ export function DashboardContent() {
 
       {/* My week — today's classes + next exams, framed as one zone (home
           redesign). Sits right under the status hero, matching the 3-zone layout. */}
-      {profileQuery.data?.currentYear && profileQuery.data?.currentSemester && (
+      {profileQuery.data && (
         <section className="animate-stagger-2 space-y-3" data-tour="week">
           <div className="flex items-center justify-between gap-2">
             <h2 className="font-display text-lg font-semibold text-foreground/80">
@@ -929,10 +936,7 @@ export function DashboardContent() {
             </Link>
           </div>
           <div className="grid gap-6 lg:grid-cols-2">
-            <TodaysClasses
-              currentYear={profileQuery.data.currentYear}
-              currentSemester={profileQuery.data.currentSemester as "FALL" | "SPRING"}
-            />
+            <TodaysClasses currentYear={currentYear} currentSemester={acadNow.semester} />
             <ExamCountdown />
           </div>
         </section>

@@ -756,7 +756,14 @@ export function AcademicRecordContent() {
         [variables.userCourseId]: (prev[variables.userCourseId] ?? 0) + 1,
       }));
     },
-    onError: () => toast.error(t("saveError")),
+    onError: (e) =>
+      toast.error(
+        e.message === "COURSE_ALREADY_IN_SEMESTER"
+          ? isHe
+            ? "הקורס כבר נמצא בסמסטר הזה"
+            : "This course is already in that semester"
+          : t("saveError"),
+      ),
   });
   const removeCourseMutation = api.plan.removeCourse.useMutation({
     onSuccess: () => {

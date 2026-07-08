@@ -4,6 +4,7 @@ import { useMemo } from "react";
 import { useLocale } from "next-intl";
 import { Scale, TrendingUp } from "lucide-react";
 import { api } from "@/lib/trpc/react";
+import { getAcademicNow } from "@/lib/academic-calendar";
 import { rankBinaryCandidates, type GradedCourseLite } from "@/lib/binary-advisor";
 import {
   deriveCurrentGroup,
@@ -51,7 +52,7 @@ export function BinaryAdvisor() {
 
   const group = deriveCurrentGroup(semestersQuery.data ?? [], profile.miluimGroup, {
     academicYear: getCurrentAcademicYear(),
-    semester: profile.currentSemester,
+    semester: getAcademicNow().semester,
   });
   // Retroactively converting a graded course to pass/fail (removing it from the
   // average) is a miluim benefit granted ONLY to groups that actually have it

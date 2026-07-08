@@ -3,6 +3,7 @@
 import { useLocale } from "next-intl";
 import { CalendarCheck } from "lucide-react";
 import { api } from "@/lib/trpc/react";
+import { getAcademicNow } from "@/lib/academic-calendar";
 import { deriveCurrentGroup, getCurrentAcademicYear } from "@/lib/miluim";
 import { MILUIM_CONFIG } from "@/lib/constants";
 import { gendered, normalizeGender } from "@/lib/personal-address";
@@ -26,7 +27,7 @@ export function MoedBenefitBanner() {
 
   const group = deriveCurrentGroup(semestersQuery.data ?? [], profile.miluimGroup, {
     academicYear: getCurrentAcademicYear(),
-    semester: profile.currentSemester,
+    semester: getAcademicNow().semester,
   });
   if (!group || group === "NONE") return null;
   if (!MILUIM_CONFIG.GROUPS[group]?.examChoice2of3) return null;

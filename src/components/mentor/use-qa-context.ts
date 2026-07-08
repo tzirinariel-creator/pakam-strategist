@@ -3,6 +3,7 @@
 import { useMemo } from "react";
 import { useLocale } from "next-intl";
 import { api } from "@/lib/trpc/react";
+import { getAcademicNow } from "@/lib/academic-calendar";
 import { DISCIPLINE_CONFIG, CREDIT_REQUIREMENTS } from "@/lib/constants";
 import {
   deriveCurrentGroup,
@@ -44,7 +45,7 @@ export function useDegreeQAContext(
     const group = deriveCurrentGroup(
       semestersQuery.data ?? [],
       (profile?.miluimGroup ?? "NONE") as MiluimGroupKey,
-      { academicYear: getCurrentAcademicYear(), semester: profile?.currentSemester ?? null },
+      { academicYear: getCurrentAcademicYear(), semester: getAcademicNow().semester },
     );
     // Locale-aware so the English assistant says "Group C", not "קבוצה C".
     const groupName =

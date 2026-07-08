@@ -5,7 +5,7 @@
 // for import into Google Calendar, Apple Calendar, etc.
 
 import type { CourseWithSchedule } from "./plan-generator";
-import { SEMESTER_TEACHING_DATES } from "./constants";
+import { getTeachingRange } from "./academic-calendar";
 
 // ─── Constants ─────────────────────────────────────────────────────
 
@@ -19,9 +19,8 @@ const DAY_MAP: Record<string, string> = {
   SATURDAY: "SA",
 };
 
-// Single shared source of truth for teaching dates (TAU 2025/26), imported so the
-// .ics export and the Google Calendar sync place classes on identical dates.
-const SEMESTER_DATES = SEMESTER_TEACHING_DATES;
+// Teaching ranges come from THE academic-calendar module (verified TAU dates),
+// shared with the Google sync so both export paths land on identical dates.
 
 // ─── Helpers ─────────────────────────────────────────────────────
 
@@ -96,7 +95,7 @@ export function generateICS(
     "X-WR-TIMEZONE:Asia/Jerusalem",
   ];
 
-  const range = SEMESTER_DATES[semester];
+  const range = getTeachingRange(semester);
   if (!range) return "";
 
   // UNTIL must be in UTC (trailing Z) per RFC 5545 when DTSTART uses a TZID.
@@ -204,7 +203,7 @@ export function generateICSFromSessions(
     "X-WR-TIMEZONE:Asia/Jerusalem",
   ];
 
-  const range = SEMESTER_DATES[semester];
+  const range = getTeachingRange(semester);
   if (!range) return "";
 
   // UNTIL must be in UTC (trailing Z) per RFC 5545 when DTSTART uses a TZID —

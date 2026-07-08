@@ -4,7 +4,6 @@ import { useState, useMemo } from "react";
 import { useTranslations, useLocale } from "next-intl";
 import {
   CalendarDays,
-  GanttChart,
   Loader2,
   AlertTriangle,
   BookOpen,
@@ -19,15 +18,15 @@ import { cn } from "@/lib/utils";
 import { ThemedLoader } from "@/components/ui/themed-loader";
 import { SEMESTER_CONFIG, YEAR_CONFIG } from "@/lib/constants";
 import { WeeklyTimetable } from "./weekly-timetable";
-import { GanttView } from "./gantt-view";
 import { ExamSchedule } from "@/components/exam/exam-schedule";
 import { downloadICSFromSessions } from "@/lib/ics-export";
 import { buildWeekShareText } from "@/lib/week-share";
+import { getAcademicNow, deriveYearOfStudy } from "@/lib/academic-calendar";
 import type { Semester } from "@/types/enums";
 
 // ─── Types ───────────────────────────────────────────────────────────
 
-type ViewMode = "weekly" | "gantt" | "exams";
+type ViewMode = "weekly" | "exams";
 
 interface SemesterOption {
   key: string; // e.g. "1-FALL"
@@ -90,15 +89,16 @@ export function CalendarContent() {
 
   const [selectedSemester, setSelectedSemester] = useState<string>("");
 
-  // The student's CURRENT semester (from their profile) — used as the default
-  // so the calendar opens on "now", not the earliest semester on record
-  // (reported #29/#32: it was showing a previous semester).
+  // The student's CURRENT semester — DERIVED from the academic calendar
+  // (single source of truth, #39), not the fossilized profile pair.
   const { data: calendarProfile } = api.user.getProfile.useQuery();
   const currentSemesterKey = useMemo(() => {
-    if (!calendarProfile?.currentYear || !calendarProfile?.currentSemester) return "";
-    const key = `${calendarProfile.currentYear}-${calendarProfile.currentSemester}`;
+    if (!calendarProfile) return "";
+    const acadNow = getAcademicNow();
+    const year = deriveYearOfStudy(calendarProfile.startYear, calendarProfile.currentYear ?? 1);
+    const key = `${year}-${acadNow.semester}`;
     return semesterOptions.some((o) => o.key === key) ? key : "";
-  }, [calendarProfile?.currentYear, calendarProfile?.currentSemester, semesterOptions]);
+  }, [calendarProfile, semesterOptions]);
 
   // Default: explicit selection → current semester → first available.
   const activeSemester =
@@ -332,17 +332,13 @@ export function CalendarContent() {
         </div>
       ) : semesterCourses.length > 0 ? (
         <div className="animate-stagger-3">
-          {viewMode === "weekly" ? (
-            scheduleLoading ? (
-              <div className="flex min-h-[30vh] items-center justify-center">
-                <Loader2 className="size-5 animate-spin text-foreground/80" />
-                <span className="ms-2 text-sm text-muted-foreground">{tCommon("loading")}</span>
-              </div>
-            ) : (
-              <WeeklyTimetable sessions={scheduleData?.sessions ?? []} />
-            )
+          {scheduleLoading ? (
+            <div className="flex min-h-[30vh] items-center justify-center">
+              <Loader2 className="size-5 animate-spin text-foreground/80" />
+              <span className="ms-2 text-sm text-muted-foreground">{tCommon("loading")}</span>
+            </div>
           ) : (
-            <GanttView courses={semesterCourses} />
+            <WeeklyTimetable sessions={scheduleData?.sessions ?? []} />
           )}
         </div>
       ) : null}
@@ -361,9 +357,11 @@ function PageHeader({
 }) {
   const t = useTranslations("calendar");
 
+  // The gantt tab was removed after three owner notes in three waves — it
+  // painted a full-width bar per course and a CONSTANT weekly load (zero
+  // information beyond the course list), plus duplicate rows on retakes (#35).
   const tabs = [
     { mode: "weekly" as const, icon: CalendarDays, label: t("weekly") },
-    { mode: "gantt" as const, icon: GanttChart, label: t("gantt") },
     { mode: "exams" as const, icon: ClipboardCheck, label: t("exams") },
   ];
 

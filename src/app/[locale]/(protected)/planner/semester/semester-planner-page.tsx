@@ -21,6 +21,7 @@ import type { CreditBreakdown } from "@/types/degree";
 import { cn } from "@/lib/utils";
 import { resolveGoalBucket } from "@/lib/goal-bucket";
 import { getProgramById } from "@/lib/programs/registry";
+import { getPlanningAnchor, deriveYearOfStudy } from "@/lib/academic-calendar";
 import type { OnboardingData } from "@/components/onboarding/onboarding-wizard";
 import type { SessionGroupSelections } from "@/components/onboarding/semester-planner/live-timetable";
 
@@ -131,11 +132,14 @@ export function SemesterPlannerPage() {
   const profile = profileQuery.data;
   const allCourses = (coursesQuery.data ?? []) as CourseWithSchedule[];
 
-  // Build OnboardingData from profile
+  // Build OnboardingData from profile. Year + semester come from the PLANNING
+  // ANCHOR (#39): the current semester while it still teaches, otherwise the
+  // next one — never the fossilized profile pair.
+  const anchor = getPlanningAnchor();
   const data: OnboardingData = {
     program: getProgramById(profile?.programId).programCode,
-    year: profile?.currentYear ?? 1,
-    semester: (profile?.currentSemester as "FALL" | "SPRING") ?? "FALL",
+    year: deriveYearOfStudy(profile?.startYear, profile?.currentYear ?? 1, anchor.startYear),
+    semester: anchor.semester,
     focusArea: (profile?.focusArea as OnboardingData["focusArea"]) ?? null,
     miluimGroup: (profile as Record<string, unknown>)?.miluimGroup as OnboardingData["miluimGroup"] ?? "NONE",
     // DB column is still `amiramScore`; map it onto the renamed onboarding field.
