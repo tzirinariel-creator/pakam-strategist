@@ -21,7 +21,7 @@ export default async function ExamPage({
           {isHe ? "לוח הבחינות" : "Exam schedule"}
         </h1>
         <p className="mt-0.5 text-xs text-foreground/50">
-          {isHe ? "כל הבחינות הקרובות שלך, לפי תאריך" : "All your upcoming exams, by date"}
+          {isHe ? "כל הבחינות הקרובות שלכם, לפי תאריך" : "All your upcoming exams, by date"}
         </p>
       </div>
       <ExamSchedule />

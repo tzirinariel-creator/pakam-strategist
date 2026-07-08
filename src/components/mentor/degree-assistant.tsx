@@ -124,7 +124,7 @@ export function DegreeAssistant() {
     const q = question.trim();
     if (!q) return;
     if (!dataReady) {
-      toast.message(isHe ? "רגע, טוען את הנתונים שלך…" : "One sec, loading your data…");
+      toast.message(isHe ? "רגע, טוען את הנתונים שלכם…" : "One sec, loading your data…");
       return;
     }
     setTurns((prev) => [...prev, { q, a: answerDegreeQuestion(q, ctx) }]);
@@ -147,7 +147,7 @@ export function DegreeAssistant() {
           </h1>
           <p className="text-xs text-foreground/50">
             {isHe
-              ? "תשובות מהנתונים שלך — בלי בינה מלאכותית, בלי המצאות."
+              ? "תשובות מהנתונים שלכם — בלי בינה מלאכותית, בלי המצאות."
               : "Answers from your own data — no AI, no made-up facts."}
           </p>
         </div>
@@ -157,7 +157,7 @@ export function DegreeAssistant() {
       <div className="flex-1 space-y-3 overflow-y-auto rounded-xl">
         {turns.length === 0 && (
           <div className="rounded-xl border border-dashed border-border/50 bg-foreground/[0.02] p-5 text-center text-sm text-foreground/50">
-            {isHe ? "בחר שאלה למטה, או כתוב שאלה משלך" : "Pick a question below, or type your own"}
+            {isHe ? "בחרו שאלה למטה, או כתבו שאלה משלכם" : "Pick a question below, or type your own"}
           </div>
         )}
         {turns.map((turn, i) => (
@@ -211,7 +211,7 @@ export function DegreeAssistant() {
         <input
           value={input}
           onChange={(e) => setInput(e.target.value)}
-          placeholder={isHe ? "כתוב שאלה על התואר…" : "Type a question about your degree…"}
+          placeholder={isHe ? "כתבו שאלה על התואר…" : "Type a question about your degree…"}
           className="flex-1 rounded-xl border border-border/60 bg-card px-4 py-2.5 text-sm text-foreground placeholder:text-foreground/30 focus:border-foreground/30 focus:outline-none focus:ring-1 focus:ring-foreground/20"
         />
         <button

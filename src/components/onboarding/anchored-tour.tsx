@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useLayoutEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import { ChevronLeft, ChevronRight, X } from "lucide-react";
-import { useLocale } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { cn } from "@/lib/utils";
 
 /**
@@ -24,41 +24,43 @@ interface Step {
   bodyEn: string;
 }
 
+// Order follows the page top-to-bottom (status → week → recommendations) so the
+// spotlight never jumps; the conditional miluim bar comes near the end.
 const STEPS: Step[] = [
   {
     selector: '[data-tour="status"]',
-    titleHe: "המצב שלך, במקום אחד",
+    titleHe: "המצב שלכם, במקום אחד",
     titleEn: "Your status, in one place",
     bodyHe: "כאן רואים כמה ש״ס נשארו, באיזה תחום, ומה הממוצע — מבט-על על כל התואר.",
     bodyEn: "See how many credits remain, by category, plus your average — the whole degree at a glance.",
   },
   {
-    selector: '[data-tour="recommendations"]',
-    titleHe: "מה כדאי עכשיו",
-    titleEn: "Smart recommendations",
-    bodyHe: "כאן אני מציע לך צעדים אמיתיים לפי הנתונים שלך — מועד ב׳, דרישות חסרות ועוד.",
-    bodyEn: "Real next steps based on your data — Moed B, missing requirements, and more.",
-  },
-  {
-    selector: '[data-tour="miluim"]',
-    titleHe: "ההטבות שלך במילואים",
-    titleEn: "Your miluim benefits",
-    bodyHe: "אם שירתת — הפס הזה תמיד מראה את הקבוצה וההטבות שלך. לחיצה פותחת את כל הפירוט.",
-    bodyEn: "If you served, this bar always shows your group + benefits. Tap it for the full list.",
-  },
-  {
     selector: '[data-tour="week"]',
-    titleHe: "השבוע שלך",
-    titleEn: "Your week",
+    titleHe: "השבוע שלי",
+    titleEn: "My week",
     bodyHe: "השיעורים של היום והמבחנים הקרובים — במבט אחד. \"כל הבחינות\" פותח את לוח-הבחינות המלא.",
     bodyEn: "Today's classes and your next exams at a glance. \"All exams\" opens the full board.",
   },
   {
+    selector: '[data-tour="recommendations"]',
+    titleHe: "מה כדאי עכשיו",
+    titleEn: "What to do now",
+    bodyHe: "המלך מציף כאן צעדים אמיתיים מהנתונים שלכם — מועד ב׳, דרישות חסרות ועוד.",
+    bodyEn: "The King surfaces real next steps from your data — Moed B, missing requirements, and more.",
+  },
+  {
+    selector: '[data-tour="miluim"]',
+    titleHe: "ההטבות שלכם במילואים",
+    titleEn: "Your miluim benefits",
+    bodyHe: "אם שירתתם — הפס הזה תמיד מראה את הקבוצה וההטבות שלכם. לחיצה פותחת את כל הפירוט.",
+    bodyEn: "If you served, this bar always shows your group + benefits. Tap it for the full list.",
+  },
+  {
     selector: null,
-    titleHe: "זהו, את/ה מוכן/ה",
+    titleHe: "זהו, אתם מוכנים",
     titleEn: "You're all set",
-    bodyHe: "תתחיל/י מהמתכנן או מתכנון המבחנים — ואם תרצה/י, העוזר עונה על כל שאלה.",
-    bodyEn: "Start from the planner or exam planner — and the assistant answers any question.",
+    bodyHe: "תתחילו מהמתכנן או מתכנון המבחנים. בסוף כל סמסטר — סורקים את גיליון-הציונים ב\"תיק\" והכול מתעדכן. והעוזר עונה על כל שאלה.",
+    bodyEn: "Start from the planner or exam planner. At each semester's end, scan your grade sheet in \"Record\" and everything updates. The assistant answers any question.",
   },
 ];
 
@@ -197,5 +199,30 @@ export function AnchoredTour({ open, onClose }: { open: boolean; onClose: () => 
       {tooltip}
     </>,
     document.body
+  );
+}
+
+/**
+ * Small, unobtrusive "re-open the tour" button — drop into the dashboard header.
+ * Migrated here from the retired product-tour.tsx so the whole tour lives in one
+ * file (and TOUR_DONE_KEY has a single source of truth).
+ */
+export function TourReopenButton({ onClick }: { onClick: () => void }) {
+  const t = useTranslations("tour");
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      aria-label={t("reopenAria")}
+      className="inline-flex items-center gap-1.5 rounded-lg border border-border/60 bg-card/40 px-2.5 py-1.5 text-xs font-medium text-foreground/55 transition-colors hover:border-foreground/25 hover:bg-foreground/5 hover:text-foreground/80"
+    >
+      <span
+        aria-hidden
+        className="flex size-4 items-center justify-center rounded-full border border-current text-[10px] font-bold leading-none"
+      >
+        ?
+      </span>
+      {t("reopen")}
+    </button>
   );
 }

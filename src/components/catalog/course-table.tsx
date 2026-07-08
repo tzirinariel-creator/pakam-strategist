@@ -393,7 +393,7 @@ export function CourseTable({ courses, allCourses, focusArea }: CourseTableProps
                     {isFocus && (
                       <Star
                         className="me-1 -mt-0.5 inline size-3 fill-accent-brand text-accent-brand"
-                        aria-label={isHe ? "תחום המיקוד שלך" : "Your focus area"}
+                        aria-label={isHe ? "תחום המיקוד שלכם" : "Your focus area"}
                       />
                     )}
                     {locale === "he" ? course.nameHe : (course.nameEn ?? course.nameHe)}

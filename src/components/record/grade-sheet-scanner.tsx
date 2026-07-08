@@ -170,7 +170,7 @@ export function GradeSheetScanner() {
           </p>
           <p className="text-xs text-foreground/50">
             {isHe
-              ? "מעלים את 'אישור קורסים וציונים' מהאזור האישי של ת״א — ואנחנו ממלאים ציונים, קורסים בלימוד ורמת-אנגלית. שום דבר לא נשמר בלי אישור שלך."
+              ? "מעלים את 'אישור קורסים וציונים' מהאזור האישי של ת״א — ואנחנו ממלאים ציונים, קורסים בלימוד ורמת-אנגלית. שום דבר לא נשמר בלי אישור שלכם."
               : "Upload your 'Record of study' from the TAU personal area — we fill in grades, in-progress courses and English level. Nothing is saved without your approval."}
           </p>
           <div className="mt-1"><WhereIsMySheet /></div>
@@ -192,7 +192,7 @@ export function GradeSheetScanner() {
           className="inline-flex items-center gap-1.5 rounded-lg bg-accent-brand px-3 py-2 text-sm font-semibold text-accent-brand-fg transition-colors hover:bg-accent-brand-hover disabled:opacity-40"
         >
           {scanning ? <Loader2 className="size-4 animate-spin" /> : <ScanLine className="size-4" />}
-          {scanning ? (isHe ? "קורא את הגיליון…" : "Reading…") : isHe ? "העלה וסרוק" : "Upload & scan"}
+          {scanning ? (isHe ? "קורא את הגיליון…" : "Reading…") : isHe ? "העלו וסרקו" : "Upload & scan"}
         </button>
       </div>
 

@@ -15,8 +15,7 @@ import { getContextualTips, getRandomTip } from "@/lib/tips-engine";
 import { DashboardSkeleton } from "@/components/dashboard/dashboard-skeleton";
 import { Progress } from "@/components/ui/progress";
 import { OnboardingWizard } from "@/components/onboarding/onboarding-wizard";
-import { TourReopenButton, TOUR_DONE_KEY } from "@/components/onboarding/product-tour";
-import { AnchoredTour } from "@/components/onboarding/anchored-tour";
+import { AnchoredTour, TourReopenButton, TOUR_DONE_KEY } from "@/components/onboarding/anchored-tour";
 import { cn } from "@/lib/utils";
 import { TodaysClasses } from "@/components/dashboard/todays-classes";
 import { SemesterWrapCard } from "@/components/dashboard/semester-wrap-card";
@@ -210,8 +209,8 @@ function GoogleCalendarBanner({
         </p>
         <p className="text-xs text-foreground/40 mt-0.5">
           {isConnected
-            ? (isHe ? "הלו״ז שלך מסונכרן ליומן Google" : "Your schedule is synced to Google Calendar")
-            : (isHe ? "סנכרן את המערכת ישירות ליומן שלך" : "Sync your schedule directly to your calendar")}
+            ? (isHe ? "הלו״ז שלכם מסונכרן ליומן Google" : "Your schedule is synced to Google Calendar")
+            : (isHe ? "סנכרנו את המערכת ישירות ליומן שלכם" : "Sync your schedule directly to your calendar")}
         </p>
       </div>
       <div className="flex items-center gap-2">

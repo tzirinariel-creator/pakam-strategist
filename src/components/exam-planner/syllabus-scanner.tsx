@@ -115,7 +115,7 @@ export function SyllabusScanner() {
     if (ok > 0) {
       const skipNote = skipped > 0 ? (isHe ? ` (${skipped} כבר היו קיימים)` : ` (${skipped} already existed)`) : "";
       toast.success(
-        (isHe ? `נוספו ${ok} תאריכים מהסילבוס ללוח שלך` : `Added ${ok} syllabus dates to your plan`) + skipNote,
+        (isHe ? `נוספו ${ok} תאריכים מהסילבוס ללוח שלכם` : `Added ${ok} syllabus dates to your plan`) + skipNote,
       );
       setResult(null);
       void utils.studyTask.list.invalidate();
@@ -137,7 +137,7 @@ export function SyllabusScanner() {
           </p>
           <p className="text-xs text-foreground/50">
             {isHe
-              ? "מעלים צילום/PDF של הסילבוס — בחינות והגשות נכנסות ללוח. כלום לא נשמר בלי אישור שלך."
+              ? "מעלים צילום/PDF של הסילבוס — בחינות והגשות נכנסות ללוח. כלום לא נשמר בלי אישור שלכם."
               : "Upload a syllabus photo/PDF — exams and deadlines land on your plan. Nothing saved without your approval."}
           </p>
         </div>
@@ -158,7 +158,7 @@ export function SyllabusScanner() {
           className="inline-flex items-center gap-1.5 rounded-lg bg-accent-brand px-3 py-2 text-sm font-semibold text-accent-brand-fg transition-colors hover:bg-accent-brand-hover disabled:opacity-40"
         >
           {scanning ? <Loader2 className="size-4 animate-spin" /> : <FileScan className="size-4" />}
-          {scanning ? (isHe ? "קורא את הסילבוס…" : "Reading…") : isHe ? "העלה וסרוק" : "Upload & scan"}
+          {scanning ? (isHe ? "קורא את הסילבוס…" : "Reading…") : isHe ? "העלו וסרקו" : "Upload & scan"}
         </button>
       </div>
 

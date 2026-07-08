@@ -122,6 +122,9 @@ export function BiddingWorksheet({ courses }: { courses: UserCourseWithCourse[] 
 
   useEffect(() => {
     setState(parseWorksheet(localStorage.getItem(storageKey)));
+    // Restore the chosen round too (#41) — it used to reset to "1" on refresh,
+    // losing which round the student was mid-way through.
+    setRound(localStorage.getItem(`${storageKey}:round`) === "2" ? "2" : "1");
     setLoaded(true);
   }, [storageKey]);
 
@@ -129,6 +132,11 @@ export function BiddingWorksheet({ courses }: { courses: UserCourseWithCourse[] 
     if (!loaded) return;
     localStorage.setItem(storageKey, JSON.stringify(state));
   }, [state, storageKey, loaded]);
+
+  useEffect(() => {
+    if (!loaded) return;
+    localStorage.setItem(`${storageKey}:round`, round);
+  }, [round, storageKey, loaded]);
 
   const alloc = state.rounds[round];
   const check = useMemo(
@@ -192,10 +200,10 @@ export function BiddingWorksheet({ courses }: { courses: UserCourseWithCourse[] 
         </div>
         <div className="min-w-0 flex-1">
           <p className="text-sm font-semibold text-foreground/85">
-            {isHe ? "גיליון בידינג — הנקודות שלך" : "Bidding worksheet — your points"}
+            {isHe ? "גיליון בידינג — הנקודות שלכם" : "Bidding worksheet — your points"}
           </p>
           <p className="text-xs text-foreground/50">
-            {isHe ? "אתה מזין, אנחנו רק בודקים · נשמר במכשיר שלך" : "You enter, we only validate · saved on your device"}
+            {isHe ? "אתם מזינים, אנחנו רק בודקים · נשמר במכשיר שלכם" : "You enter, we only validate · saved on your device"}
           </p>
         </div>
         <ChevronDown className={cn("size-4 shrink-0 text-foreground/40 transition-transform", open && "rotate-180")} />
@@ -207,7 +215,7 @@ export function BiddingWorksheet({ courses }: { courses: UserCourseWithCourse[] 
           <div className="flex flex-wrap items-end gap-3">
             <div className="flex flex-col gap-1">
               <label htmlFor="bid-pool" className="text-[11px] text-foreground/55">
-                {isHe ? "כמה נקודות יש לך? (מופיע רק במסך-הבידינג בידיעון)" : "Your point pool (shown only on the Yedion bidding screen)"}
+                {isHe ? "כמה נקודות יש לכם? (מופיע רק במסך-הבידינג בידיעון)" : "Your point pool (shown only on the Yedion bidding screen)"}
               </label>
               <input
                 id="bid-pool"
@@ -253,14 +261,14 @@ export function BiddingWorksheet({ courses }: { courses: UserCourseWithCourse[] 
           {check.overPool && (
             <p className="flex items-center gap-1.5 rounded-lg border border-red-400/30 bg-red-400/[0.06] px-3 py-2 text-xs text-red-600">
               <AlertTriangle className="size-3.5 shrink-0" />
-              {isHe ? `חילקת ${check.total} נקודות אבל יש לך רק ${state.pool}. תוריד ממשהו.` : `You allocated ${check.total} but only have ${state.pool}. Trim something.`}
+              {isHe ? `חילקתם ${check.total} נקודות אבל יש לכם רק ${state.pool}. תורידו ממשהו.` : `You allocated ${check.total} but only have ${state.pool}. Trim something.`}
             </p>
           )}
           {state.pool != null && !check.overPool && check.minFloor > state.pool && (
             <p className="flex items-center gap-1.5 rounded-lg border border-amber-400/30 bg-amber-400/[0.06] px-3 py-2 text-xs text-amber-600">
               <AlertTriangle className="size-3.5 shrink-0" />
               {isHe
-                ? `רק המינימום (5 × ${check.minFloor / MIN_BID} קורסים = ${check.minFloor}) כבר עובר את המאגר שלך — אי אפשר להתמכרז על כולם.`
+                ? `רק המינימום (5 × ${check.minFloor / MIN_BID} קורסים = ${check.minFloor}) כבר עובר את המאגר שלכם — אי אפשר להתמכרז על כולם.`
                 : `The floor alone (5 × ${check.minFloor / MIN_BID} courses = ${check.minFloor}) exceeds your pool — you can't bid on all of them.`}
             </p>
           )}
@@ -278,7 +286,7 @@ export function BiddingWorksheet({ courses }: { courses: UserCourseWithCourse[] 
                       <p className="truncate text-sm text-foreground/80">
                         {r.courseName}
                         {r.hasClash && (
-                          <span className="ms-1.5 inline-flex items-center gap-0.5 rounded bg-amber-500/10 px-1 py-0.5 text-[10px] font-bold text-amber-600" title={isHe ? "חופף בזמן לקורס אחר שלך — ראה את ההתראה למעלה" : "Time-clashes with another of your courses — see the alert above"}>
+                          <span className="ms-1.5 inline-flex items-center gap-0.5 rounded bg-amber-500/10 px-1 py-0.5 text-[10px] font-bold text-amber-600" title={isHe ? "חופף בזמן לקורס אחר שלכם — ראו את ההתראה למעלה" : "Time-clashes with another of your courses — see the alert above"}>
                             <AlertTriangle className="size-2.5" />
                             {isHe ? "חפיפה" : "clash"}
                           </span>
@@ -340,7 +348,7 @@ export function BiddingWorksheet({ courses }: { courses: UserCourseWithCourse[] 
               <li className="flex gap-1.5"><Check className="mt-0.5 size-3 shrink-0 text-foreground/35" />{isHe ? "שוויון בסף נשבר בהגרלה — מספר קצת לא-עגול (כמו 41) גובר על העגול שכולם בוחרים (40)." : "Ties at the cutoff go to a lottery — a slightly odd number (41) beats the round one everyone picks (40)."}</li>
               <li className="flex gap-1.5"><Check className="mt-0.5 size-3 shrink-0 text-foreground/35" />{isHe ? "ביטול בין המקצים מחזיר את הנקודות — מקצה 2 מתחיל מחדש עם כל המאגר." : "Cancelling between rounds refunds points — round 2 starts fresh with the full pool."}</li>
               <li className="flex gap-1.5"><Check className="mt-0.5 size-3 shrink-0 text-foreground/35" />{isHe ? "תעדף את מה שחייבים ומהר-מתמלא; את הבטוחים אפשר להשאיר על המינימום." : "Prioritize must-haves and fast-fillers; safe picks can sit at the minimum."}</li>
-              <li className="flex gap-1.5"><Check className="mt-0.5 size-3 shrink-0 text-foreground/35" />{isHe ? "איננו יודעים את המכסה — הכלי רק בודק שהמספרים שלך מסתדרים." : "We don't know the quota — this tool only checks your own numbers add up."}</li>
+              <li className="flex gap-1.5"><Check className="mt-0.5 size-3 shrink-0 text-foreground/35" />{isHe ? "איננו יודעים את המכסה — הכלי רק בודק שהמספרים שלכם מסתדרים." : "We don't know the quota — this tool only checks your own numbers add up."}</li>
             </ul>
           </div>
 

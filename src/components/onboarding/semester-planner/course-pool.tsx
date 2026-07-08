@@ -264,7 +264,7 @@ export function CoursePool({
             <div className="rounded-xl border border-dashed border-border/50 bg-foreground/[0.02] p-4 text-center">
               <p className="text-sm text-foreground/55">
                 {isHe
-                  ? "הסמסטר הזה כמעט כולו חובה — המערכת שלך כבר מורכבת. נשאר רק לבחור קבוצות תרגול ולאשר."
+                  ? "הסמסטר הזה כמעט כולו חובה — המערכת שלכם כבר מורכבת. נשאר רק לבחור קבוצות תרגול ולאשר."
                   : "This semester is almost all mandatory — your schedule is already built. Just pick tutorial groups and confirm."}
               </p>
             </div>

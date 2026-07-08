@@ -69,10 +69,10 @@ export function MentorPageClient() {
         <p className="max-w-sm text-center text-xs leading-relaxed text-foreground/50">
           {isReferent
             ? isHe
-              ? "שנה ג׳ שכבר עבר את זה — דוגרי, ותמיד מהנתונים האמיתיים שלך."
+              ? "שנה ג׳ שכבר עבר את זה — דוגרי, ותמיד מהנתונים האמיתיים שלכם."
               : "A final-year who's been through it — straight talk, always from your real data."
             : isHe
-              ? "יועץ התואר שלך — חכם, ישיר, ותמיד מהנתונים האמיתיים שלך."
+              ? "יועץ התואר שלכם — ישיר, מהנתונים האמיתיים שלכם."
               : "Your degree advisor — wise, direct, always from your real data."}
         </p>
         {/* Discover + switch the other persona in-context (#48). Same voice,
@@ -124,10 +124,10 @@ export function MentorPageClient() {
         <p className="text-center text-xs text-foreground/45">
           {mode === "quick"
             ? isHe
-              ? "תשובות מיידיות מהנתונים שלך — בלי בינה מלאכותית, תמיד חינם."
+              ? "תשובות מיידיות מהנתונים שלכם — בלי בינה מלאכותית, תמיד חינם."
               : "Instant answers from your data — no AI, always free."
             : isHe
-              ? "שיחה חכמה עם בינה מלאכותית, מבוססת על התוכנית שלך (מפתח Gemini חינמי)."
+              ? "שיחה חכמה עם בינה מלאכותית, מבוססת על התוכנית שלכם (מפתח Gemini חינמי)."
               : "A smart AI conversation grounded in your plan (free Gemini key)."}
         </p>
       </div>

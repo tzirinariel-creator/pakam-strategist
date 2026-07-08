@@ -54,7 +54,7 @@ export function GuideContent() {
         </p>
         <p className="mt-1.5 text-foreground/55">
           {isHe
-            ? "לומדים ב-3 פקולטות שונות, כל אחת עם מזכירות וחוקים משלה. תחום המיקוד שתבחר קובע גם את הסיווג שלך בשירות המדינה."
+            ? "לומדים ב-3 פקולטות שונות, כל אחת עם מזכירות וחוקים משלה. תחום המיקוד שתבחרו קובע גם את הסיווג שלכם בשירות המדינה."
             : "You study across 3 faculties, each with its own rules. Your focus area even sets your civil-service track."}
         </p>
       </Section>
@@ -73,7 +73,7 @@ export function GuideContent() {
       <Section icon={Lightbulb} title={isHe ? "איך לתכנן חכם" : "How to plan smartly"}>
         <ul className="space-y-1.5">
           <Li>{isHe ? "שנה א׳ = קורסי חובה. אל תתחכם — קח הכל ותתמקד בממוצע טוב." : "Year 1 = mandatory courses. Take them all, aim for a good GPA."}</Li>
-          <Li>{isHe ? "בחר תחום מיקוד מוקדם — הוא משפיע על כל התכנון." : "Choose your focus area early — it drives the whole plan."}</Li>
+          <Li>{isHe ? "בחרו תחום מיקוד מוקדם — הוא משפיע על כל התכנון." : "Choose your focus area early — it drives the whole plan."}</Li>
           <Li>{isHe ? "כדאי לקחת אנגלית מוקדם — קורסים קלים יחסית שמורידים עומס בהמשך." : "Take English early — relatively easy courses that ease your load later."}</Li>
           <Li>{isHe ? "אל תשים 3 קורסים כבדים באותו סמסטר." : "Don't stack 3 heavy courses in one semester."}</Li>
           <Li>{isHe ? "מעבר שנה: " : "Year transition: "}<Bidi text={isHe ? "ממוצע 75 כללי + 80 בקורסי פכ\"מ" : "75 overall + 80 in PPE courses"} />.</Li>
@@ -81,20 +81,20 @@ export function GuideContent() {
         </ul>
       </Section>
 
-      <Section icon={LayoutGrid} title={isHe ? "הכלים שלך כאן" : "Your tools here"}>
+      <Section icon={LayoutGrid} title={isHe ? "הכלים שלכם כאן" : "Your tools here"}>
         <ul className="space-y-1.5">
           <ToolLi href="/dashboard" label={isHe ? "דשבורד — \"המצב שלי\"" : "Dashboard — \"My status\""} desc={isHe ? "מבט-על: כמה נשאר, באיזה תחום, מה חסר." : "Bird's-eye: what's left, by category."} arrow={Arrow} />
-          <ToolLi href="/planner" label={isHe ? "מתכנן התואר" : "Degree planner"} desc={isHe ? "גרור קורסים בין סמסטרים, סמן הושלמו." : "Drag courses across semesters."} arrow={Arrow} />
+          <ToolLi href="/planner" label={isHe ? "מתכנן התואר" : "Degree planner"} desc={isHe ? "סדרו קורסים בין סמסטרים, סמנו הושלמו." : "Arrange courses across semesters."} arrow={Arrow} />
           <ToolLi href="/exam-planner" label={isHe ? "תכנון מבחנים" : "Exam planner"} desc={isHe ? "תוכנית-לימוד חכמה אחורה מכל מבחן." : "A smart reverse-planned study schedule."} arrow={Arrow} />
-          <ToolLi href="/regulations" label={isHe ? "תקנון" : "Regulations"} desc={isHe ? "הסטטוס שלך מול כל דרישות התואר." : "Your status against every requirement."} arrow={Arrow} />
-          <ToolLi href="/mentor" label={isHe ? "המלך הפילוסוף" : "The Philosopher King"} desc={isHe ? "יועץ התואר — זמין מכל מסך דרך כפתור הכתר, עונה מהנתונים שלך." : "Your degree advisor — the crown button on any screen; answers from your data."} arrow={Arrow} />
+          <ToolLi href="/regulations" label={isHe ? "תקנון" : "Regulations"} desc={isHe ? "הסטטוס שלכם מול כל דרישות התואר." : "Your status against every requirement."} arrow={Arrow} />
+          <ToolLi href="/mentor" label={isHe ? "המלך הפילוסוף" : "The Philosopher King"} desc={isHe ? "יועץ התואר — זמין מכל מסך דרך כפתור הכתר, עונה מהנתונים שלכם." : "Your degree advisor — the crown button on any screen; answers from your data."} arrow={Arrow} />
         </ul>
       </Section>
 
       <Section icon={Shield} title={isHe ? "מילואים" : "Reserve duty (Miluim)"}>
         <p>
           {isHe
-            ? "אם שירתת — עדכן בהגדרות. תקבל פטור ש\"ס, אפשרות לסמן קורסים כ\"בינארי\" (עובר/לא־עובר, יוצא מהממוצע), בחירת מועדים ועוד. פס המילואים למעלה מראה לך תמיד מה מגיע לך."
+            ? "אם שירתתם — עדכנו בהגדרות. תקבלו פטור ש\"ס, אפשרות לסמן קורסים כ\"בינארי\" (עובר/לא־עובר, יוצא מהממוצע), בחירת מועדים ועוד. פס המילואים למעלה מראה לכם תמיד מה מגיע לכם."
             : "If you served, set it in settings. You'll get credit exemptions, the option to mark courses binary (pass/fail, excluded from the average), exam-date choice, and more. The miluim bar up top always shows your benefits."}
         </p>
       </Section>

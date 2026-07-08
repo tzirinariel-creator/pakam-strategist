@@ -133,7 +133,7 @@ export function PlannerLiveTimetable({ courses }: PlannerLiveTimetableProps) {
         <div className="flex items-center gap-2">
           <CalendarDays className="size-4 text-foreground/60" />
           <h2 className="text-sm font-bold text-foreground/80">
-            {isHe ? "מערכת השעות שלך" : "Your timetable"}
+            {isHe ? "מערכת השעות שלכם" : "Your timetable"}
           </h2>
         </div>
         <div className="flex items-center gap-1.5">
@@ -223,7 +223,7 @@ export function PlannerLiveTimetable({ courses }: PlannerLiveTimetableProps) {
             <div className="flex items-center gap-2">
               <CalendarDays className="size-4 text-foreground/60" />
               <h2 id="timetable-overlay-title" className="text-sm font-bold text-foreground/85">
-                {isHe ? `מערכת השעות שלך · ${yearLabel}` : `Your timetable · ${yearLabel}`}
+                {isHe ? `מערכת השעות שלכם · ${yearLabel}` : `Your timetable · ${yearLabel}`}
               </h2>
             </div>
             <button

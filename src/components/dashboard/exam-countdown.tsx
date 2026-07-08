@@ -165,7 +165,7 @@ export function ExamCountdown() {
         href="/exam-planner"
         className="mt-2 inline-flex items-center gap-1 text-xs font-medium text-accent-brand transition-opacity hover:opacity-80"
       >
-        {isHe ? "תכנן את תקופת המבחנים" : "Plan your exam period"}
+        {isHe ? "תכננו את תקופת המבחנים" : "Plan your exam period"}
         {isHe ? <ArrowLeft className="size-3" /> : <ArrowRight className="size-3" />}
       </Link>
     </div>

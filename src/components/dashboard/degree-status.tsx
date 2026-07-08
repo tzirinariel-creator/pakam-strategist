@@ -309,7 +309,7 @@ export function DegreeStatus({
                     {b.label}
                   </div>
                   <div className="mt-1 flex items-center gap-1 text-sm font-semibold text-foreground/80">
-                    {isHe ? "בחר תחום" : "Choose one"}
+                    {isHe ? "בחרו תחום" : "Choose one"}
                     <Arrow className="size-3 transition-transform group-hover:translate-x-0.5 rtl:group-hover:-translate-x-0.5" />
                   </div>
                 </Link>
@@ -352,7 +352,7 @@ export function DegreeStatus({
                           ? ` · ${englishLevel.levelCourses} קורסי רמה`
                           : ` · ${englishLevel.levelCourses} level course(s)`
                         : isHe
-                          ? " · ודא שיש לך פטור — הדדליין היה סוף שנה א׳"
+                          ? " · ודאו שיש לכם פטור — הדדליין היה סוף שנה א׳"
                           : " · ensure you're exempt — deadline was end of year 1")}
                   </p>
                 )}

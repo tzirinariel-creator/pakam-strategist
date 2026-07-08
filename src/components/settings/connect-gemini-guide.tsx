@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { useLocale } from "next-intl";
 import { ExternalLink, ShieldCheck, KeyRound, ClipboardPaste, MousePointerClick } from "lucide-react";
 
@@ -11,17 +12,29 @@ import { ExternalLink, ShieldCheck, KeyRound, ClipboardPaste, MousePointerClick 
  */
 export function ConnectGeminiGuide() {
   const isHe = useLocale() === "he";
+  // Reflect the chosen advisor persona (device-local, same key the FAB honors)
+  // so the guide names "המלך"/"הרפרנט" instead of a generic advisor (#47).
+  const [persona, setPersona] = useState<"king" | "referent">("king");
+  useEffect(() => {
+    try {
+      setPersona(localStorage.getItem("pk-persona") === "referent" ? "referent" : "king");
+    } catch {
+      /* default king */
+    }
+  }, []);
+  const advisorHe = persona === "referent" ? "הרפרנט" : "המלך";
+  const advisorEn = persona === "referent" ? "the Referent" : "the King";
 
   const steps = isHe
     ? [
         { icon: ExternalLink, text: <>פותחים את <a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener noreferrer" className="font-medium text-accent-brand underline-offset-2 hover:underline">Google AI Studio</a> ומתחברים עם חשבון הגוגל הרגיל שלכם.</> },
         { icon: MousePointerClick, text: <>לוחצים על <b>Create API key</b>. זהו — לא מבקשים כרטיס אשראי, והשכבה החינמית מספיקה בשפע לשימוש בעוזר.</> },
-        { icon: ClipboardPaste, text: <>מעתיקים את המפתח שנוצר ומדביקים אותו בשדה כאן למטה. מרגע זה היועץ שלכם עובד עם המכסה האישית שלכם.</> },
+        { icon: ClipboardPaste, text: <>מעתיקים את המפתח שנוצר ומדביקים אותו בשדה כאן למטה. מרגע זה {advisorHe} עובד עם המכסה האישית שלכם.</> },
       ]
     : [
         { icon: ExternalLink, text: <>Open <a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener noreferrer" className="font-medium text-accent-brand underline-offset-2 hover:underline">Google AI Studio</a> and sign in with your regular Google account.</> },
         { icon: MousePointerClick, text: <>Click <b>Create API key</b>. That&apos;s it — no credit card, and the free tier is plenty for the assistant.</> },
-        { icon: ClipboardPaste, text: <>Copy the key and paste it in the field below. From that moment your advisor runs on your own quota.</> },
+        { icon: ClipboardPaste, text: <>Copy the key and paste it in the field below. From that moment {advisorEn} runs on your own quota.</> },
       ];
 
   return (
@@ -62,7 +75,7 @@ export function ConnectGeminiGuide() {
         <ul className="space-y-1 text-[11px] leading-relaxed text-foreground/60">
           <li>
             {isHe
-              ? "כששואלים את העוזר, נשלחים ל-Google Gemini: השאלה שלכם + תמצית נתוני-התואר שלכם (נ\"ז, ממוצע, קורסים, דרישות) — כדי שהתשובה תהיה אישית."
+              ? "כששואלים את העוזר, נשלחים ל-Google Gemini: השאלה שלכם + תמצית נתוני-התואר שלכם (ש\"ס, ממוצע, קורסים, דרישות) — כדי שהתשובה תהיה אישית."
               : "When you ask the assistant, your question + a summary of your degree data (credits, average, courses, requirements) is sent to Google Gemini — so the answer is personal."}
           </li>
           <li>

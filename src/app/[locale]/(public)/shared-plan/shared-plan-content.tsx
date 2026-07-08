@@ -35,7 +35,7 @@ export function SharedPlanContent() {
   const [confirming, setConfirming] = useState(false);
   const importMutation = api.plan.savePlan.useMutation({
     onSuccess: (r) => {
-      toast.success(isHe ? `הועתקו ${r.savedCount} קורסים לתכנון שלך` : `Imported ${r.savedCount} courses`);
+      toast.success(isHe ? `הועתקו ${r.savedCount} קורסים לתכנון שלכם` : `Imported ${r.savedCount} courses`);
       router.push("/planner");
     },
     // Surface the server's message (e.g. the friendly demo read-only text)
@@ -148,7 +148,7 @@ export function SharedPlanContent() {
             onClick={rememberSharedPlanReturn}
             className="text-center text-xs text-foreground/55 underline underline-offset-4 hover:text-foreground/80"
           >
-            {isHe ? "כבר רשומים? התחברות והעתקה לתכנון שלך" : "Already registered? Log in and copy it"}
+            {isHe ? "כבר רשומים? התחברות והעתקה לתכנון שלכם" : "Already registered? Log in and copy it"}
           </Link>
         </div>
       ) : (
@@ -157,7 +157,7 @@ export function SharedPlanContent() {
             <p className="flex items-start gap-2 text-xs text-amber-600">
               <AlertTriangle className="mt-0.5 size-3.5 shrink-0" />
               {isHe
-                ? "שים לב: ההעתקה תחליף את התכנון הנוכחי שלך. ללחוץ שוב כדי לאשר."
+                ? "שימו לב: ההעתקה תחליף את התכנון הנוכחי שלכם. ללחוץ שוב כדי לאשר."
                 : "Heads up: importing replaces your current plan. Click again to confirm."}
             </p>
           )}

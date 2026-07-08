@@ -437,7 +437,7 @@ function PersonaSection() {
       Icon: PhilosopherKingIcon,
       tint: "var(--crown-gold)",
       name: isHe ? "המלך הפילוסוף" : "The Philosopher King",
-      desc: isHe ? "סמכותי, חד, ישר לעניין. חוכמה מהנתונים שלך." : "Authoritative, sharp, straight to the point. Wisdom from your data.",
+      desc: isHe ? "סמכותי, חד, ישר לעניין. חוכמה מהנתונים שלכם." : "Authoritative, sharp, straight to the point. Wisdom from your data.",
       tag: isHe ? "ברירת המחדל" : "Default",
     },
     {
@@ -622,7 +622,7 @@ function AppearanceSection() {
               {isHe ? "המלך יציף פער קריטי כשאני פותח אותו" : "Let the King surface one critical gap when I open him"}
             </label>
             <p className="mt-0.5 text-xs text-foreground/50">
-              {isHe ? "כשתפתחו את המלך והוא יראה משהו שדורש טיפול — הוא יגיד. בלי לקפוץ לבד, ולא יותר מפעם ביום." : "When you open the King and something needs attention, he'll say so. Never uninvited, never more than once a day."}
+              {isHe ? "כשפותחים את המלך והוא רואה משהו שדורש טיפול — הוא אומר. רק כשנכנסים, לא באמצע." : "When you open the King and he sees something that needs attention — he says so. Only on entry, never mid-flow."}
             </p>
           </div>
           <button
@@ -1339,7 +1339,7 @@ function MiluimSection() {
         {semestersQuery.data && semestersQuery.data.length > 0 && (
           <div className="border-t border-border pt-5">
             <h4 className="mb-2 text-sm font-medium text-foreground/70">
-              {isHe ? "היסטוריית השירות שלך" : "Your service history"}
+              {isHe ? "היסטוריית השירות שלכם" : "Your service history"}
             </h4>
             <div className="flex flex-col gap-1.5">
               {[...semestersQuery.data]
@@ -1389,7 +1389,7 @@ function MiluimSection() {
           </label>
           <p className="mb-2.5 text-xs text-foreground/45">
             {isHe
-              ? "300+ ימי-לחימה מ-7.10.23 ← קבוצה C · שכול או נפגע-פעולה ← קבוצה G · משרת/ת קבע בתוכנית שירות ← האפשרות הייעודית למטה. אם זה המצב שלך, בחר כאן."
+              ? "300+ ימי-לחימה מ-7.10.23 ← קבוצה C · שכול או נפגע-פעולה ← קבוצה G · משרת/ת קבע בתוכנית שירות ← האפשרות הייעודית למטה. אם זה המצב שלכם, בחרו כאן."
               : "300+ combat days since Oct 7 2023 → Group C · bereaved or wounded → Group G · career service → the dedicated option below. If that's you, pick it here."}
           </p>
           <Select

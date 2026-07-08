@@ -165,7 +165,7 @@ function OverlapTrap({ isHe }: { isHe: boolean }) {
 
       <p className="mt-2 text-[11px] leading-snug text-foreground/70">
         {isHe
-          ? "כבר יש לך את א׳. מגיש בקשה ל-ב׳ שחופף לו (אפילו שעה) → א׳ מתבטל אוטומטית ונשארת רק עם ב׳. בדוק חפיפות לפני שאתה מגיש."
+          ? "כבר יש לכם את א׳. מגישים בקשה ל-ב׳ שחופף לו (אפילו שעה) → א׳ מתבטל אוטומטית ונשארים רק עם ב׳. בדקו חפיפות לפני שאתם מגישים."
           : "You already hold A. Bidding for B, which overlaps it (even by an hour) → A is auto-cancelled and you keep only B. Check for clashes before you bid."}
       </p>
     </div>

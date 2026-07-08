@@ -84,7 +84,7 @@ export function BiddingOverlapAlert({ courses }: { courses: UserCourseWithCourse
         <ShieldCheck className="size-4 shrink-0 text-emerald-500" />
         <p className="text-xs text-foreground/70">
           {isHe
-            ? "אין חפיפות זמן בין הקורסים שלך בסמסטר הזה — בטוח להגיש למכרז."
+            ? "אין חפיפות זמן בין הקורסים שלכם בסמסטר הזה — בטוח להגיש למכרז."
             : "No time clashes between your courses this semester — safe to bid."}
           {unscheduledCount > 0 && (
             <span className="text-foreground/45">
@@ -105,7 +105,7 @@ export function BiddingOverlapAlert({ courses }: { courses: UserCourseWithCourse
         <AlertTriangle className="size-4 shrink-0 text-amber-500" />
         <h3 className="text-sm font-bold text-foreground/85">
           {isHe
-            ? `שים לב — ${conflicts.length === 1 ? "חפיפה אחת" : conflicts.length === 2 ? "שתי חפיפות" : `${conflicts.length} חפיפות`} בקורסים שלך`
+            ? `שימו לב — ${conflicts.length === 1 ? "חפיפה אחת" : conflicts.length === 2 ? "שתי חפיפות" : `${conflicts.length} חפיפות`} בקורסים שלכם`
             : `Heads up — ${conflicts.length} clash${conflicts.length > 1 ? "es" : ""} in your courses`}
         </h3>
       </div>

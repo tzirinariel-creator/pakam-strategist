@@ -107,10 +107,10 @@ export function MyStatusHero({
           >
             {topGap
               ? isHe
-                ? "תכנן — נסגור את זה"
+                ? "תכננו — נסגור את זה"
                 : "Plan — close this gap"
               : isHe
-                ? "תכנן את הסמסטר הקרוב"
+                ? "תכננו את הסמסטר הקרוב"
                 : "Plan the upcoming semester"}
             <Arrow className="size-3.5" />
           </Link>

@@ -145,7 +145,7 @@ export function ExamPlannerContent() {
   const handleGenerate = () => {
     const exams = examCourses.filter((c) => selected[c.code]).map((c) => ({ courseCode: c.code, moed: selected[c.code] as Moed }));
     if (exams.length === 0) {
-      toast.error(isHe ? "בחר לפחות מבחן אחד" : "Pick at least one exam");
+      toast.error(isHe ? "בחרו לפחות מבחן אחד" : "Pick at least one exam");
       return;
     }
     generateMutation.mutate({ exams });
@@ -250,7 +250,7 @@ export function ExamPlannerContent() {
   const [addType, setAddType] = useState<"assignment" | "custom" | "study">("assignment");
   const handleAdd = () => {
     if (!addTitle.trim() || !addDate) {
-      toast.error(isHe ? "מלא כותרת ותאריך" : "Fill a title and date");
+      toast.error(isHe ? "מלאו כותרת ותאריך" : "Fill a title and date");
       return;
     }
     const d = new Date(addDate);
@@ -270,14 +270,14 @@ export function ExamPlannerContent() {
     <div className="data-card p-5">
       <div className="mb-3 flex items-center gap-2">
         <ListChecks className="size-5 text-accent-brand" />
-        <h2 className="font-display text-base font-bold text-foreground/85">{isHe ? "בחר מבחנים" : "Pick exams"}</h2>
+        <h2 className="font-display text-base font-bold text-foreground/85">{isHe ? "בחרו מבחנים" : "Pick exams"}</h2>
         {selectedCount > 0 && <span className="ms-auto text-xs text-foreground/50">{selectedCount} {isHe ? "נבחרו" : "selected"}</span>}
       </div>
       {examCourses.length === 0 ? (
         !hasAnyPlannedCourses ? (
           <div className="flex flex-col items-start gap-2">
             <p className="text-sm text-foreground/60">
-              {isHe ? "עוד אין לך תכנית לימודים. בנה תכנית קודם — ואז נמשוך משם את תאריכי המבחנים." : "You don't have a study plan yet. Build one first — exam dates come from there."}
+              {isHe ? "עוד אין לכם תכנית לימודים. בנו תכנית קודם — ואז נמשוך משם את תאריכי המבחנים." : "You don't have a study plan yet. Build one first — exam dates come from there."}
             </p>
             <Link href="/planner" className="inline-flex items-center gap-1.5 rounded-lg bg-accent-brand px-3 py-2 text-sm font-semibold text-accent-brand-fg transition-colors hover:bg-accent-brand-hover">
               <GraduationCap className="size-4" />
@@ -286,7 +286,7 @@ export function ExamPlannerContent() {
           </div>
         ) : (
           <p className="text-sm text-foreground/50">
-            {isHe ? "אין מבחנים קרובים בתכנית שלך. (מבחנים שכבר עברו אינם מוצגים.)" : "No upcoming exams in your plan. (Past sittings are hidden.)"}
+            {isHe ? "אין מבחנים קרובים בתכנית שלכם. (מבחנים שכבר עברו אינם מוצגים.)" : "No upcoming exams in your plan. (Past sittings are hidden.)"}
           </p>
         )
       ) : (
@@ -393,7 +393,7 @@ export function ExamPlannerContent() {
 
   // Personalized, gendered header line — reads like a person, not a form.
   const headerTitle = hasPlan
-    ? isHe ? "תקופת המבחנים שלך" : "Your exam period"
+    ? isHe ? "תקופת המבחנים שלכם" : "Your exam period"
     : greetName
       ? isHe ? `${g("יאללה", "יאללה", "יאללה")} ${greetName}, ${g("בוא נסדר", "בואי נסדר", "בוא/י נסדר")} את תקופת המבחנים` : `Let's sort your exam period, ${greetName}`
       : isHe ? "תכנון תקופת המבחנים" : "Exam-period planner";
@@ -441,7 +441,7 @@ export function ExamPlannerContent() {
             focusDay={focusDay}
           />
           {recsCard(persistedRecs, true)}
-          <Disclosure title={isHe ? "הוסף עוד תאריכים / כלים" : "Add more dates / tools"}>
+          <Disclosure title={isHe ? "הוסיפו עוד תאריכים / כלים" : "Add more dates / tools"}>
             <div className="flex flex-col gap-4">
               <MoedBenefitBanner />
               {pickExamsPanel}
@@ -487,7 +487,7 @@ function ShareMenu({ isHe, onIcs, onCsv }: { isHe: boolean; onIcs: () => void; o
       <DropdownMenuContent align="end" className="w-56 rounded-xl">
         <DropdownMenuItem onSelect={onIcs} className="gap-2 text-sm text-foreground/80">
           <CalendarPlus className="size-4 text-accent-brand" />
-          {isHe ? "הוסף ליומן Google" : "Add to Google Calendar"}
+          {isHe ? "הוסיפו ליומן Google" : "Add to Google Calendar"}
         </DropdownMenuItem>
         <DropdownMenuItem onSelect={onCsv} className="gap-2 text-xs text-foreground/55">
           <FileSpreadsheet className="size-3.5" />
@@ -622,7 +622,7 @@ function Agenda({
                 onClick={() => onPushDay(list)}
                 className="rounded-md px-1.5 py-0.5 text-[11px] font-medium text-foreground/45 transition-colors hover:bg-foreground/10 hover:text-foreground/70"
               >
-                {isHe ? "דחה יום" : "Push day"}
+                {isHe ? "דחו יום" : "Push day"}
               </button>
             )}
           </span>
@@ -654,7 +654,7 @@ function Agenda({
             return (
               <div key={t.id} className="flex items-center gap-2 rounded-lg border border-border/40 p-2" style={{ borderInlineStartWidth: 3, borderInlineStartColor: t.color ?? "var(--border)" }}>
                 {!isExam && (
-                  <button type="button" onClick={() => onToggle(t.id)} className={cn("flex size-5 shrink-0 items-center justify-center rounded-full border transition-colors", t.completed ? "border-emerald-400 bg-emerald-400 text-white" : "border-foreground/25 hover:border-foreground/40")} aria-label={isHe ? "סמן שהושלם" : "toggle done"}>
+                  <button type="button" onClick={() => onToggle(t.id)} className={cn("flex size-5 shrink-0 items-center justify-center rounded-full border transition-colors", t.completed ? "border-emerald-400 bg-emerald-400 text-white" : "border-foreground/25 hover:border-foreground/40")} aria-label={isHe ? "סמנו שהושלם" : "toggle done"}>
                     {t.completed && <Check className="size-3" />}
                   </button>
                 )}
@@ -663,7 +663,7 @@ function Agenda({
                 {h != null && <span className="shrink-0 font-mono text-[10px] tabular-nums text-foreground/45" dir="ltr">{h}{isHe ? "שע׳" : "h"}</span>}
                 <span className="shrink-0 rounded-full bg-foreground/[0.06] px-1.5 py-0.5 text-[9px] text-foreground/50">{isHe ? meta.he : meta.en}</span>
                 {!isExam && (
-                  <button type="button" onClick={() => onPush(t)} className="shrink-0 rounded-md p-1 text-foreground/30 transition-colors hover:bg-foreground/10 hover:text-foreground/60" title={isHe ? "דחה ביום" : "Push a day"} aria-label={isHe ? "דחה ביום" : "push a day"}>
+                  <button type="button" onClick={() => onPush(t)} className="shrink-0 rounded-md p-1 text-foreground/30 transition-colors hover:bg-foreground/10 hover:text-foreground/60" title={isHe ? "דחו ביום" : "Push a day"} aria-label={isHe ? "דחו ביום" : "push a day"}>
                     <span className="text-xs font-bold">+1</span>
                   </button>
                 )}

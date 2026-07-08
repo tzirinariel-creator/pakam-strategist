@@ -90,6 +90,21 @@ export function FloatingAssistant() {
     }
   }, [open]);
   const isReferent = persona === "referent";
+  const otherName = isReferent
+    ? isHe ? "המלך" : "the King"
+    : isHe ? "הרפרנט" : "the Referent";
+  // In-context persona switch (#48): a student who meets the King here must be
+  // able to discover + switch to the Referent from the header itself — not only
+  // buried in Settings. Writes the same device-local key the mentor page honors.
+  const switchPersona = () => {
+    const next = isReferent ? "king" : "referent";
+    try {
+      localStorage.setItem("pk-persona", next);
+    } catch {
+      /* storage blocked — still switch for this view */
+    }
+    setPersona(next);
+  };
   const [input, setInput] = useState("");
 
   // ── Image attach ("photo & ask", Gemini vision) ──
@@ -635,12 +650,25 @@ export function FloatingAssistant() {
                 </p>
                 <p className="text-[11px] text-foreground/50">
                   {isReferent
-                    ? isHe ? "שנה ג׳ שכבר עבר את זה · דוגרי, מהנתונים שלך" : "A final-year who's been through it · straight talk, from your data"
+                    ? isHe ? "שנה ג׳ שכבר עבר את זה · דוגרי, מהנתונים שלכם" : "A final-year who's been through it · straight talk, from your data"
                     : aiAvailable
-                      ? isHe ? "יועץ התואר שלך · חוכמה מהנתונים שלך" : "Your degree advisor · wisdom from your data"
-                      : isHe ? "יועץ התואר שלך · תשובות מהנתונים שלך" : "Your degree advisor · answers from your data"}
+                      ? isHe ? "יועץ התואר שלכם · חוכמה מהנתונים שלכם" : "Your degree advisor · wisdom from your data"
+                      : isHe ? "יועץ התואר שלכם · תשובות מהנתונים שלכם" : "Your degree advisor · answers from your data"}
                 </p>
               </div>
+              <button
+                type="button"
+                onClick={switchPersona}
+                aria-label={isHe ? `החליפו ל${otherName}` : `Switch to ${otherName}`}
+                title={isHe ? `העדפת ${otherName}? החליפו` : `Prefer ${otherName}? Switch`}
+                className="shrink-0 rounded-md p-1.5 text-foreground/40 transition-colors hover:bg-foreground/10 hover:text-foreground/70"
+              >
+                {isReferent ? (
+                  <PhilosopherKingIcon className="size-4 text-crown-gold-bright" />
+                ) : (
+                  <ReferentIcon className="size-4 text-referent-teal" />
+                )}
+              </button>
               <button
                 type="button"
                 onClick={() => setOpen(false)}
@@ -715,7 +743,7 @@ export function FloatingAssistant() {
                       >
                         {m.source === "rules" ? <Database className="size-2.5" /> : <PhilosopherKingIcon className="size-2.5" />}
                         {m.source === "rules"
-                          ? isHe ? "מהנתונים שלך" : "From your data"
+                          ? isHe ? "מהנתונים שלכם" : "From your data"
                           : isHe ? "תשובת AI" : "AI answer"}
                       </span>
                     )}
@@ -815,7 +843,7 @@ export function FloatingAssistant() {
                     ? attachedImage
                       ? isHe ? "שאל/י על התמונה…" : "Ask about the image…"
                       : isHe ? "כתוב/י שאלה…" : "Type a question…"
-                    : isHe ? "טוען את הנתונים שלך…" : "Loading your data…"
+                    : isHe ? "טוען את הנתונים שלכם…" : "Loading your data…"
                 }
                 disabled={!ready || streaming}
                 className="flex-1 rounded-xl border border-border/60 bg-background/50 px-3.5 py-2.5 text-sm outline-none transition-colors focus:border-accent-brand/50 disabled:opacity-60"

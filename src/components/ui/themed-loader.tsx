@@ -42,7 +42,7 @@ export function ThemedLoader({ variant = "page", className }: ThemedLoaderProps)
         </div>
       </div>
       <p className="text-sm text-foreground/55">
-        {isHe ? "טוען את התוכנית שלך…" : "Loading your plan…"}
+        {isHe ? "טוען את התוכנית שלכם…" : "Loading your plan…"}
       </p>
     </div>
   );

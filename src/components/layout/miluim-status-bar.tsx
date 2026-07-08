@@ -157,7 +157,7 @@ export function MiluimStatusBar() {
           <DialogPrimitive.Overlay className="fixed inset-0 z-[70] bg-black/50 backdrop-blur-[2px] data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=open]:fade-in-0 data-[state=closed]:fade-out-0" />
           <DialogPrimitive.Content
             // Explicit card styling (NOT .data-card — that unlayered rule would
-            // override `fixed`; see product-tour.tsx).
+            // override `fixed`).
             className={cn(
               "fixed top-1/2 start-1/2 z-[70] flex max-h-[85vh] w-full max-w-lg -translate-x-1/2 -translate-y-1/2 flex-col rtl:translate-x-1/2",
               "overflow-hidden rounded-2xl border border-border bg-card shadow-xl outline-none",

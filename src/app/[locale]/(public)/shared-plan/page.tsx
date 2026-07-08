@@ -26,7 +26,7 @@ export async function generateMetadata({
       : "A PPE degree plan — Pakamon"
     : "Pakamon | פכמון";
   const description = isHe
-    ? "תוכנית תואר מלאה בפכ״מ — לצפייה, ולהעתקה לתכנון שלך."
+    ? "תוכנית תואר מלאה בפכ״מ — לצפייה, ולהעתקה לתכנון שלכם."
     : "A full PPE degree plan — view it, then copy it into your own planner.";
   return {
     title,

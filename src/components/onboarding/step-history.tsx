@@ -288,7 +288,7 @@ export function StepHistory({
             editable so an irregular student can correct them. */}
         <p className="mx-auto mt-2 max-w-md text-xs text-foreground/40">
           {isHe
-            ? "סימנו לך מראש את קורסי-החובה של השנים שעברת. הסר סימון אם לא עשית קורס, והוסף ציונים אם בא לך — הם לא חובה."
+            ? "סימנו לכם מראש את קורסי-החובה של השנים שעברתם. הסירו סימון אם לא עשיתם קורס, והוסיפו ציונים אם בא לכם — הם לא חובה."
             : "We pre-checked the mandatory courses from the years you've completed. Un-check any you didn't take, and add grades if you like — they're optional."}
         </p>
       </div>
