@@ -154,7 +154,9 @@ export async function buildUserContext(
   const currentGroup = deriveCurrentGroup(
     miluimSemesters,
     (user.miluimGroup ?? "NONE") as MiluimGroup,
-    { academicYear: getCurrentAcademicYear(), semester: user.currentSemester as Semester },
+    // Real-time semester (calendar source-of-truth), matching the client miluim
+    // surfaces and plan.getCredits — not the stored, possibly-stale value (#audit-r2).
+    { academicYear: getCurrentAcademicYear(), semester: getAcademicNow().semester as Semester },
   );
   const miluimExemption = computeCreditExemption(currentGroup, user.miluimCreditsUsed ?? 0);
 

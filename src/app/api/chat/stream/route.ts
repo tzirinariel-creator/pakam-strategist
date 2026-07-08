@@ -377,6 +377,20 @@ export async function POST(request: NextRequest) {
             );
           }
 
+          // A response that produced NO text (Gemini SAFETY/RECITATION block, an
+          // empty candidate, or a promptFeedback.blockReason) must surface as an
+          // error — not a silent empty bubble that also gets persisted as a blank
+          // assistant turn (#audit-r2).
+          if (!fullResponse.trim()) {
+            if (!closed) {
+              controller.enqueue(
+                encoder.encode(`data: ${JSON.stringify({ type: "error", error: streamErrors.generic })}\n\n`)
+              );
+            }
+            safeClose();
+            return;
+          }
+
           // Persist BEFORE closing the stream, so a DB failure is surfaced to the
           // user instead of silently losing a reply they already saw on screen.
           const now = new Date().toISOString();

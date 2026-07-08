@@ -2,6 +2,7 @@ import { TRPCError } from "@trpc/server";
 import { createTRPCRouter, protectedProcedure } from "../trpc/init";
 import { runRegulationEngine } from "@/lib/regulations/rule-engine";
 import { computeCreditExemption, deriveCurrentGroup, getCurrentAcademicYear } from "@/lib/miluim";
+import { getAcademicNow } from "@/lib/academic-calendar";
 
 export const regulationRouter = createTRPCRouter({
   /**
@@ -36,7 +37,10 @@ export const regulationRouter = createTRPCRouter({
     // Mirrors plan.getCredits — see fix A.
     const currentGroup = deriveCurrentGroup(miluimSemesters, user.miluimGroup, {
       academicYear: getCurrentAcademicYear(),
-      semester: user.currentSemester,
+      // Real-time semester (the calendar source-of-truth), NOT the stored
+      // user.currentSemester which can lag a rollover — so the server picks the
+      // SAME MiluimSemester row the client surfaces use (#audit-r2 consistency).
+      semester: getAcademicNow().semester,
     });
     const miluimExemption = computeCreditExemption(
       currentGroup,

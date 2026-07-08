@@ -128,8 +128,10 @@ export const courseKnowledgeRouter = createTRPCRouter({
         ratings: {
           n: ratingRows.length,
           revealed: ratingRevealed,
-          workloadAvg: ratingRevealed ? round1(avg(workloadVals) ?? 0) : null,
-          difficultyAvg: ratingRevealed ? round1(avg(difficultyVals) ?? 0) : null,
+          // null (not 0) when nobody supplied a numeric rating — 0 would render
+          // as "lightest/easiest", the opposite of "no data" (#audit-r2).
+          workloadAvg: ratingRevealed && workloadVals.length ? round1(avg(workloadVals) as number) : null,
+          difficultyAvg: ratingRevealed && difficultyVals.length ? round1(avg(difficultyVals) as number) : null,
           recommendShare: ratingRevealed && recommendShare != null ? round1(recommendShare) : null,
         },
         reviews: reviews
@@ -157,6 +159,17 @@ export const courseKnowledgeRouter = createTRPCRouter({
     }
     const course = await ctx.db.course.findUnique({ where: { code: input.courseCode }, select: { id: true } });
     if (!course) throw new TRPCError({ code: "NOT_FOUND", message: "קורס לא נמצא." });
+
+    // Only someone who actually COMPLETED the course may rate it — otherwise any
+    // user could fabricate ratings for any catalog code and corrupt the public
+    // aggregate (symmetric with importMyGrades, which gates on COMPLETED). (#audit-r2)
+    const taken = await ctx.db.userCourse.findFirst({
+      where: { userId: ctx.user.id, status: "COMPLETED", course: { code: input.courseCode } },
+      select: { id: true },
+    });
+    if (!taken) {
+      throw new TRPCError({ code: "FORBIDDEN", message: "רק מי שסיים את הקורס יכול לדרג אותו." });
+    }
 
     if (input.tip?.trim()) {
       const mod = moderateTip(input.tip);

@@ -84,3 +84,38 @@ describe("credit-calculator status semantics (#31)", () => {
     expect(g.totalGradedCourses).toBe(0);
   });
 });
+
+// A COMPLETED English CONTENT course graded below the humanities pass bar (70)
+// is a failed course: it must count toward NO bucket. It previously leaked into
+// elective / discipline / earned / total while (correctly) being excluded from
+// the English-requirement count (#audit-r2).
+describe("English content credit gating (#audit-r2)", () => {
+  it("a COMPLETED English course below 70 counts toward NO bucket", () => {
+    const r = calculateCredits(
+      [uc("COMPLETED", { credits: 4, courseType: "ENGLISH", discipline: "ECONOMICS", grade: 65 })],
+      "ECONOMICS"
+    );
+    expect(r.breakdown.earned).toBe(0);
+    expect(r.breakdown.elective).toBe(0);
+    expect(r.breakdown.total).toBe(0);
+    expect(r.breakdown.focusArea).toBe(0);
+  });
+
+  it("a COMPLETED English course at/above 70 counts (earned + elective)", () => {
+    const r = calculateCredits(
+      [uc("COMPLETED", { credits: 4, courseType: "ENGLISH", discipline: "ECONOMICS", grade: 85 })],
+      "ECONOMICS"
+    );
+    expect(r.breakdown.earned).toBe(4);
+    expect(r.breakdown.elective).toBe(4);
+  });
+
+  it("an on-track English course (in progress, ungraded) still counts as planned", () => {
+    const r = calculateCredits(
+      [uc("IN_PROGRESS", { credits: 4, courseType: "ENGLISH", discipline: "ECONOMICS" })],
+      "ECONOMICS"
+    );
+    expect(r.breakdown.planned).toBe(4);
+    expect(r.breakdown.total).toBe(4);
+  });
+});

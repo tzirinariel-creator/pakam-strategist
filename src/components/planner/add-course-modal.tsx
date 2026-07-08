@@ -151,7 +151,7 @@ export function AddCourseModal() {
 
   return (
     <Dialog open={showAddCourseModal} onOpenChange={handleOpenChange}>
-      <DialogContent className="max-w-lg sm:max-w-2xl">
+      <DialogContent className="max-w-lg sm:max-w-2xl max-h-[85vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="font-display font-bold text-foreground/80">
             {t("addCourse")}

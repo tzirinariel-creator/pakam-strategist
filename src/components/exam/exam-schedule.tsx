@@ -74,10 +74,15 @@ function daysUntil(date: Date): number {
 }
 
 function formatDate(date: Date, locale: string): string {
+  // Exam dates are stored date-only at UTC midnight, and the group key is the
+  // UTC calendar day (toISOString). Render the label in UTC too, or a student
+  // abroad in a UTC-negative zone sees the header a day off from its own group
+  // (#audit-r2). Israeli users (UTC+2/+3) are unaffected — same calendar day.
   return new Intl.DateTimeFormat(locale === "he" ? "he-IL" : "en-US", {
     weekday: "long",
     day: "numeric",
     month: "long",
+    timeZone: "UTC",
   }).format(date);
 }
 

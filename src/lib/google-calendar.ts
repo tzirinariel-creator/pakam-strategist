@@ -130,6 +130,25 @@ export interface PushableEvent {
   recurrence?: string; // RRULE string
 }
 
+/** True for a Google API auth error (expired access token) — the shape
+ *  withTokenRefresh keys off, so per-item catches can rethrow it to trigger a
+ *  token refresh + retry instead of silently swallowing it (#audit-r2). */
+function isGoogleAuthError(err: unknown): boolean {
+  return err instanceof Error && "code" in err && (err as { code: number }).code === 401;
+}
+
+/**
+ * A ZONELESS local wall-clock string ("YYYY-MM-DDTHH:MM:SS", no 'Z'). The event
+ * Date was built with setHours() as the intended Israel wall-clock; emitting it
+ * with an explicit UTC 'Z' offset alongside timeZone:'Asia/Jerusalem' made Google
+ * honor the absolute instant and shift every class/exam 2-3h late. A zoneless
+ * string lets the timeZone field actually apply (matches the .ics path) (#audit-r2).
+ */
+function toGoogleWallClock(d: Date): string {
+  const p = (n: number) => String(n).padStart(2, "0");
+  return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}T${p(d.getHours())}:${p(d.getMinutes())}:${p(d.getSeconds())}`;
+}
+
 /**
  * Push events to Google Calendar (create or update).
  * Returns a map of localId -> googleEventId.
@@ -147,11 +166,11 @@ export async function pushEventsToGoogle(
       description: event.description,
       location: event.location,
       start: {
-        dateTime: event.startTime.toISOString(),
+        dateTime: toGoogleWallClock(event.startTime),
         timeZone: "Asia/Jerusalem",
       },
       end: {
-        dateTime: event.endTime.toISOString(),
+        dateTime: toGoogleWallClock(event.endTime),
         timeZone: "Asia/Jerusalem",
       },
     };
@@ -178,7 +197,12 @@ export async function pushEventsToGoogle(
         if (res.data.id) idMap.set(event.id, res.data.id);
       }
     } catch (err) {
-      // Continue with other events — don't let one failure block all
+      // An expired access token 401s every event; let it propagate so
+      // withTokenRefresh can refresh the token and retry the whole push, instead
+      // of silently returning an empty idMap ("synced 0" forever) (#audit-r2).
+      if (isGoogleAuthError(err)) throw err;
+      // Any other per-event error: log and continue so one bad event doesn't
+      // block the rest.
       console.error(`Failed to sync event "${event.title}":`, err);
     }
   }
@@ -190,14 +214,17 @@ export async function pushEventsToGoogle(
 
 /**
  * Delete events from Google Calendar by their Google event IDs.
- * Returns the count of successfully deleted events.
+ * Returns the IDs that were actually deleted (or were already gone — a 404 means
+ * the event no longer exists, which is success from the caller's view). The
+ * caller uses this to remove ONLY the succeeded rows locally, so a failed delete
+ * doesn't orphan an event with no local record to retry (#audit-r2).
  */
 export async function deleteEventsFromGoogle(
   calendar: calendar_v3.Calendar,
   googleEventIds: string[],
   calendarId = "primary",
-): Promise<number> {
-  let deleted = 0;
+): Promise<string[]> {
+  const deletedIds: string[] = [];
 
   for (const eventId of googleEventIds) {
     try {
@@ -205,14 +232,22 @@ export async function deleteEventsFromGoogle(
         calendarId,
         eventId,
       });
-      deleted++;
+      deletedIds.push(eventId);
     } catch (err) {
-      // Event may already be deleted or inaccessible — continue
-      console.error(`Failed to delete Google event "${eventId}":`, err);
+      // Expired token → propagate so withTokenRefresh can refresh + retry.
+      if (isGoogleAuthError(err)) throw err;
+      // 404/410 = already gone on Google's side → treat as successfully removed
+      // so we still clean up the local row.
+      const code = err instanceof Error && "code" in err ? (err as { code: number }).code : 0;
+      if (code === 404 || code === 410) {
+        deletedIds.push(eventId);
+      } else {
+        console.error(`Failed to delete Google event "${eventId}":`, err);
+      }
     }
   }
 
-  return deleted;
+  return deletedIds;
 }
 
 // ─── Pull Events from Google ────────────────────────────────

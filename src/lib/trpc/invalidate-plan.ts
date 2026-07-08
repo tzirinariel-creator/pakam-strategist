@@ -13,4 +13,10 @@ export function invalidatePlanData(utils: ReturnType<typeof api.useUtils>): void
   void utils.plan.getGraduationScore.invalidate();
   void utils.regulation.checkCompliance.invalidate();
   void utils.user.getProfile.invalidate();
+  // The timetable + exam board read straight from userCourse rows too, so a
+  // move/remove/grade edit must refresh them or the dashboard shows a removed
+  // course in its old slot / an exam countdown for an already-finished exam
+  // (#audit-r2). semester-planner-page invalidates these manually; centralize it.
+  void utils.schedule.getScheduleForSemester.invalidate();
+  void utils.schedule.getExamSchedule.invalidate();
 }

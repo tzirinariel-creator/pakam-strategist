@@ -190,6 +190,16 @@ export function calculateCredits(
       practice += credits;
     }
 
+    // A failed English CONTENT course (COMPLETED below the humanities 70 bar) is a
+    // failed course: it must count toward NO bucket — not the discipline, focus
+    // area, elective, or earned credits — mirroring how other FAILED courses are
+    // dropped from `countable`. Zero its credits here so they can't leak into the
+    // totals; PKM-012 still reports the English requirement unmet (#audit-r2).
+    // On-track English (planned / in-progress / ungraded / passed) is unaffected.
+    if (course.courseType === "ENGLISH" && !englishContentCourseCounts(uc)) {
+      credits = 0;
+    }
+
     // Attribute to the resolved discipline bucket (capped value for practice).
     byDiscipline[discipline] = (byDiscipline[discipline] ?? 0) + credits;
 

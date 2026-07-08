@@ -456,43 +456,42 @@ export const scheduleRouter = createTRPCRouter({
         pushEventsToGoogle(calendar, events),
       );
 
-      // Persist googleEventIds in CalendarEvent table for future updates/deletes
+      // Persist googleEventIds in CalendarEvent table for future updates/deletes.
+      // Each upsert is guarded: one failed mapping must NOT abort the rest, or
+      // those events keep no local googleEventId and get re-inserted (duplicated)
+      // on the next sync with no local record to clean them up (#audit-r2).
+      let persisted = 0;
       for (const [localId, googleId] of idMap) {
         const matchingEvent = events.find((e) => e.id === localId);
         if (!matchingEvent) continue;
-
-        await ctx.db.calendarEvent.upsert({
-          where: { id: localId },
-          update: { googleEventId: googleId },
-          create: {
-            id: localId,
-            userId: user.id,
-            title: matchingEvent.title,
-            startTime: matchingEvent.startTime,
-            endTime: matchingEvent.endTime,
-            eventType: localId.startsWith("exam-") ? "EXAM" : "LECTURE",
-            googleEventId: googleId,
-          },
-        });
+        try {
+          await ctx.db.calendarEvent.upsert({
+            where: { id: localId },
+            update: { googleEventId: googleId },
+            create: {
+              id: localId,
+              userId: user.id,
+              title: matchingEvent.title,
+              startTime: matchingEvent.startTime,
+              endTime: matchingEvent.endTime,
+              eventType: localId.startsWith("exam-") ? "EXAM" : "LECTURE",
+              googleEventId: googleId,
+            },
+          });
+          persisted += 1;
+        } catch (e) {
+          console.error(`Failed to persist calendar mapping for ${localId}:`, e);
+        }
       }
 
-      return { synced: idMap.size };
+      return { synced: persisted };
     }),
 
   /**
    * Delete all synced events from Google Calendar and local DB.
    */
   deleteGoogleEvents: protectedProcedure.mutation(async ({ ctx }) => {
-    const user = await ctx.db.user.findUnique({
-      where: { supabaseId: ctx.userId },
-    });
-
-    if (!user) {
-      throw new TRPCError({
-        code: "NOT_FOUND",
-        message: "User not found",
-      });
-    }
+    const user = ctx.user; // enforceAuth already loaded the row (#9: no refetch)
 
     // Find all CalendarEvents with a googleEventId
     const calEvents = await ctx.db.calendarEvent.findMany({
@@ -511,23 +510,33 @@ export const scheduleRouter = createTRPCRouter({
       .map((e) => e.googleEventId)
       .filter((id): id is string => id !== null);
 
-    // Delete from Google Calendar
-    let deletedFromGoogle = 0;
+    // Delete from Google, capturing exactly which IDs actually came off the
+    // calendar (or were already gone).
+    let deletedIds: string[] = [];
     if (googleIds.length > 0) {
-      deletedFromGoogle = await withTokenRefresh(ctx.userId!, (calendar) =>
+      deletedIds = await withTokenRefresh(ctx.userId!, (calendar) =>
         deleteEventsFromGoogle(calendar, googleIds),
       );
     }
 
-    // Delete local CalendarEvent records
-    await ctx.db.calendarEvent.deleteMany({
-      where: {
-        userId: user.id,
-        googleEventId: { not: null },
-      },
-    });
+    // Remove ONLY the local rows whose Google delete succeeded — a failed delete
+    // keeps its row so the event isn't orphaned on the real calendar with no
+    // local record left to retry the deletion (#audit-r2).
+    if (deletedIds.length > 0) {
+      await ctx.db.calendarEvent.deleteMany({
+        where: { userId: user.id, googleEventId: { in: deletedIds } },
+      });
+    }
 
-    return { deleted: deletedFromGoogle };
+    // Surface a partial failure instead of pretending everything was cleaned.
+    if (deletedIds.length < googleIds.length) {
+      throw new TRPCError({
+        code: "INTERNAL_SERVER_ERROR",
+        message: `נמחקו ${deletedIds.length} מתוך ${googleIds.length} אירועים — חלק נשארו ביומן. נסו שוב, או בדקו את חיבור היומן בהגדרות.`,
+      });
+    }
+
+    return { deleted: deletedIds.length };
   }),
 
   /**

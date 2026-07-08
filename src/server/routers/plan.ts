@@ -4,6 +4,7 @@ import { createTRPCRouter, protectedProcedure } from "../trpc/init";
 import { calculateCredits } from "@/lib/credit-calculator";
 import { calculateGraduationScore } from "@/lib/grade-calculator";
 import { computeCreditExemption, deriveCurrentGroup, getCurrentAcademicYear } from "@/lib/miluim";
+import { getAcademicNow } from "@/lib/academic-calendar";
 import { getAllDisciplineIds } from "@/lib/programs/registry";
 
 // Discipline enum covering ALL registered programs (PPE, Law, etc.)
@@ -262,7 +263,9 @@ export const planRouter = createTRPCRouter({
     // 1–4) — those never match, which silently killed per-semester resolution.
     const currentGroup = deriveCurrentGroup(miluimSemesters, user.miluimGroup, {
       academicYear: getCurrentAcademicYear(),
-      semester: user.currentSemester,
+      // Real-time semester (calendar source-of-truth) so the dashboard credit
+      // exemption matches the client miluim surfaces after a rollover (#audit-r2).
+      semester: getAcademicNow().semester,
     });
     // Credit exemption, capped at the per-degree maximum minus what's already
     // been used. With no rows + miluimCreditsUsed 0 this equals the old

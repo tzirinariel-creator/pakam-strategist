@@ -1018,11 +1018,11 @@ export function AcademicRecordContent() {
       );
   }, [completedCourses]);
 
-  // Running summary.
-  const completedCredits = useMemo(
-    () => completedCourses.reduce((sum, c) => sum + c.course.credits, 0),
-    [completedCourses]
-  );
+  // Credits earned toward the 150 — the SAME capped/EXEMPT-aware figure the
+  // dashboard hero and King show (breakdown.earned), not a raw sum of
+  // course.credits that would ignore EXEMPT courses and the practice/law-foundation
+  // caps and so disagree with Home (#audit-r2).
+  const completedCredits = creditsQuery.data?.breakdown.earned ?? 0;
   const weightedAvg = useMemo(() => {
     // Use the ONE shared definition (excludes seminar, binary AND English) so
     // this number agrees with the dashboard, the King and /graduation — not a
