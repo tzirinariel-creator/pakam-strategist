@@ -15,6 +15,7 @@ import { BiddingWorksheet } from "./bidding-worksheet";
 import { PlannerLiveTimetable } from "./planner-live-timetable";
 import { DegreeStatus } from "@/components/dashboard/degree-status";
 import { api } from "@/lib/trpc/react";
+import { deriveYearOfStudy } from "@/lib/academic-calendar";
 import { ThemedLoader } from "@/components/ui/themed-loader";
 import { cn } from "@/lib/utils";
 import { Link } from "@/i18n/navigation";
@@ -41,6 +42,7 @@ export function PlannerContent() {
   // never disagrees between screens. A raw sum of every course's credits counted
   // failed/exempt courses and ignored the miluim exemption. (audit #11)
   const creditsQuery = api.plan.getCredits.useQuery(undefined, { retry: 1 });
+  const profileQuery = api.user.getProfile.useQuery(undefined, { retry: 1 });
 
   // Save confirmation (#18): the planner page redirects here with ?saved=1 after
   // persisting. Show an unmissable banner (the transient toast was easy to miss
@@ -93,6 +95,9 @@ export function PlannerContent() {
   }
 
   const courses = planData?.courses ?? [];
+  // Year of study is DERIVED from the calendar (#39/#43) — powers the live
+  // "בלימוד" tag on cards of the current semester.
+  const currentYear = deriveYearOfStudy(profileQuery.data?.startYear, profileQuery.data?.currentYear ?? 1);
 
   // Share the plan as a link (no backend): pack course codes + placement into a
   // base64url token. The dialog shows exactly what a friend will (and won't)
@@ -235,7 +240,7 @@ export function PlannerContent() {
       <div className="flex flex-col gap-5 xl:flex-row xl:items-start">
         <div className="flex min-w-0 flex-1 flex-col gap-5">
           <div className="animate-stagger-3">
-            <YearBoard courses={courses} />
+            <YearBoard courses={courses} currentYear={currentYear} />
           </div>
           {/* Bidding help — the overlap trap on YOUR real courses, the
               worksheet for YOUR OWN points, then the mechanics explainer. */}

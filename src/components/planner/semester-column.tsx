@@ -15,9 +15,10 @@ interface SemesterColumnProps {
   year: number;
   semester: Semester;
   courses: UserCourseWithCourse[];
+  currentYear: number;
 }
 
-export function SemesterColumn({ year, semester, courses }: SemesterColumnProps) {
+export function SemesterColumn({ year, semester, courses, currentYear }: SemesterColumnProps) {
   const t = useTranslations("planner");
   const tCredits = useTranslations("credits");
   const locale = useLocale();
@@ -72,7 +73,7 @@ export function SemesterColumn({ year, semester, courses }: SemesterColumnProps)
           )}
 
           {courses.map((uc) => (
-            <CourseCard key={uc.id} userCourse={uc} />
+            <CourseCard key={uc.id} userCourse={uc} currentYear={currentYear} />
           ))}
         </div>
       </ScrollArea>

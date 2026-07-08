@@ -31,9 +31,10 @@ const YEARS = [1, 2, 3] as const;
 
 interface YearBoardProps {
   courses: UserCourseWithCourse[];
+  currentYear: number;
 }
 
-export function YearBoard({ courses }: YearBoardProps) {
+export function YearBoard({ courses, currentYear }: YearBoardProps) {
   const tYear = useTranslations("year");
   const tCredits = useTranslations("credits");
   const isHe = useLocale() === "he";
@@ -233,6 +234,7 @@ export function YearBoard({ courses }: YearBoardProps) {
               year={selectedYear}
               semester={semester}
               courses={getCoursesForSlot(selectedYear, semester)}
+              currentYear={currentYear}
             />
           ))}
         </div>

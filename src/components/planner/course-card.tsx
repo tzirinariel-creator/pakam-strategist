@@ -20,6 +20,7 @@ import { toast } from "sonner";
 import { DisciplineBadge } from "@/components/catalog/discipline-badge";
 import { DISCIPLINE_CONFIG, CREDIT_REQUIREMENTS } from "@/lib/constants";
 import { passBarFor } from "@/lib/grade-sheet";
+import { isCurrentlyStudying } from "@/lib/semester-clock";
 import { api } from "@/lib/trpc/react";
 import { invalidatePlanData } from "@/lib/trpc/invalidate-plan";
 import {
@@ -42,6 +43,9 @@ interface CourseCardProps {
   userCourse: UserCourseWithCourse;
   /** Whether DnD is disabled (e.g. while modal is open) */
   disabled?: boolean;
+  /** Derived year of study — lets a PLANNED course of the current semester show
+   *  as "בלימוד" (present) instead of "מתוכנן" (#4/#22). */
+  currentYear?: number;
 }
 
 const STATUS_ICON: Record<CourseStatus, React.ReactNode> = {
@@ -52,7 +56,7 @@ const STATUS_ICON: Record<CourseStatus, React.ReactNode> = {
   EXEMPT: <ShieldCheck className="size-3.5 text-amber-400" />,
 };
 
-export function CourseCard({ userCourse, disabled }: CourseCardProps) {
+export function CourseCard({ userCourse, disabled, currentYear }: CourseCardProps) {
   const t = useTranslations("courseStatus");
   const tPlanner = useTranslations("planner");
   const locale = useLocale();
@@ -60,6 +64,15 @@ export function CourseCard({ userCourse, disabled }: CourseCardProps) {
   const { course } = userCourse;
   const courseName = isHe ? course.nameHe : (course.nameEn ?? course.nameHe);
   const config = DISCIPLINE_CONFIG[course.discipline];
+  // A PLANNED course of the current semester shows as "בלימוד" (present) —
+  // derived, non-destructive; the stored status is untouched (#4/#22).
+  const studyingNow =
+    currentYear != null &&
+    isCurrentlyStudying(
+      { plannedYear: userCourse.plannedYear, plannedSemester: userCourse.plannedSemester, status: userCourse.status },
+      currentYear,
+    );
+  const displayStatus: CourseStatus = studyingNow ? "IN_PROGRESS" : userCourse.status;
   const [confirmRemove, setConfirmRemove] = useState(false);
 
   const utils = api.useUtils();
@@ -163,7 +176,7 @@ export function CourseCard({ userCourse, disabled }: CourseCardProps) {
       {/* Course info */}
       <div className="flex min-w-0 flex-1 flex-col gap-0.5">
         <div className="flex items-center gap-1.5">
-          {STATUS_ICON[userCourse.status]}
+          {STATUS_ICON[displayStatus]}
           <span className="font-display line-clamp-2 text-sm font-medium leading-tight" title={`${course.code} — ${courseName}`}>
             {courseName}
           </span>
@@ -200,7 +213,7 @@ export function CourseCard({ userCourse, disabled }: CourseCardProps) {
           {course.credits}
         </span>
         <span className="text-[11px] text-muted-foreground leading-none">
-          {t(userCourse.status)}
+          {t(displayStatus)}
         </span>
       </div>
 
