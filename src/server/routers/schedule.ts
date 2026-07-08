@@ -25,9 +25,7 @@ export const scheduleRouter = createTRPCRouter({
       })
     )
     .query(async ({ ctx, input }) => {
-      const user = await ctx.db.user.findUnique({
-        where: { supabaseId: ctx.userId },
-      });
+      const user = ctx.user; // enforceAuth already loaded the row (#9: no refetch)
 
       // Return empty schedule for users who haven't completed profile setup yet
       if (!user) {
@@ -115,9 +113,7 @@ export const scheduleRouter = createTRPCRouter({
         .optional()
     )
     .query(async ({ ctx, input }) => {
-      const user = await ctx.db.user.findUnique({
-        where: { supabaseId: ctx.userId },
-      });
+      const user = ctx.user; // enforceAuth already loaded the row (#9: no refetch)
 
       // Return empty exams for users who haven't completed profile setup yet
       if (!user) {
@@ -248,9 +244,7 @@ export const scheduleRouter = createTRPCRouter({
       }),
     )
     .mutation(async ({ ctx, input }) => {
-      const user = await ctx.db.user.findUnique({
-        where: { supabaseId: ctx.userId },
-      });
+      const user = ctx.user; // enforceAuth already loaded the row (#9: no refetch)
 
       if (!user) {
         throw new TRPCError({
@@ -385,7 +379,14 @@ export const scheduleRouter = createTRPCRouter({
           : "RRULE:FREQ=WEEKLY;COUNT=14";
 
         events.push({
-          id: session.id,
+          // ScheduleSession ids are GLOBAL (shared by every student of a course),
+          // and CalendarEvent.id is the primary key — so a bare session.id here
+          // let one student's sync overwrite another's Google-event mapping.
+          // Namespace it per user so each student owns a distinct CalendarEvent
+          // row. (Exam ids already use the per-user UserCourse id.) A user who
+          // synced before this fix may see their lecture events once more on the
+          // next sync; "מחק אירועים מהיומן" clears the old rows.
+          id: `lec-${user.id}-${session.id}`,
           title: `${courseName} — ${typeLabel}`,
           description: [session.courseCode, session.room, session.lecturerName].filter(Boolean).join(" · "),
           startTime: startDate,

@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations, useLocale } from "next-intl";
 import { Bidi } from "@/lib/bidi";
 import {
   GraduationCap,
@@ -48,23 +49,37 @@ function Section({
 }
 
 // ─── Component ──────────────────────────────────────────────────────
+// Locale-aware (#audit-r1): every label now flows through the `degreeInfo`
+// namespace (present in both he.json and en.json) instead of hardcoded Hebrew,
+// so an English-locale student sees an English card.
 
 export function DegreeInfoCard() {
+  const t = useTranslations("degreeInfo");
+  const isHe = useLocale() === "he";
+
+  const glossary: readonly [string, string][] = [
+    [t("glossary.shasTerm"), t("glossary.shasDef")],
+    [t("glossary.seminarTerm"), t("glossary.seminarDef")],
+    [t("glossary.referatTerm"), t("glossary.referatDef")],
+    [t("glossary.focusTerm"), t("glossary.focusDef")],
+    [t("glossary.levelTerm"), t("glossary.levelDef")],
+    [t("glossary.exemptTerm"), t("glossary.exemptDef")],
+  ];
 
   return (
     <div className="max-h-[60vh] overflow-y-auto space-y-3 pe-1">
       {/* ── Section 1: Overview ──────────────────────────────────── */}
-      <Section icon={GraduationCap} title="מה שצריך לדעת על פכ״מ">
+      <Section icon={GraduationCap} title={t("overviewRichTitle")}>
         {/* Total credits callout */}
         <div className="mb-3 rounded-md border border-border/30 bg-foreground/[0.03] px-3 py-2 text-center">
           <div className="flex flex-wrap items-baseline justify-center gap-x-1.5">
             <span className="font-mono text-2xl font-bold text-foreground/80">
               {CREDIT_REQUIREMENTS.TOTAL}
             </span>
-            <span className="text-sm text-foreground/50">ש״ס סה״כ לתואר</span>
+            <span className="text-sm text-foreground/50">{t("totalCredits")}</span>
           </div>
           <p className="mt-0.5 text-xs text-foreground/40">
-            <Bidi text="30 ש״ס מעל תואר ראשון רגיל (120)" />
+            <Bidi text={t("creditsAboveRegular")} />
           </p>
         </div>
 
@@ -76,8 +91,7 @@ export function DegreeInfoCard() {
               {CREDIT_REQUIREMENTS.MANDATORY_TOTAL}
             </span>
             <span className="text-[10px] font-medium text-foreground/50">
-              {/* Mandatory */}
-              חובה
+              {t("mandatory")}
             </span>
           </div>
           {/* Electives */}
@@ -86,8 +100,7 @@ export function DegreeInfoCard() {
               {CREDIT_REQUIREMENTS.ELECTIVE_TOTAL}
             </span>
             <span className="text-[10px] font-medium text-foreground/50">
-              {/* Electives */}
-              בחירה
+              {t("elective")}
             </span>
           </div>
           {/* Seminars */}
@@ -96,15 +109,14 @@ export function DegreeInfoCard() {
               {CREDIT_REQUIREMENTS.SEMINAR_TOTAL}
             </span>
             <span className="text-[10px] font-medium text-foreground/50">
-              {/* Seminars */}
-              סמינרים
+              {t("seminarsLabel")}
             </span>
           </div>
         </div>
       </Section>
 
       {/* ── Section 2: Discipline Breakdown ──────────────────────── */}
-      <Section icon={BarChart3} title="חלוקה לפי תחום">
+      <Section icon={BarChart3} title={t("disciplineBreakdownTitle")}>
         <div className="space-y-2">
           {DISCIPLINE_ROWS.map(({ key, credits }) => {
             const config = DISCIPLINE_CONFIG[key];
@@ -120,11 +132,11 @@ export function DegreeInfoCard() {
                     style={{ backgroundColor: config.color }}
                   />
                   <span className="text-sm text-foreground/70">
-                    {config.nameHe}
+                    {isHe ? config.nameHe : config.nameEn}
                   </span>
                 </div>
                 <span className="font-mono text-sm font-bold text-foreground/80">
-                  {credits} ש״ס
+                  {credits} {t("creditsSuffix")}
                 </span>
               </div>
             );
@@ -133,32 +145,27 @@ export function DegreeInfoCard() {
       </Section>
 
       {/* ── Section 3: Focus Area ────────────────────────────────── */}
-      <Section icon={Target} title="תחום מיקוד">
+      <Section icon={Target} title={t("focusAreaTitle")}>
         <div className="space-y-2">
           <div className="flex items-baseline gap-2">
             <span className="font-mono text-lg font-bold text-foreground/80">
               {CREDIT_REQUIREMENTS.FOCUS_AREA_MIN}
             </span>
             <span className="text-sm text-foreground/60">
-              {/* Minimum credits in ONE discipline */}
-              ש״ס לפחות בתחום אחד
+              {t("minCreditsInOneDiscipline")}
             </span>
           </div>
           <div className="flex items-start gap-2 rounded-md bg-foreground/[0.03] px-3 py-2">
             <AlertCircle className="mt-0.5 h-3.5 w-3.5 shrink-0 text-foreground/40" />
             <p className="text-xs leading-relaxed text-foreground/50">
-              {/* The focus area determines your civil service classification (shinuy).
-                  You must accumulate at least 60 credits in a single discipline
-                  to be classified under that field. */}
-              תחום המיקוד קובע את סיווג המשרה בשירות המדינה.
-              יש לצבור לפחות 60 ש״ס בתחום אחד כדי להיות מסווג בתחום זה.
+              {t("focusAreaExplanation")}
             </p>
           </div>
         </div>
       </Section>
 
       {/* ── Section 4: Seminars ───────────────────────────────────── */}
-      <Section icon={BookOpen} title="סמינריונים">
+      <Section icon={BookOpen} title={t("seminarsTitle")}>
         <div className="space-y-2.5">
           {/* Main requirement */}
           <div className="rounded-md border border-border/30 bg-card/30 px-3 py-2">
@@ -167,42 +174,34 @@ export function DegreeInfoCard() {
                 {SEMINAR_REQUIREMENTS.TOTAL}
               </span>
               {" "}
-              {/* seminars required: 3 full papers + 1 referat = 12 credits */}
-              סמינרים נדרשים:{" "}
+              {t("seminarsRequired")}{" "}
               <span className="font-mono text-foreground/80">{SEMINAR_REQUIREMENTS.PAPERS}</span>
-              {" "}עבודות סמינריוניות +{" "}
+              {" "}{t("seminarPapers")} +{" "}
               <span className="font-mono text-foreground/80">{SEMINAR_REQUIREMENTS.REFERATS}</span>
-              {" "}רפרט = 12 ש״ס
+              {" "}{t("referat")} ={" "}
+              <span className="font-mono text-foreground/80">{CREDIT_REQUIREMENTS.SEMINAR_TOTAL}</span>
+              {" "}{t("creditsSuffix")}
             </p>
           </div>
 
           {/* Grade weight note */}
           <div className="flex items-start gap-2 text-xs text-foreground/50">
             <FileText className="mt-0.5 h-3.5 w-3.5 shrink-0 text-foreground/40" />
-            <span>
-              {/* Each paper = ~6% of entire degree grade */}
-              כל עבודה סמינריונית = כ-6% מהציון הסופי לתואר
-            </span>
+            <span>{t("eachPaperWeight")}</span>
           </div>
 
           {/* Restrictions */}
           <div className="flex items-start gap-2 rounded-md bg-foreground/[0.03] px-3 py-2">
             <AlertCircle className="mt-0.5 h-3.5 w-3.5 shrink-0 text-foreground/40" />
             <p className="text-xs leading-relaxed text-foreground/50">
-              {/* Max N seminars per discipline rule, max 2 with the same professor */}
-              {SEMINAR_REQUIREMENTS.DISCIPLINE_RULE_ID && (
-                <>
-                  מקסימום {SEMINAR_REQUIREMENTS.MAX_DISCIPLINE_SEMINARS} סמינרים ב{getProgramById(null).disciplines.find(d => d.id === SEMINAR_REQUIREMENTS.DISCIPLINE_RULE_ID)?.nameHe ?? SEMINAR_REQUIREMENTS.DISCIPLINE_RULE_ID},{" "}
-                </>
-              )}
-              מקסימום 2 סמינרים אצל אותו מרצה
+              {t("maxEconSeminars", { maxEcon: SEMINAR_REQUIREMENTS.MAX_DISCIPLINE_SEMINARS })}
             </p>
           </div>
         </div>
       </Section>
 
       {/* ── Section 5: English & Grade Requirements ───────────────── */}
-      <Section icon={Languages} title="אנגלית ודרישות ציון">
+      <Section icon={Languages} title={t("englishAndGradesTitle")}>
         <div className="space-y-2.5">
           {/* English courses */}
           <div className="rounded-md border border-border/30 bg-card/30 px-3 py-2">
@@ -211,84 +210,68 @@ export function DegreeInfoCard() {
                 {CREDIT_REQUIREMENTS.ENGLISH_MIN_COURSES}
               </span>
               {" "}
-              {/* courses taught IN English (any discipline, min 2 credits each) */}
-              קורסים הנלמדים באנגלית (כל תחום, מינימום{" "}
-              {CREDIT_REQUIREMENTS.ENGLISH_MIN_CREDITS_PER_COURSE} ש״ס כ״א)
+              {t("coursesInEnglish", { min: CREDIT_REQUIREMENTS.ENGLISH_MIN_CREDITS_PER_COURSE })}
             </p>
-            {/* #10: intro-phil (e.g. מבוא לפילוסופיה של המוסר) can be taken in
-                English, which also satisfies the English-content requirement —
-                so it's more flexible than a fixed sem-A mandatory. */}
+            {/* #10: intro-phil can be taken in English, which also satisfies the
+                English-content requirement. */}
             <p className="mt-1.5 text-[11px] leading-relaxed text-foreground/45">
-              טיפ: חלק מקורסי-החובה (כמו &quot;מבוא לפילוסופיה של המוסר&quot;) ניתן
-              ללמוד גם באנגלית — וכך הם נספרים גם לדרישת-האנגלית.
+              {t("englishTip")}
             </p>
           </div>
 
           {/* Year transition requirements */}
           <div className="rounded-md border border-border/30 bg-card/30 px-3 py-2">
             <p className="mb-1 text-xs font-bold text-foreground/60">
-              {/* Year transition requirement */}
-              דרישות מעבר שנה
+              {t("yearTransitionTitle")}
             </p>
             <p className="text-sm text-foreground/70">
-              {/* "75 ומעלה" reads naturally in Hebrew — the bare ≥ glyph looked
-                  broken (#3). The number stays in an isolated LTR bdi. */}
-              ממוצע כללי{" "}
+              {t("overallGPA")}{" "}
               <bdi dir="ltr" className="font-mono font-bold text-foreground/80">
                 {GRADE_REQUIREMENTS.YEAR_TRANSITION_OVERALL_GPA}
               </bdi>{" "}
-              ומעלה + ממוצע קורסי פכ״מ{" "}
+              {t("orHigher")} + {t("ppeGPA")}{" "}
               <bdi dir="ltr" className="font-mono font-bold text-foreground/80">
                 {GRADE_REQUIREMENTS.YEAR_TRANSITION_PPE_GPA}
               </bdi>{" "}
-              ומעלה
+              {t("orHigher")}
             </p>
           </div>
 
           {/* Grade weight breakdown */}
           <div className="rounded-md border border-border/30 bg-card/30 px-3 py-2">
             <p className="mb-1.5 text-xs font-bold text-foreground/60">
-              {/* Degree grade composition */}
-              הרכב ציון התואר
+              {t("gradeCompositionTitle")}
             </p>
             <div className="flex items-center gap-3 text-sm text-foreground/70">
               <span>
                 <span className="font-mono font-bold text-foreground/80">
                   {Math.round(GRADE_WEIGHTS.COURSES * 100)}%
                 </span>
-                {" "}קורסים
+                {" "}{t("courses")}
               </span>
               <span className="text-foreground/20">|</span>
               <span>
                 <span className="font-mono font-bold text-foreground/80">
                   {Math.round(GRADE_WEIGHTS.SEMINAR_PAPERS * 100)}%
                 </span>
-                {" "}עבודות
+                {" "}{t("papers")}
               </span>
               <span className="text-foreground/20">|</span>
               <span>
                 <span className="font-mono font-bold text-foreground/80">
                   {Math.round(GRADE_WEIGHTS.REFERAT * 100)}%
                 </span>
-                {" "}רפרט
+                {" "}{t("referat")}
               </span>
             </div>
           </div>
         </div>
       </Section>
 
-      {/* ── Section: Glossary — plain-language explanations of the terms
-          students kept finding unclear (#4). Always visible, RTL-safe. ── */}
-      <Section icon={BookOpen} title="מילון מונחים">
+      {/* ── Section: Glossary — plain-language term explanations (#4). ── */}
+      <Section icon={BookOpen} title={t("glossaryTitle")}>
         <dl className="space-y-2 text-xs">
-          {([
-            ["ש״ס", "שעות סמסטריאליות — יחידת הספירה של התואר. צריך לצבור 150 כדי לסיים."],
-            ["סמינר / סמינריון", "קורס מתקדם שבו כותבים עבודת מחקר. צריך 4 כאלה לתואר."],
-            ["רפרט", "עבודה סמינריונית מצומצמת — נספרת 4% מציון התואר."],
-            ["תחום מיקוד", "הדיסציפלינה שבה מתמחים (60 ש״ס) — קובעת את הסיווג בשירות המדינה."],
-            ["קורסי רמה (אנגלית)", "קורסי אנגלית מכינים שלא נספרים ל-150, לפי ציון אמירנט."],
-            ["פטור (אנגלית)", "אין צורך בקורסי-רמה. עדיין צריך 2 קורסי-תוכן באנגלית."],
-          ] as const).map(([term, def]) => (
+          {glossary.map(([term, def]) => (
             <div key={term} className="rounded-md border border-border/20 bg-card/20 px-3 py-2">
               <dt className="font-bold text-foreground/75">{term}</dt>
               <dd className="mt-0.5 text-foreground/55">

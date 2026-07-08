@@ -195,11 +195,21 @@ export const courseKnowledgeRouter = createTRPCRouter({
   importMyGrades: protectedProcedure.mutation(async ({ ctx }) => {
     const completed = await ctx.db.userCourse.findMany({
       where: { userId: ctx.user.id, status: "COMPLETED" },
-      select: { grade: true, isBinary: true, course: { select: { code: true } } },
+      select: { grade: true, isBinary: true, attemptNumber: true, course: { select: { code: true } } },
     });
     const cohortYear = ctx.user.startYear ?? null;
-    let imported = 0;
+    // One anonymous point per course. All completed rows for a course share the
+    // same dedupeHash (userId:courseCode), so upserting every row would let an
+    // arbitrary earlier attempt overwrite the determining one. Keep only the
+    // DETERMINING attempt (highest attemptNumber) per course.
+    const canonical = new Map<string, (typeof completed)[number]>();
     for (const uc of completed) {
+      const code = uc.course.code;
+      const prev = canonical.get(code);
+      if (!prev || uc.attemptNumber > prev.attemptNumber) canonical.set(code, uc);
+    }
+    let imported = 0;
+    for (const uc of canonical.values()) {
       const code = uc.course.code;
       const hash = dedupeHashFor(ctx.user.id, code);
       await ctx.db.courseGradePoint.upsert({
@@ -234,14 +244,30 @@ export const courseKnowledgeRouter = createTRPCRouter({
     return { reviewsRemoved: reviews.count, pointsRemoved: points.count };
   }),
 
-  /** Report a review; auto-hide at the threshold, then admin review. */
+  /** Report a review; auto-hide at the DISTINCT-reporter threshold, then admin
+   *  review. Idempotent per reporter (a ReviewReport unique on [reviewId,userId])
+   *  so no single user can drive a review to HIDDEN, and you can't report your
+   *  own review (#audit-r1). */
   reportReview: protectedProcedure.input(z.object({ reviewId: z.string() })).mutation(async ({ ctx, input }) => {
-    const review = await ctx.db.courseReview.findUnique({ where: { id: input.reviewId }, select: { reportCount: true } });
-    if (!review) throw new TRPCError({ code: "NOT_FOUND" });
-    const next = review.reportCount + 1;
-    await ctx.db.courseReview.update({
+    const review = await ctx.db.courseReview.findUnique({
       where: { id: input.reviewId },
-      data: { reportCount: next, status: next >= REVIEW_HIDE_THRESHOLD ? "HIDDEN" : undefined },
+      select: { id: true, userId: true },
+    });
+    if (!review) throw new TRPCError({ code: "NOT_FOUND" });
+    // Can't report your own review.
+    if (review.userId === ctx.user.id) return { ok: true };
+    // Record this reporter once; a repeat report from the same user hits the
+    // unique constraint and is a no-op (doesn't advance the count).
+    try {
+      await ctx.db.reviewReport.create({ data: { reviewId: review.id, userId: ctx.user.id } });
+    } catch (e) {
+      if ((e as { code?: string })?.code === "P2002") return { ok: true }; // already reported
+      throw e;
+    }
+    const reporters = await ctx.db.reviewReport.count({ where: { reviewId: review.id } });
+    await ctx.db.courseReview.update({
+      where: { id: review.id },
+      data: { reportCount: reporters, status: reporters >= REVIEW_HIDE_THRESHOLD ? "HIDDEN" : undefined },
     });
     return { ok: true };
   }),

@@ -61,6 +61,10 @@ export function MentorChat() {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const abortRef = useRef<AbortController | null>(null);
+  // Which session's messages are currently on screen — so we only reload on a
+  // real session SWITCH, never mid-stream (which would wipe the live answer the
+  // server hasn't persisted yet, #audit-r1).
+  const loadedSessionRef = useRef<string | null>(null);
 
   // tRPC queries
   const apiKeyQuery = api.ai.hasApiKey.useQuery();
@@ -83,18 +87,28 @@ export function MentorChat() {
     },
   });
 
-  // Load session messages when a session is selected
+  // Load session messages ONLY on a genuine session switch — never while a
+  // stream is in flight (it would overwrite the streaming answer with the
+  // server copy that doesn't hold the assistant turn yet). A session created
+  // mid-stream marks itself loaded in the "meta" handler, so the settle after
+  // isStreaming flips false doesn't clobber the just-streamed reply either.
   useEffect(() => {
-    if (sessionQuery.data) {
-      setMessages(
-        sessionQuery.data.messages.map((m) => ({
-          role: m.role as "user" | "assistant",
-          content: m.content,
-          timestamp: m.timestamp,
-        }))
-      );
+    if (isStreaming) return;
+    if (!activeSessionId) {
+      loadedSessionRef.current = null;
+      return;
     }
-  }, [sessionQuery.data]);
+    if (loadedSessionRef.current === activeSessionId) return;
+    if (!sessionQuery.data) return;
+    loadedSessionRef.current = activeSessionId;
+    setMessages(
+      sessionQuery.data.messages.map((m) => ({
+        role: m.role as "user" | "assistant",
+        content: m.content,
+        timestamp: m.timestamp,
+      }))
+    );
+  }, [sessionQuery.data, activeSessionId, isStreaming]);
 
   // Auto-scroll to bottom
   useEffect(() => {
@@ -185,6 +199,10 @@ export function MentorChat() {
               switch (event.type) {
                 case "meta":
                   if (event.sessionId && !activeSessionId) {
+                    // This session was just created by THIS stream and its live
+                    // messages are already on screen — mark it loaded so the
+                    // reload effect won't replace them with the server copy.
+                    loadedSessionRef.current = event.sessionId;
                     setActiveSessionId(event.sessionId);
                   }
                   break;

@@ -23,9 +23,7 @@ export const studyTaskRouter = createTRPCRouter({
         .optional()
     )
     .query(async ({ ctx, input }) => {
-      const user = await ctx.db.user.findUnique({
-        where: { supabaseId: ctx.userId },
-      });
+      const user = ctx.user; // enforceAuth already loaded the row (#9: no refetch)
 
       // Return empty list for users who haven't completed profile setup yet
       if (!user) {
@@ -73,9 +71,7 @@ export const studyTaskRouter = createTRPCRouter({
         })
     )
     .mutation(async ({ ctx, input }) => {
-      const user = await ctx.db.user.findUnique({
-        where: { supabaseId: ctx.userId },
-      });
+      const user = ctx.user; // enforceAuth already loaded the row (#9: no refetch)
 
       if (!user) {
         throw new TRPCError({ code: "NOT_FOUND", message: "User not found" });
@@ -122,9 +118,7 @@ export const studyTaskRouter = createTRPCRouter({
         )
     )
     .mutation(async ({ ctx, input }) => {
-      const user = await ctx.db.user.findUnique({
-        where: { supabaseId: ctx.userId },
-      });
+      const user = ctx.user; // enforceAuth already loaded the row (#9: no refetch)
 
       if (!user) {
         throw new TRPCError({ code: "NOT_FOUND", message: "User not found" });
@@ -154,9 +148,7 @@ export const studyTaskRouter = createTRPCRouter({
   toggleComplete: protectedProcedure
     .input(z.object({ id: z.string().uuid() }))
     .mutation(async ({ ctx, input }) => {
-      const user = await ctx.db.user.findUnique({
-        where: { supabaseId: ctx.userId },
-      });
+      const user = ctx.user; // enforceAuth already loaded the row (#9: no refetch)
 
       if (!user) {
         throw new TRPCError({ code: "NOT_FOUND", message: "User not found" });
@@ -184,9 +176,7 @@ export const studyTaskRouter = createTRPCRouter({
   delete: protectedProcedure
     .input(z.object({ id: z.string().uuid() }))
     .mutation(async ({ ctx, input }) => {
-      const user = await ctx.db.user.findUnique({
-        where: { supabaseId: ctx.userId },
-      });
+      const user = ctx.user; // enforceAuth already loaded the row (#9: no refetch)
 
       if (!user) {
         throw new TRPCError({ code: "NOT_FOUND", message: "User not found" });
@@ -224,7 +214,7 @@ export const studyTaskRouter = createTRPCRouter({
       })
     )
     .mutation(async ({ ctx, input }) => {
-      const user = await ctx.db.user.findUnique({ where: { supabaseId: ctx.userId } });
+      const user = ctx.user; // enforceAuth already loaded the row (#9: no refetch)
       if (!user) throw new TRPCError({ code: "NOT_FOUND", message: "User not found" });
 
       const codes = Array.from(new Set(input.exams.map((e) => e.courseCode)));

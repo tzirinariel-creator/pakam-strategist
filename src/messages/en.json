@@ -1294,7 +1294,25 @@
     "ppeGPA": "PPE courses GPA",
     "gradeCompositionTitle": "Degree grade composition",
     "courses": "Courses",
-    "papers": "Papers"
+    "papers": "Papers",
+    "overviewRichTitle": "What to know about PPE",
+    "orHigher": "or higher",
+    "englishTip": "Tip: some mandatory courses (like \"Introduction to Moral Philosophy\") can be taken in English too — so they also count toward the English requirement.",
+    "glossaryTitle": "Glossary",
+    "glossary": {
+      "shasTerm": "Credits (ש״ס)",
+      "shasDef": "Semester hours — the degree's counting unit. You need 150 to graduate.",
+      "seminarTerm": "Seminar",
+      "seminarDef": "An advanced course where you write a research paper. You need 4 across the degree.",
+      "referatTerm": "Referat",
+      "referatDef": "A shorter seminar paper — counts as 4% of the degree grade.",
+      "focusTerm": "Focus area",
+      "focusDef": "The discipline you specialize in (60 credits) — sets your civil-service classification.",
+      "levelTerm": "English level courses",
+      "levelDef": "Preparatory English courses that don't count toward the 150, based on your Amiram score.",
+      "exemptTerm": "English exemption",
+      "exemptDef": "No level courses needed. You still need 2 English content courses."
+    }
   },
   "customCourse": {
     "title": "Add custom course",

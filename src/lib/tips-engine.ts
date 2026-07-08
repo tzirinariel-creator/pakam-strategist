@@ -352,15 +352,6 @@ export function getRandomTip(category?: Tip["category"]): Tip {
 }
 
 /**
- * Get multiple random unique tips
- */
-export function getRandomTips(count: number, category?: Tip["category"]): Tip[] {
-  const pool = category ? ALL_TIPS.filter((t) => t.category === category) : ALL_TIPS;
-  const shuffled = [...pool].sort(() => Math.random() - 0.5);
-  return shuffled.slice(0, count);
-}
-
-/**
  * Get contextual tips based on user state
  */
 export function getContextualTips(state: {
@@ -407,15 +398,3 @@ export function getContextualTips(state: {
   return tips.filter(Boolean);
 }
 
-/**
- * Get fun facts for onboarding (curated selection)
- */
-export function getOnboardingFacts(): Tip[] {
-  return [
-    FUN_FACTS.find((f) => f.id === "ff-1")!,
-    FUN_FACTS.find((f) => f.id === "ff-2")!,
-    FUN_FACTS.find((f) => f.id === "ff-6")!,
-    FUN_FACTS.find((f) => f.id === "ff-9")!,
-    FUN_FACTS.find((f) => f.id === "ff-10")!,
-  ];
-}

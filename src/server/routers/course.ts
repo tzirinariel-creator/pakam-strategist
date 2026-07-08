@@ -108,12 +108,8 @@ export const courseRouter = createTRPCRouter({
       })
     )
     .query(async ({ ctx, input }) => {
-      // Resolve the internal User.id from the Supabase auth id — ctx.userId is
-      // the Supabase UUID, while UserCourse.userId references the Prisma User.id.
-      const user = await ctx.db.user.findUnique({
-        where: { supabaseId: ctx.userId },
-        select: { id: true },
-      });
+      // enforceAuth already resolved the Prisma User into ctx.user (#9: no refetch).
+      const user = ctx.user;
       if (!user) return [];
 
       // Get course IDs the user already has (any status except FAILED)

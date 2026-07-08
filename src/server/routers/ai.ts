@@ -21,20 +21,6 @@ import {
 // Helpers
 // -------------------------------------------------------------------
 
-/**
- * Look up the internal User record from the Supabase auth userId.
- * Throws NOT_FOUND if the user doesn't exist.
- */
-async function getUser(db: typeof import("@/lib/db").prisma, userId: string) {
-  const user = await db.user.findUnique({
-    where: { supabaseId: userId },
-  });
-  if (!user) {
-    throw new TRPCError({ code: "NOT_FOUND", message: "User not found" });
-  }
-  return user;
-}
-
 // -------------------------------------------------------------------
 // Router
 // -------------------------------------------------------------------
@@ -62,7 +48,7 @@ export const aiRouter = createTRPCRouter({
         });
       }
 
-      const user = await getUser(ctx.db, ctx.userId);
+      const user = ctx.user; // enforceAuth already loaded the row (#9: no refetch)
 
       // Encrypt and save (same encrypted column stores either provider's key).
       const encryptedKey = encrypt(trimmedKey);
@@ -82,7 +68,7 @@ export const aiRouter = createTRPCRouter({
   // 2. removeApiKey — remove stored API key
   // =================================================================
   removeApiKey: protectedProcedure.mutation(async ({ ctx }) => {
-    const user = await getUser(ctx.db, ctx.userId);
+    const user = ctx.user; // enforceAuth already loaded the row (#9: no refetch)
 
     await ctx.db.user.update({
       where: { id: user.id },
@@ -96,7 +82,7 @@ export const aiRouter = createTRPCRouter({
   // 3. hasApiKey — check if user has a stored API key
   // =================================================================
   hasApiKey: protectedProcedure.query(async ({ ctx }) => {
-    const user = await getUser(ctx.db, ctx.userId);
+    const user = ctx.user; // enforceAuth already loaded the row (#9: no refetch)
 
     // Whether the app has a SHARED free key configured — the assistant works
     // with zero setup when it does, even if the student has no personal key.
@@ -129,29 +115,28 @@ export const aiRouter = createTRPCRouter({
   // 5. getChatSessions — list user's chat sessions
   // =================================================================
   getChatSessions: protectedProcedure.query(async ({ ctx }) => {
-    const user = await getUser(ctx.db, ctx.userId);
+    const user = ctx.user; // enforceAuth already loaded the row (#9: no refetch)
 
-    const sessions = await ctx.db.chatSession.findMany({
-      where: { userId: user.id },
-      orderBy: { updatedAt: "desc" },
-      select: {
-        id: true,
-        title: true,
-        createdAt: true,
-        updatedAt: true,
-        messages: true,
-      },
-    });
+    // The sidebar renders only the title + message COUNT, so compute the count
+    // in Postgres (array_length on the jsonb[] column) instead of shipping every
+    // session's full messages blob back just to call .length on it (perf).
+    const rows = await ctx.db.$queryRaw<
+      { id: string; title: string | null; createdAt: Date; updatedAt: Date; messageCount: number | bigint }[]
+    >`
+      SELECT id, title, "createdAt", "updatedAt",
+             COALESCE(array_length(messages, 1), 0)::int AS "messageCount"
+      FROM chat_sessions
+      WHERE "userId" = ${user.id}
+      ORDER BY "updatedAt" DESC
+    `;
 
-    return sessions.map(
-      (s: { id: string; title: string | null; createdAt: Date; updatedAt: Date; messages: unknown[] }) => ({
-        id: s.id,
-        title: s.title,
-        createdAt: s.createdAt,
-        updatedAt: s.updatedAt,
-        messageCount: Array.isArray(s.messages) ? s.messages.length : 0,
-      })
-    );
+    return rows.map((r) => ({
+      id: r.id,
+      title: r.title,
+      createdAt: r.createdAt,
+      updatedAt: r.updatedAt,
+      messageCount: Number(r.messageCount) || 0,
+    }));
   }),
 
   // =================================================================
@@ -160,7 +145,7 @@ export const aiRouter = createTRPCRouter({
   getChatSession: protectedProcedure
     .input(z.object({ sessionId: z.string().uuid() }))
     .query(async ({ ctx, input }) => {
-      const user = await getUser(ctx.db, ctx.userId);
+      const user = ctx.user; // enforceAuth already loaded the row (#9: no refetch)
 
       const session = await ctx.db.chatSession.findUnique({
         where: { id: input.sessionId },
@@ -190,7 +175,7 @@ export const aiRouter = createTRPCRouter({
   deleteChatSession: protectedProcedure
     .input(z.object({ sessionId: z.string().uuid() }))
     .mutation(async ({ ctx, input }) => {
-      const user = await getUser(ctx.db, ctx.userId);
+      const user = ctx.user; // enforceAuth already loaded the row (#9: no refetch)
 
       const session = await ctx.db.chatSession.findUnique({
         where: { id: input.sessionId },

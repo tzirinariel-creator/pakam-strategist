@@ -483,7 +483,8 @@ model CourseReview {
   status      ReviewStatus      @default(VISIBLE)
   reportCount Int               @default(0)
 
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user    User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  reports ReviewReport[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -492,4 +493,21 @@ model CourseReview {
   @@index([courseCode])
   @@index([courseCode, status])
   @@map("course_reviews")
+}
+
+// One row per (review, reporter). The @@unique makes reporting idempotent — a
+// single user can't advance a review's report count more than once, so no lone
+// actor can force an honest review to HIDDEN (#audit-r1). CourseReview.reportCount
+// is kept in sync as the DISTINCT-reporter count.
+model ReviewReport {
+  id        String   @id @default(uuid())
+  reviewId  String
+  userId    String
+  createdAt DateTime @default(now())
+
+  review CourseReview @relation(fields: [reviewId], references: [id], onDelete: Cascade)
+
+  @@unique([reviewId, userId])
+  @@index([reviewId])
+  @@map("review_reports")
 }

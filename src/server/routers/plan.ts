@@ -62,9 +62,7 @@ export const planRouter = createTRPCRouter({
       })
     )
     .mutation(async ({ ctx, input }) => {
-      const user = await ctx.db.user.findUnique({
-        where: { supabaseId: ctx.userId },
-      });
+      const user = ctx.user; // enforceAuth already loaded the row (#9: no refetch)
 
       if (!user) {
         throw new TRPCError({ code: "NOT_FOUND", message: "User not found" });
@@ -145,9 +143,7 @@ export const planRouter = createTRPCRouter({
       })
     )
     .mutation(async ({ ctx, input }) => {
-      const user = await ctx.db.user.findUnique({
-        where: { supabaseId: ctx.userId },
-      });
+      const user = ctx.user; // enforceAuth already loaded the row (#9: no refetch)
 
       if (!user) {
         throw new TRPCError({ code: "NOT_FOUND", message: "User not found" });
@@ -217,9 +213,7 @@ export const planRouter = createTRPCRouter({
   removeCourse: protectedProcedure
     .input(z.object({ userCourseId: z.string().uuid() }))
     .mutation(async ({ ctx, input }) => {
-      const user = await ctx.db.user.findUnique({
-        where: { supabaseId: ctx.userId },
-      });
+      const user = ctx.user; // enforceAuth already loaded the row (#9: no refetch)
 
       if (!user) {
         throw new TRPCError({ code: "NOT_FOUND", message: "User not found" });
@@ -321,9 +315,7 @@ export const planRouter = createTRPCRouter({
       })
     )
     .mutation(async ({ ctx, input }) => {
-      const user = await ctx.db.user.findUnique({
-        where: { supabaseId: ctx.userId },
-      });
+      const user = ctx.user; // enforceAuth already loaded the row (#9: no refetch)
 
       if (!user) {
         throw new TRPCError({ code: "NOT_FOUND", message: "User not found" });
@@ -400,9 +392,7 @@ export const planRouter = createTRPCRouter({
       })
     )
     .mutation(async ({ ctx, input }) => {
-      const user = await ctx.db.user.findUnique({
-        where: { supabaseId: ctx.userId },
-      });
+      const user = ctx.user; // enforceAuth already loaded the row (#9: no refetch)
 
       if (!user) {
         throw new TRPCError({ code: "NOT_FOUND", message: "User not found" });

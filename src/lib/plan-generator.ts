@@ -660,41 +660,6 @@ function validatePlan(
   return warnings;
 }
 
-// -----------------------------------------------------------------------
-// DnD utilities — for interactive course movement
-// -----------------------------------------------------------------------
-
-export function moveCourseInPlan(
-  plan: InteractivePlan,
-  courseId: string,
-  toYear: number,
-  toSemester: "FALL" | "SPRING",
-  allCourses: CourseWithSchedule[]
-): InteractivePlan {
-  const courseMap = new Map(allCourses.map((c) => [c.id, c]));
-  const codeToId = new Map(allCourses.map((c) => [c.code, c.id]));
-
-  const newCourses = plan.courses.map((pc) =>
-    pc.courseId === courseId
-      ? { ...pc, plannedYear: toYear, plannedSemester: toSemester }
-      : pc
-  );
-
-  const totalCredits = newCourses.reduce(
-    (sum, pc) => sum + (courseMap.get(pc.courseId)?.credits ?? 0),
-    0
-  );
-
-  return {
-    ...plan,
-    courses: newCourses,
-    totalCredits,
-    semesterAnalytics: computeAllSemesterAnalytics(newCourses, allCourses),
-    creditBreakdown: computeCreditBreakdown(newCourses, courseMap),
-    warnings: validatePlan(newCourses, allCourses, codeToId),
-  };
-}
-
 export function canTakeCourse(
   courseId: string,
   year: number,
