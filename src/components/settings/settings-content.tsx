@@ -550,7 +550,7 @@ function AppearanceSection() {
               className={cn(
                 "flex items-center gap-3 rounded-lg border p-4 transition-all",
                 theme === "system"
-                  ? "border-foreground/20 bg-foreground/10 text-foreground/80"
+                  ? "border-accent-brand/30 bg-accent-brand-muted text-accent-brand"
                   : "border-border bg-card text-foreground/60 hover:border-foreground/30"
               )}
             >
@@ -562,7 +562,7 @@ function AppearanceSection() {
               className={cn(
                 "flex items-center gap-3 rounded-lg border p-4 transition-all",
                 theme === "light"
-                  ? "border-foreground/20 bg-foreground/10 text-foreground/80"
+                  ? "border-accent-brand/30 bg-accent-brand-muted text-accent-brand"
                   : "border-border bg-card text-foreground/60 hover:border-foreground/30"
               )}
             >
@@ -574,7 +574,7 @@ function AppearanceSection() {
               className={cn(
                 "flex items-center gap-3 rounded-lg border p-4 transition-all",
                 theme === "dark"
-                  ? "border-foreground/20 bg-foreground/10 text-foreground/80"
+                  ? "border-accent-brand/30 bg-accent-brand-muted text-accent-brand"
                   : "border-border bg-card text-foreground/60 hover:border-foreground/30"
               )}
             >
@@ -595,7 +595,7 @@ function AppearanceSection() {
               className={cn(
                 "flex items-center justify-center gap-2 rounded-lg border p-4 transition-all",
                 locale === "he"
-                  ? "border-foreground/20 bg-foreground/10 text-foreground/80"
+                  ? "border-accent-brand/30 bg-accent-brand-muted text-accent-brand"
                   : "border-border bg-card text-foreground/60 hover:border-foreground/30"
               )}
             >
@@ -606,7 +606,7 @@ function AppearanceSection() {
               className={cn(
                 "flex items-center justify-center gap-2 rounded-lg border p-4 transition-all",
                 locale === "en"
-                  ? "border-foreground/20 bg-foreground/10 text-foreground/80"
+                  ? "border-accent-brand/30 bg-accent-brand-muted text-accent-brand"
                   : "border-border bg-card text-foreground/60 hover:border-foreground/30"
               )}
             >
