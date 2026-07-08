@@ -7,7 +7,7 @@ generator client {
 }
 
 datasource db {
-  provider  = "postgresql"
+  provider = "postgresql"
 }
 
 // =========================================
@@ -85,43 +85,44 @@ enum MiluimGroup {
 // =========================================
 
 model User {
-  id                     String    @id @default(uuid())
-  supabaseId             String    @unique
-  email                  String    @unique
-  displayName            String?
-  firstName              String?   // for a personal, name-based salutation
-  lastName               String?
-  gender                 String?   // "male" | "female" — drives gendered Hebrew address
-  avatarUrl              String?
-  focusArea              String?
-  currentYear            Int       @default(1)
-  currentSemester        Semester  @default(FALL)
-  startYear              Int?
-  encryptedClaudeKey     String?
-  programId              String?
-  encryptedGoogleToken   String?
-  googleRefreshToken     String?
-  locale                 String    @default("he")
-  theme                  String    @default("dark")
-  miluimGroup            MiluimGroup @default(NONE)
-  miluimCareerService    Boolean   @default(false) // Group C via career service (not 35+ reserve days) — drives the correct label
-  miluimCreditsUsed      Int       @default(0) // max 10 across the degree (credit-exemption-used counter)
-  miluimBinaryUsed       Int       @default(0) // binary (pass/fail) conversions used across the degree (BA cap 5)
-  amiramScore            Int?      // Amiram English proficiency score
-  role                   String    @default("user") // "user" | "admin"
+  id                   String      @id @default(uuid())
+  supabaseId           String      @unique
+  email                String      @unique
+  displayName          String?
+  firstName            String? // for a personal, name-based salutation
+  lastName             String?
+  gender               String? // "male" | "female" — drives gendered Hebrew address
+  avatarUrl            String?
+  focusArea            String?
+  currentYear          Int         @default(1)
+  currentSemester      Semester    @default(FALL)
+  startYear            Int?
+  encryptedClaudeKey   String?
+  programId            String?
+  encryptedGoogleToken String?
+  googleRefreshToken   String?
+  locale               String      @default("he")
+  theme                String      @default("dark")
+  miluimGroup          MiluimGroup @default(NONE)
+  miluimCareerService  Boolean     @default(false) // Group C via career service (not 35+ reserve days) — drives the correct label
+  miluimCreditsUsed    Int         @default(0) // max 10 across the degree (credit-exemption-used counter)
+  miluimBinaryUsed     Int         @default(0) // binary (pass/fail) conversions used across the degree (BA cap 5)
+  amiramScore          Int? // Amiram English proficiency score
+  role                 String      @default("user") // "user" | "admin"
 
-  program                Program?      @relation(fields: [programId], references: [id])
-  courses                UserCourse[]
-  syllabi                Syllabus[]
-  synthesisNotes         SynthesisNote[]
-  studyMaterials         StudyMaterial[]
-  calendarEvents         CalendarEvent[]
-  chatSessions           ChatSession[]
-  studyTasks             StudyTask[]
-  miluimSemesters        MiluimSemester[]
+  program         Program?         @relation(fields: [programId], references: [id])
+  courses         UserCourse[]
+  syllabi         Syllabus[]
+  synthesisNotes  SynthesisNote[]
+  studyMaterials  StudyMaterial[]
+  calendarEvents  CalendarEvent[]
+  chatSessions    ChatSession[]
+  studyTasks      StudyTask[]
+  miluimSemesters MiluimSemester[]
+  courseReviews   CourseReview[]
 
-  createdAt              DateTime  @default(now())
-  updatedAt              DateTime  @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@map("users")
 }
@@ -132,19 +133,19 @@ model User {
 // tracked on User (miluimCreditsUsed / miluimBinaryUsed). Purely additive: a
 // user with NO rows here keeps the exact same numbers as before. (domain §6)
 model MiluimSemester {
-  id            String      @id @default(uuid())
-  userId        String
-  academicYear  Int
-  semester      Semester
-  daysServed    Int         @default(0)
-  isCombat      Boolean     @default(false)
-  derivedGroup  MiluimGroup @default(NONE)
-  notes         String?
+  id           String      @id @default(uuid())
+  userId       String
+  academicYear Int
+  semester     Semester
+  daysServed   Int         @default(0)
+  isCombat     Boolean     @default(false)
+  derivedGroup MiluimGroup @default(NONE)
+  notes        String?
 
-  user          User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  createdAt     DateTime    @default(now())
-  updatedAt     DateTime    @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@unique([userId, academicYear, semester])
   @@index([userId])
@@ -152,73 +153,73 @@ model MiluimSemester {
 }
 
 model Course {
-  id                String        @id @default(uuid())
-  code              String        @unique
-  universityId      String?
-  nameHe            String
-  nameEn            String?
-  discipline        String
-  courseType         CourseType
-  credits           Float
-  yearOffered       Int[]
-  semesterOffered   Semester[]
-  prerequisites     String[]      // Course codes (not IDs)
-  canCountAs        String[]      // Alternative discipline attributions
-  description       String?
-  isMandatory       Boolean       @default(false)
-  attendanceMandatory Boolean     @default(true)
-  submissionType    SubmissionType @default(EXAM)
-  weeklyHours       Float?
+  id                  String         @id @default(uuid())
+  code                String         @unique
+  universityId        String?
+  nameHe              String
+  nameEn              String?
+  discipline          String
+  courseType          CourseType
+  credits             Float
+  yearOffered         Int[]
+  semesterOffered     Semester[]
+  prerequisites       String[] // Course codes (not IDs)
+  canCountAs          String[] // Alternative discipline attributions
+  description         String?
+  isMandatory         Boolean        @default(false)
+  attendanceMandatory Boolean        @default(true)
+  submissionType      SubmissionType @default(EXAM)
+  weeklyHours         Float?
 
-  examDateA         DateTime?     // מועד א'
-  examDateB         DateTime?     // מועד ב'
+  examDateA DateTime? // מועד א'
+  examDateB DateTime? // מועד ב'
 
   // Grade statistics (from Arazim Project historical data)
-  averageGrade      Float?                          // historical mean grade
-  medianGrade       Float?                          // historical median grade
-  gradeStdDev       Float?                          // grade standard deviation
-  failRate          Float?                          // percentage of students failing (0-100)
-  difficultyLevel   String?                         // "easy" | "moderate" | "hard" | "very_hard"
-  gradeDataSource   String?                         // "arazim" | "manual" | "estimated"
-  gradeDataYear     String?                         // e.g. "2024b" — which semester the grade data is from
+  averageGrade    Float? // historical mean grade
+  medianGrade     Float? // historical median grade
+  gradeStdDev     Float? // grade standard deviation
+  failRate        Float? // percentage of students failing (0-100)
+  difficultyLevel String? // "easy" | "moderate" | "hard" | "very_hard"
+  gradeDataSource String? // "arazim" | "manual" | "estimated"
+  gradeDataYear   String? // e.g. "2024b" — which semester the grade data is from
 
-  isActive          Boolean       @default(true)    // soft delete — false hides from catalog
-  lastSyncedAt      DateTime?                       // last successful Yedion sync
-  yedionUrl         String?                         // direct link to syllabus page
+  isActive     Boolean   @default(true) // soft delete — false hides from catalog
+  lastSyncedAt DateTime? // last successful Yedion sync
+  yedionUrl    String? // direct link to syllabus page
 
-  university        University?   @relation(fields: [universityId], references: [id])
-  userCourses       UserCourse[]
-  syllabi           Syllabus[]
-  scheduleSessions  ScheduleSession[]
+  university       University?       @relation(fields: [universityId], references: [id])
+  userCourses      UserCourse[]
+  syllabi          Syllabus[]
+  scheduleSessions ScheduleSession[]
 
-  createdAt         DateTime      @default(now())
-  updatedAt         DateTime      @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@map("courses")
 }
 
 model UserCourse {
-  id                  String        @id @default(uuid())
-  userId              String
-  courseId             String
-  status              CourseStatus  @default(PLANNED)
-  grade               Float?
-  plannedYear         Int
-  plannedSemester     Semester
-  attemptNumber       Int           @default(1)
-  isGradeImproved     Boolean       @default(false)
-  isBinary            Boolean       @default(false) // Miluim pass/fail conversion — grade excluded from the average
-  disciplineOverride  String?       // Override: which discipline this counts toward
-  submissionType      SubmissionType?
-  submissionGrade     Float?
-  notes               String?
-  selectedGroups      Json?         // { "tutorial": "B", "lab": "01" } — persists session group selections
+  id                 String          @id @default(uuid())
+  userId             String
+  courseId           String
+  status             CourseStatus    @default(PLANNED)
+  grade              Float?
+  plannedYear        Int
+  plannedSemester    Semester
+  attemptNumber      Int             @default(1)
+  isGradeImproved    Boolean         @default(false)
+  isBinary           Boolean         @default(false) // Miluim pass/fail conversion — grade excluded from the average
+  disciplineOverride String? // Override: which discipline this counts toward
+  submissionType     SubmissionType?
+  submissionGrade    Float?
+  notes              String?
+  selectedGroups     Json? // { "tutorial": "B", "lab": "01" } — persists session group selections
 
-  user                User          @relation(fields: [userId], references: [id], onDelete: Cascade)
-  course              Course        @relation(fields: [courseId], references: [id])
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  course Course @relation(fields: [courseId], references: [id])
 
-  createdAt           DateTime      @default(now())
-  updatedAt           DateTime      @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@unique([userId, courseId, attemptNumber])
   @@index([userId])
@@ -226,81 +227,81 @@ model UserCourse {
 }
 
 model Syllabus {
-  id              String    @id @default(uuid())
-  userId          String
+  id               String   @id @default(uuid())
+  userId           String
   courseId         String
-  fileName        String
-  fileUrl         String
-  parsedContent   Json?     // AI-parsed structured data
-  deadlines       Json?     // Extracted deadlines array
-  topics          String[]
-  gradingBreakdown Json?    // { component: string, weight: number }[]
+  fileName         String
+  fileUrl          String
+  parsedContent    Json? // AI-parsed structured data
+  deadlines        Json? // Extracted deadlines array
+  topics           String[]
+  gradingBreakdown Json? // { component: string, weight: number }[]
 
-  user            User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  course          Course    @relation(fields: [courseId], references: [id])
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  course Course @relation(fields: [courseId], references: [id])
 
-  createdAt       DateTime  @default(now())
-  updatedAt       DateTime  @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@index([userId])
   @@map("syllabi")
 }
 
 model SynthesisNote {
-  id                String       @id @default(uuid())
+  id                String   @id @default(uuid())
   userId            String
   title             String
   content           String
   disciplines       String[]
-  courseConnections  String[]     // Course codes
+  courseConnections String[] // Course codes
   tags              String[]
-  aiGenerated       Boolean      @default(false)
+  aiGenerated       Boolean  @default(false)
 
-  user              User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  createdAt         DateTime     @default(now())
-  updatedAt         DateTime     @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@index([userId])
   @@map("synthesis_notes")
 }
 
 model StudyMaterial {
-  id              String   @id @default(uuid())
-  userId          String
-  courseCode       String
-  title           String
-  content         Json     // Quiz questions, flashcards, summaries
-  materialType    String   // "quiz" | "flashcard" | "summary" | "mock_exam"
-  aiGenerated     Boolean  @default(true)
+  id           String  @id @default(uuid())
+  userId       String
+  courseCode   String
+  title        String
+  content      Json // Quiz questions, flashcards, summaries
+  materialType String // "quiz" | "flashcard" | "summary" | "mock_exam"
+  aiGenerated  Boolean @default(true)
 
-  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@index([userId])
   @@map("study_materials")
 }
 
 model CalendarEvent {
-  id              String            @id @default(uuid())
-  userId          String
-  title           String
-  description     String?
-  startTime       DateTime
-  endTime         DateTime
-  eventType       CalendarEventType
-  courseCode       String?
-  googleEventId   String?
-  isAiSuggested   Boolean           @default(false)
-  color           String?
-  recurrence      String?
+  id            String            @id @default(uuid())
+  userId        String
+  title         String
+  description   String?
+  startTime     DateTime
+  endTime       DateTime
+  eventType     CalendarEventType
+  courseCode    String?
+  googleEventId String?
+  isAiSuggested Boolean           @default(false)
+  color         String?
+  recurrence    String?
 
-  user            User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  createdAt       DateTime          @default(now())
-  updatedAt       DateTime          @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@index([userId])
   @@index([googleEventId])
@@ -308,38 +309,38 @@ model CalendarEvent {
 }
 
 model ChatSession {
-  id              String   @id @default(uuid())
-  userId          String
-  title           String?
-  persona         String   @default("mentor")
-  messages        Json[]   // Array of { role: string, content: string, timestamp: string }
-  context         Json?    // Attached course/plan context snapshot
+  id       String  @id @default(uuid())
+  userId   String
+  title    String?
+  persona  String  @default("mentor")
+  messages Json[] // Array of { role: string, content: string, timestamp: string }
+  context  Json? // Attached course/plan context snapshot
 
-  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@index([userId])
   @@map("chat_sessions")
 }
 
 model StudyTask {
-  id              String    @id @default(uuid())
-  userId          String
-  title           String
-  startDate       DateTime
-  endDate         DateTime
-  taskType        String    // "study" | "assignment" | "exam" | "custom"
-  courseCode      String?   // optional link to course
-  completed       Boolean   @default(false)
-  color           String?
-  notes           String?
+  id         String   @id @default(uuid())
+  userId     String
+  title      String
+  startDate  DateTime
+  endDate    DateTime
+  taskType   String // "study" | "assignment" | "exam" | "custom"
+  courseCode String? // optional link to course
+  completed  Boolean  @default(false)
+  color      String?
+  notes      String?
 
-  user            User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  createdAt       DateTime  @default(now())
-  updatedAt       DateTime  @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@index([userId])
   @@index([userId, startDate])
@@ -347,24 +348,24 @@ model StudyTask {
 }
 
 model ScheduleSession {
-  id              String    @id @default(uuid())
-  courseCode      String
-  dayOfWeek       DayOfWeek
-  startTime       String    // "HH:MM" format, e.g. "10:00"
-  endTime         String    // "HH:MM" format, e.g. "12:00"
-  room            String?
-  building        String?
-  sessionType     String    @default("lecture") // "lecture" | "tutorial" | "lab"
-  semester        Semester
-  academicYear    Int       @default(2025)
-  groupCode       String?   // "A", "B", "01" — identifies which section/group this session belongs to
-  lecturerName    String?   // Lecturer/TA name for display
-  lecturerEmail   String?   // Lecturer email from Yedion
+  id            String    @id @default(uuid())
+  courseCode    String
+  dayOfWeek     DayOfWeek
+  startTime     String // "HH:MM" format, e.g. "10:00"
+  endTime       String // "HH:MM" format, e.g. "12:00"
+  room          String?
+  building      String?
+  sessionType   String    @default("lecture") // "lecture" | "tutorial" | "lab"
+  semester      Semester
+  academicYear  Int       @default(2025)
+  groupCode     String? // "A", "B", "01" — identifies which section/group this session belongs to
+  lecturerName  String? // Lecturer/TA name for display
+  lecturerEmail String? // Lecturer email from Yedion
 
-  course          Course    @relation(fields: [courseCode], references: [code])
+  course Course @relation(fields: [courseCode], references: [code])
 
-  createdAt       DateTime  @default(now())
-  updatedAt       DateTime  @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@index([courseCode])
   @@index([semester, academicYear])
@@ -378,32 +379,32 @@ model ScheduleSession {
 
 model University {
   id        String    @id @default(uuid())
-  code      String    @unique              // "tau"
+  code      String    @unique // "tau"
   nameHe    String
   nameEn    String
-  yedionUrl String?                        // e.g. "https://ims.tau.ac.il/tal"
+  yedionUrl String? // e.g. "https://ims.tau.ac.il/tal"
   programs  Program[]
   courses   Course[]
 
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@map("universities")
 }
 
 model Program {
-  id             String     @id @default(uuid())
-  code           String                     // "PPE"
-  universityId   String
-  university     University @relation(fields: [universityId], references: [id])
-  nameHe         String
-  nameEn         String
-  academicYear   Int
-  definition     Json                       // Full ProgramDefinition JSON
-  users          User[]
+  id           String     @id @default(uuid())
+  code         String // "PPE"
+  universityId String
+  university   University @relation(fields: [universityId], references: [id])
+  nameHe       String
+  nameEn       String
+  academicYear Int
+  definition   Json // Full ProgramDefinition JSON
+  users        User[]
 
-  createdAt      DateTime   @default(now())
-  updatedAt      DateTime   @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@unique([universityId, code, academicYear])
   @@map("programs")
@@ -414,19 +415,80 @@ model Program {
 // =========================================
 
 model SyncLog {
-  id              String    @id @default(uuid())
-  startedAt       DateTime  @default(now())
-  completedAt     DateTime?
-  status          String    // "running" | "success" | "failed"
-  coursesChecked  Int       @default(0)
-  changesFound    Int       @default(0)
-  changesApplied  Int       @default(0)
-  errorMessage    String?
-  diffJson        Json?     // snapshot of the computed diff for audit
+  id             String    @id @default(uuid())
+  startedAt      DateTime  @default(now())
+  completedAt    DateTime?
+  status         String // "running" | "success" | "failed"
+  coursesChecked Int       @default(0)
+  changesFound   Int       @default(0)
+  changesApplied Int       @default(0)
+  errorMessage   String?
+  diffJson       Json? // snapshot of the computed diff for audit
 
-  createdAt       DateTime  @default(now())
-  updatedAt       DateTime  @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@index([status])
   @@map("sync_logs")
+}
+
+// ── Cross-cohort course knowledge (notes #3, #16) ─────────────────────
+// Anonymous, aggregate-only. Grades are NEVER shown individually (k-anon
+// thresholds enforced in the router); grade points carry no userId at all.
+
+enum RecommendVerdict {
+  RECOMMEND
+  NEUTRAL
+  AVOID
+}
+
+enum ReviewStatus {
+  VISIBLE
+  HIDDEN
+  PENDING
+}
+
+/// Anonymous grade point — deliberately has NO userId. Derived from a COMPLETED
+/// UserCourse but physically decoupled from identity. dedupeHash (one-way
+/// sha256 of userId+courseCode) enforces one point per person per course without
+/// storing who. Only ever surfaced as an aggregate (N >= 5).
+model CourseGradePoint {
+  id         String   @id @default(uuid())
+  courseCode String
+  grade      Float? // null for binary courses (counted in volume, not average)
+  cohortYear Int?
+  isBinary   Boolean  @default(false)
+  source     String   @default("import")
+  dedupeHash String   @unique
+  createdAt  DateTime @default(now())
+
+  @@index([courseCode])
+  @@index([courseCode, cohortYear])
+  @@map("course_grade_points")
+}
+
+/// Rating + review. Linked to userId in the DB ONLY (to enforce one-per-course
+/// and allow withdrawal + moderation); the read API never returns userId.
+model CourseReview {
+  id          String            @id @default(uuid())
+  userId      String
+  courseCode  String
+  cohortYear  Int?
+  workload    Int? // 1-5 weekly load
+  difficulty  Int? // 1-5 material difficulty
+  verdict     RecommendVerdict?
+  tip         String? // free text, <= 400 chars
+  tags        String[]
+  status      ReviewStatus      @default(VISIBLE)
+  reportCount Int               @default(0)
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([userId, courseCode])
+  @@index([courseCode])
+  @@index([courseCode, status])
+  @@map("course_reviews")
 }

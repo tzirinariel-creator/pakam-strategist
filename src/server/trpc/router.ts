@@ -7,6 +7,7 @@ import { scheduleRouter } from "../routers/schedule";
 import { studyTaskRouter } from "../routers/study-task";
 import { adminRouter } from "../routers/admin";
 import { aiRouter } from "../routers/ai";
+import { courseKnowledgeRouter } from "../routers/course-knowledge";
 
 /**
  * Root tRPC router — all sub-routers are merged here
@@ -20,6 +21,7 @@ export const appRouter = createTRPCRouter({
   studyTask: studyTaskRouter,
   admin: adminRouter,
   ai: aiRouter,
+  courseKnowledge: courseKnowledgeRouter,
 });
 
 export type AppRouter = typeof appRouter;
