@@ -19,6 +19,7 @@ import { useTranslations, useLocale } from "next-intl";
 import { toast } from "sonner";
 import { DisciplineBadge } from "@/components/catalog/discipline-badge";
 import { DISCIPLINE_CONFIG, CREDIT_REQUIREMENTS } from "@/lib/constants";
+import { passBarFor } from "@/lib/grade-sheet";
 import { api } from "@/lib/trpc/react";
 import { invalidatePlanData } from "@/lib/trpc/invalidate-plan";
 import {
@@ -223,7 +224,7 @@ export function CourseCard({ userCourse, disabled }: CourseCardProps) {
           "absolute -top-1.5 -end-1.5 z-20 flex items-center justify-center rounded-full border transition-all",
           confirmRemove
             ? "size-auto gap-1 border-red-400/60 bg-red-500/90 px-2 py-0.5 text-[11px] font-medium text-white"
-            : "size-5 border-border/60 bg-card text-muted-foreground/50 opacity-0 hover:border-red-400/60 hover:bg-red-500/10 hover:text-red-400 group-hover:opacity-100 focus:opacity-100 focus:ring-2 focus:ring-red-400/60 focus:outline-none",
+            : "size-5 border-border/60 bg-card text-muted-foreground/50 opacity-100 hover:border-red-400/60 hover:bg-red-500/10 hover:text-red-400 focus:opacity-100 focus:ring-2 focus:ring-red-400/60 focus:outline-none md:opacity-0 md:group-hover:opacity-100",
         )}
         title={tPlanner("removeCourse")}
       >
@@ -323,9 +324,17 @@ function CompletionControl({
       const num = parseInt(raw, 10);
       if (isNaN(num)) return;
       const clamped = Math.max(0, Math.min(100, num));
-      onUpdate({ userCourseId, status: "COMPLETED", grade: clamped });
+      // Honest completion (#22/#30): a failing grade marks the course FAILED,
+      // not a silent COMPLETED. Binary (pass/fail) courses aren't graded this
+      // way. ENGLISH passes at 70, everything else at 60.
+      const status: CourseStatus = binaryOn
+        ? "COMPLETED"
+        : clamped >= passBarFor(courseType)
+          ? "COMPLETED"
+          : "FAILED";
+      onUpdate({ userCourseId, status, grade: clamped });
     },
-    [onUpdate, userCourseId],
+    [onUpdate, userCourseId, binaryOn, courseType],
   );
 
   const handleGradeChange = useCallback(
@@ -365,7 +374,7 @@ function CompletionControl({
             "shrink-0 flex items-center justify-center rounded-md p-1 transition-all focus:outline-none focus:ring-2 focus:ring-foreground/30",
             isCompleted
               ? "text-emerald-400 hover:bg-emerald-400/10"
-              : "text-muted-foreground/50 hover:text-foreground/70 hover:bg-foreground/5 opacity-0 group-hover:opacity-100 focus:opacity-100",
+              : "text-muted-foreground/50 hover:text-foreground/70 hover:bg-foreground/5 opacity-100 focus:opacity-100 md:opacity-0 md:group-hover:opacity-100",
           )}
         >
           <GraduationCap className="size-3.5" />
