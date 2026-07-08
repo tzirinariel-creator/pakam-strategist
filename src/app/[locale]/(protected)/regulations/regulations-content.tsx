@@ -43,7 +43,7 @@ export function RegulationsContent() {
       />
 
       {/* Loading state */}
-      {isLoading && <ThemedLoader />}
+      {isLoading && <ThemedLoader variant="inline" />}
 
       {/* Error state */}
       {error && (

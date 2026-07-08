@@ -104,7 +104,7 @@ export function CatalogContent() {
       )}
 
       {/* Loading state */}
-      {isLoading && <ThemedLoader />}
+      {isLoading && <ThemedLoader variant="inline" />}
 
       {/* Error state */}
       {error && (

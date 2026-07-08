@@ -20,6 +20,7 @@ import { AnchoredTour } from "@/components/onboarding/anchored-tour";
 import { cn } from "@/lib/utils";
 import { TodaysClasses } from "@/components/dashboard/todays-classes";
 import { SemesterWrapCard } from "@/components/dashboard/semester-wrap-card";
+import { PhilosopherKingIcon } from "@/components/ui/philosopher-king-icon";
 import { ExamCountdown } from "@/components/dashboard/exam-countdown";
 import { RecommendationsWidget } from "@/components/dashboard/recommendations-widget";
 import { StudyPlannerWidget } from "@/components/dashboard/study-planner-widget";
@@ -641,8 +642,8 @@ export function DashboardContent() {
   if (planQuery.isLoading && loadingTooLong) {
     return (
       <div className="flex min-h-[60vh] flex-col items-center justify-center gap-5">
-        <div className="flex h-16 w-16 items-center justify-center rounded-full bg-foreground/5">
-          <GraduationCap className="h-8 w-8 text-foreground/40" />
+        <div className="flex h-16 w-16 items-center justify-center rounded-full bg-accent-brand-muted">
+          <PhilosopherKingIcon className="h-8 w-8 text-accent-brand" />
         </div>
         <div className="flex flex-col items-center gap-1.5">
           <p className="text-sm font-medium text-foreground/70">
