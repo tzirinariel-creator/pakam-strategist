@@ -7,6 +7,7 @@ import { useSearchParams } from "next/navigation";
 import { Link, useRouter } from "@/i18n/navigation";
 import { consumeSharedPlanReturn } from "@/lib/plan-share";
 import { getAcademicNow, deriveYearOfStudy } from "@/lib/academic-calendar";
+import { isCurrentlyStudying } from "@/lib/semester-clock";
 import { api } from "@/lib/trpc/react";
 import { firstNameOf } from "@/lib/personal-address";
 import { usePersonalAddress } from "@/components/personal/use-personal-address";
@@ -564,6 +565,16 @@ export function DashboardContent() {
     profileQuery.data?.currentYear ?? 1,
   );
 
+  // How many planned courses the student is literally sitting in RIGHT NOW —
+  // derived from the calendar (#4/#22), never stored. Powers the "בלימוד עכשיו"
+  // line on the hero: the Home screen mirrors the present.
+  const inProgressCount = (planQuery.data?.courses ?? []).filter((uc) =>
+    isCurrentlyStudying(
+      { plannedYear: uc.plannedYear, plannedSemester: uc.plannedSemester, status: uc.status },
+      currentYear,
+    ),
+  ).length;
+
   // Smart recommendations — deterministic, data-backed. Computed from data the
   // dashboard already holds (plan, grades, credits, regulations, profile), so
   // it adds no extra server round-trips. See lib/recommendations-engine.ts.
@@ -942,7 +953,7 @@ export function DashboardContent() {
       {/* My status — the unified "where am I in the degree" command center */}
       {hasAnyCourses && (
         <div className="animate-stagger-1" data-tour="status">
-          <MyStatusHero credits={credits} grade={gradeBreakdown} isHe={isHe} topGap={topGap} hasFocusArea={hasFocusArea} amiramScore={profileQuery.data?.amiramScore ?? null} currentYear={currentYear} disciplines={disciplineBreakdown} />
+          <MyStatusHero credits={credits} grade={gradeBreakdown} isHe={isHe} topGap={topGap} hasFocusArea={hasFocusArea} amiramScore={profileQuery.data?.amiramScore ?? null} currentYear={currentYear} disciplines={disciplineBreakdown} inProgressCount={inProgressCount} />
         </div>
       )}
 

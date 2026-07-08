@@ -1,6 +1,6 @@
 "use client";
 
-import { GraduationCap, ArrowLeft, ArrowRight } from "lucide-react";
+import { GraduationCap, ArrowLeft, ArrowRight, BookOpen } from "lucide-react";
 import { Link } from "@/i18n/navigation";
 import { GRADE_REQUIREMENTS } from "@/lib/constants";
 import { roundScore } from "@/lib/grade-calculator";
@@ -26,6 +26,7 @@ export function MyStatusHero({
   amiramScore,
   currentYear,
   disciplines,
+  inProgressCount,
 }: {
   credits: CreditBreakdown | null;
   grade: GradeBreakdown;
@@ -40,6 +41,8 @@ export function MyStatusHero({
   disciplines?: DisciplineProgress[];
   /** Academic year (1–3) — English LEVEL guidance is year-1 only (#11). */
   currentYear: number;
+  /** How many planned courses are being studied right now (derived, #4/#22). */
+  inProgressCount?: number;
 }) {
   const Arrow = isHe ? ArrowLeft : ArrowRight;
   const gpa = roundScore(grade.courseAverage);
@@ -67,6 +70,22 @@ export function MyStatusHero({
           </span>
         )}
       </div>
+
+      {/* The "present": courses being studied right now (derived, #4/#22). Links
+          to the Record, where they get marked done once grades are out. */}
+      {inProgressCount != null && inProgressCount > 0 && (
+        <Link
+          href="/record"
+          className="mb-3 inline-flex items-center gap-1.5 rounded-lg bg-blue-400/10 px-2.5 py-1 text-xs font-medium text-blue-500 transition-colors hover:bg-blue-400/15"
+        >
+          <BookOpen className="size-3.5" />
+          {isHe
+            ? inProgressCount === 1
+              ? "קורס אחד בלימוד עכשיו"
+              : `${inProgressCount} קורסים בלימוד עכשיו`
+            : `${inProgressCount} ${inProgressCount === 1 ? "course" : "courses"} in progress now`}
+        </Link>
+      )}
 
       {/* The one canonical status render, shared with the planner board. */}
       <DegreeStatus
