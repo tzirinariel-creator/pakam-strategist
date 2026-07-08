@@ -67,7 +67,7 @@ export const ruleTotalCredits: RegulationRule = (ctx: RuleContext) => {
   return result(
     "PKM-001",
     "Total Credits Requirement",
-    "דרישת נקודות זכות כוללת",
+    "דרישת ש״ס כוללת",
     passed,
     "INFO",
     passed
@@ -97,7 +97,7 @@ export const ruleMandatoryCredits: RegulationRule = (ctx: RuleContext) => {
     return result(
       "PKM-018",
       "Mandatory Credits",
-      "נקודות זכות חובה",
+      "ש״ס חובה",
       true,
       "INFO",
       "No mandatory-credit minimum defined for this program.",
@@ -112,7 +112,7 @@ export const ruleMandatoryCredits: RegulationRule = (ctx: RuleContext) => {
   return result(
     "PKM-018",
     "Mandatory Credits",
-    "נקודות זכות חובה",
+    "ש״ס חובה",
     passed,
     "INFO",
     passed
@@ -137,7 +137,7 @@ export const ruleSeminarCredits: RegulationRule = (ctx: RuleContext) => {
     return result(
       "PKM-019",
       "Seminar Credits",
-      "נקודות זכות סמינריונים",
+      "ש״ס סמינריונים",
       true,
       "INFO",
       "No seminar-credit minimum defined for this program.",
@@ -152,7 +152,7 @@ export const ruleSeminarCredits: RegulationRule = (ctx: RuleContext) => {
   return result(
     "PKM-019",
     "Seminar Credits",
-    "נקודות זכות סמינריונים",
+    "ש״ס סמינריונים",
     passed,
     "INFO",
     passed
@@ -176,7 +176,7 @@ export const ruleElectiveCredits: RegulationRule = (ctx: RuleContext) => {
     return result(
       "PKM-020",
       "Elective Credits",
-      "נקודות זכות בחירה",
+      "ש״ס בחירה",
       true,
       "INFO",
       "No elective-credit minimum defined for this program.",
@@ -191,7 +191,7 @@ export const ruleElectiveCredits: RegulationRule = (ctx: RuleContext) => {
   return result(
     "PKM-020",
     "Elective Credits",
-    "נקודות זכות בחירה",
+    "ש״ס בחירה",
     passed,
     "INFO",
     passed
@@ -221,7 +221,7 @@ function createDisciplineCreditsRule(disc: DisciplineDefinition): RegulationRule
       return result(
         `DISC-${disc.id}`,
         `${disc.nameEn} Credits`,
-        `נקודות זכות ב${disc.nameHe}`,
+        `ש״ס ב${disc.nameHe}`,
         true,
         "INFO",
         `No minimum credits required for ${disc.nameEn}.`,
@@ -235,7 +235,7 @@ function createDisciplineCreditsRule(disc: DisciplineDefinition): RegulationRule
     return result(
       `DISC-${disc.id}`,
       `${disc.nameEn} Credits`,
-      `נקודות זכות ב${disc.nameHe}`,
+      `ש״ס ב${disc.nameHe}`,
       passed,
       "INFO",
       passed
