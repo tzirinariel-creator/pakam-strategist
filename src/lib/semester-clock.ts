@@ -35,3 +35,24 @@ export function getWrapTarget(now: Date = new Date()): WrapTarget | null {
 }
 
 export const wrapStorageKey = (key: string) => `pakamon-wrap-${key}`;
+
+/**
+ * Is this PLANNED course the student's live, currently-being-studied course
+ * RIGHT NOW? Derived (never stored) from the academic calendar — exactly like
+ * the current year/semester are derived — so it survives semester rollover on
+ * its own and can never corrupt the saved plan. This is the missing "present"
+ * state that makes Planner(future) → בלימוד(present) → Record(past) cohere
+ * (#4, #22): a first-year sitting in class no longer sees the course as merely
+ * "מתוכנן" for the whole semester.
+ */
+export function isCurrentlyStudying(
+  course: { plannedYear: number; plannedSemester: string; status: string },
+  currentYear: number,
+  now: Date = new Date(),
+): boolean {
+  if (course.status !== "PLANNED") return false;
+  const a = getAcademicNow(now);
+  if (a.isStale) return false;
+  if (a.phase !== "teaching" && a.phase !== "exams") return false;
+  return course.plannedYear === currentYear && course.plannedSemester === a.semester;
+}
