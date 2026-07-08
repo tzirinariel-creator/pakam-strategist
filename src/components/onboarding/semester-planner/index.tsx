@@ -124,6 +124,13 @@ export function SemesterPlanner({
   );
   // Bottom panel tab: timetable or exam gantt
   const [bottomTab, setBottomTab] = useState<"timetable" | "exams">("timetable");
+  // Hover-preview of a session group (#2): dashed blocks on the timetable
+  // show WHERE the hovered group would sit — the choice becomes visible.
+  const [groupPreview, setGroupPreview] = useState<{
+    courseCode: string;
+    sessionType: string;
+    groupCode: string;
+  } | null>(null);
   // Discipline overrides: courseId → discipline key
   const [disciplineOverrides, setDisciplineOverrides] = useState<Record<string, string>>({});
 
@@ -667,25 +674,11 @@ export function SemesterPlanner({
             />
           </div>
 
-          {/* Right column: the selected semester + its live timetable, stacked,
-              so both update the moment you pick a course from the pool. */}
+          {/* Right column: the LIVE TIMETABLE first — the plan IS a schedule,
+              not a list (#20) — with the course list under it. Both update the
+              moment you pick a course from the pool. */}
           <div className="flex w-full flex-col gap-4 lg:w-[62%]">
-            {/* My Semester */}
-            <div className="rounded-xl border border-border/40 bg-card/20 p-4 lg:max-h-[380px] lg:overflow-y-auto">
-            <MySemester
-              mandatoryCourses={mandatoryCourses}
-              selectedCourses={selectedElectives}
-              totalCredits={currentSemesterCredits}
-              onRemoveCourse={handleRemoveCourse}
-              onDeleteCustomCourse={handleDeleteCustomCourse}
-              customCourseIds={customCourseIds}
-              sessionGroupSelections={sessionGroupSelections}
-              onSelectSessionGroup={handleSelectSessionGroup}
-            />
-            </div>
-
-            {/* Live schedule of the picked courses — right here beside the pool,
-                not at the bottom. Tab-toggles to the exam timeline. */}
+            {/* Live schedule of the picked courses. Tab-toggles to exams. */}
             <div className="rounded-xl border border-border/40 bg-card/20 p-4">
           {/* Tab header */}
           <div className="mb-3 flex items-center justify-between">
@@ -742,6 +735,7 @@ export function SemesterPlanner({
                 courses={allCurrentCourses}
                 currentSemester={currentSemester}
                 sessionGroupSelections={sessionGroupSelections}
+                groupPreview={groupPreview}
               />
               {allCurrentCourses.length === 0 && (
                 <div className="flex flex-col items-center justify-center py-8 text-center">
@@ -756,6 +750,21 @@ export function SemesterPlanner({
           {bottomTab === "exams" && (
             <ExamGantt courses={allCurrentCourses} />
           )}
+            </div>
+
+            {/* My Semester — the course list, under the timetable it feeds. */}
+            <div className="rounded-xl border border-border/40 bg-card/20 p-4 lg:max-h-[380px] lg:overflow-y-auto">
+              <MySemester
+                mandatoryCourses={mandatoryCourses}
+                selectedCourses={selectedElectives}
+                totalCredits={currentSemesterCredits}
+                onRemoveCourse={handleRemoveCourse}
+                onDeleteCustomCourse={handleDeleteCustomCourse}
+                customCourseIds={customCourseIds}
+                sessionGroupSelections={sessionGroupSelections}
+                onSelectSessionGroup={handleSelectSessionGroup}
+                onPreviewGroup={setGroupPreview}
+              />
             </div>
           </div>
         </div>

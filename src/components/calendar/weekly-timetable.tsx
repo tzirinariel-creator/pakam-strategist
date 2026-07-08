@@ -45,6 +45,10 @@ export interface TimeSlot {
 
 interface WeeklyTimetableProps {
   sessions: ScheduleSessionData[];
+  /** Hover-preview sessions (#2): rendered as DASHED ghost blocks — "כאן יהיה
+   *  משהו" per the design line — excluded from conflicts and the stats bar.
+   *  Desktop-grid only (hover has no mobile equivalent; the agenda skips it). */
+  previewSessions?: ScheduleSessionData[];
 }
 
 // ─── Constants ───────────────────────────────────────────────────────
@@ -171,7 +175,7 @@ function computeOverlapLayout(slots: TimeSlot[]): SlotLayout[] {
 
 // ─── Component ───────────────────────────────────────────────────────
 
-export function WeeklyTimetable({ sessions }: WeeklyTimetableProps) {
+export function WeeklyTimetable({ sessions, previewSessions }: WeeklyTimetableProps) {
   const t = useTranslations("calendar");
   const locale = useLocale();
   const isRTL = locale === "he";
@@ -186,6 +190,12 @@ export function WeeklyTimetable({ sessions }: WeeklyTimetableProps) {
   );
   const conflictIds = useMemo(() => detectConflicts(slots), [slots]);
   const layoutSlots = useMemo(() => computeOverlapLayout(slots), [slots]);
+  // Ghost layer — separate pipeline, never feeds conflicts/stats.
+  const previewSlots = useMemo(
+    () =>
+      sessionsToSlots(previewSessions ?? [], locale).filter((s) => s.day >= 0 && s.day <= 5),
+    [previewSessions, locale]
+  );
 
   // Current time
   const now = new Date();
@@ -440,6 +450,37 @@ export function WeeklyTimetable({ sessions }: WeeklyTimetableProps) {
                   </div>
                 );
               })()}
+
+              {/* Preview ghost blocks (#2) — dashed, discipline-tinted border,
+                  transparent fill, on top of real blocks but click-through. */}
+              {previewSlots.map((slot) => {
+                const config = DISCIPLINE_CONFIG[slot.discipline];
+                const colIndex = dayOrder.indexOf(slot.day);
+                if (colIndex === -1) return null;
+                const topPx = Math.round((slot.startHour - HOURS_START) * ROW_HEIGHT);
+                const heightPx = Math.round((slot.endHour - slot.startHour) * ROW_HEIGHT);
+                const color = config?.color ?? "hsl(var(--muted-foreground))";
+                return (
+                  <div
+                    key={`preview-${slot.courseId}`}
+                    className="pointer-events-none absolute z-20 flex flex-col overflow-hidden rounded-lg border-2 border-dashed p-1.5 opacity-70"
+                    style={{
+                      top: `${topPx + 1}px`,
+                      height: `${heightPx - 2}px`,
+                      insetInlineStart: `calc(${(colIndex / dayCount) * 100}% + 2px)`,
+                      width: `calc(${colWidthPct}% - 4px)`,
+                      borderColor: color,
+                    }}
+                  >
+                    <span className="truncate text-[10px] font-semibold leading-tight text-foreground/70">
+                      {slot.courseName}
+                    </span>
+                    <span className="truncate font-mono text-[10px] text-muted-foreground" dir="ltr">
+                      {slot.startTimeStr}-{slot.endTimeStr}
+                    </span>
+                  </div>
+                );
+              })}
 
               {/* Course blocks */}
               {layoutSlots.map((slot) => {

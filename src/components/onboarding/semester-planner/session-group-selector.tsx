@@ -21,6 +21,8 @@ interface SessionGroupSelectorProps {
   sessions: ScheduleSessionLike[];
   selectedGroups: Record<string, string>; // sessionType → groupCode
   onSelectGroup: (courseCode: string, sessionType: string, groupCode: string) => void;
+  /** Hover/focus preview on the live timetable (#2). Null clears. */
+  onPreviewGroup?: (p: { courseCode: string; sessionType: string; groupCode: string } | null) => void;
 }
 
 // ─── Helpers ─────────────────────────────────────────────────────────
@@ -156,6 +158,7 @@ export function SessionGroupSelector({
   sessions,
   selectedGroups,
   onSelectGroup,
+  onPreviewGroup,
 }: SessionGroupSelectorProps) {
   const locale = useLocale();
   const isHe = locale === "he";
@@ -170,6 +173,11 @@ export function SessionGroupSelector({
 
   return (
     <div className="space-y-2">
+      <p className="text-[11px] text-foreground/50">
+        {isHe
+          ? "בחירת הקבוצה קובעת מתי הקורס יושב במערכת השעות"
+          : "Your group choice sets where this course sits on the timetable"}
+      </p>
       {Array.from(selectableGroups.entries()).map(([sessionType, groups]) => {
         const typeLabel = SESSION_TYPE_LABELS[sessionType];
         const typeName = isHe ? typeLabel?.he ?? sessionType : typeLabel?.en ?? sessionType;
@@ -190,10 +198,14 @@ export function SessionGroupSelector({
                   <button
                     key={group.groupCode}
                     onClick={() => onSelectGroup(courseCode, sessionType, group.groupCode)}
+                    onMouseEnter={() => onPreviewGroup?.({ courseCode, sessionType, groupCode: group.groupCode })}
+                    onMouseLeave={() => onPreviewGroup?.(null)}
+                    onFocus={() => onPreviewGroup?.({ courseCode, sessionType, groupCode: group.groupCode })}
+                    onBlur={() => onPreviewGroup?.(null)}
                     className={cn(
-                      "flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-[10px] transition-all",
+                      "flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-[11px] transition-all",
                       isSelected
-                        ? "bg-foreground/10 text-foreground/70 border border-foreground/20 shadow-sm"
+                        ? "border border-accent-brand/30 bg-accent-brand/[0.06] text-accent-brand shadow-sm"
                         : "bg-foreground/3 text-foreground/40 border border-transparent hover:bg-foreground/5 hover:text-foreground/50"
                     )}
                   >

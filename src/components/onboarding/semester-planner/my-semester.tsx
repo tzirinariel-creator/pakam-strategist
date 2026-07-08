@@ -18,6 +18,8 @@ interface MySemesterProps {
   customCourseIds?: Set<string>;
   sessionGroupSelections?: Record<string, Record<string, string>>;
   onSelectSessionGroup?: (courseCode: string, sessionType: string, groupCode: string) => void;
+  /** Hover-preview a group on the live timetable (#2). Null clears. */
+  onPreviewGroup?: (p: { courseCode: string; sessionType: string; groupCode: string } | null) => void;
 }
 
 
@@ -35,6 +37,7 @@ export function MySemester({
   customCourseIds,
   sessionGroupSelections,
   onSelectSessionGroup,
+  onPreviewGroup,
 }: MySemesterProps) {
   const t = useTranslations("onboarding");
   const locale = useLocale();
@@ -150,12 +153,14 @@ export function MySemester({
                             sessions={course.scheduleSessions}
                             selectedGroups={sessionGroupSelections?.[course.code] ?? {}}
                             onSelectGroup={onSelectSessionGroup}
+                            onPreviewGroup={onPreviewGroup}
                           />
                         </div>
                       )}
                     </div>
                   ) : (
-                    <CourseDetailPopover key={course.id} course={course}>
+                    <div key={course.id} className="space-y-1">
+                    <CourseDetailPopover course={course}>
                       <div className={cn(
                         "group flex items-center gap-2 rounded-lg border px-2.5 py-1.5 cursor-pointer transition-all hover:border-border/60 ms-3",
                         customCourseIds?.has(course.id)
@@ -202,6 +207,21 @@ export function MySemester({
                         </button>
                       </div>
                     </CourseDetailPopover>
+                    {/* Session-group selector for ELECTIVES too (#2) — a
+                        multi-group elective used to silently take group 1. */}
+                    {onSelectSessionGroup && course.scheduleSessions && courseHasMultipleGroups(course.scheduleSessions) && (
+                      <div className="ms-6">
+                        <SessionGroupSelector
+                          courseCode={course.code}
+                          courseName={isHe ? course.nameHe : (course.nameEn ?? course.nameHe)}
+                          sessions={course.scheduleSessions}
+                          selectedGroups={sessionGroupSelections?.[course.code] ?? {}}
+                          onSelectGroup={onSelectSessionGroup}
+                          onPreviewGroup={onPreviewGroup}
+                        />
+                      </div>
+                    )}
+                    </div>
                   )
                 )}
               </div>

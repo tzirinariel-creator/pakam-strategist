@@ -257,12 +257,25 @@ export function CoursePool({
       {/* Course list */}
       <div className="flex-1 space-y-1.5 overflow-y-auto pe-1">
         {sortedCourses.length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-8 text-center">
-            <BookOpen className="h-8 w-8 text-foreground/20" />
-            <p className="mt-2 text-xs text-foreground/40">
-              {t("noElectivesAvailable")}
-            </p>
-          </div>
+          // Mandatory-only semester (#2 mode split): when the ELECTIVE tab has
+          // nothing to pick and there ARE mandatory courses this semester, frame
+          // it as "approve", not "empty" — the schedule is already built.
+          activeTab === "elective" && mandatoryIds.size > 0 && searchQuery.trim() === "" ? (
+            <div className="rounded-xl border border-dashed border-border/50 bg-foreground/[0.02] p-4 text-center">
+              <p className="text-sm text-foreground/55">
+                {isHe
+                  ? "הסמסטר הזה כמעט כולו חובה — המערכת שלך כבר מורכבת. נשאר רק לבחור קבוצות תרגול ולאשר."
+                  : "This semester is almost all mandatory — your schedule is already built. Just pick tutorial groups and confirm."}
+              </p>
+            </div>
+          ) : (
+            <div className="flex flex-col items-center justify-center py-8 text-center">
+              <BookOpen className="h-8 w-8 text-foreground/20" />
+              <p className="mt-2 text-xs text-foreground/40">
+                {t("noElectivesAvailable")}
+              </p>
+            </div>
+          )
         ) : (
           sortedCourses.map((course) => {
             const isSelected = selectedIds.has(course.id);

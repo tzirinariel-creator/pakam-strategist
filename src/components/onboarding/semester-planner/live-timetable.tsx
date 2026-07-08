@@ -15,6 +15,9 @@ interface LiveTimetableProps {
   courses: CourseWithSchedule[];
   currentSemester: "FALL" | "SPRING";
   sessionGroupSelections?: SessionGroupSelections;
+  /** Hovered (not yet selected) session group — rendered as dashed preview
+   *  blocks so the choice is VISIBLE before it's made (#2). */
+  groupPreview?: { courseCode: string; sessionType: string; groupCode: string } | null;
 }
 
 /**
@@ -22,7 +25,7 @@ interface LiveTimetableProps {
  * filtered by selected session groups, then passes them to the existing WeeklyTimetable.
  * Zero API calls — pure client-side mapping.
  */
-export function LiveTimetable({ courses, currentSemester, sessionGroupSelections }: LiveTimetableProps) {
+export function LiveTimetable({ courses, currentSemester, sessionGroupSelections, groupPreview }: LiveTimetableProps) {
   const t = useTranslations("onboarding");
   const locale = useLocale();
   const isHe = locale === "he";
@@ -75,7 +78,43 @@ export function LiveTimetable({ courses, currentSemester, sessionGroupSelections
     }
 
     return { sessions: result, coursesWithoutSchedule: missing };
-  }, [courses, isHe, sessionGroupSelections]);
+  }, [courses, isHe, currentSemester, sessionGroupSelections]);
+
+  // Dashed preview blocks for the HOVERED group (#2) — only when it differs
+  // from the currently-selected one (previewing the selected group adds noise).
+  const previewSessions = useMemo(() => {
+    if (!groupPreview) return [];
+    const course = courses.find((c) => c.code === groupPreview.courseCode);
+    if (!course?.scheduleSessions) return [];
+    const selected =
+      sessionGroupSelections?.[groupPreview.courseCode]?.[groupPreview.sessionType.toLowerCase()] ??
+      sessionGroupSelections?.[groupPreview.courseCode]?.[groupPreview.sessionType];
+    if (selected === groupPreview.groupCode) return [];
+    const out: ScheduleSessionData[] = [];
+    for (const session of course.scheduleSessions) {
+      if (session.semester && session.semester !== currentSemester) continue;
+      if ((session.sessionType ?? "") !== groupPreview.sessionType) continue;
+      if ((session.groupCode ?? "") !== groupPreview.groupCode) continue;
+      out.push({
+        id: `${course.id}-${session.dayOfWeek}-${session.startTime}-${session.groupCode ?? ""}-preview`,
+        courseCode: course.code,
+        dayOfWeek: session.dayOfWeek as DayOfWeek,
+        startTime: session.startTime,
+        endTime: session.endTime,
+        room: session.room ?? null,
+        building: session.building ?? null,
+        sessionType: session.sessionType,
+        course: {
+          code: course.code,
+          nameHe: course.nameHe,
+          nameEn: course.nameEn,
+          discipline: course.discipline,
+          credits: course.credits,
+        },
+      });
+    }
+    return out;
+  }, [groupPreview, courses, currentSemester, sessionGroupSelections]);
 
   // All courses exist but none have schedule sessions
   if (sessions.length === 0 && courses.length > 0) {
@@ -95,7 +134,7 @@ export function LiveTimetable({ courses, currentSemester, sessionGroupSelections
 
   return (
     <div className="space-y-2">
-      <WeeklyTimetable sessions={sessions} />
+      <WeeklyTimetable sessions={sessions} previewSessions={previewSessions} />
       {/* Warning for courses that couldn't be shown on the timetable */}
       {coursesWithoutSchedule.length > 0 && (
         <div className="flex items-start gap-2 rounded-lg border border-dashed border-amber-500/20 bg-amber-500/5 px-3 py-2">
