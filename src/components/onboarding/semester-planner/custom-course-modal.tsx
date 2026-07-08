@@ -166,7 +166,7 @@ export function CustomCourseModal({
           <div className="grid grid-cols-2 gap-3">
             <div>
               <label className="mb-1 block text-xs text-foreground/50">
-                {isHe ? "נ״ז (ש״ס)" : "Credits"}
+                {isHe ? "ש״ס" : "Credits"}
               </label>
               <Input
                 type="number"

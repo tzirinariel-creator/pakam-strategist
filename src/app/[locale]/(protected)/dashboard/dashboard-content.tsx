@@ -758,7 +758,7 @@ export function DashboardContent() {
             </p>
             <p className="text-xs text-foreground/55">
               {isHe
-                ? "כל מה שמבלבל בשנה א׳ — נ״ז, תחום מיקוד, בידינג, אנגלית — מוסבר במקום אחד."
+                ? "כל מה שמבלבל בשנה א׳ — ש״ס, תחום מיקוד, בידינג, אנגלית — מוסבר במקום אחד."
                 : "Everything confusing in year 1 — credits, focus area, bidding, English — explained in one place."}
             </p>
           </div>
