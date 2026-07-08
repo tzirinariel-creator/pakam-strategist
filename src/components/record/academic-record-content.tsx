@@ -3,6 +3,7 @@
 import { useMemo, useState, useCallback, useRef, useEffect } from "react";
 import { useTranslations, useLocale } from "next-intl";
 import { Link } from "@/i18n/navigation";
+import { useSearchParams } from "next/navigation";
 import {
   Search,
   Plus,
@@ -811,6 +812,18 @@ export function AcademicRecordContent() {
   const locale = useLocale();
   const isHe = locale === "he";
 
+  // A "?scan=1" link (the end-of-semester rite, the home "enter grades" CTA)
+  // opens the record straight at the grade-sheet scanner — one door for
+  // "enter my grades" (#25, grades-door consolidation).
+  const scannerRef = useRef<HTMLDivElement>(null);
+  const searchParams = useSearchParams();
+  useEffect(() => {
+    if (searchParams.get("scan") === "1") {
+      const t = setTimeout(() => scannerRef.current?.scrollIntoView({ behavior: "smooth", block: "center" }), 300);
+      return () => clearTimeout(t);
+    }
+  }, [searchParams]);
+
   // Lets the empty-state CTA jump to (and focus) the add-course form below.
   const addCourseRef = useRef<HTMLDivElement>(null);
   const scrollToAddCourse = useCallback(() => {
@@ -1069,7 +1082,7 @@ export function AcademicRecordContent() {
       )}
 
       {/* AI grade-sheet scanner — upload a Yedion photo/PDF, review, apply. */}
-      <div className="animate-stagger-2">
+      <div ref={scannerRef} className="animate-stagger-2">
         <GradeSheetScanner />
       </div>
 
