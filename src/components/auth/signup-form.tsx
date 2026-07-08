@@ -9,7 +9,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 import { authErrorKey } from "@/lib/auth-helpers";
-import { GraduationCap, Loader2, AlertCircle, CheckCircle, Eye, Mail } from "lucide-react";
+import { Loader2, AlertCircle, CheckCircle, Eye, Mail } from "lucide-react";
+import { AuthHeader } from "@/components/auth/auth-header";
 
 function GoogleIcon({ className }: { className?: string }) {
   return (
@@ -38,7 +39,6 @@ export function SignupForm() {
   const t = useTranslations("auth");
   const router = useRouter();
   const locale = useLocale();
-  const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -92,7 +92,9 @@ export function SignupForm() {
         setError(data.error ?? t("unexpectedError"));
         return;
       }
-      router.push("/planner");
+      // Land on the dashboard AND reset the demo account (was /planner without
+      // reset — inconsistent with login; recruiters saw stale leftovers). (#8)
+      router.push("/dashboard?reset=demo");
       router.refresh();
     } catch {
       setError(t("unexpectedError"));
@@ -143,7 +145,7 @@ export function SignupForm() {
         password,
         options: {
           data: {
-            display_name: name,
+            display_name: "",
           },
           emailRedirectTo: `${window.location.origin}/api/auth/callback?next=/${locale}/dashboard`,
         },
@@ -160,7 +162,7 @@ export function SignupForm() {
         // Sync user to Prisma DB
         await ensureExists.mutateAsync({
           email,
-          displayName: name,
+          displayName: "",
         });
 
         router.push("/dashboard");
@@ -247,20 +249,8 @@ export function SignupForm() {
 
   return (
     <div className="w-full max-w-md space-y-8">
-      {/* Logo & Header */}
-      <div className="flex flex-col items-center gap-4 text-center">
-        <div className="flex size-16 items-center justify-center rounded-2xl bg-foreground/10 shadow-sm">
-          <GraduationCap className="size-8 text-foreground/80" />
-        </div>
-        <div>
-          <h1 className="font-display font-bold text-3xl tracking-tight">
-            Pakamon
-          </h1>
-          <p className="mt-1 text-sm text-muted-foreground">
-            {t("createAccount")}
-          </p>
-        </div>
-      </div>
+      {/* Header — shared identity chip (King grammar), warm line (#13). */}
+      <AuthHeader subtitle={t("createAccount")} warmLine={t("signupWarmLine")} />
 
       {/* Signup Card */}
       <div data-card className="rounded-xl border border-border/50 bg-card/50 p-6 backdrop-blur-sm space-y-4">
@@ -312,22 +302,9 @@ export function SignupForm() {
           </button>
         ) : (
           <form onSubmit={handleEmailSubmit} className="space-y-4 animate-in fade-in slide-in-from-top-2 duration-300">
-            {/* Name */}
-            <div className="space-y-2">
-              <label htmlFor="name" className="text-sm font-medium text-muted-foreground">
-                {t("name")}
-              </label>
-              <Input
-                id="name"
-                type="text"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                required
-                autoComplete="name"
-                className="bg-background/50"
-              />
-            </div>
-
+            {/* No name field here (#13): signup stays email+password only. The
+                name is asked warmly a minute later in onboarding (with gender,
+                in context) — one place for it, not two. */}
             {/* Email */}
             <div className="space-y-2">
               <label htmlFor="email" className="text-sm font-medium text-muted-foreground">
@@ -365,12 +342,12 @@ export function SignupForm() {
               />
             </div>
 
-            {/* Submit */}
+            {/* Submit — the primary CTA is indigo (design §1). */}
             <Button
               type="submit"
               disabled={loading}
               className={cn(
-                "w-full bg-foreground text-primary-foreground hover:bg-foreground/90",
+                "w-full bg-accent-brand text-accent-brand-fg hover:bg-accent-brand-hover",
                 "font-medium transition-all",
               )}
             >
@@ -390,7 +367,7 @@ export function SignupForm() {
             onClick={handleDemoLogin}
             disabled={demoLoading}
             variant="outline"
-            className="w-full gap-2 h-9 text-sm border-dashed border-amber-500/40 text-amber-600 dark:text-amber-400 hover:bg-amber-500/10 hover:border-amber-500/60 transition-all"
+            className="w-full gap-2 h-9 text-sm border-dashed border-border text-foreground/60 hover:bg-foreground/5 hover:text-foreground/80 transition-all"
           >
             {demoLoading ? (
               <Loader2 className="size-4 animate-spin" />

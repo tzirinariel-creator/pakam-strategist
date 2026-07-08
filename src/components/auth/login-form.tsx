@@ -8,7 +8,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 import { authErrorKey } from "@/lib/auth-helpers";
-import { GraduationCap, Loader2, AlertCircle, Eye } from "lucide-react";
+import { Loader2, AlertCircle, Eye } from "lucide-react";
+import { AuthHeader } from "@/components/auth/auth-header";
 
 function GoogleIcon({ className }: { className?: string }) {
   return (
@@ -168,20 +169,8 @@ export function LoginForm() {
 
   return (
     <div className="w-full max-w-md space-y-8">
-      {/* Logo & Header */}
-      <div className="flex flex-col items-center gap-4 text-center">
-        <div className="flex size-16 items-center justify-center rounded-2xl bg-foreground/10 shadow-sm">
-          <GraduationCap className="size-8 text-foreground/80" />
-        </div>
-        <div>
-          <h1 className="font-display font-bold text-3xl tracking-tight">
-            Pakamon
-          </h1>
-          <p className="mt-1 text-sm text-muted-foreground">
-            {t("login")}
-          </p>
-        </div>
-      </div>
+      {/* Header — shared identity chip (King grammar). */}
+      <AuthHeader subtitle={t("login")} />
 
       {/* Login Card */}
       <div data-card className="rounded-xl border border-border/50 bg-card/50 p-6 backdrop-blur-sm space-y-4">
@@ -295,7 +284,7 @@ export function LoginForm() {
               type="submit"
               disabled={loading}
               className={cn(
-                "w-full bg-foreground text-primary-foreground hover:bg-foreground/90",
+                "w-full bg-accent-brand text-accent-brand-fg hover:bg-accent-brand-hover",
                 "font-medium transition-all",
               )}
             >
@@ -315,7 +304,7 @@ export function LoginForm() {
             onClick={handleDemoLogin}
             disabled={demoLoading}
             variant="outline"
-            className="w-full gap-2 h-9 text-sm border-dashed border-amber-500/40 text-amber-600 dark:text-amber-400 hover:bg-amber-500/10 hover:border-amber-500/60 transition-all"
+            className="w-full gap-2 h-9 text-sm border-dashed border-border text-foreground/60 hover:bg-foreground/5 hover:text-foreground/80 transition-all"
           >
             {demoLoading ? (
               <Loader2 className="size-4 animate-spin" />

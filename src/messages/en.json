@@ -54,7 +54,8 @@
     "errEmailNotConfirmed": "Email not verified yet — click the confirmation link we sent you",
     "errUserAlreadyRegistered": "That email is already registered — try logging in instead",
     "errWeakPassword": "Password must be at least 6 characters",
-    "errRateLimit": "Too many attempts — wait a minute and try again"
+    "errRateLimit": "Too many attempts — wait a minute and try again",
+    "signupWarmLine": "One minute, and we build your degree together."
   },
   "demo": {
     "banner": "Demo Mode — data shown is for demonstration only"
