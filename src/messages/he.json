@@ -583,7 +583,9 @@
     "emptyAddFirstCourse": "הוסף/י את הקורס הראשון שלך",
     "backToOnboarding": "בניית תוכנית באשף ההיכרות",
     "crossLinkGrades": "לפירוט המשקלים וחישוב ציון הגמר — למחשבון הציונים",
-    "crossLinkFromGrades": "לניהול הקורסים שכבר עברת — לתיק האקדמי שלי"
+    "crossLinkFromGrades": "לניהול הקורסים שכבר עברת — לתיק האקדמי שלי",
+    "notInAvgEnglish": "לא נספר בממוצע",
+    "notInAvgBinary": "בינארי — מחוץ לממוצע"
   },
   "onboarding": {
     "welcomeTitle": "התואר שלך, מסודר סוף סוף",

@@ -93,11 +93,11 @@ function GradeInput({
     const num = parseInt(value, 10);
 
     if (value === "" || isNaN(num)) {
-      // Cleared — remove the saved grade (revert a completed course to in-progress).
+      // Cleared — remove the grade but KEEP the status (#30: deletion never
+      // silently changes status; /record behaved this way, /graduation used
+      // to revert — now they agree). A toast offers the in-progress action.
       if (initialGrade !== null) {
-        const revertedStatus: CourseStatus =
-          initialStatus === "COMPLETED" ? "IN_PROGRESS" : initialStatus;
-        onSave(userCourseId, null, revertedStatus);
+        onSave(userCourseId, null, initialStatus);
       }
       return;
     }
@@ -787,6 +787,7 @@ export function GradeCalculatorContent() {
   const t = useTranslations("grades");
   const tRecord = useTranslations("record");
   const locale = useLocale();
+  const isHe = locale === "he";
 
   // Fetch all plan data. refetchOnMount: "always" so navigating to this screen
   // always pulls a fresh snapshot — a grade written on /record (or here) is
@@ -826,13 +827,19 @@ export function GradeCalculatorContent() {
   const handleSaveGrade = useCallback(
     (userCourseId: string, grade: number | null, status: CourseStatus) => {
       // grade === null clears the grade (backend accepts a nullable grade).
-      updateCourseMutation.mutate({
-        userCourseId,
-        grade,
-        status,
-      });
+      updateCourseMutation.mutate({ userCourseId, grade, status });
+      // Deleting a grade keeps the status — but offer the in-progress action
+      // instead of a silent decision (#30).
+      if (grade === null && status === "COMPLETED") {
+        toast(isHe ? "הציון הוסר — הקורס עדיין מסומן כ'הושלם'" : "Grade removed — course still marked completed", {
+          action: {
+            label: isHe ? "סמן כ'בלימוד'" : "Mark in-progress",
+            onClick: () => updateCourseMutation.mutate({ userCourseId, status: "IN_PROGRESS" }),
+          },
+        });
+      }
     },
-    [updateCourseMutation]
+    [updateCourseMutation, isHe]
   );
 
   // Group courses by year+semester

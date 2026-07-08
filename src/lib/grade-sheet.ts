@@ -61,8 +61,9 @@ export function parseExtraction(text: string): ExtractedRow[] | null {
   }
 }
 
-/** Loose Hebrew-aware normalization for name matching. */
-function normalizeName(s: string): string {
+/** Loose Hebrew-aware normalization for name matching. Exported so the
+ *  onboarding catalog-matcher shares the exact same normalization. */
+export function normalizeName(s: string): string {
   return s
     .replace(/["'׳״־׳״-]/g, " ")
     .replace(/\s+/g, " ")
@@ -76,6 +77,8 @@ export interface UserCourseLite {
   nameHe: string;
   currentGrade: number | null;
   status: string;
+  /** COURSE type — drives the honest pass bar (ENGLISH passes at 70, not 60). */
+  courseType?: string;
 }
 
 export interface MatchedRow extends ExtractedRow {
@@ -200,3 +203,114 @@ export const GRADE_SHEET_SYSTEM = `אתה קורא "אישור קורסים וצ
 - "עובר"/"נכשל"/"פטור" הולכים ל-passText ולא ל-grade.
 - credits = עמודת "משקל".
 - אם שדה לא ברור — null. אל תוסיף שום טקסט מחוץ ל-JSON.`;
+
+// =========================================================================
+// Course-lifecycle helpers (#22/#25/#30) — pure, shared by the /record
+// scanner and the onboarding catalog match. Every status the scanner would
+// write is decided HERE, so it can be DECLARED to the student before applying
+// (the "no silent automation" rule of #30).
+// =========================================================================
+
+import { ENGLISH_CONFIG, CREDIT_REQUIREMENTS } from "@/lib/constants";
+
+export type ApplyDecision = {
+  grade: number | null;
+  status: "COMPLETED" | "FAILED" | "EXEMPT";
+};
+
+/**
+ * Exactly what would be written if this row were applied — or null when the
+ * row is not applicable (no match, or a still-in-progress *** row). ENGLISH
+ * courses pass at 70, everything else at 60, so a 65 in English is honestly
+ * FAILED instead of a silent COMPLETED (adversarial-critique core fix).
+ */
+export function decideApplication(row: MatchedRow): ApplyDecision | null {
+  if (!row.match) return null;
+  if (row.grade != null) {
+    const bar =
+      row.match.courseType === "ENGLISH"
+        ? ENGLISH_CONFIG.COURSE_PASSING_GRADE
+        : CREDIT_REQUIREMENTS.PASSING_GRADE;
+    return { grade: row.grade, status: row.grade >= bar ? "COMPLETED" : "FAILED" };
+  }
+  if (row.passText) {
+    if (row.passText.includes("פטור")) return { grade: null, status: "EXEMPT" };
+    if (row.passText.includes("נכשל")) return { grade: null, status: "FAILED" };
+    return { grade: null, status: "COMPLETED" }; // "עובר"
+  }
+  return null; // *** in-progress — nothing to apply
+}
+
+/** The honest pass bar for a row's course type — for the declaration chip. */
+export function passBarFor(courseType: string | undefined): number {
+  return courseType === "ENGLISH"
+    ? ENGLISH_CONFIG.COURSE_PASSING_GRADE
+    : CREDIT_REQUIREMENTS.PASSING_GRADE;
+}
+
+/**
+ * "2025/1" → { plannedYear, plannedSemester }. Ranks the sheet's OWN semester
+ * headers chronologically — the earliest year block = year 1 — so placement
+ * never depends on guessing which calendar year maps to which study year.
+ */
+export function mapSheetSemesters(
+  rows: ExtractedRow[],
+): Map<string, { plannedYear: number; plannedSemester: "FALL" | "SPRING" | "SUMMER" }> {
+  const keys = Array.from(
+    new Set(
+      rows
+        .map((r) => r.semester)
+        .filter((s): s is string => !!s && /^\d{4}\/\d$/.test(s)),
+    ),
+  );
+  const parsed = keys
+    .map((k) => ({ k, y: Number(k.split("/")[0]), n: Number(k.split("/")[1]) }))
+    .sort((a, b) => a.y - b.y || a.n - b.n);
+  const years = Array.from(new Set(parsed.map((p) => p.y))).sort((a, b) => a - b);
+  const map = new Map<
+    string,
+    { plannedYear: number; plannedSemester: "FALL" | "SPRING" | "SUMMER" }
+  >();
+  for (const p of parsed) {
+    map.set(p.k, {
+      plannedYear: Math.min(3, years.indexOf(p.y) + 1), // YEAR_CONFIG knows 1-3
+      plannedSemester: p.n === 2 ? "SPRING" : p.n === 3 ? "SUMMER" : "FALL",
+    });
+  }
+  return map;
+}
+
+/** English level from a sheet's "אנגלית: <רמה>-מיון" line, or null. */
+export function mapEnglishLevelLabel(
+  label: string | null | undefined,
+): "EXEMPT" | "ADVANCED_B" | "ADVANCED_A" | "BASIC" | "PRE_BASIC" | null {
+  if (!label) return null;
+  const s = label.replace(/["'׳״’]/g, "");
+  if (s.includes("פטור")) return "EXEMPT";
+  if (s.includes("מתקדמים ב")) return "ADVANCED_B";
+  if (s.includes("מתקדמים א")) return "ADVANCED_A";
+  if (s.includes("טרום")) return "PRE_BASIC";
+  if (s.includes("בסיסי")) return "BASIC";
+  return null;
+}
+
+export interface CatalogLite {
+  code: string;
+  nameHe: string;
+}
+
+/** Match scanned rows to catalog courses (for onboarding) — code first, then
+ *  normalized name; null when neither hits. */
+export function matchExtractedToCatalog<T extends CatalogLite>(
+  rows: ExtractedRow[],
+  catalog: T[],
+): { row: ExtractedRow; course: T | null }[] {
+  const byCode = new Map(catalog.map((c) => [c.code.replace(/\s/g, ""), c]));
+  const byName = new Map(catalog.map((c) => [normalizeName(c.nameHe), c]));
+  return rows.map((row) => {
+    const code = row.courseCode?.replace(/\s/g, "");
+    const course =
+      (code && byCode.get(code)) || byName.get(normalizeName(row.courseName)) || null;
+    return { row, course };
+  });
+}

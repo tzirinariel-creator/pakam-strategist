@@ -1,15 +1,20 @@
 "use client";
 
-import { useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import { useLocale } from "next-intl";
 import { ScanLine, Loader2, Check, AlertTriangle, X } from "lucide-react";
 import { toast } from "sonner";
 import { api } from "@/lib/trpc/react";
 import {
   matchExtractedToCourses,
+  decideApplication,
+  passBarFor,
   type MatchedRow,
   type UserCourseLite,
 } from "@/lib/grade-sheet";
+import { getWrapTarget, wrapStorageKey } from "@/lib/semester-clock";
+import { WhereIsMySheet } from "@/components/record/where-is-my-sheet";
 import { fileToBase64, SCANNER_ACCEPT } from "@/lib/upload";
 import { invalidatePlanData } from "@/lib/trpc/invalidate-plan";
 import { cn } from "@/lib/utils";
@@ -32,6 +37,16 @@ export function GradeSheetScanner() {
   const planQuery = api.plan.getUserPlan.useQuery();
   const updateMutation = api.plan.updateCourse.useMutation();
 
+  // The end-of-semester rite (#22) deep-links here with ?scan=1 — scroll to the
+  // scanner so the student lands right on the action they came for.
+  const searchParams = useSearchParams();
+  useEffect(() => {
+    if (searchParams.get("scan") === "1") {
+      const el = document.getElementById("grade-scanner");
+      el?.scrollIntoView({ behavior: "smooth", block: "center" });
+    }
+  }, [searchParams]);
+
   const userCourses = useMemo<UserCourseLite[]>(
     () =>
       (planQuery.data?.courses ?? []).map((uc) => ({
@@ -40,6 +55,7 @@ export function GradeSheetScanner() {
         nameHe: uc.course.nameHe,
         currentGrade: uc.grade ?? null,
         status: uc.status,
+        courseType: uc.course.courseType,
       })),
     [planQuery.data],
   );
@@ -75,9 +91,9 @@ export function GradeSheetScanner() {
         userCourses,
       );
       setRows(matched);
-      // Pre-check ONLY high-confidence, unambiguous matches. A fuzzy (substring)
-      // or ambiguous (retake / colliding) match is left UNCHECKED so a wrong
-      // course can never be overwritten by the default one-click apply.
+      // Pre-check ONLY high-confidence, unambiguous matches (still requires a
+      // grade — passText/EXEMPT rows are applicable but never auto-checked, so
+      // a "עובר" is a deliberate tick). A fuzzy/ambiguous match stays unchecked.
       setChecked(new Set(matched.map((r, i) => (r.autoApplySafe ? i : -1)).filter((i) => i >= 0)));
     } catch {
       toast.error(isHe ? "הסריקה נכשלה — נסו שוב" : "Scan failed — try again");
@@ -92,16 +108,21 @@ export function GradeSheetScanner() {
     setApplying(true);
     let ok = 0;
     let failed = 0;
+    let failedGrades = 0; // rows written as FAILED — surfaced honestly (#30)
+    let englishApplied = 0;
     for (const i of checked) {
       const r = rows[i];
-      if (!r?.match || r.grade == null) continue;
+      const decision = r ? decideApplication(r) : null;
+      if (!r?.match || !decision) continue;
       try {
         await updateMutation.mutateAsync({
           userCourseId: r.match.userCourseId,
-          grade: r.grade,
-          status: r.grade >= 60 ? "COMPLETED" : "FAILED",
+          grade: decision.grade,
+          status: decision.status,
         });
         ok++;
+        if (decision.status === "FAILED") failedGrades++;
+        if (r.match.courseType === "ENGLISH") englishApplied++;
       } catch (e) {
         failed++;
         if (failed === 1) {
@@ -111,14 +132,34 @@ export function GradeSheetScanner() {
     }
     setApplying(false);
     if (ok > 0) {
-      toast.success(isHe ? `עודכנו ${ok} ציונים מהגיליון` : `Updated ${ok} grades from the sheet`);
+      // Honest summary (#30): name what happened, not just a count.
+      const parts: string[] = [];
+      if (failedGrades > 0) {
+        parts.push(isHe ? `${failedGrades} נרשמו כנכשלים` : `${failedGrades} recorded as failed`);
+      }
+      if (englishApplied > 0) {
+        parts.push(isHe ? "ציוני אנגלית אינם נספרים בממוצע" : "English grades don't count toward the average");
+      }
+      toast.success(
+        isHe ? `עודכנו ${ok} קורסים מהגיליון` : `Updated ${ok} courses from the sheet`,
+        parts.length ? { description: parts.join(" · ") } : undefined,
+      );
+      // Close the end-of-semester rite for this semester once grades are in.
+      const wrap = getWrapTarget();
+      if (wrap) {
+        try {
+          localStorage.setItem(wrapStorageKey(wrap.key), "done");
+        } catch {
+          /* storage blocked — the rite re-checks pending next load */
+        }
+      }
       setRows(null);
       invalidatePlanData(utils);
     }
   };
 
   return (
-    <div className="data-card p-4">
+    <div id="grade-scanner" className="data-card p-4">
       <div className="flex flex-wrap items-center gap-3">
         <div className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-accent-brand/10 text-accent-brand">
           <ScanLine className="size-4.5" />
@@ -129,9 +170,10 @@ export function GradeSheetScanner() {
           </p>
           <p className="text-xs text-foreground/50">
             {isHe
-              ? "מעלים צילום/PDF מהידיעון — ואנחנו ממלאים את הציונים. שום דבר לא נשמר בלי אישור שלך."
-              : "Upload a photo/PDF from Yedion — we fill in the grades. Nothing is saved without your approval."}
+              ? "מעלים את 'אישור קורסים וציונים' מהאזור האישי של ת״א — ואנחנו ממלאים ציונים, קורסים בלימוד ורמת-אנגלית. שום דבר לא נשמר בלי אישור שלך."
+              : "Upload your 'Record of study' from the TAU personal area — we fill in grades, in-progress courses and English level. Nothing is saved without your approval."}
           </p>
+          <div className="mt-1"><WhereIsMySheet /></div>
         </div>
         <input
           ref={fileRef}
@@ -167,7 +209,9 @@ export function GradeSheetScanner() {
           </div>
           <ul className="space-y-1.5">
             {rows.map((r, i) => {
-              const applicable = !!r.match && r.grade != null;
+              const decision = decideApplication(r);
+              const applicable = decision != null;
+              const isEnglish = r.match?.courseType === "ENGLISH";
               return (
                 <li key={i} className={cn("flex flex-wrap items-center gap-2 rounded-lg border p-2 text-xs", r.match ? "border-border/50" : "border-dashed border-border/50 opacity-70")}>
                   <button
@@ -209,29 +253,48 @@ export function GradeSheetScanner() {
                     <span className="rounded bg-accent-brand/10 px-1.5 py-px text-[10px] font-semibold text-accent-brand">
                       {isHe ? "בלימוד — עדיין אין ציון" : "In progress — no grade yet"}
                     </span>
-                  ) : r.match ? (
-                    r.changesGrade ? (
-                      r.autoApplySafe ? (
-                        <span className="rounded bg-emerald-400/10 px-1.5 py-px text-[10px] font-semibold text-emerald-600">
-                          {isHe ? `יעודכן: ${r.match.nameHe}` : `Will update: ${r.match.nameHe}`}
-                        </span>
-                      ) : (
-                        // Low-confidence (fuzzy/ambiguous) — left unchecked; the
-                        // student must confirm this is really the right course.
-                        <span className="flex items-center gap-1 rounded bg-amber-500/10 px-1.5 py-px text-[10px] font-semibold text-amber-600">
-                          <AlertTriangle className="size-2.5" />
-                          {isHe ? `ודאו: ${r.match.nameHe}?` : `Verify: ${r.match.nameHe}?`}
-                        </span>
-                      )
-                    ) : (
+                  ) : r.match && decision ? (
+                    // DECLARE the exact outcome before applying (#30) — the
+                    // student never gets a silent COMPLETED/FAILED.
+                    !r.changesGrade && decision.status === "COMPLETED" && r.grade != null ? (
                       <span className="rounded bg-foreground/5 px-1.5 py-px text-[10px] text-foreground/45">
                         {isHe ? "כבר מעודכן" : "Already current"}
+                      </span>
+                    ) : decision.status === "FAILED" ? (
+                      <span className="flex items-center gap-1 rounded bg-amber-500/10 px-1.5 py-px text-[10px] font-semibold text-amber-600">
+                        <AlertTriangle className="size-2.5" />
+                        {isHe ? `מתחת לרף (${passBarFor(r.match.courseType)}) — יירשם כנכשל` : `Below ${passBarFor(r.match.courseType)} — will record as failed`}
+                      </span>
+                    ) : decision.status === "EXEMPT" ? (
+                      <span className="rounded bg-emerald-400/10 px-1.5 py-px text-[10px] font-semibold text-emerald-600">
+                        {isHe ? `יירשם כפטור: ${r.match.nameHe}` : `Will record as exempt: ${r.match.nameHe}`}
+                      </span>
+                    ) : decision.grade == null ? (
+                      // "עובר" → COMPLETED with no grade
+                      <span className="rounded bg-emerald-400/10 px-1.5 py-px text-[10px] font-semibold text-emerald-600">
+                        {isHe ? "עובר — יירשם כהושלם בלי ציון" : "Pass — will record as completed, no grade"}
+                      </span>
+                    ) : r.autoApplySafe ? (
+                      <span className="rounded bg-emerald-400/10 px-1.5 py-px text-[10px] font-semibold text-emerald-600">
+                        {isHe ? `יעודכן: ${r.match.nameHe}` : `Will update: ${r.match.nameHe}`}
+                      </span>
+                    ) : (
+                      // Low-confidence (fuzzy/ambiguous) — left unchecked; the
+                      // student must confirm this is really the right course.
+                      <span className="flex items-center gap-1 rounded bg-amber-500/10 px-1.5 py-px text-[10px] font-semibold text-amber-600">
+                        <AlertTriangle className="size-2.5" />
+                        {isHe ? `ודאו: ${r.match.nameHe}?` : `Verify: ${r.match.nameHe}?`}
                       </span>
                     )
                   ) : (
                     <span className="flex items-center gap-1 rounded bg-amber-500/10 px-1.5 py-px text-[10px] font-semibold text-amber-600">
                       <AlertTriangle className="size-2.5" />
                       {isHe ? "לא נמצא בתוכנית — עדכנו ידנית" : "Not in your plan — update manually"}
+                    </span>
+                  )}
+                  {applicable && isEnglish && (
+                    <span className="rounded bg-foreground/5 px-1.5 py-px text-[10px] text-foreground/45">
+                      {isHe ? "לא נספר בממוצע" : "not in average"}
                     </span>
                   )}
                 </li>

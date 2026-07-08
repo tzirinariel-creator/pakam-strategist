@@ -152,3 +152,88 @@ describe("matchExtractedToCourses", () => {
     expect(m[0]?.autoApplySafe).toBe(true);
   });
 });
+
+// ── Course-lifecycle helpers (#22/#25/#30) ──
+import { decideApplication, mapSheetSemesters, mapEnglishLevelLabel, matchExtractedToCatalog } from "@/lib/grade-sheet";
+import type { MatchedRow } from "@/lib/grade-sheet";
+
+const mkMatched = (over: Partial<MatchedRow>): MatchedRow => ({
+  courseCode: "0651-1001", courseName: "x", grade: null, credits: null, passText: null,
+  match: { userCourseId: "u", courseCode: "0651-1001", nameHe: "x", currentGrade: null, status: "IN_PROGRESS" },
+  matchKind: "code", changesGrade: false, ambiguous: false, autoApplySafe: false, ...over,
+});
+
+describe("decideApplication — the declared outcome (no silent status)", () => {
+  it("regular pass bar is 60, English pass bar is 70", () => {
+    expect(decideApplication(mkMatched({ grade: 65 }))?.status).toBe("COMPLETED");
+    const eng = mkMatched({ grade: 65, match: { userCourseId: "u", courseCode: "c", nameHe: "x", currentGrade: null, status: "IN_PROGRESS", courseType: "ENGLISH" } });
+    expect(decideApplication(eng)?.status).toBe("FAILED"); // 65 < 70 → honest FAILED
+    const eng70 = mkMatched({ grade: 70, match: { userCourseId: "u", courseCode: "c", nameHe: "x", currentGrade: null, status: "IN_PROGRESS", courseType: "ENGLISH" } });
+    expect(decideApplication(eng70)?.status).toBe("COMPLETED");
+  });
+
+  it("failing regular grade → FAILED", () => {
+    expect(decideApplication(mkMatched({ grade: 59 }))?.status).toBe("FAILED");
+  });
+
+  it("pass-text marks: עובר→COMPLETED(null), פטור→EXEMPT, נכשל→FAILED", () => {
+    expect(decideApplication(mkMatched({ passText: "עובר" }))).toEqual({ grade: null, status: "COMPLETED" });
+    expect(decideApplication(mkMatched({ passText: "פטור" }))).toEqual({ grade: null, status: "EXEMPT" });
+    expect(decideApplication(mkMatched({ passText: "נכשל" }))).toEqual({ grade: null, status: "FAILED" });
+  });
+
+  it("in-progress (***) or no match → null (not applicable)", () => {
+    expect(decideApplication(mkMatched({ grade: null, passText: null, inProgress: true }))).toBeNull();
+    expect(decideApplication(mkMatched({ match: null }))).toBeNull();
+  });
+});
+
+describe("mapSheetSemesters — chronological ranking, earliest = year 1", () => {
+  it("two years, /1 /2 /3 → FALL/SPRING/SUMMER of the right study year", () => {
+    const rows = [
+      { courseCode: null, courseName: "a", grade: 90, credits: null, passText: null, semester: "2024/1" },
+      { courseCode: null, courseName: "b", grade: 90, credits: null, passText: null, semester: "2024/2" },
+      { courseCode: null, courseName: "c", grade: 90, credits: null, passText: null, semester: "2025/1" },
+      { courseCode: null, courseName: "d", grade: 90, credits: null, passText: null, semester: "2025/3" },
+    ];
+    const m = mapSheetSemesters(rows);
+    expect(m.get("2024/1")).toEqual({ plannedYear: 1, plannedSemester: "FALL" });
+    expect(m.get("2024/2")).toEqual({ plannedYear: 1, plannedSemester: "SPRING" });
+    expect(m.get("2025/1")).toEqual({ plannedYear: 2, plannedSemester: "FALL" });
+    expect(m.get("2025/3")).toEqual({ plannedYear: 2, plannedSemester: "SUMMER" });
+  });
+
+  it("year 4+ clamps to 3; rows without a semester header are absent", () => {
+    const rows = ["2022/1", "2023/1", "2024/1", "2025/1"].map((s) => ({ courseCode: null, courseName: "x", grade: 90, credits: null, passText: null, semester: s }));
+    const m = mapSheetSemesters(rows);
+    expect(m.get("2025/1")?.plannedYear).toBe(3); // clamped, not 4
+    expect(m.get("nope")).toBeUndefined();
+  });
+});
+
+describe("mapEnglishLevelLabel", () => {
+  it("recognizes each level through mixed gershayim, null otherwise", () => {
+    expect(mapEnglishLevelLabel("מתקדמים ב'")).toBe("ADVANCED_B");
+    expect(mapEnglishLevelLabel("מתקדמים א׳")).toBe("ADVANCED_A");
+    expect(mapEnglishLevelLabel("פטור")).toBe("EXEMPT");
+    expect(mapEnglishLevelLabel("בסיסי")).toBe("BASIC");
+    expect(mapEnglishLevelLabel("טרום בסיסי")).toBe("PRE_BASIC");
+    expect(mapEnglishLevelLabel(null)).toBeNull();
+    expect(mapEnglishLevelLabel("משהו אחר")).toBeNull();
+  });
+});
+
+describe("matchExtractedToCatalog", () => {
+  const catalog = [{ code: "0651-1007", nameHe: "מתמטיקה לפכ\"מ" }, { code: "0618-1012", nameHe: "מבוא ללוגיקה" }];
+  it("matches by exact code, then normalized name, else null", () => {
+    const rows = [
+      { courseCode: "0651-1007", courseName: "שם אחר", grade: 90, credits: null, passText: null },
+      { courseCode: null, courseName: "מבוא ללוגיקה", grade: 90, credits: null, passText: null },
+      { courseCode: "9999-9999", courseName: "לא קיים", grade: 90, credits: null, passText: null },
+    ];
+    const m = matchExtractedToCatalog(rows, catalog);
+    expect(m[0]?.course?.code).toBe("0651-1007");
+    expect(m[1]?.course?.code).toBe("0618-1012");
+    expect(m[2]?.course).toBeNull();
+  });
+});

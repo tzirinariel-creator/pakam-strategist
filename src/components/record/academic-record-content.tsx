@@ -323,6 +323,7 @@ function CourseRow({
     focusArea != null &&
     (discipline === focusArea || (course.canCountAs ?? []).includes(focusArea));
   const english = isEnglishCourse(course);
+  const isBinary = uc.isBinary ?? false;
   const courseName = isHe ? course.nameHe : (course.nameEn ?? course.nameHe);
 
   return (
@@ -355,6 +356,17 @@ function CourseRow({
               <span className="inline-flex items-center gap-0.5 rounded-full bg-blue-500/10 px-1.5 py-0.5 text-[9px] font-medium text-blue-500">
                 <Languages className="h-2.5 w-2.5" />
                 {t("englishBadge")}
+              </span>
+            )}
+            {/* Make the silent "not in average" automation visible (#30). */}
+            {english && (
+              <span className="inline-flex items-center rounded-full bg-foreground/5 px-1.5 py-0.5 text-[9px] text-foreground/45">
+                {t("notInAvgEnglish")}
+              </span>
+            )}
+            {isBinary && (
+              <span className="inline-flex items-center rounded-full bg-foreground/5 px-1.5 py-0.5 text-[9px] text-foreground/45">
+                {t("notInAvgBinary")}
               </span>
             )}
           </div>
@@ -783,8 +795,18 @@ export function AcademicRecordContent() {
   const handleSaveGrade = useCallback(
     (userCourseId: string, grade: number | null, status: CourseStatus) => {
       updateCourseMutation.mutate({ userCourseId, grade, status });
+      // Deleting a grade keeps the status — offer the in-progress action rather
+      // than deciding silently, matching /graduation exactly (#30).
+      if (grade === null && status === "COMPLETED") {
+        toast(isHe ? "הציון הוסר — הקורס עדיין מסומן כ'הושלם'" : "Grade removed — course still marked completed", {
+          action: {
+            label: isHe ? "סמן כ'בלימוד'" : "Mark in-progress",
+            onClick: () => updateCourseMutation.mutate({ userCourseId, status: "IN_PROGRESS" }),
+          },
+        });
+      }
     },
-    [updateCourseMutation]
+    [updateCourseMutation, isHe]
   );
 
   const handleRemove = useCallback(

@@ -77,6 +77,7 @@ export function GuideContent() {
           <Li>{isHe ? "כדאי לקחת אנגלית מוקדם — קורסים קלים יחסית שמורידים עומס בהמשך." : "Take English early — relatively easy courses that ease your load later."}</Li>
           <Li>{isHe ? "אל תשים 3 קורסים כבדים באותו סמסטר." : "Don't stack 3 heavy courses in one semester."}</Li>
           <Li>{isHe ? "מעבר שנה: " : "Year transition: "}<Bidi text={isHe ? "ממוצע 75 כללי + 80 בקורסי פכ\"מ" : "75 overall + 80 in PPE courses"} />.</Li>
+          <Li>{isHe ? "בסוף כל סמסטר: מורידים 'אישור קורסים וציונים' מהאזור האישי של ת\"א וסורקים אותו ב'רשומה' — כל הציונים מתעדכנים בבת-אחת." : "At each semester's end: download your 'Record of study' from the TAU personal area and scan it in 'Record' — all grades update at once."}</Li>
         </ul>
       </Section>
 

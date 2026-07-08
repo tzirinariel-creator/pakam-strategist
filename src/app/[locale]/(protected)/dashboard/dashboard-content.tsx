@@ -19,6 +19,7 @@ import { TourReopenButton, TOUR_DONE_KEY } from "@/components/onboarding/product
 import { AnchoredTour } from "@/components/onboarding/anchored-tour";
 import { cn } from "@/lib/utils";
 import { TodaysClasses } from "@/components/dashboard/todays-classes";
+import { SemesterWrapCard } from "@/components/dashboard/semester-wrap-card";
 import { ExamCountdown } from "@/components/dashboard/exam-countdown";
 import { RecommendationsWidget } from "@/components/dashboard/recommendations-widget";
 import { StudyPlannerWidget } from "@/components/dashboard/study-planner-widget";
@@ -453,6 +454,7 @@ export function DashboardContent() {
   // remains afterwards as the ongoing "next steps" nudge. Persisted via the
   // `pakamon-tour-done` localStorage key so it never repeats.
   const [tourOpen, setTourOpen] = useState(false);
+  const [wrapVisible, setWrapVisible] = useState(false);
   const [tourChecked, setTourChecked] = useState(false);
   const closeTour = useCallback(() => {
     setTourOpen(false);
@@ -881,8 +883,23 @@ export function DashboardContent() {
         </div>
       )}
 
-      {/* Returning-student prompt — year ≥ 2 with nothing marked completed yet */}
-      {(credits?.earned ?? 0) === 0 &&
+      {/* End-of-semester rite (#22) — the app asks for grades once the semester
+          ends. Gated off during the tour and the post-onboarding transition
+          (grades were just entered), and off for demo. Sits at the very top of
+          the body but is indigo-quiet, never the red urgent slot. */}
+      {!tourOpen && !isTransitioning && (
+        <SemesterWrapCard
+          profile={profileQuery.data ?? undefined}
+          courses={planQuery.data?.courses ?? []}
+          onVisibleChange={setWrapVisible}
+        />
+      )}
+
+      {/* Returning-student prompt — year ≥ 2 with nothing marked completed yet.
+          Hidden while the rite is up: both ask "enter your past grades" (#22
+          critique fix 8 — one ask, not two side by side). */}
+      {!wrapVisible &&
+        (credits?.earned ?? 0) === 0 &&
         currentYear >= 2 && (
           <Link
             href="/planner"
