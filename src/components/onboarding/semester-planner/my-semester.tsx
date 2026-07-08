@@ -134,9 +134,9 @@ export function MySemester({
                               : (course.nameEn ?? course.nameHe)}
                           </span>
                           {course.courseType === "ENGLISH" && (
-                            <span className="shrink-0 rounded bg-foreground/8 px-1 text-[8px] font-medium text-foreground/50" title={isHe ? "נלמד באנגלית" : "Taught in English"}>EN</span>
+                            <span className="shrink-0 rounded bg-foreground/8 px-1 text-[10px] font-medium text-foreground/50" title={isHe ? "נלמד באנגלית" : "Taught in English"}>EN</span>
                           )}
-                          <span className="shrink-0 rounded-full bg-foreground/8 px-1.5 py-0.5 text-[8px] font-medium text-foreground/50">
+                          <span className="shrink-0 rounded-full bg-foreground/8 px-1.5 py-0.5 text-[10px] font-medium text-foreground/50">
                             {t("mandatory")}
                           </span>
                           <span className="shrink-0 font-mono text-[10px] text-foreground/30">
@@ -173,10 +173,10 @@ export function MySemester({
                             : (course.nameEn ?? course.nameHe)}
                         </span>
                         {course.courseType === "ENGLISH" && (
-                          <span className="shrink-0 rounded bg-foreground/8 px-1 text-[8px] font-medium text-foreground/50" title={isHe ? "נלמד באנגלית" : "Taught in English"}>EN</span>
+                          <span className="shrink-0 rounded bg-foreground/8 px-1 text-[10px] font-medium text-foreground/50" title={isHe ? "נלמד באנגלית" : "Taught in English"}>EN</span>
                         )}
                         {customCourseIds?.has(course.id) && (
-                          <span className="shrink-0 rounded-full bg-foreground/5 px-1.5 py-0.5 text-[8px] font-medium text-foreground/40">
+                          <span className="shrink-0 rounded-full bg-foreground/5 px-1.5 py-0.5 text-[10px] font-medium text-foreground/40">
                             {isHe ? "ידני" : "Custom"}
                           </span>
                         )}

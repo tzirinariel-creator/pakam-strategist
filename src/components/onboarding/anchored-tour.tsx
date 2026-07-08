@@ -34,7 +34,7 @@ const STEPS: Step[] = [
   },
   {
     selector: '[data-tour="recommendations"]',
-    titleHe: "המלצות חכמות",
+    titleHe: "מה כדאי עכשיו",
     titleEn: "Smart recommendations",
     bodyHe: "כאן אני מציע לך צעדים אמיתיים לפי הנתונים שלך — מועד ב׳, דרישות חסרות ועוד.",
     bodyEn: "Real next steps based on your data — Moed B, missing requirements, and more.",

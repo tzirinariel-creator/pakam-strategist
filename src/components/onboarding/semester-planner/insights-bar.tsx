@@ -482,7 +482,7 @@ export function InsightsBar({
             </div>
             {/* Contextual workload tip */}
             {workloadTip && (
-              <p className="mt-1 text-[9px] text-foreground/30 leading-tight">
+              <p className="mt-1 text-[11px] text-foreground/30 leading-tight">
                 {workloadTip}
               </p>
             )}
@@ -560,12 +560,12 @@ export function InsightsBar({
                   className="h-1.5 w-1.5 shrink-0 rounded-full"
                   style={{ backgroundColor: focusAreaCfg.color }}
                 />
-                <span className="text-[9px] text-foreground/30 truncate">
+                <span className="text-[11px] text-foreground/30 truncate">
                   {isHe ? "תחום: " : "Focus: "}
                   {isHe ? focusAreaCfg.nameHe : focusAreaCfg.nameEn}
                 </span>
               </div>
-              <span className="font-mono text-[9px] text-foreground/30 shrink-0" dir="ltr">
+              <span className="font-mono text-[11px] text-foreground/30 shrink-0" dir="ltr">
                 {focusAreaCredits}/{CREDIT_REQUIREMENTS.FOCUS_AREA_MIN}
               </span>
             </div>
@@ -653,7 +653,7 @@ export function InsightsBar({
                   className="h-1.5 w-1.5 rounded-full"
                   style={{ backgroundColor: d.cfg?.color }}
                 />
-                <span className="text-[8px] text-foreground/30">
+                <span className="text-[11px] text-foreground/30">
                   {isHe ? d.cfg?.nameHe : d.cfg?.nameEn} ({d.credits})
                 </span>
               </div>

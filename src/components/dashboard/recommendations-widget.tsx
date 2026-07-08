@@ -77,7 +77,7 @@ export function RecommendationsWidget({
       <div className="mb-4 flex items-center gap-2">
         <PhilosopherKingIcon className="h-5 w-5 text-accent-brand" />
         <h3 className="font-display text-base font-bold text-foreground/90">
-          {isHe ? "המלצות חכמות" : "Smart recommendations"}
+          {isHe ? "מה כדאי עכשיו" : "What to do now"}
         </h3>
         <span className="ms-auto rounded-full bg-foreground/[0.06] px-2 py-0.5 text-xs font-medium text-foreground/60">
           {recommendations.length}

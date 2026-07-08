@@ -278,7 +278,7 @@ export function BiddingWorksheet({ courses }: { courses: UserCourseWithCourse[] 
                       <p className="truncate text-sm text-foreground/80">
                         {r.courseName}
                         {r.hasClash && (
-                          <span className="ms-1.5 inline-flex items-center gap-0.5 rounded bg-amber-500/10 px-1 py-0.5 text-[9px] font-bold text-amber-600" title={isHe ? "חופף בזמן לקורס אחר שלך — ראה את ההתראה למעלה" : "Time-clashes with another of your courses — see the alert above"}>
+                          <span className="ms-1.5 inline-flex items-center gap-0.5 rounded bg-amber-500/10 px-1 py-0.5 text-[10px] font-bold text-amber-600" title={isHe ? "חופף בזמן לקורס אחר שלך — ראה את ההתראה למעלה" : "Time-clashes with another of your courses — see the alert above"}>
                             <AlertTriangle className="size-2.5" />
                             {isHe ? "חפיפה" : "clash"}
                           </span>

@@ -158,7 +158,7 @@ function OverlapTrap({ isHe }: { isHe: boolean }) {
           />
         </div>
         {/* axis ticks */}
-        <div className="flex justify-between px-0.5 text-[8px] font-mono text-foreground/30">
+        <div className="flex justify-between px-0.5 text-[10px] font-mono text-foreground/30">
           <span>08:00</span><span>10:00</span><span>12:00</span><span>14:00</span>
         </div>
       </div>

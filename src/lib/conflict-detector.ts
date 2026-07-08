@@ -148,9 +148,16 @@ export function formatConflict(conflict: ConflictResult, locale: "he" | "en"): s
 
   const dayName = dayNames[conflict.day]?.[locale] ?? conflict.day;
 
+  // Wrap each time range in a bidi isolate (LRI…PDI) so "10:00–12:00" never
+  // reverses inside the Hebrew sentence (#41 — the range read backwards). The
+  // two consumers render this string raw, so the fix lives at the source.
+  const range = (a: string, b: string) => `⁦${a}–${b}⁩`;
+  const ex = conflict.existingSession;
+  const nw = conflict.newSession;
+
   if (locale === "he") {
-    return `חפיפה ביום ${dayName} בין ${conflict.existingSession.courseName} (${conflict.existingSession.startTime}-${conflict.existingSession.endTime}) ל${conflict.newSession.courseName} (${conflict.newSession.startTime}-${conflict.newSession.endTime})`;
+    return `חפיפה ביום ${dayName} בין ${ex.courseName} (${range(ex.startTime, ex.endTime)}) ל${nw.courseName} (${range(nw.startTime, nw.endTime)})`;
   }
 
-  return `Conflict on ${dayName} between ${conflict.existingSession.courseName} (${conflict.existingSession.startTime}-${conflict.existingSession.endTime}) and ${conflict.newSession.courseName} (${conflict.newSession.startTime}-${conflict.newSession.endTime})`;
+  return `Conflict on ${dayName} between ${ex.courseName} (${range(ex.startTime, ex.endTime)}) and ${nw.courseName} (${range(nw.startTime, nw.endTime)})`;
 }

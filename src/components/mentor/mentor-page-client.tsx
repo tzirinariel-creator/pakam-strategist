@@ -34,6 +34,22 @@ export function MentorPageClient() {
   const advisorName = isReferent
     ? isHe ? "הרפרנט" : "The Referent"
     : isHe ? "המלך הפילוסוף" : "The Philosopher King";
+  const otherName = isReferent
+    ? isHe ? "המלך הפילוסוף" : "The Philosopher King"
+    : isHe ? "הרפרנט" : "The Referent";
+
+  // In-context persona switch (#48): the referent used to be discoverable only
+  // deep in Settings. One tap here flips the device-local choice everywhere
+  // (the FAB and chat re-read pk-persona on open).
+  const switchPersona = () => {
+    const next = isReferent ? "king" : "referent";
+    try {
+      localStorage.setItem("pk-persona", next);
+    } catch {
+      /* storage blocked — still switch for this view */
+    }
+    setPersona(next);
+  };
 
   return (
     <div className="flex flex-col gap-4">
@@ -59,6 +75,20 @@ export function MentorPageClient() {
               ? "יועץ התואר שלך — חכם, ישיר, ותמיד מהנתונים האמיתיים שלך."
               : "Your degree advisor — wise, direct, always from your real data."}
         </p>
+        {/* Discover + switch the other persona in-context (#48). Same voice,
+            same data — only the tone changes. */}
+        <button
+          type="button"
+          onClick={switchPersona}
+          className="inline-flex items-center gap-1.5 rounded-full border border-border/60 px-3 py-1 text-xs text-foreground/55 transition-colors hover:border-foreground/25 hover:text-foreground/80"
+        >
+          {isReferent ? (
+            <PhilosopherKingIcon className="size-3.5 text-crown-gold-bright" />
+          ) : (
+            <ReferentIcon className="size-3.5 text-referent-teal" />
+          )}
+          {isHe ? `העדפת ${otherName}? החליפו` : `Prefer ${otherName}? Switch`}
+        </button>
       </div>
 
       {/* Mode toggle */}

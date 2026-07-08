@@ -182,7 +182,7 @@ export async function POST(request: NextRequest) {
         return NextResponse.json(
           {
             error:
-              "העוזר המשותף עמוס כרגע — אפשר להוסיף מפתח חינמי משלך בהגדרות לשימוש בלי הגבלה.",
+              "העוזר המשותף עמוס כרגע — אפשר להוסיף מפתח חינמי משלך בהגדרות.",
           },
           {
             status: 429,

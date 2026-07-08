@@ -688,7 +688,7 @@ export function FloatingAssistant() {
                       <Link href="/settings" className="text-accent-brand/80 underline-offset-2 hover:underline">
                         {isHe ? "חברו מפתח Gemini משלכם" : "Connect your own Gemini key"}
                       </Link>
-                      {isHe ? " לשימוש בלי הגבלה." : " for unlimited use."}
+                      {isHe ? " למכסה משלכם." : " for your own quota."}
                     </p>
                   )}
                 </div>
