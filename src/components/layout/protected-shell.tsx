@@ -10,7 +10,7 @@ export function ProtectedShell({ children }: { children: ReactNode }) {
   return (
     <main
       className={cn(
-        "min-h-screen pt-16 pb-20 md:pb-0 transition-all duration-300",
+        "min-h-screen pt-16 pb-[calc(5rem+var(--safe-bottom))] md:pb-0 transition-all duration-300",
         sidebarCollapsed ? "md:ps-16" : "md:ps-64"
       )}
     >

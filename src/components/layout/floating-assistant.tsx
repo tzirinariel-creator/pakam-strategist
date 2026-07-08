@@ -589,7 +589,7 @@ export function FloatingAssistant() {
           onClick={() => setOpen(true)}
           aria-label={isHe ? "פתח/י את המלך הפילוסוף" : "Open the Philosopher King"}
           className={cn(
-            "fixed bottom-20 end-4 z-[65] flex items-center gap-2 rounded-full py-3 shadow-lg md:bottom-6 md:end-6",
+            "fixed bottom-[calc(5rem+var(--safe-bottom))] end-4 z-[65] flex items-center gap-2 rounded-full py-3 shadow-lg md:bottom-6 md:end-6",
             "bg-accent-brand text-accent-brand-fg ring-1 ring-crown-gold-bright/30 transition-all press-scale",
             "hover:bg-accent-brand-hover hover:shadow-xl hover:ring-crown-gold-bright/60",
             "px-4",

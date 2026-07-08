@@ -60,7 +60,7 @@ export function MobileNav() {
           />
 
           {/* Bottom drawer */}
-          <div className="absolute bottom-16 start-0 end-0 animate-in slide-in-from-bottom-4 duration-200">
+          <div className="absolute bottom-[calc(4rem+var(--safe-bottom))] start-0 end-0 animate-in slide-in-from-bottom-4 duration-200">
             <div className="mx-3 mb-2 overflow-hidden rounded-2xl border border-border bg-background shadow-2xl">
               {/* Header */}
               <div className="flex items-center justify-between border-b border-border px-4 py-3">
@@ -105,8 +105,10 @@ export function MobileNav() {
         </div>
       )}
 
-      {/* Bottom nav bar */}
-      <nav className="fixed bottom-0 start-0 end-0 z-50 flex h-16 items-center justify-around border-t border-border bg-background/80 backdrop-blur-md md:hidden">
+      {/* Bottom nav bar — pads its own height out past the iOS home indicator
+          via --safe-bottom, and keeps the tap row a clean 64px above it (#20). */}
+      <nav className="fixed bottom-0 start-0 end-0 z-50 border-t border-border bg-background/80 pb-[var(--safe-bottom)] backdrop-blur-md md:hidden">
+        <div className="flex h-16 items-center justify-around">
         {MOBILE_NAV_ITEMS.map((item) => {
           const Icon = item.icon;
           const isActive = pathname.includes(item.href);
@@ -142,6 +144,7 @@ export function MobileNav() {
           <MoreHorizontal className="h-5 w-5" />
           <span>{t("more")}</span>
         </button>
+        </div>
       </nav>
     </>
   );
