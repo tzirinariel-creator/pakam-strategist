@@ -7,7 +7,7 @@ import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { SEMESTER_CONFIG, YEAR_CONFIG } from "@/lib/constants";
 import { detectConflicts } from "@/lib/plan-generator";
-import { filterSessionsBySelectedGroups } from "./session-group-selector";
+import { filterSessionsBySelectedGroups, courseHasMultipleGroups } from "./session-group-selector";
 import {
   Dialog,
   DialogContent,
@@ -287,6 +287,21 @@ export function SemesterPlanner({
     () => allCurrentCourses.reduce((s, c) => s + c.credits, 0),
     [allCurrentCourses]
   );
+
+  // Course codes that offer a real group CHOICE (a session type with >1 group)
+  // this semester — reuses the same detector the sidebar SessionGroupSelector
+  // uses, so the on-grid picker and the sidebar stay in sync. Only these get the
+  // tap affordance on the live timetable (#2).
+  const multiGroupCourseCodes = useMemo(() => {
+    const set = new Set<string>();
+    for (const course of allCurrentCourses) {
+      const sessions = (course.scheduleSessions ?? []).filter(
+        (s) => !s.semester || s.semester === currentSemester
+      );
+      if (courseHasMultipleGroups(sessions)) set.add(course.code);
+    }
+    return set;
+  }, [allCurrentCourses, currentSemester]);
 
   // Total planned credits
   const totalCreditsPlanned = completedCredits + currentSemesterCredits;
@@ -736,6 +751,9 @@ export function SemesterPlanner({
                 currentSemester={currentSemester}
                 sessionGroupSelections={sessionGroupSelections}
                 groupPreview={groupPreview}
+                interactive
+                multiGroupCourseCodes={multiGroupCourseCodes}
+                onSelectSessionGroup={handleSelectSessionGroup}
               />
               {allCurrentCourses.length === 0 && (
                 <div className="flex flex-col items-center justify-center py-8 text-center">

@@ -13,11 +13,24 @@ import {
   Download,
   List,
   BarChart3,
+  ChevronDown,
+  CalendarPlus,
+  FileSpreadsheet,
+  Printer,
 } from "lucide-react";
 import { toast } from "sonner";
 import { api } from "@/lib/trpc/react";
 import { cn } from "@/lib/utils";
 import { downloadExamICS } from "@/lib/ics-export";
+import { exportExamPlanXlsx } from "@/lib/xlsx-export";
+import {
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+} from "@/components/ui/dropdown-menu";
 import { DISCIPLINE_CONFIG, SEMESTER_CONFIG, YEAR_CONFIG, CREDIT_REQUIREMENTS } from "@/lib/constants";
 import { Bidi } from "@/lib/bidi";
 import { Badge } from "@/components/ui/badge";
@@ -78,6 +91,7 @@ export function ExamSchedule() {
   const isRTL = locale === "he";
 
   const [activeTab, setActiveTab] = useState<"list" | "gantt">("list");
+  const [isExportingXlsx, setIsExportingXlsx] = useState(false);
   const { data, isLoading, error } = api.schedule.getExamSchedule.useQuery();
 
   // Group UPCOMING exams by date. The board previously listed every sitting and
@@ -233,6 +247,46 @@ export function ExamSchedule() {
     return Array.from(ids);
   }, [examGroups]);
 
+  // ─── Export handlers ─────────────────────────────────────────────
+  const hasExams = !!data?.exams && data.exams.length > 0;
+
+  const handleExportICS = () => {
+    if (!data?.exams) return;
+    downloadExamICS(
+      data.exams.map((e) => ({
+        userCourseId: e.userCourseId,
+        courseCode: e.courseCode,
+        courseName: e.courseName,
+        credits: e.credits,
+        examDateA: e.examDateA,
+        examDateB: e.examDateB,
+      })),
+    );
+    toast.success(t("exportSuccess"));
+  };
+
+  // Excel export reuses the SAME StudySkyline plan the Timeline tab renders —
+  // no invented dates, only the real computed study spread (#15/#34).
+  const handleExportXlsx = async () => {
+    if (timelinePlan.exams.length === 0) {
+      toast.error(isRTL ? "אין מבחנים קרובים לייצוא." : "No upcoming exams to export.");
+      return;
+    }
+    try {
+      setIsExportingXlsx(true);
+      const ok = await exportExamPlanXlsx(timelinePlan, { isHe: isRTL });
+      if (ok) toast.success(t("exportSuccess"));
+    } catch {
+      toast.error(isRTL ? "ייצוא ה-Excel נכשל." : "Excel export failed.");
+    } finally {
+      setIsExportingXlsx(false);
+    }
+  };
+
+  const handlePrint = () => {
+    if (typeof window !== "undefined") window.print();
+  };
+
   // ─── Loading ─────────────────────────────────────────────────────
 
   if (isLoading) {
@@ -336,34 +390,53 @@ export function ExamSchedule() {
             {t("tabTimeline")}
           </button>
         </div>
-        <button
-          type="button"
-          disabled={!data?.exams || data.exams.length === 0}
-          onClick={() => {
-            if (data?.exams) {
-              downloadExamICS(
-                data.exams.map((e) => ({
-                  userCourseId: e.userCourseId,
-                  courseCode: e.courseCode,
-                  courseName: e.courseName,
-                  credits: e.credits,
-                  examDateA: e.examDateA,
-                  examDateB: e.examDateB,
-                }))
-              );
-              toast.success(t("exportSuccess"));
-            }
-          }}
-          className={cn(
-            "flex items-center gap-1.5 rounded-lg border border-border/50 bg-background/80 px-3 py-1.5 text-xs font-medium text-foreground/60 transition-colors",
-            data?.exams && data.exams.length > 0
-              ? "hover:bg-foreground/5 hover:text-foreground/80"
-              : "cursor-not-allowed opacity-50"
-          )}
-        >
-          <Download className="size-3.5" />
-          {t("exportICS")}
-        </button>
+        {/* Export menu — Radix DropdownMenu (portal-based, so it is never clipped
+            by an overflow-hidden ancestor; #34: the old menu "opened but couldn't
+            be seen"). Keeps ICS, adds colored Excel + print. */}
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <button
+              type="button"
+              disabled={!hasExams}
+              className={cn(
+                "flex min-h-[44px] items-center gap-1.5 rounded-lg border border-border/50 bg-background/80 px-3 py-1.5 text-xs font-medium text-foreground/70 transition-colors",
+                hasExams
+                  ? "hover:bg-foreground/5 hover:text-foreground/90"
+                  : "cursor-not-allowed opacity-50",
+              )}
+            >
+              <Download className="size-3.5" />
+              {isRTL ? "ייצוא" : "Export"}
+              <ChevronDown className="size-3.5 opacity-60" />
+            </button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align={isRTL ? "start" : "end"} className="min-w-[13rem]">
+            <DropdownMenuLabel className="text-xs text-muted-foreground">
+              {isRTL ? "ייצוא תוכנית-המבחנים" : "Export exam plan"}
+            </DropdownMenuLabel>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem
+              onSelect={handleExportXlsx}
+              disabled={isExportingXlsx || timelinePlan.exams.length === 0}
+              className="gap-2 py-2.5 text-sm"
+            >
+              {isExportingXlsx ? (
+                <Loader2 className="size-4 shrink-0 animate-spin" />
+              ) : (
+                <FileSpreadsheet className="size-4 shrink-0 text-emerald-500" />
+              )}
+              {isRTL ? "ייצוא ל-Excel (צבעוני)" : "Export to Excel (colored)"}
+            </DropdownMenuItem>
+            <DropdownMenuItem onSelect={handleExportICS} className="gap-2 py-2.5 text-sm">
+              <CalendarPlus className="size-4 shrink-0 text-indigo-400" />
+              {t("exportICS")}
+            </DropdownMenuItem>
+            <DropdownMenuItem onSelect={handlePrint} className="gap-2 py-2.5 text-sm">
+              <Printer className="size-4 shrink-0 text-foreground/60" />
+              {isRTL ? "הדפסה" : "Print"}
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
       </div>
 
       {/* Timeline view — unified on StudySkyline (the good graph, #38) */}

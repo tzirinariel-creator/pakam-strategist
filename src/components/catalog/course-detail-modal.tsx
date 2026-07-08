@@ -1,7 +1,9 @@
 "use client";
 
+import { useState } from "react";
 import { useLocale } from "next-intl";
-import { Clock, Calendar, ArrowLeftRight } from "lucide-react";
+import { toast } from "sonner";
+import { Clock, Calendar, ArrowLeftRight, Flag, MessageSquarePlus } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -12,6 +14,9 @@ import { DISCIPLINE_CONFIG } from "@/lib/constants";
 import { Bidi } from "@/lib/bidi";
 import { cn } from "@/lib/utils";
 import { AskKingButton } from "@/components/ui/ask-king-button";
+import { api } from "@/lib/trpc/react";
+import { TAG_LABELS, isAllowedTag } from "@/lib/course-knowledge-tags";
+import { ContributeReviewSheet } from "./contribute-review-sheet";
 import type { Course } from "@/types/degree";
 import type { Discipline } from "@/types/enums";
 
@@ -53,6 +58,7 @@ export function CourseDetailModal({
   onClose: () => void;
 }) {
   const isHe = useLocale() === "he";
+  const [contributeOpen, setContributeOpen] = useState(false);
   if (!course) return null;
 
   const cfg = DISCIPLINE_CONFIG[course.discipline as Discipline];
@@ -119,6 +125,23 @@ export function CourseDetailModal({
               {isHe ? "אין נתוני ציונים היסטוריים לקורס הזה (שכיח בקורסי משפט וסמינרים)." : "No historical grade data for this course (common for Law courses and seminars)."}
             </p>
           )}
+
+          {/* Cross-cohort community knowledge (#3/#16). A SEPARATE source from
+              the Arazim historical block above — two sources, never merged.
+              Degrades gracefully: if the backing tables don't exist yet the
+              query errors and we simply render nothing (no crash). */}
+          <CommunityKnowledge
+            course={course}
+            isHe={isHe}
+            onContribute={() => setContributeOpen(true)}
+          />
+
+          <ContributeReviewSheet
+            courseCode={course.code}
+            courseName={isHe ? course.nameHe : (course.nameEn ?? course.nameHe)}
+            open={contributeOpen}
+            onClose={() => setContributeOpen(false)}
+          />
 
           {/* Schedule */}
           {sessions.length > 0 && (
@@ -199,6 +222,237 @@ export function CourseDetailModal({
         </div>
       </DialogContent>
     </Dialog>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Cross-cohort community knowledge (#3/#16)
+// ---------------------------------------------------------------------------
+
+const VERDICT_META: Record<string, { he: string; en: string; cls: string }> = {
+  RECOMMEND: { he: "שווה", en: "Worth it", cls: "bg-emerald-500/15 text-emerald-600 dark:text-emerald-400" },
+  NEUTRAL: { he: "ניטרלי", en: "Neutral", cls: "bg-foreground/10 text-foreground/70" },
+  AVOID: { he: "הייתי מדלג", en: "Would skip", cls: "bg-red-500/15 text-red-600 dark:text-red-400" },
+};
+
+/** 1–5 average rendered as filled/empty dots (rounded to nearest). */
+function Dots({ value }: { value: number | null }) {
+  const filled = value == null ? 0 : Math.max(0, Math.min(5, Math.round(value)));
+  return (
+    <span className="inline-flex items-center gap-0.5 align-middle" dir="ltr" aria-hidden>
+      {[1, 2, 3, 4, 5].map((n) => (
+        <span
+          key={n}
+          className={cn("size-1.5 rounded-full", n <= filled ? "bg-accent-brand" : "bg-foreground/15")}
+        />
+      ))}
+    </span>
+  );
+}
+
+function CommunityKnowledge({
+  course,
+  isHe,
+  onContribute,
+}: {
+  course: Course;
+  isHe: boolean;
+  onContribute: () => void;
+}) {
+  // Public read. `retry:false` so a missing-table error (migration pending)
+  // fails fast and we render the empty invitation rather than crashing.
+  const q = api.courseKnowledge.getForCourse.useQuery(
+    { courseCode: course.code },
+    { retry: false, staleTime: 60_000 }
+  );
+
+  const utils = api.useUtils();
+  const report = api.courseKnowledge.reportReview.useMutation({
+    onSuccess: () => {
+      void utils.courseKnowledge.getForCourse.invalidate({ courseCode: course.code });
+      toast.success(isHe ? "תודה — נבדוק את זה." : "Thanks — we'll review it.");
+    },
+    onError: () => toast.error(isHe ? "הדיווח נכשל. נסו שוב." : "Report failed. Try again."),
+  });
+
+  const data = q.data;
+  const errored = q.isError;
+
+  // Graceful degrade: still loading, or the backing tables don't exist yet.
+  if (q.isLoading) {
+    return (
+      <div className="h-16 animate-pulse rounded-xl border border-border/40 bg-foreground/[0.02]" aria-hidden />
+    );
+  }
+
+  const ratings = data?.ratings;
+  const grade = data?.grade;
+  const reviews = data?.reviews ?? [];
+
+  const hasAnything =
+    !!data &&
+    ((ratings?.revealed ?? false) ||
+      (grade?.revealed ?? false) ||
+      (grade?.nGraded ?? 0) > 0 ||
+      (ratings?.n ?? 0) > 0 ||
+      reviews.length > 0);
+
+  // Total app-community sample size for the header.
+  const communityN = Math.max(grade?.n ?? 0, ratings?.n ?? 0, reviews.length);
+
+  // Empty / errored: a single honest invitation, no empty numbers.
+  if (errored || !hasAnything) {
+    return (
+      <div className="rounded-xl border border-dashed border-border/50 bg-foreground/[0.02] p-3">
+        <div className="mb-1 text-[10px] font-medium uppercase tracking-wider text-foreground/40">
+          {isHe ? "מהסטודנטים באפליקציה" : "From students in the app"}
+        </div>
+        <p className="text-xs leading-relaxed text-foreground/55">
+          {isHe
+            ? "עדיין אין מידע קהילתי לקורס הזה. למדתם אותו? היו הראשונים לעזור למחזור הבא."
+            : "No community info for this course yet. Took it? Be the first to help the next cohort."}
+        </p>
+        <button
+          type="button"
+          onClick={onContribute}
+          className="mt-2 inline-flex min-h-[36px] items-center gap-1.5 rounded-lg bg-accent-brand/10 px-2.5 py-1.5 text-xs font-medium text-accent-brand transition-colors hover:bg-accent-brand/20"
+        >
+          <MessageSquarePlus className="size-3.5" />
+          {isHe ? "דרגו את הקורס" : "Rate this course"}
+        </button>
+      </div>
+    );
+  }
+
+  const binaryHigh = grade?.binaryShare != null && grade.binaryShare >= 0.25;
+
+  return (
+    <div className="rounded-xl border border-accent-brand/25 bg-accent-brand/[0.04] p-3">
+      {/* Header — explicitly a DIFFERENT source than the Arazim block above. */}
+      <div className="mb-2 flex items-baseline justify-between gap-2">
+        <span className="text-[10px] font-medium uppercase tracking-wider text-accent-brand/80">
+          {isHe ? "מהסטודנטים באפליקציה" : "From students in the app"}
+          {communityN > 0 && (
+            <>
+              {" "}
+              <span className="text-foreground/40">
+                (N=<Bidi text={String(communityN)} />)
+              </span>
+            </>
+          )}
+        </span>
+      </div>
+
+      {/* Block 1 — what students say */}
+      {ratings?.revealed ? (
+        <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5 text-xs text-foreground/70">
+          <span className="inline-flex items-center gap-1.5">
+            {isHe ? "עומס" : "Workload"} <Dots value={ratings.workloadAvg} />
+          </span>
+          <span className="inline-flex items-center gap-1.5">
+            {isHe ? "קושי" : "Difficulty"} <Dots value={ratings.difficultyAvg} />
+          </span>
+          {ratings.recommendShare != null && (
+            <span className="font-medium text-foreground/80">
+              <Bidi text={`${Math.round(ratings.recommendShare * 100)}%`} /> {isHe ? "ממליצים" : "recommend"}
+            </span>
+          )}
+        </div>
+      ) : (
+        <div className="flex flex-wrap items-center gap-2 text-xs text-foreground/55">
+          <span>{isHe ? "עדיין אין מספיק דירוגים — היו הראשונים." : "Not enough ratings yet — be the first."}</span>
+          <button
+            type="button"
+            onClick={onContribute}
+            className="inline-flex min-h-[32px] items-center rounded-md bg-accent-brand/10 px-2 py-1 font-medium text-accent-brand transition-colors hover:bg-accent-brand/20"
+          >
+            {isHe ? "דרגו את הקורס" : "Rate it"}
+          </button>
+        </div>
+      )}
+
+      {/* Block 2 — community grade (never merged with the Arazim number) */}
+      <div className="mt-3 border-t border-accent-brand/15 pt-3">
+        {grade?.revealed ? (
+          <>
+            <p className="text-xs text-foreground/75">
+              <span className="font-medium">{isHe ? "ממוצע קהילתי" : "Community avg"}</span>{" "}
+              <Bidi text={String(grade.average ?? "")} />
+              {grade.median != null && (
+                <> · {isHe ? "חציון" : "median"} <Bidi text={String(grade.median)} /></>
+              )}
+              {grade.p25 != null && grade.p75 != null && (
+                <> · {isHe ? "טווח" : "range"} <Bidi text={`${grade.p25}–${grade.p75}`} /></>
+              )}
+              {" "}
+              <span className="text-foreground/40">(N=<Bidi text={String(grade.nGraded)} />)</span>
+            </p>
+            {binaryHigh && grade.binaryShare != null && (
+              <p className="mt-1 text-[11px] text-foreground/50">
+                <Bidi text={`${Math.round(grade.binaryShare * 100)}%`} /> {isHe ? "לקחו כ-binary (עובר/נכשל)" : "took it pass/fail"}
+              </p>
+            )}
+            <p className="mt-1 text-[11px] text-foreground/45">
+              {isHe ? "מהתורמים באפליקציה, לא ציון רשמי." : "From app contributors, not an official grade."}
+            </p>
+          </>
+        ) : (
+          <p className="text-[11px] text-foreground/50">
+            {isHe
+              ? `ציון קהילתי נחשף מ-5 תורמים. יש ${grade?.nGraded ?? 0}.`
+              : `Community grade unlocks at 5 contributors. Have ${grade?.nGraded ?? 0}.`}
+          </p>
+        )}
+      </div>
+
+      {/* Block 3 — tips */}
+      {reviews.length > 0 && (
+        <div className="mt-3 space-y-2 border-t border-accent-brand/15 pt-3">
+          {reviews.map((r) => {
+            const vm = r.verdict ? VERDICT_META[r.verdict] : null;
+            return (
+              <div key={r.id} className="rounded-lg border border-border/50 bg-background/40 p-2.5">
+                <div className="mb-1 flex flex-wrap items-center gap-1.5">
+                  {vm && (
+                    <span className={cn("rounded-full px-1.5 py-0.5 text-[10px] font-medium", vm.cls)}>
+                      {isHe ? vm.he : vm.en}
+                    </span>
+                  )}
+                  {r.tags.filter(isAllowedTag).map((tag) => (
+                    <span key={tag} className="rounded-full bg-foreground/[0.06] px-1.5 py-0.5 text-[10px] text-foreground/60">
+                      {isHe ? TAG_LABELS[tag].he : TAG_LABELS[tag].en}
+                    </span>
+                  ))}
+                </div>
+                <p className="text-xs leading-relaxed text-foreground/80">{r.tip}</p>
+                <div className="mt-1.5 flex items-center justify-between">
+                  <span className="text-[10px] text-foreground/40">{r.cohortLabel ?? ""}</span>
+                  <button
+                    type="button"
+                    onClick={() => report.mutate({ reviewId: r.id })}
+                    disabled={report.isPending}
+                    className="inline-flex items-center gap-1 text-[10px] text-foreground/35 transition-colors hover:text-red-500 disabled:opacity-50"
+                    title={isHe ? "דווחו על התוכן" : "Report this"}
+                  >
+                    <Flag className="size-2.5" />
+                    {isHe ? "דווח" : "Report"}
+                  </button>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      )}
+
+      <button
+        type="button"
+        onClick={onContribute}
+        className="mt-3 inline-flex min-h-[36px] w-full items-center justify-center gap-1.5 rounded-lg border border-accent-brand/30 bg-accent-brand/5 px-2.5 py-1.5 text-xs font-medium text-accent-brand transition-colors hover:bg-accent-brand/15"
+      >
+        <MessageSquarePlus className="size-3.5" />
+        {isHe ? "הוסיפו טיפ / דרגו את הקורס" : "Add a tip / rate this course"}
+      </button>
+    </div>
   );
 }
 

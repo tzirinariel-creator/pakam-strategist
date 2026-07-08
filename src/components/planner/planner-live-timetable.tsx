@@ -1,16 +1,19 @@
 "use client";
 
-import { useMemo, useState, useEffect, useRef } from "react";
+import { useMemo, useState, useEffect, useRef, useCallback } from "react";
 import { createPortal } from "react-dom";
 import { useLocale } from "next-intl";
+import { toast } from "sonner";
 import { CalendarDays, Maximize2, X } from "lucide-react";
 import { usePlannerStore } from "@/stores/planner-store";
 import { api } from "@/lib/trpc/react";
+import { invalidatePlanData } from "@/lib/trpc/invalidate-plan";
 import { cn } from "@/lib/utils";
 import {
   LiveTimetable,
   type SessionGroupSelections,
 } from "@/components/onboarding/semester-planner/live-timetable";
+import { courseHasMultipleGroups } from "@/components/onboarding/semester-planner/session-group-selector";
 import { YEAR_CONFIG, SEMESTER_CONFIG } from "@/lib/constants";
 import type { CourseWithSchedule } from "@/lib/plan-generator";
 import type { UserCourseWithCourse } from "@/types/degree";
@@ -103,15 +106,19 @@ export function PlannerLiveTimetable({ courses }: PlannerLiveTimetableProps) {
   }, [expanded]);
 
   // Planned courses for the selected (year, semester), resolved to catalog
-  // courses (with sessions) plus their saved per-course group selections.
-  const { semCourses, groupSelections } = useMemo(() => {
+  // courses (with sessions) plus their saved per-course group selections. Also
+  // maps each course code back to its UserCourse row id, so an on-grid group
+  // pick can persist to the right row (#2 on the main planner).
+  const { semCourses, groupSelections, userCourseIdByCode } = useMemo(() => {
     const out: CourseWithSchedule[] = [];
     const groups: SessionGroupSelections = {};
+    const idByCode = new Map<string, string>();
     for (const uc of courses) {
       if (uc.plannedYear !== selectedYear || uc.plannedSemester !== semester) continue;
       const c = courseById.get(uc.courseId);
       if (!c) continue;
       out.push(c);
+      idByCode.set(c.code, uc.id);
       // selectedGroups is on the runtime row (getUserPlan) but missing from the
       // hand-written UserCourseWithCourse type — read it via a narrow cast.
       const sel = (uc as { selectedGroups?: unknown }).selectedGroups;
@@ -119,8 +126,45 @@ export function PlannerLiveTimetable({ courses }: PlannerLiveTimetableProps) {
         groups[c.code] = sel as Record<string, string>;
       }
     }
-    return { semCourses: out, groupSelections: groups };
+    return { semCourses: out, groupSelections: groups, userCourseIdByCode: idByCode };
   }, [courses, selectedYear, semester, courseById]);
+
+  // Course codes offering a real group CHOICE this semester — reuses the same
+  // detector as the onboarding planner + sidebar, so the on-grid affordance
+  // appears on exactly the courses that have something to pick.
+  const multiGroupCourseCodes = useMemo(() => {
+    const set = new Set<string>();
+    for (const c of semCourses) {
+      const sessions = (c.scheduleSessions ?? []).filter(
+        (s) => !s.semester || s.semester === semester
+      );
+      if (courseHasMultipleGroups(sessions)) set.add(c.code);
+    }
+    return set;
+  }, [semCourses, semester]);
+
+  // Persist an on-grid group pick to the course's UserCourse row. Merges the new
+  // sessionType→group into the row's existing selectedGroups (never dropping the
+  // other types) and invalidates the plan set so the grid re-renders with the
+  // course sitting in its new slot.
+  const utils = api.useUtils();
+  const updateCourse = api.plan.updateCourse.useMutation({
+    onSuccess: () => invalidatePlanData(utils),
+    onError: () =>
+      toast.error(isHe ? "לא הצלחנו לשמור את הקבוצה" : "Couldn't save the group"),
+  });
+  const handleSelectSessionGroup = useCallback(
+    (courseCode: string, sessionType: string, groupCode: string) => {
+      const userCourseId = userCourseIdByCode.get(courseCode);
+      if (!userCourseId) return;
+      const prev = groupSelections[courseCode] ?? {};
+      updateCourse.mutate({
+        userCourseId,
+        selectedGroups: { ...prev, [sessionType]: groupCode },
+      });
+    },
+    [userCourseIdByCode, groupSelections, updateCourse]
+  );
 
   const yearLabel = isHe
     ? YEAR_CONFIG[selectedYear as 1 | 2 | 3]?.nameHe ?? `שנה ${selectedYear}`
@@ -195,6 +239,9 @@ export function PlannerLiveTimetable({ courses }: PlannerLiveTimetableProps) {
           courses={semCourses}
           currentSemester={semester}
           sessionGroupSelections={groupSelections}
+          interactive
+          multiGroupCourseCodes={multiGroupCourseCodes}
+          onSelectSessionGroup={handleSelectSessionGroup}
         />
       )}
     </div>
@@ -236,6 +283,10 @@ export function PlannerLiveTimetable({ courses }: PlannerLiveTimetableProps) {
               <X className="size-4" />
             </button>
           </div>
+          {/* The expanded overlay stays READ-ONLY: its backdrop sits at z-[80]
+              while the group-picker popover (Radix, portaled to <body>) renders
+              at z-50, so an interactive picker here would open behind the
+              backdrop. Picking is available in the inline view above. */}
           <div className="overflow-auto p-4">
             <LiveTimetable
               courses={semCourses}
