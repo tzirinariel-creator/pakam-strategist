@@ -38,7 +38,9 @@ export function SharedPlanContent() {
       toast.success(isHe ? `הועתקו ${r.savedCount} קורסים לתכנון שלך` : `Imported ${r.savedCount} courses`);
       router.push("/planner");
     },
-    onError: () => toast.error(isHe ? "ההעתקה נכשלה" : "Import failed"),
+    // Surface the server's message (e.g. the friendly demo read-only text)
+    // instead of a generic failure. (post-exec critique find)
+    onError: (e) => toast.error(e.message || (isHe ? "ההעתקה נכשלה" : "Import failed")),
   });
 
   // Resolve shared course codes → real courses.
