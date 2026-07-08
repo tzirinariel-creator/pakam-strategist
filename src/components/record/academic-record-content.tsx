@@ -18,6 +18,10 @@ import {
 import { api } from "@/lib/trpc/react";
 import { invalidatePlanData } from "@/lib/trpc/invalidate-plan";
 import { countsTowardAverage } from "@/lib/grade-calculator";
+import { deriveYearOfStudy } from "@/lib/academic-calendar";
+import { isCurrentlyStudying } from "@/lib/semester-clock";
+import { passBarFor } from "@/lib/grade-sheet";
+import { Bidi } from "@/lib/bidi";
 import { usePersonalAddress } from "@/components/personal/use-personal-address";
 import { ThemedLoader } from "@/components/ui/themed-loader";
 import { AskKingButton } from "@/components/ui/ask-king-button";
@@ -83,6 +87,7 @@ function GradeInput({
   userCourseId,
   initialGrade,
   initialStatus,
+  courseType,
   onSave,
   placeholder,
   ariaLabel,
@@ -92,6 +97,9 @@ function GradeInput({
   userCourseId: string;
   initialGrade: number | null;
   initialStatus: CourseStatus;
+  /** The row's course type — sets the honest pass bar (ENGLISH 70 else 60) so a
+   *  saved grade lands COMPLETED vs FAILED correctly, mirroring the planner. */
+  courseType: string;
   onSave: (id: string, grade: number | null, status: CourseStatus) => void;
   placeholder: string;
   ariaLabel: string;
@@ -108,9 +116,9 @@ function GradeInput({
   // course won't count toward credit until it's retaken and passed, and (unlike
   // a low *pass*) it can't be converted to binary. We accept the entry but flag
   // it plainly so the record stays honest (#31).
+  const passBar = passBarFor(courseType);
   const numVal = parseInt(value, 10);
-  const isFailing =
-    value !== "" && !isNaN(numVal) && numVal < CREDIT_REQUIREMENTS.PASSING_GRADE;
+  const isFailing = value !== "" && !isNaN(numVal) && numVal < passBar;
 
   const handleChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const raw = e.target.value;
@@ -136,8 +144,11 @@ function GradeInput({
       return;
     }
     const grade = Math.max(0, Math.min(100, num));
-    onSave(userCourseId, grade, "COMPLETED");
-  }, [value, userCourseId, initialStatus, initialGrade, onSave]);
+    // Honesty (#31): a grade under the course's pass bar is a real FAILED event,
+    // not a silent COMPLETED. Mirrors the planner card (passBarFor: ENGLISH 70
+    // else 60) so the record never fakes a pass a student didn't earn.
+    onSave(userCourseId, grade, grade >= passBar ? "COMPLETED" : "FAILED");
+  }, [value, userCourseId, initialStatus, initialGrade, onSave, passBar]);
 
   // Show the "saved" checkmark only when the parent confirms the mutation
   // actually succeeded (savedSignal bump), never on the fire-and-forget call.
@@ -385,6 +396,7 @@ function CourseRow({
             userCourseId={uc.id}
             initialGrade={uc.grade}
             initialStatus={uc.status}
+            courseType={course.courseType}
             onSave={onSaveGrade}
             placeholder={t("gradePlaceholder")}
             ariaLabel={`${t("gradeAria")} — ${courseName}`}
@@ -703,6 +715,87 @@ function EmptyState({
 }
 
 // -----------------------------------------------------------------------
+// "In progress now" — the derived PRESENT state (#4/#22): the courses the
+// student is sitting in class for RIGHT NOW (isCurrentlyStudying), surfaced at
+// the top of the record with a one-tap "mark done + grade" per course. When the
+// grade comes out they close the loop here, and the row moves into the
+// COMPLETED groups below. Renders nothing when there are no live courses.
+// -----------------------------------------------------------------------
+
+function InProgressSection({
+  courses,
+  locale,
+  isHe,
+  onSaveGrade,
+  savedSignals,
+  t,
+}: {
+  courses: UserCourseWithCourse[];
+  locale: string;
+  isHe: boolean;
+  onSaveGrade: (id: string, grade: number | null, status: CourseStatus) => void;
+  savedSignals: Record<string, number>;
+  t: ReturnType<typeof useTranslations<"record">>;
+}) {
+  if (courses.length === 0) return null;
+
+  return (
+    <div className="data-card overflow-hidden">
+      <div className="border-b border-border/30 px-5 py-4">
+        <div className="flex items-center gap-2">
+          <span className="inline-flex h-2 w-2 shrink-0 rounded-full bg-emerald-500" />
+          <span className="font-bold text-foreground/90">
+            {isHe ? "בלימוד עכשיו" : "In progress now"} (
+            <Bidi text={courses.length} />)
+          </span>
+        </div>
+        <p className="mt-1 text-xs leading-snug text-foreground/50">
+          {isHe
+            ? "הקורסים שאתם לומדים כרגע. כשהציונים יוצאים — סמנו כאן הושלם + ציון."
+            : "The courses you're taking right now. When grades come out — mark done + grade here."}
+        </p>
+      </div>
+      <div className="divide-y divide-border/10">
+        {courses.map((uc) => {
+          const courseName = isHe
+            ? uc.course.nameHe
+            : (uc.course.nameEn ?? uc.course.nameHe);
+          return (
+            <div
+              key={uc.id}
+              className="flex flex-wrap items-center justify-between gap-3 px-5 py-3"
+            >
+              <div className="flex min-w-0 flex-1 flex-col gap-0.5">
+                <span
+                  className="truncate font-medium text-foreground/85"
+                  title={`${uc.course.code} — ${courseName}`}
+                >
+                  {courseName}
+                </span>
+                <span dir="ltr" className="font-mono text-[10px] text-foreground/40">
+                  {uc.course.code}
+                </span>
+              </div>
+              <GradeInput
+                userCourseId={uc.id}
+                initialGrade={uc.grade}
+                initialStatus={uc.status}
+                courseType={uc.course.courseType}
+                onSave={onSaveGrade}
+                placeholder={t("gradePlaceholder")}
+                ariaLabel={`${t("gradeAria")} — ${courseName}`}
+                savedSignal={savedSignals[uc.id] ?? 0}
+                isHe={locale === "he"}
+              />
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+// -----------------------------------------------------------------------
 // Main content
 // -----------------------------------------------------------------------
 
@@ -847,6 +940,30 @@ export function AcademicRecordContent() {
     [addCompletedMutation]
   );
 
+  // The student's derived year-of-study (#4/#22) — the same anchor the planner
+  // and clock use, so "in progress now" survives semester rollover on its own.
+  const currentYear = deriveYearOfStudy(
+    profile?.startYear,
+    profile?.currentYear ?? 1,
+  );
+
+  // The PRESENT courses: PLANNED rows whose (year, semester) is the live
+  // teaching/exams window right now. Derived, never stored.
+  const inProgressCourses = useMemo(
+    () =>
+      (planQuery.data?.courses ?? []).filter((uc) =>
+        isCurrentlyStudying(
+          {
+            plannedYear: uc.plannedYear,
+            plannedSemester: uc.plannedSemester,
+            status: uc.status,
+          },
+          currentYear,
+        ),
+      ),
+    [planQuery.data?.courses, currentYear],
+  );
+
   // Only COMPLETED courses belong in the academic record.
   const completedCourses = useMemo(
     () =>
@@ -961,6 +1078,21 @@ export function AcademicRecordContent() {
       <div className="animate-stagger-2">
         <BinaryAdvisor />
       </div>
+
+      {/* In progress now — the derived PRESENT, above the completed past. Only
+          renders when the student has live courses this teaching window. */}
+      {inProgressCourses.length > 0 && (
+        <div className="animate-stagger-2">
+          <InProgressSection
+            courses={inProgressCourses}
+            locale={locale}
+            isHe={isHe}
+            onSaveGrade={handleSaveGrade}
+            savedSignals={savedSignals}
+            t={t}
+          />
+        </div>
+      )}
 
       {/* Completed courses grouped by year·semester */}
       {isEmpty ? (

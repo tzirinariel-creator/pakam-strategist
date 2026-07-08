@@ -21,9 +21,9 @@ import { downloadExamICS } from "@/lib/ics-export";
 import { DISCIPLINE_CONFIG, SEMESTER_CONFIG, YEAR_CONFIG, CREDIT_REQUIREMENTS } from "@/lib/constants";
 import { Bidi } from "@/lib/bidi";
 import { Badge } from "@/components/ui/badge";
-import { ExamGantt } from "@/components/onboarding/semester-planner/exam-gantt";
+import { StudySkyline } from "@/components/exam-planner/study-skyline";
+import { generateExamPlan, analyzeExamPeriod, type ExamInput } from "@/lib/exam-planner";
 import type { Discipline, Semester } from "@/types/enums";
-import type { CourseWithSchedule } from "@/lib/plan-generator";
 
 // ─── Types ───────────────────────────────────────────────────────────
 
@@ -186,45 +186,44 @@ export function ExamSchedule() {
     return { total: data.exams.length, upcoming, nextExam, passed };
   }, [data?.exams]);
 
-  // Adapt exam data for ExamGantt component
-  // NOTE: This useMemo MUST be called before any early returns to respect
-  // React's Rules of Hooks (hooks must always be called in the same order).
-  const ganttCourses = useMemo(() => {
-    if (!data?.exams) return [];
+  // Build a StudySkyline plan (the good graph, #38) from the UPCOMING exams,
+  // replacing the weak day×course gantt grid on the Timeline tab. Honesty-first:
+  // we plan against each course's SOONEST upcoming sitting (Moed A preferred —
+  // the last grade counts; B only if A already passed), never inventing dates.
+  // MUST run before any early return (Rules of Hooks).
+  const timelinePlan = useMemo(() => {
+    if (!data?.exams) return { sessions: [], exams: [] };
     const todayStart = new Date();
     todayStart.setHours(0, 0, 0, 0);
     const futureOnly = (d: Date | null) =>
       d && d.getTime() >= todayStart.getTime() ? d : null;
-    return data.exams
-      .filter((e) => {
-        // Mirror the list view: drop passed courses and past-only sittings (#33).
-        const passed =
-          e.status === "COMPLETED" &&
-          e.grade != null &&
-          e.grade >= CREDIT_REQUIREMENTS.PASSING_GRADE;
-        if (passed) return false;
-        return futureOnly(e.examDateA) || futureOnly(e.examDateB);
-      })
-      .map((e) => ({
-        id: e.userCourseId,
-        code: e.courseCode,
-        nameHe: e.courseName,
-        nameEn: e.courseName,
-        discipline: e.discipline as Discipline,
+    const inputs: ExamInput[] = [];
+    for (const e of data.exams) {
+      const passed =
+        e.status === "COMPLETED" &&
+        e.grade != null &&
+        e.grade >= CREDIT_REQUIREMENTS.PASSING_GRADE;
+      if (passed) continue;
+      const a = futureOnly(e.examDateA);
+      const b = futureOnly(e.examDateB);
+      const moed: "A" | "B" = a ? "A" : "B";
+      const date = a ?? b;
+      if (!date) continue;
+      inputs.push({
+        courseCode: e.courseCode,
+        courseName: e.courseName,
+        examDate: date,
         credits: e.credits,
-        examDateA: futureOnly(e.examDateA),
-        examDateB: futureOnly(e.examDateB),
-        courseType: e.courseType,
-        yearOffered: [] as number[],
-        semesterOffered: [] as Semester[],
-        prerequisites: [] as string[],
-        canCountAs: [] as Discipline[],
-        description: null,
-        isMandatory: e.courseType === "MANDATORY",
-        submissionType: e.submissionType,
-        weeklyHours: null,
-      }));
+        moed,
+      });
+    }
+    return generateExamPlan(inputs);
   }, [data?.exams]);
+
+  const timelineRecs = useMemo(
+    () => analyzeExamPeriod(timelinePlan, isRTL),
+    [timelinePlan, isRTL],
+  );
 
   // Disciplines present among the UPCOMING exams — drives the board legend (#8),
   // so the colored dots actually mean something to the reader.
@@ -367,10 +366,10 @@ export function ExamSchedule() {
         </button>
       </div>
 
-      {/* Gantt timeline view */}
+      {/* Timeline view — unified on StudySkyline (the good graph, #38) */}
       {activeTab === "gantt" && (
-        ganttCourses.length > 0 ? (
-          <ExamGantt courses={ganttCourses as CourseWithSchedule[]} />
+        timelinePlan.exams.length > 0 ? (
+          <StudySkyline plan={timelinePlan} recommendations={timelineRecs} isHe={isRTL} />
         ) : (
           <div className="flex min-h-[200px] flex-col items-center justify-center gap-2 rounded-lg border border-dashed border-border/30 p-6">
             <CalendarClock className="size-8 text-muted-foreground/30" />

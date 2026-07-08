@@ -2,7 +2,7 @@
 
 import { useMemo } from "react";
 import { useTranslations, useLocale } from "next-intl";
-import { AlertTriangle, MapPin, Clock } from "lucide-react";
+import { AlertTriangle, MapPin, Clock, Repeat } from "lucide-react";
 import { DISCIPLINE_CONFIG } from "@/lib/constants";
 import { cn } from "@/lib/utils";
 import type { Discipline, DayOfWeek } from "@/types/enums";
@@ -49,6 +49,16 @@ interface WeeklyTimetableProps {
    *  משהו" per the design line — excluded from conflicts and the stats bar.
    *  Desktop-grid only (hover has no mobile equivalent; the agenda skips it). */
   previewSessions?: ScheduleSessionData[];
+  /** On-grid group picking (#2). When true, blocks whose courseCode is in
+   *  `multiGroupCourseCodes` get a tap affordance that fires `onPickGroup`.
+   *  When absent, the timetable stays purely read-only (unchanged path). */
+  interactive?: boolean;
+  /** Fired when the student taps the "החלף קבוצה" affordance on a course
+   *  block. The caller opens the GroupPickerPopover for this course. */
+  onPickGroup?: (courseCode: string) => void;
+  /** Course codes that offer a tutorial/lab group CHOICE — only these show
+   *  the affordance (a single-group course has nothing to pick). */
+  multiGroupCourseCodes?: Set<string>;
 }
 
 // ─── Constants ───────────────────────────────────────────────────────
@@ -175,10 +185,17 @@ function computeOverlapLayout(slots: TimeSlot[]): SlotLayout[] {
 
 // ─── Component ───────────────────────────────────────────────────────
 
-export function WeeklyTimetable({ sessions, previewSessions }: WeeklyTimetableProps) {
+export function WeeklyTimetable({
+  sessions,
+  previewSessions,
+  interactive,
+  onPickGroup,
+  multiGroupCourseCodes,
+}: WeeklyTimetableProps) {
   const t = useTranslations("calendar");
   const locale = useLocale();
   const isRTL = locale === "he";
+  const isHe = locale === "he";
 
   // Keep Sun–Fri (0–5); Saturday (6) is always excluded. Friday is included so its
   // sessions count toward conflicts AND stats and are never silently dropped — the
@@ -314,9 +331,26 @@ export function WeeklyTimetable({ sessions, previewSessions }: WeeklyTimetablePr
                           {slot.endTimeStr}
                         </span>
                         <div className="flex min-w-0 flex-1 flex-col">
-                          <span className="truncate text-sm font-semibold text-foreground/90">
-                            {slot.courseName}
-                          </span>
+                          <div className="flex items-center gap-2">
+                            <span className="truncate text-sm font-semibold text-foreground/90">
+                              {slot.courseName}
+                            </span>
+                            {interactive && onPickGroup && (multiGroupCourseCodes?.has(slot.courseCode) ?? false) && (
+                              <button
+                                type="button"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  onPickGroup(slot.courseCode);
+                                }}
+                                className="flex min-h-[32px] shrink-0 items-center gap-0.5 rounded-md bg-foreground/5 px-1.5 py-1 text-[11px] font-medium text-foreground/60 transition-colors hover:text-accent-brand"
+                                title={isHe ? "החלף קבוצה" : "Change group"}
+                                aria-label={isHe ? "החלף קבוצה" : "Change group"}
+                              >
+                                <Repeat className="size-3" />
+                                <span>{isHe ? "קבוצה" : "Group"}</span>
+                              </button>
+                            )}
+                          </div>
                           <span className="truncate text-[11px] text-muted-foreground">
                             {slot.courseCode} · {sessionTypeText}
                           </span>
@@ -512,12 +546,16 @@ export function WeeklyTimetable({ sessions, previewSessions }: WeeklyTimetablePr
 
                 const isNarrow = slot.totalOverlap > 1;
                 const isShort = heightPx < ROW_HEIGHT;
+                const canPickGroup =
+                  interactive &&
+                  !!onPickGroup &&
+                  (multiGroupCourseCodes?.has(slot.courseCode) ?? false);
 
                 return (
                   <div
                     key={slot.courseId}
                     className={cn(
-                      "absolute z-10 flex flex-col overflow-hidden rounded-lg border-s-[3px] transition-all duration-200",
+                      "group/block absolute z-10 flex flex-col overflow-hidden rounded-lg border-s-[3px] transition-all duration-200",
                       "hover:z-20 hover:shadow-lg hover:brightness-105",
                       isNarrow ? "p-1.5" : "p-2",
                       hasConflict && "ring-2 ring-red-400/60 ring-offset-1 ring-offset-card",
@@ -541,6 +579,28 @@ export function WeeklyTimetable({ sessions, previewSessions }: WeeklyTimetablePr
                     >
                       {slot.courseName}
                     </span>
+
+                    {/* On-grid group-pick affordance (#2) — tap to swap the
+                        tutorial/lab group. Visible on mobile, hover-revealed on
+                        desktop. Only for courses that actually offer a choice. */}
+                    {canPickGroup && (
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onPickGroup!(slot.courseCode);
+                        }}
+                        className="absolute top-1 z-20 flex items-center gap-0.5 rounded-md bg-card/90 px-1 py-0.5 text-[10px] font-medium text-foreground/60 shadow-sm ring-1 ring-border/50 transition-opacity hover:text-accent-brand md:opacity-0 md:group-hover/block:opacity-100"
+                        style={{ insetInlineEnd: "0.25rem" }}
+                        title={isHe ? "החלף קבוצה" : "Change group"}
+                        aria-label={isHe ? "החלף קבוצה" : "Change group"}
+                      >
+                        <Repeat className="size-2.5" />
+                        {!isNarrow && !isShort && (
+                          <span>{isHe ? "קבוצה" : "Group"}</span>
+                        )}
+                      </button>
+                    )}
 
                     {/* Course code + type */}
                     {!isShort && (

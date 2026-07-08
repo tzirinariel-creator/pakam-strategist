@@ -21,7 +21,8 @@ import {
   X,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { calculateWorkload, getWorkloadColor } from "@/lib/workload-calculator";
+import { calculateWorkload, getWorkloadColor, calculateHonestLoad } from "@/lib/workload-calculator";
+import { Bidi } from "@/lib/bidi";
 import { CREDIT_REQUIREMENTS, DISCIPLINE_CONFIG } from "@/lib/constants";
 import type { CourseWithSchedule, ScheduleConflict } from "@/lib/plan-generator";
 
@@ -336,6 +337,22 @@ export function InsightsBar({
     );
   }, [selectedCourses]);
 
+  // Honest 3-number load (#2) — real facts, no prediction:
+  //   contact hours (from the grid) · ש״ס · tightest gap between exam dates.
+  const honestLoad = useMemo(() => {
+    return calculateHonestLoad(
+      selectedCourses.map((c) => ({
+        credits: c.credits,
+        sessions: (c.scheduleSessions ?? []).map((s) => ({
+          dayOfWeek: s.dayOfWeek,
+          startTime: s.startTime,
+          endTime: s.endTime,
+        })),
+        examDate: c.examDateA ?? null,
+      }))
+    );
+  }, [selectedCourses]);
+
   // Course name map for conflict display
   const courseNameMap = useMemo(() => {
     const map = new Map<string, string>();
@@ -572,6 +589,73 @@ export function InsightsBar({
           )}
         </div>
       </div>
+
+      {/* Honest load — three verifiable facts (#2). No prediction: real weekly
+          contact hours, ש״ס this semester, and the tightest gap between exam
+          dates we actually hold. The worst of the three is tinted. */}
+      {selectedCourses.length > 0 && (
+        <div className="grid grid-cols-3 gap-2">
+          <div className={cn(
+            "rounded-lg border border-border/30 bg-card/20 px-2.5 py-1.5",
+            honestLoad.label === "hours" && "border-amber-500/30 bg-amber-500/[0.05]"
+          )}>
+            <div className="flex items-baseline gap-1">
+              <span className="font-mono text-base font-bold text-foreground/80">
+                <Bidi text={honestLoad.weeklyHours} />
+              </span>
+              <span className="text-[10px] text-foreground/40">
+                {isHe ? "שע׳/שבוע" : "hrs/wk"}
+              </span>
+            </div>
+            <p className="text-[10px] text-foreground/30">
+              {isHe ? "שעות לימוד" : "Contact hours"}
+            </p>
+          </div>
+
+          <div className={cn(
+            "rounded-lg border border-border/30 bg-card/20 px-2.5 py-1.5",
+            honestLoad.label === "credits" && "border-amber-500/30 bg-amber-500/[0.05]"
+          )}>
+            <div className="flex items-baseline gap-1">
+              <span className="font-mono text-base font-bold text-foreground/80">
+                <Bidi text={honestLoad.credits} />
+              </span>
+              <span className="text-[10px] text-foreground/40">{t("nz")}</span>
+            </div>
+            <p className="text-[10px] text-foreground/30">
+              {isHe ? "נקודות זכות" : "Credits"}
+            </p>
+          </div>
+
+          <div className={cn(
+            "rounded-lg border border-border/30 bg-card/20 px-2.5 py-1.5",
+            honestLoad.label === "examCrunch" && "border-red-400/40 bg-red-400/[0.05]"
+          )}>
+            <div className="flex items-baseline gap-1">
+              {honestLoad.tightestExamGapDays != null ? (
+                <>
+                  <span className={cn(
+                    "font-mono text-base font-bold",
+                    honestLoad.label === "examCrunch" ? "text-red-400" : "text-foreground/80"
+                  )}>
+                    <Bidi text={honestLoad.tightestExamGapDays} />
+                  </span>
+                  <span className="text-[10px] text-foreground/40">
+                    {isHe ? "ימים" : "days"}
+                  </span>
+                </>
+              ) : (
+                <span className="text-[11px] text-foreground/30">
+                  {isHe ? "אין נתונים" : "no data"}
+                </span>
+              )}
+            </div>
+            <p className="text-[10px] text-foreground/30">
+              {isHe ? "מרווח מבחנים קצר" : "Tightest exam gap"}
+            </p>
+          </div>
+        </div>
+      )}
 
       {/* Conflict details — expanded panel */}
       {showConflictDetails && conflictCount > 0 && (

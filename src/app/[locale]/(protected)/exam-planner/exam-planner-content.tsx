@@ -42,6 +42,7 @@ import {
 import { StudySkyline } from "@/components/exam-planner/study-skyline";
 import { SyllabusScanner } from "@/components/exam-planner/syllabus-scanner";
 import { MoedBenefitBanner } from "@/components/exam-planner/moed-benefit-banner";
+import { ExamPlanWizard, MoedPrinciplesCard, type PrepStyle } from "@/components/exam-planner/exam-plan-wizard";
 import { planFromStudyTasks } from "@/lib/plan-from-tasks";
 import { downloadGanttCsv, type GanttTask } from "@/lib/excel-export";
 import { cn } from "@/lib/utils";
@@ -119,6 +120,12 @@ export function ExamPlannerContent() {
   const [selected, setSelected] = useState<Record<string, Moed | undefined>>({});
   // Skyline→agenda link (#37); n bumps so re-clicking the same day re-scrolls.
   const [focusDay, setFocusDay] = useState<{ key: string; n: number } | null>(null);
+  // Wizard tuning (#37) — prep style + blocked days feed the preview and the
+  // generate call. blockedDays are the engine's already-supported `unavailable`.
+  const [prepStyle, setPrepStyle] = useState<PrepStyle>("steady");
+  const [blockedDays, setBlockedDays] = useState<string[]>([]);
+  // STATE B "re-tune" — reopens the wizard over the saved plan.
+  const [retuneOpen, setRetuneOpen] = useState(false);
 
   const codeToName = useMemo(() => {
     const m = new Map<string, string>();
@@ -133,12 +140,17 @@ export function ExamPlannerContent() {
       if (!moed) continue;
       const date = moed === "B" ? c.examDateB : c.examDateA;
       if (!date) continue;
-      inputs.push({ courseCode: c.code, courseName: c.name, examDate: date, credits: c.credits, averageGrade: c.averageGrade, failRate: c.failRate, moed });
+      // prepStyle "light" = "already started, just review" → 25% fewer hours.
+      // The engine budgets by credits, so scaling credits scales the plan
+      // (min 1 kept so a course never drops to zero sessions). steady/crammer
+      // don't reshape the client preview — the engine owns the window.
+      const credits = prepStyle === "light" ? Math.max(1, Math.round(c.credits * 0.75)) : c.credits;
+      inputs.push({ courseCode: c.code, courseName: c.name, examDate: date, credits, averageGrade: c.averageGrade, failRate: c.failRate, moed });
     }
     return inputs;
-  }, [examCourses, selected]);
+  }, [examCourses, selected, prepStyle]);
 
-  const previewPlan = useMemo(() => generateExamPlan(previewInputs), [previewInputs]);
+  const previewPlan = useMemo(() => generateExamPlan(previewInputs, new Date(), blockedDays), [previewInputs, blockedDays]);
   const previewRecs = useMemo(() => (previewInputs.length === 0 ? [] : analyzeExamPeriod(previewPlan, isHe)), [previewInputs, previewPlan, isHe]);
   const selectedCount = Object.values(selected).filter(Boolean).length;
 
@@ -148,7 +160,10 @@ export function ExamPlannerContent() {
       toast.error(isHe ? "בחרו לפחות מבחן אחד" : "Pick at least one exam");
       return;
     }
-    generateMutation.mutate({ exams });
+    // blockedDays → the engine's already-supported `unavailable` (days it won't
+    // schedule study on). Sent as local YYYY-MM-DD keys, matching the engine.
+    generateMutation.mutate({ exams, unavailable: blockedDays.length > 0 ? blockedDays : undefined });
+    setRetuneOpen(false);
   };
 
   const tasks = useMemo(() => (tasksQuery.data?.tasks ?? []) as StudyTask[], [tasksQuery.data]);
@@ -441,26 +456,76 @@ export function ExamPlannerContent() {
             focusDay={focusDay}
           />
           {recsCard(persistedRecs, true)}
-          <Disclosure title={isHe ? "הוסיפו עוד תאריכים / כלים" : "Add more dates / tools"}>
+          <Disclosure title={isHe ? "כוונון מחדש / הוסיפו תאריכים וכלים" : "Re-tune / add dates & tools"}>
             <div className="flex flex-col gap-4">
-              <MoedBenefitBanner />
-              {pickExamsPanel}
+              <MoedPrinciplesCard isHe={isHe} />
+              {retuneOpen ? (
+                <ExamPlanWizard
+                  isHe={isHe}
+                  pickPanel={pickExamsPanel}
+                  previewSkyline={
+                    previewPlan.exams.length > 0 ? (
+                      <StudySkyline plan={previewPlan} recommendations={previewRecs} isHe={isHe} />
+                    ) : (
+                      <p className="rounded-xl border border-dashed border-border/50 bg-foreground/[0.02] p-6 text-center text-sm text-foreground/45">
+                        {isHe ? "בחרו מבחן כדי לראות תצוגה מקדימה." : "Pick an exam to see a preview."}
+                      </p>
+                    )
+                  }
+                  recsCard={recsCard(previewRecs)}
+                  selectedCount={selectedCount}
+                  prepStyle={prepStyle}
+                  onPrepStyle={setPrepStyle}
+                  blockedDays={blockedDays}
+                  onBlockedDays={setBlockedDays}
+                  onFinish={handleGenerate}
+                  finishBusy={generateMutation.isPending}
+                  finishLabel={generateMutation.isPending ? (isHe ? "מעדכן…" : "Updating…") : isHe ? "עדכן את התוכנית" : "Update the plan"}
+                />
+              ) : (
+                <button
+                  type="button"
+                  onClick={() => setRetuneOpen(true)}
+                  className="inline-flex items-center justify-center gap-2 rounded-lg border border-accent-brand/30 bg-accent-brand/[0.04] px-4 py-2.5 text-sm font-semibold text-accent-brand transition-colors hover:bg-accent-brand/10"
+                >
+                  <ListChecks className="size-4" />
+                  {isHe ? "כוונון מחדש של התוכנית" : "Re-tune the plan"}
+                </button>
+              )}
               <SyllabusScanner />
               {manualAddCard}
             </div>
           </Disclosure>
         </>
       ) : (
-        // ── STATE A — setup: pick exams → live-preview skyline ──
+        // ── STATE A — setup: 4-step wizard wrapping the exam-picking panel ──
         <>
           <MoedBenefitBanner />
-          <div className="animate-stagger-2">{pickExamsPanel}</div>
-          {previewPlan.exams.length > 0 && (
-            <div className="animate-fade-in">
-              <StudySkyline plan={previewPlan} recommendations={previewRecs} isHe={isHe} />
-            </div>
-          )}
-          {recsCard(previewRecs)}
+          <MoedPrinciplesCard isHe={isHe} />
+          <div className="animate-stagger-2">
+            <ExamPlanWizard
+              isHe={isHe}
+              pickPanel={pickExamsPanel}
+              previewSkyline={
+                previewPlan.exams.length > 0 ? (
+                  <StudySkyline plan={previewPlan} recommendations={previewRecs} isHe={isHe} />
+                ) : (
+                  <p className="rounded-xl border border-dashed border-border/50 bg-foreground/[0.02] p-6 text-center text-sm text-foreground/45">
+                    {isHe ? "חזרו לצעד 1 ובחרו מבחן כדי לראות תצוגה מקדימה." : "Go back to step 1 and pick an exam to see a preview."}
+                  </p>
+                )
+              }
+              recsCard={recsCard(previewRecs)}
+              selectedCount={selectedCount}
+              prepStyle={prepStyle}
+              onPrepStyle={setPrepStyle}
+              blockedDays={blockedDays}
+              onBlockedDays={setBlockedDays}
+              onFinish={handleGenerate}
+              finishBusy={generateMutation.isPending}
+              finishLabel={generateMutation.isPending ? (isHe ? "בונה תוכנית…" : "Building…") : isHe ? "בנה לי תוכנית לימוד" : "Build my study plan"}
+            />
+          </div>
           <Disclosure title={isHe ? "עוד דרכים להוסיף תאריכים" : "Other ways to add dates"}>
             <div className="flex flex-col gap-4">
               <SyllabusScanner />
