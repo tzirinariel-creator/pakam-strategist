@@ -15,13 +15,9 @@ export const planRouter = createTRPCRouter({
    * with related Course data, grouped by plannedYear and plannedSemester.
    */
   getUserPlan: protectedProcedure.query(async ({ ctx }) => {
-    const user = await ctx.db.user.findUnique({
-      where: { supabaseId: ctx.userId },
-    });
-
-    if (!user) {
-      throw new TRPCError({ code: "NOT_FOUND", message: "User not found" });
-    }
+    // Authenticated user row already loaded + verified by enforceAuth — reuse
+    // it instead of a redundant per-procedure findUnique (#9 N+1 fix).
+    const user = ctx.user;
 
     const userCourses = await ctx.db.userCourse.findMany({
       where: { userId: user.id },
@@ -252,13 +248,9 @@ export const planRouter = createTRPCRouter({
    * Get credit breakdown for the user's plan
    */
   getCredits: protectedProcedure.query(async ({ ctx }) => {
-    const user = await ctx.db.user.findUnique({
-      where: { supabaseId: ctx.userId },
-    });
-
-    if (!user) {
-      throw new TRPCError({ code: "NOT_FOUND", message: "User not found" });
-    }
+    // Authenticated user row already loaded + verified by enforceAuth — reuse
+    // it instead of a redundant per-procedure findUnique (#9 N+1 fix).
+    const user = ctx.user;
 
     const userCourses = await ctx.db.userCourse.findMany({
       where: { userId: user.id },
@@ -291,13 +283,9 @@ export const planRouter = createTRPCRouter({
    * Get graduation score for completed courses
    */
   getGraduationScore: protectedProcedure.query(async ({ ctx }) => {
-    const user = await ctx.db.user.findUnique({
-      where: { supabaseId: ctx.userId },
-    });
-
-    if (!user) {
-      throw new TRPCError({ code: "NOT_FOUND", message: "User not found" });
-    }
+    // Authenticated user row already loaded + verified by enforceAuth — reuse
+    // it instead of a redundant per-procedure findUnique (#9 N+1 fix).
+    const user = ctx.user;
 
     const userCourses = await ctx.db.userCourse.findMany({
       where: {

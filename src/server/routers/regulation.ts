@@ -11,13 +11,9 @@ export const regulationRouter = createTRPCRouter({
    * regulation engine, and returns a full RegulationSummary.
    */
   checkCompliance: protectedProcedure.query(async ({ ctx }) => {
-    const user = await ctx.db.user.findUnique({
-      where: { supabaseId: ctx.userId },
-    });
-
-    if (!user) {
-      throw new TRPCError({ code: "NOT_FOUND", message: "User not found" });
-    }
+    // Authenticated user row already loaded + verified by enforceAuth — reuse
+    // it instead of a redundant per-procedure findUnique (#9 N+1 fix).
+    const user = ctx.user;
 
     // Fetch all user courses with related course data
     const userCourses = await ctx.db.userCourse.findMany({

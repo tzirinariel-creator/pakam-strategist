@@ -395,29 +395,37 @@ export function DashboardContent() {
   // retry more aggressively when arriving from onboarding
   // staleTime: 0 when transitioning to force fresh fetch
   // IMPORTANT: Don't fetch until demo reset mutation is complete (prevents race condition)
+  // All six dashboard queries fire in ONE batch (#9): they used to be gated on
+  // `hasPlanData` (= planQuery's result), forcing a second serial round-trip.
+  // Each degrades gracefully on its own for a course-less user, so gating them
+  // only on demoResetDone (avoids the demo pre-reset race) lets the batch link
+  // send all six together. 60s staleTime makes back-navigation instant.
   const planQuery = api.plan.getUserPlan.useQuery(undefined, {
     retry: isTransitioning ? 3 : 1,
-    staleTime: isTransitioning ? 0 : undefined,
+    staleTime: isTransitioning ? 0 : 60 * 1000,
     enabled: demoResetDone,
   });
 
-  // Fetch plan data — only after we know user has courses (avoids errors for new users)
   const hasPlanData = (planQuery.data?.courses?.length ?? 0) > 0;
   const creditsQuery = api.plan.getCredits.useQuery(undefined, {
     retry: 1,
-    enabled: hasPlanData,
+    enabled: demoResetDone,
+    staleTime: 60 * 1000,
   });
   const gradeQuery = api.plan.getGraduationScore.useQuery(undefined, {
     retry: 1,
-    enabled: hasPlanData,
+    enabled: demoResetDone,
+    staleTime: 60 * 1000,
   });
   const regulationQuery = api.regulation.checkCompliance.useQuery(undefined, {
     retry: 1,
-    enabled: hasPlanData,
+    enabled: demoResetDone,
+    staleTime: 60 * 1000,
   });
   const profileQuery = api.user.getProfile.useQuery(undefined, {
     retry: 1,
-    enabled: hasPlanData,
+    enabled: demoResetDone,
+    staleTime: 60 * 1000,
   });
   // Gendered next-action labels (unknown gender → inclusive "/" form).
   const { g: pgd } = usePersonalAddress();
@@ -425,7 +433,8 @@ export function DashboardContent() {
   // Google Calendar status — check if connected
   const googleStatus = api.schedule.getGoogleStatus.useQuery(undefined, {
     retry: 1,
-    enabled: hasPlanData,
+    enabled: demoResetDone,
+    staleTime: 60 * 1000,
   });
   const [googleBannerDismissed, setGoogleBannerDismissed] = useState(false);
 
