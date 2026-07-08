@@ -108,6 +108,7 @@ model User {
   miluimCreditsUsed    Int         @default(0) // max 10 across the degree (credit-exemption-used counter)
   miluimBinaryUsed     Int         @default(0) // binary (pass/fail) conversions used across the degree (BA cap 5)
   amiramScore          Int? // Amiram English proficiency score
+  englishLevel         String? // #23 — direct level (EXEMPT|ADVANCED_B|ADVANCED_A|BASIC|PRE_BASIC); overrides amiram when the student knows it. The grade sheet prints the level without a number.
   role                 String      @default("user") // "user" | "admin"
 
   program         Program?         @relation(fields: [programId], references: [id])
