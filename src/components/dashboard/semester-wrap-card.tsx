@@ -7,10 +7,8 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { useLocale } from "next-intl";
-import { ScanLine, ChevronLeft } from "lucide-react";
+import { ScanLine } from "lucide-react";
 import { Link } from "@/i18n/navigation";
-import { toast } from "sonner";
-import { api } from "@/lib/trpc/react";
 import { getWrapTarget, wrapStorageKey } from "@/lib/semester-clock";
 import { SEMESTER_CONFIG } from "@/lib/constants";
 import { WhereIsMySheet } from "@/components/record/where-is-my-sheet";
@@ -19,10 +17,15 @@ const SNOOZE_DAYS = 7;
 
 export function SemesterWrapCard({
   profile,
+  currentYear,
   courses,
   onVisibleChange,
 }: {
   profile: { currentYear: number; currentSemester: string; email?: string | null } | undefined;
+  /** The DERIVED year-of-study (the same value the planner writes as
+   *  plannedYear) — comparing against the raw profile.currentYear would miss
+   *  courses once the two drift apart. */
+  currentYear: number;
   courses: { plannedYear: number; plannedSemester: string; status: string; grade: number | null }[];
   /** Lets the dashboard hide the redundant "returning student" prompt while
    *  the rite is visible (critique fix 8 — one ask, not two). */
@@ -35,12 +38,12 @@ export function SemesterWrapCard({
   const demoEmail = process.env.NEXT_PUBLIC_DEMO_USER_EMAIL;
   const isDemo = !!demoEmail && profile?.email === demoEmail;
 
-  // Courses from the just-ended semester still lacking a grade/answer.
+  // Courses from the just-ended semester still lacking a grade/answer. Matched
+  // on the DERIVED year (what the planner actually wrote), not the raw profile.
   const pending = courses.filter(
     (uc) =>
-      profile &&
       wrap &&
-      uc.plannedYear === profile.currentYear &&
+      uc.plannedYear === currentYear &&
       uc.plannedSemester === wrap.semester &&
       (uc.status === "PLANNED" || uc.status === "IN_PROGRESS"),
   );
@@ -76,30 +79,13 @@ export function SemesterWrapCard({
     onVisibleChange?.(false);
   }, [wrap, onVisibleChange]);
 
-  const markDone = useCallback(() => {
-    try {
-      if (wrap) localStorage.setItem(wrapStorageKey(wrap.key), "done");
-    } catch {
-      /* ignore */
-    }
-    setVisible(false);
-    onVisibleChange?.(false);
-  }, [wrap, onVisibleChange]);
-
-  const updateProfile = api.user.updateProfile.useMutation({
-    onSuccess: () => {
-      toast.success(isHe ? "הפרופיל עודכן לסמסטר הבא" : "Profile moved to the next semester");
-      markDone();
-    },
-    onError: () =>
-      toast.error(isHe ? "העדכון נכשל — אפשר לעדכן בהגדרות" : "Update failed — try settings"),
-  });
+  // Note: "done" is written by the scanner (applySelected) once grades land —
+  // the card just re-checks pending on next load.
 
   if (!visible || !wrap || !profile) return null;
   const semName = isHe
     ? SEMESTER_CONFIG[wrap.semester].nameHe
     : SEMESTER_CONFIG[wrap.semester].nameEn;
-  const stillOnEnded = profile.currentSemester === wrap.semester;
 
   return (
     <div className="animate-stagger-1 data-card p-4">
@@ -143,25 +129,9 @@ export function SemesterWrapCard({
       <div className="mt-2">
         <WhereIsMySheet />
       </div>
-      {stillOnEnded && (
-        <div className="mt-2 flex items-center gap-2 border-t border-border/40 pt-2 text-xs text-foreground/50">
-          {isHe ? "סיימת לעדכן?" : "Done updating?"}
-          <button
-            type="button"
-            onClick={() =>
-              updateProfile.mutate(
-                wrap.semester === "FALL"
-                  ? { currentSemester: "SPRING" }
-                  : { currentSemester: "FALL", currentYear: Math.min(profile.currentYear + 1, 4) },
-              )
-            }
-            className="inline-flex items-center gap-1 font-medium text-accent-brand hover:text-accent-brand-hover"
-          >
-            {isHe ? "עברתי לסמסטר הבא — עדכן פרופיל" : "Moved on — update profile"}
-            <ChevronLeft className="size-3 ltr:rotate-180" />
-          </button>
-        </div>
-      )}
+      {/* No "advance to next semester" button: year + semester are DERIVED from
+          the academic calendar now (Theme II), so the semester rolls over on
+          its own — a manual bump would only corrupt the startYear anchor. */}
     </div>
   );
 }

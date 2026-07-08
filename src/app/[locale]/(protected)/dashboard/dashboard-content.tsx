@@ -890,6 +890,7 @@ export function DashboardContent() {
       {!tourOpen && !isTransitioning && (
         <SemesterWrapCard
           profile={profileQuery.data ?? undefined}
+          currentYear={currentYear}
           courses={planQuery.data?.courses ?? []}
           onVisibleChange={setWrapVisible}
         />
