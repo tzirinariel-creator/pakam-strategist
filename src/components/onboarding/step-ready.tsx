@@ -159,6 +159,8 @@ export function StepReady({ data, plannedSemesters, completedCourses, allCourses
           miluimGroup: data.miluimGroup,
           miluimCareerService: data.miluimCareerService ?? false,
           amiramScore: data.amirantScore,
+          // #23 — the directly-declared level (grade sheet), overrides the score.
+          englishLevel: (data.englishLevel as "EXEMPT" | "ADVANCED_B" | "ADVANCED_A" | "BASIC" | "PRE_BASIC" | null) ?? null,
           // Personal address — name + gender for a personalized, gendered UI.
           firstName: data.firstName ?? null,
           lastName: data.lastName ?? null,

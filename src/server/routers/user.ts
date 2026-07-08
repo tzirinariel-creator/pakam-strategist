@@ -36,6 +36,8 @@ export const userRouter = createTRPCRouter({
         miluimCreditsUsed: true,
         miluimBinaryUsed: true,
         amiramScore: true,
+        // #23 — the English level as printed on the grade sheet (no number).
+        englishLevel: true,
         programId: true,
 
         createdAt: true,
@@ -73,6 +75,12 @@ export const userRouter = createTRPCRouter({
         miluimBinaryUsed: z.number().int().min(0).max(5).optional(),
         // AMIRANT/Psychometric English uses the 50–150 scale (DB column kept as amiramScore).
         amiramScore: z.number().int().min(50).max(150).nullable().optional(),
+        // #23 — the placement level itself, as printed on the grade sheet with
+        // no number. When set, it OVERRIDES the score-derived level everywhere.
+        englishLevel: z
+          .enum(["EXEMPT", "ADVANCED_B", "ADVANCED_A", "BASIC", "PRE_BASIC"])
+          .nullable()
+          .optional(),
       })
     )
     .mutation(async ({ ctx, input }) => {
@@ -112,6 +120,7 @@ export const userRouter = createTRPCRouter({
           miluimCreditsUsed: true,
           miluimBinaryUsed: true,
           amiramScore: true,
+          englishLevel: true,
           programId: true,
 
           createdAt: true,
@@ -286,6 +295,7 @@ export const userRouter = createTRPCRouter({
         miluimCreditsUsed: 0,
         miluimBinaryUsed: 0,
         amiramScore: null,
+        englishLevel: null,
       },
     });
 

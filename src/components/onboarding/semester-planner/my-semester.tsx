@@ -20,6 +20,9 @@ interface MySemesterProps {
   onSelectSessionGroup?: (courseCode: string, sessionType: string, groupCode: string) => void;
   /** Hover-preview a group on the live timetable (#2). Null clears. */
   onPreviewGroup?: (p: { courseCode: string; sessionType: string; groupCode: string } | null) => void;
+  /** The semester this view represents — so the group selector shows only THIS
+   *  semester's groups for a course offered in both (matches the on-grid picker). */
+  currentSemester?: "FALL" | "SPRING";
 }
 
 
@@ -38,10 +41,17 @@ export function MySemester({
   sessionGroupSelections,
   onSelectSessionGroup,
   onPreviewGroup,
+  currentSemester,
 }: MySemesterProps) {
   const t = useTranslations("onboarding");
   const locale = useLocale();
   const isHe = locale === "he";
+
+  // A course offered in BOTH semesters carries sessions for both; the group
+  // selector must show only THIS semester's groups (same rule as the on-grid
+  // picker: keep a session with no semester tag, else match the current one).
+  const sessionsForSemester = (sessions: CourseWithSchedule["scheduleSessions"]) =>
+    (sessions ?? []).filter((s) => !currentSemester || !s.semester || s.semester === currentSemester);
 
   // Group all courses by discipline
   const disciplineGroups = useMemo(() => {
@@ -144,19 +154,22 @@ export function MySemester({
                           </span>
                         </div>
                       </CourseDetailPopover>
-                      {/* Session group selector — only for courses with multiple lecture/tutorial groups */}
-                      {onSelectSessionGroup && course.scheduleSessions && courseHasMultipleGroups(course.scheduleSessions) && (
-                        <div className="ms-6">
-                          <SessionGroupSelector
-                            courseCode={course.code}
-                            courseName={isHe ? course.nameHe : (course.nameEn ?? course.nameHe)}
-                            sessions={course.scheduleSessions}
-                            selectedGroups={sessionGroupSelections?.[course.code] ?? {}}
-                            onSelectGroup={onSelectSessionGroup}
-                            onPreviewGroup={onPreviewGroup}
-                          />
-                        </div>
-                      )}
+                      {/* Session group selector — only for courses with multiple lecture/tutorial groups (this semester's) */}
+                      {(() => {
+                        const semSessions = sessionsForSemester(course.scheduleSessions);
+                        return onSelectSessionGroup && courseHasMultipleGroups(semSessions) ? (
+                          <div className="ms-6">
+                            <SessionGroupSelector
+                              courseCode={course.code}
+                              courseName={isHe ? course.nameHe : (course.nameEn ?? course.nameHe)}
+                              sessions={semSessions}
+                              selectedGroups={sessionGroupSelections?.[course.code] ?? {}}
+                              onSelectGroup={onSelectSessionGroup}
+                              onPreviewGroup={onPreviewGroup}
+                            />
+                          </div>
+                        ) : null;
+                      })()}
                     </div>
                   ) : (
                     <div key={course.id} className="space-y-1">
@@ -208,19 +221,23 @@ export function MySemester({
                       </div>
                     </CourseDetailPopover>
                     {/* Session-group selector for ELECTIVES too (#2) — a
-                        multi-group elective used to silently take group 1. */}
-                    {onSelectSessionGroup && course.scheduleSessions && courseHasMultipleGroups(course.scheduleSessions) && (
-                      <div className="ms-6">
-                        <SessionGroupSelector
-                          courseCode={course.code}
-                          courseName={isHe ? course.nameHe : (course.nameEn ?? course.nameHe)}
-                          sessions={course.scheduleSessions}
-                          selectedGroups={sessionGroupSelections?.[course.code] ?? {}}
-                          onSelectGroup={onSelectSessionGroup}
-                          onPreviewGroup={onPreviewGroup}
-                        />
-                      </div>
-                    )}
+                        multi-group elective used to silently take group 1.
+                        Filtered to THIS semester's sessions. */}
+                    {(() => {
+                      const semSessions = sessionsForSemester(course.scheduleSessions);
+                      return onSelectSessionGroup && courseHasMultipleGroups(semSessions) ? (
+                        <div className="ms-6">
+                          <SessionGroupSelector
+                            courseCode={course.code}
+                            courseName={isHe ? course.nameHe : (course.nameEn ?? course.nameHe)}
+                            sessions={semSessions}
+                            selectedGroups={sessionGroupSelections?.[course.code] ?? {}}
+                            onSelectGroup={onSelectSessionGroup}
+                            onPreviewGroup={onPreviewGroup}
+                          />
+                        </div>
+                      ) : null;
+                    })()}
                     </div>
                   )
                 )}

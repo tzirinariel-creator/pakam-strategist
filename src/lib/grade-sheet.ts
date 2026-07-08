@@ -24,6 +24,12 @@ export const extractedRowSchema = z.object({
 
 export const extractionSchema = z.object({
   rows: z.array(extractedRowSchema).max(80),
+  /**
+   * #23 — the English LEVEL as printed on the "דרישות כלל אוניברסיטאיות" line
+   * (e.g. "מתקדמים ב'"), with no number. Optional; absent on sheets that don't
+   * print it. Kept as raw text here and mapped to an enum by mapEnglishLevelLabel.
+   */
+  englishLevelLabel: z.string().max(60).nullish(),
 });
 
 export type ExtractedRow = z.infer<typeof extractedRowSchema>;
@@ -35,8 +41,10 @@ export type ExtractedRow = z.infer<typeof extractedRowSchema>;
 const MODE_TOKEN = `(?:ש[׳'’]?\\+ת[׳'’]?|שו["״]ת|ש[׳'’]|ת[׳'’])`;
 const MODE_AT_EDGES = new RegExp(`^${MODE_TOKEN}\\s+|\\s+${MODE_TOKEN}$`, "g");
 
-/** Parse the model's text output (may be wrapped in ```json fences). */
-export function parseExtraction(text: string): ExtractedRow[] | null {
+/** Validate the model's raw text into the full extraction (rows + English
+ *  level), or null. Shared by parseExtraction and parseEnglishLevelLabel so a
+ *  single scan is parsed once, consistently. */
+function extractValidated(text: string): z.infer<typeof extractionSchema> | null {
   const stripped = text.replace(/```json|```/g, "").trim();
   const start = stripped.indexOf("{");
   const end = stripped.lastIndexOf("}");
@@ -49,16 +57,27 @@ export function parseExtraction(text: string): ExtractedRow[] | null {
     .replace(/("grade"\s*:\s*)0+(\d)/g, "$1$2");
   try {
     const parsed = extractionSchema.safeParse(JSON.parse(jsonText));
-    if (!parsed.success) return null;
-    return parsed.data.rows.map((r) => ({
-      ...r,
-      courseName:
-        r.courseName.replace(MODE_AT_EDGES, "").replace(MODE_AT_EDGES, "").trim() ||
-        r.courseName,
-    }));
+    return parsed.success ? parsed.data : null;
   } catch {
     return null;
   }
+}
+
+/** Parse the model's text output (may be wrapped in ```json fences). */
+export function parseExtraction(text: string): ExtractedRow[] | null {
+  const data = extractValidated(text);
+  if (!data) return null;
+  return data.rows.map((r) => ({
+    ...r,
+    courseName:
+      r.courseName.replace(MODE_AT_EDGES, "").replace(MODE_AT_EDGES, "").trim() ||
+      r.courseName,
+  }));
+}
+
+/** The raw English-level label the model read off the sheet (#23), or null. */
+export function parseEnglishLevelLabel(text: string): string | null {
+  return extractValidated(text)?.englishLevelLabel ?? null;
 }
 
 /** Loose Hebrew-aware normalization for name matching. Exported so the
@@ -192,10 +211,11 @@ export const GRADE_SHEET_SYSTEM = `אתה קורא "אישור קורסים וצ
 - *** בעמודת הציון = הקורס עדיין בלימוד ואין לו ציון. אל תמציא ציון: grade=null ו-inProgress=true.
 - עמודת "אופן הוראה" מכילה קיצורים כמו ש', ת', ש'+ת', שו"ת — זה סוג השיעור, לא חלק משם הקורס. לעולם אל תכלול אותם ב-courseName.
 - גם עמודת "הערות" (למשל "לא לשקלול") אינה חלק משם הקורס.
-- דלג על שורות שאינן קורסים: "ממוצע משוקלל…", "ממוצע בחוג", "דרישות כלל אוניברסיטאיות", "מפתח סימולי…", "סיכום מצב לימודים", כותרות עמוד וכותרות הטבלה עצמן.
+- דלג על שורות שאינן קורסים: "ממוצע משוקלל…", "ממוצע בחוג", "מפתח סימולי…", "סיכום מצב לימודים", כותרות עמוד וכותרות הטבלה עצמן.
+- שורת "דרישות כלל אוניברסיטאיות" אינה קורס — אל תכניס אותה ל-rows. אבל אם כתוב בה "אנגלית: <רמה>" (למשל "אנגלית: מתקדמים ב'-מיון"), החזר את מילות-הרמה בלבד ("מתקדמים ב'") בשדה englishLevelLabel. בלי המילה "מיון" ובלי מספר. אם אין שורה כזו — englishLevelLabel=null.
 
 החזר JSON בלבד, בפורמט:
-{"rows":[{"courseCode":"0651-1001" או null,"courseName":"שם הקורס","grade":89 או null,"credits":4 או null,"passText":"עובר" או null,"semester":"2025/1" או null,"inProgress":false}]}
+{"rows":[{"courseCode":"0651-1001" או null,"courseName":"שם הקורס","grade":89 או null,"credits":4 או null,"passText":"עובר" או null,"semester":"2025/1" או null,"inProgress":false}],"englishLevelLabel":"מתקדמים ב'" או null}
 
 כללים:
 - חלץ אך ורק את מה שכתוב במסמך — אל תמציא, אל תשלים ואל תנחש ציון שלא מופיע.

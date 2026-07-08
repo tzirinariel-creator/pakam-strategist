@@ -144,6 +144,8 @@ export function SemesterPlannerPage() {
     miluimGroup: (profile as Record<string, unknown>)?.miluimGroup as OnboardingData["miluimGroup"] ?? "NONE",
     // DB column is still `amiramScore`; map it onto the renamed onboarding field.
     amirantScore: (profile as Record<string, unknown>)?.amiramScore as number | null ?? null,
+    // #23 — the directly-declared English level (grade sheet), if the student set it.
+    englishLevel: ((profile as Record<string, unknown>)?.englishLevel as string | null) ?? null,
   };
 
   const handleFinish = async (plannedSemesters: PlannedSemester[], sessionGroupSelections: SessionGroupSelections) => {

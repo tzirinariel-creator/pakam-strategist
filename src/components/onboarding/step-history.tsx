@@ -1,11 +1,15 @@
 "use client";
 
-import { useMemo, useState, useCallback } from "react";
+import { useMemo, useState, useCallback, useRef } from "react";
 import { useTranslations, useLocale } from "next-intl";
-import { Search, Plus, X, GraduationCap, Check, Star, Languages } from "lucide-react";
+import { Search, Plus, X, GraduationCap, Check, Star, Languages, ScanLine, Loader2 } from "lucide-react";
+import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { DISCIPLINE_CONFIG, SEMESTER_CONFIG, YEAR_CONFIG } from "@/lib/constants";
 import type { CourseWithSchedule } from "@/lib/plan-generator";
+import { matchExtractedToCatalog } from "@/lib/grade-sheet";
+import { fileToBase64, SCANNER_ACCEPT } from "@/lib/upload";
+import { WhereIsMySheet } from "@/components/record/where-is-my-sheet";
 import type { OnboardingData } from "./onboarding-wizard";
 
 // ─────────────────────────────────────────────────────────────────────────
@@ -166,6 +170,84 @@ export function StepHistory({
   // Course-search state for adding electives.
   const [search, setSearch] = useState("");
 
+  // Grade-sheet scan (#23 golden path) — the same /api/ai/scan-grades used on
+  // /record, but here it MERGES into the completed-courses map instead of the
+  // plan: matched catalog courses get pre-checked with their grade. It writes
+  // nothing on its own — the student still reviews the pre-checked list and the
+  // real save happens through the normal onboarding flow.
+  const scanRef = useRef<HTMLInputElement>(null);
+  const [scanning, setScanning] = useState(false);
+
+  const handleScanFile = useCallback(
+    async (file: File) => {
+      setScanning(true);
+      try {
+        const { b64, mime } = await fileToBase64(file);
+        if (b64.length > 5_000_000) {
+          toast.error(
+            isHe
+              ? "הקובץ גדול מדי — צלמו את העמוד עצמו במקום להעלות PDF כבד."
+              : "File too large — photograph the page itself instead of a heavy PDF.",
+          );
+          return;
+        }
+        const res = await fetch("/api/ai/scan-grades", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ imageBase64: b64, mimeType: mime }),
+        });
+        const resData = (await res.json()) as { rows?: unknown[]; error?: string };
+        if (!res.ok) {
+          toast.error(resData.error ?? (isHe ? "הסריקה נכשלה" : "Scan failed"));
+          return;
+        }
+        const matched = matchExtractedToCatalog(
+          (resData.rows ?? []) as Parameters<typeof matchExtractedToCatalog>[0],
+          allCourses,
+        );
+        const next = { ...value };
+        let hits = 0;
+        let graded = 0;
+        for (const { row, course } of matched) {
+          if (!course) continue;
+          if (row.inProgress) continue; // *** rows aren't completed yet
+          const full = allCourses.find((c) => c.code === course.code);
+          const placement = (full && computePlacement(full)) ?? { year: 1, semester: "FALL" as const };
+          const existing = next[course.code];
+          next[course.code] = {
+            courseCode: course.code,
+            plannedYear: existing?.plannedYear ?? placement.year,
+            plannedSemester: existing?.plannedSemester ?? placement.semester,
+            grade: row.grade ?? existing?.grade ?? null,
+          };
+          hits++;
+          if (row.grade != null) graded++;
+        }
+        onChange(next);
+        if (hits === 0) {
+          toast(
+            isHe
+              ? "לא מצאנו קורסים תואמים בגיליון — אפשר לסמן ידנית למטה."
+              : "No matching courses found on the sheet — mark them manually below.",
+          );
+        } else {
+          toast.success(
+            isHe ? `נמצאו ${hits} קורסים בגיליון` : `Found ${hits} courses on the sheet`,
+            graded > 0
+              ? { description: isHe ? `${graded} עם ציון · עברו לוודא ולתקן למטה` : `${graded} with a grade · review below` }
+              : undefined,
+          );
+        }
+      } catch {
+        toast.error(isHe ? "הסריקה נכשלה — נסו שוב" : "Scan failed — try again");
+      } finally {
+        setScanning(false);
+        if (scanRef.current) scanRef.current.value = "";
+      }
+    },
+    [allCourses, value, onChange, isHe],
+  );
+
   const toggleCourse = useCallback(
     (course: CourseWithSchedule, placement: PastSemester) => {
       const next = { ...value };
@@ -304,6 +386,50 @@ export function StepHistory({
             </span>
           )}
         </div>
+
+        {/* Grade-sheet scan — the fastest way to fill history (#23 golden path).
+            Pre-checks matched courses + fills grades; the student reviews below. */}
+        {!isLoadingCourses && pastSemesters.length > 0 && (
+          <div className="animate-stagger-2 rounded-xl border border-accent-brand/25 bg-accent-brand/5 p-3">
+            <div className="flex flex-wrap items-center gap-3">
+              <div className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-accent-brand/10 text-accent-brand">
+                <ScanLine className="size-4.5" />
+              </div>
+              <div className="min-w-0 flex-1">
+                <p className="text-sm font-semibold text-foreground/85">
+                  {isHe ? "יש לכם גיליון ציונים? סרקו אותו" : "Have a grade sheet? Scan it"}
+                </p>
+                <p className="text-xs text-foreground/50">
+                  {isHe
+                    ? "נסמן את הקורסים שכבר עשיתם ונמלא ציונים — במקום להקליד ידנית."
+                    : "We'll check off the courses you've done and fill in grades — instead of typing."}
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => scanRef.current?.click()}
+                disabled={scanning}
+                className="inline-flex shrink-0 items-center gap-1.5 rounded-lg bg-accent-brand px-3 py-2 text-sm font-semibold text-white transition-opacity hover:opacity-90 disabled:opacity-50"
+              >
+                {scanning ? <Loader2 className="size-4 animate-spin" /> : <ScanLine className="size-4" />}
+                {scanning ? (isHe ? "קורא…" : "Reading…") : isHe ? "העלו וסרקו" : "Upload & scan"}
+              </button>
+              <input
+                ref={scanRef}
+                type="file"
+                accept={SCANNER_ACCEPT}
+                className="hidden"
+                onChange={(e) => {
+                  const f = e.target.files?.[0];
+                  if (f) void handleScanFile(f);
+                }}
+              />
+            </div>
+            <div className="mt-2">
+              <WhereIsMySheet />
+            </div>
+          </div>
+        )}
 
         {/* Loading */}
         {isLoadingCourses && (

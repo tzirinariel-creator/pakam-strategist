@@ -234,9 +234,10 @@ export function PlannerContent() {
         <DegreeStatus variant="compact" credits={breakdown ?? null} isHe={isHe} />
       </div>
 
-      {/* Main content — plan board beside a live timetable (#21). On wide
-          screens they sit side by side so the schedule updates as you drag a
-          course; on narrow screens the timetable stacks below the board. */}
+      {/* Main content — plan board beside a live timetable. On wide screens they
+          sit side by side so the schedule updates as you drag a course; on a
+          phone the timetable moves to the TOP (order-first) so the student sees
+          their real week first instead of a long list (#20). */}
       <div className="flex flex-col gap-5 xl:flex-row xl:items-start">
         <div className="flex min-w-0 flex-1 flex-col gap-5">
           <div className="animate-stagger-3">
@@ -251,8 +252,9 @@ export function PlannerContent() {
           </div>
         </div>
 
-        {/* Live timetable — sticky alongside the board on xl+ */}
-        <div className="animate-stagger-3 xl:sticky xl:top-4 xl:w-[380px] xl:shrink-0">
+        {/* Live timetable — on top on a phone (order-first), sticky alongside
+            the board on xl+ (order-none restores the natural side-by-side). */}
+        <div className="order-first animate-stagger-3 xl:order-none xl:sticky xl:top-4 xl:w-[380px] xl:shrink-0">
           <PlannerLiveTimetable courses={courses} />
         </div>
       </div>

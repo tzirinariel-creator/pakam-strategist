@@ -56,6 +56,7 @@ export const regulationRouter = createTRPCRouter({
         undefined,
         {
           amirantScore: user.amiramScore,
+          englishLevel: user.englishLevel,
           academicYear: user.currentYear,
           currentSemester: user.currentSemester,
           miluimGroup: currentGroup,

@@ -345,7 +345,14 @@ function CompletionControl({
         : clamped >= passBarFor(courseType)
           ? "COMPLETED"
           : "FAILED";
-      onUpdate({ userCourseId, status, grade: clamped });
+      // A FAILED course never carries a binary (pass/fail) flag — same invariant
+      // as un-marking (a non-COMPLETED row must not stay flagged binary).
+      onUpdate({
+        userCourseId,
+        status,
+        grade: clamped,
+        ...(status === "FAILED" ? { isBinary: false } : {}),
+      });
     },
     [onUpdate, userCourseId, binaryOn, courseType],
   );

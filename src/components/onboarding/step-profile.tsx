@@ -5,7 +5,7 @@ import { useTranslations, useLocale } from "next-intl";
 import { Shield, ChevronDown, Swords, Check, BadgeCheck, FileText } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Bidi } from "@/lib/bidi";
-import { MILUIM_CONFIG, AMIRNET_CONFIG, DISCIPLINE_CONFIG, FOCUS_DISCIPLINE_IDS } from "@/lib/constants";
+import { MILUIM_CONFIG, AMIRNET_CONFIG, ENGLISH_CONFIG, DISCIPLINE_CONFIG, FOCUS_DISCIPLINE_IDS } from "@/lib/constants";
 import { deriveGroupFromDays, type MiluimGroupKey } from "@/lib/miluim";
 import type { OnboardingData } from "./onboarding-wizard";
 
@@ -633,6 +633,30 @@ export function StepProfile({ data, onUpdate }: StepProfileProps) {
             <span><Bidi text={isHe ? "120-133 = מתקדמים ב׳" : "120-133 = adv. B"} /></span>
             <span><Bidi text={isHe ? "100-119 = מתקדמים א׳" : "100-119 = adv. A"} /></span>
             <span><Bidi text={isHe ? "85-99 = בסיסי" : "85-99 = basic"} /></span>
+          </div>
+
+          {/* #23 — a student who knows their LEVEL (as printed on the grade sheet
+              with no number) but not their score can pick it directly. It wins
+              over the score everywhere, so the English rules still fire. */}
+          <div className="mt-4">
+            <label htmlFor="onboarding-english-level" className="mb-1.5 block text-xs text-foreground/50">
+              {isHe
+                ? "לא יודעים את הציון? בחרו את הרמה מהגיליון (למשל “מתקדמים ב׳”)"
+                : "Don't know the score? Pick your level from the grade sheet"}
+            </label>
+            <select
+              id="onboarding-english-level"
+              value={data.englishLevel ?? ""}
+              onChange={(e) => onUpdate({ englishLevel: e.target.value || null })}
+              className="w-full max-w-xs rounded-xl border-2 border-border bg-card px-4 py-2.5 text-sm text-foreground focus:border-foreground/30 focus:outline-none transition-colors"
+            >
+              <option value="">{isHe ? "לא יודע/לפי הציון" : "Not sure / use score"}</option>
+              {ENGLISH_CONFIG.LEVELS.map((lvl) => (
+                <option key={lvl.level} value={lvl.level}>
+                  {isHe ? lvl.nameHe : lvl.nameEn}
+                </option>
+              ))}
+            </select>
           </div>
         </div>
       </div>

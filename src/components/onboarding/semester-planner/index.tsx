@@ -782,6 +782,7 @@ export function SemesterPlanner({
                 sessionGroupSelections={sessionGroupSelections}
                 onSelectSessionGroup={handleSelectSessionGroup}
                 onPreviewGroup={setGroupPreview}
+                currentSemester={currentSemester}
               />
             </div>
           </div>

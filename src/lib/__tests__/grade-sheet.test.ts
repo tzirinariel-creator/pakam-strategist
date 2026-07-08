@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { parseExtraction, matchExtractedToCourses, type UserCourseLite } from "@/lib/grade-sheet";
+import { parseExtraction, parseEnglishLevelLabel, matchExtractedToCourses, type UserCourseLite } from "@/lib/grade-sheet";
 
 const COURSES: UserCourseLite[] = [
   { userCourseId: "u1", courseCode: "0651-1001", nameHe: "מבוא למיקרו כלכלה", currentGrade: null, status: "IN_PROGRESS" },
@@ -16,6 +16,28 @@ describe("parseExtraction", () => {
   it("rejects garbage, out-of-range grades, and non-JSON", () => {
     expect(parseExtraction("sorry, I cannot read this")).toBeNull();
     expect(parseExtraction('{"rows":[{"courseCode":null,"courseName":"x","grade":150,"credits":null,"passText":null}]}')).toBeNull();
+  });
+
+  // #23 — the sheet prints the English level as words on the requirements line;
+  // it rides along in the same payload without breaking the rows parse.
+  it("still parses rows when an englishLevelLabel is present", () => {
+    const rows = parseExtraction(
+      '{"rows":[{"courseCode":"0651-1001","courseName":"מיקרו","grade":88,"credits":4,"passText":null}],"englishLevelLabel":"מתקדמים ב\'"}',
+    );
+    expect(rows).toHaveLength(1);
+    expect(rows?.[0]?.grade).toBe(88);
+  });
+});
+
+describe("parseEnglishLevelLabel (#23)", () => {
+  it("reads the raw English-level label off the payload", () => {
+    expect(
+      parseEnglishLevelLabel('{"rows":[],"englishLevelLabel":"מתקדמים ב\'"}'),
+    ).toBe("מתקדמים ב'");
+  });
+  it("is null when the sheet prints no level line", () => {
+    expect(parseEnglishLevelLabel('{"rows":[{"courseCode":null,"courseName":"x","grade":90,"credits":2,"passText":null}]}')).toBeNull();
+    expect(parseEnglishLevelLabel("not json at all")).toBeNull();
   });
 
   // The REAL TAU sheet zero-pads grades to 3 digits (089 = 89). A model that

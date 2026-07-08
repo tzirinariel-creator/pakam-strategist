@@ -29,6 +29,9 @@ export interface OnboardingData {
   miluimGroup: "NONE" | "GROUP_A" | "GROUP_B" | "GROUP_C" | "GROUP_G";
   /** AMIRANT English placement score (50–150 scale). DB column stays `amiramScore`. */
   amirantScore: number | null;
+  /** #23 — English level straight off the grade sheet (no number). Overrides the
+   *  score when set — for a student who knows their level but not their score. */
+  englishLevel: string | null;
   /**
    * Optional per-semester miluim inputs captured in step-profile (days served +
    * combat status). When set, step-ready upserts ONE MiluimSemester for the
@@ -113,6 +116,7 @@ export function OnboardingWizard() {
     focusArea: null,
     miluimGroup: "NONE",
     amirantScore: null,
+    englishLevel: null,
     miluimCareerService: false,
     firstName: null,
     lastName: null,

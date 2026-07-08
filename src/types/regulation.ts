@@ -32,6 +32,12 @@ export interface RuleContext {
    * if not provided. When null, English-level rules stay neutral. נכון לתשפ"ו.
    */
   amirantScore?: number | null;
+  /**
+   * #23 — English level declared directly (grade sheet / settings), e.g.
+   * "ADVANCED_B". When present it OVERRIDES amirantScore in the English rules,
+   * because the grade sheet prints the level with no number.
+   */
+  englishLevel?: string | null;
   /** Student's current academic year (1-based) — used by deadline rules. */
   academicYear?: number;
   /** Student's current semester ("FALL" | "SPRING" | "SUMMER"). */

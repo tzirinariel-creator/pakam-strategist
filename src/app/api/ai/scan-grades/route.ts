@@ -15,7 +15,7 @@ import { detectProvider } from "@/lib/ai/provider";
 import { decrypt, encrypt } from "@/lib/crypto";
 import { checkRateLimit } from "@/lib/rate-limit";
 import { isDemoEmail, DEMO_READONLY_MESSAGE } from "@/server/trpc/demo";
-import { parseExtraction, GRADE_SHEET_SYSTEM } from "@/lib/grade-sheet";
+import { parseExtraction, parseEnglishLevelLabel, mapEnglishLevelLabel, GRADE_SHEET_SYSTEM } from "@/lib/grade-sheet";
 
 const ALLOWED_MIME = new Set([
   "image/jpeg",
@@ -139,7 +139,11 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: errs.unreadable }, { status: 422 });
     }
 
-    return NextResponse.json({ rows });
+    // #23 — the English level printed on the sheet (no number). Mapped to an enum
+    // here; the client offers it as an explicit, declared change (no silent write).
+    const englishLevel = mapEnglishLevelLabel(parseEnglishLevelLabel(text));
+
+    return NextResponse.json({ rows, englishLevel });
   } catch (e) {
     const status = (e as { status?: number })?.status;
     // Distinguish real causes instead of blaming the photo (and making the user

@@ -3,9 +3,10 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { useLocale } from "next-intl";
-import { ScanLine, Loader2, Check, AlertTriangle, X } from "lucide-react";
+import { ScanLine, Loader2, Check, AlertTriangle, X, Languages } from "lucide-react";
 import { toast } from "sonner";
 import { api } from "@/lib/trpc/react";
+import { getEnglishLevelInfo, type EnglishLevel } from "@/lib/constants";
 import {
   matchExtractedToCourses,
   decideApplication,
@@ -32,10 +33,15 @@ export function GradeSheetScanner() {
   const [rows, setRows] = useState<MatchedRow[] | null>(null);
   const [checked, setChecked] = useState<Set<number>>(new Set());
   const [applying, setApplying] = useState(false);
+  // #23 — English level the scan read off the sheet (no number). Offered as an
+  // explicit, declared change (never written silently) and cleared once applied.
+  const [scannedEnglish, setScannedEnglish] = useState<EnglishLevel | null>(null);
 
   const utils = api.useUtils();
   const planQuery = api.plan.getUserPlan.useQuery();
+  const profileQuery = api.user.getProfile.useQuery();
   const updateMutation = api.plan.updateCourse.useMutation();
+  const updateProfile = api.user.updateProfile.useMutation();
 
   // The end-of-semester rite (#22) deep-links here with ?scan=1 — scroll to the
   // scanner so the student lands right on the action they came for.
@@ -81,7 +87,11 @@ export function GradeSheetScanner() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ imageBase64: b64, mimeType: mime }),
       });
-      const data = (await res.json()) as { rows?: unknown[]; error?: string };
+      const data = (await res.json()) as {
+        rows?: unknown[];
+        englishLevel?: EnglishLevel | null;
+        error?: string;
+      };
       if (!res.ok) {
         toast.error(data.error ?? (isHe ? "הסריקה נכשלה" : "Scan failed"));
         return;
@@ -91,6 +101,12 @@ export function GradeSheetScanner() {
         userCourses,
       );
       setRows(matched);
+      // #23 — offer the read-off English level only when it actually adds
+      // something: present on the sheet AND not already the student's stored level.
+      const current = profileQuery.data?.englishLevel ?? null;
+      setScannedEnglish(
+        data.englishLevel && data.englishLevel !== current ? data.englishLevel : null,
+      );
       // Pre-check ONLY high-confidence, unambiguous matches (still requires a
       // grade — passText/EXEMPT rows are applicable but never auto-checked, so
       // a "עובר" is a deliberate tick). A fuzzy/ambiguous match stays unchecked.
@@ -154,8 +170,26 @@ export function GradeSheetScanner() {
         }
       }
       setRows(null);
+      setScannedEnglish(null);
       invalidatePlanData(utils);
     }
+  };
+
+  // #23 — apply the read-off English level as an explicit, declared change.
+  const applyEnglishLevel = () => {
+    if (!scannedEnglish) return;
+    updateProfile.mutate(
+      { englishLevel: scannedEnglish },
+      {
+        onSuccess: () => {
+          setScannedEnglish(null);
+          void utils.user.getProfile.invalidate();
+          toast.success(isHe ? "רמת האנגלית עודכנה מהגיליון" : "English level updated from the sheet");
+        },
+        onError: (e) =>
+          toast.error(e.message ?? (isHe ? "עדכון רמת האנגלית נכשל" : "Failed to update English level")),
+      },
+    );
   };
 
   return (
@@ -203,10 +237,44 @@ export function GradeSheetScanner() {
             <p className="text-xs font-bold text-foreground/70">
               {isHe ? `נמצאו ${rows.length} שורות — סמנו מה לעדכן:` : `Found ${rows.length} rows — pick what to apply:`}
             </p>
-            <button type="button" onClick={() => setRows(null)} aria-label={isHe ? "סגור" : "Close"} className="rounded-md p-1 text-foreground/30 hover:text-foreground/60">
+            <button type="button" onClick={() => { setRows(null); setScannedEnglish(null); }} aria-label={isHe ? "סגור" : "Close"} className="rounded-md p-1 text-foreground/30 hover:text-foreground/60">
               <X className="size-4" />
             </button>
           </div>
+
+          {/* #23 — declared English level read off the sheet. Explicit apply, no
+              silent write; hidden once it matches the stored level. */}
+          {scannedEnglish && (() => {
+            const info = getEnglishLevelInfo(scannedEnglish);
+            if (!info) return null;
+            return (
+              <div className="flex flex-wrap items-center gap-2 rounded-lg border border-accent-brand/30 bg-accent-brand/5 p-2.5 text-xs">
+                <Languages className="size-4 shrink-0 text-accent-brand" />
+                <span className="min-w-0 flex-1 text-foreground/75">
+                  {isHe
+                    ? <>מהגיליון עולה שרמת האנגלית שלכם היא <b className="font-semibold text-foreground">{info.nameHe}</b>. לעדכן בפרופיל?</>
+                    : <>The sheet shows your English level is <b className="font-semibold text-foreground">{info.nameEn}</b>. Update your profile?</>}
+                </span>
+                <button
+                  type="button"
+                  onClick={applyEnglishLevel}
+                  disabled={updateProfile.isPending}
+                  className="inline-flex shrink-0 items-center gap-1 rounded-md bg-accent-brand px-2.5 py-1 font-semibold text-white transition-opacity hover:opacity-90 disabled:opacity-50"
+                >
+                  {updateProfile.isPending ? <Loader2 className="size-3.5 animate-spin" /> : <Check className="size-3.5" />}
+                  {isHe ? "עדכנו" : "Update"}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setScannedEnglish(null)}
+                  className="shrink-0 rounded-md px-1.5 py-1 text-foreground/40 hover:text-foreground/70"
+                >
+                  {isHe ? "לא עכשיו" : "Not now"}
+                </button>
+              </div>
+            );
+          })()}
+
           <ul className="space-y-1.5">
             {rows.map((r, i) => {
               const decision = decideApplication(r);

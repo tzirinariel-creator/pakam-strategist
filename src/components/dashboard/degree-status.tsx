@@ -13,7 +13,7 @@ import {
   ChevronDown,
 } from "lucide-react";
 import { Link } from "@/i18n/navigation";
-import { CREDIT_REQUIREMENTS, getEnglishLevel } from "@/lib/constants";
+import { CREDIT_REQUIREMENTS, resolveEnglishLevel } from "@/lib/constants";
 import { Bidi } from "@/lib/bidi";
 import { CountUp } from "@/components/ui/count-up";
 import { cn } from "@/lib/utils";
@@ -49,6 +49,7 @@ export function DegreeStatus({
   disciplines,
   hasFocusArea = true,
   amiramScore = null,
+  declaredEnglishLevel = null,
   currentYear = 1,
 }: {
   credits: CreditBreakdown | null;
@@ -60,6 +61,8 @@ export function DegreeStatus({
   disciplines?: DisciplineProgress[];
   hasFocusArea?: boolean;
   amiramScore?: number | null;
+  /** #23 — level declared directly (grade sheet / settings); overrides the score. */
+  declaredEnglishLevel?: string | null;
   currentYear?: number;
 }) {
   const Arrow = isHe ? ArrowLeft : ArrowRight;
@@ -136,7 +139,7 @@ export function DegreeStatus({
     },
   ];
 
-  const englishLevel = getEnglishLevel(amiramScore);
+  const englishLevel = resolveEnglishLevel(declaredEnglishLevel, amiramScore);
 
   return (
     <div>

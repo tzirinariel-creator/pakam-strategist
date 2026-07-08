@@ -646,6 +646,39 @@ export function getEnglishLevel(score: number | null): EnglishLevelInfo | null {
   };
 }
 
+/**
+ * Level → info directly, WITHOUT a score (#23). The official grade sheet prints
+ * the English level as text ("מתקדמים ב'-מיון") with no number, so a student who
+ * only knows their level — not their Amiram score — can still be placed. Returns
+ * null for a null/unknown level so callers stay neutral.
+ */
+export function getEnglishLevelInfo(level: EnglishLevel | string | null): EnglishLevelInfo | null {
+  if (!level) return null;
+  const row = ENGLISH_CONFIG.LEVELS.find((l) => l.level === level);
+  if (!row) return null;
+  return {
+    level: row.level,
+    nameHe: row.nameHe,
+    nameEn: row.nameEn,
+    levelCourses: row.levelCourses,
+    isExempt: row.level === "EXEMPT",
+    isRejected: row.level === "PRE_BASIC",
+  };
+}
+
+/**
+ * The English level to trust (#23). A directly-declared level (from the grade
+ * sheet or settings) ALWAYS wins over an Amiram score, because the sheet is the
+ * university's own placement and the score is only a proxy for it. Falls back to
+ * the score-derived level, then null.
+ */
+export function resolveEnglishLevel(
+  englishLevel: EnglishLevel | string | null | undefined,
+  amiramScore: number | null | undefined,
+): EnglishLevelInfo | null {
+  return getEnglishLevelInfo(englishLevel ?? null) ?? getEnglishLevel(amiramScore ?? null);
+}
+
 // Recommended credit load per semester (from official PKM guide 5786)
 export const SEMESTER_CREDIT_GUIDANCE = {
   "1-FALL": { min: 23, max: 25 },

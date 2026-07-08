@@ -900,7 +900,14 @@ export function AcademicRecordContent() {
 
   const handleSaveGrade = useCallback(
     (userCourseId: string, grade: number | null, status: CourseStatus) => {
-      updateCourseMutation.mutate({ userCourseId, grade, status });
+      // A FAILED course never keeps a binary (pass/fail) flag — same invariant
+      // the planner card enforces, so a re-failed course can't linger as binary.
+      updateCourseMutation.mutate({
+        userCourseId,
+        grade,
+        status,
+        ...(status === "FAILED" ? { isBinary: false } : {}),
+      });
       // Deleting a grade keeps the status — offer the in-progress action rather
       // than deciding silently, matching /graduation exactly (#30).
       if (grade === null && status === "COMPLETED") {

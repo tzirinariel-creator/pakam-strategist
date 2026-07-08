@@ -183,6 +183,33 @@ describe("AMIRANT English wiring (Task 1)", () => {
   });
 });
 
+describe("Declared English level overrides the score (#23)", () => {
+  it("declared ADVANCED_B with NO score → level rule fires (1 level course), not neutral", () => {
+    const summary = runRegulationEngine([], null, 0, undefined, {
+      amirantScore: null,
+      englishLevel: "ADVANCED_B",
+      academicYear: 1,
+      currentSemester: "FALL",
+    });
+    const level = summary.results.find((r) => r.ruleId === "PKM-021");
+    expect(level?.details?.level).toBe("ADVANCED_B");
+    expect(level?.details?.levelCourses).toBe(1);
+  });
+
+  it("declared EXEMPT wins over a low score (deadline satisfied)", () => {
+    const summary = runRegulationEngine([], null, 0, undefined, {
+      amirantScore: 90, // would be BASIC/not-exempt on its own
+      englishLevel: "EXEMPT",
+      academicYear: 1,
+      currentSemester: "FALL",
+    });
+    const level = summary.results.find((r) => r.ruleId === "PKM-021");
+    const deadline = summary.results.find((r) => r.ruleId === "PKM-022");
+    expect(level?.details?.level).toBe("EXEMPT");
+    expect(deadline?.passed).toBe(true); // exempt → no deadline block
+  });
+});
+
 describe("Credit structure 103/12/35 + seminar bucket (Task 2)", () => {
   it("seminar credits go to the SEMINAR bucket, NOT electives", () => {
     const courses = [

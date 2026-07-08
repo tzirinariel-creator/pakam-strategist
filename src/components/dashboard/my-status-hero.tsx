@@ -24,6 +24,7 @@ export function MyStatusHero({
   topGap,
   hasFocusArea,
   amiramScore,
+  declaredEnglishLevel,
   currentYear,
   disciplines,
   inProgressCount,
@@ -37,6 +38,8 @@ export function MyStatusHero({
   hasFocusArea: boolean;
   /** Amiram/Amirnet English placement score (50–150), or null. */
   amiramScore: number | null;
+  /** #23 — English level declared directly (grade sheet / settings); wins over the score. */
+  declaredEnglishLevel?: string | null;
   /** Per-discipline progress — the three PPE legs. Empty/undefined hides it. */
   disciplines?: DisciplineProgress[];
   /** Academic year (1–3) — English LEVEL guidance is year-1 only (#11). */
@@ -96,6 +99,7 @@ export function MyStatusHero({
         disciplines={disciplines}
         hasFocusArea={hasFocusArea}
         amiramScore={amiramScore}
+        declaredEnglishLevel={declaredEnglishLevel}
         currentYear={currentYear}
       />
 

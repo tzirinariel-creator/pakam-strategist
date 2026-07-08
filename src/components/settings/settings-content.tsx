@@ -29,7 +29,7 @@ import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { getAcademicNow, deriveYearOfStudy, hebrewYearLabel } from "@/lib/academic-calendar";
 import { Bidi } from "@/lib/bidi";
-import { DISCIPLINE_CONFIG, FOCUS_DISCIPLINE_IDS, MILUIM_CONFIG, YEAR_CONFIG } from "@/lib/constants";
+import { DISCIPLINE_CONFIG, FOCUS_DISCIPLINE_IDS, MILUIM_CONFIG, YEAR_CONFIG, ENGLISH_CONFIG } from "@/lib/constants";
 import { deriveGroupFromDays, getCurrentAcademicYear } from "@/lib/miluim";
 import { ConnectGeminiGuide } from "@/components/settings/connect-gemini-guide";
 import { PhilosopherKingIcon } from "@/components/ui/philosopher-king-icon";
@@ -133,6 +133,9 @@ function ProfileSection() {
   const [firstName, setFirstName] = useState<string>("");
   const [gender, setGender] = useState<string>(""); // "" | "male" | "female"
   const [amirantScore, setAmirantScore] = useState<string>("");
+  // #23 — the English level as printed on the grade sheet (no number). "" = לא
+  // יודע/גזור מהציון. When set, it wins over the Amiram score everywhere.
+  const [englishLevelSel, setEnglishLevelSel] = useState<string>("");
   const [focusArea, setFocusArea] = useState<string>("");
   const [startYear, setStartYear] = useState<string>("");
   const [saved, setSaved] = useState(false);
@@ -148,6 +151,7 @@ function ProfileSection() {
           ? String(profileQuery.data.amiramScore)
           : ""
       );
+      setEnglishLevelSel(profileQuery.data.englishLevel ?? "");
       setFocusArea(profileQuery.data.focusArea ?? "UNDECIDED");
       // The start-year anchor replaces the year+semester questions (#43);
       // legacy profiles without it get a derived guess from the stored year.
@@ -182,6 +186,10 @@ function ProfileSection() {
         input.amiramScore = Math.min(150, Math.max(50, Math.round(parsed)));
       }
     }
+    // #23 — send the directly-declared level, or clear it (null) to fall back
+    // to the score-derived level. The enum guards anything unexpected.
+    input.englishLevel =
+      englishLevelSel === "" ? null : (englishLevelSel as (typeof ENGLISH_CONFIG.LEVELS)[number]["level"]);
     if (focusArea && focusArea !== "UNDECIDED") {
       input.focusArea = focusArea;
     } else {
@@ -320,6 +328,38 @@ function ProfileSection() {
             onChange={(e) => setAmirantScore(e.target.value)}
             placeholder={t("amirantScorePlaceholder")}
           />
+        </div>
+
+        {/* English level (#23) — the grade sheet prints the level as text with no
+            number ("מתקדמים ב'-מיון"), so a student who knows only the level can
+            set it here; it overrides the score-derived level everywhere. */}
+        <div className="flex flex-col gap-1.5">
+          <label id="settings-english-level-label" className="text-sm font-medium text-foreground/80">
+            {isHe ? "רמת אנגלית (מגיליון הציונים)" : "English level (from the grade sheet)"}
+          </label>
+          <p className="text-xs text-foreground/40">
+            {isHe
+              ? "בגיליון הרשמי הרמה מודפסת כמילים בלי מספר (למשל “מתקדמים ב׳”). אם אתם יודעים את הרמה, בחרו אותה — היא גוברת על ציון אמיר״ם."
+              : "The official sheet prints the level as words, not a number. If you know your level, pick it — it overrides the Amiram score."}
+          </p>
+          <Select
+            value={englishLevelSel || "DERIVE"}
+            onValueChange={(v) => setEnglishLevelSel(v === "DERIVE" ? "" : v)}
+          >
+            <SelectTrigger className="w-full" aria-labelledby="settings-english-level-label">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="DERIVE">
+                {isHe ? "לא יודע/גזור מהציון" : "Not sure / derive from score"}
+              </SelectItem>
+              {ENGLISH_CONFIG.LEVELS.map((lvl) => (
+                <SelectItem key={lvl.level} value={lvl.level}>
+                  {isHe ? lvl.nameHe : lvl.nameEn}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </div>
 
         {/* Focus Area */}

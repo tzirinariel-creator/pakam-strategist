@@ -49,6 +49,8 @@ function extractSeminars(courses: UserCourseWithCourse[]): SeminarInfo[] {
 export interface RegulationStudentContext {
   /** AMIRANT (English placement) score, 50–150, or null. */
   amirantScore?: number | null;
+  /** #23 — English level declared directly (grade sheet / settings); overrides the score. */
+  englishLevel?: string | null;
   /** Current academic year (1-based). */
   academicYear?: number;
   /** Current semester ("FALL" | "SPRING" | "SUMMER"). */
@@ -100,6 +102,7 @@ export function runRegulationEngine(
     seminars,
     programDefinition: programDef,
     amirantScore: student?.amirantScore ?? null,
+    englishLevel: student?.englishLevel ?? null,
     academicYear: student?.academicYear,
     currentSemester: student?.currentSemester,
     miluimGroup: student?.miluimGroup ?? null,
