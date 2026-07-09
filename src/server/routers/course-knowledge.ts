@@ -132,7 +132,11 @@ export const courseKnowledgeRouter = createTRPCRouter({
           // as "lightest/easiest", the opposite of "no data" (#audit-r2).
           workloadAvg: ratingRevealed && workloadVals.length ? round1(avg(workloadVals) as number) : null,
           difficultyAvg: ratingRevealed && difficultyVals.length ? round1(avg(difficultyVals) as number) : null,
-          recommendShare: ratingRevealed && recommendShare != null ? round1(recommendShare) : null,
+          // Only reveal the recommend-share when ENOUGH people actually gave a
+          // verdict — otherwise "100% ממליצים" could reflect a single opinion
+          // while the N beside it counts workload/difficulty-only raters (#audit-r3).
+          recommendShare:
+            verdictVals.length >= RATING_MIN_N && recommendShare != null ? round1(recommendShare) : null,
         },
         reviews: reviews
           .filter((r) => r.tip && r.tip.trim().length > 0)

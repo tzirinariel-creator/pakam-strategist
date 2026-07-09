@@ -187,6 +187,30 @@ export function OnboardingWizard() {
     }
   }, [hydrated, step, data, plannedSemesters, sessionGroupSelections, completedCourses]);
 
+  // Keep the pre-filled history IN SYNC with the year/semester anchor. Whenever
+  // it changes, drop any completed course that's no longer in a past semester (a
+  // student who lowers to year-1-FALL keeps NONE — so a fresh student is never
+  // silently recorded as having completed courses), and pre-fill any newly-past
+  // mandatory — WITHOUT clobbering grades/edits the student already entered
+  // (fixes the stale-map + one-shot-seed bugs, #audit-r3).
+  useEffect(() => {
+    if (!hydrated) return;
+    const past = getPastSemesters(data.year, data.semester);
+    const pastKeys = new Set(past.map((s) => `${s.year}-${s.semester}`));
+    setCompletedCourses((prev) => {
+      const kept: typeof prev = {};
+      for (const [code, cc] of Object.entries(prev)) {
+        if (pastKeys.has(`${cc.plannedYear}-${cc.plannedSemester}`)) kept[code] = cc;
+      }
+      const seed = buildDefaultCompleted(allCourses, data.year, data.semester);
+      for (const [code, cc] of Object.entries(seed)) {
+        if (!kept[code]) kept[code] = cc;
+      }
+      return kept;
+    });
+    historySeeded.current = pastKeys.size > 0;
+  }, [hydrated, data.year, data.semester, allCourses]);
+
   const goNext = useCallback(() => {
     setStep((prev) => {
       // From Profile: go to History if the student has one, else skip to Planner.

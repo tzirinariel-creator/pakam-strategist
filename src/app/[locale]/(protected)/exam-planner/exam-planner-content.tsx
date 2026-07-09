@@ -162,7 +162,11 @@ export function ExamPlannerContent() {
     }
     // blockedDays → the engine's already-supported `unavailable` (days it won't
     // schedule study on). Sent as local YYYY-MM-DD keys, matching the engine.
-    generateMutation.mutate({ exams, unavailable: blockedDays.length > 0 ? blockedDays : undefined });
+    generateMutation.mutate({
+      exams,
+      unavailable: blockedDays.length > 0 ? blockedDays : undefined,
+      prepStyle, // apply the SAME scaling the wizard preview showed (#audit-r3)
+    });
     setRetuneOpen(false);
   };
 
@@ -485,7 +489,17 @@ export function ExamPlannerContent() {
               ) : (
                 <button
                   type="button"
-                  onClick={() => setRetuneOpen(true)}
+                  onClick={() => {
+                    // Seed the wizard from the SAVED plan so re-tuning starts from
+                    // the current exam picks instead of an empty state that leaves
+                    // the Update button disabled and forgets the picks (#audit-r3).
+                    const seeded: Record<string, Moed | undefined> = {};
+                    for (const e of persistedPlan.exams) {
+                      if (e.courseCode) seeded[e.courseCode] = e.moed;
+                    }
+                    setSelected(seeded);
+                    setRetuneOpen(true);
+                  }}
                   className="inline-flex items-center justify-center gap-2 rounded-lg border border-accent-brand/30 bg-accent-brand/[0.04] px-4 py-2.5 text-sm font-semibold text-accent-brand transition-colors hover:bg-accent-brand/10"
                 >
                   <ListChecks className="size-4" />

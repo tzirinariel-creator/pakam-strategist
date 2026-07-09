@@ -61,6 +61,12 @@ export function ContributeReviewSheet({
     },
     onError: (err) => {
       toast.error(err.message || (isHe ? "משהו השתבש. נסו שוב." : "Something went wrong. Try again."));
+      // "Only someone who completed the course can rate it" is terminal for this
+      // user — close the sheet instead of leaving it open with their input as a
+      // dead-end (#audit-r3). The server is the source of truth for eligibility.
+      if (err.data?.code === "FORBIDDEN") {
+        onClose();
+      }
     },
   });
 

@@ -258,4 +258,21 @@ describe("matchExtractedToCatalog", () => {
     expect(m[1]?.course?.code).toBe("0618-1012");
     expect(m[2]?.course).toBeNull();
   });
+
+  // #audit-r3: two catalog courses with the same normalized name are ambiguous —
+  // a code-less row must NOT bind to an arbitrary one (that would grade the wrong
+  // course). A code match still works; only the ambiguous NAME is refused.
+  it("refuses to name-match when the catalog name is ambiguous (collision)", () => {
+    const dupCatalog = [
+      { code: "1111-1111", nameHe: "סמינר" },
+      { code: "2222-2222", nameHe: "סמינר" },
+    ];
+    const rows = [
+      { courseCode: null, courseName: "סמינר", grade: 90, credits: null, passText: null },
+      { courseCode: "2222-2222", courseName: "סמינר", grade: 90, credits: null, passText: null },
+    ];
+    const m = matchExtractedToCatalog(rows, dupCatalog);
+    expect(m[0]?.course).toBeNull(); // ambiguous name → no auto-match
+    expect(m[1]?.course?.code).toBe("2222-2222"); // code still resolves it
+  });
 });

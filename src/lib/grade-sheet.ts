@@ -326,7 +326,20 @@ export function matchExtractedToCatalog<T extends CatalogLite>(
   catalog: T[],
 ): { row: ExtractedRow; course: T | null }[] {
   const byCode = new Map(catalog.map((c) => [c.code.replace(/\s/g, ""), c]));
-  const byName = new Map(catalog.map((c) => [normalizeName(c.nameHe), c]));
+  // Name index WITH collision detection: a normalized name shared by two+ catalog
+  // courses is ambiguous, so a code-less scanned row must NOT silently bind to an
+  // arbitrary one (it would grade the wrong course). Only names that are unique in
+  // the catalog auto-match by name; a code match always wins first (#audit-r3).
+  const nameCount = new Map<string, number>();
+  for (const c of catalog) {
+    const n = normalizeName(c.nameHe);
+    nameCount.set(n, (nameCount.get(n) ?? 0) + 1);
+  }
+  const byName = new Map<string, T>();
+  for (const c of catalog) {
+    const n = normalizeName(c.nameHe);
+    if (nameCount.get(n) === 1) byName.set(n, c);
+  }
   return rows.map((row) => {
     const code = row.courseCode?.replace(/\s/g, "");
     const course =

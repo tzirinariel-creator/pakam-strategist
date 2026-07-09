@@ -211,6 +211,10 @@ export const studyTaskRouter = createTRPCRouter({
           .min(1)
           .max(20),
         unavailable: z.array(z.string()).max(60).optional(),
+        // Prep style scales the study budget so the SAVED plan matches the
+        // wizard preview — "light" (already started, just review) = ~25% fewer
+        // hours; steady/crammer keep the engine's default window (#audit-r3).
+        prepStyle: z.enum(["light", "steady", "crammer"]).optional(),
       })
     )
     .mutation(async ({ ctx, input }) => {
@@ -236,11 +240,15 @@ export const studyTaskRouter = createTRPCRouter({
         const examDate = moed === "B" ? uc.course.examDateB : uc.course.examDateA;
         if (!examDate) continue;
         seen.add(code);
+        // Mirror the client preview's "light" scaling (×0.75, min 1) so the saved
+        // plan is the one the student approved in the wizard (#audit-r3).
+        const credits =
+          input.prepStyle === "light" ? Math.max(1, Math.round(uc.course.credits * 0.75)) : uc.course.credits;
         examInputs.push({
           courseCode: code,
           courseName: uc.course.nameHe,
           examDate,
-          credits: uc.course.credits,
+          credits,
           averageGrade: uc.course.averageGrade,
           failRate: uc.course.failRate,
           moed,

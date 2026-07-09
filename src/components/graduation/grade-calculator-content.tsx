@@ -26,7 +26,7 @@ import {
   SEMESTER_CONFIG,
   YEAR_CONFIG,
 } from "@/lib/constants";
-import { roundScore, countsTowardAverage } from "@/lib/grade-calculator";
+import { roundScore, countsTowardAverage, courseTypeCountsTowardAverage } from "@/lib/grade-calculator";
 import type { UserCourseWithCourse, GradeBreakdown } from "@/types/degree";
 import type { CourseStatus, Semester } from "@/types/enums";
 
@@ -486,7 +486,10 @@ function ScoreDashboard({
   t: ReturnType<typeof useTranslations<"grades">>;
 }) {
   const score = roundScore(breakdown.weightedScore);
-  const courseAvg = roundScore(breakdown.courseAverage);
+  // Raw (single toFixed(1) at render), NOT roundScore→toFixed(1) — a pre-round to
+  // 2 decimals then a display-round to 1 can bump 84.949→85.0 while the identical
+  // overallGpa beside it (raw) shows 84.9. One rounding, so they agree (#audit-r3).
+  const courseAvg = breakdown.courseAverage;
 
   // Overall GPA — same definition as everywhere else (excludes seminar,
   // binary and English), so it matches the course-average shown beside it.
@@ -591,8 +594,14 @@ function ReverseCalculator({
 
   const result = useMemo(() => {
     const completed = allCourses.filter(countsTowardAverage);
+    // Remaining courses must share the SAME population as `completed`: only those
+    // whose TYPE counts toward the average (not seminar/English/binary). Counting
+    // planned non-average courses into the divisor produced a wrong "needed
+    // average" (too high / false "impossible") (#audit-r3).
     const remaining = allCourses.filter(
-      (c) => c.status === "PLANNED" || c.status === "IN_PROGRESS"
+      (c) =>
+        (c.status === "PLANNED" || c.status === "IN_PROGRESS") &&
+        courseTypeCountsTowardAverage(c)
     );
 
     const completedCredits = completed.reduce(

@@ -65,14 +65,20 @@ function simpleAverage(values: number[]): number | null {
  * buckets); miluim binary/pass-fail (grade removed by design); and ENGLISH
  * (owner-verified 4.7 — English grades do NOT count toward the PPE average).
  */
-export function countsTowardAverage(uc: UserCourseWithCourse): boolean {
+/** Type-level average eligibility (ignores status/grade): a course whose TYPE
+ *  counts toward the credit-weighted course average — not a seminar, not English,
+ *  not a binary/pass-fail conversion. Used to project a target average onto
+ *  not-yet-graded PLANNED courses (the reverse calculator) without a grade req. */
+export function courseTypeCountsTowardAverage(uc: UserCourseWithCourse): boolean {
   return (
-    uc.status === "COMPLETED" &&
-    uc.grade !== null &&
     uc.course.courseType !== "SEMINAR" &&
     uc.course.courseType !== "ENGLISH" &&
     !uc.isBinary
   );
+}
+
+export function countsTowardAverage(uc: UserCourseWithCourse): boolean {
+  return uc.status === "COMPLETED" && uc.grade !== null && courseTypeCountsTowardAverage(uc);
 }
 
 export function calculateGrades(

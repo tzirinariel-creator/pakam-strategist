@@ -170,13 +170,13 @@ export function CourseDetailModal({
                 {course.examDateA && (
                   <span className="flex items-center gap-1.5">
                     <Calendar className="size-3 text-red-400/60" />
-                    {isHe ? "מועד א׳:" : "A:"} <span className="font-mono text-[10px]" dir="ltr">{new Date(course.examDateA).toLocaleDateString(isHe ? "he-IL" : "en-GB", { day: "2-digit", month: "2-digit" })}</span>
+                    {isHe ? "מועד א׳:" : "A:"} <span className="font-mono text-[10px]" dir="ltr">{new Date(course.examDateA).toLocaleDateString(isHe ? "he-IL" : "en-GB", { day: "2-digit", month: "2-digit", timeZone: "UTC" })}</span>
                   </span>
                 )}
                 {course.examDateB && (
                   <span className="flex items-center gap-1.5">
                     <Calendar className="size-3 text-amber-400/60" />
-                    {isHe ? "מועד ב׳:" : "B:"} <span className="font-mono text-[10px]" dir="ltr">{new Date(course.examDateB).toLocaleDateString(isHe ? "he-IL" : "en-GB", { day: "2-digit", month: "2-digit" })}</span>
+                    {isHe ? "מועד ב׳:" : "B:"} <span className="font-mono text-[10px]" dir="ltr">{new Date(course.examDateB).toLocaleDateString(isHe ? "he-IL" : "en-GB", { day: "2-digit", month: "2-digit", timeZone: "UTC" })}</span>
                   </span>
                 )}
               </div>

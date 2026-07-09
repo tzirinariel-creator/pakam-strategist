@@ -48,7 +48,9 @@ export function MyStatusHero({
   inProgressCount?: number;
 }) {
   const Arrow = isHe ? ArrowLeft : ArrowRight;
-  const gpa = roundScore(grade.courseAverage);
+  // Raw course average (single toFixed(1) at render) to match /record, /graduation
+  // and the King — a roundScore() pre-round bumped the hero 0.1 higher (#audit-r3).
+  const gpa = grade.courseAverage != null && !Number.isNaN(grade.courseAverage) ? grade.courseAverage : null;
   const gpaBar = GRADE_REQUIREMENTS.YEAR_TRANSITION_OVERALL_GPA;
 
   return (

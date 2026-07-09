@@ -59,7 +59,7 @@ export const publicProcedure = t.procedure;
  * here covers every protected/admin mutation across all routers — no
  * per-procedure duplication. Reads are never blocked.
  */
-const enforceAuth = t.middleware(async ({ ctx, type, next }) => {
+const enforceAuth = t.middleware(async ({ ctx, type, next, path }) => {
   if (!ctx.session?.user) {
     throw new TRPCError({ code: "UNAUTHORIZED", message: "Please log in to access this resource" });
   }
@@ -99,7 +99,11 @@ const enforceAuth = t.middleware(async ({ ctx, type, next }) => {
   // Demo account is read-only: reject every write (mutation) for the shared
   // showcase login, but let reads (queries) through untouched. Match by the
   // demo user's verified email — never a hardcoded id.
-  if (type === "mutation" && isDemoEmail(user.email)) {
+  // EXCEPTION: user.resetDemoUser is how the demo is re-seeded to a clean state
+  // on each demo-login; it only touches the demo user's OWN data and its handler
+  // re-verifies the demo email, so it must be allowed to run (#audit-r3 — the
+  // blanket block made the demo un-resettable, leaving stale state).
+  if (type === "mutation" && isDemoEmail(user.email) && path !== "user.resetDemoUser") {
     throw new TRPCError({
       code: "FORBIDDEN",
       message: DEMO_READONLY_MESSAGE,

@@ -7,7 +7,7 @@ import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { DISCIPLINE_CONFIG, SEMESTER_CONFIG, YEAR_CONFIG } from "@/lib/constants";
 import type { CourseWithSchedule } from "@/lib/plan-generator";
-import { matchExtractedToCatalog } from "@/lib/grade-sheet";
+import { matchExtractedToCatalog, passBarFor } from "@/lib/grade-sheet";
 import { fileToBase64, SCANNER_ACCEPT } from "@/lib/upload";
 import { WhereIsMySheet } from "@/components/record/where-is-my-sheet";
 import type { OnboardingData } from "./onboarding-wizard";
@@ -205,14 +205,39 @@ export function StepHistory({
           (resData.rows ?? []) as Parameters<typeof matchExtractedToCatalog>[0],
           allCourses,
         );
+        // Clamp a course's natural placement into a semester the student has
+        // actually passed — otherwise a course whose earliest offering is in the
+        // future (relative to a mid-degree student) would be saved COMPLETED but
+        // never rendered in any group for review/removal (#audit-r3).
+        const latestPast = pastSemesters.length > 0 ? pastSemesters[pastSemesters.length - 1]! : null;
+        const clampToPast = (nat: { year: number; semester: "FALL" | "SPRING" } | null) =>
+          nat && pastSemesters.some((p) => p.year === nat.year && p.semester === nat.semester)
+            ? nat
+            : (latestPast ?? { year: 1, semester: "FALL" as const });
+
         const next = { ...value };
         let hits = 0;
         let graded = 0;
+        let skipped = 0;
         for (const { row, course } of matched) {
           if (!course) continue;
           if (row.inProgress) continue; // *** rows aren't completed yet
           const full = allCourses.find((c) => c.code === course.code);
-          const placement = (full && computePlacement(full)) ?? { year: 1, semester: "FALL" as const };
+          // The onboarding history map is COMPLETED-only (no FAILED/EXEMPT), so it
+          // must pre-fill ONLY genuine completed passes. A failed grade, a "נכשל",
+          // or a "פטור" would otherwise be saved as a passed COMPLETED course
+          // (false completion / wrong average). Those belong to the /record flow,
+          // which carries full FAILED/EXEMPT status (#audit-r3).
+          const passText = row.passText ?? "";
+          if (passText.includes("פטור") || passText.includes("נכשל")) {
+            skipped++;
+            continue;
+          }
+          if (row.grade != null && row.grade < passBarFor(full?.courseType)) {
+            skipped++;
+            continue;
+          }
+          const placement = clampToPast(full ? computePlacement(full) : null);
           const existing = next[course.code];
           next[course.code] = {
             courseCode: course.code,
@@ -227,15 +252,17 @@ export function StepHistory({
         if (hits === 0) {
           toast(
             isHe
-              ? "לא מצאנו קורסים תואמים בגיליון — אפשר לסמן ידנית למטה."
-              : "No matching courses found on the sheet — mark them manually below.",
+              ? "לא מצאנו קורסים שהושלמו בגיליון — אפשר לסמן ידנית למטה."
+              : "No completed courses found on the sheet — mark them manually below.",
           );
         } else {
+          const parts: string[] = [];
+          if (graded > 0) parts.push(isHe ? `${graded} עם ציון` : `${graded} with a grade`);
+          if (skipped > 0) parts.push(isHe ? `${skipped} נכשלו/פטור — הוסיפו ב"הרשומה" אחרי ההרשמה` : `${skipped} failed/exempt — add them in the record after signup`);
+          parts.push(isHe ? "עברו לוודא ולתקן למטה" : "review below");
           toast.success(
-            isHe ? `נמצאו ${hits} קורסים בגיליון` : `Found ${hits} courses on the sheet`,
-            graded > 0
-              ? { description: isHe ? `${graded} עם ציון · עברו לוודא ולתקן למטה` : `${graded} with a grade · review below` }
-              : undefined,
+            isHe ? `נמצאו ${hits} קורסים שהושלמו` : `Found ${hits} completed courses`,
+            { description: parts.join(" · ") },
           );
         }
       } catch {
@@ -245,7 +272,7 @@ export function StepHistory({
         if (scanRef.current) scanRef.current.value = "";
       }
     },
-    [allCourses, value, onChange, isHe],
+    [allCourses, value, onChange, isHe, pastSemesters],
   );
 
   const toggleCourse = useCallback(
