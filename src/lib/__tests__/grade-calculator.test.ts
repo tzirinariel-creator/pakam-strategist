@@ -7,6 +7,7 @@ import type { UserCourseWithCourse } from "@/types/degree";
  * Build a minimal UserCourseWithCourse for the fields calculateGrades reads.
  * Cast through `unknown` so we don't have to populate every DB column.
  */
+let gcSeq = 0;
 function uc(over: {
   status?: string;
   grade?: number | null;
@@ -16,8 +17,15 @@ function uc(over: {
   submissionGrade?: number | null;
   attemptNumber?: number;
   isBinary?: boolean;
+  courseId?: string;
 }): UserCourseWithCourse {
+  gcSeq += 1;
+  // Every course has a DISTINCT courseId (as in the DB) unless a test shares one
+  // to model retake attempts — the calculators collapse same-courseId rows.
+  const courseId = over.courseId ?? `gc-${gcSeq}`;
   return {
+    id: `ucg-${gcSeq}`,
+    courseId,
     status: over.status ?? "COMPLETED",
     grade: over.grade ?? null,
     submissionType: over.submissionType ?? null,
@@ -25,6 +33,7 @@ function uc(over: {
     attemptNumber: over.attemptNumber ?? 1,
     isBinary: over.isBinary ?? false,
     course: {
+      id: courseId,
       courseType: over.courseType ?? "MANDATORY",
       credits: over.credits ?? 3,
     },

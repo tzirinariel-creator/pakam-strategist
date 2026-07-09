@@ -17,6 +17,7 @@ import type {
 } from "@/types/degree";
 import { getActiveProgram, type ProgramDefinition } from "@/lib/programs/registry";
 import { ENGLISH_CONFIG } from "@/lib/constants";
+import { canonicalAttempts } from "@/lib/grade-calculator";
 
 // Practice ("משלב עשייה") credit caps (domain rules §1):
 // each practice course grants at most PRACTICE_COURSE_MAX_CREDITS regardless of
@@ -158,9 +159,11 @@ export function calculateCredits(
 ): CreditCalculationResult {
   const program = programDef ?? getActiveProgram();
 
-  // 1. Filter to countable courses only.
-  const countable = courses.filter((uc) =>
-    COUNTABLE_STATUSES.includes(uc.status)
+  // 1. Filter to countable courses, then collapse retakes to the determining
+  // attempt so a grade-improvement retake (two COMPLETED rows for one course)
+  // doesn't double-count its credits into the total/discipline/earned (#audit-r5).
+  const countable = canonicalAttempts(
+    courses.filter((uc) => COUNTABLE_STATUSES.includes(uc.status))
   );
 
   // 2. Accumulate credits per discipline.

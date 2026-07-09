@@ -81,12 +81,30 @@ export function countsTowardAverage(uc: UserCourseWithCourse): boolean {
   return uc.status === "COMPLETED" && uc.grade !== null && courseTypeCountsTowardAverage(uc);
 }
 
+/**
+ * Collapse retake attempts to ONE row per course — the DETERMINING (highest
+ * attemptNumber) sitting. The app supports grade-improvement retakes (a second
+ * COMPLETED row, attemptNumber 2), and TAU counts the LAST attempt's grade, so
+ * without this a retake double-counts its credits AND averages both grades
+ * (#audit-r5). Call on an ALREADY-filtered set (e.g. COMPLETED-graded, or
+ * countable) so a still-failed earlier attempt outside the set can't win.
+ */
+export function canonicalAttempts(rows: UserCourseWithCourse[]): UserCourseWithCourse[] {
+  const best = new Map<string, UserCourseWithCourse>();
+  for (const uc of rows) {
+    const prev = best.get(uc.courseId);
+    if (!prev || uc.attemptNumber > prev.attemptNumber) best.set(uc.courseId, uc);
+  }
+  return [...best.values()];
+}
+
 export function calculateGrades(
   courses: UserCourseWithCourse[]
 ): GradeBreakdown {
   // ----- Course average (credit-weighted) -----
-  const gradedCourses = courses
-    .filter(countsTowardAverage)
+  // Collapse retakes to the determining attempt first, so a grade-improvement
+  // retake contributes ONE grade (the latest), not both (#audit-r5).
+  const gradedCourses = canonicalAttempts(courses.filter(countsTowardAverage))
     .map((uc) => ({
       grade: uc.grade!,
       weight: uc.course.credits,

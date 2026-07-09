@@ -171,11 +171,11 @@ export function BiddingWorksheet({ courses }: { courses: UserCourseWithCourse[] 
     );
     try {
       await navigator.clipboard.writeText(sheet);
-      toast.success(isHe ? "הועתק — הדבק ליד מסך-הבידינג בידיעון" : "Copied — paste next to the Yedion bidding screen");
+      toast.success(isHe ? "הועתק — הדביקו ליד מסך-הבידינג בידיעון" : "Copied — paste next to the Yedion bidding screen");
     } catch {
       // Clipboard can be blocked (permissions, insecure context, older Safari).
       // Never leave the click as a silent dead end.
-      toast.error(isHe ? "ההעתקה נחסמה — סמן/י והעתק/י ידנית" : "Copy was blocked — select and copy manually");
+      toast.error(isHe ? "ההעתקה נחסמה — סמנו והעתיקו ידנית" : "Copy was blocked — select and copy manually");
     }
   };
 
@@ -347,7 +347,7 @@ export function BiddingWorksheet({ courses }: { courses: UserCourseWithCourse[] 
             <ul className="space-y-1 text-[11px] leading-snug text-foreground/60">
               <li className="flex gap-1.5"><Check className="mt-0.5 size-3 shrink-0 text-foreground/35" />{isHe ? "שוויון בסף נשבר בהגרלה — מספר קצת לא-עגול (כמו 41) גובר על העגול שכולם בוחרים (40)." : "Ties at the cutoff go to a lottery — a slightly odd number (41) beats the round one everyone picks (40)."}</li>
               <li className="flex gap-1.5"><Check className="mt-0.5 size-3 shrink-0 text-foreground/35" />{isHe ? "ביטול בין המקצים מחזיר את הנקודות — מקצה 2 מתחיל מחדש עם כל המאגר." : "Cancelling between rounds refunds points — round 2 starts fresh with the full pool."}</li>
-              <li className="flex gap-1.5"><Check className="mt-0.5 size-3 shrink-0 text-foreground/35" />{isHe ? "תעדף את מה שחייבים ומהר-מתמלא; את הבטוחים אפשר להשאיר על המינימום." : "Prioritize must-haves and fast-fillers; safe picks can sit at the minimum."}</li>
+              <li className="flex gap-1.5"><Check className="mt-0.5 size-3 shrink-0 text-foreground/35" />{isHe ? "תעדפו את מה שחייבים ומהר-מתמלא; את הבטוחים אפשר להשאיר על המינימום." : "Prioritize must-haves and fast-fillers; safe picks can sit at the minimum."}</li>
               <li className="flex gap-1.5"><Check className="mt-0.5 size-3 shrink-0 text-foreground/35" />{isHe ? "איננו יודעים את המכסה — הכלי רק בודק שהמספרים שלכם מסתדרים." : "We don't know the quota — this tool only checks your own numbers add up."}</li>
             </ul>
           </div>
@@ -358,7 +358,7 @@ export function BiddingWorksheet({ courses }: { courses: UserCourseWithCourse[] 
             className="inline-flex items-center gap-1.5 rounded-lg border border-border/60 bg-card/40 px-3 py-2 text-sm text-foreground/70 transition-colors hover:border-foreground/25 hover:text-foreground/90"
           >
             <Copy className="size-4" />
-            {isHe ? "העתק סיכום לידיעון" : "Copy summary for Yedion"}
+            {isHe ? "העתיקו סיכום לידיעון" : "Copy summary for Yedion"}
           </button>
         </div>
       )}

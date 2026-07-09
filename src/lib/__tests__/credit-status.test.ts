@@ -11,19 +11,20 @@ import type { UserCourseWithCourse } from "@/types/degree";
 let seq = 0;
 function uc(
   status: string,
-  opts: { credits?: number; courseType?: string; discipline?: string; grade?: number | null } = {}
+  opts: { credits?: number; courseType?: string; discipline?: string; grade?: number | null; courseId?: string; attemptNumber?: number } = {}
 ): UserCourseWithCourse {
   seq += 1;
   const courseType = opts.courseType ?? "ELECTIVE";
+  const courseId = opts.courseId ?? `c-${seq}`;
   return {
     id: `uc-${seq}`,
     userId: "u",
-    courseId: `c-${seq}`,
+    courseId,
     status,
     grade: opts.grade ?? null,
     plannedYear: 2,
     plannedSemester: "FALL",
-    attemptNumber: 1,
+    attemptNumber: opts.attemptNumber ?? 1,
     isGradeImproved: false,
     isBinary: false,
     disciplineOverride: null,
@@ -117,5 +118,29 @@ describe("English content credit gating (#audit-r2)", () => {
     );
     expect(r.breakdown.planned).toBe(4);
     expect(r.breakdown.total).toBe(4);
+  });
+});
+
+// A grade-improvement retake creates a SECOND COMPLETED row (attemptNumber 2)
+// for the same course. Neither the credits nor the grade may be double-counted;
+// only the determining (latest) attempt counts (#audit-r5).
+describe("grade-improvement retake is not double-counted (#audit-r5)", () => {
+  const rows = [
+    uc("COMPLETED", { courseId: "dup", attemptNumber: 1, credits: 4, courseType: "ELECTIVE", discipline: "ECONOMICS", grade: 68 }),
+    uc("COMPLETED", { courseId: "dup", attemptNumber: 2, credits: 4, courseType: "ELECTIVE", discipline: "ECONOMICS", grade: 85 }),
+  ];
+
+  it("counts the credits ONCE (earned/elective/focus = 4, not 8)", () => {
+    const c = calculateCredits(rows, "ECONOMICS");
+    expect(c.breakdown.earned).toBe(4);
+    expect(c.breakdown.elective).toBe(4);
+    expect(c.breakdown.focusArea).toBe(4);
+    expect(c.breakdown.total).toBe(4);
+  });
+
+  it("averages only the determining (latest) grade, not both", () => {
+    const g = calculateGraduationScore(rows);
+    expect(g.courseAverage).toBe(85); // the retake, not (68+85)/2 = 76.5
+    expect(g.totalGradedCourses).toBe(1);
   });
 });
