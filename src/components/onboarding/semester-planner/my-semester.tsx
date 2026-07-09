@@ -136,7 +136,9 @@ export function MySemester({
                   isMandatory ? (
                     <div key={course.id} className="space-y-1">
                       <CourseDetailPopover course={course}>
-                        <div className="flex items-center gap-2 rounded-lg border border-foreground/15 bg-foreground/5 px-2.5 py-1.5 cursor-pointer ms-3">
+                        {/* Real <button> so the detail popover is keyboard-openable
+                            (Radix asChild won't make a bare div focusable) (#audit-r4). */}
+                        <button type="button" className="flex w-full items-center gap-2 rounded-lg border border-foreground/15 bg-foreground/5 px-2.5 py-1.5 cursor-pointer ms-3 text-start">
                           <Lock className="h-3 w-3 shrink-0 text-foreground/30" />
                           <span className="flex-1 truncate text-xs text-foreground/70">
                             {isHe
@@ -152,7 +154,7 @@ export function MySemester({
                           <span className="shrink-0 font-mono text-[10px] text-foreground/30">
                             {course.credits}
                           </span>
-                        </div>
+                        </button>
                       </CourseDetailPopover>
                       {/* Session group selector — only for courses with multiple lecture/tutorial groups (this semester's) */}
                       {(() => {

@@ -6,6 +6,7 @@ import {
   DragOverlay,
   PointerSensor,
   TouchSensor,
+  KeyboardSensor,
   useSensor,
   useSensors,
   type DragEndEvent,
@@ -82,7 +83,12 @@ export function YearBoard({ courses, currentYear }: YearBoardProps) {
   const touchSensor = useSensor(TouchSensor, {
     activationConstraint: { delay: 200, tolerance: 5 },
   });
-  const sensors = useSensors(pointerSensor, touchSensor);
+  // Keyboard access (#audit-r4): the card already advertises role=button /
+  // aria-roledescription=draggable, so a keyboard user must be able to actually
+  // move it — Space/Enter picks up, arrows move, Space drops. Without a
+  // KeyboardSensor the board's primary action was pointer-only.
+  const keyboardSensor = useSensor(KeyboardSensor);
+  const sensors = useSensors(pointerSensor, touchSensor, keyboardSensor);
 
   // Group courses by year and semester
   const getCoursesForSlot = useCallback(

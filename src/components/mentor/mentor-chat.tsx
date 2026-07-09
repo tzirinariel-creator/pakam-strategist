@@ -471,6 +471,11 @@ export function MentorChat() {
             size="icon"
             onClick={() => setSidebarOpen(!sidebarOpen)}
             className="h-8 w-8"
+            aria-label={
+              sidebarOpen
+                ? locale === "he" ? "הסתרת היסטוריית שיחות" : "Hide chat history"
+                : locale === "he" ? "הצגת היסטוריית שיחות" : "Show chat history"
+            }
           >
             <SidebarToggleIcon className="h-4 w-4" />
           </Button>

@@ -431,7 +431,7 @@ export function FloatingAssistant() {
         }
         // Cache only standalone first questions — follow-ups depend on the
         // conversation, so caching them by text alone would be wrong.
-        if (cacheable && full.trim() && !wasTruncated) writeCachedAnswer(question, planHash, full);
+        if (cacheable && full.trim() && !wasTruncated) writeCachedAnswer(question, planHash, full, persona);
       } catch (err) {
         if ((err as Error).name === "AbortError") return;
         // Drop the empty streaming bubble and show the free fallback instead.
@@ -544,7 +544,7 @@ export function FloatingAssistant() {
         const isFirst = !sessionIdRef.current && messages.length === 0;
         const planHash = hashContext(ctx);
         if (isFirst) {
-          const cached = readCachedAnswer(question, planHash);
+          const cached = readCachedAnswer(question, planHash, persona);
           if (cached) {
             setMessages((m) => [...m, { role: "assistant", content: cached, source: "llm" }]);
             return;

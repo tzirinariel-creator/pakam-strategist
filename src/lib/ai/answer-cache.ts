@@ -33,8 +33,11 @@ export function hashContext(c: QAContext): string {
   return (h >>> 0).toString(36);
 }
 
-function keyFor(question: string): string {
-  return question.trim().toLowerCase().replace(/\s+/g, " ");
+// The persona is part of the cache identity: the King and the Referent give the
+// SAME plan the same FACTS in a different VOICE, so a cached King answer must not
+// be served after switching to the Referent (or vice-versa) (#audit-r4).
+function keyFor(question: string, persona: string): string {
+  return `${persona}:${question.trim().toLowerCase().replace(/\s+/g, " ")}`;
 }
 
 interface Store {
@@ -60,21 +63,21 @@ function save(s: Store): void {
   }
 }
 
-/** A cached LLM answer for this question under the current plan, or null. */
-export function readCachedAnswer(question: string, planHash: string): string | null {
+/** A cached LLM answer for this question+persona under the current plan, or null. */
+export function readCachedAnswer(question: string, planHash: string, persona = "king"): string | null {
   if (typeof window === "undefined") return null;
   const s = load();
   if (!s || s.planHash !== planHash) return null;
-  return s.entries[keyFor(question)] ?? null;
+  return s.entries[keyFor(question, persona)] ?? null;
 }
 
-/** Cache an LLM answer for the current plan. Resets the store if the plan
+/** Cache an LLM answer for the current plan+persona. Resets the store if the plan
  *  changed since the last write, so stale answers can't resurface. LRU-capped. */
-export function writeCachedAnswer(question: string, planHash: string, answer: string): void {
+export function writeCachedAnswer(question: string, planHash: string, answer: string, persona = "king"): void {
   if (typeof window === "undefined" || !answer.trim()) return;
   let s = load();
   if (!s || s.planHash !== planHash) s = { planHash, entries: {}, order: [] };
-  const k = keyFor(question);
+  const k = keyFor(question, persona);
   if (!(k in s.entries)) s.order.push(k);
   s.entries[k] = answer;
   while (s.order.length > MAX_ENTRIES) {

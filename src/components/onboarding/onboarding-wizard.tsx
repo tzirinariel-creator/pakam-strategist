@@ -77,6 +77,7 @@ function loadOnboardingState(): {
   plannedSemesters?: PlannedSemester[] | null;
   sessionGroupSelections?: SessionGroupSelections;
   completedCourses?: Record<string, CompletedCourse>;
+  removedCourseCodes?: string[];
 } | null {
   if (typeof window === "undefined") return null;
   try {
@@ -99,6 +100,22 @@ export function OnboardingWizard() {
   const [completedCourses, setCompletedCourses] = useState<Record<string, CompletedCourse>>({});
   // Whether we've seeded the history map with the default mandatory pre-fill.
   const historySeeded = useRef(false);
+  // Course codes the student EXPLICITLY un-checked in the history step. The
+  // reconcile effect must never re-seed one of these — otherwise a course they
+  // said they didn't take reappears checked and is saved as COMPLETED (#audit-r4).
+  const removedCodes = useRef<Set<string>>(new Set());
+
+  // Wrap the history-map setter so a removal (a code that was present and is now
+  // gone) is remembered, and a (re)add clears that memory.
+  const handleCompletedChange = useCallback((next: Record<string, CompletedCourse>) => {
+    setCompletedCourses((prev) => {
+      for (const code of Object.keys(prev)) {
+        if (!next[code]) removedCodes.current.add(code);
+      }
+      for (const code of Object.keys(next)) removedCodes.current.delete(code);
+      return next;
+    });
+  }, []);
 
   // Prefetch courses immediately so they're ready by step 2. Retry on failure:
   // the whole wizard depends on this list, and a single dropped request on a
@@ -172,6 +189,7 @@ export function OnboardingWizard() {
         setCompletedCourses(s.completedCourses);
         if (Object.keys(s.completedCourses).length > 0) historySeeded.current = true;
       }
+      if (s.removedCourseCodes) removedCodes.current = new Set(s.removedCourseCodes);
     }
     setHydrated(true);
   }, []);
@@ -180,7 +198,7 @@ export function OnboardingWizard() {
     try {
       localStorage.setItem(
         ONBOARDING_STATE_KEY,
-        JSON.stringify({ step, data, plannedSemesters, sessionGroupSelections, completedCourses })
+        JSON.stringify({ step, data, plannedSemesters, sessionGroupSelections, completedCourses, removedCourseCodes: [...removedCodes.current] })
       );
     } catch {
       /* storage full / disabled — non-fatal */
@@ -204,7 +222,8 @@ export function OnboardingWizard() {
       }
       const seed = buildDefaultCompleted(allCourses, data.year, data.semester);
       for (const [code, cc] of Object.entries(seed)) {
-        if (!kept[code]) kept[code] = cc;
+        // Never re-seed a course the student explicitly un-checked (#audit-r4).
+        if (!kept[code] && !removedCodes.current.has(code)) kept[code] = cc;
       }
       return kept;
     });
@@ -294,7 +313,7 @@ export function OnboardingWizard() {
                 allCourses={allCourses}
                 isLoadingCourses={coursesQuery.isLoading}
                 value={completedCourses}
-                onChange={setCompletedCourses}
+                onChange={handleCompletedChange}
                 onNext={goNext}
                 onBack={goBack}
               />

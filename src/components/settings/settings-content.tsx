@@ -1219,18 +1219,20 @@ function MiluimSection() {
   // miluim row (if any) seeds the day/combat inputs. SUMMER has no miluim row
   // of its own (fix E) — fold it onto SPRING so the editor reads/writes the
   // same bucket group resolution uses.
-  const profileSemester = (profileQuery.data?.currentSemester ?? "FALL") as
-    | "FALL"
-    | "SPRING"
-    | "SUMMER";
-  const editorSemester: "FALL" | "SPRING" =
-    profileSemester === "SUMMER" ? "SPRING" : profileSemester;
+  // Resolve the CURRENT semester from the real-time calendar — the SAME source
+  // plan.getCredits + regulation.checkCompliance use to pick the MiluimSemester
+  // row. Deriving it from the stale stored profile.currentSemester wrote the
+  // student's days into the wrong (previous) semester row after a rollover, so
+  // they granted 0 exemption everywhere despite the preview (#audit-r4).
+  const nowSemester = getAcademicNow().semester;
+  const editorSemester: "FALL" | "SPRING" = nowSemester === "SPRING" ? "SPRING" : "FALL";
   const academicYear = getCurrentAcademicYear();
 
   // Human-readable label of the record being edited (academic year + semester).
-  const yearLabelHe = `תשפ"ו`; // נכון לתשפ"ו — the academicYear key maps to this
+  // Derived from academicYear (not hardcoded) so it stays correct across the
+  // rollover to תשפ"ז and beyond (#audit-r4).
   const academicYearLabel = isHe
-    ? `${yearLabelHe} (${academicYear}/${academicYear + 1})`
+    ? `${hebrewYearLabel(academicYear)} (${academicYear}/${academicYear + 1})`
     : `${academicYear}/${academicYear + 1}`;
   const semesterLabel = isHe
     ? editorSemester === "FALL" ? "סמסטר א׳" : "סמסטר ב׳"
