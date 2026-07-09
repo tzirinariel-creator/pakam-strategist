@@ -143,4 +143,17 @@ describe("grade-improvement retake is not double-counted (#audit-r5)", () => {
     expect(g.courseAverage).toBe(85); // the retake, not (68+85)/2 = 76.5
     expect(g.totalGradedCourses).toBe(1);
   });
+
+  it("a passed course being retaken (attempt 2 in progress) keeps its EARNED credits", () => {
+    // The collapse must prefer the EARNED attempt — a retake-in-progress must not
+    // demote already-earned credits to planned (#audit-r6 regression fix).
+    const retaking = [
+      uc("COMPLETED", { courseId: "retk", attemptNumber: 1, credits: 4, courseType: "ELECTIVE", discipline: "ECONOMICS", grade: 65 }),
+      uc("IN_PROGRESS", { courseId: "retk", attemptNumber: 2, credits: 4, courseType: "ELECTIVE", discipline: "ECONOMICS" }),
+    ];
+    const c = calculateCredits(retaking, "ECONOMICS");
+    expect(c.breakdown.earned).toBe(4);
+    expect(c.breakdown.planned).toBe(0);
+    expect(c.breakdown.total).toBe(4);
+  });
 });

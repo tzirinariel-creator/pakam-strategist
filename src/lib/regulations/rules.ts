@@ -334,7 +334,9 @@ export const ruleSeminarPapers: RegulationRule = (ctx: RuleContext) => {
   const completedPapers = ctx.seminars.filter(
     (s) => s.submissionType === "PAPER" && s.grade !== null
   );
-  const current = completedPapers.length;
+  // Distinct seminar COURSES — a resubmitted/retaken paper on the same course
+  // must not count twice toward the 3-paper requirement (#audit-r6).
+  const current = new Set(completedPapers.map((s) => s.courseCode)).size;
   const passed = current >= required;
 
   // Severity: the 3-seminar-paper requirement is graduation PROGRESS a student
@@ -502,7 +504,10 @@ export const ruleLawFoundation: RegulationRule = (ctx: RuleContext) => {
   const completed = lawFoundationCourses.filter(
     (uc) => uc.status === "COMPLETED" || uc.status === "EXEMPT"
   );
-  const current = completed.length;
+  // Count DISTINCT courses — a single law-basket course retaken to improve its
+  // grade creates a second COMPLETED row and must not satisfy "take 2" alone
+  // (mirrors PKM-014/015 and the credit engine's collapse, #audit-r6).
+  const current = new Set(completed.map((uc) => uc.courseId)).size;
   const passed = current >= required;
 
   // Severity: "take 2 from the law basket" is a structural PROGRESS target a

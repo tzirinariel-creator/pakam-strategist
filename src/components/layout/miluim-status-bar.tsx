@@ -67,7 +67,14 @@ export function MiluimStatusBar() {
   // not only buried in Settings (note #46). Same mutation Settings uses.
   const utils = api.useUtils();
   const updateQuota = api.user.updateProfile.useMutation({
-    onSuccess: () => utils.user.getProfile.invalidate(),
+    onSuccess: () => {
+      void utils.user.getProfile.invalidate();
+      // The miluim credit-exemption + binary quota feed the credit breakdown and
+      // the compliance check — refresh them so the dashboard headline doesn't lag
+      // the stepper (#audit-r6).
+      void utils.plan.getCredits.invalidate();
+      void utils.regulation.checkCompliance.invalidate();
+    },
     onError: (e) =>
       toast.error(e.message || (isHe ? "העדכון נכשל" : "Update failed")),
   });

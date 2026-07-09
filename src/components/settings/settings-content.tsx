@@ -120,6 +120,11 @@ function ProfileSection() {
   const updateMutation = api.user.updateProfile.useMutation({
     onSuccess: () => {
       void utils.user.getProfile.invalidate();
+      // focusArea / englishLevel / amiramScore feed the credit breakdown + the
+      // compliance check, so refresh those too or the dashboard shows stale
+      // numbers until a reload (#audit-r6).
+      void utils.plan.getCredits.invalidate();
+      void utils.regulation.checkCompliance.invalidate();
       setSaved(true);
       setTimeout(() => setSaved(false), 2000);
       toast.success(t("profileSaved"));

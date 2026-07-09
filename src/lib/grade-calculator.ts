@@ -91,9 +91,22 @@ export function countsTowardAverage(uc: UserCourseWithCourse): boolean {
  */
 export function canonicalAttempts(rows: UserCourseWithCourse[]): UserCourseWithCourse[] {
   const best = new Map<string, UserCourseWithCourse>();
+  const isEarned = (uc: UserCourseWithCourse) => uc.status === "COMPLETED" || uc.status === "EXEMPT";
   for (const uc of rows) {
     const prev = best.get(uc.courseId);
-    if (!prev || uc.attemptNumber > prev.attemptNumber) best.set(uc.courseId, uc);
+    if (!prev) {
+      best.set(uc.courseId, uc);
+      continue;
+    }
+    // Prefer an EARNED attempt over a not-yet-earned one, so a passed course
+    // being retaken to improve isn't demoted from earned to planned (#audit-r6).
+    // Among equally-earned attempts, the highest attemptNumber (the determining
+    // sitting — TAU counts the LAST grade) wins.
+    const better =
+      isEarned(uc) !== isEarned(prev)
+        ? isEarned(uc)
+        : uc.attemptNumber > prev.attemptNumber;
+    if (better) best.set(uc.courseId, uc);
   }
   return [...best.values()];
 }
