@@ -124,7 +124,14 @@ export function OnboardingWizard() {
     retry: 2,
     staleTime: 5 * 60 * 1000, // 5 minutes — course list rarely changes
   });
-  const allCourses = (coursesQuery.data ?? []) as CourseWithSchedule[];
+  // MUST be reference-stable: the history-reconcile effect below depends on
+  // `allCourses` and setStates a fresh object. A bare `?? []` mints a NEW array
+  // every render while the query loads → effect re-fires → render loop until
+  // React throws "Maximum update depth exceeded" (hydration burst, caught 10.7).
+  const allCourses = useMemo(
+    () => (coursesQuery.data ?? []) as CourseWithSchedule[],
+    [coursesQuery.data],
+  );
 
   const [data, setData] = useState<OnboardingData>({
     program: getProgramById(null).programCode, // Default program, user selects in StepWelcome

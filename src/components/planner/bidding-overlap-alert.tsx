@@ -29,7 +29,12 @@ export function BiddingOverlapAlert({ courses }: { courses: UserCourseWithCourse
 
   const coursesQuery = api.course.list.useQuery(undefined, { staleTime: 5 * 60 * 1000 });
   const profileQuery = api.user.getProfile.useQuery();
-  const allCourses = (coursesQuery.data ?? []) as CourseWithSchedule[];
+  // Reference-stable (`?? []` mints a new array every render while loading —
+  // the onboarding wizard's hydration render-loop class of bug, fixed 10.7).
+  const allCourses = useMemo(
+    () => (coursesQuery.data ?? []) as CourseWithSchedule[],
+    [coursesQuery.data],
+  );
   const courseById = useMemo(
     () => new Map(allCourses.map((c) => [c.id, c])),
     [allCourses],
