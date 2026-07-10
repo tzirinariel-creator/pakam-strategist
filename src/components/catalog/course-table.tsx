@@ -494,8 +494,8 @@ export function CourseTable({ courses, allCourses, focusArea }: CourseTableProps
                       ) : null;
                     })()}
                     {course.failRate != null && course.failRate >= 1 && (
-                      <span className="text-[11px] text-muted-foreground" dir="ltr">
-                        {Math.round(course.failRate)}% {isHe ? "נכשלים" : "fail"}
+                      <span className="text-[11px] text-muted-foreground">
+                        <bdi dir="ltr">{Math.round(course.failRate)}%</bdi> {isHe ? "נכשלים" : "fail"}
                       </span>
                     )}
                     {(() => {

@@ -106,8 +106,8 @@ export function CourseDetailPopover({ course, children, onDisciplineOverride }: 
               </span>
             )}
             {course.failRate != null && course.failRate >= 1 && (
-              <span className="text-foreground/55" dir="ltr">
-                {Math.round(course.failRate)}% {isHe ? "נכשלים" : "fail"}
+              <span className="text-foreground/55">
+                <bdi dir="ltr">{Math.round(course.failRate)}%</bdi> {isHe ? "נכשלים" : "fail"}
               </span>
             )}
             <span className="text-foreground/30">{isHe ? "· מנתוני עבר" : "· from past data"}</span>
