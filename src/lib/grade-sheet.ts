@@ -34,18 +34,27 @@ export const extractionSchema = z.object({
 
 export type ExtractedRow = z.infer<typeof extractedRowSchema>;
 
+// Bidi control characters (LRM/RLM, embeddings, isolates, ALM) saturate text
+// extracted from the real TAU PDF (verified on an actual transcript, 7.2026):
+// they are invisible, split words into fragments like "ש'", and break both
+// name matching and code matching. Never meaningful data — strip everywhere.
+const BIDI_CONTROLS = /[\u061C\u200E\u200F\u202A-\u202E\u2066-\u2069]/g;
+
 // The teaching-mode column (ש' / ת' / ש'+ת' / שו"ת) sits right next to the
 // course-name column on the sheet; when the model glues it onto the name we
 // strip it — it is metadata, not part of any real course name. Quote marks
-// vary by OCR (' ׳ ’ " ״), so match all of them.
-const MODE_TOKEN = `(?:ש[׳'’]?\\+ת[׳'’]?|שו["״]ת|ש[׳'’]|ת[׳'’])`;
+// vary by OCR (' ׳ ’ " ״), so match all of them. Bidi reversal in PDF text
+// extraction can also mirror the token (ש' → 'ש, שו"ת → ת"וש) — match those too.
+const MODE_TOKEN = `(?:ש[׳'’]?\\+ת[׳'’]?|[׳'’]?ת\\+[׳'’]?ש|שו["״]ת|ת["״]וש|ש[׳'’]|ת[׳'’]|[׳'’]ש|[׳'’]ת)`;
 const MODE_AT_EDGES = new RegExp(`^${MODE_TOKEN}\\s+|\\s+${MODE_TOKEN}$`, "g");
 
 /** Validate the model's raw text into the full extraction (rows + English
  *  level), or null. Shared by parseExtraction and parseEnglishLevelLabel so a
  *  single scan is parsed once, consistently. */
 function extractValidated(text: string): z.infer<typeof extractionSchema> | null {
-  const stripped = text.replace(/```json|```/g, "").trim();
+  // Bidi controls first — they ride along when the model echoes PDF-extracted
+  // text, and would poison every string field (names, codes, semester tags).
+  const stripped = text.replace(BIDI_CONTROLS, "").replace(/```json|```/g, "").trim();
   const start = stripped.indexOf("{");
   const end = stripped.lastIndexOf("}");
   if (start < 0 || end <= start) return null;
@@ -84,6 +93,7 @@ export function parseEnglishLevelLabel(text: string): string | null {
  *  onboarding catalog-matcher shares the exact same normalization. */
 export function normalizeName(s: string): string {
   return s
+    .replace(BIDI_CONTROLS, "")
     .replace(/["'׳״־׳״-]/g, " ")
     .replace(/\s+/g, " ")
     .trim()
@@ -121,8 +131,14 @@ export interface MatchedRow extends ExtractedRow {
    */
   ambiguous: boolean;
   /**
+   * Re-upload diff (SC-4): the sheet's grade REPLACES a different grade that is
+   * already recorded (both non-null). Filling an empty grade is not an overwrite.
+   * Overwrites are never pre-checked — the student approves each one explicitly.
+   */
+  overwritesGrade: boolean;
+  /**
    * Safe to pre-select for one-click apply: a high-confidence, unambiguous
-   * match that actually changes the grade. Fuzzy/ambiguous rows are false.
+   * match that actually changes the grade. Fuzzy/ambiguous/overwrite rows are false.
    */
   autoApplySafe: boolean;
 }
@@ -184,14 +200,20 @@ export function matchExtractedToCourses(
     }
 
     const changesGrade = match != null && r.grade != null && match.currentGrade !== r.grade;
+    const overwritesGrade =
+      changesGrade && match != null && match.currentGrade != null;
     return {
       ...r,
       match,
       matchKind,
       changesGrade,
       ambiguous,
+      overwritesGrade,
       autoApplySafe:
-        changesGrade && !ambiguous && (matchKind === "code" || matchKind === "name"),
+        changesGrade &&
+        !ambiguous &&
+        !overwritesGrade &&
+        (matchKind === "code" || matchKind === "name"),
     };
   });
 }

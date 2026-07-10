@@ -342,6 +342,15 @@ export function GradeSheetScanner() {
                       <span className="rounded bg-emerald-400/10 px-1.5 py-px text-[10px] font-semibold text-emerald-600">
                         {isHe ? "עובר — יירשם כהושלם בלי ציון" : "Pass — will record as completed, no grade"}
                       </span>
+                    ) : r.overwritesGrade && !r.ambiguous && r.matchKind !== "fuzzy" ? (
+                      // Re-upload diff (SC-4): the sheet REPLACES a recorded grade
+                      // (e.g. after מועד ב'). Shown as an explicit old→new change,
+                      // never pre-checked — the student ticks it deliberately.
+                      <span className="rounded bg-amber-500/10 px-1.5 py-px text-[10px] font-semibold text-amber-600">
+                        {isHe
+                          ? <>רשום אצלכם <bdi dir="ltr">{r.match.currentGrade}</bdi> — בגיליון <bdi dir="ltr">{r.grade}</bdi>. סמנו כדי להחליף</>
+                          : <>Recorded: {r.match.currentGrade} — sheet says {r.grade}. Tick to replace</>}
+                      </span>
                     ) : r.autoApplySafe ? (
                       <span className="rounded bg-emerald-400/10 px-1.5 py-px text-[10px] font-semibold text-emerald-600">
                         {isHe ? `יעודכן: ${r.match.nameHe}` : `Will update: ${r.match.nameHe}`}

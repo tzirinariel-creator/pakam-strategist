@@ -182,7 +182,7 @@ import type { MatchedRow } from "@/lib/grade-sheet";
 const mkMatched = (over: Partial<MatchedRow>): MatchedRow => ({
   courseCode: "0651-1001", courseName: "x", grade: null, credits: null, passText: null,
   match: { userCourseId: "u", courseCode: "0651-1001", nameHe: "x", currentGrade: null, status: "IN_PROGRESS" },
-  matchKind: "code", changesGrade: false, ambiguous: false, autoApplySafe: false, ...over,
+  matchKind: "code", changesGrade: false, ambiguous: false, overwritesGrade: false, autoApplySafe: false, ...over,
 });
 
 describe("decideApplication — the declared outcome (no silent status)", () => {
@@ -242,6 +242,97 @@ describe("mapEnglishLevelLabel", () => {
     expect(mapEnglishLevelLabel("טרום בסיסי")).toBe("PRE_BASIC");
     expect(mapEnglishLevelLabel(null)).toBeNull();
     expect(mapEnglishLevelLabel("משהו אחר")).toBeNull();
+  });
+});
+
+// ── SC: the REAL TAU transcript fixture (structure real, grades synthetic) ──
+import { TAU_SHEET_RAW, TAU_SHEET_EXPECTED } from "./fixtures/tau-transcript";
+
+describe("real TAU transcript (SC) — 100% row classification, zero invented grades", () => {
+  const rows = parseExtraction(TAU_SHEET_RAW)!;
+
+  it("parses every course row on the sheet — none skipped, none invented", () => {
+    expect(rows).not.toBeNull();
+    expect(rows).toHaveLength(TAU_SHEET_EXPECTED.length); // 21
+  });
+
+  it("classifies every row exactly: code, clean name, grade, credits, semester, in-progress", () => {
+    for (let i = 0; i < TAU_SHEET_EXPECTED.length; i++) {
+      const exp = TAU_SHEET_EXPECTED[i]!;
+      const got = rows[i]!;
+      expect(got.courseCode, `row ${i} code`).toBe(exp.courseCode);
+      expect(got.courseName, `row ${i} name`).toBe(exp.courseName);
+      expect(got.grade, `row ${i} grade`).toBe(exp.grade);
+      expect(got.credits, `row ${i} credits`).toBe(exp.credits);
+      expect(got.semester, `row ${i} semester`).toBe(exp.semester);
+      expect(!!got.inProgress, `row ${i} inProgress`).toBe(exp.inProgress);
+    }
+  });
+
+  it("zero invented grades: every *** row stays grade=null and nothing is applicable", () => {
+    const inProgress = rows.filter((r) => r.inProgress);
+    expect(inProgress).toHaveLength(9); // 8 PCM spring rows + the English course
+    for (const r of inProgress) {
+      expect(r.grade).toBeNull();
+      const m = matchExtractedToCourses([r], [
+        { userCourseId: "u", courseCode: r.courseCode!, nameHe: r.courseName, currentGrade: null, status: "IN_PROGRESS" },
+      ]);
+      expect(decideApplication(m[0]!)).toBeNull(); // nothing to write
+    }
+  });
+
+  it("bidi controls and teaching-mode tokens never leak into names or codes", () => {
+    const bidi = /[\u061C\u200E\u200F\u202A-\u202E\u2066-\u2069]/;
+    for (const r of rows) {
+      expect(bidi.test(r.courseName), r.courseName).toBe(false);
+      expect(bidi.test(r.courseCode ?? ""), r.courseCode ?? "").toBe(false);
+      expect(/(^|\s)(ש['׳’]|ת['׳’]|שו["״]ת|ת["״]וש)(\s|$)/.test(r.courseName), r.courseName).toBe(false);
+    }
+  });
+
+  it("the English-level line becomes ADVANCED_B — and never a course row", () => {
+    expect(parseEnglishLevelLabel(TAU_SHEET_RAW)).toBe("מתקדמים ב'");
+    expect(mapEnglishLevelLabel(parseEnglishLevelLabel(TAU_SHEET_RAW))).toBe("ADVANCED_B");
+    expect(rows.some((r) => r.courseName.includes("דרישות"))).toBe(false);
+  });
+
+  it("semester mapping: 2025/1 → year 1 FALL, 2025/2 → year 1 SPRING", () => {
+    const m = mapSheetSemesters(rows);
+    expect(m.get("2025/1")).toEqual({ plannedYear: 1, plannedSemester: "FALL" });
+    expect(m.get("2025/2")).toEqual({ plannedYear: 1, plannedSemester: "SPRING" });
+  });
+
+  it("re-upload diff (SC-4): filling an empty grade pre-checks; replacing a recorded grade never does", () => {
+    // The user's plan after a first upload: one course already carries a
+    // (different) grade — the sheet now shows a corrected one (מועד ב' case).
+    const plan: UserCourseLite[] = TAU_SHEET_EXPECTED.map((r, i) => ({
+      userCourseId: `u${i}`,
+      courseCode: r.courseCode,
+      nameHe: r.courseName,
+      currentGrade: r.courseCode === "0618-1018" ? 71 : null,
+      status: r.grade != null ? "IN_PROGRESS" : "PLANNED",
+    }));
+    const matched = matchExtractedToCourses(rows, plan);
+    for (const m of matched) expect(m.matchKind).toBe("code"); // every row resolves by code
+    const overwrite = matched.find((m) => m.courseCode === "0618-1018")!;
+    expect(overwrite.overwritesGrade).toBe(true);
+    expect(overwrite.autoApplySafe).toBe(false); // explicit per-row approval only
+    expect(overwrite.changesGrade).toBe(true);
+    const fresh = matched.find((m) => m.courseCode === "0651-1007")!;
+    expect(fresh.overwritesGrade).toBe(false);
+    expect(fresh.autoApplySafe).toBe(true); // empty → filled is safe to pre-check
+  });
+
+  it("every graded row applies as an honest COMPLETED with the exact sheet grade", () => {
+    const plan: UserCourseLite[] = TAU_SHEET_EXPECTED.map((r, i) => ({
+      userCourseId: `u${i}`, courseCode: r.courseCode, nameHe: r.courseName, currentGrade: null, status: "IN_PROGRESS",
+    }));
+    const matched = matchExtractedToCourses(rows, plan);
+    for (const m of matched.filter((x) => x.grade != null)) {
+      const d = decideApplication(m)!;
+      expect(d.status).toBe("COMPLETED"); // all synthetic grades ≥ 60
+      expect(d.grade).toBe(m.grade); // written exactly as printed — never invented
+    }
   });
 });
 
