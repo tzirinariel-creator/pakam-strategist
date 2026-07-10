@@ -31,7 +31,18 @@ export type TRPCContext = Awaited<ReturnType<typeof createTRPCContext>>;
  */
 const t = initTRPC.context<TRPCContext>().create({
   transformer: superjson,
-  errorFormatter({ shape }) {
+  errorFormatter({ shape, error }) {
+    // SEC1 — never leak internals to the client. tRPC already strips the stack
+    // outside dev, but an UNEXPECTED exception (Prisma/network/library) surfaces
+    // its raw message as-is. Mask 500s with a generic message in production;
+    // deliberate TRPCErrors (FORBIDDEN demo guard, NOT_FOUND, BAD_REQUEST
+    // validation) keep their intentional, user-facing messages.
+    if (
+      process.env.NODE_ENV === "production" &&
+      error.code === "INTERNAL_SERVER_ERROR"
+    ) {
+      return { ...shape, message: "Something went wrong. Please try again." };
+    }
     return shape;
   },
 });

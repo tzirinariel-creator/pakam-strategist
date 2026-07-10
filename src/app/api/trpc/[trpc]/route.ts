@@ -13,14 +13,19 @@ const handler = (req: Request) =>
     req,
     router: appRouter,
     createContext: () => createTRPCContext({ headers: req.headers }),
-    onError:
-      process.env.NODE_ENV === "development"
-        ? ({ path, error }) => {
-            console.error(
-              ` tRPC failed on ${path ?? "<no-path>"}: ${error.message}`
-            );
-          }
-        : undefined,
+    // Always log server-side (SEC1): in production the client now gets a masked
+    // 500 message (see errorFormatter), so the real error must land in the
+    // function logs or it is gone. Path + code + message only — no user data.
+    onError: ({ path, error }) => {
+      if (
+        process.env.NODE_ENV === "development" ||
+        error.code === "INTERNAL_SERVER_ERROR"
+      ) {
+        console.error(
+          `tRPC ${error.code} on ${path ?? "<no-path>"}: ${error.message}`
+        );
+      }
+    },
   });
 
 export { handler as GET, handler as POST };
