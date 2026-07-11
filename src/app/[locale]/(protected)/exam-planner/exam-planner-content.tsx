@@ -150,7 +150,7 @@ export function ExamPlannerContent() {
     return inputs;
   }, [examCourses, selected, prepStyle]);
 
-  const previewPlan = useMemo(() => generateExamPlan(previewInputs, new Date(), blockedDays), [previewInputs, blockedDays]);
+  const previewPlan = useMemo(() => generateExamPlan(previewInputs, new Date(), blockedDays, prepStyle), [previewInputs, blockedDays, prepStyle]);
   const previewRecs = useMemo(() => (previewInputs.length === 0 ? [] : analyzeExamPeriod(previewPlan, isHe)), [previewInputs, previewPlan, isHe]);
   const selectedCount = Object.values(selected).filter(Boolean).length;
 

@@ -96,3 +96,33 @@ describe("recommendMoed", () => {
     expect(recommendMoed({ examDateA: d(10), examDateB: d(30) }, [d(11), d(29)])).toBe("A");
   });
 });
+
+// ── E1′ — the wizard's answers genuinely feed the seeder ──
+import { generateExamPlan as genPlan } from "@/lib/exam-planner";
+
+describe("E1′ — two answer profiles produce two different plans", () => {
+  const exams = [
+    { courseCode: "A-1", courseName: "קורס", examDate: "2026-08-01", credits: 4, averageGrade: 80, failRate: 5, moed: "A" as const },
+  ];
+  const now = new Date("2026-07-01T10:00:00");
+
+  it("steady spreads beyond a week; crammer concentrates into the last 7 days", () => {
+    const steady = genPlan(exams, now, [], "steady");
+    const crammer = genPlan(exams, now, [], "crammer");
+    const exam = new Date("2026-08-01").getTime();
+    const daysBefore = (d: Date) => Math.round((exam - d.getTime()) / 86_400_000);
+    // Crammer: every session within the last week before the exam.
+    expect(crammer.sessions.every((s) => daysBefore(s.date) <= 7)).toBe(true);
+    // Steady: the same sessions reach further back than crammer's window.
+    expect(Math.max(...steady.sessions.map((s) => daysBefore(s.date)))).toBeGreaterThan(7);
+    // Same total effort — the style shapes WHERE it lands, not how much.
+    expect(steady.sessions.length).toBe(crammer.sessions.length);
+  });
+
+  it("blocked days are never scheduled", () => {
+    const blocked = ["2026-07-31", "2026-07-30"];
+    const plan = genPlan(exams, now, blocked, "crammer");
+    const keys = plan.sessions.map((s) => `${s.date.getFullYear()}-${String(s.date.getMonth() + 1).padStart(2, "0")}-${String(s.date.getDate()).padStart(2, "0")}`);
+    for (const b of blocked) expect(keys).not.toContain(b);
+  });
+});

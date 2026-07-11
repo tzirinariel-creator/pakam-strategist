@@ -89,17 +89,27 @@ function colorFor(index: number): string {
   return PALETTE[index % PALETTE.length]!;
 }
 
+/** E1′ — how the wizard's prep-style shapes the plan:
+ *  steady (default) spreads over the full ~21-day window; crammer concentrates
+ *  the same sessions into the last days before each exam; light's reduction
+ *  happens at the credits level (×0.75) by the callers. */
+export type PrepSpreadStyle = "steady" | "crammer" | "light";
+const WINDOW_DAYS_STEADY = 21;
+const WINDOW_DAYS_CRAMMER = 7;
+
 /**
  * Build a reverse-planned study schedule for a set of exams.
  *
  * @param exams           The exams to study for.
  * @param now             "Today" (injectable for tests).
  * @param unavailable     ISO day strings the student can't study (work/blocked).
+ * @param style           Wizard prep-style — shapes the spread window (E1′).
  */
 export function generateExamPlan(
   exams: ExamInput[],
   now: Date = new Date(),
-  unavailable: string[] = []
+  unavailable: string[] = [],
+  style: PrepSpreadStyle = "steady"
 ): ExamPlanResult {
   const today = startOfDay(now);
   const blocked = new Set(unavailable);
@@ -130,19 +140,27 @@ export function generateExamPlan(
 
     // Available study days = from today up to the day BEFORE the exam, minus
     // blocked days. Reverse-planning: prefer days closer to the exam, so we walk
-    // backwards from exam-1.
+    // backwards from exam-1. The window is the wizard's prep-style (E1′):
+    // steady looks ~3 weeks back; crammer concentrates into the last week.
+    const windowDays = style === "crammer" ? WINDOW_DAYS_CRAMMER : WINDOW_DAYS_STEADY;
     const available: Date[] = [];
     for (let d = addDays(exam._date, -1); d.getTime() >= today.getTime(); d = addDays(d, -1)) {
       if (!blocked.has(dayKey(d))) available.push(d);
-      // Cap the window at ~21 days back — earlier than that isn't useful prep.
-      if (available.length >= 21) break;
+      if (available.length >= windowDays) break;
     }
     if (available.length === 0) return; // skip this exam (forEach callback)
 
-    // Spread `sessionCount` sessions across `available` days (already nearest-
-    // first). If more sessions than days, stack extra on the closest days.
+    // Place `sessionCount` sessions on `available` days (nearest-first order).
+    // steady/light honor the wizard's promise ("פיזור מלא על כל החלון") by
+    // distributing EVENLY across the whole window; crammer stacks nearest-first
+    // (E1′ — the engine used to stack nearest-first for everyone, so "steady"
+    // never actually spread). More sessions than days wraps around.
     for (let i = 0; i < sessionCount; i++) {
-      const day = available[i % available.length]!;
+      const idx =
+        style === "crammer"
+          ? i % available.length
+          : Math.floor((i * available.length) / sessionCount) % available.length;
+      const day = available[idx]!;
       sessions.push({
         courseCode: exam.courseCode,
         courseName: exam.courseName,

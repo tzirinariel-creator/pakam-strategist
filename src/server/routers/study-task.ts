@@ -259,7 +259,7 @@ export const studyTaskRouter = createTRPCRouter({
         return { created: 0, message: "no exams with dates" };
       }
 
-      const plan = generateExamPlan(examInputs, new Date(), input.unavailable ?? []);
+      const plan = generateExamPlan(examInputs, new Date(), input.unavailable ?? [], input.prepStyle ?? "steady");
 
       // Atomic: clear previous auto tasks, then create the fresh plan.
       const created = await ctx.db.$transaction(async (tx) => {
