@@ -21,7 +21,7 @@ import {
   X,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { calculateWorkload, getWorkloadColor, calculateHonestLoad } from "@/lib/workload-calculator";
+import { calculateHonestLoad, type HonestLoadLabel } from "@/lib/workload-calculator";
 import { findDenseDay } from "@/lib/schedule-density";
 import { Bidi } from "@/lib/bidi";
 import { CREDIT_REQUIREMENTS, DISCIPLINE_CONFIG } from "@/lib/constants";
@@ -29,25 +29,34 @@ import type { CourseWithSchedule, ScheduleConflict } from "@/lib/plan-generator"
 
 // ─── Constants ────────────────────────────────────────────────────────
 
-const LEVEL_ICONS: Record<string, React.ComponentType<{ className?: string }>> = {
+// P3′ — the load chip speaks the HONEST metric's language: it names the worst
+// real pain (hours / credits / exam crunch) instead of a magic 0-100 level.
+const LEVEL_ICONS: Record<HonestLoadLabel, React.ComponentType<{ className?: string }>> = {
   light: Feather,
-  moderate: Gauge,
-  heavy: Weight,
-  intense: Flame,
+  hours: Gauge,
+  credits: Weight,
+  examCrunch: Flame,
 };
 
-const LEVEL_LABELS_HE: Record<string, string> = {
+const LEVEL_LABELS_HE: Record<HonestLoadLabel, string> = {
   light: "קל",
-  moderate: "בינוני",
-  heavy: "כבד",
-  intense: "מאתגר מאוד",
+  hours: "שבוע עמוס שעות",
+  credits: "עומס ש״ס",
+  examCrunch: "מבחנים צפופים",
 };
 
-const LEVEL_LABELS_EN: Record<string, string> = {
+const LEVEL_LABELS_EN: Record<HonestLoadLabel, string> = {
   light: "Light",
-  moderate: "Moderate",
-  heavy: "Heavy",
-  intense: "Intense",
+  hours: "Heavy contact week",
+  credits: "Credit-heavy",
+  examCrunch: "Exams packed",
+};
+
+const LEVEL_COLORS: Record<HonestLoadLabel, string> = {
+  light: "text-emerald-400",
+  hours: "text-amber-500",
+  credits: "text-amber-500",
+  examCrunch: "text-red-400",
 };
 
 // ─── Types ────────────────────────────────────────────────────────────
@@ -315,17 +324,17 @@ export function InsightsBar({
   const isHe = locale === "he";
   const [showConflictDetails, setShowConflictDetails] = useState(false);
 
-  // Workload for THIS semester (includes difficulty data)
-  const workload = useMemo(() => {
-    return calculateWorkload(
-      selectedCourses.map((c) => ({
-        credits: c.credits,
-        courseType: c.courseType,
-        discipline: c.discipline,
-        difficultyLevel: c.difficultyLevel,
-        averageGrade: c.averageGrade,
-      }))
-    );
+  // Course-mix facts (P3′) — the simple, verifiable counts the tips and
+  // insights need. The old 0-100 magic score is gone; these are just counts.
+  const mix = useMemo(() => {
+    const hardCourseCount = selectedCourses.filter(
+      (c) => c.difficultyLevel === "hard" || c.difficultyLevel === "very_hard"
+    ).length;
+    return {
+      hasSeminar: selectedCourses.some((c) => c.courseType === "SEMINAR"),
+      disciplineSpread: new Set(selectedCourses.map((c) => c.discipline)).size,
+      hardCourseCount,
+    };
   }, [selectedCourses]);
 
   // Honest 3-number load (#2) — real facts, no prediction:
@@ -354,8 +363,8 @@ export function InsightsBar({
   }, [allCourses, isHe]);
 
   const semesterCredits = selectedCourses.reduce((s, c) => s + c.credits, 0);
-  const levelLabel = isHe ? LEVEL_LABELS_HE[workload.level] : LEVEL_LABELS_EN[workload.level];
-  const IconComponent = LEVEL_ICONS[workload.level] ?? Feather;
+  const levelLabel = isHe ? LEVEL_LABELS_HE[honestLoad.label] : LEVEL_LABELS_EN[honestLoad.label];
+  const IconComponent = LEVEL_ICONS[honestLoad.label] ?? Feather;
   const conflictCount = conflicts.length;
 
   // Focus area credits this semester
@@ -375,12 +384,12 @@ export function InsightsBar({
     return generateWorkloadExplanation(
       selectedCourses,
       semesterCredits,
-      workload.hasSeminar,
-      workload.disciplineSpread,
-      workload.hardCourseCount,
+      mix.hasSeminar,
+      mix.disciplineSpread,
+      mix.hardCourseCount,
       isHe,
     );
-  }, [selectedCourses, semesterCredits, workload, isHe]);
+  }, [selectedCourses, semesterCredits, mix, isHe]);
 
   // ─── Extra insights data ──────────────────────────────────────────
 
@@ -442,11 +451,11 @@ export function InsightsBar({
       selectedCourses,
       weekHeatmap,
       earlyMorningCount,
-      workload.disciplineSpread,
-      workload.hardCourseCount,
+      mix.disciplineSpread,
+      mix.hardCourseCount,
       isHe,
     );
-  }, [selectedCourses, weekHeatmap, earlyMorningCount, workload.disciplineSpread, workload.hardCourseCount, isHe]);
+  }, [selectedCourses, weekHeatmap, earlyMorningCount, mix.disciplineSpread, mix.hardCourseCount, isHe]);
 
   return (
     <div className="w-full space-y-2">
@@ -465,29 +474,31 @@ export function InsightsBar({
           </div>
         </div>
 
-        {/* Card 2: Workload */}
-        <div className="rounded-xl border border-border/40 bg-card/30 p-2.5">
+        {/* Card 2: Load (P3′) — names the worst REAL pain (honest metric),
+            with the three verifiable numbers right under it. No magic score. */}
+        <div
+          className="rounded-xl border border-border/40 bg-card/30 p-2.5"
+          title={
+            isHe
+              ? `${honestLoad.weeklyHours} שעות מגע · ${honestLoad.credits} ש״ס · ${honestLoad.tightestExamGapDays != null ? `מרווח מבחנים צפוף ביותר ${honestLoad.tightestExamGapDays} ימים` : "מרווח מבחנים עדיין לא ידוע"}`
+              : `${honestLoad.weeklyHours} contact hrs · ${honestLoad.credits} cr. · ${honestLoad.tightestExamGapDays != null ? `tightest exam gap ${honestLoad.tightestExamGapDays} days` : "exam gap unknown yet"}`
+          }
+        >
           <div className="flex items-center gap-1.5">
-            <IconComponent className="size-4" />
+            <IconComponent className={cn("size-4", LEVEL_COLORS[honestLoad.label])} />
             <span className="text-[10px] text-foreground/40 truncate">
               {t("workloadLevel")}
             </span>
           </div>
           <div className="mt-1">
-            <span className={cn("font-mono text-sm font-bold", getWorkloadColor(workload.level))}>
+            <span className={cn("font-mono text-sm font-bold", LEVEL_COLORS[honestLoad.label])}>
               {levelLabel}
             </span>
-            <div className="mt-1 h-1 w-full rounded-full bg-foreground/10 overflow-hidden">
-              <div
-                className={cn("h-full rounded-full transition-all duration-300", {
-                  "bg-emerald-400": workload.level === "light",
-                  "bg-foreground": workload.level === "moderate",
-                  "bg-amber-500": workload.level === "heavy",
-                  "bg-red-400": workload.level === "intense",
-                })}
-                style={{ width: `${workload.score}%` }}
-              />
-            </div>
+            <p className="mt-0.5 text-[10px] text-foreground/40" dir="auto">
+              {isHe
+                ? <>‏<Bidi text={honestLoad.weeklyHours} /> ש׳ מגע · <Bidi text={honestLoad.credits} /> ש״ס</>
+                : `${honestLoad.weeklyHours}h · ${honestLoad.credits} cr.`}
+            </p>
             {/* Contextual workload tip */}
             {workloadTip && (
               <p className="mt-1 text-[11px] text-foreground/30 leading-tight">

@@ -98,3 +98,13 @@ describe("calculateHonestLoad", () => {
     expect(r.label).toBe("examCrunch");
   });
 });
+
+  // P3′ spec edge case: two exams on the SAME day → gap is 0, not null.
+  it("two exams on the same day → tightest gap is 0", () => {
+    const r = calculateHonestLoad([
+      { credits: 4, examDate: "2026-07-20" },
+      { credits: 4, examDate: "2026-07-20" },
+    ]);
+    expect(r.tightestExamGapDays).toBe(0);
+    expect(r.label).toBe("examCrunch"); // 0 ≤ 3 — the sharpest real pain
+  });

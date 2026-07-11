@@ -306,19 +306,30 @@ export function SemesterPlanner({
   // Total planned credits
   const totalCreditsPlanned = completedCredits + currentSemesterCredits;
 
-  // Conflicts via plan-generator's detectConflicts — filtered by selected session groups
-  const conflicts = useMemo(() => {
-    // Create course copies with only the selected session groups
-    const filteredCourses = allCurrentCourses.map((course) => {
+  // The semester's courses with sessions narrowed to what's ACTUALLY on the
+  // grid: this semester only + the selected group per session type. This is
+  // the single source for conflicts, the insights bar and the summary (P3′) —
+  // computing any of them over raw sessions overcounts hours and can invent
+  // cross-semester conflicts for dual-offered courses (the live grid already
+  // filters exactly like this for display).
+  const groupFilteredCourses = useMemo(() => {
+    return allCurrentCourses.map((course) => {
       if (!course.scheduleSessions) return course;
       const courseGroupSel = sessionGroupSelections[course.code] ?? {};
+      const semesterSessions = course.scheduleSessions.filter(
+        (s) => !s.semester || s.semester === currentSemester,
+      );
       return {
         ...course,
-        scheduleSessions: filterSessionsBySelectedGroups(course.scheduleSessions, courseGroupSel),
+        scheduleSessions: filterSessionsBySelectedGroups(semesterSessions, courseGroupSel),
       };
     });
-    return detectConflicts(filteredCourses);
-  }, [allCurrentCourses, sessionGroupSelections]);
+  }, [allCurrentCourses, sessionGroupSelections, currentSemester]);
+
+  const conflicts = useMemo(
+    () => detectConflicts(groupFilteredCourses),
+    [groupFilteredCourses],
+  );
 
   // ─── Handlers ──────────────────────────────────────────────────────
 
@@ -549,7 +560,7 @@ export function SemesterPlanner({
         <SemesterSummary
           year={currentYear}
           semester={currentSemester}
-          courses={allCurrentCourses}
+          courses={groupFilteredCourses}
           totalCredits={totalCreditsPlanned}
           hasMoreSemesters={hasMoreSemesters}
           onPlanNext={handlePlanNext}
@@ -659,7 +670,7 @@ export function SemesterPlanner({
       {/* Insights bar */}
       <div className="animate-stagger-2 w-full max-w-7xl">
         <InsightsBar
-          selectedCourses={allCurrentCourses}
+          selectedCourses={groupFilteredCourses}
           allCourses={mergedCourses}
           totalCreditsPlanned={totalCreditsPlanned}
           conflicts={conflicts}

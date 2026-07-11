@@ -3,29 +3,38 @@
 import { useTranslations, useLocale } from "next-intl";
 import { CheckCircle, Calendar, Feather, Gauge, Weight, Flame, Pencil, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { calculateWorkload, getWorkloadColor } from "@/lib/workload-calculator";
+import { calculateHonestLoad, type HonestLoadLabel } from "@/lib/workload-calculator";
 import { SEMESTER_CONFIG, YEAR_CONFIG } from "@/lib/constants";
 import type { CourseWithSchedule } from "@/lib/plan-generator";
 
-const LEVEL_ICONS: Record<string, React.ComponentType<{ className?: string }>> = {
+// P3′ — the summary speaks the HONEST load language (worst real pain), not a
+// magic 0-100 level. Same vocabulary as the insights bar.
+const LEVEL_ICONS: Record<HonestLoadLabel, React.ComponentType<{ className?: string }>> = {
   light: Feather,
-  moderate: Gauge,
-  heavy: Weight,
-  intense: Flame,
+  hours: Gauge,
+  credits: Weight,
+  examCrunch: Flame,
 };
 
-const LEVEL_LABELS_HE: Record<string, string> = {
-  light: "קל",
-  moderate: "בינוני",
-  heavy: "כבד",
-  intense: "מאתגר מאוד",
+const LEVEL_LABELS_HE: Record<HonestLoadLabel, string> = {
+  light: "עומס קל",
+  hours: "שבוע עמוס שעות",
+  credits: "עומס ש״ס",
+  examCrunch: "מבחנים צפופים",
 };
 
-const LEVEL_LABELS_EN: Record<string, string> = {
-  light: "Light",
-  moderate: "Moderate",
-  heavy: "Heavy",
-  intense: "Intense",
+const LEVEL_LABELS_EN: Record<HonestLoadLabel, string> = {
+  light: "Light load",
+  hours: "Heavy contact week",
+  credits: "Credit-heavy",
+  examCrunch: "Exams packed",
+};
+
+const LEVEL_COLORS: Record<HonestLoadLabel, string> = {
+  light: "text-emerald-400",
+  hours: "text-amber-500",
+  credits: "text-amber-500",
+  examCrunch: "text-red-400",
 };
 
 interface SemesterSummaryProps {
@@ -60,11 +69,17 @@ export function SemesterSummary({
   const locale = useLocale();
   const isHe = locale === "he";
 
-  const workload = calculateWorkload(
+  // Three verifiable facts (P3′): contact hours from the actual grid sessions
+  // (the caller passes semester+group-filtered courses), ש״ס, exam density.
+  const honest = calculateHonestLoad(
     courses.map((c) => ({
       credits: c.credits,
-      courseType: c.courseType,
-      discipline: c.discipline,
+      sessions: (c.scheduleSessions ?? []).map((s) => ({
+        dayOfWeek: s.dayOfWeek,
+        startTime: s.startTime,
+        endTime: s.endTime,
+      })),
+      examDate: c.examDateA ?? null,
     }))
   );
 
@@ -75,8 +90,8 @@ export function SemesterSummary({
   const semLabel = isHe
     ? SEMESTER_CONFIG[semester]?.nameHe
     : SEMESTER_CONFIG[semester]?.nameEn;
-  const levelLabel = isHe ? LEVEL_LABELS_HE[workload.level] : LEVEL_LABELS_EN[workload.level];
-  const IconComponent = LEVEL_ICONS[workload.level] ?? Feather;
+  const levelLabel = isHe ? LEVEL_LABELS_HE[honest.label] : LEVEL_LABELS_EN[honest.label];
+  const IconComponent = LEVEL_ICONS[honest.label] ?? Feather;
 
   return (
     <div className="animate-fade-in w-full max-w-md mx-auto">
@@ -107,11 +122,21 @@ export function SemesterSummary({
             <div className="font-mono text-xl font-bold text-foreground/80">{semesterCredits}</div>
             <div className="text-[10px] text-foreground/40">{t("nz")}</div>
           </div>
-          <div className="rounded-lg bg-foreground/5 p-3">
-            <div className={cn("flex items-center justify-center", getWorkloadColor(workload.level))}>
-              <IconComponent className="size-6" />
+          <div
+            className="rounded-lg bg-foreground/5 p-3"
+            title={
+              isHe
+                ? `${honest.weeklyHours} שעות מגע שבועיות · ${honest.credits} ש״ס${honest.tightestExamGapDays != null ? ` · מרווח מבחנים צפוף ביותר ${honest.tightestExamGapDays} ימים` : ""}`
+                : `${honest.weeklyHours} weekly contact hours · ${honest.credits} cr.${honest.tightestExamGapDays != null ? ` · tightest exam gap ${honest.tightestExamGapDays} days` : ""}`
+            }
+          >
+            <div className={cn("flex items-center justify-center gap-1", LEVEL_COLORS[honest.label])}>
+              <IconComponent className="size-5" />
+              <span className="font-mono text-xl font-bold">{honest.weeklyHours}</span>
             </div>
-            <div className="text-[10px] text-foreground/40">{levelLabel}</div>
+            <div className="text-[10px] text-foreground/40">
+              {isHe ? `ש׳ מגע · ${levelLabel}` : `contact hrs · ${levelLabel}`}
+            </div>
           </div>
         </div>
 
