@@ -15,8 +15,11 @@ import {
   Calculator,
   FolderOpen,
   Compass,
+  ShieldCheck,
+  RefreshCw,
 } from "lucide-react";
 import { PhilosopherKingIcon } from "@/components/ui/philosopher-king-icon";
+import { api } from "@/lib/trpc/react";
 import { cn } from "@/lib/utils";
 import { useUIStore } from "@/stores/ui-store";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
@@ -33,7 +36,16 @@ const NAV_ICONS = {
   settings: Settings,
   mentor: PhilosopherKingIcon,
   guide: Compass,
+  adminModeration: ShieldCheck,
+  adminSync: RefreshCw,
 } as const;
+
+// OPS3 — rendered only when getProfile.role === "admin"; the routes themselves
+// are double-gated (admin layout redirect + adminProcedure 403).
+const ADMIN_GROUP = [
+  { key: "adminModeration", href: "/admin/moderation" },
+  { key: "adminSync", href: "/admin/sync" },
+] as const;
 
 // Grouped by tier instead of a flat 10-peer list (the "tab-jungle"). The King
 // (mentor) is dropped from the sidebar — it already floats as a FAB on every
@@ -70,6 +82,8 @@ export function Sidebar() {
   const locale = useLocale();
   const pathname = usePathname();
   const { sidebarCollapsed, toggleSidebar } = useUIStore();
+  const { data: profile } = api.user.getProfile.useQuery();
+  const isAdmin = profile?.role === "admin";
 
   const isRTL = locale === "he";
   const CollapseIcon = isRTL
@@ -156,6 +170,11 @@ export function Sidebar() {
               {group.map((item) => renderNavItem(item))}
             </div>
           ))}
+          {isAdmin && (
+            <div className="mt-2 space-y-1 border-t border-sidebar-border/60 pt-2">
+              {ADMIN_GROUP.map((item) => renderNavItem(item))}
+            </div>
+          )}
         </nav>
 
         {/* Settings — pinned at the bottom, separated from the main nav */}

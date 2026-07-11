@@ -17,7 +17,9 @@
     "graduation": "Grade Calculator",
     "record": "My Academic Record",
     "examPlanner": "Exam planner",
-    "guide": "Beginner guide"
+    "guide": "Beginner guide",
+    "adminModeration": "Moderation",
+    "adminSync": "Catalog sync"
   },
   "auth": {
     "login": "Log In",

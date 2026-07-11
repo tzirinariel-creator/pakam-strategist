@@ -515,6 +515,93 @@ export const adminRouter = createTRPCRouter({
     }
   }),
 
+  // ─── Review Moderation (OPS3) ──────────────────────────────────
+  // Reviews auto-hide after 3 reports (course-knowledge router) — this is
+  // the queue where the admin actually SEES them. Reviewer identity is
+  // deliberately not exposed: cohort wisdom is anonymous end-to-end, and
+  // moderation judges the content, not the author.
+
+  /**
+   * Everything that needs a human eye: hidden reviews + visible ones that
+   * accumulated reports but haven't crossed the auto-hide threshold yet.
+   */
+  getModerationQueue: adminProcedure.query(async ({ ctx }) => {
+    const reviews = await ctx.db.courseReview.findMany({
+      where: {
+        OR: [{ status: "HIDDEN" }, { reportCount: { gt: 0 } }],
+      },
+      select: {
+        id: true,
+        courseCode: true,
+        cohortYear: true,
+        workload: true,
+        difficulty: true,
+        verdict: true,
+        tip: true,
+        tags: true,
+        status: true,
+        reportCount: true,
+        createdAt: true,
+        updatedAt: true,
+      },
+      orderBy: [{ status: "asc" }, { reportCount: "desc" }, { updatedAt: "desc" }],
+    });
+
+    // Resolve course names so the admin sees "מבוא לכלכלה" and not a bare code.
+    const codes = [...new Set(reviews.map((r) => r.courseCode))];
+    const courses = await ctx.db.course.findMany({
+      where: { code: { in: codes } },
+      select: { code: true, nameHe: true },
+    });
+    const nameByCode = new Map(courses.map((c) => [c.code, c.nameHe]));
+
+    return reviews.map((r) => ({
+      ...r,
+      courseName: nameByCode.get(r.courseCode) ?? null,
+    }));
+  }),
+
+  /**
+   * Approve: the review is fine — make it visible again and wipe the report
+   * slate (otherwise the same stale reports would re-hide it on the next one).
+   */
+  approveReview: adminProcedure
+    .input(z.object({ reviewId: z.string().uuid() }))
+    .mutation(async ({ ctx, input }) => {
+      const review = await ctx.db.courseReview.findUnique({
+        where: { id: input.reviewId },
+        select: { id: true },
+      });
+      if (!review) {
+        throw new TRPCError({ code: "NOT_FOUND", message: "Review not found" });
+      }
+
+      await ctx.db.reviewReport.deleteMany({ where: { reviewId: input.reviewId } });
+      return ctx.db.courseReview.update({
+        where: { id: input.reviewId },
+        data: { status: "VISIBLE", reportCount: 0 },
+      });
+    }),
+
+  /**
+   * Delete: the review violates the rules — remove it permanently
+   * (reports cascade via the FK).
+   */
+  deleteReview: adminProcedure
+    .input(z.object({ reviewId: z.string().uuid() }))
+    .mutation(async ({ ctx, input }) => {
+      const review = await ctx.db.courseReview.findUnique({
+        where: { id: input.reviewId },
+        select: { id: true },
+      });
+      if (!review) {
+        throw new TRPCError({ code: "NOT_FOUND", message: "Review not found" });
+      }
+
+      await ctx.db.courseReview.delete({ where: { id: input.reviewId } });
+      return { deleted: true };
+    }),
+
   // ─── Course Discovery ──────────────────────────────────────────
   // Search Yedion by department codes to find courses not yet in DB
 

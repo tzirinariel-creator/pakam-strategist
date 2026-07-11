@@ -17,7 +17,9 @@
     "graduation": "מחשבון ציונים",
     "record": "התיק האקדמי שלי",
     "examPlanner": "תכנון מבחנים",
-    "guide": "מדריך מתחיל"
+    "guide": "מדריך מתחיל",
+    "adminModeration": "מודרציה",
+    "adminSync": "סנכרון קטלוג"
   },
   "auth": {
     "login": "התחברות",

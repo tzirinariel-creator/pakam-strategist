@@ -33,6 +33,8 @@ export const userRouter = createTRPCRouter({
         startYear: true,
         locale: true,
         theme: true,
+        // OPS3 — the sidebar shows the admin group only for role === "admin".
+        role: true,
         miluimGroup: true,
         miluimCareerService: true,
         miluimCreditsUsed: true,
