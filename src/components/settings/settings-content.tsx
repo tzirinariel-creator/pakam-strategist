@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import {
   Settings,
   Palette,
@@ -36,6 +36,8 @@ import { ConnectGeminiGuide } from "@/components/settings/connect-gemini-guide";
 import { PersonaPicker } from "@/components/persona/persona-picker";
 import { MiluimDayCombatInputs } from "@/components/miluim/miluim-day-combat-inputs";
 import { QuotaCard } from "@/components/miluim/quota-card";
+import { fileToBase64, SCANNER_ACCEPT } from "@/lib/upload";
+import type { Form3010Summary } from "@/lib/form-3010";
 import { api } from "@/lib/trpc/react";
 import { useUIStore } from "@/stores/ui-store";
 import { useRouter, usePathname } from "@/i18n/navigation";
@@ -1378,6 +1380,27 @@ function MiluimSection() {
           {saved ? t("saved") : t("save")}
         </Button>
 
+        {/* M2 (note 45) — Form 3010 scanner: upload the official confirmation,
+            Gemini extracts the periods, and EVERY semester is applied only on
+            explicit approval (through the same upsert the manual editor uses). */}
+        <Form3010Uploader
+          isHe={isHe}
+          existing={semestersQuery.data ?? []}
+          pending={upsertMutation.isPending}
+          onApply={(academicYearApply, semesterApply, daysApply) => {
+            const row = (semestersQuery.data ?? []).find(
+              (r) => r.academicYear === academicYearApply && r.semester === semesterApply,
+            );
+            upsertMutation.mutate({
+              academicYear: academicYearApply,
+              semester: semesterApply,
+              daysServed: daysApply,
+              // Preserve an existing combat flag — the form doesn't state it.
+              isCombat: row?.isCombat ?? false,
+            });
+          }}
+        />
+
         {/* Per-semester service timeline (#12/#3) — so the student sees their
             WHOLE reserve history, not just the one semester being edited. */}
         {semestersQuery.data && semestersQuery.data.length > 0 && (
@@ -1522,6 +1545,138 @@ function MiluimSection() {
         </div>
       </div>
     </SectionCard>
+  );
+}
+
+// ---------------------------------------------------------------
+// M2 — Form 3010 uploader (extraction → explicit per-semester approval)
+// ---------------------------------------------------------------
+
+function Form3010Uploader({
+  isHe,
+  existing,
+  pending,
+  onApply,
+}: {
+  isHe: boolean;
+  existing: Array<{ academicYear: number; semester: string; daysServed: number }>;
+  pending: boolean;
+  onApply: (academicYear: number, semester: "FALL" | "SPRING", days: number) => void;
+}) {
+  const fileRef = useRef<HTMLInputElement>(null);
+  const [scanning, setScanning] = useState(false);
+  const [summary, setSummary] = useState<Form3010Summary | null>(null);
+  const [edited, setEdited] = useState<Record<string, number>>({});
+
+  const handleFile = async (file: File) => {
+    setScanning(true);
+    setSummary(null);
+    try {
+      const { b64, mime } = await fileToBase64(file);
+      if (b64.length > 5_000_000) {
+        toast.error(isHe ? "הקובץ גדול מדי — צלמו את העמוד עצמו (עד ~3.5MB)." : "File too large — photograph the page (max ~3.5MB).");
+        return;
+      }
+      const res = await fetch("/api/ai/scan-3010", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ imageBase64: b64, mimeType: mime }),
+      });
+      const data = (await res.json()) as { summary?: Form3010Summary; error?: string };
+      if (!res.ok || !data.summary) {
+        toast.error(data.error ?? (isHe ? "הסריקה נכשלה" : "Scan failed"));
+        return;
+      }
+      setSummary(data.summary);
+      setEdited({});
+    } catch {
+      toast.error(isHe ? "הסריקה נכשלה — נסו שוב" : "Scan failed — try again");
+    } finally {
+      setScanning(false);
+      if (fileRef.current) fileRef.current.value = "";
+    }
+  };
+
+  return (
+    <div className="rounded-xl border border-border/60 bg-foreground/[0.02] p-4">
+      <div className="flex flex-wrap items-center gap-3">
+        <div className="min-w-0 flex-1">
+          <p className="text-sm font-semibold text-foreground/75">
+            {isHe ? "יש לכם טופס 3010? נמלא את הימים בשבילכם" : "Have a Form 3010? We'll fill the days for you"}
+          </p>
+          <p className="text-xs text-foreground/45">
+            {isHe
+              ? "מעלים את האישור הרשמי — אנחנו מחלצים את תקופות השירות ומציעים חלוקה לסמסטרים. שום דבר לא נשמר בלי אישור שלכם."
+              : "Upload the official confirmation — we extract the service periods and suggest a per-semester split. Nothing is saved without your approval."}
+          </p>
+        </div>
+        <input
+          ref={fileRef}
+          type="file"
+          accept={SCANNER_ACCEPT}
+          className="hidden"
+          onChange={(e) => {
+            const f = e.target.files?.[0];
+            if (f) void handleFile(f);
+          }}
+        />
+        <Button type="button" variant="outline" disabled={scanning} onClick={() => fileRef.current?.click()} className="gap-1.5">
+          {scanning ? <Loader2 className="size-4 animate-spin" /> : <Shield className="size-4" />}
+          {scanning ? (isHe ? "קורא את הטופס…" : "Reading…") : isHe ? "העלו טופס 3010" : "Upload Form 3010"}
+        </Button>
+      </div>
+
+      {summary && (
+        <div className="mt-3 space-y-2">
+          {summary.suggestions.length === 0 && (
+            <p className="text-xs text-foreground/50">
+              {isHe ? "לא נמצאו תקופות בטווח הלוחות המוכרים — אפשר להזין ידנית למטה." : "No periods within the known calendars — enter manually below."}
+            </p>
+          )}
+          {summary.suggestions.map((s) => {
+            const key = `${s.academicYear}-${s.semester}`;
+            const days = edited[key] ?? Math.round(s.days);
+            const current = existing.find((r) => r.academicYear === s.academicYear && r.semester === s.semester);
+            return (
+              <div key={key} className="flex flex-wrap items-center gap-2 rounded-lg border border-border/50 p-2 text-xs">
+                <span className="min-w-0 flex-1 text-foreground/75">
+                  <Bidi text={`${s.labelHe} · ${s.semester === "FALL" ? "סמסטר א׳" : "סמסטר ב׳"}`} />
+                  <span className="ms-1 text-foreground/40">
+                    ({s.periodCount} {isHe ? "תקופות" : "periods"})
+                  </span>
+                </span>
+                <input
+                  type="number"
+                  min={0}
+                  max={366}
+                  value={days}
+                  aria-label={isHe ? `ימי שירות ל${s.labelHe}` : `Service days for ${s.labelHe}`}
+                  onChange={(e) => setEdited((prev) => ({ ...prev, [key]: Math.max(0, Math.min(366, parseInt(e.target.value, 10) || 0)) }))}
+                  className="w-16 rounded-md border border-border bg-card px-2 py-1 text-center font-mono"
+                  dir="ltr"
+                />
+                {current && current.daysServed !== days && (
+                  <span className="rounded bg-amber-500/10 px-1.5 py-px text-[10px] font-semibold text-amber-600">
+                    {isHe ? <>רשום כרגע <bdi dir="ltr">{current.daysServed}</bdi> — יוחלף</> : `Recorded ${current.daysServed} — will replace`}
+                  </span>
+                )}
+                <Button type="button" size="sm" disabled={pending} onClick={() => onApply(s.academicYear, s.semester, days)} className="h-7 px-2.5 text-xs">
+                  {isHe ? "החילו לסמסטר" : "Apply"}
+                </Button>
+              </div>
+            );
+          })}
+          {summary.unmapped.length > 0 && (
+            <p className="text-[11px] leading-relaxed text-foreground/45">
+              {isHe
+                ? `${summary.unmapped.length} תקופות מחוץ ללוחות-השנה המוכרים (למשל לפני תשפ"ו) לא שויכו אוטומטית: `
+                : `${summary.unmapped.length} period(s) outside the known calendars were not auto-assigned: `}
+              {summary.unmapped.map((p) => `${p.startDate}–${p.endDate} (${p.days})`).join(" · ")}
+            </p>
+          )}
+        </div>
+      )}
+    </div>
   );
 }
 

@@ -1,0 +1,68 @@
+// M2 (note 45) — Form 3010 parsing + honest semester attribution, built
+// against the REAL form's structure (periods table, DD/MM/YYYY, decimal days).
+
+import { describe, it, expect } from "vitest";
+import { parseForm3010, parseFormDate, summarizeForm3010 } from "@/lib/form-3010";
+
+describe("parseForm3010", () => {
+  it("parses a fenced, bidi-polluted echo of the real table", () => {
+    const raw =
+      '```json\n{"periods":[' +
+      '{"startDate":"06/03/2026","endDate":"21/05/2026","days":77},' +
+      '{"startDate":"‏15/05/2025","endDate":"20/06/2025","days":37},' +
+      '{"startDate":"26/09/2024","endDate":"18/12/2024","days":84}],"totalDays":null}\n```';
+    const f = parseForm3010(raw)!;
+    expect(f.periods).toHaveLength(3);
+    expect(f.periods[0]!.days).toBe(77);
+    expect(f.periods[1]!.startDate).toBe("15/05/2025"); // bidi mark stripped
+  });
+
+  it("rejects garbage, malformed dates and out-of-range days", () => {
+    expect(parseForm3010("cannot read")).toBeNull();
+    expect(parseForm3010('{"periods":[{"startDate":"2026-03-06","endDate":"21/05/2026","days":5}]}')).toBeNull();
+    expect(parseForm3010('{"periods":[{"startDate":"06/03/2026","endDate":"21/05/2026","days":999}]}')).toBeNull();
+  });
+});
+
+describe("parseFormDate", () => {
+  it("DD/MM/YYYY → local noon date", () => {
+    const d = parseFormDate("06/03/2026")!;
+    expect([d.getDate(), d.getMonth() + 1, d.getFullYear(), d.getHours()]).toEqual([6, 3, 2026, 12]);
+    expect(parseFormDate("6/3/2026")).toBeNull(); // strict format only
+  });
+});
+
+describe("summarizeForm3010 — midpoint attribution, printed days only", () => {
+  it("attributes each period to the semester of its midpoint; sums as printed", () => {
+    const summary = summarizeForm3010({
+      periods: [
+        // Midpoint mid-April 2026 → SPRING תשפ"ו (startYear 2025).
+        { startDate: "06/03/2026", endDate: "21/05/2026", days: 77 },
+        // Midpoint early June 2025... before the 2025 calendar? If outside the
+        // known calendars it must land in `unmapped`, never guessed.
+        { startDate: "15/05/2025", endDate: "20/06/2025", days: 37 },
+        // Midpoint December 2025 → FALL תשפ"ו.
+        { startDate: "20/11/2025", endDate: "20/12/2025", days: 25 },
+      ],
+      totalDays: null,
+    });
+    const spring = summary.suggestions.find((s) => s.semester === "SPRING" && s.academicYear === 2025);
+    expect(spring?.days).toBe(77); // exactly the printed count — never derived
+    const fall = summary.suggestions.find((s) => s.semester === "FALL" && s.academicYear === 2025);
+    expect(fall?.days).toBe(25);
+    // Every period is accounted for exactly once (mapped or unmapped).
+    const mappedPeriods = summary.suggestions.reduce((s, x) => s + x.periodCount, 0);
+    expect(mappedPeriods + summary.unmapped.length).toBe(3);
+    expect(summary.totalDays).toBe(77 + 37 + 25);
+  });
+
+  it("refuses to guess for periods outside the known TAU calendars", () => {
+    const summary = summarizeForm3010({
+      periods: [{ startDate: "21/05/2024", endDate: "26/05/2024", days: 5 }],
+      totalDays: null,
+    });
+    // 2024 predates the known calendar table → unmapped, zero suggestions.
+    expect(summary.suggestions).toHaveLength(0);
+    expect(summary.unmapped).toHaveLength(1);
+  });
+});
