@@ -35,6 +35,7 @@ import { deriveGroupFromDays, getCurrentAcademicYear } from "@/lib/miluim";
 import { ConnectGeminiGuide } from "@/components/settings/connect-gemini-guide";
 import { PersonaPicker } from "@/components/persona/persona-picker";
 import { MiluimDayCombatInputs } from "@/components/miluim/miluim-day-combat-inputs";
+import { QuotaCard } from "@/components/miluim/quota-card";
 import { api } from "@/lib/trpc/react";
 import { useUIStore } from "@/stores/ui-store";
 import { useRouter, usePathname } from "@/i18n/navigation";
@@ -1221,7 +1222,6 @@ function MiluimSection() {
   // so without a way to enter them the degree cap / PKM-024 / PKM-025 stay inert).
   const [creditsUsed, setCreditsUsed] = useState<number | null>(null);
   const [binaryUsedInput, setBinaryUsedInput] = useState<number | null>(null);
-  const [countersSaved, setCountersSaved] = useState(false);
   // Manual group override for special cases the day-model can't capture
   // (career service / 300+ days → C, bereaved/wounded → G) — #9.
   const [manualGroup, setManualGroup] = useState<string>("NONE");
@@ -1291,8 +1291,6 @@ function MiluimSection() {
       void utils.user.getProfile.invalidate();
       void utils.plan.getCredits.invalidate();
       void utils.regulation.checkCompliance.invalidate();
-      setCountersSaved(true);
-      setTimeout(() => setCountersSaved(false), 2000);
       toast.success(t("saved"));
     },
     onError: () => toast.error(isHe ? "השמירה נכשלה" : "Save failed"),
@@ -1313,13 +1311,6 @@ function MiluimSection() {
       semester: editorSemester,
       daysServed: days ?? 0,
       isCombat: combat,
-    });
-  };
-
-  const handleSaveCounters = () => {
-    updateProfileMutation.mutate({
-      miluimCreditsUsed: Math.min(creditCap, Math.max(0, creditsUsed ?? 0)),
-      miluimBinaryUsed: Math.min(binaryCap, Math.max(0, binaryUsedInput ?? 0)),
     });
   };
 
@@ -1497,69 +1488,37 @@ function MiluimSection() {
           <p className="mb-3 text-sm font-medium text-foreground/70">
             {t("cumulativeTitle")}
           </p>
+          {/* M1 (note 46): the SAME QuotaCard steppers the miluim strip's
+              benefits panel uses — a step writes immediately through the same
+              updateProfile mutation, so every surface updates at once. */}
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-            <div className="flex flex-col gap-1.5 rounded-lg border border-emerald-500/20 bg-emerald-500/5 px-4 py-3">
-              <label
-                htmlFor="miluim-credits-used"
-                className="text-xs text-foreground/60"
-              >
-                {t("creditExemptionUsed")}
-              </label>
-              <input
-                id="miluim-credits-used"
-                type="number"
-                min={0}
-                max={creditCap}
-                value={creditsUsed ?? ""}
-                onChange={(e) =>
-                  setCreditsUsed(
-                    e.target.value === "" ? null : parseInt(e.target.value, 10)
-                  )
-                }
-                className="w-full rounded-md border border-border bg-card px-3 py-1.5 font-mono text-sm text-foreground focus:border-foreground/30 focus:outline-none"
-              />
-              <p className="text-xs text-foreground/30">
-                {t("creditExemptionUsedHint")}
-              </p>
-            </div>
-            <div className="flex flex-col gap-1.5 rounded-lg border border-amber-500/20 bg-amber-500/5 px-4 py-3">
-              <label
-                htmlFor="miluim-binary-used"
-                className="flex items-center gap-1.5 text-xs text-foreground/60"
-              >
-                <Swords className="h-3 w-3 text-amber-500" />
-                {t("binaryUsed")}
-              </label>
-              <input
-                id="miluim-binary-used"
-                type="number"
-                min={0}
-                max={binaryCap}
-                value={binaryUsedInput ?? ""}
-                onChange={(e) =>
-                  setBinaryUsedInput(
-                    e.target.value === "" ? null : parseInt(e.target.value, 10)
-                  )
-                }
-                className="w-full rounded-md border border-border bg-card px-3 py-1.5 font-mono text-sm text-foreground focus:border-foreground/30 focus:outline-none"
-              />
-              <p className="text-xs text-foreground/30">{t("binaryUsedHint")}</p>
-            </div>
+            <QuotaCard
+              icon={Shield}
+              label={t("creditExemptionUsed")}
+              used={creditsUsed ?? 0}
+              cap={creditCap}
+              hint={t("creditExemptionUsedHint")}
+              pending={updateProfileMutation.isPending}
+              isHe={isHe}
+              onChange={(next) => {
+                setCreditsUsed(next);
+                updateProfileMutation.mutate({ miluimCreditsUsed: Math.min(creditCap, Math.max(0, next)) });
+              }}
+            />
+            <QuotaCard
+              icon={Swords}
+              label={t("binaryUsed")}
+              used={binaryUsedInput ?? 0}
+              cap={binaryCap}
+              hint={t("binaryUsedHint")}
+              pending={updateProfileMutation.isPending}
+              isHe={isHe}
+              onChange={(next) => {
+                setBinaryUsedInput(next);
+                updateProfileMutation.mutate({ miluimBinaryUsed: Math.min(binaryCap, Math.max(0, next)) });
+              }}
+            />
           </div>
-
-          {/* Save cumulative counters */}
-          <Button
-            onClick={handleSaveCounters}
-            disabled={updateProfileMutation.isPending}
-            className="mt-3 self-start bg-foreground text-background hover:bg-foreground/90"
-          >
-            {updateProfileMutation.isPending ? (
-              <Loader2 className="size-4 animate-spin" />
-            ) : countersSaved ? (
-              <Check className="size-4" />
-            ) : null}
-            {countersSaved ? t("saved") : t("saveCounters")}
-          </Button>
         </div>
       </div>
     </SectionCard>

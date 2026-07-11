@@ -2,13 +2,14 @@
 
 import { useState } from "react";
 import { Dialog as DialogPrimitive } from "radix-ui";
-import { Shield, X, Check, CalendarClock, Clock, Target, BookOpen, GraduationCap, ChevronLeft, ChevronRight, BadgeCheck, Minus, Plus } from "lucide-react";
+import { Shield, X, Check, CalendarClock, Clock, Target, BookOpen, GraduationCap, ChevronLeft, ChevronRight, BadgeCheck } from "lucide-react";
 import { toast } from "sonner";
 import { useLocale, useTranslations } from "next-intl";
 import { api } from "@/lib/trpc/react";
 import { getAcademicNow } from "@/lib/academic-calendar";
 import { MILUIM_CONFIG } from "@/lib/constants";
 import { buildBenefitGroups, BENEFITS_HONESTY_NOTE } from "@/lib/miluim-benefits";
+import { QuotaCard } from "@/components/miluim/quota-card";
 import {
   deriveCurrentGroup,
   computeCreditExemption,
@@ -402,73 +403,6 @@ function ServiceTimeline({
           })}
         </ul>
       )}
-    </div>
-  );
-}
-
-/**
- * A quota card the student can update IN PLACE (note #46): the counters used
- * to be read-only here and editable only deep in Settings — but the moment
- * you learn "you have 2 conversions left" is exactly the moment you realize
- * one was already spent. Stepper writes through the same updateProfile
- * mutation Settings uses; demo accounts get the server's read-only error.
- */
-function QuotaCard({
-  icon: Icon,
-  label,
-  used,
-  cap,
-  hint,
-  onChange,
-  pending,
-  isHe,
-}: {
-  icon: React.ComponentType<{ className?: string }>;
-  label: string;
-  used: number;
-  cap: number;
-  hint: React.ReactNode;
-  onChange?: (next: number) => void;
-  pending: boolean;
-  isHe: boolean;
-}) {
-  const stepBtn =
-    "flex size-6 items-center justify-center rounded-md border border-border/60 text-foreground/50 transition-colors hover:bg-foreground/5 hover:text-foreground/80 disabled:opacity-25 disabled:hover:bg-transparent";
-  return (
-    <div className="rounded-xl border border-border/60 bg-foreground/[0.02] p-3.5">
-      <div className="flex items-center gap-1.5 text-[11px] font-medium text-foreground/50">
-        <Icon className="size-3.5" />
-        {label}
-      </div>
-      <div className="mt-1 flex items-center justify-between gap-2">
-        <div className="flex items-baseline gap-1" dir="ltr">
-          <span className="font-mono text-xl font-bold text-foreground/85">{used}</span>
-          <span className="font-mono text-sm text-foreground/40">/ {cap}</span>
-        </div>
-        {onChange && (
-          <div className="flex items-center gap-1" dir="ltr">
-            <button
-              type="button"
-              disabled={pending || used <= 0}
-              onClick={() => onChange(used - 1)}
-              aria-label={isHe ? `הפחתת ניצול — ${label}` : `Decrease used — ${label}`}
-              className={stepBtn}
-            >
-              <Minus className="size-3" />
-            </button>
-            <button
-              type="button"
-              disabled={pending || used >= cap}
-              onClick={() => onChange(used + 1)}
-              aria-label={isHe ? `הוספת ניצול — ${label}` : `Increase used — ${label}`}
-              className={stepBtn}
-            >
-              <Plus className="size-3" />
-            </button>
-          </div>
-        )}
-      </div>
-      <p className="mt-0.5 text-[10px] leading-tight text-foreground/45">{hint}</p>
     </div>
   );
 }
