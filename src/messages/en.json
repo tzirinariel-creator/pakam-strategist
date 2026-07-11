@@ -375,7 +375,16 @@
       "saved": "Saved",
       "noService": "Not serving in reserves this year",
       "ofCap": "of {cap}"
-    }
+    },
+    "feedbackTitle": "Feedback & install",
+    "feedbackDesc": "Hit a problem? Have an idea? This is the place",
+    "feedbackButton": "Report a problem or idea",
+    "feedbackHint": "Opens a prefilled email — write freely, every message is read.",
+    "feedbackSubject": "Pakamon feedback",
+    "feedbackBody": "What happened / the idea:%0D%0A%0D%0A(screenshots welcome)%0D%0A%0D%0AThe page I was on: ",
+    "installTitle": "Add Pakamon to your home screen",
+    "installIos": "iPhone: Safari share button → \"Add to Home Screen\".",
+    "installAndroid": "Android: browser menu (⋮) → \"Install app\" or \"Add to Home screen\"."
   },
   "courseType": {
     "MANDATORY": "Mandatory",
@@ -986,7 +995,8 @@
     "finalCta": {
       "title": "Signing up takes less time than finding a course in the Yedion",
       "note": "Free. No credit card, no subscription — and it stays that way."
-    }
+    },
+    "footerFeedback": "Report a problem"
   },
   "about": {
     "title": "About",

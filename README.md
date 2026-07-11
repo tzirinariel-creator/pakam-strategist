@@ -2,7 +2,7 @@
 
 [![CI](https://github.com/tzirinariel-creator/pakam-strategist/actions/workflows/ci.yml/badge.svg)](https://github.com/tzirinariel-creator/pakam-strategist/actions/workflows/ci.yml)
 
-A full-stack web app that helps students in Tel Aviv University's **PPE program** (Philosophy, Economics & Political Science) plan their entire degree: course planning across semesters, automatic credit tracking by discipline, a regulation-compliance engine, a final-grade calculator, and an AI mentor that runs on the student's own Claude key.
+A full-stack web app that helps students in Tel Aviv University's **PPE program** (Philosophy, Economics & Political Science) plan their entire degree: course planning across semesters, automatic credit tracking by discipline, a regulation-compliance engine, a final-grade calculator, and an AI mentor (Google Gemini — shared free key or the student's own), grade-sheet and Form-3010 scanners, and anonymous cohort wisdom.
 
 **Live:** https://pakam-strategist.vercel.app — log in with **Try Demo** (no signup) to explore with seeded data.
 
@@ -24,7 +24,11 @@ Planning a PPE degree is genuinely hard: **150 credits over 3 years**, minimum-c
 - **Course catalog** — 117 real PPE courses with prerequisites, weekly hours, and exam dates; filterable and sortable by discipline and type.
 - **Regulation engine** — 25 rules from the PPE academic regulations (per-discipline credit minimums, seminar/referat requirements, year-transition GPA, max attempts, failure rate…) evaluated automatically with a compliance score and per-rule explanations.
 - **Grade calculator** — live final-grade projection with the official weighted formula, plus a reverse "what grade do I need?" mode given a target.
-- **AI mentor (BYOK)** — a Claude-powered academic advisor with full context of the student's plan, grades, and regulations. Bring-your-own-key: the key is validated, **encrypted at rest (AES-256-GCM)**, and never leaves the server.
+- **AI mentor ("the Philosopher King")** — a Gemini-powered academic advisor with full context of the student's plan, grades, and regulations. Runs on a rate-limited shared key out of the box; a student can bring their own key, which is validated, **encrypted at rest (AES-256-GCM)**, and never leaves the server. Rule-based answers come straight from the student's data (marked "from your data"), AI answers are marked as such.
+- **Grade-sheet scanner** — upload the official transcript PDF/photo; Gemini vision extracts courses/grades, everything is declared before it's applied (overwrites flagged, nothing silent).
+- **Form 3010 scanner + miluim** — reserve-duty days per semester with per-degree exemption quotas, fed manually or from the official form.
+- **Exam planner** — a study "skyline" spread across the exam period (steady/light/crammer styles), draggable by day, exportable to the agenda.
+- **Cohort wisdom** — anonymous, k-anonymous (N≥5 grades, N≥3 ratings) course reviews and grade distributions imported from consenting students' records, with an admin moderation queue.
 - **Weekly timetable & exam calendar** — auto-built from selected courses, with exam countdowns and `.ics` / Google Calendar export.
 
 ## Tech stack
@@ -36,7 +40,7 @@ Planning a PPE degree is genuinely hard: **150 credits over 3 years**, minimum-c
 | API | **tRPC v11** — type-safe end-to-end, no codegen |
 | Data | **Prisma 7** + **PostgreSQL** (Supabase) |
 | Auth | **Supabase Auth** (email/password + Google OAuth) |
-| AI | **Anthropic Claude** (`@anthropic-ai/sdk`) |
+| AI | **Google Gemini** (vision + chat, shared free key or BYOK) |
 | State / data | **Zustand** + **TanStack Query** |
 | UI | **Tailwind CSS v4**, **Radix UI** / shadcn, **lucide-react** |
 | i18n | **next-intl** (Hebrew RTL + English) |
@@ -48,7 +52,7 @@ The parts worth a look:
 
 - **`src/lib/regulations/`** — a small rule engine. Each regulation is a pure function `(RuleContext) → RuleResult`; the engine aggregates them into a compliance summary. Discipline-credit rules are generated dynamically from the program definition, so adding a discipline doesn't mean editing the engine.
 - **`src/lib/programs/`** — the degree is data, not code. A `ProgramDefinition` describes credit requirements, disciplines, and structure (`tau-ppe-2025.ts`), which drives the planner, the credit calculator, and the rule engine. A second program (Law) is already defined alongside PPE.
-- **`src/lib/ai/`** — server-only Claude integration. `crypto.ts` encrypts the user's key with AES-256-GCM; `claude-client.ts` validates and constructs a client; the mentor prompt and context builder assemble the student's plan, grades, and regulations into the advisor's context.
+- **`src/lib/ai/`** — server-only Gemini integration. `crypto.ts` encrypts a user's own key with AES-256-GCM; the mentor prompt and context builder assemble the student's plan, grades, and regulations into the advisor's context; an answer router serves data questions from rules before ever touching the LLM.
 - **`src/lib/scraper/`** — fetches and parses TAU's "Yedion" course pages (cheerio), diffs against the DB, and classifies changes as auto-applyable vs. needs-review.
 - **Type-safe boundary** — tRPC routers in `src/server/routers/` are consumed directly by the client with full inference; Zod validates every input.
 - **Security** — strict CSP and security headers (`next.config.ts`), per-route rate limiting, encrypted secrets, and ownership checks on every protected procedure.
@@ -70,7 +74,7 @@ npx prisma db seed           # loads the 117-course PPE fixture
 npm run dev                  # http://localhost:3000
 ```
 
-Required env vars are documented in [`.env.example`](.env.example). Generate the encryption key with `openssl rand -hex 32`. The Claude API key is **not** a server env var — each user supplies their own in Settings.
+Required env vars are documented in [`.env.example`](.env.example). Generate the encryption key with `openssl rand -hex 32`. A shared `GEMINI_API_KEY` (free tier, rate-limited) powers AI features out of the box; users can supply their own key in Settings. Keep `GEMINI_MODEL` on a **current** free model — Google retires old Flash models (see docs/נוהל-תקלה.md §3).
 
 ### Scripts
 
@@ -115,14 +119,13 @@ Being honest about what this is and isn't:
 
 - **Test coverage is logic-first.** Pure calculators and the rule engine are covered; component/E2E tests (Playwright) for the onboarding and planner flows are a roadmap item.
 - **Single program (for now).** The architecture treats a degree as a `ProgramDefinition`, and a second program (Law) is defined — but the catalog and regulations are PPE-complete. Generalizing the catalog to other programs is next.
-- **BYOK only.** The AI mentor runs on the user's own Claude key — there is no shared/server key, by design (cost + isolation). No key, no AI features (handled gracefully).
+- **Shared key is rate-limited.** The out-of-the-box AI runs on a free shared Gemini key with per-user rate limits; heavy users bring their own key in Settings.
 - **The Yedion scraper is best-effort.** It parses an external university HTML source that can change shape; it diffs and flags risky changes for review rather than auto-applying everything.
 - **Auth is application-layer.** Authorization is enforced in tRPC procedures with explicit ownership checks (not Postgres RLS) — a deliberate trade-off given the Prisma data layer.
 
 ### Roadmap
 - Component + E2E tests (Playwright) for onboarding and the planner
 - Strict nonce-based Content-Security-Policy (drop `'unsafe-inline'` from `script-src`)
-- Retry/backoff on Claude `529` overload during streaming
 - Generalize the course catalog beyond PPE
 - Optimistic UI for drag-and-drop planning
 

@@ -82,6 +82,13 @@ export default function PublicLayout({
             >
               {t("footerAccessibility")}
             </Link>
+            {/* L3 — feedback channel for logged-out visitors too */}
+            <a
+              href="mailto:ariel@pakamon.app?subject=%D7%9E%D7%A9%D7%95%D7%91%20%D7%A2%D7%9C%20%D7%A4%D7%9B%D7%9E%D7%95%D7%9F"
+              className="transition-colors hover:text-foreground"
+            >
+              {t("footerFeedback")}
+            </a>
           </div>
         </div>
       </footer>
