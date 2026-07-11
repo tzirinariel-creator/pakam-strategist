@@ -21,8 +21,61 @@ export const createTRPCContext = async (opts: { headers: Headers }) => {
     supabase,
     userId: user?.id ?? null,
     headers: opts.headers,
+    // PERF2 — request-scoped memo. The dashboard fires getUserPlan + getCredits
+    // + getGraduationScore + checkCompliance in ONE batched HTTP request, and
+    // each used to run its own identical `userCourse.findMany(include course)`
+    // (plus two identical miluimSemester fetches). One context = one request,
+    // so caching the promise here dedupes them without any staleness risk —
+    // mutations are never batched with queries. Typed optional so router tests
+    // can keep hand-building a loaders-less context (procedures fall back to
+    // `createRequestLoaders(ctx.db)`).
+    loaders: createRequestLoaders(prisma) as RequestLoaders | undefined,
   };
 };
+
+/**
+ * See `loaders` above — one lazy promise per (user, dataset) per request.
+ * Takes the db handle as a parameter so router tests (fake Prisma, hand-built
+ * context without `loaders`) can fall back to `createRequestLoaders(ctx.db)`.
+ */
+export function createRequestLoaders(db: typeof prisma) {
+  const userCourses = new Map<string, ReturnType<typeof queryUserCourses>>();
+  const miluim = new Map<string, ReturnType<typeof queryMiluim>>();
+
+  function queryUserCourses(userId: string) {
+    return db.userCourse.findMany({
+      where: { userId },
+      include: { course: true },
+      orderBy: [{ plannedYear: "asc" }, { plannedSemester: "asc" }],
+    });
+  }
+  function queryMiluim(userId: string) {
+    return db.miluimSemester.findMany({ where: { userId } });
+  }
+
+  return {
+    /** All of the user's courses with Course included, plan-ordered. */
+    userCoursesWithCourse(userId: string) {
+      let p = userCourses.get(userId);
+      if (!p) {
+        p = queryUserCourses(userId);
+        userCourses.set(userId, p);
+      }
+      return p;
+    },
+    /** The user's per-semester miluim rows. */
+    miluimSemesters(userId: string) {
+      let p = miluim.get(userId);
+      if (!p) {
+        p = queryMiluim(userId);
+        miluim.set(userId, p);
+      }
+      return p;
+    },
+  };
+}
+
+export type RequestLoaders = ReturnType<typeof createRequestLoaders>;
 
 export type TRPCContext = Awaited<ReturnType<typeof createTRPCContext>>;
 

@@ -717,3 +717,15 @@ export const NAV_ITEMS = [
   { key: "regulations", href: "/regulations", iconName: "Scale" as const },
   { key: "settings", href: "/settings", iconName: "Settings" as const },
 ] as const;
+
+/**
+ * The honest pass bar per course type — ENGLISH passes at 70, everything else
+ * at 60. Lives HERE (not in grade-sheet.ts) so light UI components (course
+ * card, record rows) can show the bar without dragging the whole scanner
+ * module — and its zod dependency — into their client bundle (PERF1).
+ */
+export function passBarFor(courseType: string | undefined): number {
+  return courseType === "ENGLISH"
+    ? ENGLISH_CONFIG.COURSE_PASSING_GRADE
+    : CREDIT_REQUIREMENTS.PASSING_GRADE;
+}

@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Rubik, JetBrains_Mono } from "next/font/google";
 import { getLocale } from "next-intl/server";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 import "./globals.css";
 
 // One confident sans for everything — Hebrew (purpose-revised) + Latin, variable.
@@ -85,6 +86,9 @@ export default async function RootLayout({
         className="antialiased min-h-screen bg-background text-foreground"
       >
         {children}
+        {/* PERF1 — real-user Core Web Vitals (p75 LCP/INP) in the Vercel
+            dashboard. Free tier; no PII beyond standard web-vitals beacons. */}
+        <SpeedInsights />
       </body>
     </html>
   );

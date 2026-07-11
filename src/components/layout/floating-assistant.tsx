@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { lazy, Suspense, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useLocale } from "next-intl";
 import { usePathname } from "next/navigation";
 import { usePersonalAddress } from "@/components/personal/use-personal-address";
@@ -9,7 +9,17 @@ import {
   CalendarClock, TrendingDown, TrendingUp, Languages, Target, FileText, Scale, GraduationCap, ArrowLeft,
 } from "lucide-react";
 import type { Recommendation, RecommendationIcon } from "@/lib/recommendations-engine";
-import Markdown from "react-markdown";
+// PERF1: this component sits in the protected LAYOUT, so a static
+// react-markdown import would ship remark/rehype on every page's first load.
+// It lazy-loads with the first LLM answer; until then the raw text shows.
+const LazyMarkdown = lazy(() => import("react-markdown"));
+function Markdown({ children }: { children: string }) {
+  return (
+    <Suspense fallback={<p className="whitespace-pre-line">{children}</p>}>
+      <LazyMarkdown>{children}</LazyMarkdown>
+    </Suspense>
+  );
+}
 import { toast } from "sonner";
 import { api } from "@/lib/trpc/react";
 import { cn } from "@/lib/utils";

@@ -20,7 +20,7 @@ import { toast } from "sonner";
 import { DisciplineBadge } from "@/components/catalog/discipline-badge";
 import { maybeNudgeCourseReview } from "@/components/catalog/review-nudge";
 import { DISCIPLINE_CONFIG, CREDIT_REQUIREMENTS } from "@/lib/constants";
-import { passBarFor } from "@/lib/grade-sheet";
+import { passBarFor } from "@/lib/constants";
 import { isCurrentlyStudying } from "@/lib/semester-clock";
 import { api } from "@/lib/trpc/react";
 import { invalidatePlanData } from "@/lib/trpc/invalidate-plan";

@@ -21,12 +21,18 @@ import { invalidatePlanData } from "@/lib/trpc/invalidate-plan";
 import { countsTowardAverage } from "@/lib/grade-calculator";
 import { deriveYearOfStudy } from "@/lib/academic-calendar";
 import { isCurrentlyStudying } from "@/lib/semester-clock";
-import { passBarFor } from "@/lib/grade-sheet";
+import { passBarFor } from "@/lib/constants";
 import { Bidi } from "@/lib/bidi";
 import { usePersonalAddress } from "@/components/personal/use-personal-address";
 import { ThemedLoader } from "@/components/ui/themed-loader";
 import { AskKingButton } from "@/components/ui/ask-king-button";
-import { GradeSheetScanner } from "@/components/record/grade-sheet-scanner";
+import dynamic from "next/dynamic";
+// PERF1: the scanner (zod + parsing engine) loads when the record page mounts
+// it, not in every page that shares the record chunk graph.
+const GradeSheetScanner = dynamic(
+  () => import("@/components/record/grade-sheet-scanner").then((m) => m.GradeSheetScanner),
+  { ssr: false },
+);
 import { maybeNudgeCourseReview, ReviewNudgeHost } from "@/components/catalog/review-nudge";
 import { BinaryAdvisor } from "@/components/record/binary-advisor";
 import { toast } from "sonner";

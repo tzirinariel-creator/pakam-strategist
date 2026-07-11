@@ -70,6 +70,7 @@ function makeCaller(db: ReturnType<typeof makeFakeDb>) {
     session: { user: { id: USER.supabaseId } } as never,
     supabase: {} as never,
     headers: new Headers(),
+    loaders: undefined,
   });
 }
 
@@ -138,7 +139,7 @@ describe("courseKnowledge.getForCourses (S3)", () => {
       { courseCode: "B", verdict: "RECOMMEND", workload: 3, difficulty: 3 },
     ]);
     const createCaller = createCallerFactory(courseKnowledgeRouter);
-    const caller = createCaller({ db: db as never, userId: USER.supabaseId, session: { user: { id: USER.supabaseId } } as never, supabase: {} as never, headers: new Headers() });
+    const caller = createCaller({ db: db as never, userId: USER.supabaseId, session: { user: { id: USER.supabaseId } } as never, supabase: {} as never, headers: new Headers(), loaders: undefined });
     const r = await caller.getForCourses({ courseCodes: ["A", "B", "C"] });
     expect(r["A"]).toEqual({ n: 3, revealed: true, recommendShare: 1 });
     expect(r["B"]!.revealed).toBe(false);

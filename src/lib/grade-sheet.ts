@@ -283,12 +283,8 @@ export function decideApplication(row: MatchedRow): ApplyDecision | null {
   return null; // *** in-progress — nothing to apply
 }
 
-/** The honest pass bar for a row's course type — for the declaration chip. */
-export function passBarFor(courseType: string | undefined): number {
-  return courseType === "ENGLISH"
-    ? ENGLISH_CONFIG.COURSE_PASSING_GRADE
-    : CREDIT_REQUIREMENTS.PASSING_GRADE;
-}
+// passBarFor moved to constants.ts (PERF1) — re-exported for scanner callers.
+export { passBarFor } from "@/lib/constants";
 
 /**
  * "2025/1" → { plannedYear, plannedSemester }. Ranks the sheet's OWN semester

@@ -107,6 +107,7 @@ function makeCaller(db: ReturnType<typeof makeFakeDb>) {
     session: { user: { id: "sb-admin", email: "owner@example.com" } } as never,
     supabase: {} as never,
     headers: new Headers(),
+    loaders: undefined,
   });
 }
 

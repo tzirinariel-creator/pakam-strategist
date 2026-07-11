@@ -56,6 +56,7 @@ describe("user.deleteAccount (SEC2)", () => {
       session: { user: { id: USER.supabaseId } } as never,
       supabase: {} as never,
       headers: new Headers(),
+    loaders: undefined,
     });
     const r = await caller.deleteAccount();
     expect(r.ok).toBe(true);

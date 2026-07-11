@@ -1,5 +1,5 @@
 import { TRPCError } from "@trpc/server";
-import { createTRPCRouter, protectedProcedure } from "../trpc/init";
+import { createTRPCRouter, protectedProcedure, createRequestLoaders } from "../trpc/init";
 import { runRegulationEngine } from "@/lib/regulations/rule-engine";
 import { computeCreditExemption, deriveCurrentGroup, getCurrentAcademicYear } from "@/lib/miluim";
 import { getAcademicNow } from "@/lib/academic-calendar";
@@ -16,22 +16,15 @@ export const regulationRouter = createTRPCRouter({
     // it instead of a redundant per-procedure findUnique (#9 N+1 fix).
     const user = ctx.user;
 
-    // Fetch all user courses with related course data
-    const userCourses = await ctx.db.userCourse.findMany({
-      where: { userId: user.id },
-      include: { course: true },
-      orderBy: [
-        { plannedYear: "asc" },
-        { plannedSemester: "asc" },
-      ],
-    });
+    // Fetch all user courses with related course data (PERF2 — request-scoped
+    // loader, shared with the plan procedures in the same dashboard batch).
+    const loaders = ctx.loaders ?? createRequestLoaders(ctx.db);
+    const userCourses = await loaders.userCoursesWithCourse(user.id);
 
     // Per-semester miluim rows (may be empty). Resolve the CURRENT group from
     // the current-semester row, else the stored miluimGroup — a user with NO
     // rows behaves exactly as before. (Mirrors plan.getCredits.)
-    const miluimSemesters = await ctx.db.miluimSemester.findMany({
-      where: { userId: user.id },
-    });
+    const miluimSemesters = await loaders.miluimSemesters(user.id);
     // academicYear is the calendar-year key the rows were written with
     // (getCurrentAcademicYear), NOT user.currentYear (academic standing 1–4).
     // Mirrors plan.getCredits — see fix A.

@@ -1,6 +1,6 @@
 import { z } from "zod/v4";
 import { TRPCError } from "@trpc/server";
-import { createTRPCRouter, protectedProcedure } from "../trpc/init";
+import { createTRPCRouter, protectedProcedure, createRequestLoaders } from "../trpc/init";
 import { calculateCredits } from "@/lib/credit-calculator";
 import { calculateGraduationScore } from "@/lib/grade-calculator";
 import { computeCreditExemption, deriveCurrentGroup, getCurrentAcademicYear } from "@/lib/miluim";
@@ -20,14 +20,10 @@ export const planRouter = createTRPCRouter({
     // it instead of a redundant per-procedure findUnique (#9 N+1 fix).
     const user = ctx.user;
 
-    const userCourses = await ctx.db.userCourse.findMany({
-      where: { userId: user.id },
-      include: { course: true },
-      orderBy: [
-        { plannedYear: "asc" },
-        { plannedSemester: "asc" },
-      ],
-    });
+    // PERF2 — request-scoped loader: shared with getCredits/getGraduationScore/
+    // checkCompliance when the dashboard batches them into one request.
+    const loaders = ctx.loaders ?? createRequestLoaders(ctx.db);
+    const userCourses = await loaders.userCoursesWithCourse(user.id);
 
     // Group by year and semester
     const grouped: Record<string, typeof userCourses> = {};
@@ -247,17 +243,13 @@ export const planRouter = createTRPCRouter({
     // it instead of a redundant per-procedure findUnique (#9 N+1 fix).
     const user = ctx.user;
 
-    const userCourses = await ctx.db.userCourse.findMany({
-      where: { userId: user.id },
-      include: { course: true },
-    });
+    const loaders = ctx.loaders ?? createRequestLoaders(ctx.db);
+    const userCourses = await loaders.userCoursesWithCourse(user.id);
 
     // Per-semester miluim rows (may be empty). The current group is the row for
     // the user's current academic year + semester, else the stored miluimGroup —
     // a user with NO rows gets the EXACT same group (and exemption) as before.
-    const miluimSemesters = await ctx.db.miluimSemester.findMany({
-      where: { userId: user.id },
-    });
+    const miluimSemesters = await loaders.miluimSemesters(user.id);
     // academicYear MUST be the calendar-year key used when the rows were
     // WRITTEN (getCurrentAcademicYear), NOT user.currentYear (academic standing
     // 1–4) — those never match, which silently killed per-semester resolution.
@@ -284,14 +276,13 @@ export const planRouter = createTRPCRouter({
     // it instead of a redundant per-procedure findUnique (#9 N+1 fix).
     const user = ctx.user;
 
-    const userCourses = await ctx.db.userCourse.findMany({
-      where: {
-        userId: user.id,
-        status: "COMPLETED",
-        grade: { not: null },
-      },
-      include: { course: true },
-    });
+    // PERF2 — reuse the request-scoped full fetch and filter in memory; the
+    // COMPLETED-with-grade subset is tiny relative to a second round-trip.
+    const loaders = ctx.loaders ?? createRequestLoaders(ctx.db);
+    const all = await loaders.userCoursesWithCourse(user.id);
+    const userCourses = all.filter(
+      (uc) => uc.status === "COMPLETED" && uc.grade !== null,
+    );
 
     const gradeBreakdown = calculateGraduationScore(userCourses);
     return gradeBreakdown;

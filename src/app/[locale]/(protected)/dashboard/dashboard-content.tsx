@@ -15,7 +15,13 @@ import { TipCard } from "@/components/shared/tip-card";
 import { getContextualTips, getRandomTip } from "@/lib/tips-engine";
 import { DashboardSkeleton } from "@/components/dashboard/dashboard-skeleton";
 import { Progress } from "@/components/ui/progress";
-import { OnboardingWizard } from "@/components/onboarding/onboarding-wizard";
+import dynamic from "next/dynamic";
+// PERF1: the wizard (and its whole scanner/planner graph) loads only for the
+// one dashboard state that actually renders it — genuine new users.
+const OnboardingWizard = dynamic(
+  () => import("@/components/onboarding/onboarding-wizard").then((m) => m.OnboardingWizard),
+  { ssr: false, loading: () => <DashboardSkeleton /> },
+);
 import { AnchoredTour, TourReopenButton, TOUR_DONE_KEY } from "@/components/onboarding/anchored-tour";
 import { cn } from "@/lib/utils";
 import { TodaysClasses } from "@/components/dashboard/todays-classes";

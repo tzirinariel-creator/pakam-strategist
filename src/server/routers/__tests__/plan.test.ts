@@ -135,6 +135,7 @@ function makeCaller(db: ReturnType<typeof makeFakeDb>) {
     session: { user: { id: USER.supabaseId } } as never,
     supabase: {} as never,
     headers: new Headers(),
+    loaders: undefined,
   });
 }
 

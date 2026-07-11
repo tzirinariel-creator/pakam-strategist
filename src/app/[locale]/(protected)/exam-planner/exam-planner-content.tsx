@@ -40,7 +40,12 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { StudySkyline } from "@/components/exam-planner/study-skyline";
-import { SyllabusScanner } from "@/components/exam-planner/syllabus-scanner";
+import dynamic from "next/dynamic";
+// PERF1: syllabus scanner (zod schema + parsing) is behind a button — lazy.
+const SyllabusScanner = dynamic(
+  () => import("@/components/exam-planner/syllabus-scanner").then((m) => m.SyllabusScanner),
+  { ssr: false },
+);
 import { MoedBenefitBanner } from "@/components/exam-planner/moed-benefit-banner";
 import { ExamPlanWizard, MoedPrinciplesCard, type PrepStyle } from "@/components/exam-planner/exam-plan-wizard";
 import { planFromStudyTasks } from "@/lib/plan-from-tasks";

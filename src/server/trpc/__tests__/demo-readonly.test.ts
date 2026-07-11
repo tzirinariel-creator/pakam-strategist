@@ -55,6 +55,7 @@ function makeCaller(email: string, supabaseId = "sb-test") {
     session: { user: { id: supabaseId, email } } as never,
     supabase: {} as never,
     headers: new Headers(),
+    loaders: undefined,
   });
 }
 
