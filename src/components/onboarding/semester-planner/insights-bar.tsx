@@ -22,6 +22,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { calculateWorkload, getWorkloadColor, calculateHonestLoad } from "@/lib/workload-calculator";
+import { findDenseDay } from "@/lib/schedule-density";
 import { Bidi } from "@/lib/bidi";
 import { CREDIT_REQUIREMENTS, DISCIPLINE_CONFIG } from "@/lib/constants";
 import type { CourseWithSchedule, ScheduleConflict } from "@/lib/plan-generator";
@@ -240,28 +241,18 @@ function generateScheduleInsights(
     });
   }
 
-  // 3. Detect back-to-back sessions (3+ consecutive hours on same day)
-  for (let d = 0; d < 5; d++) {
-    let consecutive = 0;
-    let maxConsecutive = 0;
-    for (let h = 0; h < 12; h++) {
-      if ((weekHeatmap[d]?.[h] ?? 0) > 0) {
-        consecutive++;
-        maxConsecutive = Math.max(maxConsecutive, consecutive);
-      } else {
-        consecutive = 0;
-      }
-    }
-    if (maxConsecutive >= 4) {
-      insights.push({
-        icon: Zap,
-        text: isHe
-          ? `יום ${dayNames[d]} צפוף — ${maxConsecutive} שעות כמעט-רצופות. שווה לשבץ הפסקה של חצי שעה באמצע, או להזיז קורס אחד ליום אחר.`
-          : `${dayNames[d]} is packed — ${maxConsecutive} near-back-to-back hours. Worth slotting a 30-min break in the middle, or moving a course to another day.`,
-        type: "warning",
-      });
-      break; // one alert is enough
-    }
+  // 3. Detect back-to-back sessions — the quoted hour count is COMPUTED from
+  // the real heatmap by the tested pure helper (Q10, note 12); fires only past
+  // DENSE_DAY_THRESHOLD_HOURS. One alert is enough.
+  const dense = findDenseDay(weekHeatmap);
+  if (dense) {
+    insights.push({
+      icon: Zap,
+      text: isHe
+        ? `יום ${dayNames[dense.dayIndex]} צפוף — ${dense.hours} שעות כמעט-רצופות. שווה לשבץ הפסקה של חצי שעה באמצע, או להזיז קורס אחד ליום אחר.`
+        : `${dayNames[dense.dayIndex]} is packed — ${dense.hours} near-back-to-back hours. Worth slotting a 30-min break in the middle, or moving a course to another day.`,
+      type: "warning",
+    });
   }
 
   // 4. Early bird
