@@ -13,6 +13,48 @@ import type { DayOfWeek } from "@/types/enums";
 // Map of courseCode → { sessionType → groupCode }
 export type SessionGroupSelections = Record<string, Record<string, string>>;
 
+/** P1′ — one-time "you can swap groups on the grid" hint (pk-grid-pick-hint). */
+function GridPickHint({ isHe }: { isHe: boolean }) {
+  const [show, setShow] = useState(false);
+  useLayoutEffect(() => {
+    try {
+      setShow(localStorage.getItem("pk-grid-pick-hint") !== "done");
+    } catch {
+      /* storage blocked — keep hidden */
+    }
+    // A real on-grid pick also dismisses the hint immediately (first interaction).
+    const onPicked = () => setShow(false);
+    window.addEventListener("pk-grid-picked", onPicked);
+    return () => window.removeEventListener("pk-grid-picked", onPicked);
+  }, []);
+  if (!show) return null;
+  const dismiss = () => {
+    setShow(false);
+    try {
+      localStorage.setItem("pk-grid-pick-hint", "done");
+    } catch {
+      /* ignore */
+    }
+  };
+  return (
+    <button
+      type="button"
+      onClick={dismiss}
+      className="flex w-full items-center gap-2 rounded-lg border border-accent-brand/30 bg-accent-brand/[0.06] px-3 py-2 text-start text-xs text-foreground/70 transition-colors hover:bg-accent-brand/10"
+    >
+      <span aria-hidden className="shrink-0 rounded-md bg-accent-brand/15 px-1.5 py-0.5 font-semibold text-accent-brand">
+        {isHe ? "קבוצה" : "Group"}
+      </span>
+      <span className="min-w-0 flex-1">
+        {isHe
+          ? "לקורסים עם התג הזה יש כמה קבוצות — הקישו על הבלוק בגריד כדי להחליף שעה."
+          : "Courses with this tag offer several groups — tap the block on the grid to swap the time."}
+      </span>
+      <span className="shrink-0 text-foreground/35">{isHe ? "הבנתי" : "Got it"}</span>
+    </button>
+  );
+}
+
 interface LiveTimetableProps {
   courses: CourseWithSchedule[];
   currentSemester: "FALL" | "SPRING";
@@ -205,6 +247,11 @@ export function LiveTimetable({
 
   return (
     <div className={pickingEnabled ? "relative space-y-2" : "space-y-2"}>
+      {/* P1′ (note 2) — one-time discoverability hint: the on-grid group swap
+          exists but nobody found it. Shown above the grid on the first editor
+          visit when at least one course offers a choice; a click on the hint
+          (or any group pick) dismisses it for good (pk-grid-pick-hint). */}
+      {pickingEnabled && (multiGroupCourseCodes?.size ?? 0) > 0 && <GridPickHint isHe={isHe} />}
       <WeeklyTimetable
         sessions={sessions}
         previewSessions={previewSessions}
@@ -212,8 +259,16 @@ export function LiveTimetable({
         multiGroupCourseCodes={pickingEnabled ? multiGroupCourseCodes : undefined}
         onPickGroup={
           pickingEnabled
-            ? (courseCode) =>
-                setPicker((prev) => ({ courseCode, nonce: (prev?.nonce ?? 0) + 1 }))
+            ? (courseCode) => {
+                setPicker((prev) => ({ courseCode, nonce: (prev?.nonce ?? 0) + 1 }));
+                // First real interaction retires the P1′ hint permanently.
+                try {
+                  localStorage.setItem("pk-grid-pick-hint", "done");
+                } catch {
+                  /* ignore */
+                }
+                window.dispatchEvent(new Event("pk-grid-picked"));
+              }
             : undefined
         }
       />

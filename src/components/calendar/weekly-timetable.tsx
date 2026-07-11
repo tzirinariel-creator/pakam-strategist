@@ -580,9 +580,10 @@ export function WeeklyTimetable({
                       {slot.courseName}
                     </span>
 
-                    {/* On-grid group-pick affordance (#2) — tap to swap the
-                        tutorial/lab group. Visible on mobile, hover-revealed on
-                        desktop. Only for courses that actually offer a choice. */}
+                    {/* On-grid group-pick affordance (#2, P1′) — tap to swap the
+                        tutorial/lab group. PERMANENTLY visible (hover-only was
+                        exactly why nobody found it — note 2); brightens on
+                        hover/focus. Only for courses that actually offer a choice. */}
                     {canPickGroup && (
                       <button
                         type="button"
@@ -590,7 +591,7 @@ export function WeeklyTimetable({
                           e.stopPropagation();
                           onPickGroup!(slot.courseCode);
                         }}
-                        className="absolute top-1 z-20 flex items-center gap-0.5 rounded-md bg-card/90 px-1 py-0.5 text-[10px] font-medium text-foreground/60 shadow-sm ring-1 ring-border/50 transition-opacity hover:text-accent-brand md:opacity-0 md:group-hover/block:opacity-100"
+                        className="absolute top-1 z-20 flex items-center gap-0.5 rounded-md bg-card/95 px-1 py-0.5 text-[10px] font-semibold text-accent-brand shadow-sm ring-1 ring-accent-brand/30 transition-colors hover:bg-accent-brand/10 focus-visible:ring-2 focus-visible:ring-accent-brand/60"
                         style={{ insetInlineEnd: "0.25rem" }}
                         title={isHe ? "החלף קבוצה" : "Change group"}
                         aria-label={isHe ? "החלף קבוצה" : "Change group"}
