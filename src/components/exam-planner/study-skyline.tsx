@@ -1,6 +1,17 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
+import {
+  DndContext,
+  PointerSensor,
+  TouchSensor,
+  KeyboardSensor,
+  useSensor,
+  useSensors,
+  useDraggable,
+  useDroppable,
+  type DragEndEvent,
+} from "@dnd-kit/core";
 import { Flag, AlertTriangle, GraduationCap, Coffee } from "lucide-react";
 import type {
   ExamPlanResult,
@@ -242,12 +253,97 @@ interface StudySkylineProps {
   /** Day-column click → jump to that day in the agenda (#37). Omitted on the
    *  setup-preview skyline, which stays read-only. */
   onDayClick?: (dayKey: string) => void;
+  /** E2′ — drag a course's study bar to another day. When present, bars become
+   *  draggable (pointer + keyboard) and day columns become drop targets; the
+   *  preview skyline omits it and stays read-only. */
+  onMoveCourseDay?: (courseCode: string, fromDayKey: string, toDayKey: string) => void;
 }
 
-export function StudySkyline({ plan, recommendations, isHe, now, onDayClick }: StudySkylineProps) {
+/** E2′ — a draggable study bar. Always calls the hook (rules of hooks);
+ *  `disabled` turns it back into the old inert div. */
+function StudyBar({
+  id,
+  disabled,
+  label,
+  style,
+  className,
+  title,
+}: {
+  id: string;
+  disabled: boolean;
+  label: string;
+  style: React.CSSProperties;
+  className: string;
+  title: string;
+}) {
+  const { attributes, listeners, setNodeRef, isDragging } = useDraggable({ id, disabled });
+  if (disabled) {
+    return <div className={className} style={style} title={title} />;
+  }
+  return (
+    <button
+      type="button"
+      ref={setNodeRef}
+      {...attributes}
+      {...listeners}
+      aria-label={label}
+      title={title}
+      className={cn(
+        className,
+        "cursor-grab touch-none border-0 p-0 outline-none focus-visible:ring-2 focus-visible:ring-accent-brand/60 active:cursor-grabbing",
+        isDragging && "opacity-40",
+      )}
+      style={style}
+      onClick={(e) => e.stopPropagation()}
+    />
+  );
+}
+
+/** E2′ — a droppable day column wrapper (bars stack inside). */
+function DroppableDay({
+  id,
+  disabled,
+  className,
+  style,
+  children,
+}: {
+  id: string;
+  disabled: boolean;
+  className: string;
+  style: React.CSSProperties;
+  children: React.ReactNode;
+}) {
+  const { setNodeRef, isOver } = useDroppable({ id, disabled });
+  return (
+    <div
+      ref={disabled ? undefined : setNodeRef}
+      className={cn(className, !disabled && isOver && "ring-2 ring-inset ring-accent-brand/60 bg-accent-brand/[0.06]")}
+      style={style}
+    >
+      {children}
+    </div>
+  );
+}
+
+export function StudySkyline({ plan, recommendations, isHe, now, onDayClick, onMoveCourseDay }: StudySkylineProps) {
   const scrollRef = useRef<HTMLDivElement>(null);
   const [hoveredCourse, setHoveredCourse] = useState<string | null>(null);
   const [isNarrow, setIsNarrow] = useState(false);
+
+  // E2′ — drag sensors: a small pointer distance so a plain tap still bubbles
+  // to the day column's click, plus keyboard dragging (year-board pattern).
+  const dragEnabled = !!onMoveCourseDay;
+  const pointerSensor = useSensor(PointerSensor, { activationConstraint: { distance: 6 } });
+  const touchSensor = useSensor(TouchSensor, { activationConstraint: { delay: 200, tolerance: 8 } });
+  const keyboardSensor = useSensor(KeyboardSensor);
+  const sensors = useSensors(pointerSensor, touchSensor, keyboardSensor);
+  const handleDragEnd = (e: DragEndEvent) => {
+    const overKey = e.over?.id != null ? String(e.over.id) : null;
+    const [fromKey, courseCode] = String(e.active.id).split("::");
+    if (overKey && fromKey && courseCode && overKey !== fromKey) {
+      onMoveCourseDay?.(courseCode, fromKey, overKey);
+    }
+  };
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -294,6 +390,8 @@ export function StudySkyline({ plan, recommendations, isHe, now, onDayClick }: S
   return (
     // overflow-clip (not hidden): clip doesn't create a scroll container, so
     // the verdict rail's sticky top-0 actually sticks against the viewport.
+    // DndContext is inert unless onMoveCourseDay armed the sensors (E2′).
+    <DndContext sensors={sensors} onDragEnd={handleDragEnd}>
     <div className="data-card overflow-clip p-0">
       {/* ── Band 1 · Verdict rail (sticky, never scrolls) ── */}
       <div className="sticky top-0 z-10 flex flex-col gap-2 border-b border-border/60 bg-card/95 p-3 backdrop-blur sm:flex-row sm:items-stretch sm:gap-0">
@@ -423,8 +521,10 @@ export function StudySkyline({ plan, recommendations, isHe, now, onDayClick }: S
                     )}
                   </div>
 
-                  {/* Bars column */}
-                  <div
+                  {/* Bars column — a drop target when dragging is enabled (E2′) */}
+                  <DroppableDay
+                    id={item.key}
+                    disabled={!dragEnabled}
                     className={cn("relative flex w-full flex-col justify-end rounded-t-sm", tint, hasExam && "bg-red-500/[0.06]", item.isToday && "ring-1 ring-inset ring-accent-brand/30")}
                     style={{ height: `${cellH}px` }}
                   >
@@ -432,8 +532,15 @@ export function StudySkyline({ plan, recommendations, isHe, now, onDayClick }: S
                       const dim = hoveredCourse != null && hoveredCourse !== b.courseCode;
                       const alpha = DIFFICULTY_ALPHA[b.difficulty] ?? "e6";
                       return (
-                        <div
+                        <StudyBar
                           key={`${b.courseCode}-${bi}`}
+                          id={`${item.key}::${b.courseCode}`}
+                          disabled={!dragEnabled}
+                          label={
+                            isHe
+                              ? `גררו את הלמידה של ${b.courseName} מיום ${item.date.getDate()}.${item.date.getMonth() + 1} ליום אחר`
+                              : `Drag ${b.courseName}'s study from ${item.date.getDate()}.${item.date.getMonth() + 1} to another day`
+                          }
                           className="w-full rounded-t-[3px] transition-all duration-200 motion-reduce:transition-none"
                           style={{
                             height: `${Math.max(6, b.hours * pxPerHour)}px`,
@@ -447,7 +554,7 @@ export function StudySkyline({ plan, recommendations, isHe, now, onDayClick }: S
                     })}
                     {/* baseline ground rule */}
                     <div className="absolute inset-x-0 bottom-0 border-b border-border/40" />
-                  </div>
+                  </DroppableDay>
 
                   {/* Date footer */}
                   <div className={cn("mt-1 flex h-[26px] w-full flex-col items-center justify-center border-t pt-0.5", item.isWeekend ? "border-border/20" : "border-border/30")}>
@@ -502,5 +609,6 @@ export function StudySkyline({ plan, recommendations, isHe, now, onDayClick }: S
         ))}
       </div>
     </div>
+    </DndContext>
   );
 }

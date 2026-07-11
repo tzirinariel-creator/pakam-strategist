@@ -224,6 +224,43 @@ export function ExamPlannerContent() {
     updateMutation.mutate({ id: t.id, startDate: start, endDate: end });
   };
 
+  // E2′ (note 37) — drag a course's study block from one skyline day to
+  // another: move that course's OPEN study tasks of the source day to the
+  // target day (same clock time + duration), saved immediately through the
+  // existing update mutation. Exams never move.
+  const moveCourseDay = async (courseCode: string, fromKey: string, toKey: string) => {
+    if (fromKey === toKey) return;
+    const movable = (tasksQuery.data?.tasks ?? []).filter(
+      (t) =>
+        t.taskType === "study" &&
+        !t.completed &&
+        t.courseCode === courseCode &&
+        dayKey(new Date(t.startDate)) === fromKey,
+    );
+    if (movable.length === 0) return;
+    const [y, m, d] = toKey.split("-").map(Number);
+    if (!y || !m || !d) return;
+    try {
+      await Promise.all(
+        movable.map((t) => {
+          const start = new Date(t.startDate);
+          const duration = new Date(t.endDate).getTime() - start.getTime();
+          start.setFullYear(y, m - 1, d);
+          return batchUpdateMutation.mutateAsync({
+            id: t.id,
+            startDate: start,
+            endDate: new Date(start.getTime() + Math.max(0, duration)),
+          });
+        }),
+      );
+      toast.success(isHe ? "הבלוק הוזז ונשמר" : "Moved and saved");
+    } catch {
+      toast.error(isHe ? "ההזזה לא נשמרה — נסו שוב" : "The move didn't save — try again");
+    } finally {
+      void invalidate();
+    }
+  };
+
   // Push a WHOLE day (#37): every open study/assignment slips +1; the exam
   // itself never moves. One invalidate at the end, not N refetches.
   const pushWholeDay = async (list: StudyTask[]) => {
@@ -459,6 +496,7 @@ export function ExamPlannerContent() {
                 recommendations={persistedRecs}
                 isHe={isHe}
                 onDayClick={(key) => setFocusDay((f) => ({ key, n: (f?.n ?? 0) + 1 }))}
+                onMoveCourseDay={(courseCode, fromKey, toKey) => void moveCourseDay(courseCode, fromKey, toKey)}
               />
             </div>
           )}
