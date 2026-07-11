@@ -672,6 +672,26 @@ h4, h5, h6 {
   transform-origin: center;
 }
 
+/* Skeleton shimmer (#9) — a light sweep across loading blocks instead of a
+   flat pulse. Applied to the skeleton CONTAINER; every .pk-shimmer-block
+   inside gets the moving gradient. Direction-agnostic, honors reduced-motion
+   via the global guard below. */
+@keyframes pk-shimmer-sweep {
+  0% { background-position: 150% 0; }
+  100% { background-position: -50% 0; }
+}
+.pk-shimmer-block {
+  background-image: linear-gradient(
+    100deg,
+    transparent 30%,
+    color-mix(in oklch, var(--foreground) 9%, transparent) 50%,
+    transparent 70%
+  );
+  background-size: 220% 100%;
+  background-repeat: no-repeat;
+  animation: pk-shimmer-sweep 1.7s ease-in-out infinite;
+}
+
 /* (Film grain removed — Studio Clarity uses a clean neutral canvas, no paper texture.) */
 
 @layer base {

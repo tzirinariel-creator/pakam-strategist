@@ -249,8 +249,14 @@ export function SignupForm() {
 
   return (
     <div className="w-full max-w-md space-y-8">
-      {/* Header — shared identity chip (King grammar), warm line (#13). */}
-      <AuthHeader subtitle={t("createAccount")} warmLine={t("signupWarmLine")} />
+      {/* Header — shared identity chip (King grammar), warm line (#13).
+          The same three benefit lines as the login (#6): signup is the
+          conversion moment — it deserves the pitch at least as much. */}
+      <AuthHeader
+        subtitle={t("createAccount")}
+        warmLine={t("signupWarmLine")}
+        benefits={[t("loginBenefit1"), t("loginBenefit2"), t("loginBenefit3")]}
+      />
 
       {/* Signup Card */}
       <div data-card className="rounded-xl border border-border/50 bg-card/50 p-6 backdrop-blur-sm space-y-4">

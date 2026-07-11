@@ -5,7 +5,7 @@
  * where the content will be, not on a centered loader that then jumps.
  */
 function Block({ className = "" }: { className?: string }) {
-  return <div className={`rounded-lg bg-foreground/10 ${className}`} />;
+  return <div className={`pk-shimmer-block rounded-lg bg-foreground/8 ${className}`} />;
 }
 
 export function DashboardSkeleton() {
