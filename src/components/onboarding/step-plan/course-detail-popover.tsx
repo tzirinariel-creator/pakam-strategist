@@ -99,10 +99,12 @@ export function CourseDetailPopover({ course, children, onDisciplineOverride }: 
                   <span className={cn("font-semibold", meta.cls)}>{isHe ? meta.he : meta.en}</span>
                 ) : null;
               })()}
+            {/* Golden rule (Q1): never dir="ltr" around a Hebrew word — bdi on
+                the NUMBER only (this flipped to "81.07 ממוצע" in the popover). */}
             {course.averageGrade != null && (
-              <span className="text-foreground/55" dir="ltr">
+              <span className="text-foreground/55">
                 {isHe ? "ממוצע " : "avg "}
-                {course.averageGrade}
+                <bdi dir="ltr">{course.averageGrade}</bdi>
               </span>
             )}
             {course.failRate != null && course.failRate >= 1 && (
