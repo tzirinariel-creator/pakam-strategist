@@ -14,6 +14,7 @@ import {
   ChevronDown,
   ChevronUp,
   FolderOpen,
+  Award,
 } from "lucide-react";
 import { api } from "@/lib/trpc/react";
 import { invalidatePlanData } from "@/lib/trpc/invalidate-plan";
@@ -27,6 +28,8 @@ import {
   YEAR_CONFIG,
 } from "@/lib/constants";
 import { roundScore, countsTowardAverage, courseTypeCountsTowardAverage } from "@/lib/grade-calculator";
+import { computeHonorsDistance, HONORS_YEARLY_BAR } from "@/lib/honors";
+import { deriveYearOfStudy } from "@/lib/academic-calendar";
 import type { UserCourseWithCourse, GradeBreakdown } from "@/types/degree";
 import type { CourseStatus, Semester } from "@/types/enums";
 
@@ -937,6 +940,11 @@ export function GradeCalculatorContent() {
         <ReverseCalculator allCourses={allCourses} t={t} />
       </div>
 
+      {/* Note #25 — distance to honors (approved). Computed aid, year-tagged;
+          the transcript has no honors field, so nothing here pretends to be
+          an official status. */}
+      <HonorsDistanceCard allCourses={allCourses} t={t} />
+
       {/* Section 1: Per-Course Grade Entry */}
       <div className="animate-stagger-3 space-y-4">
         <div className="flex items-center gap-3">
@@ -959,6 +967,71 @@ export function GradeCalculatorContent() {
           ))}
         </div>
       </div>
+    </div>
+  );
+}
+
+// ─── Note #25: distance to honors ────────────────────────────────────
+// Yearly weighted average vs the dean's-list bar. Honest by construction:
+// same exclusions as the GPA, year-tagged policy, percentile caveat, and the
+// binary-25% trap surfaced right here.
+function HonorsDistanceCard({
+  allCourses,
+  t,
+}: {
+  allCourses: UserCourseWithCourse[];
+  t: ReturnType<typeof useTranslations>;
+}) {
+  const profileQuery = api.user.getProfile.useQuery();
+  const year = deriveYearOfStudy(
+    profileQuery.data?.startYear,
+    profileQuery.data?.currentYear ?? 1,
+  );
+  const d = computeHonorsDistance(allCourses, year);
+
+  return (
+    <div className="animate-stagger-3 data-card space-y-3 p-6">
+      <div className="flex flex-wrap items-center gap-2">
+        <Award className="h-5 w-5 text-foreground/80" />
+        <h3 className="font-display font-bold text-lg text-foreground/90">
+          {t("honorsTitle")}
+        </h3>
+        <span className="rounded-full bg-foreground/8 px-2 py-0.5 text-[10px] text-foreground/50">
+          {t("honorsTag")}
+        </span>
+      </div>
+
+      {d.yearlyAverage === null ? (
+        <p className="text-sm text-foreground/55">{t("honorsNoData", { year: d.year })}</p>
+      ) : (
+        <>
+          <div className="flex items-baseline gap-3">
+            <span className="font-mono text-3xl font-bold text-foreground/85">
+              {d.yearlyAverage.toFixed(1)}
+            </span>
+            <span className="text-sm text-foreground/55">
+              {t("honorsYearAvg", { year: d.year })} · / {HONORS_YEARLY_BAR}
+            </span>
+          </div>
+          <div className="h-2 w-full overflow-hidden rounded-full bg-foreground/10">
+            <div
+              className={cn(
+                "h-full rounded-full transition-all",
+                d.gap === 0 ? "bg-emerald-500" : "bg-accent-brand",
+              )}
+              style={{ width: `${Math.min(100, (d.yearlyAverage / HONORS_YEARLY_BAR) * 100)}%` }}
+            />
+          </div>
+          <p className="text-sm text-foreground/60">
+            {d.gap === 0
+              ? t("honorsAtBar")
+              : t("honorsGapText", { gap: d.gap!.toFixed(1) })}
+          </p>
+          <p className="text-xs text-foreground/40">
+            {t("honorsBasis", { count: d.courseCount, credits: d.credits })} · {t("honorsBinaryNote")}
+          </p>
+        </>
+      )}
     </div>
   );
 }

@@ -556,7 +556,15 @@
     "failed": "Failed",
     "exempt": "Exempt",
     "gradeSaveError": "Couldn't save the grade — try again",
-    "gradeSaved": "Grade saved"
+    "gradeSaved": "Grade saved",
+    "honorsTitle": "Distance to honors",
+    "honorsTag": "As of 2025-26",
+    "honorsYearAvg": "Your weighted average for year-{year} courses",
+    "honorsAtBar": "You're at or above the honors bar — keep it up. The official bar is roughly the top 3%, so 95 is an approximation, not a promise.",
+    "honorsGapText": "{gap} more points of yearly average to the dean's-list 95 bar (roughly the top 3% — the real cutoff shifts yearly).",
+    "honorsNoData": "Not enough year-{year} grades yet to compute a yearly average.",
+    "honorsBinaryNote": "Note: converting more than 25% of a year's hours to binary forfeits honors.",
+    "honorsBasis": "Based on {count} courses · {credits} credits"
   },
   "record": {
     "title": "My Academic Record",

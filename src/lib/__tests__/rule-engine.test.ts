@@ -260,6 +260,51 @@ describe("Fail-twice blocking rule (Task 3)", () => {
   });
 });
 
+describe("PKM-026 retake advisory — note #30's conversational layers", () => {
+  it("layer 2: a PLANNED retake of a once-failed course → WARNING (second-and-last attempt)", () => {
+    const courses = [
+      course({ courseId: "Z", status: "FAILED", attemptNumber: 1 }),
+      course({ courseId: "Z", status: "PLANNED", attemptNumber: 2 }),
+    ];
+    const summary = runRegulationEngine(courses, null);
+    const r = summary.results.find((x) => x.ruleId === "PKM-026");
+    expect(r?.passed).toBe(false);
+    expect(r?.severity).toBe("WARNING");
+    expect(r?.messageHe).toContain("ועדת-הוראה");
+    expect(r?.messageHe).toContain("הניסיון האחרון");
+  });
+
+  it("layer 1: a failure with NO retake yet → passing INFO with the committee note", () => {
+    const courses = [course({ courseId: "W", status: "FAILED", attemptNumber: 1 })];
+    const summary = runRegulationEngine(courses, null);
+    const r = summary.results.find((x) => x.ruleId === "PKM-026");
+    expect(r?.passed).toBe(true);
+    expect(r?.severity).toBe("INFO");
+    expect(r?.messageHe).toContain("אישור ועדת-הוראה");
+  });
+
+  it("a successfully completed retake clears the advisory", () => {
+    const courses = [
+      course({ courseId: "V", status: "FAILED", attemptNumber: 1 }),
+      course({ courseId: "V", status: "COMPLETED", attemptNumber: 2, grade: 80 }),
+    ];
+    const summary = runRegulationEngine(courses, null);
+    const r = summary.results.find((x) => x.ruleId === "PKM-026");
+    expect(r?.passed).toBe(true);
+    expect(r?.messageHe).toContain("אין קורסים");
+  });
+
+  it("never blocks: two failures belong to PKM-023, not the advisory", () => {
+    const courses = [
+      course({ courseId: "U", status: "FAILED", attemptNumber: 1 }),
+      course({ courseId: "U", status: "FAILED", attemptNumber: 2 }),
+    ];
+    const summary = runRegulationEngine(courses, null);
+    const advisory = summary.results.find((x) => x.ruleId === "PKM-026");
+    expect(advisory?.severity).not.toBe("ERROR");
+  });
+});
+
 describe("PKM-012 English content courses are grade-aware (humanities pass = 70)", () => {
   it("two COMPLETED ENGLISH courses graded 70+ → requirement satisfied", () => {
     const courses = [

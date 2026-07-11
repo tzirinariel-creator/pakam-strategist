@@ -983,6 +983,96 @@ export const ruleFailTwice: RegulationRule = (ctx: RuleContext) => {
 };
 
 // -------------------------------------------------------------------
+// PKM-026: Retake advisory — the CONVERSATIONAL layers of note #30
+// -------------------------------------------------------------------
+// Approved modeling (docs/המלצות-בעלים-11.7.md): nothing blocks, everything
+// talks. Layer 1 — a first failure carries an INFO note that re-registering
+// needs teaching-committee approval. Layer 2 — a PLANNED/IN_PROGRESS retake
+// of a once-failed course gets a WARNING: this is the second and LAST
+// attempt per the regulations. (Layer 3, two failures = ERROR, is PKM-023.)
+
+export const ruleRetakeAdvisory: RegulationRule = (ctx: RuleContext) => {
+  // Group by courseId: failed count + whether a retake row is planned/running.
+  const byCourse = new Map<
+    string,
+    { failed: number; retakePlanned: boolean; resolved: boolean; courseCode: string; nameHe: string; ids: string[] }
+  >();
+  for (const uc of ctx.userCourses) {
+    const entry = byCourse.get(uc.courseId) ?? {
+      failed: 0,
+      retakePlanned: false,
+      resolved: false,
+      courseCode: uc.course.code,
+      nameHe: uc.course.nameHe,
+      ids: [],
+    };
+    if (uc.status === "FAILED") {
+      entry.failed += 1;
+      entry.ids.push(uc.id);
+    } else if (uc.status === "PLANNED" || uc.status === "IN_PROGRESS") {
+      entry.retakePlanned = true;
+      entry.ids.push(uc.id);
+    } else if (uc.status === "COMPLETED" || uc.status === "EXEMPT") {
+      // A successful retake closes the story — no advisory needed.
+      entry.resolved = true;
+    }
+    byCourse.set(uc.courseId, entry);
+  }
+
+  // Exactly-one failure only — two+ failures belong to PKM-023's ERROR.
+  const secondAttempts = [...byCourse.values()].filter((e) => e.failed === 1 && e.retakePlanned && !e.resolved);
+  const firstFailures = [...byCourse.values()].filter((e) => e.failed === 1 && !e.retakePlanned && !e.resolved);
+
+  if (secondAttempts.length > 0) {
+    return result(
+      "PKM-026",
+      "Second (final) attempt planned",
+      "ניסיון שני — אחרון לפי התקנון",
+      false,
+      "WARNING",
+      `${secondAttempts.length} course(s) planned as a SECOND attempt after a failure — the last allowed try (${secondAttempts
+        .map((e) => e.courseCode)
+        .join(", ")}). Registration needs teaching-committee approval; another failure means leaving PPE. Consider a lighter semester around it.`,
+      `${secondAttempts.length === 1 ? "קורס אחד מתוכנן" : `${secondAttempts.length} קורסים מתוכננים`} כניסיון שני אחרי כישלון — הניסיון האחרון לפי התקנון (${secondAttempts
+        .map((e) => e.nameHe)
+        .join(", ")}). הרישום דורש אישור ועדת-הוראה, וכישלון נוסף משמעו הפסקת לימודים בפכ"מ — שווה לתכנן סמסטר מקל סביבו.`,
+      { courses: secondAttempts.map((e) => e.courseCode) },
+      secondAttempts.flatMap((e) => e.ids)
+    );
+  }
+
+  if (firstFailures.length > 0) {
+    return result(
+      "PKM-026",
+      "Retake needs committee approval",
+      "רישום חוזר דורש אישור",
+      true,
+      "INFO",
+      `${firstFailures.length} failed course(s) not yet retaken (${firstFailures
+        .map((e) => e.courseCode)
+        .join(", ")}). Re-registering for a failed mandatory course requires teaching-committee approval.`,
+      `${firstFailures.length === 1 ? "קורס אחד שנכשל" : `${firstFailures.length} קורסים שנכשלו`} וטרם נרשמתם אליו מחדש (${firstFailures
+        .map((e) => e.nameHe)
+        .join(", ")}). רישום חוזר לקורס חובה שנכשל דורש אישור ועדת-הוראה — פונים למזכירות החוג.`,
+      { courses: firstFailures.map((e) => e.courseCode) },
+      firstFailures.flatMap((e) => e.ids)
+    );
+  }
+
+  return result(
+    "PKM-026",
+    "Retake advisory",
+    "רישום חוזר",
+    true,
+    "INFO",
+    "No failed courses awaiting a retake decision.",
+    "אין קורסים שנכשלו וממתינים להחלטת רישום-חוזר.",
+    {},
+    []
+  );
+};
+
+// -------------------------------------------------------------------
 // Year 1→2 transition gate helper
 // -------------------------------------------------------------------
 // The gate (domain rules §2) is evaluated ONLY over YEAR-1 courses:
@@ -1264,6 +1354,7 @@ export function getAllRulesFor(program?: ProgramDefinition): RegulationRule[] {
     ruleFailureRate,
     ruleMaxAttempts,
     ruleFailTwice,
+    ruleRetakeAdvisory,
     ruleYearTransitionGPA,
     ruleYearTransitionMajorGPA,
     ruleMiluimBinaryCap,
@@ -1290,6 +1381,7 @@ export const ALL_RULES: RegulationRule[] = [
   ruleFailureRate,
   ruleMaxAttempts,
   ruleFailTwice,
+  ruleRetakeAdvisory,
   ruleYearTransitionGPA,
   ruleYearTransitionMajorGPA,
   ruleMiluimBinaryCap,
