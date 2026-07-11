@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useMemo } from "react";
+import { Link } from "@/i18n/navigation";
 import { useTranslations, useLocale } from "next-intl";
 import {
   CalendarDays,
@@ -327,7 +328,15 @@ export function CalendarContent() {
 
       {/* View content */}
       {viewMode === "exams" ? (
-        <div className="animate-stagger-3">
+        <div className="animate-stagger-3 space-y-3">
+          {/* E5 (note 38): the weak gantt left this tab for good — full exam
+              planning (interactive skyline, drag, share) lives in ONE place. */}
+          <Link
+            href="/exam-planner"
+            className="inline-flex items-center gap-1.5 rounded-lg bg-accent-brand/10 px-3 py-1.5 text-xs font-semibold text-accent-brand transition-colors hover:bg-accent-brand/20"
+          >
+            {locale === "he" ? "לתכנון המבחנים המלא ←" : "Full exam planning →"}
+          </Link>
           <ExamSchedule />
         </div>
       ) : semesterCourses.length > 0 ? (
