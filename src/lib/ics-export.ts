@@ -120,7 +120,11 @@ export function generateICS(
       dtEnd.setHours(endH ?? 9, endM ?? 0, 0);
 
       const uid = `${course.id}-${session.dayOfWeek}-${session.startTime}@pakamon`;
-      const summary = course.nameHe;
+      const typeLabel =
+        session.sessionType === "tutorial" ? "תרגיל"
+        : session.sessionType === "lab" ? "מעבדה"
+        : "הרצאה";
+      const summary = `${course.nameHe} — ${typeLabel}`;
       const location = [session.building, session.room]
         .filter(Boolean)
         .join(", ");
@@ -138,7 +142,7 @@ export function generateICS(
       }
       lines.push(
         `DESCRIPTION:${escapeICS(
-          `${course.code} | ${course.credits} credits`
+          `${course.code} | ${course.credits} ש״ס`
         )}`
       );
       lines.push("END:VEVENT");
@@ -224,7 +228,11 @@ export function generateICSFromSessions(
     dtEnd.setHours(endH ?? 9, endM ?? 0, 0);
 
     const uid = `${session.id}@pakamon`;
-    const summary = session.course.nameHe;
+    const typeLabel =
+      session.sessionType === "tutorial" ? "תרגיל"
+      : session.sessionType === "lab" ? "מעבדה"
+      : "הרצאה";
+    const summary = `${session.course.nameHe} — ${typeLabel}`;
     const location = [session.building, session.room]
       .filter(Boolean)
       .join(", ");
@@ -240,7 +248,7 @@ export function generateICSFromSessions(
     }
     lines.push(
       `DESCRIPTION:${escapeICS(
-        `${session.course.code} | ${session.course.credits} credits`
+        `${session.course.code} | ${session.course.credits} ש״ס`
       )}`
     );
     lines.push("END:VEVENT");

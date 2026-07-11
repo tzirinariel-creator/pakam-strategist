@@ -388,10 +388,11 @@ export const scheduleRouter = createTRPCRouter({
           // next sync; "מחק אירועים מהיומן" clears the old rows.
           id: `lec-${user.id}-${session.id}`,
           title: `${courseName} — ${typeLabel}`,
-          description: [session.courseCode, session.room, session.lecturerName].filter(Boolean).join(" · "),
+          description: [session.courseCode, session.lecturerName].filter(Boolean).join(" · "),
           startTime: startDate,
           endTime: endDate,
-          location: session.room ?? undefined,
+          // Building + room (note #14) — room alone ("011") is useless on campus.
+          location: [session.building, session.room].filter(Boolean).join(", ") || undefined,
           recurrence: recurrenceRule,
         });
       }
