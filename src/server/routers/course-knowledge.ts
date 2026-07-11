@@ -186,7 +186,7 @@ export const courseKnowledgeRouter = createTRPCRouter({
       }),
       ctx.db.course.findMany({
         where: { isActive: true },
-        select: { code: true, nameHe: true, nameEn: true, discipline: true },
+        select: { code: true, nameHe: true, nameEn: true, discipline: true, courseType: true },
       }),
     ]);
 
@@ -225,6 +225,7 @@ export const courseKnowledgeRouter = createTRPCRouter({
           nameHe: course?.nameHe ?? code,
           nameEn: course?.nameEn ?? null,
           discipline: course?.discipline ?? null,
+          courseType: course?.courseType ?? null,
           ratingCount: rows.length,
           workload: workload != null ? round1(workload) : null,
           difficulty: difficulty != null ? round1(difficulty) : null,

@@ -80,6 +80,16 @@ export const cohortRouter = createTRPCRouter({
       return { ok: true };
     }),
 
+  /** Contribution stats for the game layer — counts only, derived live. */
+  myContributionStats: protectedProcedure.query(async ({ ctx }) => {
+    const [reviews, insights, plans] = await Promise.all([
+      ctx.db.courseReview.count({ where: { userId: ctx.user.id } }),
+      ctx.db.cohortInsight.count({ where: { userId: ctx.user.id } }),
+      ctx.db.sharedPlanEntry.count({ where: { userId: ctx.user.id } }),
+    ]);
+    return { reviews, insights, plans, total: reviews + insights + plans };
+  }),
+
   // ─── Winning-plans gallery ────────────────────────────────────────
 
   listGallery: protectedProcedure.query(async ({ ctx }) => {

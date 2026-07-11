@@ -28,7 +28,10 @@ import { PhilosopherKingIcon } from "@/components/ui/philosopher-king-icon";
 import { ReferentIcon } from "@/components/ui/referent-icon";
 import type { MentorPersona } from "@/lib/ai/mentor-prompt";
 import { routeQuestion } from "@/lib/ai/answer-router";
+import { detectAction, hasAddIntent, type AssistantAction } from "@/lib/ai/action-router";
+import { invalidatePlanData } from "@/lib/trpc/invalidate-plan";
 import { suggestedQuestions } from "@/lib/degree-qa";
+import { getAcademicNow } from "@/lib/academic-calendar";
 import { fileToBase64 } from "@/lib/upload";
 
 /** Minimal surface of the browser SpeechRecognition API we use. */
@@ -71,6 +74,10 @@ interface Msg {
   needsKey?: boolean;
   /** A thumbnail (object URL) for an image the student attached to the turn. */
   imagePreview?: string;
+  /** An ACTIVE-assistant proposal — rendered as a confirm card (#active-ai).
+   *  resolved marks the card as already confirmed/dismissed. */
+  action?: AssistantAction;
+  actionResolved?: boolean;
 }
 
 /**
@@ -207,6 +214,87 @@ export function FloatingAssistant() {
   // Only load the student's data once the King is opened — the FAB sits on every
   // protected page, so eager-loading 6 queries per page was needless load.
   const { ctx, ready, recommendations } = useDegreeQAContext(open);
+
+  // ── Active assistant (#active-ai): the data the action detector needs. ──
+  // Plan rows ride the SAME getUserPlan cache the app already holds; the full
+  // catalog is fetched lazily, only after an add-intent is actually typed.
+  const trpcUtils = api.useUtils();
+  const planForActions = api.plan.getUserPlan.useQuery(undefined, { enabled: open, staleTime: 60_000 });
+  const [wantCatalog, setWantCatalog] = useState(false);
+  const catalogForActions = api.course.list.useQuery(undefined, { enabled: open && wantCatalog, staleTime: 300_000 });
+  const planLite = useMemo(
+    () =>
+      (planForActions.data?.courses ?? []).map((uc) => ({
+        userCourseId: uc.id,
+        nameHe: uc.course.nameHe,
+        status: uc.status,
+        courseType: uc.course.courseType,
+      })),
+    [planForActions.data],
+  );
+  const catalogLite = useMemo(
+    () =>
+      (catalogForActions.data ?? []).map((c) => ({ id: c.id, code: c.code, nameHe: c.nameHe })),
+    [catalogForActions.data],
+  );
+
+  // Warm the catalog the moment an add-intent is typed, so by submit the
+  // detector has data (#active-ai).
+  useEffect(() => {
+    if (!wantCatalog && input && hasAddIntent(input)) setWantCatalog(true);
+  }, [input, wantCatalog]);
+
+  const completeMutation = api.plan.updateCourse.useMutation();
+  const addMutation = api.plan.addCourse.useMutation();
+
+  /** Confirm an action card — runs the SAME mutation the record/planner use. */
+  const runAction = useCallback(
+    async (msgIndex: number, action: AssistantAction) => {
+      try {
+        if (action.type === "COMPLETE_COURSE") {
+          await completeMutation.mutateAsync({
+            userCourseId: action.userCourseId,
+            status: "COMPLETED",
+            ...(action.grade != null ? { grade: action.grade } : {}),
+          });
+        } else {
+          await addMutation.mutateAsync({
+            courseId: action.courseId,
+            plannedYear: ctx.currentYear,
+            plannedSemester: getAcademicNow().semester === "FALL" ? "FALL" : "SPRING",
+          });
+        }
+        invalidatePlanData(trpcUtils);
+        setMessages((m) =>
+          m.map((msg, i) => (i === msgIndex ? { ...msg, actionResolved: true } : msg)).concat({
+            role: "assistant",
+            source: "rules",
+            content:
+              action.type === "COMPLETE_COURSE"
+                ? isHe
+                  ? `בוצע! ${action.courseName} סומן כהושלם${action.grade != null ? ` עם ציון ${action.grade}` : ""}. אפשר לערוך תמיד בתיק האקדמי.`
+                  : `Done! ${action.courseName} marked completed${action.grade != null ? ` with grade ${action.grade}` : ""}.`
+                : isHe
+                  ? `בוצע! ${action.courseName} נוסף לתוכנית לסמסטר הנוכחי — גררו אותו במתכנן אם מתאים לכם סמסטר אחר.`
+                  : `Done! ${action.courseName} added to the current semester — drag it in the planner if another fits better.`,
+            href: action.type === "COMPLETE_COURSE" ? "/record" : "/planner",
+            cta: isHe ? (action.type === "COMPLETE_COURSE" ? "לתיק האקדמי" : "לתכנון התואר") : "Open",
+          }),
+        );
+      } catch (e) {
+        setMessages((m) =>
+          m.concat({
+            role: "assistant",
+            source: "rules",
+            content:
+              (e as { message?: string })?.message ??
+              (isHe ? "הפעולה לא הצליחה — נסו שוב." : "The action failed — try again."),
+          }),
+        );
+      }
+    },
+    [completeMutation, addMutation, ctx.currentYear, isHe, trpcUtils],
+  );
 
   // ── Proactive suggestion (note #10, restrained per note #12) ──
   // The single most pressing gap (critical/warning only), surfaced ONLY when the
@@ -529,6 +617,23 @@ export function FloatingAssistant() {
       setInput("");
       setMessages((m) => [...m, { role: "user", content: question }]);
 
+      // ── Active assistant (#active-ai): a doable request becomes a confirm
+      // card instead of an answer. Detection is deterministic + tested;
+      // nothing executes until the student clicks אישור.
+      const action = detectAction(question, planLite, catalogLite);
+      if (action) {
+        const proposal =
+          action.type === "COMPLETE_COURSE"
+            ? isHe
+              ? `מעדכן שסיימתם את ${action.courseName}${action.grade != null ? ` עם ציון ${action.grade}` : ""} — לאשר?`
+              : `Mark ${action.courseName} as completed${action.grade != null ? ` with grade ${action.grade}` : ""}?`
+            : isHe
+              ? `מוסיף את ${action.courseName} לתוכנית שלכם (הסמסטר הנוכחי) — לאשר?`
+              : `Add ${action.courseName} to your plan (current semester)?`;
+        setMessages((m) => [...m, { role: "assistant", content: proposal, source: "rules", action }]);
+        return;
+      }
+
       const decision = routeQuestion(question, ctx);
 
       // Free path: a matched, non-reasoning lookup answers instantly.
@@ -771,6 +876,41 @@ export function FloatingAssistant() {
                       </div>
                     ) : (
                       <p className="whitespace-pre-line">{m.content}</p>
+                    )}
+                    {/* #active-ai — the confirm card: nothing runs until אישור */}
+                    {m.action && !m.actionResolved && (
+                      <div className="mt-2 flex gap-2">
+                        <button
+                          type="button"
+                          disabled={completeMutation.isPending || addMutation.isPending}
+                          onClick={() => void runAction(i, m.action!)}
+                          className="rounded-lg bg-foreground px-3 py-1.5 text-xs font-semibold text-background transition-colors hover:bg-foreground/90 disabled:opacity-50"
+                        >
+                          {completeMutation.isPending || addMutation.isPending
+                            ? (isHe ? "מבצע…" : "Working…")
+                            : (isHe ? "אישור — בצע" : "Confirm")}
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() =>
+                            setMessages((all) =>
+                              all.map((msg, j) => (j === i ? { ...msg, actionResolved: true } : msg)).concat({
+                                role: "assistant",
+                                source: "rules",
+                                content: isHe ? "בוטל — לא שיניתי כלום." : "Cancelled — nothing changed.",
+                              }),
+                            )
+                          }
+                          className="rounded-lg bg-foreground/8 px-3 py-1.5 text-xs font-medium text-foreground/60 transition-colors hover:bg-foreground/15"
+                        >
+                          {isHe ? "ביטול" : "Cancel"}
+                        </button>
+                      </div>
+                    )}
+                    {m.action && m.actionResolved && (
+                      <p className="mt-1 text-[11px] text-foreground/40">
+                        {isHe ? "✓ טופל" : "✓ handled"}
+                      </p>
                     )}
                     {m.href && m.cta && (
                       <Link

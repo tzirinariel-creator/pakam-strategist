@@ -182,6 +182,33 @@ const HANDLERS: Handler[] = [
       };
     },
   },
+  // ── "אני חושש/לחוץ" (#active-ai) — empathy grounded in real numbers ──
+  // The deterministic fallback when no LLM key exists; with a key the router
+  // escalates (the markers include these words) so the persona answers with
+  // heart. Either way: acknowledge → real status → ONE concrete step.
+  {
+    keys: ["חושש", "חוששת", "מפחד", "מפחדת", "לחוצ", "נלחצ", "מודאג", "מודאגת", "קשה לי", "worried", "anxious", "scared", "stressed"],
+    answer: (c) => {
+      const gaps = c.failedRules.length;
+      const heGaps =
+        gaps === 0
+          ? "ולפי הנתונים — אין כרגע אף דרישה שנשברה. המצב טוב יותר ממה שזה מרגיש."
+          : `בפועל יש ${gaps === 1 ? "דרישה אחת פתוחה" : `${gaps} דרישות פתוחות`}, וכולן ניתנות לסגירה בתכנון נכון.`;
+      const enGaps =
+        gaps === 0
+          ? "and per your data, nothing is currently broken. It's better than it feels."
+          : `there ${gaps === 1 ? "is one open requirement" : `are ${gaps} open requirements`}, all closable with planning.`;
+      return {
+        text: he(
+          c,
+          `זה בסדר גמור להילחץ — תואר של 150 ש״ס עושה את זה לכולם. ${heGaps} ${gm(c, "ספר", "ספרי", "ספרו")} לי ממה בדיוק — מבחן מסוים? עומס? ממוצע? — ואפרק את זה איתך לצעדים.`,
+          `It's completely fine to feel stressed — a 150-credit degree does that to everyone. ${enGaps} Tell me what exactly worries you — an exam? load? the average? — and we'll break it into steps.`,
+        ),
+        href: "/regulations",
+        cta: he(c, "לבדיקת המסלול", "Degree check"),
+      };
+    },
+  },
   // ── Grade of a SPECIFIC course (מבחן-המלך #14) ────────────────────
   // The aggregate QAContext has no per-course grades, so the honest answer
   // is a precise redirect to the record — NOT the overall average (which is

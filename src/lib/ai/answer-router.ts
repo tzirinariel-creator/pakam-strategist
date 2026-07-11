@@ -56,6 +56,13 @@ const REASONING_MARKERS = [
   "אסטרטגי",
   "להסתכן",
   "כדאי לי",
+  // Emotional check-ins deserve the persona's voice when a key exists —
+  // the deterministic empathy handler stays the graceful fallback.
+  "חושש",
+  "מפחד",
+  "לחוץ",
+  "מודאג",
+  "קשה לי",
   // English
   "why",
   "what if",
@@ -66,6 +73,8 @@ const REASONING_MARKERS = [
   "recommend",
   "strategy",
   "worth it",
+  "worried",
+  "stressed",
   "trade-off",
   "tradeoff",
 ];

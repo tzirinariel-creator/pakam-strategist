@@ -1,8 +1,9 @@
 "use client";
 
 import { useState, useMemo } from "react";
+import { Link } from "@/i18n/navigation";
 import { useTranslations, useLocale } from "next-intl";
-import { BookOpen } from "lucide-react";
+import { BookOpen, Users2 } from "lucide-react";
 import { api } from "@/lib/trpc/react";
 import { ThemedLoader } from "@/components/ui/themed-loader";
 import { CourseFilters, type CourseFiltersState } from "@/components/catalog/course-filters";
@@ -87,6 +88,15 @@ export function CatalogContent() {
     <div className="flex flex-col gap-6 p-4 md:p-6">
       {/* Header — the ONE canonical page header (קו-עיצובי pattern #1). */}
       <PageHeader icon={BookOpen} title={t("title")} subtitle={t("subtitle")} />
+
+      {/* Discovery: the cohort file is WHERE elective-picking wisdom lives */}
+      <Link
+        href="/cohort"
+        className="animate-stagger-2 inline-flex items-center gap-2 rounded-full border border-accent-brand/30 bg-accent-brand/5 px-3 py-1.5 text-xs font-medium text-accent-brand transition-colors hover:bg-accent-brand/10"
+      >
+        <Users2 className="size-3.5" />
+        {locale === "he" ? "מתלבטים איזה קורס בחירה? ראו מה המחזור ממליץ ←" : "Picking an elective? See what the cohort recommends →"}
+      </Link>
 
       {/* Filters */}
       <div className="animate-stagger-2">

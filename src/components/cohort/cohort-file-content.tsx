@@ -35,17 +35,23 @@ import { ReferentIcon } from "@/components/ui/referent-icon";
 import { DISCIPLINE_CONFIG } from "@/lib/constants";
 import { ThemedLoader } from "@/components/ui/themed-loader";
 import { encodePlan, type SharedCourse } from "@/lib/plan-share";
+import { contributorLevel } from "@/lib/contributor-level";
 
 export function CohortFileContent() {
   const locale = useLocale();
   const isHe = locale === "he";
   const digestQuery = api.courseKnowledge.getCohortDigest.useQuery();
+  // Hooks BEFORE any early return — a conditional hook order crashes React.
+  const [electivesOnly, setElectivesOnly] = useState(false);
 
   if (digestQuery.isLoading) return <ThemedLoader />;
 
   const digest = digestQuery.data;
   const totals = digest?.totals;
   const hasData = (digest?.courses.length ?? 0) > 0;
+  const visibleCourses = (digest?.courses ?? []).filter(
+    (c) => !electivesOnly || c.courseType === "ELECTIVE",
+  );
 
   return (
     <div className="bg-mesh space-y-8 p-4 md:p-6">
@@ -66,6 +72,10 @@ export function CohortFileContent() {
         </div>
       </div>
 
+      {/* The game layer — my contributor level, always visible, always a
+          next step. Counting only; no fake points. */}
+      <LevelChip isHe={isHe} />
+
       {/* דבר הרפרנט — data-driven, counting only */}
       <div className="animate-stagger-2 data-card flex flex-wrap items-center gap-3 p-4">
         <MessageSquareQuote className="size-5 shrink-0 text-accent-brand" />
@@ -84,10 +94,26 @@ export function CohortFileContent() {
         <>
           {/* Course wisdom table */}
           <div className="animate-stagger-3 space-y-3">
-            <h2 className="flex items-center gap-2 font-display text-xl font-bold text-foreground/85">
-              <Gauge className="size-5 text-foreground/60" />
-              {isHe ? "מה המחזור אומר על הקורסים" : "What the cohort says per course"}
-            </h2>
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <h2 className="flex items-center gap-2 font-display text-xl font-bold text-foreground/85">
+                <Gauge className="size-5 text-foreground/60" />
+                {isHe ? "מה המחזור אומר על הקורסים" : "What the cohort says per course"}
+              </h2>
+              {/* The elective-picking flow: one tap isolates the choice pool */}
+              <button
+                type="button"
+                onClick={() => setElectivesOnly((v) => !v)}
+                aria-pressed={electivesOnly}
+                className={cn(
+                  "rounded-full px-3 py-1.5 text-xs font-medium transition-colors",
+                  electivesOnly
+                    ? "bg-foreground text-background"
+                    : "bg-foreground/8 text-foreground/60 hover:bg-foreground/15",
+                )}
+              >
+                {isHe ? "רק קורסי בחירה" : "Electives only"}
+              </button>
+            </div>
             <div className="data-card overflow-x-auto p-0">
               <table className="w-full min-w-[560px] text-sm">
                 <thead>
@@ -101,7 +127,7 @@ export function CohortFileContent() {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-border/40">
-                  {digest!.courses.map((c) => {
+                  {visibleCourses.map((c) => {
                     const cfg = c.discipline ? DISCIPLINE_CONFIG[c.discipline] : null;
                     return (
                       <tr key={c.courseCode}>
@@ -427,6 +453,45 @@ function GallerySection({ isHe }: { isHe: boolean }) {
         >
           {isHe ? "פרסום המסלול שלי" : "Publish my plan"}
         </button>
+      </div>
+    </div>
+  );
+}
+
+// ─── The game layer: contributor level chip ────────────────────────────
+function LevelChip({ isHe }: { isHe: boolean }) {
+  const stats = api.cohort.myContributionStats.useQuery();
+  if (!stats.data) return null;
+  const lvl = contributorLevel(stats.data.total);
+  return (
+    <div className="animate-stagger-2 data-card flex flex-wrap items-center gap-3 p-4">
+      <span className="text-2xl" aria-hidden>{lvl.emoji}</span>
+      <div className="min-w-0 flex-1">
+        <p className="text-sm font-semibold text-foreground/80">
+          {isHe ? `הדרגה שלכם בתיק: ${lvl.titleHe}` : `Your file rank: ${lvl.titleEn}`}
+          <span className="ms-2 font-normal text-foreground/45">
+            {isHe ? `(${stats.data.total} תרומות)` : `(${stats.data.total} contributions)`}
+          </span>
+        </p>
+        {lvl.nextAt !== null ? (
+          <>
+            <div className="mt-1.5 h-1.5 w-full max-w-xs overflow-hidden rounded-full bg-foreground/10">
+              <div
+                className="h-full rounded-full bg-accent-brand transition-all"
+                style={{ width: `${Math.round(lvl.progress * 100)}%` }}
+              />
+            </div>
+            <p className="mt-1 text-xs text-foreground/45">
+              {isHe
+                ? `עוד ${lvl.nextAt - stats.data.total} תרומות לדרגה הבאה — חוות-דעת, תובנה או מסלול.`
+                : `${lvl.nextAt - stats.data.total} more to the next rank — a review, an insight or a plan.`}
+            </p>
+          </>
+        ) : (
+          <p className="mt-1 text-xs text-foreground/45">
+            {isHe ? "הדרגה הגבוהה ביותר — המחזור חייב לכם." : "Top rank — the cohort owes you."}
+          </p>
+        )}
       </div>
     </div>
   );
