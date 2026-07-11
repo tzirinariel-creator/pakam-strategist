@@ -71,7 +71,7 @@ export function CourseFilters({ filters, onFiltersChange }: CourseFiltersProps) 
           })
         }
       >
-        <SelectTrigger className="w-full sm:w-[180px] bg-card border-border/50">
+        <SelectTrigger aria-label={t("allDisciplines")} className="w-full sm:w-[180px] bg-card border-border/50">
           <SelectValue placeholder={t("allDisciplines")} />
         </SelectTrigger>
         <SelectContent>
@@ -94,7 +94,7 @@ export function CourseFilters({ filters, onFiltersChange }: CourseFiltersProps) 
           })
         }
       >
-        <SelectTrigger className="w-full sm:w-[180px] bg-card border-border/50">
+        <SelectTrigger aria-label={t("allTypes")} className="w-full sm:w-[180px] bg-card border-border/50">
           <SelectValue placeholder={t("allTypes")} />
         </SelectTrigger>
         <SelectContent>
@@ -117,7 +117,7 @@ export function CourseFilters({ filters, onFiltersChange }: CourseFiltersProps) 
           })
         }
       >
-        <SelectTrigger className="w-full sm:w-[140px] bg-card border-border/50">
+        <SelectTrigger aria-label={t("allYears")} className="w-full sm:w-[140px] bg-card border-border/50">
           <SelectValue placeholder={t("allYears")} />
         </SelectTrigger>
         <SelectContent>

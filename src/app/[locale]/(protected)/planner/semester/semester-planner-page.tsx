@@ -211,7 +211,7 @@ export function SemesterPlannerPage() {
       {/* Back link — guarded so unsaved edits aren't thrown away silently (#18) */}
       <button
         onClick={handleExit}
-        className="flex items-center gap-1.5 self-start rounded-lg px-3 py-1.5 text-xs text-foreground/50 transition-colors hover:bg-foreground/5 hover:text-foreground/70"
+        className="flex items-center gap-1.5 self-start rounded-lg px-3 py-1.5 text-xs text-foreground/70 transition-colors hover:bg-foreground/5 hover:text-foreground/90"
       >
         <ArrowRight className="h-3.5 w-3.5" />
         {t("backToPlanner")}

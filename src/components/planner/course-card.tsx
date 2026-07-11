@@ -107,6 +107,7 @@ export function CourseCard({ userCourse, disabled, currentYear }: CourseCardProp
     attributes,
     listeners,
     setNodeRef,
+    setActivatorNodeRef,
     transform,
     isDragging,
   } = useDraggable({
@@ -166,9 +167,7 @@ export function CourseCard({ userCourse, disabled, currentYear }: CourseCardProp
         "hover:border-foreground/40",
         isDragging && "opacity-50 shadow-lg shadow-foreground/20 ring-2 ring-foreground/40",
         confirmRemove && "border-red-400/50 bg-red-500/5",
-        !disabled && !confirmRemove && "cursor-grab active:cursor-grabbing",
       )}
-      {...(confirmRemove ? {} : { ...attributes, ...listeners })}
     >
       {/* Discipline color strip (start side = right in RTL) */}
       <div
@@ -176,8 +175,22 @@ export function CourseCard({ userCourse, disabled, currentYear }: CourseCardProp
         style={{ backgroundColor: config?.color ?? "hsl(var(--muted-foreground))" }}
       />
 
-      {/* Grip handle */}
-      <GripVertical className="size-4 shrink-0 text-muted-foreground/40 group-hover:text-muted-foreground/70 ms-1" />
+      {/* Grip handle — THE drag activator (SEC3). The card used to be one big
+          role="button" wrapping its own buttons (axe nested-interactive,
+          serious): now only this handle carries the dnd role/listeners, so
+          inner controls are reachable and keyboard drag still works. */}
+      <button
+        type="button"
+        ref={setActivatorNodeRef}
+        {...(confirmRemove ? {} : { ...attributes, ...listeners })}
+        aria-label={isHe ? `גררו את ${courseName} לסידור מחדש` : `Drag ${courseName} to rearrange`}
+        className={cn(
+          "shrink-0 rounded p-0.5 ms-0.5 outline-none focus-visible:ring-2 focus-visible:ring-accent-brand/60",
+          !disabled && !confirmRemove && "cursor-grab active:cursor-grabbing",
+        )}
+      >
+        <GripVertical className="size-4 text-muted-foreground/40 group-hover:text-muted-foreground/70" />
+      </button>
 
       {/* Course info */}
       <div className="flex min-w-0 flex-1 flex-col gap-0.5">

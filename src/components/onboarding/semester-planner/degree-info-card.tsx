@@ -67,7 +67,7 @@ export function DegreeInfoCard() {
   ];
 
   return (
-    <div className="max-h-[60vh] overflow-y-auto space-y-3 pe-1">
+    <div className="max-h-[60vh] overflow-y-auto space-y-3 pe-1" tabIndex={0} role="region" aria-label={t("overviewRichTitle")}>
       {/* ── Section 1: Overview ──────────────────────────────────── */}
       <Section icon={GraduationCap} title={t("overviewRichTitle")}>
         {/* Total credits callout */}

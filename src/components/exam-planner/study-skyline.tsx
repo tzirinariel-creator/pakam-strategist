@@ -486,20 +486,14 @@ export function StudySkyline({ plan, recommendations, isHe, now, onDayClick, onM
                 "bg-red-500/[0.06]";
 
               return (
+                // SEC3: the column is NOT a role=button (it contains draggable
+                // bar buttons — nested-interactive). Mouse click still jumps to
+                // the day; the keyboard path is the date-footer button below.
                 <div
                   key={item.key}
                   className={cn("flex shrink-0 flex-col items-center", onDayClick && "cursor-pointer")}
                   style={{ width: `${cellW}px` }}
-                  {...(onDayClick
-                    ? {
-                        role: "button" as const,
-                        tabIndex: 0,
-                        onClick: () => onDayClick(item.key),
-                        onKeyDown: (e: React.KeyboardEvent) => {
-                          if (e.key === "Enter") onDayClick(item.key);
-                        },
-                      }
-                    : {})}
+                  {...(onDayClick ? { onClick: () => onDayClick(item.key) } : {})}
                 >
                   {/* Pennant / start marker rail (fixed height so baselines align) */}
                   <div className="relative flex h-5 w-full items-end justify-center">
@@ -556,17 +550,43 @@ export function StudySkyline({ plan, recommendations, isHe, now, onDayClick, onM
                     <div className="absolute inset-x-0 bottom-0 border-b border-border/40" />
                   </DroppableDay>
 
-                  {/* Date footer */}
-                  <div className={cn("mt-1 flex h-[26px] w-full flex-col items-center justify-center border-t pt-0.5", item.isWeekend ? "border-border/20" : "border-border/30")}>
-                    <span className={cn("text-[10px] leading-none", item.isToday ? "font-bold text-accent-brand" : item.isWeekend ? "text-foreground/25" : "text-foreground/40")}>
-                      {(isHe ? HE_WEEKDAYS : EN_WEEKDAYS)[item.date.getDay()]}
-                    </span>
-                    {item.isToday ? (
-                      <span className="mt-0.5 rounded-full bg-accent-brand px-1 text-[10px] font-bold leading-tight text-accent-brand-fg">{item.date.getDate()}</span>
+                  {/* Date footer — the FOCUSABLE day affordance (SEC3): keyboard
+                      users jump to the day here; mouse users can click anywhere
+                      on the column. Plain div in the read-only preview. */}
+                  {(() => {
+                    const inner = (
+                      <>
+                        <span className={cn("text-[10px] leading-none", item.isToday ? "font-bold text-accent-brand" : item.isWeekend ? "text-foreground/25" : "text-foreground/40")}>
+                          {(isHe ? HE_WEEKDAYS : EN_WEEKDAYS)[item.date.getDay()]}
+                        </span>
+                        {item.isToday ? (
+                          <span className="mt-0.5 rounded-full bg-accent-brand px-1 text-[10px] font-bold leading-tight text-accent-brand-fg">{item.date.getDate()}</span>
+                        ) : (
+                          <span className={cn("font-mono text-[10px] leading-tight tabular-nums", item.isWeekend ? "text-foreground/25" : "text-foreground/45")}>{item.date.getDate()}</span>
+                        )}
+                      </>
+                    );
+                    const footerCls = cn("mt-1 flex h-[26px] w-full flex-col items-center justify-center border-t pt-0.5", item.isWeekend ? "border-border/20" : "border-border/30");
+                    return onDayClick ? (
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onDayClick(item.key);
+                        }}
+                        aria-label={
+                          isHe
+                            ? `קפצו ליום ${item.date.getDate()}.${item.date.getMonth() + 1} באג'נדה`
+                            : `Jump to ${item.date.getDate()}.${item.date.getMonth() + 1} in the agenda`
+                        }
+                        className={cn(footerCls, "outline-none focus-visible:ring-2 focus-visible:ring-accent-brand/60")}
+                      >
+                        {inner}
+                      </button>
                     ) : (
-                      <span className={cn("font-mono text-[10px] leading-tight tabular-nums", item.isWeekend ? "text-foreground/25" : "text-foreground/45")}>{item.date.getDate()}</span>
-                    )}
-                  </div>
+                      <div className={footerCls}>{inner}</div>
+                    );
+                  })()}
                 </div>
               );
             })}
@@ -585,7 +605,7 @@ export function StudySkyline({ plan, recommendations, isHe, now, onDayClick, onM
           promptEn="How do I spread my studying well up to my exams? I have an especially heavy day — help me plan it."
           labelHe="שאל את המלך על הפיזור"
           labelEn="Ask the King about the spread"
-          className="order-last inline-flex items-center gap-1.5 rounded-md px-1.5 py-1 text-[11px] font-medium text-accent-brand/85 transition-colors hover:bg-accent-brand/10 hover:text-accent-brand ms-auto"
+          className="order-last inline-flex items-center gap-1.5 rounded-md px-1.5 py-1 text-[11px] font-medium text-accent-brand transition-colors hover:bg-accent-brand/10 hover:text-accent-brand ms-auto"
           iconClassName="size-3"
         />
         {model.courses.map((c) => (

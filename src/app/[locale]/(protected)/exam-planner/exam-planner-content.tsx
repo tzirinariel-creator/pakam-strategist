@@ -445,7 +445,7 @@ export function ExamPlannerContent() {
               promptEn="Let's think through my exam plan together — ask me what you need, then tell me what you'd change."
               labelHe="לחשוב על זה עם המלך"
               labelEn="Think it through with the King"
-              className="ms-auto inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 text-[11px] font-medium text-accent-brand/85 transition-colors hover:bg-accent-brand/10 hover:text-accent-brand"
+              className="ms-auto inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 text-[11px] font-medium text-accent-brand transition-colors hover:bg-accent-brand/10 hover:text-accent-brand"
               iconClassName="size-3"
             />
           )}

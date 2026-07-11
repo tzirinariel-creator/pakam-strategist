@@ -685,6 +685,7 @@ function ReverseCalculator({
           min={60}
           max={100}
           step={1}
+          aria-label={t("targetScore")}
           value={target}
           onChange={(e) => setTarget(parseInt(e.target.value, 10))}
           className={cn(

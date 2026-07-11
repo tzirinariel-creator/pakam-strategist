@@ -1,5 +1,6 @@
 "use client";
 
+import { useId } from "react";
 import { Swords } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { MILUIM_CONFIG } from "@/lib/constants";
@@ -33,12 +34,14 @@ export function MiluimDayCombatInputs({
   onCombatChange,
   labels,
 }: MiluimDayCombatInputsProps) {
+  const daysInputId = useId();
   return (
     <div className="space-y-3">
       {/* Days */}
       <div className="space-y-1.5">
-        <label className="text-xs font-medium text-foreground/60">{labels.daysLabel}</label>
+        <label htmlFor={daysInputId} className="text-xs font-medium text-foreground/60">{labels.daysLabel}</label>
         <input
+          id={daysInputId}
           type="number"
           min={0}
           max={365}

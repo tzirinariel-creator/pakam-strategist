@@ -683,6 +683,7 @@ function AppearanceSection() {
             type="button"
             role="switch"
             aria-checked={proactiveOn}
+            aria-label={isHe ? "המלך יציף פער קריטי כשאני פותח אותו" : "Let the King surface one critical gap when I open him"}
             onClick={toggleProactive}
             className={cn(
               "relative inline-flex h-6 w-11 shrink-0 items-center rounded-full transition-colors",

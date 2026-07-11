@@ -457,7 +457,7 @@ export function CourseTable({ courses, allCourses, focusArea }: CourseTableProps
                   promptEn={`Tell me about "${course.nameEn ?? course.nameHe}" (${course.code}) — how hard is it, and how does it fit my degree?`}
                   labelHe="שאל את המלך על זה"
                   labelEn="Ask the King"
-                  className="mt-1 inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 text-[11px] font-medium text-accent-brand/85 transition-all hover:bg-accent-brand/10 hover:text-accent-brand sm:opacity-0 sm:group-hover:opacity-100"
+                  className="mt-1 inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 text-[11px] font-medium text-accent-brand transition-all hover:bg-accent-brand/10 hover:text-accent-brand sm:opacity-0 sm:group-hover:opacity-100"
                 />
               </TableCell>
 

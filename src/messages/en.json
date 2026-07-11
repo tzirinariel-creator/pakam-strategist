@@ -945,6 +945,7 @@
     "footerFaq": "FAQ",
     "footerPrivacy": "Privacy",
     "footerTerms": "Terms",
+    "footerAccessibility": "Accessibility",
     "stats": {
       "courses": "real courses",
       "disciplines": "disciplines",
@@ -1042,6 +1043,20 @@
     "cohort": "If you chose to share grades or ratings — they are stored as anonymous points with no name and no way to trace who contributed, shown only as averages once enough people contributed. You can withdraw everything anytime from settings.",
     "contactTitle": "Contact",
     "contact": "Privacy questions? Write to me:"
+  },
+  "accessibility": {
+    "title": "Accessibility Statement",
+    "lastUpdated": "Last updated: July 2026",
+    "intro": "Pakamon is built so that as many students as possible can use it — including those who browse with a keyboard only or with a screen reader. This is an ongoing effort, and we keep improving.",
+    "doneTitle": "What we've already done",
+    "done1": "All main screens were scanned with an automated tool (axe) and fixed down to zero high-severity issues.",
+    "done2": "Every action — including course dragging and the exam board — is fully keyboard-accessible, with a clear focus indicator.",
+    "done3": "Every button and field has an accessible name for screen readers, and color contrast meets WCAG 2.1 level AA.",
+    "done4": "The site fully supports right-to-left Hebrew and left-to-right English.",
+    "limitsTitle": "What's not perfect yet",
+    "limits": "Some complex components (like charts and drag boards) may not yet offer a complete screen-reader experience. If you hit a problem — we'd love to hear and fix it.",
+    "contactTitle": "Found an accessibility issue?",
+    "contact": "Write to us and we'll take care of it promptly:"
   },
   "terms": {
     "title": "Terms of Use",

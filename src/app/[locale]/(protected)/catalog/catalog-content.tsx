@@ -130,7 +130,7 @@ export function CatalogContent() {
           official. Facts come from the Yedion; the average+difficulty are a
           computed estimate from historical data (Arazim), not a TAU figure. (#8/#15) */}
       {!isLoading && !error && typedCourses.length > 0 && (
-        <div className="flex flex-col gap-1 text-xs text-foreground/30">
+        <div className="flex flex-col gap-1 text-xs text-foreground/65">
           <p>
             {isHe
               ? "עובדות הקורס (שם, ש״ס, שעות, דרישות קדם) — מידיעון אוניברסיטת תל אביב, תשפ״ו"
@@ -156,7 +156,7 @@ export function CatalogContent() {
           </p>
           <a
             href={`mailto:tzirin.ariel@gmail.com?subject=${encodeURIComponent(isHe ? "קורס חסר בקטלוג פכמון" : "Missing course in the Pakamon catalog")}`}
-            className="w-fit underline underline-offset-2 transition-colors hover:text-foreground/50"
+            className="w-fit text-foreground/70 underline underline-offset-2 transition-colors hover:text-foreground/90"
           >
             {isHe ? "לא מצאתם קורס? דווחו לנו" : "Missing a course? Let us know"}
           </a>

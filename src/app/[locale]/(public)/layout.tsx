@@ -76,6 +76,12 @@ export default function PublicLayout({
             >
               {t("footerTerms")}
             </Link>
+            <Link
+              href="/accessibility"
+              className="transition-colors hover:text-foreground"
+            >
+              {t("footerAccessibility")}
+            </Link>
           </div>
         </div>
       </footer>

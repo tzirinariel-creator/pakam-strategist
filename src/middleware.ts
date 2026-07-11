@@ -17,6 +17,7 @@ const PUBLIC_SEGMENTS = new Set([
   "faq",
   "privacy",
   "terms",
+  "accessibility",
   // The viral loop: a friend's shared plan must be viewable WITHOUT an
   // account — the login wall was killing the only organic growth channel.
   "shared-plan",
