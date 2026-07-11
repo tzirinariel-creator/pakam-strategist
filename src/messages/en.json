@@ -295,7 +295,7 @@
     "amirantScoreHint": "Your English placement score (50–150). Determines which English courses you need.",
     "amirantScorePlaceholder": "e.g. 120",
     "apiKey": "API Key",
-    "apiKeyDescription": "Connect an AI key to use your personal assistant — a Google Gemini key works and is completely free.",
+    "apiKeyDescription": "The King and the Referent already work for you — free, on the shared quota. A personal key (also free) gives you a bigger quota of your own.",
     "apiKeyFreeBadge": "Free",
     "apiKeyProvider": "Active provider:",
     "apiKeyFreeLimits": "Free tier: ~15 requests/minute and ~1,500/day (resets at midnight). Plenty for normal use — and we never charge.",
@@ -1344,7 +1344,7 @@
       "focusTerm": "Focus area",
       "focusDef": "The discipline you specialize in (60 credits) — sets your civil-service classification.",
       "levelTerm": "English level courses",
-      "levelDef": "Preparatory English courses that don't count toward the 150, based on your Amiram score.",
+      "levelDef": "Preparatory English courses that don't count toward the 150, based on your Amirant score.",
       "exemptTerm": "English exemption",
       "exemptDef": "No level courses needed. You still need 2 English content courses."
     }

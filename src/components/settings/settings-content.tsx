@@ -350,8 +350,8 @@ function ProfileSection() {
           </label>
           <p className="text-xs text-foreground/40">
             {isHe
-              ? "בגיליון הרשמי הרמה מודפסת כמילים בלי מספר (למשל “מתקדמים ב׳”). אם אתם יודעים את הרמה, בחרו אותה — היא גוברת על ציון אמיר״ם."
-              : "The official sheet prints the level as words, not a number. If you know your level, pick it — it overrides the Amiram score."}
+              ? "בגיליון הרשמי הרמה מודפסת כמילים בלי מספר (למשל “מתקדמים ב׳”). אם אתם יודעים את הרמה, בחרו אותה — היא גוברת על ציון אמירנט."
+              : "The official sheet prints the level as words, not a number. If you know your level, pick it — it overrides the Amirant score."}
           </p>
           <Select
             value={englishLevelSel || "DERIVE"}
