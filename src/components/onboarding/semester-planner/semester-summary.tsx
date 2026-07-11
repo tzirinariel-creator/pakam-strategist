@@ -52,6 +52,10 @@ interface SemesterSummaryProps {
    *  user doesn't double-submit or wonder whether it took (#18). Onboarding
    *  omits it — there the "finish" just advances a step, no async save. */
   isSaving?: boolean;
+  /** P4 (note 35): this summary opened AUTOMATICALLY because the semester is
+   *  mandatory-heavy — the copy presents a READY recommended timetable to
+   *  confirm, not a "you finished building" congratulation. */
+  autoRecommended?: boolean;
 }
 
 export function SemesterSummary({
@@ -64,6 +68,7 @@ export function SemesterSummary({
   onFinish,
   onBack,
   isSaving = false,
+  autoRecommended = false,
 }: SemesterSummaryProps) {
   const t = useTranslations("onboarding");
   const locale = useLocale();
@@ -105,11 +110,20 @@ export function SemesterSummary({
 
         <div>
           <h3 className="text-lg font-bold text-foreground/90">
-            {t("semesterDone")}
+            {autoRecommended
+              ? (isHe ? "המערכת המומלצת מוכנה" : "Your recommended timetable is ready")
+              : t("semesterDone")}
           </h3>
           <p className="mt-1 text-sm text-foreground/50">
             {yearLabel} · {semLabel}
           </p>
+          {autoRecommended && (
+            <p className="mt-1.5 text-xs text-foreground/45">
+              {isHe
+                ? "רוב הסמסטר הזה חובה, אז הרכבנו אותו בשבילכם — אפשר לאשר, או לחזור לעריכה ולשנות."
+                : "Most of this semester is mandatory, so we assembled it for you — confirm, or go back and tweak."}
+            </p>
+          )}
         </div>
 
         {/* Stats grid */}

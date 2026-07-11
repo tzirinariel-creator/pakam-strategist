@@ -9,6 +9,7 @@ import { SEMESTER_CONFIG, YEAR_CONFIG } from "@/lib/constants";
 import { detectConflicts } from "@/lib/plan-generator";
 import { filterSessionsBySelectedGroups, courseHasMultipleGroups } from "./session-group-selector";
 import { findBestCombination } from "@/lib/combo-finder";
+import { isMandatoryHeavy } from "@/lib/semester-type";
 import {
   Dialog,
   DialogContent,
@@ -115,7 +116,13 @@ export function SemesterPlanner({
         (s) => `${s.year}-${s.semester}` !== initialCurrentKey
       )
   );
-  const [showSummary, setShowSummary] = useState(false);
+  // P4 (note 35) — summary preference. null = the student hasn't chosen yet;
+  // then a mandatory-heavy semester (typical year 1) DEFAULTS to the ready
+  // "recommended timetable + one confirm" screen, while an elective-heavy one
+  // opens in building mode. Pure derivation (see showSummary below) — no
+  // effect ever flips this, so the R3 sync-regression class can't reappear.
+  const [summaryPref, setSummaryPref] = useState<boolean | null>(null);
+  const setShowSummary = setSummaryPref;
   const [showDegreeModal, setShowDegreeModal] = useState(true);
   const [customCourses, setCustomCourses] = useState<CourseWithSchedule[]>([]);
   const [showCustomCourseModal, setShowCustomCourseModal] = useState(false);
@@ -288,6 +295,15 @@ export function SemesterPlanner({
     () => allCurrentCourses.reduce((s, c) => s + c.credits, 0),
     [allCurrentCourses]
   );
+
+  // P4 (note 35): mandatory-heavy semester → the recommended timetable is
+  // already assembled, so default to the confirm-first screen. The student's
+  // own choice (summaryPref) always wins once made; loading shows the editor.
+  const mandatoryHeavy = useMemo(
+    () => isMandatoryHeavy(allCurrentCourses),
+    [allCurrentCourses]
+  );
+  const showSummary = summaryPref ?? (!isLoadingCourses && mandatoryHeavy);
 
   // Course codes that offer a real group CHOICE (a session type with >1 group)
   // this semester — reuses the same detector the sidebar SessionGroupSelector
@@ -631,6 +647,7 @@ export function SemesterPlanner({
           onFinish={handleFinish}
           onBack={() => setShowSummary(false)}
           isSaving={isSaving}
+          autoRecommended={summaryPref === null && mandatoryHeavy}
         />
       </div>
     );
