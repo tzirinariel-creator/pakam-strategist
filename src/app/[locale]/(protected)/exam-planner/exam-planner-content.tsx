@@ -50,6 +50,7 @@ import { MoedBenefitBanner } from "@/components/exam-planner/moed-benefit-banner
 import { ExamPlanWizard, MoedPrinciplesCard, type PrepStyle } from "@/components/exam-planner/exam-plan-wizard";
 import { planFromStudyTasks } from "@/lib/plan-from-tasks";
 import { downloadGanttCsv, type GanttTask } from "@/lib/excel-export";
+import { exportExamPlanXlsx } from "@/lib/xlsx-export";
 import { cn } from "@/lib/utils";
 
 type Moed = "A" | "B";
@@ -198,6 +199,18 @@ export function ExamPlannerContent() {
 
   const persistedPlan = useMemo<ExamPlanResult>(() => planFromStudyTasks(tasks, codeToName), [tasks, codeToName]);
   const persistedRecs = useMemo(() => analyzeExamPeriod(persistedPlan, isHe), [persistedPlan, isHe]);
+
+  // #15/#34 — the colored three-sheet Excel (plan table + gantt grid + agenda
+  // checklist). Exports the PERSISTED plan — exactly what's on screen,
+  // including manual drags — never a regenerated one.
+  const exportXlsx = async () => {
+    const ok = await exportExamPlanXlsx(persistedPlan, { isHe });
+    if (ok) {
+      toast.success(isHe ? "האקסל הצבעוני ירד — תוכנית, לוח-גאנט ואג'נדה" : "Colored Excel downloaded — plan, gantt board and agenda");
+    } else {
+      toast.info(isHe ? "אין עדיין תוכנית לייצוא — בנו תוכנית קודם" : "Nothing to export yet — build a plan first");
+    }
+  };
 
   const exportIcs = () => {
     const pad = (n: number) => String(n).padStart(2, "0");
@@ -488,7 +501,7 @@ export function ExamPlannerContent() {
             </p>
           </div>
         </div>
-        {hasPlan && <ShareMenu isHe={isHe} onIcs={exportIcs} onCsv={() => downloadGanttCsv(toGantt(), isHe)} />}
+        {hasPlan && <ShareMenu isHe={isHe} onXlsx={exportXlsx} onIcs={exportIcs} onCsv={() => downloadGanttCsv(toGantt(), isHe)} />}
       </div>
 
       {hasPlan ? (
@@ -612,7 +625,7 @@ export function ExamPlannerContent() {
 // ── Share menu — Radix DropdownMenu (portal), so a transformed/stacking
 // ancestor can never trap it under sibling cards again (#34). ICS primary,
 // CSV secondary; RTL comes from the RadixDirection provider.
-function ShareMenu({ isHe, onIcs, onCsv }: { isHe: boolean; onIcs: () => void; onCsv: () => void }) {
+function ShareMenu({ isHe, onXlsx, onIcs, onCsv }: { isHe: boolean; onXlsx: () => void; onIcs: () => void; onCsv: () => void }) {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger className="inline-flex items-center gap-1.5 rounded-lg border border-border/60 bg-card/40 px-3 py-2 text-sm text-foreground/70 transition-colors hover:border-foreground/25 hover:text-foreground/90">
@@ -620,14 +633,18 @@ function ShareMenu({ isHe, onIcs, onCsv }: { isHe: boolean; onIcs: () => void; o
         {isHe ? "שיתוף / ייצוא" : "Share / export"}
         <ChevronDown className="size-3.5" />
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-56 rounded-xl">
+      <DropdownMenuContent align="end" className="w-60 rounded-xl">
+        <DropdownMenuItem onSelect={onXlsx} className="gap-2 text-sm font-medium text-foreground/85">
+          <FileSpreadsheet className="size-4 text-emerald-600" />
+          {isHe ? "אקסל צבעוני — גאנט + אג'נדה" : "Colored Excel — gantt + agenda"}
+        </DropdownMenuItem>
         <DropdownMenuItem onSelect={onIcs} className="gap-2 text-sm text-foreground/80">
           <CalendarPlus className="size-4 text-accent-brand" />
           {isHe ? "הוסיפו ליומן Google" : "Add to Google Calendar"}
         </DropdownMenuItem>
         <DropdownMenuItem onSelect={onCsv} className="gap-2 text-xs text-foreground/55">
           <FileSpreadsheet className="size-3.5" />
-          {isHe ? "הורד טבלה (CSV)" : "Download table (CSV)"}
+          {isHe ? "טבלה פשוטה (CSV)" : "Plain table (CSV)"}
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
