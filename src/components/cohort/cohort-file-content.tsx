@@ -13,6 +13,8 @@
 // =========================================================================
 
 import { useLocale } from "next-intl";
+import { useMemo, useState } from "react";
+import { toast } from "sonner";
 import {
   Users,
   ThumbsUp,
@@ -21,6 +23,10 @@ import {
   Share2,
   Sprout,
   MessageSquareQuote,
+  Lightbulb,
+  Flag,
+  Send,
+  ExternalLink,
 } from "lucide-react";
 import { Link } from "@/i18n/navigation";
 import { api } from "@/lib/trpc/react";
@@ -28,6 +34,7 @@ import { cn } from "@/lib/utils";
 import { ReferentIcon } from "@/components/ui/referent-icon";
 import { DISCIPLINE_CONFIG } from "@/lib/constants";
 import { ThemedLoader } from "@/components/ui/themed-loader";
+import { encodePlan, type SharedCourse } from "@/lib/plan-share";
 
 export function CohortFileContent() {
   const locale = useLocale();
@@ -188,22 +195,12 @@ export function CohortFileContent() {
         </div>
       )}
 
+      {/* Stage ב (approved): "מה הייתי אומר לעצמי" — the insights wall */}
+      <InsightsSection isHe={isHe} />
+
       {/* Winning plans (stage ד) + inheritance note (stage ה) */}
       <div className="animate-stagger-5 grid gap-4 md:grid-cols-2">
-        <div className="data-card space-y-2 p-5">
-          <h3 className="flex items-center gap-2 font-semibold text-foreground/80">
-            <Share2 className="size-4 text-accent-brand" />
-            {isHe ? "מסלולים מנוצחים" : "Winning plans"}
-          </h3>
-          <p className="text-sm leading-relaxed text-foreground/60">
-            {isHe
-              ? "בניתם סמסטר שאתם גאים בו? שתפו את התוכנית מהמתכנן (כפתור \"שתף\") — החברים רואים אותה בלי חשבון, ומי שמתחבר יכול לבנות ממנה את שלו."
-              : "Built a semester you're proud of? Share the plan from the planner — friends view it without an account, and signed-in students can build from it."}
-          </p>
-          <Link href="/planner" className="text-sm font-medium text-accent-brand hover:underline">
-            {isHe ? "לתכנון התואר ←" : "To the planner →"}
-          </Link>
-        </div>
+        <GallerySection isHe={isHe} />
         <div className="data-card space-y-2 p-5">
           <h3 className="flex items-center gap-2 font-semibold text-foreground/80">
             <Users className="size-4 text-accent-brand" />
@@ -215,6 +212,221 @@ export function CohortFileContent() {
               : "Everything gathered here outlives your cohort — the next one starts with everything you learned. That's the whole point."}
           </p>
         </div>
+      </div>
+    </div>
+  );
+}
+
+// ─── Stage ב: the insights wall ("מה הייתי אומר לעצמי") ────────────────
+const STAGES = [
+  { key: "FIRST_YEAR", he: "לשנה א׳", en: "To first-years" },
+  { key: "BIDDING", he: "לפני בידינג", en: "Before bidding" },
+  { key: "EXAMS", he: "לפני מבחנים", en: "Before exams" },
+  { key: "FOCUS", he: "בחירת מיקוד", en: "Picking a focus" },
+  { key: "GENERAL", he: "כללי", en: "General" },
+] as const;
+type StageKey = (typeof STAGES)[number]["key"];
+
+function InsightsSection({ isHe }: { isHe: boolean }) {
+  const utils = api.useUtils();
+  const listQuery = api.cohort.listInsights.useQuery();
+  const mineQuery = api.cohort.myInsights.useQuery();
+  const [stage, setStage] = useState<StageKey>("FIRST_YEAR");
+  const [draft, setDraft] = useState("");
+
+  const contribute = api.cohort.contributeInsight.useMutation({
+    onSuccess: () => {
+      toast.success(isHe ? "התובנה נשמרה — תודה! המחזור הבא כבר מרוויח" : "Saved — thank you!");
+      setDraft("");
+      void utils.cohort.invalidate();
+    },
+    onError: (e) => toast.error(e.message),
+  });
+  const report = api.cohort.reportInsight.useMutation({
+    onSuccess: () => {
+      toast.success(isHe ? "דווח — תודה" : "Reported");
+      void utils.cohort.listInsights.invalidate();
+    },
+  });
+
+  const byStage = useMemo(() => {
+    const m = new Map<string, NonNullable<typeof listQuery.data>>();
+    for (const row of listQuery.data ?? []) {
+      const list = m.get(row.stage) ?? [];
+      list.push(row);
+      m.set(row.stage, list);
+    }
+    return m;
+  }, [listQuery.data]);
+
+  const mine = mineQuery.data?.find((x) => x.stage === stage);
+  const rows = byStage.get(stage) ?? [];
+
+  return (
+    <div className="animate-stagger-4 space-y-3">
+      <h2 className="flex items-center gap-2 font-display text-xl font-bold text-foreground/85">
+        <Lightbulb className="size-5 text-foreground/60" />
+        {isHe ? "מה הייתי אומר לעצמי" : "What I'd tell myself"}
+      </h2>
+
+      {/* Stage tabs */}
+      <div className="flex flex-wrap gap-1.5">
+        {STAGES.map((st) => (
+          <button
+            key={st.key}
+            type="button"
+            onClick={() => { setStage(st.key); setDraft(""); }}
+            className={cn(
+              "rounded-full px-3 py-1.5 text-xs font-medium transition-colors",
+              stage === st.key
+                ? "bg-foreground text-background"
+                : "bg-foreground/8 text-foreground/60 hover:bg-foreground/15",
+            )}
+          >
+            {isHe ? st.he : st.en}
+          </button>
+        ))}
+      </div>
+
+      {/* The wall */}
+      {rows.length === 0 ? (
+        <p className="text-sm text-foreground/45">
+          {isHe ? "עוד אין תובנות בשלב הזה — שלכם יכולה להיות הראשונה." : "No insights here yet — yours could be the first."}
+        </p>
+      ) : (
+        <div className="grid gap-3 md:grid-cols-2">
+          {rows.map((r) => (
+            <div key={r.id} className="data-card group space-y-1.5 p-4">
+              <p className="text-sm leading-relaxed text-foreground/80">{r.text}</p>
+              <div className="flex items-center justify-between">
+                <span className="text-xs text-foreground/40">
+                  {r.cohortYear ? (isHe ? `מחזור ${r.cohortYear}` : `Class of ${r.cohortYear}`) : isHe ? "בוגר/ת" : "Alum"}
+                </span>
+                <button
+                  type="button"
+                  onClick={() => report.mutate({ id: r.id })}
+                  className="opacity-0 transition-opacity group-hover:opacity-100 focus-visible:opacity-100"
+                  aria-label={isHe ? "דיווח על תוכן פוגעני" : "Report"}
+                >
+                  <Flag className="size-3.5 text-foreground/30 hover:text-red-500" />
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* Contribute box — one per stage, editable */}
+      <div className="data-card space-y-2 p-4">
+        <p className="text-sm font-medium text-foreground/70">
+          {isHe
+            ? mine ? "התובנה שלכם בשלב הזה (עריכה מחליפה):" : "מה הייתם אומרים לעצמכם? (אנונימי, משפט-שניים)"
+            : mine ? "Your insight for this stage (editing replaces):" : "What would you tell yourself? (anonymous)"}
+        </p>
+        <div className="flex gap-2">
+          <input
+            value={draft || mine?.text || ""}
+            onChange={(e) => setDraft(e.target.value)}
+            maxLength={400}
+            placeholder={isHe ? "למשל: אל תיקחו 3 קורסי כלכלה באותו סמסטר…" : "e.g. don't stack 3 econ courses…"}
+            className="min-w-0 flex-1 rounded-lg border border-border bg-card px-3 py-2 text-sm text-foreground placeholder:text-foreground/25 focus:border-foreground/30 focus:outline-none"
+            aria-label={isHe ? "תובנה למחזור" : "Insight"}
+          />
+          <button
+            type="button"
+            disabled={((draft || mine?.text) ?? "").trim().length < 10 || contribute.isPending}
+            onClick={() => contribute.mutate({ stage, text: (draft || mine?.text || "").trim() })}
+            className="inline-flex items-center gap-1.5 rounded-lg bg-foreground px-3 py-2 text-sm font-semibold text-background transition-colors hover:bg-foreground/90 disabled:opacity-40"
+          >
+            <Send className="size-3.5" />
+            {isHe ? "שיתוף" : "Share"}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ─── Stage ד: the winning-plans gallery ────────────────────────────────
+function GallerySection({ isHe }: { isHe: boolean }) {
+  const utils = api.useUtils();
+  const galleryQuery = api.cohort.listGallery.useQuery();
+  const planQuery = api.plan.getUserPlan.useQuery();
+  const [title, setTitle] = useState("");
+
+  const publish = api.cohort.publishPlan.useMutation({
+    onSuccess: () => {
+      toast.success(isHe ? "המסלול פורסם לתיק המחזור!" : "Published to the cohort file!");
+      setTitle("");
+      void utils.cohort.listGallery.invalidate();
+    },
+    onError: (e) => toast.error(e.message),
+  });
+
+  const publishMyPlan = () => {
+    const courses = (planQuery.data?.courses ?? [])
+      .filter((uc) => uc.course?.code)
+      .map((uc) => ({ c: uc.course.code, y: uc.plannedYear, s: uc.plannedSemester } as SharedCourse));
+    if (courses.length === 0) {
+      toast.info(isHe ? "אין עדיין תוכנית לפרסם — בנו אחת במתכנן" : "No plan to publish yet");
+      return;
+    }
+    publish.mutate({ title: title.trim(), token: encodePlan(courses) });
+  };
+
+  return (
+    <div className="data-card space-y-3 p-5">
+      <h3 className="flex items-center gap-2 font-semibold text-foreground/80">
+        <Share2 className="size-4 text-accent-brand" />
+        {isHe ? "מסלולים מנוצחים" : "Winning plans"}
+      </h3>
+
+      {(galleryQuery.data?.length ?? 0) > 0 ? (
+        <ul className="space-y-2">
+          {galleryQuery.data!.map((e) => (
+            <li key={e.id} className="flex items-center justify-between gap-2">
+              <div className="min-w-0">
+                <p className="truncate text-sm font-medium text-foreground/80">{e.title}</p>
+                <p className="text-xs text-foreground/40">
+                  {e.cohortYear ? (isHe ? `מחזור ${e.cohortYear}` : `Class of ${e.cohortYear}`) : ""}
+                </p>
+              </div>
+              <Link
+                href={`/shared-plan?d=${encodeURIComponent(e.token)}`}
+                className="inline-flex shrink-0 items-center gap-1 rounded-lg bg-accent-brand/10 px-2.5 py-1.5 text-xs font-semibold text-accent-brand hover:bg-accent-brand/20"
+              >
+                <ExternalLink className="size-3" />
+                {isHe ? "צפייה והעתקה" : "View & copy"}
+              </Link>
+            </li>
+          ))}
+        </ul>
+      ) : (
+        <p className="text-sm leading-relaxed text-foreground/55">
+          {isHe
+            ? "עוד אין מסלולים בגלריה — פרסמו את שלכם וקבעו את הרף."
+            : "No plans in the gallery yet — publish yours and set the bar."}
+        </p>
+      )}
+
+      {/* Publish mine */}
+      <div className="flex gap-2 border-t border-border/40 pt-3">
+        <input
+          value={title}
+          onChange={(e) => setTitle(e.target.value)}
+          maxLength={80}
+          placeholder={isHe ? "שם למסלול שלכם (למשל: שנה ב׳ מאוזנת)" : "Name your plan"}
+          className="min-w-0 flex-1 rounded-lg border border-border bg-card px-3 py-2 text-sm text-foreground placeholder:text-foreground/25 focus:border-foreground/30 focus:outline-none"
+          aria-label={isHe ? "שם המסלול" : "Plan title"}
+        />
+        <button
+          type="button"
+          disabled={title.trim().length < 3 || publish.isPending}
+          onClick={publishMyPlan}
+          className="shrink-0 rounded-lg bg-foreground px-3 py-2 text-sm font-semibold text-background transition-colors hover:bg-foreground/90 disabled:opacity-40"
+        >
+          {isHe ? "פרסום המסלול שלי" : "Publish my plan"}
+        </button>
       </div>
     </div>
   );

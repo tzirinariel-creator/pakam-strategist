@@ -121,6 +121,8 @@ model User {
   studyTasks      StudyTask[]
   miluimSemesters MiluimSemester[]
   courseReviews   CourseReview[]
+  cohortInsights  CohortInsight[]
+  sharedPlans     SharedPlanEntry[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -510,4 +512,44 @@ model ReviewReport {
   @@unique([reviewId, userId])
   @@index([reviewId])
   @@map("review_reports")
+}
+
+// Stage ב of the cohort file (approved 11.7): "מה הייתי אומר לעצמי" — one
+// short insight per (user, stage). Anonymous on display; moderated exactly
+// like reviews (report → auto-hide → admin queue).
+model CohortInsight {
+  id          String       @id @default(uuid())
+  userId      String
+  /** "BIDDING" | "EXAMS" | "FOCUS" | "FIRST_YEAR" | "GENERAL" */
+  stage       String
+  text        String
+  cohortYear  Int?
+  status      ReviewStatus @default(VISIBLE)
+  reportCount Int          @default(0)
+  createdAt   DateTime     @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, stage])
+  @@index([stage, status])
+  @@map("cohort_insights")
+}
+
+// The winning-plans gallery (approved 11.7): a registry of the URL-token
+// shared plans, opt-in published to the cohort file. The token IS the plan
+// (no course rows duplicated); viewing rides the existing /shared-plan page.
+model SharedPlanEntry {
+  id          String       @id @default(uuid())
+  userId      String
+  title       String
+  token       String
+  cohortYear  Int?
+  status      ReviewStatus @default(VISIBLE)
+  reportCount Int          @default(0)
+  createdAt   DateTime     @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([status, createdAt])
+  @@map("shared_plan_entries")
 }
