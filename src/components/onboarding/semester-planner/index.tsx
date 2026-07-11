@@ -8,6 +8,7 @@ import { cn } from "@/lib/utils";
 import { SEMESTER_CONFIG, YEAR_CONFIG } from "@/lib/constants";
 import { detectConflicts } from "@/lib/plan-generator";
 import { filterSessionsBySelectedGroups, courseHasMultipleGroups } from "./session-group-selector";
+import { findBestCombination } from "@/lib/combo-finder";
 import {
   Dialog,
   DialogContent,
@@ -331,6 +332,7 @@ export function SemesterPlanner({
     [groupFilteredCourses],
   );
 
+
   // ─── Handlers ──────────────────────────────────────────────────────
 
   const handleToggleCourse = useCallback(
@@ -435,6 +437,68 @@ export function SemesterPlanner({
     },
     [markDirty]
   );
+
+  // P2 — "מצאו לי שילוב בלי התנגשויות": search over ALL group alternatives
+  // (raw semester sessions, not the group-filtered ones — we're choosing the
+  // groups), apply the winner through the regular handler (undo/dirty flow),
+  // and offer an exact one-click revert.
+  const handleFindCombination = useCallback(() => {
+    const comboCourses = allCurrentCourses.map((c) => ({
+      code: c.code,
+      sessions: (c.scheduleSessions ?? [])
+        .filter((s) => !s.semester || s.semester === currentSemester)
+        .map((s) => ({
+          sessionType: s.sessionType,
+          groupCode: s.groupCode ?? "A",
+          dayOfWeek: s.dayOfWeek,
+          startTime: s.startTime,
+          endTime: s.endTime,
+        })),
+    }));
+    const result = findBestCombination(comboCourses);
+    if (!result) {
+      toast.info(isHe ? "אין כאן קבוצות להחליף — לכל הקורסים קבוצה אחת" : "Nothing to optimize — every course has a single group");
+      return;
+    }
+    // Effective current group per slot (explicit selection, else the grid's
+    // alphabetical default) — so "בטל" restores the exact visible state.
+    const changes: [string, string, string][] = [];
+    for (const [code, types] of Object.entries(result.selections)) {
+      const course = allCurrentCourses.find((c) => c.code === code);
+      for (const [type, group] of Object.entries(types)) {
+        const current =
+          sessionGroupSelections[code]?.[type] ??
+          ((course?.scheduleSessions ?? [])
+            .filter((s) => s.sessionType === type && (!s.semester || s.semester === currentSemester))
+            .map((s) => s.groupCode ?? "A")
+            .filter((g) => g !== "ALL")
+            .sort()[0] ?? group);
+        if (current !== group) changes.push([code, type, current]);
+      }
+    }
+    if (changes.length === 0) {
+      toast.success(
+        conflicts.length === 0
+          ? (isHe ? "המערכת כבר בשילוב הטוב ביותר שמצאנו" : "You're already on the best combination we found")
+          : (isHe ? "אין שילוב קבוצות שפותר את החפיפה — היא בין מפגשים קבועים" : "No group swap resolves this clash — it's between fixed sessions"),
+      );
+      return;
+    }
+    for (const [code, types] of Object.entries(result.selections)) {
+      for (const [type, group] of Object.entries(types)) {
+        handleSelectSessionGroup(code, type, group);
+      }
+    }
+    const undo = () => {
+      for (const [code, type, group] of changes) handleSelectSessionGroup(code, type, group);
+    };
+    toast.success(
+      result.conflicts === 0
+        ? (isHe ? `נמצא שילוב בלי התנגשויות (${result.daysOnCampus} ימים בקמפוס)` : `Found a clash-free combination (${result.daysOnCampus} campus days)`)
+        : (isHe ? "אין שילוב בלי חפיפה — זה הקרוב ביותר" : "No clash-free combination exists — this is the closest"),
+      { action: { label: isHe ? "בטל" : "Undo", onClick: undo }, duration: 8000 },
+    );
+  }, [allCurrentCourses, currentSemester, sessionGroupSelections, conflicts.length, handleSelectSessionGroup, isHe]);
 
   const handleDisciplineOverride = useCallback(
     (courseId: string, discipline: string) => {
@@ -675,6 +739,7 @@ export function SemesterPlanner({
           totalCreditsPlanned={totalCreditsPlanned}
           conflicts={conflicts}
           focusArea={data.focusArea}
+          onFindCombination={handleFindCombination}
         />
       </div>
 

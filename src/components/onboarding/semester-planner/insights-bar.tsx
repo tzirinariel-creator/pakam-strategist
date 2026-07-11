@@ -67,6 +67,8 @@ interface InsightsBarProps {
   totalCreditsPlanned: number;
   conflicts: ScheduleConflict[];
   focusArea?: string | null;
+  /** P2 — "מצאו לי שילוב בלי התנגשויות": offered when conflicts exist. */
+  onFindCombination?: () => void;
 }
 
 // ─── Contextual workload explanation ──────────────────────────────────
@@ -318,6 +320,7 @@ export function InsightsBar({
   totalCreditsPlanned,
   conflicts,
   focusArea,
+  onFindCombination,
 }: InsightsBarProps) {
   const t = useTranslations("onboarding");
   const locale = useLocale();
@@ -548,6 +551,19 @@ export function InsightsBar({
             <p className="text-[10px] text-foreground/30">
               {conflictCount > 0 ? t("conflictsDetected") : t("noConflicts")}
             </p>
+            {/* P2 — one click asks the finder to search every group combination */}
+            {conflictCount > 0 && onFindCombination && (
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onFindCombination();
+                }}
+                className="mt-1.5 w-full rounded-md bg-accent-brand/10 px-2 py-1 text-[11px] font-semibold text-accent-brand transition-colors hover:bg-accent-brand/20"
+              >
+                {isHe ? "מצאו לי שילוב בלי התנגשויות" : "Find me a clash-free combo"}
+              </button>
+            )}
           </div>
         </div>
 
