@@ -166,6 +166,23 @@ const HANDLERS: Handler[] = [
       };
     },
   },
+  // ── Grade of a SPECIFIC course (מבחן-המלך #14) ────────────────────
+  // The aggregate QAContext has no per-course grades, so the honest answer
+  // is a precise redirect to the record — NOT the overall average (which is
+  // what a bare "ציון" match used to fall into). Longer keys out-score the
+  // average handler's "הציון שלי" under the length-weighted matcher.
+  {
+    keys: ["הציון שלי ב", "ציון בקורס", "ציון של הקורס", "אין לי ציון", "עוד אין ציון", "my grade in", "grade for", "grade in the course"],
+    answer: (c) => ({
+      text: he(
+        c,
+        "ציון של קורס בודד רואים בתיק האקדמי — כל קורס עם הציון שלו. אם לקורס עדיין אין ציון (למשל קורס שרץ עכשיו), הוא יופיע שם ברגע שיפורסם — אני לא מנחש ציונים.",
+        "A single course's grade lives in your academic record — every course with its grade. If a course has no grade yet (e.g. still running), it'll appear there once published — I don't guess grades.",
+      ),
+      href: "/record",
+      cta: he(c, "לתיק האקדמי", "My record"),
+    }),
+  },
   // ── Average / GPA ─────────────────────────────────────────────────
   {
     keys: ["ממוצע", "הציון שלי", "gpa", "average", "my grade"],
@@ -249,7 +266,7 @@ const HANDLERS: Handler[] = [
   },
   // ── Final-grade formula ───────────────────────────────────────────
   {
-    keys: ["ציון גמר", "ציון סופי", "איך מחשבים ציון", "שקלול", "final grade", "grade formula", "how is my grade"],
+    keys: ["ציון גמר", "ציון הגמר", "ציון סופי", "איך מחשבים ציון", "מחשבים את ציון", "שקלול", "final grade", "grade formula", "how is my grade"],
     answer: (c) => ({
       text: he(
         c,
@@ -344,7 +361,7 @@ const HANDLERS: Handler[] = [
   },
   // ── Year transition ───────────────────────────────────────────────
   {
-    keys: ["מעבר שנה", "לעבור שנה", "תנאי מעבר", "advance a year", "year transition"],
+    keys: ["מעבר שנה", "לעבור שנה", "תנאי מעבר", "תנאי המעבר", "מעבר לשנה", "לשנה הבאה", "advance a year", "year transition"],
     answer: (c) =>
       ({
         text: he(
