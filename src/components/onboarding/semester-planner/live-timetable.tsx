@@ -62,6 +62,11 @@ interface LiveTimetableProps {
   /** Hovered (not yet selected) session group — rendered as dashed preview
    *  blocks so the choice is VISIBLE before it's made (#2). */
   groupPreview?: { courseCode: string; sessionType: string; groupCode: string } | null;
+  /** Hovered (not yet selected) COURSE from the pool — its sessions ghost on
+   *  the grid before the click, so choosing happens ON the schedule (#2
+   *  follow-up: "למה שזה לא יהיה לוז"). One group per session type (the
+   *  first), so a 4-group course previews as one clean placement. */
+  coursePreview?: CourseWithSchedule | null;
   /** On-grid group picking (#2). When true, blocks for a course in
    *  `multiGroupCourseCodes` get a tap affordance that opens a group picker
    *  anchored to the grid. When absent, the timetable stays purely read-only
@@ -85,6 +90,7 @@ export function LiveTimetable({
   currentSemester,
   sessionGroupSelections,
   groupPreview,
+  coursePreview,
   interactive,
   multiGroupCourseCodes,
   onSelectSessionGroup,
@@ -192,6 +198,45 @@ export function LiveTimetable({
     return out;
   }, [groupPreview, courses, currentSemester, sessionGroupSelections]);
 
+  // Ghost blocks for the HOVERED pool course (#2 follow-up) — dashed preview
+  // of where it would land, before the click. One group per session type so
+  // multi-group courses don't smear across the grid.
+  const coursePreviewSessions = useMemo(() => {
+    if (!coursePreview?.scheduleSessions) return [];
+    const semesterSessions = coursePreview.scheduleSessions.filter(
+      (s) => !s.semester || s.semester === currentSemester,
+    );
+    const firstGroupByType = new Map<string, string>();
+    for (const sess of semesterSessions) {
+      const type = sess.sessionType ?? "";
+      const g = sess.groupCode ?? "";
+      const cur = firstGroupByType.get(type);
+      if (cur === undefined || g < cur) firstGroupByType.set(type, g);
+    }
+    const out: ScheduleSessionData[] = [];
+    for (const sess of semesterSessions) {
+      if ((sess.groupCode ?? "") !== firstGroupByType.get(sess.sessionType ?? "")) continue;
+      out.push({
+        id: `${coursePreview.id}-${sess.dayOfWeek}-${sess.startTime}-${sess.groupCode ?? ""}-hoverpreview`,
+        courseCode: coursePreview.code,
+        dayOfWeek: sess.dayOfWeek as DayOfWeek,
+        startTime: sess.startTime,
+        endTime: sess.endTime,
+        room: sess.room ?? null,
+        building: sess.building ?? null,
+        sessionType: sess.sessionType,
+        course: {
+          code: coursePreview.code,
+          nameHe: coursePreview.nameHe,
+          nameEn: coursePreview.nameEn,
+          discipline: coursePreview.discipline,
+          credits: coursePreview.credits,
+        },
+      });
+    }
+    return out;
+  }, [coursePreview, currentSemester]);
+
   // ─── On-grid group picker (#2) ──────────────────────────────────────
   // The course whose picker is currently open.
   const pickerCourse = useMemo(
@@ -253,8 +298,9 @@ export function LiveTimetable({
           (or any group pick) dismisses it for good (pk-grid-pick-hint). */}
       {pickingEnabled && (multiGroupCourseCodes?.size ?? 0) > 0 && <GridPickHint isHe={isHe} />}
       <WeeklyTimetable
+        preferGrid
         sessions={sessions}
-        previewSessions={previewSessions}
+        previewSessions={[...previewSessions, ...coursePreviewSessions]}
         interactive={pickingEnabled || undefined}
         multiGroupCourseCodes={pickingEnabled ? multiGroupCourseCodes : undefined}
         onPickGroup={

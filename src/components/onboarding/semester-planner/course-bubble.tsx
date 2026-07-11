@@ -34,6 +34,8 @@ interface CourseBubbleProps {
   /** S3 — "מומלץ ע"י המחזור": ≥60% recommend among enough raters (k-anonymous). */
   cohortRecommended?: boolean;
   onToggle?: () => void;
+  /** Pointer/keyboard hover — the pool ghosts this course on the grid (#2). */
+  onHoverPreview?: (on: boolean) => void;
   onDisciplineOverride?: (courseId: string, discipline: string) => void;
 }
 
@@ -44,6 +46,7 @@ export function CourseBubble({
   recommended,
   cohortRecommended,
   onToggle,
+  onHoverPreview,
   onDisciplineOverride,
 }: CourseBubbleProps) {
   const locale = useLocale();
@@ -67,9 +70,16 @@ export function CourseBubble({
         onClick={(e) => {
           if (isClickable && onToggle) {
             e.stopPropagation();
+            // The pick replaces the ghost — clear it so the grid shows the
+            // real block, not preview-on-top-of-block.
+            onHoverPreview?.(false);
             onToggle();
           }
         }}
+        onMouseEnter={() => onHoverPreview?.(true)}
+        onMouseLeave={() => onHoverPreview?.(false)}
+        onFocus={() => onHoverPreview?.(true)}
+        onBlur={() => onHoverPreview?.(false)}
         disabled={state === "disabled"}
         title={state === "disabled" ? disabledReason : undefined}
         className={cn(

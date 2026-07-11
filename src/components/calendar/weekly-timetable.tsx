@@ -59,6 +59,10 @@ interface WeeklyTimetableProps {
   /** Course codes that offer a tutorial/lab group CHOICE — only these show
    *  the affordance (a single-group course has nothing to pick). */
   multiGroupCourseCodes?: Set<string>;
+  /** Editor context (#2): switch agenda→grid already at @lg (~512px) instead
+   *  of @2xl, so a 1280px laptop with the sidebar open still sees a SCHEDULE
+   *  in the planning rail — not a list. */
+  preferGrid?: boolean;
 }
 
 // ─── Constants ───────────────────────────────────────────────────────
@@ -188,6 +192,7 @@ function computeOverlapLayout(slots: TimeSlot[]): SlotLayout[] {
 export function WeeklyTimetable({
   sessions,
   previewSessions,
+  preferGrid,
   interactive,
   onPickGroup,
   multiGroupCourseCodes,
@@ -272,11 +277,16 @@ export function WeeklyTimetable({
 
       {/* Agenda — vertical list grouped by day. Shown when the CONTAINER is
           narrow (planner rail / phone), hidden once there's room for the grid. */}
-      <div className="flex flex-col gap-3 @2xl:hidden">
+      <div className={cn("flex flex-col gap-3", preferGrid ? "@lg:hidden" : "@2xl:hidden")}>
         {dayOrder.map((dayIdx) => {
           const dayKey = DAY_KEYS[dayIdx];
           const isToday = dayIdx === currentDay;
           const daySlots = slots
+            .filter((s) => s.day === dayIdx)
+            .sort((a, b) => a.startHour - b.startHour);
+          // Ghost previews for this day (#2) — the agenda variant must show
+          // them too, or narrow containers lose the hover-preview entirely.
+          const dayPreviews = previewSlots
             .filter((s) => s.day === dayIdx)
             .sort((a, b) => a.startHour - b.startHour);
 
@@ -299,7 +309,7 @@ export function WeeklyTimetable({
                 )}
               </div>
 
-              {daySlots.length === 0 ? (
+              {daySlots.length === 0 && dayPreviews.length === 0 ? (
                 <div className="px-3 py-3 text-xs text-muted-foreground/40">—</div>
               ) : (
                 <ul className="divide-y divide-border/40">
@@ -370,6 +380,29 @@ export function WeeklyTimetable({
                       </li>
                     );
                   })}
+                  {/* Ghost rows — the hovered pool course, dashed, before the click (#2) */}
+                  {dayPreviews.map((slot) => {
+                    const config = DISCIPLINE_CONFIG[slot.discipline];
+                    const color = config?.color ?? "hsl(var(--muted-foreground))";
+                    return (
+                      <li
+                        key={`preview-${slot.courseId}`}
+                        className="flex gap-2.5 border-2 border-dashed px-3 py-2.5 opacity-75"
+                        style={{ borderColor: color }}
+                      >
+                        <span className="mt-0.5 shrink-0 font-mono text-[11px] leading-tight text-muted-foreground/80" dir="ltr">
+                          {slot.startTimeStr}
+                          <br />
+                          {slot.endTimeStr}
+                        </span>
+                        <div className="flex min-w-0 flex-1 flex-col">
+                          <span className="truncate text-sm font-semibold text-foreground/70">
+                            {slot.courseName}
+                          </span>
+                        </div>
+                      </li>
+                    );
+                  })}
                 </ul>
               )}
             </div>
@@ -379,7 +412,7 @@ export function WeeklyTimetable({
 
       {/* Timetable grid — shown once the CONTAINER is wide enough (@2xl) to fit
           the columns without shrinking them into unreadable slivers. */}
-      <div className="hidden rounded-xl border border-border bg-card shadow-sm @2xl:block">
+      <div className={cn("hidden rounded-xl border border-border bg-card shadow-sm", preferGrid ? "@lg:block" : "@2xl:block")}>
         <div className="w-full">
           {/* Day headers */}
           <div

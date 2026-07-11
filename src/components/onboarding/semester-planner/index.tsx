@@ -141,6 +141,9 @@ export function SemesterPlanner({
   } | null>(null);
   // Discipline overrides: courseId → discipline key
   const [disciplineOverrides, setDisciplineOverrides] = useState<Record<string, string>>({});
+  // #2 follow-up — the pool bubble currently hovered/focused; its sessions
+  // ghost on the live grid so the pick happens ON the schedule.
+  const [hoverPreviewId, setHoverPreviewId] = useState<string | null>(null);
 
   // Undo/redo history for course selections
   const undoStack = useRef<Set<string>[]>([]);
@@ -220,6 +223,13 @@ export function SemesterPlanner({
     }),
     [allCourses, customCourses, disciplineOverrides]
   );
+
+  // The hovered pool course, resolved for the ghost preview — only while it's
+  // still unselected (a selected course is already solid on the grid).
+  const hoverPreviewCourse = useMemo(() => {
+    if (!hoverPreviewId || selectedCourseIds.has(hoverPreviewId)) return null;
+    return mergedCourses.find((c) => c.id === hoverPreviewId) ?? null;
+  }, [hoverPreviewId, selectedCourseIds, mergedCourses]);
 
   // ─── Derived data ──────────────────────────────────────────────────
 
@@ -777,6 +787,7 @@ export function SemesterPlanner({
               completedCourseIds={completedCourseIds}
               focusArea={data.focusArea}
               onToggleCourse={handleToggleCourse}
+              onPreviewCourse={setHoverPreviewId}
               onAddCustomCourse={() => setShowCustomCourseModal(true)}
               onDisciplineOverride={handleDisciplineOverride}
             />
@@ -844,6 +855,7 @@ export function SemesterPlanner({
                 currentSemester={currentSemester}
                 sessionGroupSelections={sessionGroupSelections}
                 groupPreview={groupPreview}
+                coursePreview={hoverPreviewCourse}
                 interactive
                 multiGroupCourseCodes={multiGroupCourseCodes}
                 onSelectSessionGroup={handleSelectSessionGroup}

@@ -24,6 +24,8 @@ interface CoursePoolProps {
   completedCourseIds: Set<string>;
   focusArea: string | null;
   onToggleCourse: (courseId: string) => void;
+  /** Hover/focus on an unselected bubble → ghost it on the live grid (#2). */
+  onPreviewCourse?: (courseId: string | null) => void;
   onAddCustomCourse?: () => void;
   onDisciplineOverride?: (courseId: string, discipline: string) => void;
 }
@@ -37,6 +39,7 @@ export function CoursePool({
   completedCourseIds,
   focusArea,
   onToggleCourse,
+  onPreviewCourse,
   onAddCustomCourse,
   onDisciplineOverride,
 }: CoursePoolProps) {
@@ -328,6 +331,13 @@ export function CoursePool({
                 recommended={isRecommended}
                 cohortRecommended={isCohortRecommended(course.code)}
                 onToggle={() => onToggleCourse(course.id)}
+                // Ghost only bubbles that would ADD something: selected courses
+                // are already solid on the grid, disabled ones can't be picked.
+                onHoverPreview={
+                  bubbleState === "default"
+                    ? (on) => onPreviewCourse?.(on ? course.id : null)
+                    : undefined
+                }
                 onDisciplineOverride={onDisciplineOverride}
               />
             );
