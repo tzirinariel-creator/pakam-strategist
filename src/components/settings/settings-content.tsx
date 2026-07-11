@@ -1641,6 +1641,33 @@ function MiluimSection() {
             />
           </div>
         </div>
+
+        {/* #27 — the binary/rights playbook, sourced from the domain rules
+            (docs/pakam-domain-rules-2026.md) + the national תשפ"ו outline.
+            Everything here is policy that changes yearly — hence the tag. */}
+        <details className="rounded-lg border border-border/50 bg-foreground/[0.02] p-4">
+          <summary className="cursor-pointer text-sm font-semibold text-foreground/75">
+            {isHe ? "איך מנצלים את הזכויות חכם? המדריך הקצר" : "How to use the benefits wisely — the short playbook"}
+            <span className="ms-2 rounded-full bg-foreground/8 px-2 py-0.5 text-[10px] font-normal text-foreground/50">
+              {isHe ? "נכון לתשפ״ו" : "As of 2025-26"}
+            </span>
+          </summary>
+          {isHe ? (
+            <ul className="mt-3 space-y-2 text-xs leading-relaxed text-foreground/65">
+              <li>• <b>הקבוצה נקבעת מחדש כל סמסטר</b> לפי ימי-השירות של אותו סמסטר (הצבא מעדכן את האוניברסיטה אוטומטית). הפטורים והבינארי מצטברים לאורך התואר — עד 10 ש״ס פטור ועד 5 המרות-בינארי.</li>
+              <li>• <b>למי מגיע בינארי:</b> קבוצה ב׳ — 2 קורסים; קבוצה ג׳ — 3; קבוצה ז׳ — עד 6 ש״ס. את ההמרה מבצעים מול מזכירות החוג, לא כאן.</li>
+              <li>• <b>איזה קורס כדאי להמיר:</b> קורס כבד שהציון הצפוי בו נמוך מהממוצע שלכם — ההמרה מוציאה אותו מהממוצע. המלך מציע מועמד כשהנתונים תומכים.</li>
+              <li>• <b>איזה קורס אסור/לא-כדאי:</b> קורסים שנדרש בהם ציון מספרי לשער-המעבר (75/80), סמינרים, וקורסים קריטיים לקבלה לתארים מתקדמים.</li>
+              <li>• <b>אזהרת הצטיינות:</b> המרה של יותר מ-25% משעות-השנה לבינארי פוסלת הצטיינות דקאן/רקטור. בדיקת-המסלול מתריעה לפני שמתקרבים.</li>
+              <li>• <b>מועדי בחינה:</b> קבוצות ב׳/ג׳/ז׳ — ניגשים ל-2 מתוך 3 מועדים והגבוה נספר אוטומטית.</li>
+              <li>• <b>הערכה חלופית:</b> המתווה הלאומי לתשפ״ו מקנה הערכה חלופית (לפחות 3 בחינות לפי חלופה ב׳; הבחירה בין החלופות בידי האוניברסיטה) — בדקו את היישום המדויק מול מדור-מילואים.</li>
+            </ul>
+          ) : (
+            <p className="mt-3 text-xs leading-relaxed text-foreground/65">
+              The group is re-assigned each semester; exemptions and binary conversions accumulate (caps: 10 credits, 5 binary). Convert heavy low-grade courses — never gate courses (the 75/80 numeric bar), seminars, or grad-school-critical ones. Converting more than 25% of a year&apos;s hours forfeits honors. Groups B/C/G sit 2-of-3 exam dates, higher counts. Alternative assessment per the national 2025-26 outline — confirm specifics with the miluim desk.
+            </p>
+          )}
+        </details>
       </div>
     </SectionCard>
   );
