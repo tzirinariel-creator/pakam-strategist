@@ -310,6 +310,12 @@ export function ExamPlannerContent() {
         )
       ) : (
         <div className="space-y-2">
+          {/* E3′ (note 32) — why Moed A is the default, in one honest line. */}
+          <p className="text-[11px] leading-relaxed text-foreground/45">
+            {isHe
+              ? "ברירת המחדל היא מועד א׳ — רוב הסטודנטים ניגשים אליו, ומועד ב׳ נשאר כרשת ביטחון (שימו לב: הציון האחרון קובע)."
+              : "Moed A is the default — most students take it, keeping Moed B as the safety net (note: the last grade counts)."}
+          </p>
           {examCourses.map((c) => {
             const sel = selected[c.code];
             // Recommend a sitting against the OTHER selected exams' chosen
@@ -333,7 +339,15 @@ export function ExamPlannerContent() {
                     const active = sel === m;
                     const isRec = recommended === m && !!date;
                     return (
-                      <button key={m} type="button" disabled={!date} onClick={() => setSelected((s) => ({ ...s, [c.code]: m }))} className={cn("flex flex-col items-center px-2.5 py-1 transition-colors disabled:opacity-30", active ? "bg-accent-brand text-accent-brand-fg" : "text-foreground/55 hover:bg-foreground/5")}>
+                      <button
+                        key={m}
+                        type="button"
+                        disabled={!date}
+                        onClick={() => setSelected((s) => ({ ...s, [c.code]: m }))}
+                        // E3′ — a missing sitting says so honestly, never a bare dash.
+                        title={!date ? (isHe ? "התאריך טרם פורסם" : "Date not published yet") : undefined}
+                        className={cn("flex flex-col items-center px-2.5 py-1 transition-colors disabled:opacity-40", active ? "bg-accent-brand text-accent-brand-fg" : "text-foreground/55 hover:bg-foreground/5")}
+                      >
                         <span className="flex items-center gap-1 leading-tight">
                           {isHe ? `מועד ${m === "A" ? "א׳" : "ב׳"}` : `Moed ${m}`}
                           {isRec && !active && (
@@ -342,8 +356,8 @@ export function ExamPlannerContent() {
                             </span>
                           )}
                         </span>
-                        <span className="font-mono text-[10px] tabular-nums leading-tight opacity-80" dir="ltr">
-                          {date ? `${date.getDate()}.${date.getMonth() + 1}` : "—"}
+                        <span className={cn("font-mono text-[10px] tabular-nums leading-tight opacity-80", !date && "font-sans")} dir={date ? "ltr" : undefined}>
+                          {date ? `${date.getDate()}.${date.getMonth() + 1}` : isHe ? "טרם פורסם" : "TBA"}
                         </span>
                       </button>
                     );
