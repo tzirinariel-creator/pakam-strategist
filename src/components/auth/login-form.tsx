@@ -169,8 +169,14 @@ export function LoginForm() {
 
   return (
     <div className="w-full max-w-md space-y-8">
-      {/* Header — shared identity chip (King grammar). */}
-      <AuthHeader subtitle={t("login")} />
+      {/* Header — shared identity chip (King grammar). Q6 (note 6): one value
+          line + three short benefits, so a first-time visitor knows what this
+          is before being asked to sign in. */}
+      <AuthHeader
+        subtitle={t("login")}
+        warmLine={t("loginValueLine")}
+        benefits={[t("loginBenefit1"), t("loginBenefit2"), t("loginBenefit3")]}
+      />
 
       {/* Login Card */}
       <div data-card className="rounded-xl border border-border/50 bg-card/50 p-6 backdrop-blur-sm space-y-4">

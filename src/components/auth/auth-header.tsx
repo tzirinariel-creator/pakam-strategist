@@ -9,9 +9,12 @@ import { PhilosopherKingIcon } from "@/components/ui/philosopher-king-icon";
 export function AuthHeader({
   subtitle,
   warmLine,
+  benefits,
 }: {
   subtitle: string;
   warmLine?: string;
+  /** Q6 (note 6) — up to 3 short benefit lines under the value line. */
+  benefits?: string[];
 }) {
   return (
     <div className="flex flex-col items-center gap-4 text-center">
@@ -22,6 +25,15 @@ export function AuthHeader({
         <h1 className="font-display text-2xl font-bold text-foreground/85">פכמון</h1>
         <p className="mt-1 text-sm text-foreground/55">{subtitle}</p>
         {warmLine && <p className="mt-2 text-xs text-foreground/45">{warmLine}</p>}
+        {benefits && benefits.length > 0 && (
+          <ul className="mt-2 space-y-0.5">
+            {benefits.slice(0, 3).map((b) => (
+              <li key={b} className="text-xs text-foreground/40">
+                {b}
+              </li>
+            ))}
+          </ul>
+        )}
       </div>
     </div>
   );

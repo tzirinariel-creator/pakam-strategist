@@ -15,6 +15,7 @@ import type { PlannedSemester } from "./semester-planner/index";
 import type { CompletedCourse } from "./step-history";
 import type { CourseWithSchedule } from "@/lib/plan-generator";
 import type { SessionGroupSelections } from "./semester-planner/live-timetable";
+import { PersonaPicker } from "@/components/persona/persona-picker";
 
 interface StepReadyProps {
   data: OnboardingData;
@@ -549,6 +550,25 @@ export function StepReady({ data, plannedSemesters, completedCourses, allCourses
                 </div>
               </>
             )}
+          </div>
+        </div>
+      )}
+
+      {/* Q5 (notes 17/48) — pick your advisor's voice as the finale's last
+          touch. Shared PersonaPicker (same pk-persona the FAB reads); default
+          stays the King, so skipping is a valid choice. */}
+      {hasSaved && (
+        <div className="animate-stagger-4 mt-4 w-full max-w-sm">
+          <div className="data-card space-y-3 p-6 text-start">
+            <h3 className="text-sm font-semibold text-foreground/80">
+              {isHe ? "מי ילווה אתכם בתואר?" : "Who will walk the degree with you?"}
+            </h3>
+            <p className="text-xs text-foreground/45">
+              {isHe
+                ? "המלך הפילוסוף — הרעיון של אפלטון: להוביל לפי ידע. חזון ואסטרטגיה בגובה העיניים. הרפרנט — ענייני, פורמלי וקצר. שניהם עונים מאותם נתונים; אפשר להחליף בכל רגע בהגדרות."
+                : "The Philosopher King — Plato's idea of leading by knowledge: vision and strategy at eye level. The Referent — matter-of-fact and short. Both answer from the same data; switch anytime in settings."}
+            </p>
+            <PersonaPicker compact />
           </div>
         </div>
       )}

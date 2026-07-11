@@ -247,8 +247,8 @@ export function DegreeStatus({
         >
           <ChevronDown className={cn("size-3.5 transition-transform", showDetail && "rotate-180")} />
           {showDetail
-            ? isHe ? "הסתר פירוט" : "Hide breakdown"
-            : isHe ? "הצג פירוט לפי דיסציפלינה וקטגוריה" : "Show breakdown by discipline & category"}
+            ? isHe ? "הסתירו פירוט" : "Hide breakdown"
+            : isHe ? "הציגו פירוט לפי דיסציפלינה וקטגוריה" : "Show breakdown by discipline & category"}
         </button>
       )}
 

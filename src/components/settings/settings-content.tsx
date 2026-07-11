@@ -32,8 +32,7 @@ import { Bidi } from "@/lib/bidi";
 import { DISCIPLINE_CONFIG, FOCUS_DISCIPLINE_IDS, MILUIM_CONFIG, YEAR_CONFIG, ENGLISH_CONFIG } from "@/lib/constants";
 import { deriveGroupFromDays, getCurrentAcademicYear } from "@/lib/miluim";
 import { ConnectGeminiGuide } from "@/components/settings/connect-gemini-guide";
-import { PhilosopherKingIcon } from "@/components/ui/philosopher-king-icon";
-import { ReferentIcon } from "@/components/ui/referent-icon";
+import { PersonaPicker } from "@/components/persona/persona-picker";
 import { MiluimDayCombatInputs } from "@/components/miluim/miluim-day-combat-inputs";
 import { api } from "@/lib/trpc/react";
 import { useUIStore } from "@/stores/ui-store";
@@ -458,85 +457,15 @@ function ProfileSection() {
 
 function PersonaSection() {
   const isHe = useLocale() === "he";
-  const [persona, setPersona] = useState<"king" | "referent">("king");
-  useEffect(() => {
-    try {
-      setPersona(localStorage.getItem("pk-persona") === "referent" ? "referent" : "king");
-    } catch {
-      /* default king */
-    }
-  }, []);
-  const choose = (p: "king" | "referent") => {
-    setPersona(p);
-    try {
-      if (p === "king") localStorage.removeItem("pk-persona");
-      else localStorage.setItem("pk-persona", p);
-    } catch {
-      /* ignore */
-    }
-  };
-
-  const cards = [
-    {
-      id: "king" as const,
-      Icon: PhilosopherKingIcon,
-      tint: "var(--crown-gold)",
-      name: isHe ? "המלך הפילוסוף" : "The Philosopher King",
-      desc: isHe ? "סמכותי, חד, ישר לעניין. חוכמה מהנתונים שלכם." : "Authoritative, sharp, straight to the point. Wisdom from your data.",
-      tag: isHe ? "ברירת המחדל" : "Default",
-    },
-    {
-      id: "referent" as const,
-      Icon: ReferentIcon,
-      tint: "var(--referent-teal)",
-      name: isHe ? "הרפרנט" : "The Referent",
-      desc: isHe ? "שנה ג׳ שכבר עבר את זה. דוגרי, בגובה העיניים, מכיר את המלכודות." : "A final-year who's been through it. Straight talk, knows the traps.",
-      tag: null,
-    },
-  ];
-
   return (
     <SectionCard
       icon={Drama}
       title={isHe ? "דמות היועץ" : "Advisor persona"}
       description={isHe ? "אותם נתונים, אותם כללים — קול אחר. ההחלפה חלה מההודעה הבאה." : "Same data, same rules — a different voice. Applies from the next message."}
     >
-      <div className="grid gap-3 sm:grid-cols-2">
-        {cards.map(({ id, Icon, tint, name, desc, tag }) => {
-          const active = persona === id;
-          return (
-            <button
-              key={id}
-              type="button"
-              role="radio"
-              aria-checked={active}
-              onClick={() => choose(id)}
-              className={cn(
-                "flex flex-col items-start gap-2 rounded-xl border p-4 text-start transition-all",
-                active
-                  ? "border-accent-brand/50 bg-accent-brand/[0.05] ring-1 ring-accent-brand/30"
-                  : "border-border bg-card hover:border-foreground/25",
-              )}
-            >
-              <div className="flex w-full items-center gap-2">
-                <span
-                  className="flex size-8 items-center justify-center rounded-lg"
-                  style={{ backgroundColor: "color-mix(in srgb, " + tint + " 16%, transparent)", color: tint }}
-                >
-                  <Icon className="size-4.5" />
-                </span>
-                <span className="text-sm font-bold text-foreground/85">{name}</span>
-                {tag && (
-                  <span className="ms-auto rounded-full bg-foreground/[0.06] px-2 py-0.5 text-[10px] text-foreground/50">
-                    {tag}
-                  </span>
-                )}
-              </div>
-              <p className="text-xs leading-relaxed text-foreground/55">{desc}</p>
-            </button>
-          );
-        })}
-      </div>
+      {/* Q5 (notes 17/48): shared picker incl. the Plato origin story — the same
+          component the onboarding finale uses, so the choice lives once. */}
+      <PersonaPicker />
     </SectionCard>
   );
 }

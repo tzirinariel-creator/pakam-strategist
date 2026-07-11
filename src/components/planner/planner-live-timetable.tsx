@@ -211,8 +211,8 @@ export function PlannerLiveTimetable({ courses }: PlannerLiveTimetableProps) {
               ref={expandBtnRef}
               onClick={() => setExpanded(true)}
               className="flex size-7 items-center justify-center rounded-md border border-border/60 text-foreground/55 transition-colors hover:bg-foreground/5 hover:text-foreground/80"
-              aria-label={isHe ? "הגדל מערכת שעות" : "Expand timetable"}
-              title={isHe ? "הגדל למסך מלא" : "Expand to full view"}
+              aria-label={isHe ? "הגדלת מערכת השעות" : "Expand timetable"}
+              title={isHe ? "פתיחה במסך מלא" : "Expand to full view"}
             >
               <Maximize2 className="size-3.5" />
             </button>

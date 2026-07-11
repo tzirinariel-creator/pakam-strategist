@@ -211,7 +211,10 @@ function GoogleCalendarBanner({
         <p className="text-xs text-foreground/40 mt-0.5">
           {isConnected
             ? (isHe ? "הלו״ז שלכם מסונכרן ליומן Google" : "Your schedule is synced to Google Calendar")
-            : (isHe ? "סנכרנו את המערכת ישירות ליומן שלכם" : "Sync your schedule directly to your calendar")}
+            : (isHe
+                // Q4 (note 14): name the RIGHT MOMENT to sync, not just the button.
+                ? "סנכרנו את המערכת ישירות ליומן שלכם. הרגע הכי טוב — אחרי שסגרתם את מערכת הסמסטר."
+                : "Sync your schedule directly to your calendar. Best moment — right after you lock in your semester timetable.")}
         </p>
       </div>
       <div className="flex items-center gap-2">
@@ -842,6 +845,17 @@ export function DashboardContent() {
               </>
             )}
           </div>
+          {/* Q4 (note 14): the moment a timetable is saved IS the right moment
+              to sync — offer it right here, only to the not-yet-connected. */}
+          {googleStatus.data && !googleStatus.data.connected && (
+            <Link
+              href="/settings"
+              className="hidden shrink-0 items-center gap-1.5 rounded-lg bg-emerald-500/10 px-3 py-1.5 text-xs font-semibold text-emerald-500 transition-colors hover:bg-emerald-500/20 sm:inline-flex"
+            >
+              <Calendar className="size-3.5" />
+              {isHe ? "המערכת סגורה? סנכרנו ליומן Google" : "Timetable locked? Sync to Google Calendar"}
+            </Link>
+          )}
           <button
             type="button"
             onClick={() => setShowSavedBanner(false)}

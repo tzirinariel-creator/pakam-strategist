@@ -9,7 +9,7 @@ import {
   Plus,
   Coffee,
   Gauge,
-  Sparkles,
+  Flame,
   CalendarRange,
   CheckCircle2,
 } from "lucide-react";
@@ -48,7 +48,7 @@ const PREP_OPTIONS: {
   },
   {
     value: "crammer",
-    icon: Sparkles,
+    icon: Flame,
     he: "בעיקר בימים שלפני",
     en: "Mostly the days before",
     subHe: "מרוכז יותר סמוך למבחן",

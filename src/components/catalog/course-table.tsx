@@ -258,7 +258,7 @@ export function CourseTable({ courses, allCourses, focusArea }: CourseTableProps
             className="size-3.5"
           />
           <Star className="size-3 fill-accent-brand text-accent-brand" />
-          {isHe ? "הצג את קורסי המיקוד שלי קודם" : "Show my focus-area courses first"}
+          {isHe ? "הציגו את קורסי המיקוד שלי קודם" : "Show my focus-area courses first"}
         </label>
       )}
       <div className="overflow-hidden rounded-lg border border-border/50 bg-card/80">

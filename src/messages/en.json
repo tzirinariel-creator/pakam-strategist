@@ -55,7 +55,11 @@
     "errUserAlreadyRegistered": "That email is already registered — try logging in instead",
     "errWeakPassword": "Password must be at least 6 characters",
     "errRateLimit": "Too many attempts — wait a minute and try again",
-    "signupWarmLine": "One minute, and we build your degree together."
+    "signupWarmLine": "One minute, and we build your degree together.",
+    "loginValueLine": "Plan and track your PPE degree — in one place",
+    "loginBenefit1": "Whole-degree planning against the real regulations",
+    "loginBenefit2": "Timetable, exams and grades — no spreadsheets",
+    "loginBenefit3": "An advisor that answers from your data, not generalities"
   },
   "demo": {
     "banner": "Demo Mode — data shown is for demonstration only"

@@ -314,25 +314,50 @@ export function OnboardingWizard() {
               />
             )}
             {step === STEP_PROFILE && <StepProfile data={data} onUpdate={updateData} />}
-            {step === STEP_HISTORY && (
-              <StepHistory
-                data={data}
-                allCourses={allCourses}
-                isLoadingCourses={coursesQuery.isLoading}
-                value={completedCourses}
-                onChange={handleCompletedChange}
-                onNext={goNext}
-                onBack={goBack}
-              />
-            )}
-            {step === STEP_PLANNER && (
-              <SemesterPlanner
-                data={data}
-                allCourses={allCourses}
-                isLoadingCourses={coursesQuery.isLoading}
-                onFinish={handlePlanFinish}
-                externalCompletedCourseIds={completedCourseIdList}
-              />
+            {/* Q11(א): the history + planner steps are unusable without the
+                catalog. When course.list failed (after its retries), say so
+                honestly and offer a retry — never a silent empty screen. */}
+            {(step === STEP_HISTORY || step === STEP_PLANNER) && coursesQuery.isError ? (
+              <div className="mx-auto flex max-w-sm flex-col items-center gap-4 py-16 text-center">
+                <p className="text-sm font-semibold text-foreground/80">
+                  {locale === "he" ? "לא הצלחנו לטעון את קטלוג הקורסים" : "We couldn't load the course catalog"}
+                </p>
+                <p className="text-xs text-foreground/50">
+                  {locale === "he"
+                    ? "בלי הקטלוג אי אפשר לבנות את התוכנית. בדקו את החיבור ונסו שוב."
+                    : "The plan can't be built without the catalog. Check your connection and try again."}
+                </p>
+                <button
+                  type="button"
+                  onClick={() => void coursesQuery.refetch()}
+                  className="rounded-xl bg-foreground px-6 py-2.5 text-sm font-bold text-background transition-transform hover:scale-[1.02]"
+                >
+                  {locale === "he" ? "נסו שוב" : "Try again"}
+                </button>
+              </div>
+            ) : (
+              <>
+                {step === STEP_HISTORY && (
+                  <StepHistory
+                    data={data}
+                    allCourses={allCourses}
+                    isLoadingCourses={coursesQuery.isLoading}
+                    value={completedCourses}
+                    onChange={handleCompletedChange}
+                    onNext={goNext}
+                    onBack={goBack}
+                  />
+                )}
+                {step === STEP_PLANNER && (
+                  <SemesterPlanner
+                    data={data}
+                    allCourses={allCourses}
+                    isLoadingCourses={coursesQuery.isLoading}
+                    onFinish={handlePlanFinish}
+                    externalCompletedCourseIds={completedCourseIdList}
+                  />
+                )}
+              </>
             )}
             {step === STEP_READY && (
               <StepReady
