@@ -16,6 +16,7 @@ import {
   FolderOpen,
   Compass,
   X,
+  Users2,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -29,6 +30,7 @@ const MOBILE_NAV_ITEMS = [
 const MORE_MENU_ITEMS = [
   { key: "examPlanner", href: "/exam-planner", icon: CalendarClock },
   { key: "catalog", href: "/catalog", icon: BookOpen },
+  { key: "cohort", href: "/cohort", icon: Users2 },
   { key: "record", href: "/record", icon: FolderOpen },
   { key: "graduation", href: "/graduation", icon: Calculator },
   { key: "guide", href: "/guide", icon: Compass },

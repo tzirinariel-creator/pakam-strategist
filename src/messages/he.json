@@ -19,7 +19,8 @@
     "examPlanner": "תכנון מבחנים",
     "guide": "מדריך מתחיל",
     "adminModeration": "מודרציה",
-    "adminSync": "סנכרון קטלוג"
+    "adminSync": "סנכרון קטלוג",
+    "cohort": "תיק המחזור"
   },
   "auth": {
     "login": "התחברות",

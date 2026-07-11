@@ -17,6 +17,7 @@ import {
   Compass,
   ShieldCheck,
   RefreshCw,
+  Users2,
 } from "lucide-react";
 import { PhilosopherKingIcon } from "@/components/ui/philosopher-king-icon";
 import { api } from "@/lib/trpc/react";
@@ -36,6 +37,7 @@ const NAV_ICONS = {
   settings: Settings,
   mentor: PhilosopherKingIcon,
   guide: Compass,
+  cohort: Users2,
   adminModeration: ShieldCheck,
   adminSync: RefreshCw,
 } as const;
@@ -70,6 +72,7 @@ const NAV_GROUPS: readonly (readonly { key: keyof typeof NAV_ICONS; href: string
   // Reference / one-read.
   [
     { key: "catalog", href: "/catalog" },
+    { key: "cohort", href: "/cohort" },
     { key: "guide", href: "/guide" },
   ],
 ] as const;

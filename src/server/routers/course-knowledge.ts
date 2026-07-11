@@ -159,6 +159,107 @@ export const courseKnowledgeRouter = createTRPCRouter({
   /** S3 — BATCHED aggregate for the planner's course pool: one query for many
    *  codes (never N+1), returning ONLY what the "מומלץ ע"י המחזור" tag needs.
    *  Same k-anonymity thresholds as getForCourse — nothing leaks below them. */
+  /**
+   * The cohort file (notes 3+16, approved plan stage א) — ONE aggregate
+   * digest for the "תיק המחזור" page. Same k-anonymity bars as everywhere:
+   * ratings reveal at N≥3, grades at N≥5; below the bar nothing shows.
+   * Deliberately NOT filtered by cohort year — accumulated knowledge is the
+   * whole point (stage ה: it passes forward automatically).
+   */
+  getCohortDigest: protectedProcedure.query(async ({ ctx }) => {
+    const [reviews, gradePoints, courses] = await Promise.all([
+      ctx.db.courseReview.findMany({
+        where: { status: "VISIBLE" },
+        select: {
+          courseCode: true,
+          workload: true,
+          difficulty: true,
+          verdict: true,
+          tip: true,
+          tags: true,
+          createdAt: true,
+        },
+        orderBy: { createdAt: "desc" },
+      }),
+      ctx.db.courseGradePoint.findMany({
+        select: { courseCode: true, grade: true, isBinary: true },
+      }),
+      ctx.db.course.findMany({
+        where: { isActive: true },
+        select: { code: true, nameHe: true, nameEn: true, discipline: true },
+      }),
+    ]);
+
+    const nameByCode = new Map(courses.map((c) => [c.code, c]));
+    const avg = (xs: number[]) => (xs.length ? xs.reduce((a, b) => a + b, 0) / xs.length : null);
+    const round1 = (x: number) => Math.round(x * 10) / 10;
+
+    // Per-course rating aggregates — revealed only above the bar.
+    const byCourse = new Map<string, typeof reviews>();
+    for (const r of reviews) {
+      const list = byCourse.get(r.courseCode) ?? [];
+      list.push(r);
+      byCourse.set(r.courseCode, list);
+    }
+    const gradesByCourse = new Map<string, number[]>();
+    for (const p of gradePoints) {
+      if (p.isBinary || p.grade == null) continue;
+      const list = gradesByCourse.get(p.courseCode) ?? [];
+      list.push(p.grade);
+      gradesByCourse.set(p.courseCode, list);
+    }
+
+    const courseDigests = [...byCourse.entries()]
+      .filter(([, rows]) => rows.length >= RATING_MIN_N)
+      .map(([code, rows]) => {
+        const course = nameByCode.get(code);
+        const workload = avg(rows.map((r) => r.workload).filter((x): x is number => x != null));
+        const difficulty = avg(rows.map((r) => r.difficulty).filter((x): x is number => x != null));
+        const verdicts = rows.map((r) => r.verdict).filter((v) => v != null);
+        const recommendShare = verdicts.length >= RATING_MIN_N
+          ? verdicts.filter((v) => v === "RECOMMEND").length / verdicts.length
+          : null;
+        const grades = gradesByCourse.get(code) ?? [];
+        return {
+          courseCode: code,
+          nameHe: course?.nameHe ?? code,
+          nameEn: course?.nameEn ?? null,
+          discipline: course?.discipline ?? null,
+          ratingCount: rows.length,
+          workload: workload != null ? round1(workload) : null,
+          difficulty: difficulty != null ? round1(difficulty) : null,
+          recommendShare: recommendShare != null ? round1(recommendShare) : null,
+          cohortAverage: grades.length >= GRADE_MIN_N ? round1(avg(grades)!) : null,
+          gradeCount: grades.length >= GRADE_MIN_N ? grades.length : null,
+        };
+      })
+      .sort((a, b) => b.ratingCount - a.ratingCount)
+      .slice(0, 30);
+
+    // The tips wall — freshest non-empty tips, already anonymous, capped.
+    const tips = reviews
+      .filter((r) => r.tip && r.tip.trim().length > 0)
+      .slice(0, 12)
+      .map((r) => ({
+        courseCode: r.courseCode,
+        courseName: nameByCode.get(r.courseCode)?.nameHe ?? r.courseCode,
+        tip: r.tip as string,
+        tags: r.tags,
+      }));
+
+    // "דבר הרפרנט" — data-driven counts only, no LLM, no invention.
+    const totals = {
+      reviews: reviews.length,
+      gradePoints: gradePoints.length,
+      coursesCovered: courseDigests.length,
+      mostDiscussed: courseDigests[0]
+        ? { nameHe: courseDigests[0].nameHe, count: courseDigests[0].ratingCount }
+        : null,
+    };
+
+    return { courses: courseDigests, tips, totals };
+  }),
+
   getForCourses: publicProcedure
     .input(z.object({ courseCodes: z.array(z.string().min(1).max(30)).min(1).max(200) }))
     .query(async ({ ctx, input }) => {

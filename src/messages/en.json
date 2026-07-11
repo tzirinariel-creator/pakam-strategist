@@ -19,7 +19,8 @@
     "examPlanner": "Exam planner",
     "guide": "Beginner guide",
     "adminModeration": "Moderation",
-    "adminSync": "Catalog sync"
+    "adminSync": "Catalog sync",
+    "cohort": "Cohort file"
   },
   "auth": {
     "login": "Log In",
