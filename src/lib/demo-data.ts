@@ -20,6 +20,7 @@
  */
 
 import type { PrismaClient } from "@prisma/client";
+import { generateExamPlan, type ExamInput } from "@/lib/exam-planner";
 
 // Stable tiny hash — same course code → same demo grade on every reset.
 function codeHash(code: string): number {
@@ -38,12 +39,16 @@ function demoGrade(code: string): number {
 type CatalogCourse = {
   id: string;
   code: string;
+  nameHe: string;
   credits: number;
   isMandatory: boolean;
   courseType: string;
   discipline: string;
   yearOffered: number[];
   semesterOffered: string[];
+  examDateA: Date | null;
+  averageGrade: number | null;
+  failRate: number | null;
 };
 
 /** FALL/SPRING placement: prefer the course's own offering; alternate for
@@ -75,12 +80,16 @@ export async function seedDemoData(db: PrismaClient, userId: string) {
     select: {
       id: true,
       code: true,
+      nameHe: true,
       credits: true,
       isMandatory: true,
       courseType: true,
       discipline: true,
       yearOffered: true,
       semesterOffered: true,
+      examDateA: true,
+      averageGrade: true,
+      failRate: true,
     },
     orderBy: { code: "asc" }, // deterministic
   })) as CatalogCourse[];
@@ -142,6 +151,51 @@ export async function seedDemoData(db: PrismaClient, userId: string) {
     await db.userCourse.createMany({ data: rows, skipDuplicates: true });
   }
 
+  // 2b. A saved exam study plan for the in-progress semester — so the demo
+  // showcases the exam planner (skyline, share/export) end-to-end. Mirrors
+  // exactly what studyTask.generateExamPlan writes ([auto] marker, noon exam
+  // anchor, 09:00 study blocks); the demo's read-only guard blocks the real
+  // mutation, so the showcase plan is seeded here instead.
+  const inProgressIds = new Set(
+    rows.filter((r) => r.status === "IN_PROGRESS").map((r) => r.courseId),
+  );
+  const examInputs: ExamInput[] = catalog
+    .filter((c) => inProgressIds.has(c.id) && c.examDateA)
+    .map((c) => ({
+      courseCode: c.code,
+      courseName: c.nameHe,
+      examDate: c.examDateA!,
+      credits: c.credits,
+      averageGrade: c.averageGrade,
+      failRate: c.failRate,
+      moed: "A" as const,
+    }));
+  const plan = generateExamPlan(examInputs, new Date(), [], "steady");
+  const taskRows: {
+    userId: string; title: string; startDate: Date; endDate: Date;
+    taskType: string; courseCode: string; color: string; notes: string;
+  }[] = [];
+  for (const ex of plan.exams) {
+    const examAt = new Date(ex.examDate);
+    examAt.setHours(12, 0, 0, 0);
+    taskRows.push({
+      userId, title: `מבחן: ${ex.courseName} (מועד א׳)`, startDate: examAt, endDate: examAt,
+      taskType: "exam", courseCode: ex.courseCode, color: ex.color, notes: `[auto] ${ex.difficulty}`,
+    });
+  }
+  for (const s of plan.sessions) {
+    const start = new Date(s.date);
+    start.setHours(9, 0, 0, 0);
+    taskRows.push({
+      userId, title: `לימוד: ${s.courseName}`, startDate: start,
+      endDate: new Date(start.getTime() + s.hours * 3_600_000),
+      taskType: "study", courseCode: s.courseCode, color: s.color, notes: `[auto] ${s.difficulty}`,
+    });
+  }
+  if (taskRows.length > 0) {
+    await db.studyTask.createMany({ data: taskRows });
+  }
+
   // 3. Profile — a coherent year-2 student (July = just finished year-2 SPRING).
   await db.user.update({
     where: { id: userId },
@@ -163,5 +217,5 @@ export async function seedDemoData(db: PrismaClient, userId: string) {
     },
   });
 
-  return { coursesCreated: rows.length, tasksCreated: 0 };
+  return { coursesCreated: rows.length, tasksCreated: taskRows.length };
 }
