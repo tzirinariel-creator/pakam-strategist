@@ -156,6 +156,41 @@ export const courseKnowledgeRouter = createTRPCRouter({
       };
     }),
 
+  /** S3 — BATCHED aggregate for the planner's course pool: one query for many
+   *  codes (never N+1), returning ONLY what the "מומלץ ע"י המחזור" tag needs.
+   *  Same k-anonymity thresholds as getForCourse — nothing leaks below them. */
+  getForCourses: publicProcedure
+    .input(z.object({ courseCodes: z.array(z.string().min(1).max(30)).min(1).max(200) }))
+    .query(async ({ ctx, input }) => {
+      const reviews = await ctx.db.courseReview.findMany({
+        where: { courseCode: { in: input.courseCodes }, status: "VISIBLE" },
+        select: { courseCode: true, verdict: true, workload: true, difficulty: true },
+      });
+      const byCode = new Map<string, typeof reviews>();
+      for (const r of reviews) {
+        const list = byCode.get(r.courseCode) ?? [];
+        list.push(r);
+        byCode.set(r.courseCode, list);
+      }
+      const out: Record<string, { n: number; revealed: boolean; recommendShare: number | null }> = {};
+      for (const code of input.courseCodes) {
+        const rows = (byCode.get(code) ?? []).filter(
+          (r) => r.workload != null || r.difficulty != null || r.verdict != null,
+        );
+        const verdicts = rows.map((r) => r.verdict).filter((v) => v != null);
+        const revealed = rows.length >= RATING_MIN_N;
+        out[code] = {
+          n: rows.length,
+          revealed,
+          recommendShare:
+            revealed && verdicts.length >= RATING_MIN_N
+              ? round1(verdicts.filter((v) => v === "RECOMMEND").length / verdicts.length)
+              : null,
+        };
+      }
+      return out;
+    }),
+
   /** Contribute/update a rating + review. One per (user, course). */
   contributeReview: protectedProcedure.input(contributeInput).mutation(async ({ ctx, input }) => {
     if (input.workload == null && input.difficulty == null && input.verdict == null && !input.tip?.trim()) {

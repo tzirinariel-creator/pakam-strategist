@@ -18,6 +18,7 @@ import {
 import { useTranslations, useLocale } from "next-intl";
 import { toast } from "sonner";
 import { DisciplineBadge } from "@/components/catalog/discipline-badge";
+import { maybeNudgeCourseReview } from "@/components/catalog/review-nudge";
 import { DISCIPLINE_CONFIG, CREDIT_REQUIREMENTS } from "@/lib/constants";
 import { passBarFor } from "@/lib/grade-sheet";
 import { isCurrentlyStudying } from "@/lib/semester-clock";
@@ -89,8 +90,13 @@ export function CourseCard({ userCourse, disabled, currentYear }: CourseCardProp
   });
 
   const updateMutation = api.plan.updateCourse.useMutation({
-    onSuccess: () => {
+    onSuccess: (_data, variables) => {
       invalidatePlanData(utils);
+      // S1 — a grade just LOCKED (real write succeeded, grade + final
+      // COMPLETED): offer the 10-second cohort contribution, once per course.
+      if (variables.grade != null && variables.status === "COMPLETED") {
+        maybeNudgeCourseReview(course.code, isHe ? course.nameHe : (course.nameEn ?? course.nameHe), isHe);
+      }
     },
     onError: () => {
       toast.error(tPlanner("statusSaveError"));

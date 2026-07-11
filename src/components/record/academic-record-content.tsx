@@ -27,6 +27,7 @@ import { usePersonalAddress } from "@/components/personal/use-personal-address";
 import { ThemedLoader } from "@/components/ui/themed-loader";
 import { AskKingButton } from "@/components/ui/ask-king-button";
 import { GradeSheetScanner } from "@/components/record/grade-sheet-scanner";
+import { maybeNudgeCourseReview, ReviewNudgeHost } from "@/components/catalog/review-nudge";
 import { BinaryAdvisor } from "@/components/record/binary-advisor";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
@@ -873,6 +874,14 @@ export function AcademicRecordContent() {
         ...prev,
         [variables.userCourseId]: (prev[variables.userCourseId] ?? 0) + 1,
       }));
+      // S1 — the record is the second grade door: a locked grade (real write,
+      // grade + COMPLETED) offers the 10-second cohort contribution once.
+      if (variables.grade != null && variables.status === "COMPLETED") {
+        const uc = (planQuery.data?.courses ?? []).find((c) => c.id === variables.userCourseId);
+        if (uc) {
+          maybeNudgeCourseReview(uc.course.code, isHe ? uc.course.nameHe : (uc.course.nameEn ?? uc.course.nameHe), isHe);
+        }
+      }
     },
     onError: (e) =>
       toast.error(
@@ -1088,6 +1097,7 @@ export function AcademicRecordContent() {
         </div>
       )}
 
+      <ReviewNudgeHost />
       {/* AI grade-sheet scanner — upload a Yedion photo/PDF, review, apply. */}
       <div ref={scannerRef} className="animate-stagger-2">
         <GradeSheetScanner />

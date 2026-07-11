@@ -31,6 +31,8 @@ interface CourseBubbleProps {
   state: BubbleState;
   disabledReason?: string;
   recommended?: boolean;
+  /** S3 — "מומלץ ע"י המחזור": ≥60% recommend among enough raters (k-anonymous). */
+  cohortRecommended?: boolean;
   onToggle?: () => void;
   onDisciplineOverride?: (courseId: string, discipline: string) => void;
 }
@@ -40,6 +42,7 @@ export function CourseBubble({
   state,
   disabledReason,
   recommended,
+  cohortRecommended,
   onToggle,
   onDisciplineOverride,
 }: CourseBubbleProps) {
@@ -127,6 +130,16 @@ export function CourseBubble({
         {recommended && (
           <span className="shrink-0 rounded-full bg-foreground/8 px-1 py-0 text-[11px] font-medium text-foreground/40">
             {isHe ? "מיקוד" : "Focus"}
+          </span>
+        )}
+
+        {/* S3 — cohort recommendation (shown only past the k-anonymity bar) */}
+        {cohortRecommended && (
+          <span
+            className="shrink-0 rounded-full bg-emerald-500/10 px-1.5 py-0 text-[11px] font-semibold text-emerald-600"
+            title={isHe ? "לפחות 60% מהמדרגים במחזור ממליצים (3 מדרגים ומעלה)" : "≥60% of cohort raters recommend (3+ raters)"}
+          >
+            {isHe ? "מומלץ ע\"י המחזור" : "Cohort pick"}
           </span>
         )}
 

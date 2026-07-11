@@ -7,6 +7,7 @@ import { cn } from "@/lib/utils";
 import { DISCIPLINE_CONFIG } from "@/lib/constants";
 import { canTakeCourse, type CourseWithSchedule, type GeneratedPlanCourse } from "@/lib/plan-generator";
 import { CourseBubble, type BubbleState } from "./course-bubble";
+import { api } from "@/lib/trpc/react";
 
 // The color = discipline key, shown as a legend so the color-dots on course
 // bubbles are learnable at a glance (gal-3 #13 — "unclear color meaning").
@@ -60,6 +61,18 @@ export function CoursePool({
       return true;
     });
   }, [allCourses, currentYear, currentSemester, mandatoryIds, completedCourseIds]);
+
+  // S3 — cohort recommendations for the visible pool, in ONE batched query
+  // (getForCourses; aggregate-only, k-anonymous). Tag shows only when ≥60%
+  // of enough raters recommend. Silent on error — the pool works without it.
+  const knowledgeQuery = api.courseKnowledge.getForCourses.useQuery(
+    { courseCodes: availableCourses.map((c) => c.code) },
+    { enabled: availableCourses.length > 0, staleTime: 5 * 60 * 1000, retry: 1 },
+  );
+  const isCohortRecommended = (code: string): boolean => {
+    const k = knowledgeQuery.data?.[code];
+    return !!k && k.revealed && (k.recommendShare ?? 0) >= 0.6;
+  };
 
   // Group by tab
   const grouped = useMemo(() => {
@@ -313,6 +326,7 @@ export function CoursePool({
                     : undefined
                 }
                 recommended={isRecommended}
+                cohortRecommended={isCohortRecommended(course.code)}
                 onToggle={() => onToggleCourse(course.id)}
                 onDisciplineOverride={onDisciplineOverride}
               />

@@ -20,6 +20,7 @@ import { ThemedLoader } from "@/components/ui/themed-loader";
 import { cn } from "@/lib/utils";
 import { Link } from "@/i18n/navigation";
 import { Bidi } from "@/lib/bidi";
+import { ReviewNudgeHost } from "@/components/catalog/review-nudge";
 
 export function PlannerContent() {
   const t = useTranslations("planner");
@@ -149,6 +150,9 @@ export function PlannerContent() {
 
   return (
     <div className="flex flex-col gap-5 p-4 md:p-6">
+      {/* S1 — hosts the cohort-contribution sheet the grade-lock nudge opens
+          (grades lock on the course cards of this board). */}
+      <ReviewNudgeHost />
       {/* Saved confirmation (#18) — unmissable, dismissible, auto-hides */}
       {showSavedBanner && (
         <div
