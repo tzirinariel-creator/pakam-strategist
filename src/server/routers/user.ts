@@ -1,10 +1,12 @@
 import { z } from "zod/v4";
+import { createClient } from "@supabase/supabase-js";
 import { getAcademicNow, deriveYearOfStudy } from "@/lib/academic-calendar";
 import { TRPCError } from "@trpc/server";
 import { createTRPCRouter, protectedProcedure } from "../trpc/init";
 import { seedDemoData } from "@/lib/demo-data";
 import { getAllDisciplineIds } from "@/lib/programs/registry";
 import { deriveGroupFromDays } from "@/lib/miluim";
+import { dedupeHashFor } from "./course-knowledge";
 
 // Discipline enum covering ALL registered programs (PPE, Law, etc.)
 const disciplineEnum = z.enum(getAllDisciplineIds());
@@ -303,6 +305,57 @@ export const userRouter = createTRPCRouter({
     await ctx.db.miluimSemester.deleteMany({ where: { userId: user.id } });
 
     return { success: true };
+  }),
+
+  /**
+   * SEC2 — permanent account deletion (the privacy right). Removes:
+   * 1. The anonymous cohort contributions (reviews + grade points located by
+   *    the one-way hash — the ONLY way to find them, by design).
+   * 2. Orphan review-reports this user filed (no FK cascade to User).
+   * 3. The User row — every owned table cascades (userCourse, studyTask,
+   *    calendarEvent, chatSession, miluimSemester, syllabus, ...).
+   * 4. The Supabase AUTH user, via the service-role admin API — so the
+   *    account cannot log in again and the email is truly gone.
+   * The demo guard blocks this for the demo account like any mutation.
+   */
+  deleteAccount: protectedProcedure.mutation(async ({ ctx }) => {
+    const user = ctx.user;
+    if (!user) throw new TRPCError({ code: "NOT_FOUND", message: "User not found" });
+
+    // 1+2 — contributions + reports (not covered by the User cascade).
+    const courses = await ctx.db.userCourse.findMany({
+      where: { userId: user.id },
+      select: { course: { select: { code: true } } },
+    });
+    const hashes = [...new Set(courses.map((c) => c.course.code))].map((code) =>
+      dedupeHashFor(user.id, code),
+    );
+    await ctx.db.$transaction([
+      ctx.db.courseReview.deleteMany({ where: { userId: user.id } }),
+      ctx.db.reviewReport.deleteMany({ where: { userId: user.id } }),
+      ...(hashes.length
+        ? [ctx.db.courseGradePoint.deleteMany({ where: { dedupeHash: { in: hashes } } })]
+        : []),
+    ]);
+
+    // 3 — the app data (cascades take every owned row).
+    await ctx.db.user.delete({ where: { id: user.id } });
+
+    // 4 — the auth identity. Service-role admin client; failure here must NOT
+    // resurrect the app data — report it so the user can contact support.
+    const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+    const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+    if (url && serviceKey) {
+      const admin = createClient(url, serviceKey, { auth: { persistSession: false } });
+      const { error } = await admin.auth.admin.deleteUser(ctx.userId!);
+      if (error) {
+        console.error("[deleteAccount] auth deletion failed:", error.message);
+        return { ok: true, authDeleted: false };
+      }
+      return { ok: true, authDeleted: true };
+    }
+    console.error("[deleteAccount] SUPABASE_SERVICE_ROLE_KEY missing — auth user not deleted");
+    return { ok: true, authDeleted: false };
   }),
 
   /**

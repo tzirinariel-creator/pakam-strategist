@@ -1050,8 +1050,54 @@ function AccountSection() {
             </Button>
           )}
         </div>
+
+        {/* SEC2 — permanent deletion (the privacy right). Type-to-confirm so a
+            stray click can never erase a degree's worth of data. */}
+        <DeleteAccountBlock onDone={handleSignOut} />
       </div>
     </SectionCard>
+  );
+}
+
+function DeleteAccountBlock({ onDone }: { onDone: () => void }) {
+  const isHe = useLocale() === "he";
+  const [confirmText, setConfirmText] = useState("");
+  const CONFIRM = isHe ? "מחקו לצמיתות" : "DELETE FOREVER";
+  const deleteMutation = api.user.deleteAccount.useMutation({
+    onSuccess: () => {
+      toast.success(isHe ? "החשבון וכל הנתונים נמחקו" : "Account and all data deleted");
+      onDone();
+    },
+    onError: (e) => toast.error(e.message),
+  });
+  return (
+    <div className="mt-2 rounded-xl border border-destructive/25 bg-destructive/[0.04] p-4">
+      <p className="text-sm font-semibold text-destructive">
+        {isHe ? "מחיקת החשבון לצמיתות" : "Delete account permanently"}
+      </p>
+      <p className="mt-1 text-xs leading-relaxed text-foreground/55">
+        {isHe
+          ? "מוחק הכול: תוכנית, ציונים, משימות, שיחות עם היועץ, נתוני מילואים — וגם את התרומות האנונימיות שלכם לחוכמת-המחזור. אין דרך חזרה."
+          : "Deletes everything: plan, grades, tasks, advisor chats, miluim data — and your anonymous cohort contributions. There is no way back."}
+      </p>
+      <div className="mt-2.5 flex flex-wrap items-center gap-2">
+        <input
+          value={confirmText}
+          onChange={(e) => setConfirmText(e.target.value)}
+          placeholder={isHe ? `הקלידו: ${CONFIRM}` : `Type: ${CONFIRM}`}
+          aria-label={isHe ? "אישור מחיקת חשבון" : "Confirm account deletion"}
+          className="w-48 rounded-md border border-border bg-card px-3 py-1.5 text-sm focus:border-destructive/50 focus:outline-none"
+        />
+        <Button
+          variant="destructive"
+          disabled={confirmText.trim() !== CONFIRM || deleteMutation.isPending}
+          onClick={() => deleteMutation.mutate()}
+        >
+          {deleteMutation.isPending ? <Loader2 className="size-4 animate-spin" /> : <Trash2 className="size-4" />}
+          {isHe ? "מחקו את החשבון שלי" : "Delete my account"}
+        </Button>
+      </div>
+    </div>
   );
 }
 

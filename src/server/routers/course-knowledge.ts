@@ -24,7 +24,7 @@ const REVIEW_HIDE_THRESHOLD = 3;
 const COHORT_LABEL_MIN_N = 5;
 const TIP_MAX = 400;
 
-function dedupeHashFor(userId: string, courseCode: string): string {
+export function dedupeHashFor(userId: string, courseCode: string): string {
   // One-way — enforces one grade point per person per course WITHOUT storing
   // who. Not reversible to an identity.
   return createHash("sha256").update(`${userId}:${courseCode}`).digest("hex");

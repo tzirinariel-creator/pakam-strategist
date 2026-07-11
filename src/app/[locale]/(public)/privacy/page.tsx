@@ -47,6 +47,16 @@ export default function PrivacyPage() {
         </p>
       </Section>
 
+      {/* SEC2 — reflect reality: what goes to Gemini and when, and how the
+          anonymous cohort contributions work. Wording pending owner approval. */}
+      <Section title={t("aiTitle")}>
+        <p className="text-sm leading-relaxed text-foreground/80">{t("ai")}</p>
+      </Section>
+
+      <Section title={t("cohortTitle")}>
+        <p className="text-sm leading-relaxed text-foreground/80">{t("cohort")}</p>
+      </Section>
+
       <Section title={t("deleteTitle")}>
         <p className="text-sm leading-relaxed text-foreground/80">
           {t("delete")}
