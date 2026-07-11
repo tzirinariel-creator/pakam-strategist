@@ -17,9 +17,12 @@ describe("parseForm3010", () => {
     expect(f.periods[1]!.startDate).toBe("15/05/2025"); // bidi mark stripped
   });
 
-  it("rejects garbage, malformed dates and out-of-range days", () => {
+  it("rejects garbage and out-of-range days (ISO dates are now NORMALIZED, not rejected)", () => {
     expect(parseForm3010("cannot read")).toBeNull();
-    expect(parseForm3010('{"periods":[{"startDate":"2026-03-06","endDate":"21/05/2026","days":5}]}')).toBeNull();
+    // Was asserted-null under the old strict regex — that strictness silently
+    // killed Ariel's real form. ISO now normalizes to DD/MM/YYYY.
+    const iso = parseForm3010('{"periods":[{"startDate":"2026-03-06","endDate":"21/05/2026","days":5}]}');
+    expect(iso!.periods[0]!.startDate).toBe("06/03/2026");
     expect(parseForm3010('{"periods":[{"startDate":"06/03/2026","endDate":"21/05/2026","days":999}]}')).toBeNull();
   });
 });
@@ -64,5 +67,33 @@ describe("summarizeForm3010 — midpoint attribution, printed days only", () => 
     // 2024 predates the known calendar table → unmapped, zero suggestions.
     expect(summary.suggestions).toHaveLength(0);
     expect(summary.unmapped).toHaveLength(1);
+  });
+});
+
+describe("parseForm3010 — near-miss normalization (Ariel's real-form failure)", () => {
+  it("accepts 1-digit day/month dates (6/3/2026)", () => {
+    const form = parseForm3010('{"periods":[{"startDate":"6/3/2026","endDate":"21/5/2026","days":77}],"totalDays":null}');
+    expect(form).not.toBeNull();
+    expect(form!.periods[0]!.startDate).toBe("06/03/2026");
+    expect(form!.periods[0]!.endDate).toBe("21/05/2026");
+  });
+
+  it("accepts dotted and dashed separators", () => {
+    const form = parseForm3010('{"periods":[{"startDate":"06.03.2026","endDate":"21-05-2026","days":10}]}');
+    expect(form).not.toBeNull();
+    expect(form!.periods[0]!.startDate).toBe("06/03/2026");
+    expect(form!.periods[0]!.endDate).toBe("21/05/2026");
+  });
+
+  it("accepts ISO dates (2026-03-06) and string day counts", () => {
+    const form = parseForm3010('{"periods":[{"startDate":"2026-03-06","endDate":"2026-05-21","days":"77.0"}],"totalDays":"77"}');
+    expect(form).not.toBeNull();
+    expect(form!.periods[0]!.startDate).toBe("06/03/2026");
+    expect(form!.periods[0]!.days).toBe(77);
+    expect(form!.totalDays).toBe(77);
+  });
+
+  it("still rejects garbage honestly (no invention)", () => {
+    expect(parseForm3010('{"periods":[{"startDate":"מרץ 2026","endDate":"מאי","days":77}]}')).toBeNull();
   });
 });

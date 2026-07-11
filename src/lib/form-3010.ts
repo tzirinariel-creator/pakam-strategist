@@ -39,15 +39,68 @@ export type Form3010 = z.infer<typeof form3010Schema>;
 const BIDI_CONTROLS = /[؜‎‏‪-‮⁦-⁩]/g;
 
 /** Parse the model's raw output into a validated Form3010, or null. */
+/** Normalize a date Gemini echoed in a near-miss format to DD/MM/YYYY.
+ *  Accepts D/M/YYYY, DD.MM.YYYY, DD-MM-YYYY and YYYY-MM-DD — all seen in
+ *  real extractions (Ariel's actual form failed the strict regex silently).
+ *  Anything else returns the input untouched (schema rejects it → honest). */
+function normalizeFormDate(v: unknown): unknown {
+  if (typeof v !== "string") return v;
+  const t = v.trim().replace(BIDI_CONTROLS, "");
+  // YYYY-MM-DD → DD/MM/YYYY
+  let m = t.match(/^(\d{4})[./-](\d{1,2})[./-](\d{1,2})$/);
+  if (m) return `${m[3]!.padStart(2, "0")}/${m[2]!.padStart(2, "0")}/${m[1]}`;
+  // D/M/YYYY with /, ., or - separators → DD/MM/YYYY
+  m = t.match(/^(\d{1,2})[./-](\d{1,2})[./-](\d{4})$/);
+  if (m) return `${m[1]!.padStart(2, "0")}/${m[2]!.padStart(2, "0")}/${m[3]}`;
+  return v;
+}
+
+/** Coerce a near-miss extraction payload toward the strict schema: pad
+ *  1-digit dates, convert dot/dash separators, numify string day-counts.
+ *  NEVER invents values — only reformats what the model already returned. */
+function normalizePayload(raw: unknown): unknown {
+  if (typeof raw !== "object" || raw === null) return raw;
+  const obj = raw as Record<string, unknown>;
+  const periods = Array.isArray(obj.periods)
+    ? obj.periods.map((p) => {
+        if (typeof p !== "object" || p === null) return p;
+        const row = p as Record<string, unknown>;
+        const days =
+          typeof row.days === "string" && row.days.trim() !== "" && !isNaN(Number(row.days))
+            ? Number(row.days)
+            : row.days;
+        return {
+          ...row,
+          startDate: normalizeFormDate(row.startDate),
+          endDate: normalizeFormDate(row.endDate),
+          days,
+        };
+      })
+    : obj.periods;
+  const totalDays =
+    typeof obj.totalDays === "string" && obj.totalDays.trim() !== "" && !isNaN(Number(obj.totalDays))
+      ? Number(obj.totalDays)
+      : obj.totalDays;
+  return { ...obj, periods, totalDays };
+}
+
 export function parseForm3010(text: string): Form3010 | null {
   const stripped = text.replace(BIDI_CONTROLS, "").replace(/```json|```/g, "").trim();
   const start = stripped.indexOf("{");
   const end = stripped.lastIndexOf("}");
   if (start < 0 || end <= start) return null;
   try {
-    const parsed = form3010Schema.safeParse(JSON.parse(stripped.slice(start, end + 1)));
-    return parsed.success ? parsed.data : null;
-  } catch {
+    const raw = JSON.parse(stripped.slice(start, end + 1));
+    const parsed = form3010Schema.safeParse(normalizePayload(raw));
+    if (!parsed.success) {
+      // Server log only — lets us see WHY a real form was rejected instead
+      // of a silent null (the "לא הצלחנו לקרוא" dead end Ariel hit).
+      console.error("[form-3010] schema rejected extraction:", parsed.error.issues.slice(0, 5));
+      return null;
+    }
+    return parsed.data;
+  } catch (e) {
+    console.error("[form-3010] JSON parse failed:", (e as Error).message?.slice(0, 200));
     return null;
   }
 }

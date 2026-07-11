@@ -19,13 +19,22 @@ export function buildExamPeriodBlock(
   if (plan.exams.length === 0) return null;
 
   const fmt = (d: Date) => `${d.getDate()}.${d.getMonth() + 1}`;
+  // Days-until anchors ("בעוד X ימים") — without them the LLM framed exams
+  // 10-25 days out as "השבוע". Local-midnight diff, same as the skyline.
+  const midnight = (d: Date) => {
+    const x = new Date(d);
+    x.setHours(0, 0, 0, 0);
+    return x.getTime();
+  };
+  const daysUntil = (d: Date) => Math.round((midnight(d) - midnight(now)) / 86400000);
+  const untilLabel = (n: number) => (n === 0 ? "היום!" : n === 1 ? "מחר" : `בעוד ${n} ימים`);
   const exams = plan.exams
     .slice()
     .sort((a, b) => a.examDate.getTime() - b.examDate.getTime())
     .slice(0, 10)
     .map(
       (e) =>
-        `  • ${e.courseName} — ${fmt(e.examDate)} (מועד ${e.moed === "B" ? "ב׳" : "א׳"}), ${e.totalHours} שעות לימוד מתוכננות`,
+        `  • ${e.courseName} — ${fmt(e.examDate)} (מועד ${e.moed === "B" ? "ב׳" : "א׳"}, ${untilLabel(daysUntil(e.examDate))}), ${e.totalHours} שעות לימוד מתוכננות`,
     )
     .join("\n");
 

@@ -142,4 +142,22 @@ describe("מבחן-המלך — 30 questions through the router", () => {
     const r = routeQuestion("מה הממוצע שלי?", { ...DEMO, courseAverage: null, gender: "male" });
     expect(r.deterministic.text).toContain("הזן ");
   });
+
+  // The "18.7.2024" bug — the date must come from the machine, never the LLM.
+  it("answers today's date deterministically, with the REAL date", () => {
+    const now = new Date(2026, 6, 11); // Saturday 11.7.2026
+    const r = routeQuestion("מה התאריך היום?", { ...DEMO, now });
+    expect(r.matched).toBe(true);
+    expect(r.shouldEscalate).toBe(false);
+    expect(r.deterministic.text).toContain("11.7.2026");
+    expect(r.deterministic.text).toContain("שבת");
+    expect(r.deterministic.text).not.toContain("2024");
+  });
+
+  it("answers 'what day is it' in English too", () => {
+    const now = new Date(2026, 6, 11);
+    const r = routeQuestion("what day is it today?", { ...DEMO, isHe: false, now });
+    expect(r.matched).toBe(true);
+    expect(r.deterministic.text).toContain("Saturday");
+  });
 });

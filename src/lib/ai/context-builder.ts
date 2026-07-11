@@ -290,5 +290,10 @@ function buildAcademicNowLine(): string {
       : a.phase === "exams"
         ? "תקופת בחינות"
         : `חופשה (הלימודים חוזרים ב-${a.nextTeachingStart.getDate()}.${a.nextTeachingStart.getMonth() + 1})`;
-  return `עכשיו: ${sem} ${a.labelHe}, שלב: ${phase}`;
+  // THE date anchor (bug: the LLM answered "18.7.2024" to "מה התאריך היום" —
+  // it had exam dates but no today, so it guessed from training data).
+  const now = new Date();
+  const weekday = ["ראשון", "שני", "שלישי", "רביעי", "חמישי", "שישי", "שבת"][now.getDay()];
+  const today = `${now.getDate()}.${now.getMonth() + 1}.${now.getFullYear()}`;
+  return `היום: יום ${weekday}, ${today} · ${sem} ${a.labelHe}, שלב: ${phase}`;
 }

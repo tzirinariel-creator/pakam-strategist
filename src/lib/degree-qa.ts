@@ -13,6 +13,8 @@ import { CREDIT_REQUIREMENTS, GRADE_REQUIREMENTS, GRADE_WEIGHTS, SEMINAR_REQUIRE
 
 export interface QAContext {
   isHe: boolean;
+  /** Injectable "today" (tests); defaults to new Date() in the date handler. */
+  now?: Date;
   // Credits
   effectiveTotal: number;
   earned: number;
@@ -74,6 +76,20 @@ function gm(c: QAContext, male: string, female: string, neutral: string): string
 }
 
 const HANDLERS: Handler[] = [
+  // ── Today's date/time (the "18.7.2024" bug) ───────────────────────
+  // Answered deterministically so the LLM can never invent a date.
+  {
+    keys: ["מה התאריך", "איזה תאריך", "איזה יום היום", "מה היום", "what's the date", "what day is it", "today's date"],
+    answer: (c) => {
+      const now = c.now ?? new Date();
+      const wdHe = ["ראשון", "שני", "שלישי", "רביעי", "חמישי", "שישי", "שבת"][now.getDay()];
+      const wdEn = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"][now.getDay()];
+      const d = `${now.getDate()}.${now.getMonth() + 1}.${now.getFullYear()}`;
+      return {
+        text: he(c, `היום יום ${wdHe}, ${d}.`, `Today is ${wdEn}, ${d}.`),
+      };
+    },
+  },
   // ── Credits remaining ─────────────────────────────────────────────
   {
     // "נקודות זכות" is here on purpose: the bidding handler has a bare
