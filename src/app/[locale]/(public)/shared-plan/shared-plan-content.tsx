@@ -99,8 +99,8 @@ export function SharedPlanContent() {
           <h1 className="font-display text-xl font-bold text-foreground/85">
             {isHe ? "תכנון תואר משותף" : "A shared degree plan"}
           </h1>
-          <p className="text-xs text-foreground/50" dir="ltr">
-            {resolved.length} {isHe ? "קורסים" : "courses"} · {totalCredits} {isHe ? "ש״ס" : "cr."}
+          <p className="text-xs text-foreground/50">
+            <bdi dir="ltr">{resolved.length}</bdi> {isHe ? "קורסים" : "courses"} · <bdi dir="ltr">{totalCredits}</bdi> {isHe ? "ש״ס" : "cr."}
           </p>
         </div>
       </div>

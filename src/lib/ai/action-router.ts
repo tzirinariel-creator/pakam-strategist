@@ -80,13 +80,34 @@ function distinctiveTokens(name: string): string[] {
     .filter((t) => t.length >= 3 && !STOPWORDS.has(t));
 }
 
+// Hebrew ordinal course markers (מיקרו א׳/ב׳/ג׳). After normalize the geresh
+// is stripped, so they survive as standalone single-char tokens — which
+// distinctiveTokens (≥3 chars) THREW AWAY, making מיקרו-א׳ and מיקרו-ב׳ look
+// identical. That let a "סיימתי מיקרו א׳" grab the wrong sibling (audit HIGH).
+const HE_ORDINALS: Record<string, number> = { "א": 1, "ב": 2, "ג": 3, "ד": 4, a: 1, b: 2, c: 3, d: 4 };
+
+/** The ordinal a name/sentence refers to (1–4), or null when none is present. */
+function ordinalOf(normStr: string): number | null {
+  for (const tok of normStr.split(" ")) {
+    if (tok in HE_ORDINALS) return HE_ORDINALS[tok]!;
+  }
+  return null;
+}
+
 /** Score how well `text` references `name`: total chars of distinctive tokens
- *  found in the text. 0 = no distinctive token matched. */
+ *  found in the text. 0 = no match OR an ordinal conflict (א׳ vs ב׳). */
 function matchScore(normText: string, name: string): number {
+  const normName = normalize(name);
+  const qOrd = ordinalOf(normText);
+  const cOrd = ordinalOf(normName);
+  // Query names a specific level and the course is a DIFFERENT level → not it.
+  if (qOrd != null && cOrd != null && qOrd !== cOrd) return 0;
   let score = 0;
   for (const tok of distinctiveTokens(name)) {
     if (normText.includes(tok)) score += tok.length;
   }
+  // Matching the requested ordinal is a strong, disambiguating signal.
+  if (score > 0 && qOrd != null && cOrd === qOrd) score += 2;
   return score;
 }
 

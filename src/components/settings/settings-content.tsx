@@ -1523,8 +1523,8 @@ function MiluimSection() {
                         : `Year ${s.academicYear} · ${s.semester === "FALL" ? "Fall" : "Spring"}`}
                     </span>
                     <span className="flex items-center gap-2 text-foreground/60">
-                      <span dir="ltr">
-                        {s.daysServed} {isHe ? "ימים" : "days"}
+                      <span>
+                        <bdi dir="ltr">{s.daysServed}</bdi> {isHe ? "ימים" : "days"}
                       </span>
                       {s.isCombat && (
                         <span className="text-amber-500">{isHe ? "לוחם/ת" : "combat"}</span>
@@ -1765,7 +1765,7 @@ function Form3010Uploader({
             return (
               <div key={key} className="flex flex-wrap items-center gap-2 rounded-lg border border-border/50 p-2 text-xs">
                 <span className="min-w-0 flex-1 text-foreground/75">
-                  <Bidi text={`${s.labelHe} · ${s.semester === "FALL" ? "סמסטר א׳" : "סמסטר ב׳"}`} />
+                  <Bidi text={isHe ? `${s.labelHe} · ${s.semester === "FALL" ? "סמסטר א׳" : "סמסטר ב׳"}` : `${s.academicYear} · ${s.semester === "FALL" ? "Fall" : "Spring"}`} />
                   <span className="ms-1 text-foreground/40">
                     ({s.periodCount} {isHe ? "תקופות" : "periods"})
                   </span>

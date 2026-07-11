@@ -33,6 +33,14 @@ export function ModerationQueue() {
     },
   });
 
+  const cohortQueue = api.admin.getCohortModerationQueue.useQuery();
+  const modInsight = api.admin.moderateCohortInsight.useMutation({
+    onSuccess: () => utils.admin.getCohortModerationQueue.invalidate(),
+  });
+  const modPlan = api.admin.moderateCohortPlan.useMutation({
+    onSuccess: () => utils.admin.getCohortModerationQueue.invalidate(),
+  });
+
   if (queue.isLoading) {
     return (
       <div className="flex items-center justify-center gap-2 py-16 text-sm text-foreground/50">
@@ -152,6 +160,47 @@ export function ModerationQueue() {
                     ביטול
                   </button>
                 )}
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* Cohort content queue (insights + shared plans) */}
+      {((cohortQueue.data?.insights.length ?? 0) > 0 || (cohortQueue.data?.plans.length ?? 0) > 0) && (
+        <div className="space-y-3 border-t border-border/40 pt-6">
+          <h2 className="font-display text-xl font-bold text-foreground/85">תוכן קהילתי מדווח</h2>
+          {cohortQueue.data!.insights.map((r) => (
+            <div key={r.id} className="data-card space-y-2 p-4">
+              <div className="flex flex-wrap items-center gap-2 text-xs text-foreground/50">
+                <span className="rounded-full bg-foreground/8 px-2 py-0.5">תובנה · {r.stage}</span>
+                <span className={r.status === "HIDDEN" ? "text-red-500" : "text-amber-600"}>
+                  {r.status === "HIDDEN" ? "מוסתרת" : "מדווחת"} · {r.reportCount} דיווחים
+                </span>
+              </div>
+              <p className="rounded-lg bg-foreground/5 p-3 text-sm text-foreground/80">{r.text}</p>
+              <div className="flex gap-2">
+                <button type="button" onClick={() => modInsight.mutate({ id: r.id, action: "approve" })}
+                  className="rounded-lg bg-emerald-500/15 px-3 py-1.5 text-xs font-semibold text-emerald-600 hover:bg-emerald-500/25">אישור</button>
+                <button type="button" onClick={() => modInsight.mutate({ id: r.id, action: "delete" })}
+                  className="rounded-lg bg-red-500/10 px-3 py-1.5 text-xs font-semibold text-red-500 hover:bg-red-500/20">מחיקה</button>
+              </div>
+            </div>
+          ))}
+          {cohortQueue.data!.plans.map((r) => (
+            <div key={r.id} className="data-card space-y-2 p-4">
+              <div className="flex flex-wrap items-center gap-2 text-xs text-foreground/50">
+                <span className="rounded-full bg-foreground/8 px-2 py-0.5">מסלול</span>
+                <span className={r.status === "HIDDEN" ? "text-red-500" : "text-amber-600"}>
+                  {r.status === "HIDDEN" ? "מוסתר" : "מדווח"} · {r.reportCount} דיווחים
+                </span>
+              </div>
+              <p className="text-sm font-medium text-foreground/85">{r.title}</p>
+              <div className="flex gap-2">
+                <button type="button" onClick={() => modPlan.mutate({ id: r.id, action: "approve" })}
+                  className="rounded-lg bg-emerald-500/15 px-3 py-1.5 text-xs font-semibold text-emerald-600 hover:bg-emerald-500/25">אישור</button>
+                <button type="button" onClick={() => modPlan.mutate({ id: r.id, action: "delete" })}
+                  className="rounded-lg bg-red-500/10 px-3 py-1.5 text-xs font-semibold text-red-500 hover:bg-red-500/20">מחיקה</button>
               </div>
             </div>
           ))}

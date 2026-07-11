@@ -28,7 +28,7 @@ import { PhilosopherKingIcon } from "@/components/ui/philosopher-king-icon";
 import { ReferentIcon } from "@/components/ui/referent-icon";
 import type { MentorPersona } from "@/lib/ai/mentor-prompt";
 import { routeQuestion } from "@/lib/ai/answer-router";
-import { detectAction, hasAddIntent, type AssistantAction } from "@/lib/ai/action-router";
+import { detectAction, type AssistantAction } from "@/lib/ai/action-router";
 import { invalidatePlanData } from "@/lib/trpc/invalidate-plan";
 import { suggestedQuestions } from "@/lib/degree-qa";
 import { getAcademicNow } from "@/lib/academic-calendar";
@@ -220,8 +220,9 @@ export function FloatingAssistant() {
   // catalog is fetched lazily, only after an add-intent is actually typed.
   const trpcUtils = api.useUtils();
   const planForActions = api.plan.getUserPlan.useQuery(undefined, { enabled: open, staleTime: 60_000 });
-  const [wantCatalog, setWantCatalog] = useState(false);
-  const catalogForActions = api.course.list.useQuery(undefined, { enabled: open && wantCatalog, staleTime: 300_000 });
+  // Catalog is small (117 courses) — warm it on OPEN so the first "תוסיף לי X"
+  // action card fires immediately, with no type-then-submit race (audit HIGH).
+  const catalogForActions = api.course.list.useQuery(undefined, { enabled: open, staleTime: 300_000 });
   const planLite = useMemo(
     () =>
       (planForActions.data?.courses ?? []).map((uc) => ({
@@ -237,12 +238,6 @@ export function FloatingAssistant() {
       (catalogForActions.data ?? []).map((c) => ({ id: c.id, code: c.code, nameHe: c.nameHe })),
     [catalogForActions.data],
   );
-
-  // Warm the catalog the moment an add-intent is typed, so by submit the
-  // detector has data (#active-ai).
-  useEffect(() => {
-    if (!wantCatalog && input && hasAddIntent(input)) setWantCatalog(true);
-  }, [input, wantCatalog]);
 
   const completeMutation = api.plan.updateCourse.useMutation();
   const addMutation = api.plan.addCourse.useMutation();
@@ -689,7 +684,7 @@ export function FloatingAssistant() {
         ]);
       }
     },
-    [ctx, aiAvailable, keyProvider, ready, streaming, streamLLM, attachedImage, isHe, messages.length],
+    [ctx, aiAvailable, keyProvider, ready, streaming, streamLLM, attachedImage, isHe, messages.length, planLite, catalogLite, runAction],
   );
 
   if (onMentorPage) return null;

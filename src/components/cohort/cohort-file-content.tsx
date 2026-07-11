@@ -258,12 +258,13 @@ function InsightsSection({ isHe }: { isHe: boolean }) {
   const listQuery = api.cohort.listInsights.useQuery();
   const mineQuery = api.cohort.myInsights.useQuery();
   const [stage, setStage] = useState<StageKey>("FIRST_YEAR");
-  const [draft, setDraft] = useState("");
+  // null = "no local edit yet, show the saved text"; "" = user cleared it.
+  const [draft, setDraft] = useState<string | null>(null);
 
   const contribute = api.cohort.contributeInsight.useMutation({
     onSuccess: () => {
       toast.success(isHe ? "התובנה נשמרה — תודה! המחזור הבא כבר מרוויח" : "Saved — thank you!");
-      setDraft("");
+      setDraft(null);
       void utils.cohort.invalidate();
     },
     onError: (e) => toast.error(e.message),
@@ -273,6 +274,15 @@ function InsightsSection({ isHe }: { isHe: boolean }) {
       toast.success(isHe ? "דווח — תודה" : "Reported");
       void utils.cohort.listInsights.invalidate();
     },
+    onError: (e) => toast.error(e.message),
+  });
+  const deleteMine = api.cohort.deleteMyInsight.useMutation({
+    onSuccess: () => {
+      toast.success(isHe ? "התובנה נמחקה" : "Deleted");
+      setDraft(null);
+      void utils.cohort.invalidate();
+    },
+    onError: (e) => toast.error(e.message),
   });
 
   const byStage = useMemo(() => {
@@ -301,7 +311,7 @@ function InsightsSection({ isHe }: { isHe: boolean }) {
           <button
             key={st.key}
             type="button"
-            onClick={() => { setStage(st.key); setDraft(""); }}
+            onClick={() => { setStage(st.key); setDraft(null); }}
             className={cn(
               "rounded-full px-3 py-1.5 text-xs font-medium transition-colors",
               stage === st.key
@@ -349,25 +359,39 @@ function InsightsSection({ isHe }: { isHe: boolean }) {
             ? mine ? "התובנה שלכם בשלב הזה (עריכה מחליפה):" : "מה הייתם אומרים לעצמכם? (אנונימי, משפט-שניים)"
             : mine ? "Your insight for this stage (editing replaces):" : "What would you tell yourself? (anonymous)"}
         </p>
-        <div className="flex gap-2">
-          <input
-            value={draft || mine?.text || ""}
-            onChange={(e) => setDraft(e.target.value)}
-            maxLength={400}
-            placeholder={isHe ? "למשל: אל תיקחו 3 קורסי כלכלה באותו סמסטר…" : "e.g. don't stack 3 econ courses…"}
-            className="min-w-0 flex-1 rounded-lg border border-border bg-card px-3 py-2 text-sm text-foreground placeholder:text-foreground/25 focus:border-foreground/30 focus:outline-none"
-            aria-label={isHe ? "תובנה למחזור" : "Insight"}
-          />
-          <button
-            type="button"
-            disabled={((draft || mine?.text) ?? "").trim().length < 10 || contribute.isPending}
-            onClick={() => contribute.mutate({ stage, text: (draft || mine?.text || "").trim() })}
-            className="inline-flex items-center gap-1.5 rounded-lg bg-foreground px-3 py-2 text-sm font-semibold text-background transition-colors hover:bg-foreground/90 disabled:opacity-40"
-          >
-            <Send className="size-3.5" />
-            {isHe ? "שיתוף" : "Share"}
-          </button>
-        </div>
+        {(() => {
+          const shown = draft ?? mine?.text ?? "";
+          return (
+            <div className="flex flex-wrap gap-2">
+              <input
+                value={shown}
+                onChange={(e) => setDraft(e.target.value)}
+                maxLength={400}
+                placeholder={isHe ? "למשל: אל תיקחו 3 קורסי כלכלה באותו סמסטר…" : "e.g. don't stack 3 econ courses…"}
+                className="min-w-0 flex-1 rounded-lg border border-border bg-card px-3 py-2 text-sm text-foreground placeholder:text-foreground/25 focus:border-foreground/30 focus:outline-none"
+                aria-label={isHe ? "תובנה למחזור" : "Insight"}
+              />
+              <button
+                type="button"
+                disabled={shown.trim().length < 10 || contribute.isPending}
+                onClick={() => contribute.mutate({ stage, text: shown.trim() })}
+                className="inline-flex items-center gap-1.5 rounded-lg bg-foreground px-3 py-2 text-sm font-semibold text-background transition-colors hover:bg-foreground/90 disabled:opacity-40"
+              >
+                <Send className="size-3.5" />
+                {isHe ? "שיתוף" : "Share"}
+              </button>
+              {mine && (
+                <button
+                  type="button"
+                  onClick={() => deleteMine.mutate({ stage })}
+                  className="rounded-lg bg-foreground/8 px-3 py-2 text-sm font-medium text-foreground/55 transition-colors hover:bg-red-500/15 hover:text-red-500"
+                >
+                  {isHe ? "מחיקה" : "Delete"}
+                </button>
+              )}
+            </div>
+          );
+        })()}
       </div>
     </div>
   );
@@ -384,6 +408,20 @@ function GallerySection({ isHe }: { isHe: boolean }) {
     onSuccess: () => {
       toast.success(isHe ? "המסלול פורסם לתיק המחזור!" : "Published to the cohort file!");
       setTitle("");
+      void utils.cohort.listGallery.invalidate();
+    },
+    onError: (e) => toast.error(e.message),
+  });
+  const reportEntry = api.cohort.reportGalleryEntry.useMutation({
+    onSuccess: () => {
+      toast.success(isHe ? "דווח — תודה" : "Reported");
+      void utils.cohort.listGallery.invalidate();
+    },
+    onError: (e) => toast.error(e.message),
+  });
+  const unpublish = api.cohort.unpublishMyPlan.useMutation({
+    onSuccess: () => {
+      toast.success(isHe ? "המסלול הוסר" : "Unpublished");
       void utils.cohort.listGallery.invalidate();
     },
     onError: (e) => toast.error(e.message),
@@ -417,13 +455,23 @@ function GallerySection({ isHe }: { isHe: boolean }) {
                   {e.cohortYear ? (isHe ? `מחזור ${e.cohortYear}` : `Class of ${e.cohortYear}`) : ""}
                 </p>
               </div>
-              <Link
-                href={`/shared-plan?d=${encodeURIComponent(e.token)}`}
-                className="inline-flex shrink-0 items-center gap-1 rounded-lg bg-accent-brand/10 px-2.5 py-1.5 text-xs font-semibold text-accent-brand hover:bg-accent-brand/20"
-              >
-                <ExternalLink className="size-3" />
-                {isHe ? "צפייה והעתקה" : "View & copy"}
-              </Link>
+              <div className="flex shrink-0 items-center gap-1.5">
+                <Link
+                  href={`/shared-plan?d=${encodeURIComponent(e.token)}`}
+                  className="inline-flex items-center gap-1 rounded-lg bg-accent-brand/10 px-2.5 py-1.5 text-xs font-semibold text-accent-brand hover:bg-accent-brand/20"
+                >
+                  <ExternalLink className="size-3" />
+                  {isHe ? "צפייה והעתקה" : "View & copy"}
+                </Link>
+                <button
+                  type="button"
+                  onClick={() => reportEntry.mutate({ id: e.id })}
+                  aria-label={isHe ? "דיווח על מסלול" : "Report plan"}
+                  className="rounded-lg p-1.5 text-foreground/30 hover:text-red-500"
+                >
+                  <Flag className="size-3.5" />
+                </button>
+              </div>
             </li>
           ))}
         </ul>
@@ -454,6 +502,13 @@ function GallerySection({ isHe }: { isHe: boolean }) {
           {isHe ? "פרסום המסלול שלי" : "Publish my plan"}
         </button>
       </div>
+      <button
+        type="button"
+        onClick={() => unpublish.mutate()}
+        className="text-xs text-foreground/40 transition-colors hover:text-foreground/70"
+      >
+        {isHe ? "הסרת המסלול שפרסמתי" : "Remove my published plan"}
+      </button>
     </div>
   );
 }

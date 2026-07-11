@@ -8,6 +8,8 @@
 import { z } from "zod/v4";
 import { createTRPCRouter, protectedProcedure } from "../trpc/init";
 import { TRPCError } from "@trpc/server";
+import { checkRateLimit } from "@/lib/rate-limit";
+import { decodePlan } from "@/lib/plan-share";
 
 const INSIGHT_STAGES = ["BIDDING", "EXAMS", "FOCUS", "FIRST_YEAR", "GENERAL"] as const;
 const HIDE_THRESHOLD = 3;
@@ -42,6 +44,15 @@ export const cohortRouter = createTRPCRouter({
     )
     .mutation(async ({ ctx, input }) => {
       const cohortYear = ctx.user.startYear ?? null;
+      // A HIDDEN insight (reported past the threshold) must NOT silently
+      // un-hide itself when the author re-saves — that bypassed moderation
+      // (audit). Editing a VISIBLE one starts a fresh report slate; a HIDDEN
+      // one stays hidden pending admin review.
+      const existing = await ctx.db.cohortInsight.findUnique({
+        where: { userId_stage: { userId: ctx.user.id, stage: input.stage } },
+        select: { status: true },
+      });
+      const keepHidden = existing?.status === "HIDDEN";
       return ctx.db.cohortInsight.upsert({
         where: { userId_stage: { userId: ctx.user.id, stage: input.stage } },
         create: {
@@ -50,8 +61,9 @@ export const cohortRouter = createTRPCRouter({
           text: input.text,
           cohortYear,
         },
-        // Re-contributing resets moderation state — it's a NEW text.
-        update: { text: input.text, status: "VISIBLE", reportCount: 0 },
+        update: keepHidden
+          ? { text: input.text } // stays HIDDEN, report slate untouched
+          : { text: input.text, status: "VISIBLE", reportCount: 0 },
       });
     }),
 
@@ -67,8 +79,15 @@ export const cohortRouter = createTRPCRouter({
   reportInsight: protectedProcedure
     .input(z.object({ id: z.string().uuid() }))
     .mutation(async ({ ctx, input }) => {
+      // Rate-limit reports per user so one account can't mass-hide the wall
+      // (audit HIGH — no per-reporter dedup table exists, so cap the abuse).
+      if (!checkRateLimit(`cohort-report:${ctx.user.id}`, { maxRequests: 8, windowSeconds: 3600 }).allowed) {
+        throw new TRPCError({ code: "TOO_MANY_REQUESTS", message: "Too many reports — try later." });
+      }
       const row = await ctx.db.cohortInsight.findUnique({ where: { id: input.id } });
       if (!row) throw new TRPCError({ code: "NOT_FOUND" });
+      // Can't report your own — and re-reporting the same hidden row is a no-op.
+      if (row.userId === ctx.user.id || row.status === "HIDDEN") return { ok: true };
       const reportCount = row.reportCount + 1;
       await ctx.db.cohortInsight.update({
         where: { id: input.id },
@@ -112,6 +131,12 @@ export const cohortRouter = createTRPCRouter({
       }),
     )
     .mutation(async ({ ctx, input }) => {
+      // The token must decode to a real plan — a garbage string would become
+      // a permanent gallery entry that errors on every viewer (audit).
+      const decoded = decodePlan(input.token);
+      if (!decoded || decoded.length === 0) {
+        throw new TRPCError({ code: "BAD_REQUEST", message: "Invalid plan token" });
+      }
       // One entry per user (the latest wins) — a gallery, not a feed.
       await ctx.db.sharedPlanEntry.deleteMany({ where: { userId: ctx.user.id } });
       return ctx.db.sharedPlanEntry.create({
@@ -132,8 +157,12 @@ export const cohortRouter = createTRPCRouter({
   reportGalleryEntry: protectedProcedure
     .input(z.object({ id: z.string().uuid() }))
     .mutation(async ({ ctx, input }) => {
+      if (!checkRateLimit(`cohort-report:${ctx.user.id}`, { maxRequests: 8, windowSeconds: 3600 }).allowed) {
+        throw new TRPCError({ code: "TOO_MANY_REQUESTS", message: "Too many reports — try later." });
+      }
       const row = await ctx.db.sharedPlanEntry.findUnique({ where: { id: input.id } });
       if (!row) throw new TRPCError({ code: "NOT_FOUND" });
+      if (row.userId === ctx.user.id || row.status === "HIDDEN") return { ok: true };
       const reportCount = row.reportCount + 1;
       await ctx.db.sharedPlanEntry.update({
         where: { id: input.id },

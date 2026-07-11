@@ -44,6 +44,37 @@ describe("detectAction — COMPLETE_COURSE", () => {
   it("no course reference → null (falls back to a normal answer)", () => {
     expect(detectAction("סיימתי ללמוד להיום", PLAN, [])).toBeNull();
   });
+
+  // Audit HIGH: ordinal siblings must not be confused. "סיימתי מיקרו א׳" when
+  // only מיקרו ב׳ is in the actionable pool must NOT grab ב׳.
+  it("ordinal-specific: does NOT grab a different-level sibling", () => {
+    const plan = [
+      { userCourseId: "m1", nameHe: "מיקרו כלכלה א' - החלטות + תרגול", status: "COMPLETED", courseType: "MANDATORY" },
+      { userCourseId: "m2", nameHe: "מיקרו כלכלה ב' + תרגיל", status: "IN_PROGRESS", courseType: "MANDATORY" },
+    ];
+    // א׳ is already completed; the honest result is NOT "complete ב׳".
+    expect(detectAction("סיימתי מיקרו א׳ עם 90", plan, [])).toBeNull();
+  });
+
+  it("ordinal-specific: DOES complete the matching level", () => {
+    const plan = [
+      { userCourseId: "m1", nameHe: "מיקרו כלכלה א' + תרגול", status: "COMPLETED", courseType: "MANDATORY" },
+      { userCourseId: "m2", nameHe: "מיקרו כלכלה ב' + תרגיל", status: "IN_PROGRESS", courseType: "MANDATORY" },
+    ];
+    const a = detectAction("סיימתי את מיקרו ב׳ עם 84", plan, []);
+    expect(a?.type).toBe("COMPLETE_COURSE");
+    expect((a as { userCourseId: string }).userCourseId).toBe("m2");
+    expect((a as { grade: number | null }).grade).toBe(84);
+  });
+
+  it("ADD ordinal-specific: asking to add ב׳ when ב׳ is in-plan does NOT propose ג׳", () => {
+    const plan = [{ userCourseId: "m2", nameHe: "מיקרו כלכלה ב' + תרגיל", status: "PLANNED", courseType: "MANDATORY" }];
+    const cat = [
+      { id: "cA", code: "1", nameHe: "מיקרו כלכלה א'" },
+      { id: "cG", code: "3", nameHe: "מיקרו כלכלה ג'" },
+    ];
+    expect(detectAction("תוסיף לי מיקרו ב׳", plan, cat)).toBeNull();
+  });
 });
 
 describe("detectAction — ADD_COURSE", () => {

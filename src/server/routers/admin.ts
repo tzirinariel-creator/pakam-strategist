@@ -602,6 +602,50 @@ export const adminRouter = createTRPCRouter({
       return { deleted: true };
     }),
 
+  // ─── Cohort content moderation (insights + shared plans) ───────────
+  // The stage-ב social models auto-hide at 3 reports too — they need the same
+  // human queue, or hidden content would vanish with no review (audit).
+
+  getCohortModerationQueue: adminProcedure.query(async ({ ctx }) => {
+    const [insights, plans] = await Promise.all([
+      ctx.db.cohortInsight.findMany({
+        where: { OR: [{ status: "HIDDEN" }, { reportCount: { gt: 0 } }] },
+        select: { id: true, stage: true, text: true, cohortYear: true, status: true, reportCount: true, createdAt: true },
+        orderBy: [{ status: "asc" }, { reportCount: "desc" }],
+      }),
+      ctx.db.sharedPlanEntry.findMany({
+        where: { OR: [{ status: "HIDDEN" }, { reportCount: { gt: 0 } }] },
+        select: { id: true, title: true, cohortYear: true, status: true, reportCount: true, createdAt: true },
+        orderBy: [{ status: "asc" }, { reportCount: "desc" }],
+      }),
+    ]);
+    return { insights, plans };
+  }),
+
+  moderateCohortInsight: adminProcedure
+    .input(z.object({ id: z.string().uuid(), action: z.enum(["approve", "delete"]) }))
+    .mutation(async ({ ctx, input }) => {
+      const row = await ctx.db.cohortInsight.findUnique({ where: { id: input.id }, select: { id: true } });
+      if (!row) throw new TRPCError({ code: "NOT_FOUND" });
+      if (input.action === "delete") {
+        await ctx.db.cohortInsight.delete({ where: { id: input.id } });
+        return { deleted: true };
+      }
+      return ctx.db.cohortInsight.update({ where: { id: input.id }, data: { status: "VISIBLE", reportCount: 0 } });
+    }),
+
+  moderateCohortPlan: adminProcedure
+    .input(z.object({ id: z.string().uuid(), action: z.enum(["approve", "delete"]) }))
+    .mutation(async ({ ctx, input }) => {
+      const row = await ctx.db.sharedPlanEntry.findUnique({ where: { id: input.id }, select: { id: true } });
+      if (!row) throw new TRPCError({ code: "NOT_FOUND" });
+      if (input.action === "delete") {
+        await ctx.db.sharedPlanEntry.delete({ where: { id: input.id } });
+        return { deleted: true };
+      }
+      return ctx.db.sharedPlanEntry.update({ where: { id: input.id }, data: { status: "VISIBLE", reportCount: 0 } });
+    }),
+
   // ─── Course Discovery ──────────────────────────────────────────
   // Search Yedion by department codes to find courses not yet in DB
 

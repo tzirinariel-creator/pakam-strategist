@@ -4,6 +4,10 @@
 import { describe, it, expect } from "vitest";
 import { createCallerFactory } from "@/server/trpc/init";
 import { cohortRouter } from "@/server/routers/cohort";
+import { encodePlan } from "@/lib/plan-share";
+
+const TOKEN_A = encodePlan([{ c: "1011-2103", y: 1, s: "FALL" }]);
+const TOKEN_B = encodePlan([{ c: "0651-1003", y: 2, s: "SPRING" }]);
 
 const USER = { id: "u1", supabaseId: "sb1", email: "t@example.com", startYear: 2025 };
 
@@ -20,8 +24,16 @@ function makeDb() {
         insights.filter((i) =>
           where.status ? i.status === where.status : where.userId ? i.userId === where.userId : true,
         ),
-      findUnique: async ({ where }: { where: { id: string } }) =>
-        insights.find((i) => i.id === where.id) ?? null,
+      findUnique: async ({ where }: { where: { id?: string; userId_stage?: { userId: string; stage: string } } }) => {
+        if (where.userId_stage) {
+          return (
+            insights.find(
+              (i) => i.userId === where.userId_stage!.userId && i.stage === where.userId_stage!.stage,
+            ) ?? null
+          );
+        }
+        return insights.find((i) => i.id === where.id) ?? null;
+      },
       upsert: async ({ where, create, update }: { where: { userId_stage: { userId: string; stage: string } }; create: Record<string, unknown>; update: Record<string, unknown> }) => {
         const found = insights.find(
           (i) => i.userId === where.userId_stage.userId && i.stage === where.userId_stage.stage,
@@ -95,25 +107,52 @@ describe("cohort router (stage ב)", () => {
     expect(db.insights[0]!.cohortYear).toBe(2025);
   });
 
-  it("3 reports auto-hide an insight", async () => {
+  it("3 reports auto-hide a FOREIGN insight; self-reports are ignored", async () => {
     const db = makeDb();
     const caller = makeCaller(db);
-    await caller.contributeInsight({ stage: "EXAMS", text: "תתחילו ללמוד שבועיים לפני, באמת" });
-    const id = db.insights[0]!.id as string;
-    await caller.reportInsight({ id });
-    await caller.reportInsight({ id });
-    expect(db.insights[0]!.status).toBe("VISIBLE");
-    await caller.reportInsight({ id });
-    expect(db.insights[0]!.status).toBe("HIDDEN");
+    // A foreign-authored insight (not USER's).
+    const foreign = { id: "00000000-0000-4000-8000-0000000000ff", userId: "someone-else", stage: "EXAMS", text: "x", status: "VISIBLE", reportCount: 0 };
+    db.insights.push(foreign);
+    await caller.reportInsight({ id: foreign.id });
+    await caller.reportInsight({ id: foreign.id });
+    expect(foreign.status).toBe("VISIBLE");
+    await caller.reportInsight({ id: foreign.id });
+    expect(foreign.status).toBe("HIDDEN");
+
+    // Self-report never counts.
+    await caller.contributeInsight({ stage: "GENERAL", text: "תובנה משלי כאן לבדיקה" });
+    const mine = db.insights.find((i) => i.stage === "GENERAL")!;
+    await caller.reportInsight({ id: mine.id as string });
+    expect(mine.reportCount).toBe(0);
+  });
+
+  it("re-saving a HIDDEN insight does NOT un-hide it (no moderation bypass)", async () => {
+    const db = makeDb();
+    const caller = makeCaller(db);
+    await caller.contributeInsight({ stage: "FOCUS", text: "טקסט מקורי לבדיקת הסתרה" });
+    const row = db.insights[0]!;
+    row.status = "HIDDEN";
+    row.reportCount = 3;
+    await caller.contributeInsight({ stage: "FOCUS", text: "מנסה להחזיר לגלוי עם טקסט אחר" });
+    expect(row.status).toBe("HIDDEN");
+    expect(row.reportCount).toBe(3);
+    expect(row.text).toContain("להחזיר"); // text still updates
   });
 
   it("gallery: publishing again replaces my previous entry", async () => {
     const db = makeDb();
     const caller = makeCaller(db);
-    await caller.publishPlan({ title: "שנה ב׳ מאוזנת", token: "abc12345" });
-    await caller.publishPlan({ title: "גרסה משופרת", token: "def45678" });
+    await caller.publishPlan({ title: "שנה ב׳ מאוזנת", token: TOKEN_A });
+    await caller.publishPlan({ title: "גרסה משופרת", token: TOKEN_B });
     expect(db.entries).toHaveLength(1);
     expect(db.entries[0]!.title).toBe("גרסה משופרת");
+  });
+
+  it("rejects a garbage plan token (no permanent broken entry)", async () => {
+    const db = makeDb();
+    const caller = makeCaller(db);
+    await expect(caller.publishPlan({ title: "מסלול שבור", token: "AAAAAAAAAA" })).rejects.toMatchObject({ code: "BAD_REQUEST" });
+    expect(db.entries).toHaveLength(0);
   });
 
   it("listInsights only returns VISIBLE rows", async () => {
