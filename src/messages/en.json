@@ -525,7 +525,7 @@
   },
   "grades": {
     "title": "Grade Calculator",
-    "subtitle": "Track your grades and watch your graduation score update",
+    "subtitle": "Your future: final-score forecast, GPA and honors targets. Grades themselves are entered in the Record.",
     "courseGrades": "Course Grades",
     "enterGrade": "Enter grade",
     "noGrade": "No grade",
@@ -571,7 +571,7 @@
   },
   "record": {
     "title": "My Academic Record",
-    "subtitle": "Every course you've already completed — in one place. Add, edit a grade, or remove, anytime.",
+    "subtitle": "Your past: every completed course, grade and scan. Enter and update here — the calculator picks it up.",
     "loading": "Loading your academic record…",
     "summaryCompletedCredits": "Completed credits",
     "summaryWeightedAvg": "Credit-weighted average — not the official graduation score",

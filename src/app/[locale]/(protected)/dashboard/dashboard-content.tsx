@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef, useCallback } from "react";
-import { GraduationCap, Scale, Pencil, Target, ArrowRight, ArrowLeft, Calendar, X, RefreshCw, Calculator, CheckCircle2, Gavel } from "lucide-react";
+import { GraduationCap, Scale, Pencil, Target, ArrowRight, ArrowLeft, Calendar, X, RefreshCw, Calculator, CheckCircle2, Gavel, Users2 } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 import { useSearchParams } from "next/navigation";
 import { Link, useRouter } from "@/i18n/navigation";
@@ -945,6 +945,10 @@ export function DashboardContent() {
           the next semester; links to the planner's bidding toolkit. */}
       {!tourOpen && !isTransitioning && <BiddingSeasonCard />}
 
+      {/* #24 (12.7) — the cohort file travels with you: the freshest insight
+          from the wall, right on the home screen. */}
+      {!tourOpen && !isTransitioning && <CohortWisdomTeaser />}
+
       {/* Returning-student prompt — year ≥ 2 with nothing marked completed yet.
           Hidden while the rite is up: both ask "enter your past grades" (#22
           critique fix 8 — one ask, not two side by side). */}
@@ -1182,6 +1186,37 @@ function BiddingSeasonCard() {
         className="shrink-0 rounded-lg bg-accent-brand px-3 py-2 text-xs font-semibold text-accent-brand-fg transition-colors hover:bg-accent-brand-hover"
       >
         {isHe ? "לבדיקת חפיפות" : "Check clashes"}
+      </Link>
+    </div>
+  );
+}
+
+/** #24 — one fresh line of cohort wisdom on the home screen. Quiet, honest
+ *  (attributed to its cohort year), and a doorway to the full file. */
+function CohortWisdomTeaser() {
+  const locale = useLocale();
+  const isHe = locale === "he";
+  const insights = api.cohort.listInsights.useQuery(undefined, { staleTime: 300_000 });
+  const latest = insights.data?.[0];
+  if (!latest) return null;
+  return (
+    <div className="data-card flex flex-wrap items-center gap-3 p-4">
+      <div className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-foreground/8 text-foreground/60">
+        <Users2 className="size-4.5" />
+      </div>
+      <div className="min-w-0 flex-1">
+        <p className="text-xs font-semibold text-foreground/50">
+          {isHe
+            ? `מתיק המחזור${latest.cohortYear ? ` · מחזור ${latest.cohortYear}` : ""}`
+            : `From the cohort file${latest.cohortYear ? ` · class of ${latest.cohortYear}` : ""}`}
+        </p>
+        <p className="mt-0.5 truncate text-sm text-foreground/75">“{latest.text}”</p>
+      </div>
+      <Link
+        href="/cohort"
+        className="shrink-0 rounded-lg bg-foreground/8 px-3 py-1.5 text-xs font-medium text-foreground/70 transition-colors hover:bg-foreground/15"
+      >
+        {isHe ? "לתיק המחזור" : "Open the file"}
       </Link>
     </div>
   );

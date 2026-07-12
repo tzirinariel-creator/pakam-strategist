@@ -3,9 +3,9 @@ import { contributorLevel } from "@/lib/contributor-level";
 
 describe("contributorLevel", () => {
   it("climbs the ladder at the right thresholds", () => {
-    expect(contributorLevel(0).titleHe).toBe("משקיף/ה");
+    expect(contributorLevel(0).titleHe).toBe("צפייה מהצד");
     expect(contributorLevel(1).titleHe).toBe("ניצן המחזור");
-    expect(contributorLevel(3).titleHe).toBe("תורם/ת פעיל/ה");
+    expect(contributorLevel(3).titleHe).toBe("תרומה פעילה");
     expect(contributorLevel(6).titleHe).toBe("עמוד תווך");
     expect(contributorLevel(10).titleHe).toBe("אגדת המחזור");
     expect(contributorLevel(99).titleHe).toBe("אגדת המחזור");

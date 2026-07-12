@@ -29,6 +29,7 @@ import { ReferentIcon } from "@/components/ui/referent-icon";
 import type { MentorPersona } from "@/lib/ai/mentor-prompt";
 import { routeQuestion } from "@/lib/ai/answer-router";
 import { detectActions, type AssistantAction } from "@/lib/ai/action-router";
+import { PhilosopherKingCharacter } from "@/components/ui/philosopher-king-character";
 import { invalidatePlanData } from "@/lib/trpc/invalidate-plan";
 import { suggestedQuestions } from "@/lib/degree-qa";
 import { getAcademicNow } from "@/lib/academic-calendar";
@@ -877,6 +878,11 @@ export function FloatingAssistant() {
                       }}
                       onDismiss={markNudgeSeen}
                     />
+                  )}
+                  {!isReferent && (
+                    <div className="flex justify-center pt-1">
+                      <PhilosopherKingCharacter className="size-20 drop-shadow-md" title={isHe ? "המלך הפילוסוף" : "The Philosopher King"} />
+                    </div>
                   )}
                   <p className="text-sm text-foreground/60">{greeting}</p>
                   <div className="flex flex-wrap gap-1.5">

@@ -15,9 +15,9 @@ export interface ContributorLevel {
 }
 
 const LEVELS = [
-  { at: 0, he: "משקיף/ה", en: "Observer", emoji: "👀" },
+  { at: 0, he: "צפייה מהצד", en: "Observer", emoji: "👀" },
   { at: 1, he: "ניצן המחזור", en: "Cohort seedling", emoji: "🌱" },
-  { at: 3, he: "תורם/ת פעיל/ה", en: "Active contributor", emoji: "🌿" },
+  { at: 3, he: "תרומה פעילה", en: "Active contributor", emoji: "🌿" },
   { at: 6, he: "עמוד תווך", en: "Pillar", emoji: "🌳" },
   { at: 10, he: "אגדת המחזור", en: "Cohort legend", emoji: "👑" },
 ] as const;
