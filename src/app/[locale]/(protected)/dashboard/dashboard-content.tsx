@@ -774,7 +774,7 @@ export function DashboardContent() {
           </span>
           <div className="min-w-0 flex-1">
             <p className="text-sm font-semibold text-foreground/85">
-              {isHe ? "חדש/ה בפכ״מ? יש לנו מדריך שכתוב בשבילך" : "New to PPE? There's a guide written for you"}
+              {isHe ? "חדשים בפכ״מ? יש לנו מדריך שנכתב בדיוק בשבילכם" : "New to PPE? There's a guide written for you"}
             </p>
             <p className="text-xs text-foreground/55">
               {isHe

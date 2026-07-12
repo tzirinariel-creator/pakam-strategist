@@ -3,7 +3,7 @@
 // (never a wrong-course action card).
 
 import { describe, it, expect } from "vitest";
-import { detectAction, extractGrade, hasAddIntent } from "@/lib/ai/action-router";
+import { detectActions, extractGrade, hasAddIntent } from "@/lib/ai/action-router";
 
 const PLAN = [
   { userCourseId: "uc-1", nameHe: "מיקרו כלכלה א' + תרגיל", status: "IN_PROGRESS", courseType: "MANDATORY" },
@@ -20,7 +20,7 @@ const CATALOG = [
 
 describe("detectAction — COMPLETE_COURSE", () => {
   it("סיימתי מיקרו עם ציון → completes the right row with the grade", () => {
-    const a = detectAction("סיימתי את מיקרו כלכלה עם ציון 88", PLAN, []);
+    const a = detectActions("סיימתי את מיקרו כלכלה עם ציון 88", PLAN, [])[0] ?? null;
     expect(a).toEqual({
       type: "COMPLETE_COURSE",
       userCourseId: "uc-1",
@@ -30,19 +30,19 @@ describe("detectAction — COMPLETE_COURSE", () => {
   });
 
   it("סיימתי אנגלית → matches the ENGLISH row by type", () => {
-    const a = detectAction("סיימתי אנגלית!", PLAN, []);
+    const a = detectActions("סיימתי אנגלית!", PLAN, [])[0] ?? null;
     expect(a?.type).toBe("COMPLETE_COURSE");
     expect((a as { userCourseId: string }).userCourseId).toBe("uc-2");
     expect((a as { grade: number | null }).grade).toBeNull();
   });
 
   it("never re-completes an already-COMPLETED course", () => {
-    const a = detectAction("סיימתי את מבוא לפילוסופיה חדשה", PLAN, []);
+    const a = detectActions("סיימתי את מבוא לפילוסופיה חדשה", PLAN, [])[0] ?? null;
     expect(a).toBeNull();
   });
 
   it("no course reference → null (falls back to a normal answer)", () => {
-    expect(detectAction("סיימתי ללמוד להיום", PLAN, [])).toBeNull();
+    expect(detectActions("סיימתי ללמוד להיום", PLAN, [])).toHaveLength(0);
   });
 
   // Audit HIGH: ordinal siblings must not be confused. "סיימתי מיקרו א׳" when
@@ -53,7 +53,7 @@ describe("detectAction — COMPLETE_COURSE", () => {
       { userCourseId: "m2", nameHe: "מיקרו כלכלה ב' + תרגיל", status: "IN_PROGRESS", courseType: "MANDATORY" },
     ];
     // א׳ is already completed; the honest result is NOT "complete ב׳".
-    expect(detectAction("סיימתי מיקרו א׳ עם 90", plan, [])).toBeNull();
+    expect(detectActions("סיימתי מיקרו א׳ עם 90", plan, [])).toHaveLength(0);
   });
 
   it("ordinal-specific: DOES complete the matching level", () => {
@@ -61,7 +61,7 @@ describe("detectAction — COMPLETE_COURSE", () => {
       { userCourseId: "m1", nameHe: "מיקרו כלכלה א' + תרגול", status: "COMPLETED", courseType: "MANDATORY" },
       { userCourseId: "m2", nameHe: "מיקרו כלכלה ב' + תרגיל", status: "IN_PROGRESS", courseType: "MANDATORY" },
     ];
-    const a = detectAction("סיימתי את מיקרו ב׳ עם 84", plan, []);
+    const a = detectActions("סיימתי את מיקרו ב׳ עם 84", plan, [])[0] ?? null;
     expect(a?.type).toBe("COMPLETE_COURSE");
     expect((a as { userCourseId: string }).userCourseId).toBe("m2");
     expect((a as { grade: number | null }).grade).toBe(84);
@@ -73,18 +73,18 @@ describe("detectAction — COMPLETE_COURSE", () => {
       { id: "cA", code: "1", nameHe: "מיקרו כלכלה א'" },
       { id: "cG", code: "3", nameHe: "מיקרו כלכלה ג'" },
     ];
-    expect(detectAction("תוסיף לי מיקרו ב׳", plan, cat)).toBeNull();
+    expect(detectActions("תוסיף לי מיקרו ב׳", plan, cat)).toHaveLength(0);
   });
 });
 
 describe("detectAction — ADD_COURSE", () => {
   it("תוסיף לי את כלכלת חינוך → proposes the catalog course", () => {
-    const a = detectAction("תוסיף לי את כלכלת חינוך בבקשה", PLAN, CATALOG);
+    const a = detectActions("תוסיף לי את כלכלת חינוך בבקשה", PLAN, CATALOG)[0] ?? null;
     expect(a).toEqual({ type: "ADD_COURSE", courseId: "c-1", courseName: "כלכלת חינוך" });
   });
 
   it("without a loaded catalog, add-intent returns null (caller fetches first)", () => {
-    expect(detectAction("תוסיף לי את כלכלת חינוך", PLAN, [])).toBeNull();
+    expect(detectActions("תוסיף לי את כלכלת חינוך", PLAN, [])).toHaveLength(0);
     expect(hasAddIntent("תוסיף לי את כלכלת חינוך")).toBe(true);
   });
 
@@ -93,7 +93,7 @@ describe("detectAction — ADD_COURSE", () => {
       { id: "x1", code: "1", nameHe: "כלכלה התנהגותית" },
       { id: "x2", code: "2", nameHe: "כלכלה פוליטית" },
     ];
-    expect(detectAction("תוסיף לי קורס כלכלה", PLAN, cat)).toBeNull();
+    expect(detectActions("תוסיף לי קורס כלכלה", PLAN, cat)).toHaveLength(0);
   });
 });
 
@@ -106,5 +106,39 @@ describe("extractGrade", () => {
 
   it("rejects out-of-range numbers", () => {
     expect(extractGrade("קיבלתי 150")).toBeNull();
+  });
+});
+
+// =========================================================================
+// 12.7 regressions — Ariel's real message that produced NO action:
+// "בדיוק סיימתי קורס אנגלית מתקדמים ב׳.. וגם אני כנראה אעשה הסמסטר חשבונאות לכלכלנים"
+// =========================================================================
+describe("detectActions — 12.7 real-message regressions", () => {
+  // Ariel's real plan that morning had NO English row — that's exactly why the
+  // old single-action English matcher returned nothing.
+  const PLAN_NO_ENGLISH = PLAN.filter((c) => c.courseType !== "ENGLISH");
+  const CATALOG = [
+    { id: "c-acc", nameHe: "חשבונאות לכלכלנים", courseType: "ELECTIVE" },
+    { id: "c-mac", nameHe: "מאקרו כלכלה", courseType: "MANDATORY" },
+  ] as never[];
+
+  it("English level-course completion with NO English row in the plan → SET_ENGLISH_LEVEL(EXEMPT)", () => {
+    const actions = detectActions("בדיוק סיימתי קורס אנגלית מתקדמים ב׳", PLAN_NO_ENGLISH, []);
+    expect(actions.some((a) => a.type === "SET_ENGLISH_LEVEL" && a.level === "EXEMPT")).toBe(true);
+  });
+
+  it("the full two-intent message yields BOTH the level update and the add proposal", () => {
+    const actions = detectActions(
+      "בדיוק סיימתי קורס אנגלית מתקדמים ב׳.. וגם אני כנראה אעשה הסמסטר חשבונאות לכלכלנים",
+      PLAN_NO_ENGLISH,
+      CATALOG,
+    );
+    expect(actions.some((a) => a.type === "SET_ENGLISH_LEVEL")).toBe(true);
+    expect(actions.some((a) => a.type === "ADD_COURSE" && a.courseName === "חשבונאות לכלכלנים")).toBe(true);
+  });
+
+  it("מתקדמים א׳ completion proposes moving to מתקדמים ב׳, not exemption", () => {
+    const actions = detectActions("סיימתי את קורס האנגלית מתקדמים א׳", PLAN_NO_ENGLISH, []);
+    expect(actions.some((a) => a.type === "SET_ENGLISH_LEVEL" && a.level === "ADVANCED_B")).toBe(true);
   });
 });

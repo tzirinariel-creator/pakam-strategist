@@ -29,7 +29,7 @@ export interface RoutedDecision {
    */
   shouldEscalate: boolean;
   /** Why we escalated (for telemetry / a source badge). */
-  reason: "no-match" | "reasoning" | "none";
+  reason: "no-match" | "reasoning" | "follow-up" | "none";
 }
 
 // Markers of an open-ended question that benefits from LLM reasoning rather
@@ -100,6 +100,30 @@ function normalize(s: string): string {
 
 const NORMALIZED_MARKERS = REASONING_MARKERS.map(normalize).filter(Boolean);
 
+/**
+ * #30 (12.7) — is this a FOLLOW-UP that leans on the conversation so far?
+ * "יש עוד מגבלות על הבינארי?" after a binary answer must NOT get the same
+ * canned deterministic paragraph again — it needs the LLM with history.
+ * Heuristics (normalized text): continuation openers, "עוד/גם" + question,
+ * or a very short anaphoric question ("וזה?", "ולמה?", "מה עם זה?").
+ */
+export function isFollowUpQuestion(question: string): boolean {
+  const q = normalize(question);
+  if (!q) return false;
+  const words = q.split(" ");
+  const OPENERS = [
+    "יש עוד", "מה עוד", "עוד משהו", "וגמ", "ומה", "ואיכ", "ולמה", "וזה", "ואמ",
+    "אז מה", "אז איכ", "מה עמ", "מה לגבי", "רגע ו", "הבנתי", "אוקיי ו", "או קיי ו",
+    "and what", "what else", "anything else", "what about", "so what", "got it",
+  ];
+  if (OPENERS.some((o) => q.startsWith(o))) return true;
+  // "…יש עוד…" anywhere in a short question is a continuation too.
+  if (words.length <= 8 && / עוד /.test(` ${q} `)) return true;
+  // Tiny anaphoric questions lean on context by definition.
+  if (words.length <= 3 && /(זה|הוא|היא|זו|it|that)/.test(q)) return true;
+  return false;
+}
+
 /** Does the question read as an open-ended reasoning request? */
 export function isReasoningQuestion(question: string): boolean {
   const q = normalize(question);
@@ -111,22 +135,27 @@ export function isReasoningQuestion(question: string): boolean {
  * Decide how to answer a question. Always computes the deterministic answer;
  * flags escalation when the rules don't match or the question wants judgment.
  */
-export function routeQuestion(question: string, ctx: QAContext): RoutedDecision {
+export function routeQuestion(
+  question: string,
+  ctx: QAContext,
+  opts?: { hasHistory?: boolean },
+): RoutedDecision {
   const deterministic = answerDegreeQuestion(question, ctx);
   const matched = deterministic.matched === true;
   const reasoning = isReasoningQuestion(question);
+  // #30 — a follow-up in an ongoing conversation must not re-serve the same
+  // canned paragraph; it escalates to the LLM (which has the history). The
+  // deterministic answer remains the graceful no-key fallback.
+  const followUp = Boolean(opts?.hasHistory) && isFollowUpQuestion(question);
 
-  // Escalate when the rules couldn't answer, or when the student is asking for
-  // judgment/comparison the enumerated rules can't fully give — even if a
-  // keyword matched (e.g. "כדאי לי לקחת בינארי בקורס הזה?" matches "בינארי" but
-  // really wants advice). A pure lookup that matched and isn't a reasoning
-  // question stays free.
-  const shouldEscalate = !matched || reasoning;
+  const shouldEscalate = !matched || reasoning || followUp;
   const reason: RoutedDecision["reason"] = !matched
     ? "no-match"
-    : reasoning
-      ? "reasoning"
-      : "none";
+    : followUp
+      ? "follow-up"
+      : reasoning
+        ? "reasoning"
+        : "none";
 
   return { deterministic, matched, shouldEscalate, reason };
 }

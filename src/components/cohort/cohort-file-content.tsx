@@ -336,7 +336,7 @@ function InsightsSection({ isHe }: { isHe: boolean }) {
               <p className="text-sm leading-relaxed text-foreground/80">{r.text}</p>
               <div className="flex items-center justify-between">
                 <span className="text-xs text-foreground/40">
-                  {r.cohortYear ? (isHe ? `מחזור ${r.cohortYear}` : `Class of ${r.cohortYear}`) : isHe ? "בוגר/ת" : "Alum"}
+                  {r.cohortYear ? (isHe ? `מחזור ${r.cohortYear}` : `Class of ${r.cohortYear}`) : isHe ? "מחזור קודם" : "Alum"}
                 </span>
                 <button
                   type="button"

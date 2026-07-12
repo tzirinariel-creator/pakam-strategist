@@ -99,14 +99,14 @@ export function MiluimStatusBar() {
   const isCareerService = !!profile.miluimCareerService && group === "GROUP_C";
   const groupName = isCareerService
     ? isHe
-      ? "קבוצה C — משרת/ת קבע"
+      ? "קבוצה C — שירות קבע"
       : "Group C — career service"
     : isHe
       ? cfg.nameHe
       : cfg.nameEn;
   const groupDesc = isCareerService
     ? isHe
-      ? "משרת/ת קבע בתוכנית שירות — מסווג/ת לקבוצה C עם מלוא הטבות הקבוצה."
+      ? "שירות קבע בתוכנית שירות מקנה שיוך לקבוצה C, עם מלוא ההטבות של הקבוצה."
       : "Career service in a service-track program — classified as Group C with the full Group C benefits."
     : isHe
       ? cfg.descHe
@@ -385,7 +385,7 @@ function ServiceTimeline({
                 </span>
                 {s.isCombat && (
                   <span className="rounded bg-red-500/10 px-1.5 py-px text-[10px] font-semibold text-red-500">
-                    {isHe ? "לוחם/ת" : "combat"}
+                    {isHe ? "לחימה" : "combat"}
                   </span>
                 )}
                 <span

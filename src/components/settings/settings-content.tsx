@@ -680,7 +680,7 @@ function AppearanceSection() {
               {isHe ? "המלך יציף פער קריטי כשאני פותח אותו" : "Let the King surface one critical gap when I open him"}
             </label>
             <p className="mt-0.5 text-xs text-foreground/50">
-              {isHe ? "כשפותחים את המלך והוא רואה משהו שדורש טיפול — הוא אומר. רק כשנכנסים, לא באמצע." : "When you open the King and he sees something that needs attention — he says so. Only on entry, never mid-flow."}
+              {isHe ? "אם משהו אצלכם דורש טיפול — המלך יגיד את זה ברגע שתפתחו אותו. הוא אף פעם לא קופץ מעצמו באמצע העבודה." : "When you open the King and he sees something that needs attention — he says so. Only on entry, never mid-flow."}
             </p>
           </div>
           <button
@@ -1623,7 +1623,7 @@ function MiluimSection() {
           </label>
           <p className="mb-2.5 text-xs text-foreground/45">
             {isHe
-              ? <Bidi text="300+ ימי-לחימה מ-7.10.23 ← קבוצה C · שכול או נפגע-פעולה ← קבוצה G · משרת/ת קבע בתוכנית שירות ← האפשרות הייעודית למטה. אם זה המצב שלכם, בחרו כאן." />
+              ? <Bidi text="מקרים מיוחדים: 300+ ימי לחימה מאז 7.10.23 מקנים קבוצה C; שכול או פגיעת-פעולה — קבוצה G; שירות קבע בתוכנית שירות — האפשרות הייעודית למטה. אם זה המצב שלכם, בחרו כאן." />
               : <Bidi text="300+ combat days since Oct 7 2023 → Group C · bereaved or wounded → Group G · career service → the dedicated option below. If that's you, pick it here." />}
           </p>
           <Select
@@ -1722,15 +1722,48 @@ function MiluimSection() {
             </span>
           </summary>
           {isHe ? (
-            <ul className="mt-3 space-y-2 text-xs leading-relaxed text-foreground/65">
-              <li>• <b>הקבוצה נקבעת מחדש כל סמסטר</b> לפי ימי-השירות של אותו סמסטר (הצבא מעדכן את האוניברסיטה אוטומטית). הפטורים והבינארי מצטברים לאורך התואר — עד 10 ש״ס פטור ועד 5 המרות-בינארי.</li>
-              <li>• <b>למי מגיע בינארי:</b> קבוצה ב׳ — 2 קורסים; קבוצה ג׳ — 3; קבוצה ז׳ — עד 6 ש״ס. את ההמרה מבצעים מול מזכירות החוג, לא כאן.</li>
-              <li>• <b>איזה קורס כדאי להמיר:</b> קורס כבד שהציון הצפוי בו נמוך מהממוצע שלכם — ההמרה מוציאה אותו מהממוצע. המלך מציע מועמד כשהנתונים תומכים.</li>
-              <li>• <b>איזה קורס אסור/לא-כדאי:</b> קורסים שנדרש בהם ציון מספרי לשער-המעבר (75/80), סמינרים, וקורסים קריטיים לקבלה לתארים מתקדמים.</li>
-              <li>• <b>אזהרת הצטיינות:</b> המרה של יותר מ-25% משעות-השנה לבינארי פוסלת הצטיינות דקאן/רקטור. בדיקת-המסלול מתריעה לפני שמתקרבים.</li>
-              <li>• <b>מועדי בחינה:</b> קבוצות ב׳/ג׳/ז׳ — ניגשים ל-2 מתוך 3 מועדים והגבוה נספר אוטומטית.</li>
-              <li>• <b>הערכה חלופית:</b> המתווה הלאומי לתשפ״ו מקנה הערכה חלופית (לפחות 3 בחינות לפי חלופה ב׳; הבחירה בין החלופות בידי האוניברסיטה) — בדקו את היישום המדויק מול מדור-מילואים.</li>
-            </ul>
+            <div className="mt-3 space-y-3 text-xs leading-relaxed text-foreground/65">
+              <div>
+                <p className="font-semibold text-foreground/75">רגע, מה זה הקבוצות?</p>
+                <p className="mt-1">
+                  האוניברסיטה מסווגת כל מי ששירת במילואים לקבוצה, לפי כמה ימים שירתם באותו סמסטר.
+                  ככל שהקבוצה &quot;גבוהה&quot; יותר — ההטבות גדולות יותר:
+                </p>
+                <ul className="mt-1.5 space-y-1">
+                  <li>• <b>קבוצה A</b> — עד 20 ימי מילואים בסמסטר.</li>
+                  <li>• <b>קבוצה B</b> — 21 עד 34 ימים (לוחמים: כבר מ-14 ימים).</li>
+                  <li>• <b>קבוצה C</b> — 35 ימים ומעלה (לוחמים: כבר מ-21).</li>
+                  <li>• <b>קבוצה G</b> — נפגעי מלחמה, פצועים ומשפחות שכולות — מטופלים אישית בדיקנט.</li>
+                </ul>
+                <p className="mt-1.5">
+                  הקבוצה נקבעת מחדש בכל סמסטר לפי הימים של אותו סמסטר (הצבא מדווח לאוניברסיטה
+                  אוטומטית). מה שכן נשאר איתכם לאורך כל התואר: הפטורים שצברתם (עד 10 ש״ס)
+                  וההמרות הבינאריות שניצלתם (עד 5).
+                </p>
+              </div>
+              <div>
+                <p className="font-semibold text-foreground/75">בינארי — למי וכמה?</p>
+                <p className="mt-1">
+                  קבוצה B יכולה להמיר עד 2 קורסים בשנה לציון &quot;עובר&quot;, וקבוצה C עד 3 (לשתיהן —
+                  מקסימום 5 בכל התואר). את ההמרה עצמה מבצעים מול מזכירות החוג; כאן רק מתכננים אותה חכם:
+                  שווה להמיר קורס כבד שהציון הצפוי בו נמוך מהממוצע שלכם — ההמרה מוציאה אותו מהממוצע.
+                  לא כדאי (ולפעמים אסור) להמיר קורסים שדורשים ציון מספרי למעבר-שנה (רף 75/80), סמינרים,
+                  או קורסים שחשובים לקבלה לתואר שני.
+                </p>
+                <p className="mt-1">
+                  <b>ועוד אזהרה חשובה:</b> מי שממיר יותר מ-25% משעות-השנה מאבד זכאות להצטיינות
+                  דקאן/רקטור. בדיקת-המסלול תתריע לפני שמתקרבים לזה.
+                </p>
+              </div>
+              <div>
+                <p className="font-semibold text-foreground/75">מבחנים והערכה חלופית</p>
+                <p className="mt-1">
+                  קבוצות B ו-C ניגשות ל-2 מתוך 3 מועדי בחינה — והציון הגבוה מביניהם נשמר אוטומטית.
+                  בנוסף, לפי המתווה הארצי לתשפ״ו אפשר לקבל בחלק מהקורסים הערכה חלופית במקום בחינה —
+                  היישום המדויק משתנה מקורס לקורס, אז מוודאים מול מדור-מילואים.
+                </p>
+              </div>
+            </div>
           ) : (
             <p className="mt-3 text-xs leading-relaxed text-foreground/65">
               The group is re-assigned each semester; exemptions and binary conversions accumulate (caps: 10 credits, 5 binary). Convert heavy low-grade courses — never gate courses (the 75/80 numeric bar), seminars, or grad-school-critical ones. Converting more than 25% of a year&apos;s hours forfeits honors. Groups B/C/G sit 2-of-3 exam dates, higher counts. Alternative assessment per the national 2025-26 outline — confirm specifics with the miluim desk.

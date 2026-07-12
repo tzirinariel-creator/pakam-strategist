@@ -83,7 +83,7 @@ function Steps({ isHe }: { isHe: boolean }) {
   const steps = isHe
     ? [
         { icon: ListOrdered, title: "מדרגים העדפות", body: "בוחרים קורסים ומקצים לכל אחד נקודות (מינ׳ 5). מתי הקלדת — לא משנה." },
-        { icon: Trophy, title: "מכרז: הגבוה זוכה", body: "המציע הכי גבוה על קורס זוכה במקום. שוויון בסף → הגרלה של המחשב." },
+        { icon: Trophy, title: "מכרז: הגבוה זוכה", body: "המציע הכי גבוה על קורס זוכה במקום. ואם יש שוויון בדיוק על הסף? המחשב מגריל." },
         { icon: RefreshCw, title: "2 מקצים, איפוס", body: "בכל מקצה מקבלים את כל הנקודות מחדש. ביטול בין מקצים מחזיר נקודות." },
       ]
     : [
@@ -165,7 +165,7 @@ function OverlapTrap({ isHe }: { isHe: boolean }) {
 
       <p className="mt-2 text-[11px] leading-snug text-foreground/70">
         {isHe
-          ? "כבר יש לכם את א׳. מגישים בקשה ל-ב׳ שחופף לו (אפילו שעה) → א׳ מתבטל אוטומטית ונשארים רק עם ב׳. בדקו חפיפות לפני שאתם מגישים."
+          ? "שימו לב: אם אתם כבר רשומים לקורס אחד, ובקשה חדשה שלכם תתקבל לקורס שחופף לו אפילו בשעה אחת — הרישום הקודם יבוטל אוטומטית ותישארו רק עם החדש. לכן בודקים חפיפות לפני שמגישים."
           : "You already hold A. Bidding for B, which overlaps it (even by an hour) → A is auto-cancelled and you keep only B. Check for clashes before you bid."}
       </p>
     </div>

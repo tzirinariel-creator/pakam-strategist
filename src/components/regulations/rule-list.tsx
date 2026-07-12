@@ -9,6 +9,7 @@ import { AskKingButton } from "@/components/ui/ask-king-button";
 import { cn } from "@/lib/utils";
 import { ruleGroup, RULE_GROUP_ORDER, RULE_GROUP_META, type RuleGroup } from "@/lib/regulations/rule-categories";
 import type { RegulationResult } from "@/types/regulation";
+import { usePersonalAddress } from "@/components/personal/use-personal-address";
 
 /**
  * The regulations detail, reframed from "a database of 25 rule cards bucketed by
@@ -23,6 +24,7 @@ import type { RegulationResult } from "@/types/regulation";
  */
 export function RuleList({ results }: { results: RegulationResult[] }) {
   const t = useTranslations("regulations");
+  const { g: pg } = usePersonalAddress();
   const isHe = useLocale() === "he";
 
   const { redFlags, byGroup } = useMemo(() => {
@@ -96,6 +98,7 @@ export function RuleList({ results }: { results: RegulationResult[] }) {
 
 // ── A single red flag — always open, with inline "ask the King" ──
 function RedFlagCard({ rule, isHe }: { rule: RegulationResult; isHe: boolean }) {
+  const { g: pg } = usePersonalAddress();
   const name = isHe ? rule.ruleNameHe : rule.ruleNameEn;
   const msg = isHe ? rule.messageHe : rule.messageEn;
   const isError = rule.severity === "ERROR";
@@ -111,7 +114,7 @@ function RedFlagCard({ rule, isHe }: { rule: RegulationResult; isHe: boolean }) 
           <p className="text-sm font-bold text-foreground/85">{name}</p>
           <p className="mt-0.5 text-xs leading-relaxed text-foreground/65">{msg}</p>
           <AskKingButton
-            promptHe={`הסבר לי את הדרישה "${name}" — למה אני לא עומד/ת בה, ומה בדיוק לעשות כדי לסגור אותה?`}
+            promptHe={`הסבר לי את הדרישה "${name}" — למה אני עדיין לא ${pg("עומד", "עומדת", "עומד/ת")} בה, ומה בדיוק לעשות כדי לסגור אותה?`}
             promptEn={`Explain the requirement "${name}" — why am I not meeting it, and what exactly should I do to close it?`}
             labelHe="שאל את המלך איך לסגור את זה"
             labelEn="Ask the King how to close this"

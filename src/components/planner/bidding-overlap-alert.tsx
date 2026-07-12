@@ -89,7 +89,7 @@ export function BiddingOverlapAlert({ courses }: { courses: UserCourseWithCourse
         <ShieldCheck className="size-4 shrink-0 text-emerald-500" />
         <p className="text-xs text-foreground/70">
           {isHe
-            ? "אין חפיפות זמן בין הקורסים שלכם בסמסטר הזה — בטוח להגיש למכרז."
+            ? "אין חפיפות בין הקורסים שבחרתם — אפשר להגיש את המכרז בראש שקט."
             : "No time clashes between your courses this semester — safe to bid."}
           {unscheduledCount > 0 && (
             <span className="text-foreground/45">

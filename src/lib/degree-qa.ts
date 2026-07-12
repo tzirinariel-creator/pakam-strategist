@@ -253,13 +253,13 @@ const HANDLERS: Handler[] = [
     answer: (c) => {
       const base = he(
         c,
-        'בינארי = להמיר ציון מספרי ל"עובר/לא־עובר". הקורס עדיין נספר לתואר, אבל הציון יוצא מהממוצע. הטבת מילואים: עד 5 קורסים בתואר, ועד 25% מהשעות בשנה כדי לא לפגוע בהצטיינות. הכי כדאי על ציון נמוך-עובר בקורס כבד.',
-        'Binary = convert a numeric grade to pass/fail. The course still counts for the degree, but the grade leaves your average. Miluim benefit: up to 5 courses across the degree, and ≤25% of yearly hours to keep honors. Best used on a low pass in a heavy course.'
+        'המרה בינארית הופכת ציון מספרי ל"עובר" — הקורס עדיין נספר לתואר, אבל הציון יוצא מהממוצע. מתי זה משתלם? כשעברת קורס כבד בציון שמושך את הממוצע למטה. ומתי לא? שלושה דברים ששווה לשקול: הצטיינות (המרה של יותר מ-25% משעות-השנה פוסלת דקאן/רקטור), קורסי-ליבה כמו מיקרו וסטטיסטיקה (מעסיקים ותארים מתקדמים מסתכלים דווקא עליהם — לפעמים 78 מספרי שווה יותר מ"עובר"), וזה שההמרה בדרך-כלל בלתי-הפיכה.',
+        "A binary conversion turns a numeric grade into a pass — the course still counts for the degree, but the grade leaves your average. Worth it when a heavy course dragged your average down. Think twice about: honors (converting >25% of a year's hours forfeits dean's/rector's honors), core courses like micro and statistics (employers and grad schools look at exactly those — a numeric 78 can be worth more than a Pass), and the conversion usually being irreversible."
       );
       const quota = c.miluimGroupName
-        ? he(c, ` נשארו לך ${c.binaryRemaining} מתוך 5. ${gm(c, "סמן", "סמני", "סמן/י")} בכרטיס הקורס במתכנן (לקורס שהושלם עם ציון).`, ` You have ${c.binaryRemaining} of 5 left. Mark it on the course card in the planner.`)
-        : he(c, " (זמין לזכאי מילואים בלבד.)", " (Available to miluim-eligible students only.)");
-      return { text: base + quota, href: "/planner", cta: he(c, "למתכנן", "Open planner") };
+        ? he(c, ` נשארו לך ${c.binaryRemaining} מתוך 5 המרות. כשמחליטים — מסמנים את הקורס בתיק האקדמי, ואת ההמרה עצמה מבצעים מול מזכירות החוג.`, ` You have ${c.binaryRemaining} of 5 conversions left. When you decide — mark the course in your record; the conversion itself is done with the department office.`)
+        : he(c, " (ההטבה זמינה לזכאי מילואים בלבד.)", " (Available to miluim-eligible students only.)");
+      return { text: base + quota, href: "/record", cta: he(c, "לתיק האקדמי", "Open record") };
     },
   },
   // ── Electives ─────────────────────────────────────────────────────
@@ -327,8 +327,8 @@ const HANDLERS: Handler[] = [
       const lvl = getEnglishLevel(c.amiramScore);
       const content = he(
         c,
-        `חובה ${CREDIT_REQUIREMENTS.ENGLISH_MIN_COURSES} קורסי תוכן באנגלית — יש לך ${c.englishCourseCount}.`,
-        `${CREDIT_REQUIREMENTS.ENGLISH_MIN_COURSES} English content courses required — you have ${c.englishCourseCount}.`
+        `דרישת-התוכן: ${CREDIT_REQUIREMENTS.ENGLISH_MIN_COURSES} קורסים אקדמיים שנלמדים באנגלית (חובה לכולם, בלי קשר לרמה) — השלמת ${c.englishCourseCount} מתוכם.`,
+        `Content requirement: ${CREDIT_REQUIREMENTS.ENGLISH_MIN_COURSES} courses taught in English (everyone needs these, regardless of level) — you've completed ${c.englishCourseCount}.`
       );
       if (!lvl) {
         return {
@@ -343,7 +343,7 @@ const HANDLERS: Handler[] = [
       const lvlTxt = lvl.isExempt
         ? he(c, `${gm(c, "אתה פטור", "את פטורה", "את/ה פטור/ה")} מקורסי רמה (אמירנט ${c.amiramScore}).`, `You're exempt from level courses (Amiram ${c.amiramScore}).`)
         : c.currentYear <= 1
-          ? he(c, `${gm(c, "אתה", "את", "את/ה")} ב${lvl.nameHe} (אמירנט ${c.amiramScore}) — ${lvl.levelCourses} קורסי רמה. חובה להגיע לפטור (134+) עד סוף שנה א׳.`, `You're at ${lvl.nameEn} (Amiram ${c.amiramScore}) — ${lvl.levelCourses} level course(s). You must reach exemption (134+) by the end of Year 1.`)
+          ? he(c, `דרישת-הרמה: לפי האמירנט (${c.amiramScore}) ${gm(c, "אתה", "את", "את/ה")} ברמת ${lvl.nameHe}, כלומר ${lvl.levelCourses === 1 ? "נשאר קורס-אנגלית אחד" : `נשארו ${lvl.levelCourses} קורסי-אנגלית`} עד הפטור. לפי התקנון מגיעים לפטור (134+) עד סוף שנה א׳.`, `Level requirement: per your Amiram (${c.amiramScore}) you're at ${lvl.nameEn} — ${lvl.levelCourses === 1 ? "one level course left" : `${lvl.levelCourses} level courses left`} to exemption. Regulations expect exemption (134+) by the end of Year 1.`)
           : he(c, `${gm(c, "אתה", "את", "את/ה")} ב${lvl.nameHe} (אמירנט ${c.amiramScore}), אבל הדדליין לפטור היה סוף שנה א׳ — אם עדיין אין לך פטור, ${gm(c, "פנה", "פני", "פנה/י")} לייעוץ אקדמי (קורסי-התוכן באנגלית עדיין נדרשים).`, `You're at ${lvl.nameEn} (Amiram ${c.amiramScore}), but the exemption deadline was the end of Year 1 — if you're still not exempt, see academic advising (the English content courses are still required).`);
       // #36 (owner-verified 4.7): English grades do NOT count toward the PPE
       // degree average — Ariel confirmed against a real transcript. (Earlier

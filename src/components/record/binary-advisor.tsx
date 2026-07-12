@@ -6,6 +6,7 @@ import { Scale, TrendingUp } from "lucide-react";
 import { api } from "@/lib/trpc/react";
 import { getAcademicNow } from "@/lib/academic-calendar";
 import { rankBinaryCandidates, type GradedCourseLite } from "@/lib/binary-advisor";
+import { usePersonalAddress } from "@/components/personal/use-personal-address";
 import {
   deriveCurrentGroup,
   binaryCapRemaining,
@@ -23,6 +24,7 @@ import { AskKingButton } from "@/components/ui/ask-king-button";
  */
 export function BinaryAdvisor() {
   const isHe = useLocale() === "he";
+  const { g: pg } = usePersonalAddress();
 
   const planQuery = api.plan.getUserPlan.useQuery();
   const profileQuery = api.user.getProfile.useQuery();
@@ -114,7 +116,7 @@ export function BinaryAdvisor() {
 
       <div className="mt-2">
         <AskKingButton
-          promptHe={`יש לי ${quotaLeft} המרות בינארי. הכי משתלם להמיר את "${top[0]!.course.nameHe}" (ציון ${top[0]!.course.grade}) — הממוצע יעלה ל-${top[0]!.newAverage.toFixed(1)}. מה כדאי לשקול לפני שאני מחליט/ה?`}
+          promptHe={`יש לי ${quotaLeft} המרות בינארי. הכי משתלם להמיר את "${top[0]!.course.nameHe}" (ציון ${top[0]!.course.grade}) — הממוצע יעלה ל-${top[0]!.newAverage.toFixed(1)}. מה כדאי לשקול לפני ש${pg("אני מחליט", "אני מחליטה", "מחליטים")}?`}
           promptEn={`I have ${quotaLeft} binary conversions. Converting "${top[0]!.course.nameHe}" (grade ${top[0]!.course.grade}) would raise my average to ${top[0]!.newAverage.toFixed(1)}. What should I weigh before deciding?`}
           labelHe="שאל את המלך על ההחלטה"
           labelEn="Ask the King about it"

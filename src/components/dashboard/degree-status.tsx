@@ -352,8 +352,12 @@ export function DegreeStatus({
                     {!englishLevel.isExempt &&
                       (currentYear <= 1
                         ? isHe
-                          ? ` · ${englishLevel.levelCourses} קורסי רמה`
-                          : ` · ${englishLevel.levelCourses} level course(s)`
+                          ? englishLevel.levelCourses === 1
+                            ? " · נשאר קורס-רמה אחד עד פטור"
+                            : ` · נשארו ${englishLevel.levelCourses} קורסי-רמה עד פטור`
+                          : englishLevel.levelCourses === 1
+                            ? " · one level course to exemption"
+                            : ` · ${englishLevel.levelCourses} level courses to exemption`
                         : isHe
                           ? " · ודאו שיש לכם פטור — הדדליין היה סוף שנה א׳"
                           : " · ensure you're exempt — deadline was end of year 1")}

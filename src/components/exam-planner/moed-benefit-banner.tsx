@@ -46,7 +46,7 @@ export function MoedBenefitBanner() {
         </p>
         <p className="mt-0.5 text-xs leading-relaxed text-foreground/55">
           {isHe
-            ? `כהטבת מילואים, ${eligible} לגשת עד 3 מועדי בחינה, ומבין 2 מהם הציון הגבוה קובע — אוטומטית, לא האחרון (כמו שנהוג לכולם). שווה לנצל בקורס שרוצים לשפר בו.`
+            ? `${eligible} לגשת ל-2 מתוך 3 מועדי בחינה, והציון הגבוה מביניהם הוא שנשמר — אוטומטית. (אצל מי שאינו מילואימניק, הציון האחרון קובע.) שווה לנצל בקורס שרוצים לשפר.`
             : "As a miluim benefit, you may sit up to 3 exam moadim, and between two of them the HIGHER grade counts — automatically, not the last one (the usual rule). Worth using on a course you want to raise."}
         </p>
       </div>

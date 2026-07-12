@@ -103,7 +103,11 @@ export function ComplianceOverview({ summary }: ComplianceOverviewProps) {
         <div className="flex items-center gap-3">
           <StatusIcon className={`h-6 w-6 ${statusColor}`} />
           <h2 className="font-display font-bold text-xl text-foreground">
-            {compliant ? t("compliantTitle") : t("nonCompliantTitle")}
+            {compliant
+              ? isHe
+                ? pg("אתה עומד בכל הכללים", "את עומדת בכל הכללים", "עומדים בכל הכללים")
+                : t("compliantTitle")
+              : t("nonCompliantTitle")}
           </h2>
         </div>
 

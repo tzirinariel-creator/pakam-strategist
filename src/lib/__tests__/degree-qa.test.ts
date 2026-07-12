@@ -44,7 +44,8 @@ describe("answerDegreeQuestion", () => {
     const a = answerDegreeQuestion("מה זה בינארי?", ctx({ binaryRemaining: 3 }));
     expect(a.text).toContain("עובר");
     expect(a.text).toContain("3");
-    expect(a.href).toBe("/planner");
+    // 12.7 #28: the answer now routes to the record (where marking happens)
+    expect(a.href).toBe("/record");
   });
 
   it("gives the Amiram placement for English questions", () => {

@@ -69,3 +69,21 @@ describe("routeQuestion", () => {
     expect(d.deterministic.text).toContain("אני יכול לעזור"); // capabilities fallback
   });
 });
+
+// #30 (12.7) — follow-ups must escalate instead of re-serving the canned answer.
+import { isFollowUpQuestion } from "@/lib/ai/answer-router";
+
+describe("isFollowUpQuestion (#30)", () => {
+  it("catches Ariel's real follow-up", () => {
+    expect(isFollowUpQuestion("הבנתי.. יש עוד מגבלות על הבינארי?")).toBe(true);
+  });
+  it("catches continuation openers and tiny anaphora", () => {
+    expect(isFollowUpQuestion("ומה עם אנגלית?")).toBe(true);
+    expect(isFollowUpQuestion("וזה?")).toBe(true);
+    expect(isFollowUpQuestion("מה עוד חסר לי?")).toBe(true);
+  });
+  it("does NOT flag a fresh standalone question", () => {
+    expect(isFollowUpQuestion("כמה ש״ס נשארו לי לתואר?")).toBe(false);
+    expect(isFollowUpQuestion("מה הממוצע שלי?")).toBe(false);
+  });
+});

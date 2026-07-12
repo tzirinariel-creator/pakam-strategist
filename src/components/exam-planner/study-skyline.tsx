@@ -601,7 +601,7 @@ export function StudySkyline({ plan, recommendations, isHe, now, onDayClick, onM
       {/* ── Band 3 · Legend ── */}
       <div className="flex flex-wrap items-center gap-x-3 gap-y-1.5 border-t border-border/40 p-3">
         <AskKingButton
-          promptHe="איך אני מפזר/ת נכון את הלמידה עד הבחינות שלי? יש לי יום עמוס במיוחד — עזור/י לי לתכנן אותו."
+          promptHe="איך נכון לפזר את הלמידה שלי עד הבחינות? יש לי יום עמוס במיוחד — תעזור לי לתכנן אותו."
           promptEn="How do I spread my studying well up to my exams? I have an especially heavy day — help me plan it."
           labelHe="שאל את המלך על הפיזור"
           labelEn="Ask the King about the spread"

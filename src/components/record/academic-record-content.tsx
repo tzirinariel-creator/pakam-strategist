@@ -273,7 +273,7 @@ function SummaryCard({
         </Link>
         {weightedAvg !== null && (
           <AskKingButton
-            promptHe="איך אני יכול/ה לשפר את הממוצע שלי? תן/י לי צעדים קונקרטיים לפי הקורסים שנשארו לי."
+            promptHe="איך משפרים את הממוצע שלי? תן לי צעדים קונקרטיים לפי הקורסים שנשארו לי."
             promptEn="How can I improve my average? Give me concrete steps based on my remaining courses."
             labelHe="שאל את המלך איך לשפר"
             labelEn="Ask the King how to improve"
@@ -759,7 +759,7 @@ function InProgressSection({
         </div>
         <p className="mt-1 text-xs leading-snug text-foreground/50">
           {isHe
-            ? "הקורסים שאתם לומדים כרגע. כשהציונים יוצאים — סמנו כאן הושלם + ציון."
+            ? "אלה הקורסים של הסמסטר הנוכחי. כשמתפרסם ציון — מסמנים ✓ ליד הקורס ומזינים אותו."
             : "The courses you're taking right now. When grades come out — mark done + grade here."}
         </p>
       </div>

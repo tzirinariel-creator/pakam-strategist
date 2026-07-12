@@ -28,7 +28,7 @@ import { PhilosopherKingIcon } from "@/components/ui/philosopher-king-icon";
 import { ReferentIcon } from "@/components/ui/referent-icon";
 import type { MentorPersona } from "@/lib/ai/mentor-prompt";
 import { routeQuestion } from "@/lib/ai/answer-router";
-import { detectAction, type AssistantAction } from "@/lib/ai/action-router";
+import { detectActions, type AssistantAction } from "@/lib/ai/action-router";
 import { invalidatePlanData } from "@/lib/trpc/invalidate-plan";
 import { suggestedQuestions } from "@/lib/degree-qa";
 import { getAcademicNow } from "@/lib/academic-calendar";
@@ -241,6 +241,7 @@ export function FloatingAssistant() {
 
   const completeMutation = api.plan.updateCourse.useMutation();
   const addMutation = api.plan.addCourse.useMutation();
+  const updateEnglishMutation = api.user.updateProfile.useMutation();
 
   /** Confirm an action card — runs the SAME mutation the record/planner use. */
   const runAction = useCallback(
@@ -252,6 +253,8 @@ export function FloatingAssistant() {
             status: "COMPLETED",
             ...(action.grade != null ? { grade: action.grade } : {}),
           });
+        } else if (action.type === "SET_ENGLISH_LEVEL") {
+          await updateEnglishMutation.mutateAsync({ englishLevel: action.level });
         } else {
           await addMutation.mutateAsync({
             courseId: action.courseId,
@@ -269,11 +272,19 @@ export function FloatingAssistant() {
                 ? isHe
                   ? `בוצע! ${action.courseName} סומן כהושלם${action.grade != null ? ` עם ציון ${action.grade}` : ""}. אפשר לערוך תמיד בתיק האקדמי.`
                   : `Done! ${action.courseName} marked completed${action.grade != null ? ` with grade ${action.grade}` : ""}.`
-                : isHe
-                  ? `בוצע! ${action.courseName} נוסף לתוכנית לסמסטר הנוכחי — גררו אותו במתכנן אם מתאים לכם סמסטר אחר.`
-                  : `Done! ${action.courseName} added to the current semester — drag it in the planner if another fits better.`,
-            href: action.type === "COMPLETE_COURSE" ? "/record" : "/planner",
-            cta: isHe ? (action.type === "COMPLETE_COURSE" ? "לתיק האקדמי" : "לתכנון התואר") : "Open",
+                : action.type === "SET_ENGLISH_LEVEL"
+                  ? isHe
+                    ? action.level === "EXEMPT"
+                      ? "בוצע! רמת-האנגלית עודכנה לפטור — כל הכבוד. בדיקת-המסלול כבר מתחשבת בזה."
+                      : `בוצע! רמת-האנגלית עודכנה. בדיקת-המסלול כבר מתחשבת בזה.`
+                    : "Done! Your English level was updated — the track check reflects it."
+                  : isHe
+                    ? `בוצע! ${action.courseName} נוסף לתוכנית לסמסטר הנוכחי — גררו אותו במתכנן אם מתאים לכם סמסטר אחר.`
+                    : `Done! ${action.courseName} added to the current semester — drag it in the planner if another fits better.`,
+            href: action.type === "COMPLETE_COURSE" ? "/record" : action.type === "SET_ENGLISH_LEVEL" ? "/regulations" : "/planner",
+            cta: isHe
+              ? action.type === "COMPLETE_COURSE" ? "לתיק האקדמי" : action.type === "SET_ENGLISH_LEVEL" ? "לבדיקת המסלול" : "לתכנון התואר"
+              : "Open",
           }),
         );
       } catch (e) {
@@ -288,7 +299,7 @@ export function FloatingAssistant() {
         );
       }
     },
-    [completeMutation, addMutation, ctx.currentYear, isHe, trpcUtils],
+    [completeMutation, addMutation, updateEnglishMutation, ctx.currentYear, isHe, trpcUtils],
   );
 
   // ── Proactive suggestion (note #10, restrained per note #12) ──
@@ -657,21 +668,32 @@ export function FloatingAssistant() {
       // ── Active assistant (#active-ai): a doable request becomes a confirm
       // card instead of an answer. Detection is deterministic + tested;
       // nothing executes until the student clicks אישור.
-      const action = detectAction(question, planLite, catalogLite);
-      if (action) {
-        const proposal =
-          action.type === "COMPLETE_COURSE"
-            ? isHe
-              ? `מעדכן שסיימתם את ${action.courseName}${action.grade != null ? ` עם ציון ${action.grade}` : ""} — לאשר?`
-              : `Mark ${action.courseName} as completed${action.grade != null ? ` with grade ${action.grade}` : ""}?`
-            : isHe
-              ? `מוסיף את ${action.courseName} לתוכנית שלכם (הסמסטר הנוכחי) — לאשר?`
-              : `Add ${action.courseName} to your plan (current semester)?`;
-        setMessages((m) => [...m, { role: "assistant", content: proposal, source: "rules", action }]);
+      const detected = detectActions(question, planLite, catalogLite);
+      if (detected.length > 0) {
+        const proposals = detected.map((action) => ({
+          role: "assistant" as const,
+          source: "rules" as const,
+          action,
+          content:
+            action.type === "COMPLETE_COURSE"
+              ? isHe
+                ? `מעדכן שסיימתם את ${action.courseName}${action.grade != null ? ` עם ציון ${action.grade}` : ""} — לאשר?`
+                : `Mark ${action.courseName} as completed${action.grade != null ? ` with grade ${action.grade}` : ""}?`
+              : action.type === "SET_ENGLISH_LEVEL"
+                ? isHe
+                  ? action.level === "EXEMPT"
+                    ? `סיימתם את קורס ${action.levelNameHe} — זה אומר שהגעתם לפטור באנגלית! לעדכן את הרמה לפטור?`
+                    : `סיימתם את קורס ${action.levelNameHe} — מעדכן את רמת-האנגלית שלכם בהתאם?`
+                  : `You finished the ${action.levelNameHe} course — update your English level accordingly?`
+                : isHe
+                  ? `מוסיף את ${action.courseName} לתוכנית שלכם (הסמסטר הנוכחי) — לאשר?`
+                  : `Add ${action.courseName} to your plan (current semester)?`,
+        }));
+        setMessages((m) => [...m, ...proposals]);
         return;
       }
 
-      const decision = routeQuestion(question, ctx);
+      const decision = routeQuestion(question, ctx, { hasHistory: messages.length > 0 });
 
       // Free path: a matched, non-reasoning lookup answers instantly.
       if (!decision.shouldEscalate) {

@@ -32,7 +32,16 @@ export type AssistantAction =
       /** Extracted grade, or null when the sentence didn't carry one. */
       grade: number | null;
     }
-  | { type: "ADD_COURSE"; courseId: string; courseName: string };
+  | { type: "ADD_COURSE"; courseId: string; courseName: string }
+  | {
+      /** "סיימתי קורס אנגלית מתקדמים ב׳" with no English row in the plan —
+       *  the real meaning is a LEVEL change: passing the level course moves
+       *  the student up (מתקדמים ב׳ course → exemption). Proposed as an
+       *  explicit englishLevel update, never written silently. */
+      type: "SET_ENGLISH_LEVEL";
+      level: "EXEMPT" | "ADVANCED_B" | "ADVANCED_A";
+      levelNameHe: string;
+    };
 
 // Same normalization family as degree-qa: niqqud, punctuation, final letters.
 function normalize(s: string): string {
@@ -54,7 +63,7 @@ function normalize(s: string): string {
 const COMPLETE_INTENT = /(סיימתי|סגרתי|עברתי|קיבלתי בקורס|יש לי ציון|finished|passed|completed)/;
 // NOTE: matched against NORMALIZED text — final letters are already folded
 // (ף→פ, ם→מ …), so the patterns are written in folded form on purpose.
-const ADD_INTENT = /(תוסיפ|הוסיפי|הוספ|תרשמו אותי|תרשומ אותי|אני רוצה לקחת|רוצה להוסיפ|בא לי לקחת|add course|sign me up|i want to take)/;
+const ADD_INTENT = /(תוסיפ|הוסיפי|הוספ|תרשמו אותי|תרשומ אותי|אני רוצה לקחת|רוצה להוסיפ|בא לי לקחת|אעשה|אקח|מתכננ לקחת|add course|sign me up|i want to take|planning to take)/;
 
 /** Cheap pre-check so the caller only fetches the catalog when relevant. */
 export function hasAddIntent(text: string): boolean {
@@ -145,12 +154,13 @@ function bestMatch<T>(normText: string, items: T[], nameOf: (t: T) => string): T
  * `catalog` = active catalog courses (only needed for ADD — pass [] when the
  * caller hasn't loaded it).
  */
-export function detectAction(
+export function detectActions(
   text: string,
   plan: PlanCourseLite[],
   catalog: CatalogCourseLite[],
-): AssistantAction | null {
+): AssistantAction[] {
   const norm = normalize(text);
+  const actions: AssistantAction[] = [];
 
   if (COMPLETE_INTENT.test(norm)) {
     // Only rows that can BECOME completed — never re-complete a done course.
@@ -168,24 +178,36 @@ export function detectAction(
       ? pool[0]!
       : bestMatch(norm, pool, (c) => c.nameHe);
     if (hit) {
-      return {
+      actions.push({
         type: "COMPLETE_COURSE",
         userCourseId: hit.userCourseId,
         courseName: hit.nameHe,
         grade: extractGrade(text),
-      };
+      });
+    } else if (englishAsk) {
+      // No English row in the plan (the real 12.7 failure): "סיימתי קורס
+      // אנגלית מתקדמים ב׳" means the LEVEL course was passed → the student
+      // moved up. Passing מתקדמים ב׳ grants exemption; passing מתקדמים א׳
+      // moves to מתקדמים ב׳. Detect the named level and propose the update.
+      if (/מתקדמימ ב|advanced b/.test(norm)) {
+        actions.push({ type: "SET_ENGLISH_LEVEL", level: "EXEMPT", levelNameHe: "מתקדמים ב׳" });
+      } else if (/מתקדמימ א|advanced a/.test(norm)) {
+        actions.push({ type: "SET_ENGLISH_LEVEL", level: "ADVANCED_B", levelNameHe: "מתקדמים א׳" });
+      }
     }
   }
 
   if (ADD_INTENT.test(norm) && catalog.length > 0) {
-    // Don't propose adding a course that's already in the plan.
+    // Don't propose adding a course that's already in the plan, and never a
+    // course we JUST proposed completing (one sentence, two intents).
     const planNames = new Set(plan.map((c) => normalize(c.nameHe)));
     const addable = catalog.filter((c) => !planNames.has(normalize(c.nameHe)));
     const hit = bestMatch(norm, addable, (c) => c.nameHe);
-    if (hit) {
-      return { type: "ADD_COURSE", courseId: hit.id, courseName: hit.nameHe };
+    if (hit && !actions.some((a) => a.type === "COMPLETE_COURSE" && normalize(a.courseName) === normalize(hit.nameHe))) {
+      actions.push({ type: "ADD_COURSE", courseId: hit.id, courseName: hit.nameHe });
     }
   }
 
-  return null;
+  // Two proposals max — a chat message with a wall of cards stops being a chat.
+  return actions.slice(0, 2);
 }

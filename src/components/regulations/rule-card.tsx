@@ -16,6 +16,7 @@ import { Bidi } from "@/lib/bidi";
 import { AskKingButton } from "@/components/ui/ask-king-button";
 import { DISCIPLINE_CONFIG, ENGLISH_CONFIG } from "@/lib/constants";
 import type { RegulationResult } from "@/types/regulation";
+import { usePersonalAddress } from "@/components/personal/use-personal-address";
 
 // Detail keys whose values are discipline enum IDs (e.g. "ECONOMICS").
 // These must be rendered through DISCIPLINE_CONFIG, never as the raw enum.
@@ -70,6 +71,7 @@ interface RuleCardProps {
 
 export function RuleCard({ rule }: RuleCardProps) {
   const t = useTranslations("regulations");
+  const { g: pg } = usePersonalAddress();
   const locale = useLocale();
   const isHe = locale === "he";
   const [expanded, setExpanded] = useState(false);
@@ -181,7 +183,7 @@ export function RuleCard({ rule }: RuleCardProps) {
               close it (P2 #7 — context-aware help where the gap actually is). */}
           {!passed && (
             <AskKingButton
-              promptHe={`הסבר לי את הדרישה "${ruleName}" — למה אני לא עומד/ת בה, ומה בדיוק לעשות כדי לסגור אותה?`}
+              promptHe={`הסבר לי את הדרישה "${ruleName}" — למה אני עדיין לא ${pg("עומד", "עומדת", "עומד/ת")} בה, ומה בדיוק לעשות כדי לסגור אותה?`}
               promptEn={`Explain the requirement "${ruleName}" — why am I not meeting it, and what exactly should I do to close it?`}
               labelHe="שאל את המלך איך לסגור את זה"
               labelEn="Ask the King how to close this"
