@@ -1923,6 +1923,24 @@ export function Form3010Uploader({
 
       {summary && (
         <div className="mt-3 space-y-2">
+          {summary.suggestions.length > 1 && (
+            <button
+              type="button"
+              disabled={pending}
+              onClick={() => {
+                for (const s of summary.suggestions) {
+                  const key = `${s.academicYear}-${s.semester}`;
+                  onApply(s.academicYear, s.semester, edited[key] ?? Math.round(s.days));
+                }
+              }}
+              className="inline-flex w-full items-center justify-center gap-1.5 rounded-lg bg-accent-brand px-3 py-2 text-xs font-semibold text-accent-brand-fg transition-colors hover:bg-accent-brand-hover disabled:opacity-50"
+            >
+              <Check className="size-3.5" />
+              {isHe
+                ? `אישור והחלה של הכול (${summary.suggestions.length} סמסטרים)`
+                : `Apply all (${summary.suggestions.length} semesters)`}
+            </button>
+          )}
           {summary.suggestions.length === 0 && (
             <p className="text-xs text-foreground/50">
               {isHe ? "לא נמצאו תקופות בטווח הלוחות המוכרים — אפשר להזין ידנית למטה." : "No periods within the known calendars — enter manually below."}

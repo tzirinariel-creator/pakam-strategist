@@ -50,6 +50,7 @@ export function GradeSheetScanner() {
   const planQuery = api.plan.getUserPlan.useQuery();
   const profileQuery = api.user.getProfile.useQuery();
   const updateMutation = api.plan.updateCourse.useMutation();
+  const addScannedMutation = api.plan.addScannedCourse.useMutation();
   const updateProfile = api.user.updateProfile.useMutation();
 
   // The end-of-semester rite (#22) deep-links here with ?scan=1 — scroll to the
@@ -437,6 +438,41 @@ export function GradeSheetScanner() {
                         {isHe ? `ודאו: ${r.match.nameHe}?` : `Verify: ${r.match.nameHe}?`}
                       </span>
                     )
+                  ) : r.grade != null || r.passText ? (
+                    // #10 (12.7) — a graded course that isn't in the plan (a
+                    // general elective like דוגרי) can be ADDED right here.
+                    <button
+                      type="button"
+                      disabled={addScannedMutation.isPending}
+                      onClick={() => {
+                        const sem = r.semester?.endsWith("/2") ? "SPRING" : "FALL";
+                        addScannedMutation.mutate(
+                          {
+                            courseCode: r.courseCode,
+                            courseName: r.courseName,
+                            credits: r.credits,
+                            grade: r.grade,
+                            plannedYear: 1,
+                            plannedSemester: sem,
+                          },
+                          {
+                            onSuccess: (res) => {
+                              toast.success(
+                                isHe
+                                  ? `${res.courseName} נוסף לתיק עם הציון מהגיליון`
+                                  : `${res.courseName} added to your record with the sheet's grade`,
+                              );
+                              invalidatePlanData(utils);
+                              setRows((prev) => prev?.filter((_, j) => j !== i) ?? prev);
+                            },
+                            onError: (e) => toast.error(e.message || (isHe ? "ההוספה נכשלה" : "Add failed")),
+                          },
+                        );
+                      }}
+                      className="flex items-center gap-1 rounded bg-accent-brand/10 px-2 py-0.5 text-[10px] font-bold text-accent-brand transition-colors hover:bg-accent-brand/20 disabled:opacity-50"
+                    >
+                      + {isHe ? "לא בתוכנית — הוסיפו לתיק" : "Not in plan — add to record"}
+                    </button>
                   ) : (
                     <span className="flex items-center gap-1 rounded bg-amber-500/10 px-1.5 py-px text-[10px] font-semibold text-amber-600">
                       <AlertTriangle className="size-2.5" />

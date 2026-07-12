@@ -663,6 +663,7 @@ export function SemesterPlanner({
           year={currentYear}
           semester={currentSemester}
           courses={groupFilteredCourses}
+          multiGroupCount={multiGroupCourseCodes.size}
           totalCredits={totalCreditsPlanned}
           hasMoreSemesters={hasMoreSemesters}
           onPlanNext={handlePlanNext}

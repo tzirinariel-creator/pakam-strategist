@@ -372,6 +372,83 @@ export const planRouter = createTRPCRouter({
    * matched on userId + courseId, so re-running onboarding updates rather than
    * duplicates. Courses are matched by code; unknown codes are skipped.
    */
+  /** #10 (12.7 test session) — a scanned row that matched nothing in the
+   *  plan (e.g. a general-elective like "דוגרי" taken outside the PPE list)
+   *  can be ADDED straight from the scanner: catalog hit by code/name when
+   *  possible, otherwise a minimal custom Course row, then a COMPLETED
+   *  userCourse with the scanned grade. Explicit per-row action, never bulk. */
+  addScannedCourse: protectedProcedure
+    .input(
+      z.object({
+        courseCode: z.string().max(40).nullable(),
+        courseName: z.string().min(1).max(120),
+        credits: z.number().min(0).max(20).nullable(),
+        grade: z.number().min(0).max(100).nullable(),
+        plannedYear: z.number().int().min(1).max(4),
+        plannedSemester: z.enum(["FALL", "SPRING", "SUMMER"]),
+      })
+    )
+    .mutation(async ({ ctx, input }) => {
+      const user = ctx.user;
+      if (!user) throw new TRPCError({ code: "NOT_FOUND", message: "User not found" });
+
+      // 1. Catalog hit — by exact code, else by exact Hebrew name.
+      let course =
+        (input.courseCode
+          ? await ctx.db.course.findUnique({ where: { code: input.courseCode } })
+          : null) ??
+        (await ctx.db.course.findFirst({ where: { nameHe: input.courseName } }));
+
+      // 2. No catalog row → create a minimal general-elective entry. The code
+      //    is the sheet's real code when present (so future sheets re-match),
+      //    else a stable name-derived custom code.
+      if (!course) {
+        const code =
+          input.courseCode && input.courseCode.trim().length >= 4
+            ? input.courseCode.trim()
+            : `CUSTOM-${input.courseName.replace(/\s+/g, "-").slice(0, 24)}`;
+        course = await ctx.db.course.upsert({
+          where: { code },
+          update: {},
+          create: {
+            code,
+            nameHe: input.courseName,
+            discipline: "GENERAL",
+            courseType: "ELECTIVE",
+            credits: input.credits ?? 2,
+            yearOffered: [1, 2, 3],
+            prerequisites: [],
+            canCountAs: [],
+            isMandatory: false,
+          },
+        });
+      }
+
+      // 3. The user row — upsert so a re-scan never duplicates.
+      const existing = await ctx.db.userCourse.findFirst({
+        where: { userId: user.id, courseId: course.id },
+      });
+      if (existing) {
+        await ctx.db.userCourse.update({
+          where: { id: existing.id },
+          data: { status: "COMPLETED", grade: input.grade },
+        });
+      } else {
+        await ctx.db.userCourse.create({
+          data: {
+            userId: user.id,
+            courseId: course.id,
+            status: "COMPLETED",
+            grade: input.grade,
+            plannedYear: input.plannedYear,
+            plannedSemester: input.plannedSemester,
+            attemptNumber: 1,
+          },
+        });
+      }
+      return { ok: true, courseId: course.id, courseName: course.nameHe };
+    }),
+
   saveCompletedCourses: protectedProcedure
     .input(
       z.object({

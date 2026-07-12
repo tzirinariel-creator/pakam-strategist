@@ -1,7 +1,7 @@
 "use client";
 
 import { useTranslations, useLocale } from "next-intl";
-import { CheckCircle, Calendar, Feather, Gauge, Weight, Flame, Pencil, Loader2 } from "lucide-react";
+import { CheckCircle, Calendar, Feather, Gauge, Weight, Flame, Pencil, Loader2, Users } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { calculateHonestLoad, type HonestLoadLabel } from "@/lib/workload-calculator";
 import { SEMESTER_CONFIG, YEAR_CONFIG } from "@/lib/constants";
@@ -56,6 +56,9 @@ interface SemesterSummaryProps {
    *  mandatory-heavy — the copy presents a READY recommended timetable to
    *  confirm, not a "you finished building" congratulation. */
   autoRecommended?: boolean;
+  /** #11 (12.7) — how many courses still have SEVERAL possible groups. >0
+   *  surfaces a dedicated "בחרו קבוצות" step before confirming blindly. */
+  multiGroupCount?: number;
 }
 
 export function SemesterSummary({
@@ -69,6 +72,7 @@ export function SemesterSummary({
   onBack,
   isSaving = false,
   autoRecommended = false,
+  multiGroupCount = 0,
 }: SemesterSummaryProps) {
   const t = useTranslations("onboarding");
   const locale = useLocale();
@@ -206,6 +210,24 @@ export function SemesterSummary({
             />
           </div>
         </div>
+
+        {/* #11 (12.7) — group choice is a real decision, not a footnote: when
+            courses still have several groups, offer the dedicated step. */}
+        {multiGroupCount > 0 && (
+          <button
+            type="button"
+            onClick={onBack}
+            disabled={isSaving}
+            className="flex w-full items-center justify-center gap-2 rounded-xl border-2 border-accent-brand/40 bg-accent-brand/[0.06] px-6 py-3 text-sm font-semibold text-accent-brand transition-all hover:bg-accent-brand/10 press-scale disabled:opacity-50"
+          >
+            <Users className="h-4 w-4" />
+            {isHe
+              ? multiGroupCount === 1
+                ? "לקורס אחד יש כמה קבוצות — בחרו את שלכם על המערכת"
+                : `ל-${multiGroupCount} קורסים יש כמה קבוצות — בחרו את שלכם על המערכת`
+              : `${multiGroupCount} course(s) have several groups — pick yours on the grid`}
+          </button>
+        )}
 
         {/* CTAs */}
         <div className="flex flex-col gap-2.5 pt-2">

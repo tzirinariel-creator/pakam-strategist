@@ -149,7 +149,10 @@ export function StepReady({ data, plannedSemesters, completedCourses, allCourses
       // 1. Update user profile (including miluim + AMIRANT) — 15s timeout.
       //    The DB column is still `amiramScore` (schema unchanged); the
       //    onboarding field was renamed to `amirantScore` for correctness.
-      await withTimeout(
+      // #17 (12.7) — profile + miluim are independent writes: run them in
+      // PARALLEL (they used to run back-to-back and doubled the wait).
+      await Promise.all([
+        withTimeout(
         updateProfile.mutateAsync({
           currentYear: data.year,
           currentSemester: data.semester,
@@ -169,23 +172,27 @@ export function StepReady({ data, plannedSemesters, completedCourses, allCourses
           gender: data.gender ?? null,
         }),
         15000,
-      );
-
-      // 1b. If the student entered miluim days this semester, persist ONE
-      //     MiluimSemester for their starting {academicYear, semester}. The
-      //     server derives the group from days+combat. Skipped entirely when no
-      //     days were entered, so non-serving students write no per-semester row.
-      if (data.miluimDays != null && data.miluimDays > 0) {
-        await withTimeout(
-          upsertMiluimSemester.mutateAsync({
+      ),
+        ...(data.miluimDays != null && data.miluimDays > 0
+          ? [
+              withTimeout(
+                upsertMiluimSemester.mutateAsync({
             academicYear: getCurrentAcademicYear(),
             semester: data.semester,
             daysServed: data.miluimDays,
             isCombat: data.miluimCombat ?? false,
           }),
-          15000,
-        );
-      }
+                15000,
+              ),
+            ]
+          : []),
+      ]);
+
+      // 1b. If the student entered miluim days this semester, persist ONE
+      //     MiluimSemester for their starting {academicYear, semester}. The
+      //     server derives the group from days+combat. Skipped entirely when no
+      //     days were entered, so non-serving students write no per-semester row.
+
 
       setSaveStage(1);
       // 2. Bulk save all planned courses in a single request — 20s timeout.
@@ -220,12 +227,9 @@ export function StepReady({ data, plannedSemesters, completedCourses, allCourses
       utils.plan.getCredits.invalidate();
       utils.plan.getGraduationScore.invalidate();
       utils.user.getProfile.invalidate();
-      // Try to refetch, but don't block on it — 5s timeout
-      try {
-        await withTimeout(utils.plan.getUserPlan.refetch(), 5000);
-      } catch {
-        // Non-critical — dashboard will refetch on its own
-      }
+      // Fire-and-forget refetch — the dashboard refetches on its own anyway;
+      // blocking here just made the "רגע אחרון" stage feel stuck (#17).
+      void utils.plan.getUserPlan.refetch().catch(() => {});
 
       setHasSaved(true);
 
@@ -319,10 +323,12 @@ export function StepReady({ data, plannedSemesters, completedCourses, allCourses
           <button
             type="button"
             onClick={() => {
-              // Navigate to dashboard WITHOUT marking onboarding complete.
-              // This way the user can re-trigger onboarding if save failed.
+              // Leave WITHOUT marking the save complete (a failed save can
+              // re-run onboarding) — but DO tell the dashboard we came from
+              // onboarding, so the welcome tour still fires (#18: a slow save
+              // + this escape used to silently kill the tour).
               setIsSaving(false);
-              router.push("/dashboard");
+              router.push("/dashboard?from=onboarding");
             }}
             className="animate-fade-in rounded-lg border border-foreground/20 px-5 py-2 text-sm font-medium text-foreground/50 transition-colors hover:bg-foreground/5"
           >

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { useTranslations, useLocale } from "next-intl";
 import { Shield, ChevronDown, Swords, Check, BadgeCheck, FileText } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -42,6 +42,26 @@ export function StepProfile({ data, onUpdate }: StepProfileProps) {
   });
   const nowSem = getAcademicNow().semester === "SPRING" ? "SPRING" : "FALL";
   const nowYear = getCurrentAcademicYear();
+
+  // #7 — derive the semester once and write it into the wizard state; the UI
+  // states the fact instead of asking. SUMMER folds onto SPRING (no teaching).
+  const acadNow = getAcademicNow();
+  const derivedSemester: "FALL" | "SPRING" = acadNow.semester === "SPRING" ? "SPRING" : "FALL";
+  useEffect(() => {
+    if (data.semester !== derivedSemester) onUpdate({ semester: derivedSemester });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [derivedSemester]);
+  const semLabelHe = derivedSemester === "FALL" ? "סמסטר א׳" : "סמסטר ב׳";
+  const acadStatusLine =
+    acadNow.phase === "teaching"
+      ? `אנחנו עכשיו ב${semLabelHe} — באמצע תקופת הלימודים.`
+      : acadNow.phase === "exams"
+        ? `${semLabelHe} הסתיים — אנחנו בתקופת המבחנים שלו.`
+        : `${semLabelHe} הסתיים — אנחנו בחופשת הסמסטר.`;
+  const acadNextLine =
+    acadNow.phase === "teaching"
+      ? "נסמן יחד מה כבר עברתם, ונבנה את המערכת של הסמסטר הזה."
+      : "נסמן יחד מה כבר עברתם (כולל הסמסטר שנגמר), ואז אפשר יהיה לתכנן קדימה.";
   const [showMiluimDetails, setShowMiluimDetails] = useState(hasGroup);
   // Common-path question state.
   const [served, setServed] = useState<boolean | null>(hasGroup ? true : null);
@@ -234,27 +254,15 @@ export function StepProfile({ data, onUpdate }: StepProfileProps) {
           </div>
         </div>
 
-        {/* Semester selection */}
-        <div className="animate-stagger-3">
-          <h3 className="mb-3 text-sm font-medium text-foreground/70">
-            {t("yourSemester")}
-          </h3>
-          <div className="grid grid-cols-2 gap-3">
-            {semesterOptions.map((option) => (
-              <button
-                key={option.value}
-                onClick={() => onUpdate({ semester: option.value })}
-                className={cn(
-                  "rounded-xl border-2 px-4 py-3 text-sm font-medium transition-all",
-                  data.semester === option.value
-                    ? "border-foreground bg-foreground/10 text-foreground/80 shadow-sm"
-                    : "border-border bg-card text-foreground/60 hover:border-foreground/30"
-                )}
-              >
-                {option.label}
-              </button>
-            ))}
-          </div>
+        {/* #7 (12.7) — the current semester is derived from the calendar,
+            not asked. The user just sees WHERE we are and what happens next. */}
+        <div className="animate-stagger-3 rounded-xl border border-border bg-foreground/[0.03] px-4 py-3">
+          <p className="text-sm text-foreground/75">
+            📍 {acadStatusLine}
+          </p>
+          <p className="mt-1 text-xs text-foreground/45">
+            {acadNextLine}
+          </p>
         </div>
 
         {/* Focus area selection */}
@@ -388,9 +396,11 @@ export function StepProfile({ data, onUpdate }: StepProfileProps) {
                         }
                       }}
                     />
-                    <p className="text-center text-[11px] text-foreground/35">
-                      {tm("or3010Manual")}
-                    </p>
+                    <details className="rounded-lg border border-border/40 p-3">
+                      <summary className="cursor-pointer text-xs font-medium text-foreground/55">
+                        {tm("or3010Manual")}
+                      </summary>
+                      <div className="mt-2 space-y-3">
                     {/* Days */}
                     <div className="space-y-1.5">
                       <label className="text-xs font-medium text-foreground/60">{tm("q2Days")}</label>
@@ -449,6 +459,8 @@ export function StepProfile({ data, onUpdate }: StepProfileProps) {
                         </button>
                       </div>
                     </div>
+                      </div>
+                    </details>
 
                     {/* Result */}
                     {derivedGroup !== "NONE" && (days ?? 0) > 0 && (
