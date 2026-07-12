@@ -59,6 +59,7 @@ Group benefits (planning-relevant):
 - **A:** student-rights law; **2-credit exemption** for 10 cumulative days; recordings.
 - **B:** **6-credit exemption** from elective/general (BA, **max 10/degree**); no attendance (except practical/workshop/interactive); recordings; assignment-deferral flexibility; home-assignment grade as a shield; late registration; free cancellation; prereq-enforcement flexibility. Exams: **2 of 3 dates, higher counts (auto)**; **convert 2 courses to binary** (pass/fail).
 - **C:** all of B, plus **8-credit exemption**, **+10% bidding points**, **+25% exam time**, **convert 3 courses to binary**; tuition-drag waiver if course duties done in תשפ"ו + last paper/exam by 31.12.26.
+  - **OWNER-CONFIRMED 12.7:** the group-C credit exemption is **8 ש"ס (not 10)**. Ariel accepted this after we checked the official TAU תשפ"ו מתווה verbatim ("קבוצה C: בתואר ראשון – 8 ש"ס"). The 10 is the DEGREE-WIDE CAP (reached only by stacking a separate up-to-2 ש"ס exemption); C in both semesters of one year = 8, not 10. Code (constants.ts GROUP_C=8, MAX=10) is correct — do not change.
 - **G:** **3-credit exemption** (new students or not previously assigned), recordings, no attendance, 2-of-3 dates, **convert 6 credits to binary**.
 - **Tuition benefit (separate from groups):** 42 cumulative miluim days in תשפ"ו → 1 free drag semester; 84 → 2.
 

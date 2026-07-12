@@ -86,7 +86,7 @@ const FIELD_LABELS: Record<string, string> = {
   lecturerEmail: "מייל מרצה",
   description: "תיאור",
   weeklyHours: "שעות שבועיות",
-  credits: 'נ"ז',
+  credits: "ש״ס",
   examDateA: "מועד א׳",
   examDateB: "מועד ב׳",
   schedule: "מערכת שעות",
