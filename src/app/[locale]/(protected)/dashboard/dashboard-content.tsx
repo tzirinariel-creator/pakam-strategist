@@ -638,7 +638,11 @@ export function DashboardContent() {
     currentYear,
     miluimGroup: profileQuery.data?.miluimGroup ?? "NONE",
     binaryRemaining: binaryCapRemaining(
-      profileQuery.data?.miluimBinaryUsed ?? 0,
+      // 18:19 (#11) — count actual plan conversions (isBinary) + the manual
+      // external offset, so the remaining quota agrees with the record advisor
+      // and the /miluim page.
+      (planQuery.data?.courses ?? []).filter((uc) => uc.isBinary).length +
+        (profileQuery.data?.miluimBinaryUsed ?? 0),
       (profileQuery.data?.miluimGroup ?? "NONE") as MiluimGroupKey
     ),
     regulationResults: regulationSummary?.results ?? [],

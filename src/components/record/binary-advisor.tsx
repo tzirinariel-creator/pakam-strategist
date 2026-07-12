@@ -1,9 +1,11 @@
 "use client";
 
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { useLocale } from "next-intl";
-import { Scale, TrendingUp } from "lucide-react";
+import { Scale, TrendingUp, Loader2 } from "lucide-react";
+import { toast } from "sonner";
 import { api } from "@/lib/trpc/react";
+import { invalidatePlanData } from "@/lib/trpc/invalidate-plan";
 import { getAcademicNow } from "@/lib/academic-calendar";
 import { rankBinaryCandidates, type GradedCourseLite } from "@/lib/binary-advisor";
 import { usePersonalAddress } from "@/components/personal/use-personal-address";
@@ -14,6 +16,7 @@ import {
   getCurrentAcademicYear,
 } from "@/lib/miluim";
 import { AskKingButton } from "@/components/ui/ask-king-button";
+import { cn } from "@/lib/utils";
 
 /**
  * Binary-conversion advisor (miluim) — shows which of the student's OWN graded
@@ -25,6 +28,9 @@ import { AskKingButton } from "@/components/ui/ask-king-button";
 export function BinaryAdvisor() {
   const isHe = useLocale() === "he";
   const { g: pg } = usePersonalAddress();
+  const trpcUtils = api.useUtils();
+  const [confirmId, setConfirmId] = useState<string | null>(null);
+  const convertMutation = api.plan.updateCourse.useMutation();
 
   const planQuery = api.plan.getUserPlan.useQuery();
   const profileQuery = api.user.getProfile.useQuery();
@@ -62,7 +68,15 @@ export function BinaryAdvisor() {
   // agrees with the "My benefits" window and the dashboard recommendations —
   // groups A/G/NONE (config binary cap 0) never see it. (verification 4.7)
   if (!hasMiluimBinaryBenefit(group)) return null;
-  const quotaLeft = binaryCapRemaining(profile.miluimBinaryUsed ?? 0, group);
+  // 18:19 (#11) — the quota now COUNTS actual plan conversions (isBinary), plus
+  // the manual "converted outside the app" offset — the same model /miluim
+  // uses. So converting a course here immediately moves the quota, instead of
+  // the old disconnected hand-typed number.
+  const binaryInPlan = (planQuery.data?.courses ?? []).filter(
+    (uc) => (uc as { isBinary?: boolean }).isBinary,
+  ).length;
+  const usedTotal = binaryInPlan + (profile.miluimBinaryUsed ?? 0);
+  const quotaLeft = binaryCapRemaining(usedTotal, group);
   if (quotaLeft <= 0) return null;
 
   const { current, candidates } = rankBinaryCandidates(graded, quotaLeft);
@@ -104,6 +118,47 @@ export function BinaryAdvisor() {
               <TrendingUp className="size-3" />
               {newAverage.toFixed(1)} (+{delta.toFixed(1)})
             </span>
+            {/* 18:19 (#11) — the actual convert action, right where you decide.
+                Two-step (irreversible), sets isBinary and recomputes the quota. */}
+            <button
+              type="button"
+              disabled={convertMutation.isPending}
+              onClick={() => {
+                if (confirmId !== course.userCourseId) {
+                  setConfirmId(course.userCourseId);
+                  return;
+                }
+                convertMutation.mutate(
+                  { userCourseId: course.userCourseId, isBinary: true },
+                  {
+                    onSuccess: () => {
+                      invalidatePlanData(trpcUtils);
+                      setConfirmId(null);
+                      toast.success(
+                        isHe
+                          ? `${course.nameHe} הומר לבינארי — הממוצע עלה ל-${newAverage.toFixed(1)}`
+                          : `${course.nameHe} converted — average is now ${newAverage.toFixed(1)}`,
+                      );
+                    },
+                    onError: (e) => toast.error(e.message || (isHe ? "ההמרה נכשלה" : "Conversion failed")),
+                  },
+                );
+              }}
+              className={cn(
+                "rounded-md px-2 py-1 text-[11px] font-semibold transition-colors disabled:opacity-50",
+                confirmId === course.userCourseId
+                  ? "bg-amber-500 text-white hover:bg-amber-600"
+                  : "bg-foreground/8 text-foreground/70 hover:bg-foreground/15",
+              )}
+            >
+              {convertMutation.isPending && confirmId === course.userCourseId ? (
+                <Loader2 className="size-3 animate-spin" />
+              ) : confirmId === course.userCourseId ? (
+                isHe ? "בטוח? בלתי-הפיך" : "Sure? Irreversible"
+              ) : (
+                isHe ? "המר לבינארי" : "Convert"
+              )}
+            </button>
           </li>
         ))}
       </ul>
