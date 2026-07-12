@@ -205,7 +205,7 @@ export function MiluimPageContent() {
               : "Have a course with alternative assessment instead of an exam (per the 2025-26 outline)? Mark it in the exam planner — it leaves the exam timeline and gets its own submission row."}
           </p>
           <Link
-            href="/exam"
+            href="/exam-planner"
             className="shrink-0 rounded-lg bg-foreground/8 px-3 py-1.5 text-xs font-medium text-foreground/70 transition-colors hover:bg-foreground/15"
           >
             {isHe ? "לתכנון המבחנים" : "Exam planner"}

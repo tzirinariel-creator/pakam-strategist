@@ -42,6 +42,7 @@ export function CalendarContent() {
   const t = useTranslations("calendar");
   const tCommon = useTranslations("common");
   const locale = useLocale();
+  const isHe = locale === "he";
 
   const [viewMode, setViewMode] = useState<ViewMode>("weekly");
 
@@ -140,9 +141,9 @@ export function CalendarContent() {
     onSuccess: () => {
       void utils41.schedule.getScheduleForSemester.invalidate();
       void utils41.plan.getUserPlan.invalidate();
-      toast.success("הקבוצה נשמרה");
+      toast.success(isHe ? "הקבוצה נשמרה" : "Group saved");
     },
-    onError: (e) => toast.error(e.message || "השמירה נכשלה"),
+    onError: (e) => toast.error(e.message || (isHe ? "השמירה נכשלה" : "Save failed")),
   });
   const { unchosen, displaySessions } = useMemo(() => {
     interface SessLite {
@@ -179,7 +180,9 @@ export function CalendarContent() {
       const opts = new Map<string, { code: string; label: string }>();
       for (const sIt of sessions) {
         if (sIt.courseCode !== courseCode || (sIt.sessionType ?? "").toLowerCase() !== type || !sIt.groupCode) continue;
-        const label = `${sIt.groupCode} · ${["", "א", "ב", "ג", "ד", "ה", "ו", "ש"][Number(sIt.dayOfWeek)] ?? sIt.dayOfWeek}׳ ${sIt.startTime}-${sIt.endTime}`;
+        const dayHe = ["", "א׳", "ב׳", "ג׳", "ד׳", "ה׳", "ו׳", "ש׳"][Number(sIt.dayOfWeek)] ?? String(sIt.dayOfWeek);
+        const dayEn = ["", "Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"][Number(sIt.dayOfWeek)] ?? String(sIt.dayOfWeek);
+        const label = `${sIt.groupCode} · ${isHe ? dayHe : dayEn} ${sIt.startTime}-${sIt.endTime}`;
         if (!opts.has(sIt.groupCode)) opts.set(sIt.groupCode, { code: sIt.groupCode, label });
       }
       if (!perCourse.has(courseCode)) {
@@ -423,7 +426,9 @@ export function CalendarContent() {
               {unchosen.size > 0 && (
                 <div className="mb-3 space-y-2 rounded-xl border border-amber-500/35 bg-amber-500/[0.07] p-3.5">
                   <p className="text-xs font-bold text-amber-700 dark:text-amber-400">
-                    יש קורסים שעוד לא בחרתם בהם קבוצה — המערכת מציגה בינתיים את הקבוצה הראשונה:
+                    {isHe
+                      ? "יש קורסים שעוד לא בחרתם בהם קבוצה — המערכת מציגה בינתיים את הקבוצה הראשונה:"
+                      : "Some courses have no chosen group yet — showing the first group meanwhile:"}
                   </p>
                   {[...unchosen.entries()].map(([code, info]) => (
                     <div key={code} className="space-y-1.5">
@@ -431,7 +436,9 @@ export function CalendarContent() {
                       {[...info.types.entries()].map(([type, opts]) => (
                         <div key={type} className="flex flex-wrap items-center gap-1.5">
                           <span className="text-[11px] text-foreground/50">
-                            {type === "tutorial" ? "תרגיל" : type === "lab" ? "מעבדה" : type === "lecture" ? "הרצאה" : type}:
+                            {isHe
+                              ? (type === "tutorial" ? "תרגיל" : type === "lab" ? "מעבדה" : type === "lecture" ? "הרצאה" : type)
+                              : (type.charAt(0).toUpperCase() + type.slice(1))}:
                           </span>
                           {opts.map((o) => (
                             <button
