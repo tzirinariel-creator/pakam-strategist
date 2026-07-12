@@ -224,6 +224,10 @@ export const studyTaskRouter = createTRPCRouter({
             overrides: z.record(z.string(), z.number().min(0).max(16)).optional(),
           })
           .optional(),
+        // Phase 3 — per-course self-reported readiness 1-5 (the student's own
+        // report, NOT a prediction). Scales that exam's budget; omitted codes
+        // stay neutral (1.0×).
+        confidence: z.record(z.string(), z.number().min(1).max(5)).optional(),
       })
     )
     .mutation(async ({ ctx, input }) => {
@@ -260,6 +264,7 @@ export const studyTaskRouter = createTRPCRouter({
           credits,
           averageGrade: uc.course.averageGrade,
           failRate: uc.course.failRate,
+          confidence: input.confidence?.[code],
           moed,
         });
       }

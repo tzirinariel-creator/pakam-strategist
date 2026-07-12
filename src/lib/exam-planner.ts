@@ -16,6 +16,9 @@ export interface ExamInput {
   averageGrade?: number | null;
   /** 0–1 fail rate (higher = harder), if known. */
   failRate?: number | null;
+  /** Self-reported readiness 1 (not ready) … 5 (very ready). The student's OWN
+   *  report, NOT our prediction — it scales the hour budget only. */
+  confidence?: number | null;
   /** Which sitting this date is. */
   moed: "A" | "B";
 }
@@ -54,6 +57,16 @@ const PALETTE = [
 
 const HOURS_PER_CREDIT: Record<Difficulty, number> = { low: 1.5, medium: 2.5, high: 4 };
 const SESSION_HOURS = 2.5;
+
+/** Self-report readiness → hour multiplier. Low readiness buys MORE hours, high
+ *  buys fewer; 3 (or unset) is neutral (1.0×) so a plan without any confidence
+ *  input is byte-for-byte the old plan. Input is clamped to 1..5. */
+const CONFIDENCE_MULT: Record<number, number> = { 1: 1.4, 2: 1.2, 3: 1.0, 4: 0.85, 5: 0.7 };
+export function confidenceMultiplier(c?: number | null): number {
+  if (c == null || !Number.isFinite(c)) return 1;
+  const k = Math.min(5, Math.max(1, Math.round(c)));
+  return CONFIDENCE_MULT[k] ?? 1;
+}
 
 function startOfDay(d: Date): Date {
   const x = new Date(d);
@@ -172,7 +185,10 @@ export function generateExamPlan(
   ordered.forEach((exam, idx) => {
     const color = colorFor(idx);
     const difficulty = classifyDifficulty(exam.averageGrade, exam.failRate);
-    const totalHours = Math.max(SESSION_HOURS, Math.round(exam.credits * HOURS_PER_CREDIT[difficulty]));
+    const totalHours = Math.max(
+      SESSION_HOURS,
+      Math.round(exam.credits * HOURS_PER_CREDIT[difficulty] * confidenceMultiplier(exam.confidence)),
+    );
 
     examSummaries.push({
       courseCode: exam.courseCode,

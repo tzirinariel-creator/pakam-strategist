@@ -73,6 +73,9 @@ export async function POST(request: NextRequest) {
           generic: "Failed to get response",
           notSaved: "Reply could not be saved — it may disappear on refresh.",
           truncated: 'I stopped before the end — type "continue" and I\'ll pick up from there.',
+          // Every fallback model is retired (404) or the shared free quota is
+          // spent (429) — an honest, persona-neutral rest state, not a raw error.
+          resting: "The assistant is unavailable right now — try again later. You can add your own free key in settings to skip the wait.",
         }
       : {
           invalidKey: "מפתח ה-API שגוי או שפג תוקפו",
@@ -81,6 +84,7 @@ export async function POST(request: NextRequest) {
           generic: "שליחת התשובה נכשלה. נסה שוב.",
           notSaved: "לא ניתן היה לשמור את התשובה — ייתכן שהיא תיעלם ברענון.",
           truncated: 'נעצרתי לפני הסוף. כתבו "המשך" ואמשיך מאותה נקודה.',
+          resting: "היועץ לא זמין כרגע — נסו שוב מאוחר יותר. אפשר להוסיף מפתח חינמי משלכם בהגדרות כדי לא לחכות.",
         };
 
   try {
@@ -429,11 +433,17 @@ export async function POST(request: NextRequest) {
           const errorMessage =
             status === 401 || status === 403 || status === 400
               ? streamErrors.invalidKey
-              : status === 429
-                ? streamErrors.rateLimit
-                : status === 529 || status === 503 || status === 500
-                  ? streamErrors.overloaded
-                  : streamErrors.generic;
+              : status === 404
+                ? streamErrors.resting // every fallback model retired → honest rest
+                : status === 429
+                  ? // a BYOK user's own 429 is their quota; the shared key's 429
+                    // means everyone is tapped out — show the rest state, not "you".
+                    usingSharedKey
+                    ? streamErrors.resting
+                    : streamErrors.rateLimit
+                  : status === 529 || status === 503 || status === 500
+                    ? streamErrors.overloaded
+                    : streamErrors.generic;
 
           // Guard against a controller that may already be closed.
           if (!closed) {

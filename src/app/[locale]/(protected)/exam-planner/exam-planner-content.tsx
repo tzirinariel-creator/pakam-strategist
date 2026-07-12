@@ -131,6 +131,10 @@ export function ExamPlannerContent() {
   const hasAnyPlannedCourses = (planQuery.data?.courses?.length ?? 0) > 0;
 
   const [selected, setSelected] = useState<Record<string, Moed | undefined>>({});
+  // Phase 3 — per-course self-reported readiness (1-5). Ephemeral like
+  // blockedDays; unset = neutral (engine treats it as 1.0×). NOT a grade
+  // prediction — the student's own read on how ready they feel.
+  const [confidence, setConfidence] = useState<Record<string, number>>({});
   // #34 (12.7) — courses assessed by a PAPER / alternative assessment (מתווה
   // תשפ"ו) have no exam to plan: marked here, they leave the picker + skyline,
   // and get a gentle "add your submission deadline" pointer instead.
@@ -186,10 +190,10 @@ export function ExamPlannerContent() {
       // (min 1 kept so a course never drops to zero sessions). steady/crammer
       // don't reshape the client preview — the engine owns the window.
       const credits = prepStyle === "light" ? Math.max(1, Math.round(c.credits * 0.75)) : c.credits;
-      inputs.push({ courseCode: c.code, courseName: c.name, examDate: date, credits, averageGrade: c.averageGrade, failRate: c.failRate, moed });
+      inputs.push({ courseCode: c.code, courseName: c.name, examDate: date, credits, averageGrade: c.averageGrade, failRate: c.failRate, confidence: confidence[c.code], moed });
     }
     return inputs;
-  }, [examCourses, selected, prepStyle]);
+  }, [examCourses, selected, prepStyle, confidence]);
 
   const previewPlan = useMemo(() => generateExamPlan(previewInputs, new Date(), blockedDays, prepStyle, { weekdayHours }), [previewInputs, blockedDays, prepStyle, weekdayHours]);
   const previewRecs = useMemo(() => (previewInputs.length === 0 ? [] : analyzeExamPeriod(previewPlan, isHe)), [previewInputs, previewPlan, isHe]);
@@ -208,6 +212,7 @@ export function ExamPlannerContent() {
       unavailable: blockedDays.length > 0 ? blockedDays : undefined,
       prepStyle, // apply the SAME scaling the wizard preview showed (#audit-r3)
       capacity: { weekdayHours }, // the same capacity the preview used
+      confidence: Object.keys(confidence).length > 0 ? confidence : undefined,
     });
     setRetuneOpen(false);
   };
@@ -454,6 +459,28 @@ export function ExamPlannerContent() {
                     );
                   })}
                 </div>
+                {sel && (
+                  <div className="flex basis-full items-center gap-2 pt-1">
+                    <span className="text-[11px] text-foreground/50">{isHe ? "כמה אתם מרגישים מוכנים?" : "How ready do you feel?"}</span>
+                    <div className="flex overflow-hidden rounded-md border border-border/60">
+                      {[1, 2, 3, 4, 5].map((n) => (
+                        <button
+                          key={n}
+                          type="button"
+                          aria-label={isHe ? `רמת מוכנות ${n}` : `readiness ${n}`}
+                          onClick={() => setConfidence((p) => ({ ...p, [c.code]: n }))}
+                          className={cn(
+                            "px-2 py-0.5 text-xs tabular-nums transition-colors",
+                            confidence[c.code] === n ? "bg-accent-brand text-accent-brand-fg" : "text-foreground/50 hover:bg-foreground/5",
+                          )}
+                        >
+                          {n}
+                        </button>
+                      ))}
+                    </div>
+                    <span className="text-[10px] text-foreground/35">{isHe ? "פחות מוכנים = יותר שעות" : "less ready = more hours"}</span>
+                  </div>
+                )}
                 <button
                   type="button"
                   onClick={() => toggleAltAssessment(c.code)}

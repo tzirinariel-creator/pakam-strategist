@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { generateExamPlan, analyzeExamPeriod, classifyDifficulty, type ExamInput } from "@/lib/exam-planner";
+import { generateExamPlan, analyzeExamPeriod, classifyDifficulty, confidenceMultiplier, type ExamInput } from "@/lib/exam-planner";
 
 const NOW = new Date("2026-06-01T00:00:00Z");
 
@@ -172,5 +172,30 @@ describe("capacity model", () => {
   it("no single course studies more than the per-day subject max in a day", () => {
     const { sessions } = genPlan(heavy, now, [], "crammer", { weekdayHours: [8, 8, 8, 8, 8, 8, 8] });
     for (const s of sessions) expect(s.hours).toBeLessThanOrEqual(2.5 + 1e-6);
+  });
+});
+
+// ── Phase 3 — self-reported confidence scales the hour budget (not a prediction) ──
+describe("confidence", () => {
+  it("low readiness budgets MORE hours than high readiness", () => {
+    const low = generateExamPlan([exam({ confidence: 1 })], NOW).exams[0]!.totalHours;
+    const high = generateExamPlan([exam({ confidence: 5 })], NOW).exams[0]!.totalHours;
+    expect(low).toBeGreaterThan(high);
+  });
+
+  it("confidence 3 and unset are both neutral (== baseline) — no regression", () => {
+    const base = generateExamPlan([exam({})], NOW).exams[0]!.totalHours;
+    expect(generateExamPlan([exam({ confidence: 3 })], NOW).exams[0]!.totalHours).toBe(base);
+    expect(generateExamPlan([exam({ confidence: undefined })], NOW).exams[0]!.totalHours).toBe(base);
+  });
+
+  it("confidenceMultiplier scales, clamps out-of-range, and defaults neutral", () => {
+    expect(confidenceMultiplier(1)).toBe(1.4);
+    expect(confidenceMultiplier(3)).toBe(1);
+    expect(confidenceMultiplier(5)).toBe(0.7);
+    expect(confidenceMultiplier(undefined)).toBe(1);
+    expect(confidenceMultiplier(null)).toBe(1);
+    expect(confidenceMultiplier(0)).toBe(1.4);
+    expect(confidenceMultiplier(9)).toBe(0.7);
   });
 });

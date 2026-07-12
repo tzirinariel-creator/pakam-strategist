@@ -21,7 +21,17 @@ import type { ChatMessage } from "@/lib/ai/claude-client";
  * surfaced as "hit the usage limit on first use" (#34). If Google deprecates
  * this model too, bump it to the current free Flash-Lite ID (one line).
  */
-export const GEMINI_MODEL = "gemini-2.5-flash-lite";
+// Ordered FREE-tier fallback chain. Try [0]; on 404 (a retired model) or 429
+// (a spent quota) fall through to the next. All IDs MUST be currently free +
+// live — Google retires Flash models. An optional GEMINI_MODEL env override
+// makes the PRIMARY hot-fixable without a deploy (de-duped so it isn't tried
+// twice). See memory: gemini-model-must-stay-current.
+const DEFAULT_GEMINI_MODELS = ["gemini-2.5-flash-lite", "gemini-2.5-flash"] as const;
+export const GEMINI_MODELS: string[] = Array.from(
+  new Set([process.env.GEMINI_MODEL?.trim(), ...DEFAULT_GEMINI_MODELS].filter(Boolean) as string[]),
+);
+/** Primary model — kept for the health route + back-compat. */
+export const GEMINI_MODEL = GEMINI_MODELS[0]!;
 
 const GEMINI_MAX_TOKENS = 4096;
 
@@ -46,6 +56,40 @@ interface GeminiStreamChunk {
 }
 
 /**
+ * POST to Gemini, trying each model in GEMINI_MODELS until one responds OK.
+ * Only a retired model (404) or a spent quota (429) is worth another model —
+ * any other status (bad key, 400, 5xx) is a real error, so stop and throw it.
+ * Throws { status, message } (the LAST failure) when every model fails, so the
+ * route maps 404/429 to the honest "resting" state.
+ */
+async function geminiFetchWithFallback(
+  suffix: string,
+  body: string,
+  apiKey: string,
+  signal?: AbortSignal,
+): Promise<Response> {
+  let last: { status: number; message: string } = { status: 500, message: "Gemini request failed" };
+  const wantsStream = suffix.includes("streamGenerateContent");
+  for (const model of GEMINI_MODELS) {
+    const res = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/${model}${suffix}`,
+      { method: "POST", headers: { "Content-Type": "application/json", "x-goog-api-key": apiKey }, body, signal },
+    );
+    if (res.ok && (!wantsStream || res.body)) return res;
+    let detail = "";
+    try {
+      detail = await res.text();
+    } catch {
+      /* status is enough */
+    }
+    last = { status: res.status || 500, message: detail || "Gemini request failed" };
+    // Only a retired model or a spent quota is worth trying the next model.
+    if (res.status !== 404 && res.status !== 429) break;
+  }
+  throw last;
+}
+
+/**
  * One-shot VISION call (image → text), non-streaming. Used by the AI scanners
  * (grade sheet / syllabus). Same free-tier model, same header auth; throws
  * { status, message } like streamGemini so routes map errors uniformly.
@@ -62,14 +106,9 @@ export async function generateGeminiVision(
     throw { status: 400, message: "Invalid Gemini key format" };
   }
 
-  const url =
-    `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}` +
-    `:generateContent`;
-
-  const res = await fetch(url, {
-    method: "POST",
-    headers: { "Content-Type": "application/json", "x-goog-api-key": apiKey },
-    body: JSON.stringify({
+  const res = await geminiFetchWithFallback(
+    ":generateContent",
+    JSON.stringify({
       systemInstruction: { parts: [{ text: system }] },
       contents: [
         {
@@ -82,17 +121,8 @@ export async function generateGeminiVision(
       ],
       generationConfig: { maxOutputTokens: GEMINI_MAX_TOKENS, temperature: 0 },
     }),
-  });
-
-  if (!res.ok) {
-    let detail = "";
-    try {
-      detail = await res.text();
-    } catch {
-      /* status is enough */
-    }
-    throw { status: res.status || 500, message: detail || "Gemini vision request failed" };
-  }
+    apiKey,
+  );
 
   const data = (await res.json()) as GeminiStreamChunk;
   return (data.candidates?.[0]?.content?.parts ?? []).map((p) => p.text ?? "").join("");
@@ -119,10 +149,6 @@ export async function* streamGemini(
     throw { status: 400, message: "Invalid Gemini key format" };
   }
 
-  const url =
-    `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}` +
-    `:streamGenerateContent?alt=sse`;
-
   // Gemini uses role "model" for the assistant; "user" stays "user".
   const contents = messages.map((m) => ({
     role: m.role === "assistant" ? "model" : "user",
@@ -135,13 +161,14 @@ export async function* streamGemini(
     });
   }
 
-  const res = await fetch(url, {
-    method: "POST",
-    // The key goes in the x-goog-api-key header (Google's documented method,
-    // works for both legacy AIza keys and the new AQ. auth keys) rather than a
-    // ?key= query param — also keeps the secret out of URLs/logs.
-    headers: { "Content-Type": "application/json", "x-goog-api-key": apiKey },
-    body: JSON.stringify({
+  // The key goes in the x-goog-api-key header (works for both legacy AIza and
+  // the new AQ. auth keys) and keeps the secret out of URLs/logs. The helper
+  // retries across GEMINI_MODELS on a retired/quota failure BEFORE any byte
+  // streams — once the reader starts there is no safe retry (and none needed:
+  // every failure is reported on the initial non-OK response).
+  const res = await geminiFetchWithFallback(
+    ":streamGenerateContent?alt=sse",
+    JSON.stringify({
       systemInstruction: { parts: [{ text: system }] },
       contents,
       generationConfig: {
@@ -149,21 +176,13 @@ export async function* streamGemini(
         temperature: GEMINI_CHAT_TEMPERATURE,
       },
     }),
+    apiKey,
     signal,
-  });
-
-  if (!res.ok || !res.body) {
-    let detail = "";
-    try {
-      detail = await res.text();
-    } catch {
-      // ignore — we only need the status to map the error
-    }
-    throw { status: res.status || 500, message: detail || "Gemini request failed" };
-  }
+  );
 
   // The response is a Server-Sent-Events stream of partial JSON candidates.
-  const reader = res.body.getReader();
+  // res.body is guaranteed non-null by the helper (it rejects a bodyless stream).
+  const reader = res.body!.getReader();
   const decoder = new TextDecoder();
   let buffer = "";
 

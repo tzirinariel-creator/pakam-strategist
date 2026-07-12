@@ -14,12 +14,13 @@ import {
   Check,
   GraduationCap,
   AlertTriangle,
+  FolderInput,
 } from "lucide-react";
 import { useTranslations, useLocale } from "next-intl";
 import { toast } from "sonner";
 import { DisciplineBadge } from "@/components/catalog/discipline-badge";
 import { maybeNudgeCourseReview } from "@/components/catalog/review-nudge";
-import { DISCIPLINE_CONFIG, CREDIT_REQUIREMENTS } from "@/lib/constants";
+import { DISCIPLINE_CONFIG, CREDIT_REQUIREMENTS, SEMESTER_CONFIG, YEAR_CONFIG } from "@/lib/constants";
 import { passBarFor } from "@/lib/constants";
 import { isCurrentlyStudying } from "@/lib/semester-clock";
 import { api } from "@/lib/trpc/react";
@@ -35,8 +36,16 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import {
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+} from "@/components/ui/dropdown-menu";
 import type { UserCourseWithCourse } from "@/types/degree";
-import type { CourseStatus } from "@/types/enums";
+import type { CourseStatus, Semester } from "@/types/enums";
 import { Bidi } from "@/lib/bidi";
 import { cn } from "@/lib/utils";
 import { CohortCourseChip } from "@/components/cohort/cohort-course-chip";
@@ -103,6 +112,26 @@ export function CourseCard({ userCourse, disabled, currentYear }: CourseCardProp
       toast.error(tPlanner("statusSaveError"));
     },
   });
+
+  // Tap-to-move between semesters — the phone-friendly path (dragging the grip
+  // is near-impossible one-handed). Reuses the SAME plan.updateCourse the drag
+  // handler calls. The board has no SUMMER column, so only FALL/SPRING × 1-3.
+  const moveMutation = api.plan.updateCourse.useMutation({
+    onSuccess: () => {
+      invalidatePlanData(utils);
+      toast.success(tPlanner("courseMoved"));
+    },
+    onError: (e) => {
+      if (e.message === "COURSE_ALREADY_IN_SEMESTER") {
+        toast.error(isHe ? "הקורס כבר נמצא בסמסטר הזה" : "This course is already in that semester");
+        return;
+      }
+      toast.error(tPlanner("statusSaveError"));
+    },
+  });
+  const moveTargets = ([1, 2, 3] as const)
+    .flatMap((year) => (["FALL", "SPRING"] as Semester[]).map((semester) => ({ year, semester })))
+    .filter((tgt) => !(tgt.year === userCourse.plannedYear && tgt.semester === userCourse.plannedSemester));
 
   const {
     attributes,
@@ -252,6 +281,35 @@ export function CourseCard({ userCourse, disabled, currentYear }: CourseCardProp
         courseType={course.courseType}
         onUpdate={(input) => updateMutation.mutate(input)}
       />
+
+      {/* Move to another semester — tap-friendly (drag is desktop-only). */}
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <button
+            type="button"
+            onPointerDown={(e) => e.stopPropagation()}
+            aria-label={tPlanner("moveCourse")}
+            title={tPlanner("moveCourse")}
+            className="flex size-6 shrink-0 items-center justify-center rounded-lg text-muted-foreground/50 transition-colors hover:bg-muted hover:text-foreground focus:opacity-100 focus:outline-none md:opacity-0 md:group-hover:opacity-100"
+          >
+            <FolderInput className="size-3.5" />
+          </button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="end">
+          <DropdownMenuLabel>{tPlanner("moveCourse")}</DropdownMenuLabel>
+          <DropdownMenuSeparator />
+          {moveTargets.map((tgt) => (
+            <DropdownMenuItem
+              key={`${tgt.year}-${tgt.semester}`}
+              onClick={() => moveMutation.mutate({ userCourseId: userCourse.id, plannedYear: tgt.year, plannedSemester: tgt.semester })}
+            >
+              {isHe ? YEAR_CONFIG[tgt.year].nameHe : YEAR_CONFIG[tgt.year].nameEn}
+              {" · "}
+              {isHe ? SEMESTER_CONFIG[tgt.semester].nameHe : SEMESTER_CONFIG[tgt.semester].nameEn}
+            </DropdownMenuItem>
+          ))}
+        </DropdownMenuContent>
+      </DropdownMenu>
 
       {/* Remove button — shows on hover */}
       <button

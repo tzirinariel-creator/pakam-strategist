@@ -572,12 +572,6 @@ function AppearanceSection() {
   const locale = useLocale();
   const isHe = locale === "he";
   const { theme, setTheme } = useUIStore();
-  const router = useRouter();
-  const pathname = usePathname();
-
-  const handleLocaleSwitch = (newLocale: "he" | "en") => {
-    router.replace(pathname, { locale: newLocale });
-  };
 
   // The King's proactive suggestion (note #12) — a global opt-out kept in
   // localStorage (pk-proactive-off). ON = the King may surface one critical gap
@@ -651,37 +645,6 @@ function AppearanceSection() {
             >
               <Moon className="size-5" />
               <span className="text-sm font-medium">{t("darkMode")}</span>
-            </button>
-          </div>
-        </div>
-
-        {/* Language toggle */}
-        <div className="flex flex-col gap-2">
-          <label className="text-sm font-medium text-foreground/80">
-            {t("language")}
-          </label>
-          <div className="grid grid-cols-2 gap-3">
-            <button
-              onClick={() => handleLocaleSwitch("he")}
-              className={cn(
-                "flex items-center justify-center gap-2 rounded-lg border p-4 transition-all",
-                locale === "he"
-                  ? "border-accent-brand/30 bg-accent-brand-muted text-accent-brand"
-                  : "border-border bg-card text-foreground/60 hover:border-foreground/30"
-              )}
-            >
-              <span className="text-sm font-medium">{t("hebrew")}</span>
-            </button>
-            <button
-              onClick={() => handleLocaleSwitch("en")}
-              className={cn(
-                "flex items-center justify-center gap-2 rounded-lg border p-4 transition-all",
-                locale === "en"
-                  ? "border-accent-brand/30 bg-accent-brand-muted text-accent-brand"
-                  : "border-border bg-card text-foreground/60 hover:border-foreground/30"
-              )}
-            >
-              <span className="text-sm font-medium">{t("english")}</span>
             </button>
           </div>
         </div>

@@ -38,10 +38,20 @@ function isPublicPath(pathname: string): boolean {
 }
 
 export async function middleware(request: NextRequest) {
+  const { pathname } = request.nextUrl;
+
+  // Hide the half-built English locale: redirect /en and /en/* to the Hebrew
+  // equivalent so users never reach a broken half-Hebrew RTL page. The i18n
+  // plumbing (routing keeps both locales, en.json, the parity test) stays
+  // intact for when EN is actually finished.
+  if (pathname === "/en" || pathname.startsWith("/en/")) {
+    const url = request.nextUrl.clone();
+    url.pathname = pathname.replace(/^\/en/, "/he");
+    return NextResponse.redirect(url);
+  }
+
   // 1. Run i18n middleware first (handles locale detection & routing)
   const response = intlMiddleware(request);
-
-  const { pathname } = request.nextUrl;
 
   // 2. Skip auth check for public paths
   if (isPublicPath(pathname)) {

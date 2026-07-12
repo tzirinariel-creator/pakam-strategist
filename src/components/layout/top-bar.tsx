@@ -1,8 +1,8 @@
 "use client";
 
 import { useTranslations, useLocale } from "next-intl";
-import { usePathname, useRouter } from "@/i18n/navigation";
-import { Globe, Moon, Sun, Monitor, LogOut } from "lucide-react";
+import { useRouter } from "@/i18n/navigation";
+import { Moon, Sun, Monitor, LogOut } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useUIStore } from "@/stores/ui-store";
 import { createClient } from "@/lib/supabase/client";
@@ -11,15 +11,9 @@ import { useQueryClient } from "@tanstack/react-query";
 export function TopBar() {
   const t = useTranslations();
   const locale = useLocale();
-  const pathname = usePathname();
   const router = useRouter();
   const { theme, toggleTheme, sidebarCollapsed } = useUIStore();
   const queryClient = useQueryClient();
-
-  const toggleLocale = () => {
-    const newLocale = locale === "he" ? "en" : "he";
-    router.replace(pathname, { locale: newLocale });
-  };
 
   const handleSignOut = async () => {
     try {
@@ -47,18 +41,6 @@ export function TopBar() {
 
       {/* Actions */}
       <div className="flex items-center gap-2">
-        {/* Language toggle */}
-        <button
-          onClick={toggleLocale}
-          className="flex items-center gap-1.5 rounded-lg px-3 py-2 text-sm text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
-          aria-label={locale === "he" ? "Switch to English" : "עבור לעברית"}
-        >
-          <Globe className="h-4 w-4" />
-          <span className="font-data text-xs uppercase">
-            {locale === "he" ? "EN" : "HE"}
-          </span>
-        </button>
-
         {/* Theme toggle (system → light → dark) */}
         <button
           onClick={toggleTheme}
