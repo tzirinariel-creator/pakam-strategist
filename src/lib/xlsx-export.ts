@@ -4,7 +4,7 @@
 // Real xlsx (not the old faux-CSV) built with exceljs. THREE sheets:
 //   (1) "תוכנית" — title + totals banner, then a flat table: exam, date,
 //       days-left, moed, difficulty, budgeted hours, prep-block count.
-//   (2) "לוח-גאנט" — a day×course grid: rows = exams/courses, columns =
+//   (2) [dropped 18:19 — was a messy duplicate of the weekly grid]
 //       calendar days (today → last exam). Study cells are tinted by
 //       intensity (more hours = deeper course color), exam day is solid red,
 //       weekends are shaded, TODAY's column is marked, and both a per-course
@@ -96,6 +96,27 @@ function tintFont(towardWhite: number): string {
 }
 
 const INK = "FF1E1B4B"; // deep indigo — headers
+
+/**
+ * 18:19 (#5) — a SHORT course name for the weekly grid. The full nameHe
+ * ("מיקרו כלכלה והחלטות כלכליות + תרגיל") blew up the column. Strip trailing
+ * noise (tutorial/lecture tails, parentheticals, "שיעור יסוד:" prefixes),
+ * then cap at a word boundary while KEEPING a distinctive prefix.
+ */
+export function shortCourseName(name: string, max = 22): string {
+  let s = name
+    .replace(/\s*[+＋]\s*(תרגיל|תרגול|מעבדה|סמינר).*$/u, "")
+    .replace(/\s*[-–—]\s*(שיעור המשך|תרגיל|תרגול|מעבדה).*$/u, "")
+    .replace(/\s*\([^)]*\)\s*/gu, " ")
+    .replace(/^(שיעור יסוד|קורס יסוד|מבוא כללי)\s*[:־-]\s*/u, "")
+    .replace(/\s+/g, " ")
+    .trim();
+  if (s.length <= max) return s;
+  const cut = s.slice(0, max);
+  const lastSpace = cut.lastIndexOf(" ");
+  s = (lastSpace > max * 0.5 ? cut.slice(0, lastSpace) : cut).trim();
+  return s + "…";
+}
 
 /** Mix a 6-hex color with white (t=0 → color, t=1 → white) for soft tints. */
 function mixWithWhite(hex6: string, t: number): string {
@@ -250,16 +271,20 @@ export async function buildExamPlanWorkbook(
       for (let d = 0; d < 7; d++) {
         const day = addDays(weekStart, w * 7 + d);
         const k = dayKey(day);
-        dates.push(fmtDate(day));
         const exams = examByDay.get(k) ?? [];
         const sessions = sessByDay.get(k) ?? [];
         const parts: string[] = [];
         for (const ex of exams) {
-          parts.push(isHe ? `📝 ${ex.name} — מועד ${ex.moed === "A" ? "א׳" : "ב׳"}` : `📝 ${ex.name} — Moed ${ex.moed}`);
+          parts.push(isHe ? `📝 ${shortCourseName(ex.name)} — מועד ${ex.moed === "A" ? "א׳" : "ב׳"}` : `📝 ${shortCourseName(ex.name)} — Moed ${ex.moed}`);
         }
+        // 18:19 (#5) — SHORT names (the full nameHe blew up the column) and NO
+        // per-session "(2.5 ש׳)" clutter; the day's total hours go on the date
+        // row instead, which is the real load signal.
         for (const sess of sessions) {
-          parts.push(isHe ? `${sess.courseName} (${sess.hours} ש׳)` : `${sess.courseName} (${sess.hours}h)`);
+          parts.push(shortCourseName(sess.courseName));
         }
+        const dayHours = sessions.reduce((s, x) => s + x.hours, 0);
+        dates.push(dayHours > 0 ? `${fmtDate(day)} · ${dayHours} ${isHe ? "ש׳" : "h"}` : fmtDate(day));
         contents.push(parts.join("\n"));
         cellMeta.push({
           exam: exams.length > 0,
@@ -383,169 +408,13 @@ export async function buildExamPlanWorkbook(
   });
   table.getRow(4).height = 22;
 
-  // ─────────────────────────────────────────────────────────────────
-  // Sheet 2 — the day×course gantt grid
-  // ─────────────────────────────────────────────────────────────────
-  const grid = wb.addWorksheet(isHe ? "לוח-גאנט" : "Gantt", {
-    views: [{ rightToLeft: isHe, state: "frozen", xSplit: 1, ySplit: 2 }],
-  });
-
+  // 18:19 (#5) — the separate gantt sheet was dropped (a messy duplicate of
+  // the weekly grid). dayCount/todayCol are still computed for the meta.
   const dayCount = Math.max(0, daysBetween(planStart, planEnd)) + 1;
   const days: Date[] = [];
   for (let i = 0; i < dayCount; i++) days.push(addDays(planStart, i));
-
-  const weekdays = isHe ? HE_WEEKDAYS : EN_WEEKDAYS;
   const todayIdx = days.findIndex((d) => dayKey(d) === dayKey(now));
   const todayCol = todayIdx >= 0 ? todayIdx + 2 : null;
-  const totalColIdx = days.length + 2; // per-course totals, after the last day
-
-  // Header row 1: day-of-month numbers. Header row 2: weekday letters.
-  const corner = isHe ? "מבחן \\ יום" : "Exam \\ Day";
-  const numRow = grid.addRow([
-    corner,
-    ...days.map((d) => d.getDate()),
-    isHe ? "סה״כ" : "Total",
-  ]);
-  const dowRow = grid.addRow([
-    "",
-    ...days.map((d, i) => (i === todayIdx ? (isHe ? "היום" : "now") : weekdays[d.getDay()] ?? "")),
-    "",
-  ]);
-
-  const styleHeaderCell = (cell: Cell, weekend: boolean, today: boolean) => {
-    cell.font = { bold: true, color: { argb: today ? INK : "FFFFFFFF" }, size: 11 };
-    cell.fill = {
-      type: "pattern",
-      pattern: "solid",
-      fgColor: { argb: today ? TODAY_GOLD : weekend ? HEAD_WEEKEND : HEAD },
-    };
-    cell.alignment = { vertical: "middle", horizontal: "center" };
-  };
-  const styleCorner = (cell: Cell) => {
-    cell.font = { bold: true, color: { argb: "FFFFFFFF" }, size: 11 };
-    cell.fill = { type: "pattern", pattern: "solid", fgColor: { argb: INK } };
-    cell.alignment = { vertical: "middle", horizontal: "center" };
-  };
-  numRow.eachCell((cell, col) => {
-    if (col === 1 || col === totalColIdx) {
-      styleCorner(cell);
-    } else {
-      const d = days[col - 2];
-      styleHeaderCell(cell, d ? d.getDay() === 5 || d.getDay() === 6 : false, col === todayCol);
-    }
-  });
-  dowRow.eachCell((cell, col) => {
-    if (col === 1 || col === totalColIdx) {
-      styleCorner(cell);
-    } else {
-      const d = days[col - 2];
-      styleHeaderCell(cell, d ? d.getDay() === 5 || d.getDay() === 6 : false, col === todayCol);
-    }
-  });
-
-  const examDayByCourse = new Map<string, string>();
-  for (const e of exams) examDayByCourse.set(e.courseCode, dayKey(e.examDate));
-
-  // Per-day totals accumulate while we lay the course rows.
-  const dayTotals = new Array<number>(days.length).fill(0);
-
-  for (const e of exams) {
-    const perDay = sessionsByCourse.get(e.courseCode);
-    const examKey = examDayByCourse.get(e.courseCode);
-    let courseTotal = 0;
-    const cells: (number | string)[] = [e.courseName];
-    days.forEach((d, i) => {
-      const k = dayKey(d);
-      if (k === examKey) {
-        cells.push(isHe ? "מבחן" : "EXAM");
-      } else {
-        const h = perDay?.get(k);
-        if (h) {
-          courseTotal += h;
-          dayTotals[i] = (dayTotals[i] ?? 0) + h;
-        }
-        cells.push(h ? h : "");
-      }
-    });
-    cells.push(courseTotal);
-    const row = grid.addRow(cells);
-
-    // Row label — course-colored swatch, matching the table sheet.
-    const label = row.getCell(1);
-    label.fill = { type: "pattern", pattern: "solid", fgColor: { argb: argb(e.color) } };
-    label.font = { bold: true, color: { argb: "FFFFFFFF" }, size: 11 };
-    label.alignment = { vertical: "middle", horizontal: isHe ? "right" : "left" };
-
-    const totalCell = row.getCell(totalColIdx);
-    totalCell.font = { bold: true, color: { argb: INK }, size: 10 };
-    totalCell.alignment = { vertical: "middle", horizontal: "center" };
-    totalCell.fill = { type: "pattern", pattern: "solid", fgColor: { argb: "FFE0E7FF" } };
-
-    row.eachCell((cell, col) => {
-      if (col === 1 || col === totalColIdx) return;
-      const d = days[col - 2];
-      if (!d) return;
-      const k = dayKey(d);
-      const isWeekend = d.getDay() === 5 || d.getDay() === 6;
-      if (k === examKey) {
-        // Exam day — solid red, unmistakable.
-        cell.fill = { type: "pattern", pattern: "solid", fgColor: { argb: EXAM_RED } };
-        cell.font = { bold: true, color: { argb: "FFFFFFFF" }, size: 10 };
-        cell.alignment = { vertical: "middle", horizontal: "center" };
-      } else {
-        const h = perDay?.get(k);
-        if (h) {
-          // Study block — course color, tinted by intensity (hours).
-          const t = intensityTint(h);
-          cell.fill = { type: "pattern", pattern: "solid", fgColor: { argb: tintArgb(e.color, t) } };
-          cell.font = { color: { argb: tintFont(t) }, size: 10, bold: h >= 4 };
-          cell.alignment = { vertical: "middle", horizontal: "center" };
-        } else if (isWeekend) {
-          // Weekend wash keeps the rhythm of the calendar readable.
-          cell.fill = { type: "pattern", pattern: "solid", fgColor: { argb: WEEKEND_WASH } };
-        }
-        if (col === todayCol) {
-          // A golden "you are here" seam on both sides of today's column.
-          cell.border = {
-            ...cell.border,
-            left: { style: "medium", color: { argb: TODAY_GOLD } },
-            right: { style: "medium", color: { argb: TODAY_GOLD } },
-          };
-        }
-      }
-    });
-  }
-
-  // Bottom row — total hours per day, crunch days highlighted so the student
-  // SEES the overloaded day before it happens.
-  const totalsRow = grid.addRow([
-    isHe ? "סה״כ ליום" : "Daily total",
-    ...dayTotals.map((h) => (h > 0 ? h : "")),
-    grandTotalHours,
-  ]);
-  totalsRow.eachCell((cell, col) => {
-    cell.font = { bold: true, color: { argb: INK }, size: 10 };
-    cell.alignment = { vertical: "middle", horizontal: "center" };
-    if (col === 1) {
-      cell.fill = { type: "pattern", pattern: "solid", fgColor: { argb: "FFE0E7FF" } };
-      cell.alignment = { vertical: "middle", horizontal: isHe ? "right" : "left" };
-      return;
-    }
-    const h = col === totalColIdx ? 0 : dayTotals[col - 2] ?? 0;
-    cell.fill = {
-      type: "pattern",
-      pattern: "solid",
-      fgColor: {
-        argb: col === totalColIdx ? "FFE0E7FF" : h >= 7 ? CRUNCH_RED : h >= 5 ? CRUNCH_AMBER : "FFF8FAFC",
-      },
-    };
-  });
-
-  grid.getColumn(1).width = 30;
-  for (let c = 2; c <= days.length + 1; c++) grid.getColumn(c).width = 4.5;
-  grid.getColumn(totalColIdx).width = 8;
-  grid.getRow(1).height = 18;
-  grid.getRow(2).height = 16;
 
   // ─────────────────────────────────────────────────────────────────
   // Sheet 3 — the printable agenda checklist

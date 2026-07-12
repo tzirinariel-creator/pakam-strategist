@@ -46,12 +46,12 @@ describe("buildExamPlanWorkbook", () => {
     expect(await buildExamPlanWorkbook({ exams: [], sessions: [] }, { now: NOW })).toBeNull();
   });
 
-  it("builds three sheets with the banner, grid and agenda", async () => {
+  it("builds the weekly grid, plan table and agenda (gantt dropped)", async () => {
     const built = await buildExamPlanWorkbook(makePlan(), { isHe: true, now: NOW });
     expect(built).not.toBeNull();
     const { wb, meta } = built!;
 
-    expect(wb.worksheets.map((w) => w.name)).toEqual(["לוח שבועי", "תוכנית", "לוח-גאנט", "אג'נדה"]);
+    expect(wb.worksheets.map((w) => w.name)).toEqual(["לוח שבועי", "תוכנית", "אג'נדה"]);
     // 11.7 → 20.7 inclusive = 10 day columns; today = first column (B).
     expect(meta.dayCount).toBe(10);
     expect(meta.todayCol).toBe(2);
@@ -65,38 +65,6 @@ describe("buildExamPlanWorkbook", () => {
     // Days-left column: exam on 15.7, today 11.7 → 4.
     // Rows: 1 title, 2 subtitle, 3 spacer, 4 headers, 5 first exam.
     expect(table.getCell(5, 3).value).toBe(4);
-  });
-
-  it("colors the grid honestly: red exam day, tinted study cells, crunch totals", async () => {
-    const built = await buildExamPlanWorkbook(makePlan(), { isHe: true, now: NOW });
-    const grid = built!.wb.getWorksheet("לוח-גאנט")!;
-
-    // Row 3 = first exam (מאקרו). Day columns start at col 2 for 11.7.
-    // 15.7 → col 6: the exam cell, solid red.
-    const examCell = grid.getCell(3, 6);
-    expect(examCell.value).toBe("מבחן");
-    expect((examCell.fill as { fgColor?: { argb?: string } }).fgColor?.argb).toBe("FFEF4444");
-
-    // 12.7 → col 3: a 4h block = FULL course color (no tint).
-    const heavy = grid.getCell(3, 3);
-    expect(heavy.value).toBe(4);
-    expect((heavy.fill as { fgColor?: { argb?: string } }).fgColor?.argb).toBe("FF6366F1");
-
-    // 13.7 → col 4: a 1h block = light tint (NOT the full color).
-    const light = grid.getCell(3, 4);
-    expect(light.value).toBe(1);
-    expect((light.fill as { fgColor?: { argb?: string } }).fgColor?.argb).not.toBe("FF6366F1");
-
-    // Per-course total column (after 10 day columns → col 12).
-    expect(grid.getCell(3, 12).value).toBe(5);
-
-    // Daily-totals row (2 header rows + 2 course rows → row 5):
-    // 12.7 carries 7h → crunch red.
-    const totals = grid.getCell(5, 3);
-    expect(totals.value).toBe(7);
-    expect((totals.fill as { fgColor?: { argb?: string } }).fgColor?.argb).toBe("FFFECACA");
-    // Grand total lands in the corner.
-    expect(grid.getCell(5, 12).value).toBe(9);
   });
 
   it("agenda: one checklist row per study block + bold exam marker rows", async () => {
@@ -136,10 +104,28 @@ describe("weekly calendar grid sheet (#35/#36)", () => {
       row.eachCell((cell) => {
         const v = String(cell.value ?? "");
         if (v.includes("📝") && v.includes("מועד")) foundExam = true;
-        if (v.includes("ש׳)")) foundStudy = true;
+        // 18:19 (#5) — day totals moved to the date row ("D.M · N ש׳"); study
+        // cells carry the short course name, no per-session "(N ש׳)".
+        if (/·\s*\d+\s*ש׳/.test(v)) foundStudy = true;
       });
     });
     expect(foundExam).toBe(true);
     expect(foundStudy).toBe(true);
+  });
+});
+
+// #5 (18:19) — short course names for the weekly grid
+import { shortCourseName } from "@/lib/xlsx-export";
+
+describe("shortCourseName (#5)", () => {
+  it("strips tutorial tails and caps at a word boundary", () => {
+    expect(shortCourseName("מיקרו כלכלה והחלטות כלכליות + תרגיל")).not.toContain("תרגיל");
+    expect(shortCourseName("מבוא ללוגיקה + תרגיל")).toBe("מבוא ללוגיקה");
+    expect(shortCourseName("סטטיסטיקה")).toBe("סטטיסטיקה");
+  });
+  it("keeps a distinctive prefix and never runs past the cap", () => {
+    const s = shortCourseName("מיקרו כלכלה והחלטות כלכליות בעידן המודרני", 22);
+    expect(s.length).toBeLessThanOrEqual(23); // + ellipsis
+    expect(s.startsWith("מיקרו")).toBe(true);
   });
 });

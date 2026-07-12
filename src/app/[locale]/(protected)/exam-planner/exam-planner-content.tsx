@@ -236,7 +236,7 @@ export function ExamPlannerContent() {
   const exportXlsx = async () => {
     const ok = await exportExamPlanXlsx(persistedPlan, { isHe });
     if (ok) {
-      toast.success(isHe ? "האקסל הצבעוני ירד — תוכנית, לוח-גאנט ואג'נדה" : "Colored Excel downloaded — plan, gantt board and agenda");
+      toast.success(isHe ? "האקסל ירד — לוח שבועי, תוכנית ואג'נדה" : "Excel downloaded — weekly grid, plan and agenda");
     } else {
       toast.info(isHe ? "אין עדיין תוכנית לייצוא — בנו תוכנית קודם" : "Nothing to export yet — build a plan first");
     }
@@ -700,7 +700,7 @@ function ShareMenu({ isHe, onXlsx, onIcs, onCsv }: { isHe: boolean; onXlsx: () =
       <DropdownMenuContent align="end" className="w-60 rounded-xl">
         <DropdownMenuItem onSelect={onXlsx} className="gap-2 text-sm font-medium text-foreground/85">
           <FileSpreadsheet className="size-4 text-emerald-600" />
-          {isHe ? "אקסל צבעוני — גאנט + אג'נדה" : "Colored Excel — gantt + agenda"}
+          {isHe ? "אקסל — לוח שבועי לתלייה" : "Excel — a weekly grid to print"}
         </DropdownMenuItem>
         <DropdownMenuItem onSelect={onIcs} className="gap-2 text-sm text-foreground/80">
           <CalendarPlus className="size-4 text-accent-brand" />
