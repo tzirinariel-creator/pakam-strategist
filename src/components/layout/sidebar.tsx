@@ -15,6 +15,7 @@ import {
   Calculator,
   FolderOpen,
   Compass,
+  Shield,
   ShieldCheck,
   RefreshCw,
   Users2,
@@ -33,6 +34,7 @@ const NAV_ICONS = {
   examPlanner: CalendarClock,
   record: FolderOpen,
   graduation: Calculator,
+  miluim: Shield,
   regulations: Scale,
   settings: Settings,
   mentor: PhilosopherKingIcon,
@@ -87,6 +89,10 @@ export function Sidebar() {
   const { sidebarCollapsed, toggleSidebar } = useUIStore();
   const { data: profile } = api.user.getProfile.useQuery();
   const isAdmin = profile?.role === "admin";
+  // The miluim hub shows only for reservists — everyone else keeps a clean nav.
+  const isReservist = Boolean(
+    profile && (profile.miluimGroup !== "NONE" || profile.miluimCareerService),
+  );
 
   const isRTL = locale === "he";
   const CollapseIcon = isRTL
@@ -171,6 +177,8 @@ export function Sidebar() {
               className={cn("space-y-1", i > 0 && "mt-2 border-t border-sidebar-border/60 pt-2")}
             >
               {group.map((item) => renderNavItem(item))}
+              {/* מילואים — only for reservists, inside the academic-file group */}
+              {i === 1 && isReservist && renderNavItem({ key: "miluim", href: "/miluim" })}
             </div>
           ))}
           {isAdmin && (

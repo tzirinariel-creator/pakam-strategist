@@ -7,6 +7,10 @@ import { cn } from "@/lib/utils";
 import { Bidi } from "@/lib/bidi";
 import { MILUIM_CONFIG, AMIRNET_CONFIG, ENGLISH_CONFIG, DISCIPLINE_CONFIG, FOCUS_DISCIPLINE_IDS } from "@/lib/constants";
 import { deriveGroupFromDays, type MiluimGroupKey } from "@/lib/miluim";
+import { Form3010Uploader } from "@/components/settings/settings-content";
+import { api } from "@/lib/trpc/react";
+import { getAcademicNow } from "@/lib/academic-calendar";
+import { getCurrentAcademicYear } from "@/lib/miluim";
 import type { OnboardingData } from "./onboarding-wizard";
 
 interface StepProfileProps {
@@ -26,6 +30,18 @@ export function StepProfile({ data, onUpdate }: StepProfileProps) {
   const isHe = locale === "he";
 
   const hasGroup = data.miluimGroup !== "NONE";
+
+  // #2 (12.7) — Form 3010 straight in onboarding: the official form fills the
+  // days for every semester (including PAST ones) instead of manual guessing.
+  // Rows are written through the same upsert the settings editor uses; the
+  // CURRENT semester's days also flow into the wizard's own state below.
+  const utils3010 = api.useUtils();
+  const semesters3010 = api.user.listMiluimSemesters.useQuery();
+  const upsert3010 = api.user.upsertMiluimSemester.useMutation({
+    onSuccess: () => void utils3010.user.listMiluimSemesters.invalidate(),
+  });
+  const nowSem = getAcademicNow().semester === "SPRING" ? "SPRING" : "FALL";
+  const nowYear = getCurrentAcademicYear();
   const [showMiluimDetails, setShowMiluimDetails] = useState(hasGroup);
   // Common-path question state.
   const [served, setServed] = useState<boolean | null>(hasGroup ? true : null);
@@ -343,6 +359,28 @@ export function StepProfile({ data, onUpdate }: StepProfileProps) {
                 {/* Q2 + Q3: only when served === true */}
                 {served === true && (
                   <div className="space-y-3 animate-in fade-in duration-200">
+                    {/* #2 — the smart path: upload Form 3010, we split the days
+                        into semesters (past ones included) and you just confirm. */}
+                    <Form3010Uploader
+                      isHe={true}
+                      existing={(semesters3010.data ?? []).map((r) => ({
+                        academicYear: r.academicYear,
+                        semester: r.semester,
+                        daysServed: r.daysServed,
+                      }))}
+                      pending={upsert3010.isPending}
+                      onApply={(academicYear, semester, appliedDays) => {
+                        upsert3010.mutate({ academicYear, semester, daysServed: appliedDays, isCombat });
+                        if (academicYear === nowYear && semester === nowSem) {
+                          setDays(appliedDays);
+                          applyDerived(deriveGroup(appliedDays, isCombat));
+                          onUpdate({ miluimDays: appliedDays, miluimCombat: isCombat, miluimCareerService: false });
+                        }
+                      }}
+                    />
+                    <p className="text-center text-[11px] text-foreground/35">
+                      {tm("or3010Manual")}
+                    </p>
                     {/* Days */}
                     <div className="space-y-1.5">
                       <label className="text-xs font-medium text-foreground/60">{tm("q2Days")}</label>

@@ -227,3 +227,58 @@ export function honorsBinaryStatus(
   const percent = (binaryHours / totalHours) * 100;
   return { percent, cap, over: percent > cap };
 }
+
+// =========================================================================
+// #18 (12.7) — auto-derived cumulative entitlement. Nothing the app can
+// compute is asked manually: the per-year exemption comes from that year's
+// recorded semesters (best group), summed and capped at the degree max.
+// The "used" side (what was actually redeemed at the miluim desk) remains a
+// real-world fact only the student knows — kept as their manual counter.
+// =========================================================================
+
+export interface MiluimSemesterLite {
+  academicYear: number;
+  semester: string;
+  daysServed: number;
+  isCombat: boolean;
+  derivedGroup: string;
+}
+
+const GROUP_ORDER: Record<string, number> = { NONE: 0, GROUP_A: 1, GROUP_B: 2, GROUP_C: 3, GROUP_G: 3 };
+
+/** The strongest group recorded in a set of rows (C/G > B > A > NONE). */
+export function bestGroupOf(rows: MiluimSemesterLite[]): MiluimGroupKey {
+  let best: MiluimGroupKey = "NONE";
+  for (const r of rows) {
+    const g = (r.derivedGroup in MILUIM_CONFIG.GROUPS ? r.derivedGroup : "NONE") as MiluimGroupKey;
+    if ((GROUP_ORDER[g] ?? 0) > (GROUP_ORDER[best] ?? 0)) best = g;
+  }
+  return best;
+}
+
+/**
+ * Total credit-exemption ENTITLEMENT accrued so far, derived from the
+ * recorded semesters: each academic year contributes its best group's
+ * creditExemptionPerYear, summed across years and capped at the degree max
+ * (10). Returns the per-year breakdown for display.
+ */
+export function deriveExemptionEntitlement(rows: MiluimSemesterLite[]): {
+  total: number;
+  perYear: Array<{ academicYear: number; group: MiluimGroupKey; credits: number }>;
+} {
+  const byYear = new Map<number, MiluimSemesterLite[]>();
+  for (const r of rows) {
+    const list = byYear.get(r.academicYear);
+    if (list) list.push(r);
+    else byYear.set(r.academicYear, [r]);
+  }
+  const perYear = [...byYear.entries()]
+    .sort((a, b) => a[0] - b[0])
+    .map(([academicYear, yearRows]) => {
+      const group = bestGroupOf(yearRows);
+      return { academicYear, group, credits: MILUIM_CONFIG.GROUPS[group].creditExemptionPerYear };
+    })
+    .filter((y) => y.credits > 0);
+  const raw = perYear.reduce((s, y) => s + y.credits, 0);
+  return { total: Math.min(raw, MILUIM_CONFIG.MAX_CREDIT_EXEMPTIONS_DEGREE), perYear };
+}

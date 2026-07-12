@@ -305,7 +305,7 @@ export function MiluimStatusBar() {
             {/* Footer link to update service data */}
             <div className="border-t border-border/60 p-4">
               <Link
-                href="/settings"
+                href="/miluim"
                 onClick={() => setOpen(false)}
                 className="flex items-center justify-center gap-1.5 rounded-lg border border-border/60 bg-card/40 px-4 py-2 text-sm font-medium text-foreground/70 transition-colors hover:border-foreground/25 hover:bg-foreground/5"
               >

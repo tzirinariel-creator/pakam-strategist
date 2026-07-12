@@ -17,6 +17,7 @@ import {
   Compass,
   X,
   Users2,
+  Shield,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -33,6 +34,7 @@ const MORE_MENU_ITEMS = [
   { key: "cohort", href: "/cohort", icon: Users2 },
   { key: "record", href: "/record", icon: FolderOpen },
   { key: "graduation", href: "/graduation", icon: Calculator },
+  { key: "miluim", href: "/miluim", icon: Shield },
   { key: "guide", href: "/guide", icon: Compass },
   { key: "settings", href: "/settings", icon: Settings },
 ] as const;

@@ -359,7 +359,7 @@ const HANDLERS: Handler[] = [
     keys: ["מילואים", "הטבות", "פטור מילואים", "miluim", "reserve", "miluim exemption"],
     answer: (c) => {
       if (!c.miluimGroupName) {
-        return { text: he(c, "לא הגדרת שירות מילואים. אם שירתת — עדכן בהגדרות כדי לקבל את ההטבות (פטור ש״ס, בחירת מועדים, בינארי ועוד).", "No miluim service set. If you served, update it in settings to unlock benefits (credit exemption, exam-date choice, binary, and more).") , href: "/settings", cta: he(c, "להגדרות", "Settings") };
+        return { text: he(c, `לא רשום אצלנו שירות מילואים. אם ${gm(c, "שירתת", "שירתת", "שירתם")} — עדכנו בעמוד המילואים כדי לקבל את ההטבות (פטור ש״ס, בחירת מועדים, בינארי ועוד).`, "No miluim service set. If you served, update it on the Miluim page to unlock benefits (credit exemption, exam-date choice, binary, and more."), href: "/miluim", cta: he(c, "לעמוד המילואים", "Miluim page") };
       }
       // Build the entitlements as a natural clause, skipping any that are zero
       // so we never say "0 credits". Reads like a sentence, not a data dump (#37).

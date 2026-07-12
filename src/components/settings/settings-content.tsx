@@ -44,7 +44,7 @@ import { fileToBase64, SCANNER_ACCEPT } from "@/lib/upload";
 import type { Form3010Summary } from "@/lib/form-3010";
 import { api } from "@/lib/trpc/react";
 import { useUIStore } from "@/stores/ui-store";
-import { useRouter, usePathname } from "@/i18n/navigation";
+import { useRouter, usePathname, Link } from "@/i18n/navigation";
 import { useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { useQueryClient } from "@tanstack/react-query";
@@ -1374,7 +1374,7 @@ function ApiKeySection() {
 // Miluim Section — current-semester group + cumulative quota tracker
 // ---------------------------------------------------------------
 
-function MiluimSection() {
+export function MiluimSection() {
   const t = useTranslations("settings.miluim");
   const locale = useLocale();
   const isHe = locale === "he";
@@ -1779,7 +1779,7 @@ function MiluimSection() {
 // M2 — Form 3010 uploader (extraction → explicit per-semester approval)
 // ---------------------------------------------------------------
 
-function Form3010Uploader({
+export function Form3010Uploader({
   isHe,
   existing,
   pending,
@@ -1894,16 +1894,65 @@ function Form3010Uploader({
             );
           })}
           {summary.unmapped.length > 0 && (
-            <p className="text-[11px] leading-relaxed text-foreground/45">
-              {isHe
-                ? `${summary.unmapped.length} תקופות מחוץ ללוחות-השנה המוכרים (למשל לפני תשפ"ו) לא שויכו אוטומטית: `
-                : `${summary.unmapped.length} period(s) outside the known calendars were not auto-assigned: `}
-              {summary.unmapped.map((p) => `${p.startDate}–${p.endDate} (${p.days})`).join(" · ")}
-            </p>
+            // #21 (12.7) — the old one-line dump of 14 periods was unreadable.
+            // Collapsed by default; opens to a proper table, oldest first.
+            <details className="rounded-lg border border-border/40 bg-foreground/[0.02] p-2.5">
+              <summary className="cursor-pointer text-[11px] font-medium text-foreground/55">
+                {isHe
+                  ? `עוד ${summary.unmapped.length} תקופות שירות מלפני תחילת התואר (לא נספרות להטבות) — לפירוט`
+                  : `${summary.unmapped.length} more service period(s) from before the degree (don't count for benefits) — details`}
+              </summary>
+              <table className="mt-2 w-full text-[11px]">
+                <thead>
+                  <tr className="text-foreground/40">
+                    <th className="pb-1 pe-3 text-start font-medium">{isHe ? "מתאריך" : "From"}</th>
+                    <th className="pb-1 pe-3 text-start font-medium">{isHe ? "עד תאריך" : "To"}</th>
+                    <th className="pb-1 text-start font-medium">{isHe ? "ימים" : "Days"}</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {[...summary.unmapped]
+                    .sort((a, b) => a.startDate.localeCompare(b.startDate))
+                    .map((p) => (
+                      <tr key={`${p.startDate}-${p.endDate}`} className="border-t border-border/30 text-foreground/60">
+                        <td className="py-1 pe-3"><bdi dir="ltr">{p.startDate}</bdi></td>
+                        <td className="py-1 pe-3"><bdi dir="ltr">{p.endDate}</bdi></td>
+                        <td className="py-1 font-mono"><bdi dir="ltr">{p.days}</bdi></td>
+                      </tr>
+                    ))}
+                </tbody>
+              </table>
+              <p className="mt-1.5 text-[10px] leading-relaxed text-foreground/40">
+                {isHe
+                  ? "התקופות האלה קדמו ללוחות-השנה של התואר (למשל שירות לפני תשפ״ו), ולכן אינן משויכות לסמסטר. ההטבות באוניברסיטה נספרות רק על שירות במהלך הלימודים."
+                  : "These periods predate the degree calendars (e.g. service before 2025-26), so they aren't assigned to a semester. University benefits count only service during your studies."}
+              </p>
+            </details>
           )}
         </div>
       )}
     </div>
+  );
+}
+
+// המילואים קיבלו עמוד משלהם (12.7 #18/#32) — ההגדרות מפנות אליו.
+function MiluimLinkCard() {
+  const locale = useLocale();
+  const isHe = locale === "he";
+  return (
+    <SectionCard
+      icon={Shield}
+      title={isHe ? "מילואים" : "Miluim (reserve duty)"}
+      description={isHe ? "הזכויות, הקבוצה, טופס 3010 והמעקב — בעמוד ייעודי" : "Rights, group, Form 3010 and tracking — on a dedicated page"}
+    >
+      <Link
+        href="/miluim"
+        className="inline-flex items-center gap-1.5 rounded-lg bg-foreground/8 px-3 py-2 text-sm font-medium text-foreground/75 transition-colors hover:bg-foreground/15"
+      >
+        <Shield className="size-4" />
+        {isHe ? "לעמוד המילואים" : "Open the Miluim page"}
+      </Link>
+    </SectionCard>
   );
 }
 
@@ -1930,7 +1979,7 @@ export function SettingsContent() {
       {/* Settings sections */}
       <div className="mx-auto grid w-full max-w-3xl gap-6">
         <ProfileSection />
-        <MiluimSection />
+        <MiluimLinkCard />
         <ApiKeySection />
         <CohortWisdomSection />
         <PersonaSection />

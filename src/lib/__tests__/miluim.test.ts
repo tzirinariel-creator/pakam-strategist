@@ -391,3 +391,36 @@ describe("hasMiluimBinaryBenefit — the single binary-eligibility gate (verific
     expect(hasMiluimBinaryBenefit(null)).toBe(false);
   });
 });
+
+// #18 (12.7) — auto-derived entitlement from recorded semesters
+import { deriveExemptionEntitlement, bestGroupOf } from "@/lib/miluim";
+
+describe("deriveExemptionEntitlement (#18)", () => {
+  const row = (academicYear: number, semester: string, daysServed: number, derivedGroup: string) =>
+    ({ academicYear, semester, daysServed, isCombat: false, derivedGroup });
+
+  it("group C in both semesters of one year = 8 (per-year, not per-semester)", () => {
+    const r = deriveExemptionEntitlement([
+      row(2025, "FALL", 100, "GROUP_C"),
+      row(2025, "SPRING", 100, "GROUP_C"),
+    ]);
+    expect(r.total).toBe(8);
+    expect(r.perYear).toHaveLength(1);
+  });
+
+  it("C in year 1 + C in year 2 caps at the degree max (10, not 16)", () => {
+    const r = deriveExemptionEntitlement([
+      row(2025, "FALL", 100, "GROUP_C"),
+      row(2026, "FALL", 40, "GROUP_C"),
+    ]);
+    expect(r.total).toBe(10);
+  });
+
+  it("the year's BEST group wins when semesters differ", () => {
+    expect(bestGroupOf([row(2025, "FALL", 10, "GROUP_A"), row(2025, "SPRING", 40, "GROUP_C")])).toBe("GROUP_C");
+  });
+
+  it("no rows → zero entitlement", () => {
+    expect(deriveExemptionEntitlement([]).total).toBe(0);
+  });
+});
