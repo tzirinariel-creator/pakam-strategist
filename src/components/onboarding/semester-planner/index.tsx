@@ -664,6 +664,7 @@ export function SemesterPlanner({
           semester={currentSemester}
           courses={groupFilteredCourses}
           multiGroupCount={multiGroupCourseCodes.size}
+          semesterOver={declaredSemesterOver}
           totalCredits={totalCreditsPlanned}
           hasMoreSemesters={hasMoreSemesters}
           onPlanNext={handlePlanNext}

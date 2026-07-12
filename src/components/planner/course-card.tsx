@@ -39,6 +39,7 @@ import type { UserCourseWithCourse } from "@/types/degree";
 import type { CourseStatus } from "@/types/enums";
 import { Bidi } from "@/lib/bidi";
 import { cn } from "@/lib/utils";
+import { CohortCourseChip } from "@/components/cohort/cohort-course-chip";
 
 interface CourseCardProps {
   userCourse: UserCourseWithCourse;
@@ -222,6 +223,11 @@ export function CourseCard({ userCourse, disabled, currentYear }: CourseCardProp
             >
               {tPlanner("binaryBadge")}
             </span>
+          )}
+          {/* 18:19 (#13) — cohort wisdom at the decision moment, right on the
+              planned course. Renders only when enough students shared. */}
+          {userCourse.status !== "COMPLETED" && (
+            <CohortCourseChip courseCode={course.code} isHe={isHe} />
           )}
         </div>
       </div>

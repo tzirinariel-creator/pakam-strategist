@@ -483,7 +483,7 @@ export function InsightsBar({
           className="rounded-xl border border-border/40 bg-card/30 p-2.5"
           title={
             isHe
-              ? `${honestLoad.weeklyHours} שעות מגע · ${honestLoad.credits} ש״ס · ${honestLoad.tightestExamGapDays != null ? `מרווח מבחנים צפוף ביותר ${honestLoad.tightestExamGapDays} ימים` : "מרווח מבחנים עדיין לא ידוע"}`
+              ? `${honestLoad.weeklyHours} שעות לימוד בשבוע · ${honestLoad.credits} ש״ס · ${honestLoad.tightestExamGapDays != null ? `מרווח מבחנים צפוף ביותר ${honestLoad.tightestExamGapDays} ימים` : "מרווח מבחנים עדיין לא ידוע"}`
               : `${honestLoad.weeklyHours} contact hrs · ${honestLoad.credits} cr. · ${honestLoad.tightestExamGapDays != null ? `tightest exam gap ${honestLoad.tightestExamGapDays} days` : "exam gap unknown yet"}`
           }
         >

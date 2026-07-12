@@ -59,6 +59,9 @@ interface SemesterSummaryProps {
   /** #11 (12.7) — how many courses still have SEVERAL possible groups. >0
    *  surfaces a dedicated "בחרו קבוצות" step before confirming blindly. */
   multiGroupCount?: number;
+  /** 18:19 (#6) — when the declared semester has already ENDED, group choice
+   *  is moot (you're just marking what you took) — suppress the nudge. */
+  semesterOver?: boolean;
 }
 
 export function SemesterSummary({
@@ -73,6 +76,7 @@ export function SemesterSummary({
   isSaving = false,
   autoRecommended = false,
   multiGroupCount = 0,
+  semesterOver = false,
 }: SemesterSummaryProps) {
   const t = useTranslations("onboarding");
   const locale = useLocale();
@@ -144,7 +148,7 @@ export function SemesterSummary({
             className="rounded-lg bg-foreground/5 p-3"
             title={
               isHe
-                ? `${honest.weeklyHours} שעות מגע שבועיות · ${honest.credits} ש״ס${honest.tightestExamGapDays != null ? ` · מרווח מבחנים צפוף ביותר ${honest.tightestExamGapDays} ימים` : ""}`
+                ? `${honest.weeklyHours} שעות לימוד בשבוע · ${honest.credits} ש״ס${honest.tightestExamGapDays != null ? ` · מרווח מבחנים צפוף ביותר ${honest.tightestExamGapDays} ימים` : ""}`
                 : `${honest.weeklyHours} weekly contact hours · ${honest.credits} cr.${honest.tightestExamGapDays != null ? ` · tightest exam gap ${honest.tightestExamGapDays} days` : ""}`
             }
           >
@@ -213,7 +217,7 @@ export function SemesterSummary({
 
         {/* #11 (12.7) — group choice is a real decision, not a footnote: when
             courses still have several groups, offer the dedicated step. */}
-        {multiGroupCount > 0 && (
+        {multiGroupCount > 0 && !semesterOver && (
           <button
             type="button"
             onClick={onBack}
