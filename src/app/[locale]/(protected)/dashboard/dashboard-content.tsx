@@ -8,6 +8,9 @@ import { Link, useRouter } from "@/i18n/navigation";
 import { consumeSharedPlanReturn } from "@/lib/plan-share";
 import { getAcademicNow, deriveYearOfStudy } from "@/lib/academic-calendar";
 import { getBiddingTarget, isBiddingSeason } from "@/lib/bidding-target";
+import { getTimeFocus } from "@/lib/time-focus";
+import { TimeFocusHero } from "@/components/dashboard/time-focus-hero";
+import { getWrapTarget } from "@/lib/semester-clock";
 import { isCurrentlyStudying } from "@/lib/semester-clock";
 import { api } from "@/lib/trpc/react";
 import { firstNameOf } from "@/lib/personal-address";
@@ -585,6 +588,33 @@ export function DashboardContent() {
     ),
   ).length;
 
+  // #10 (18:19) — the season-aware focus, computed from data the page already
+  // holds. Nearest upcoming exam (future examDateA/B across the plan) + whether
+  // a finished semester has ungraded courses feed the pure getTimeFocus ladder.
+  const timeFocus = (() => {
+    const nowMs = Date.now();
+    let nearestExamMs: number | null = null;
+    for (const uc of planQuery.data?.courses ?? []) {
+      if (uc.status === "COMPLETED" || uc.status === "FAILED") continue;
+      for (const d of [uc.course.examDateA, uc.course.examDateB]) {
+        if (!d) continue;
+        const t = new Date(d).getTime();
+        if (t >= nowMs && (nearestExamMs == null || t < nearestExamMs)) nearestExamMs = t;
+      }
+    }
+    const daysToNearestExam =
+      nearestExamMs != null ? Math.ceil((nearestExamMs - nowMs) / 86_400_000) : null;
+    const gradesPending =
+      getWrapTarget() != null &&
+      (planQuery.data?.courses ?? []).some((uc) => uc.grade == null && uc.status === "IN_PROGRESS");
+    return getTimeFocus({
+      daysToNearestExam,
+      gradesPending,
+      startYear: profileQuery.data?.startYear,
+      storedYear: profileQuery.data?.currentYear ?? 1,
+    });
+  })();
+
   // Smart recommendations — deterministic, data-backed. Computed from data the
   // dashboard already holds (plan, grades, credits, regulations, profile), so
   // it adds no extra server round-trips. See lib/recommendations-engine.ts.
@@ -927,11 +957,15 @@ export function DashboardContent() {
         </div>
       )}
 
+      {/* #10 (18:19) — the season-aware hero: whatever the calendar phase, it
+          points at THE action that matters now (exams → plan; grades in →
+          enter; bidding → check clashes; teaching → your week). Dedupes the
+          wrap/bidding cards below so the same ask never appears twice. */}
+      {!tourOpen && !isTransitioning && <TimeFocusHero focus={timeFocus} />}
+
       {/* End-of-semester rite (#22) — the app asks for grades once the semester
-          ends. Gated off during the tour and the post-onboarding transition
-          (grades were just entered), and off for demo. Sits at the very top of
-          the body but is indigo-quiet, never the red urgent slot. */}
-      {!tourOpen && !isTransitioning && (
+          ends. Suppressed when the TimeFocus hero already owns the grades ask. */}
+      {!tourOpen && !isTransitioning && timeFocus?.kind !== "grades" && (
         <SemesterWrapCard
           profile={profileQuery.data ?? undefined}
           currentYear={currentYear}
@@ -940,10 +974,9 @@ export function DashboardContent() {
         />
       )}
 
-      {/* #15 (12.7) — the seasonal bidding entry: the one recurring moment
-          every student MUST re-plan. Appears only inside the window before
-          the next semester; links to the planner's bidding toolkit. */}
-      {!tourOpen && !isTransitioning && <BiddingSeasonCard />}
+      {/* #15 (12.7) — seasonal bidding entry. Suppressed when the TimeFocus
+          hero already owns the bidding ask. */}
+      {!tourOpen && !isTransitioning && timeFocus?.kind !== "bidding" && <BiddingSeasonCard />}
 
       {/* #24 (12.7) — the cohort file travels with you: the freshest insight
           from the wall, right on the home screen. */}

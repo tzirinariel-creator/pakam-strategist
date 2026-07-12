@@ -144,3 +144,30 @@ describe("getBiddingTarget", () => {
     expect(isBiddingSeason(near)).toBe(true);
   });
 });
+
+// #10 (18:19) — time-adaptive focus selector
+import { getTimeFocus } from "@/lib/time-focus";
+
+describe("getTimeFocus", () => {
+  const base = { startYear: 2025, storedYear: 1, daysToNearestExam: null, gradesPending: false };
+  it("exams win when one is within 30 days", () => {
+    const f = getTimeFocus({ ...base, daysToNearestExam: 5, now: new Date(2026, 6, 12) });
+    expect(f?.kind).toBe("exams");
+    expect(f?.href).toBe("/exam-planner");
+    expect(f?.days).toBe(5);
+  });
+  it("grades-pending routes to the record scanner", () => {
+    const f = getTimeFocus({ ...base, gradesPending: true, now: new Date(2026, 6, 12) });
+    expect(f?.kind).toBe("grades");
+    expect(f?.href).toBe("/record?scan=1");
+  });
+  it("exams outrank grades", () => {
+    const f = getTimeFocus({ ...base, daysToNearestExam: 3, gradesPending: true, now: new Date(2026, 6, 12) });
+    expect(f?.kind).toBe("exams");
+  });
+  it("mid-teaching with nothing urgent → your week", () => {
+    const f = getTimeFocus({ ...base, now: new Date(2025, 11, 1) }); // fall teaching
+    expect(f?.kind).toBe("teaching");
+    expect(f?.href).toBe("/calendar");
+  });
+});
