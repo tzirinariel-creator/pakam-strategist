@@ -161,8 +161,8 @@ export function CatalogContent() {
           </p>
           <p>
             {isHe
-              ? "ציון ממוצע וקושי — הערכה מנתוני עבר, לא ציון רשמי של האוניברסיטה"
-              : "Average grade and difficulty — an estimate from historical data, not an official university figure"}
+              ? "ציון ממוצע וקושי — מנתוני פרויקט ארזים (סטטיסטיקות ציונים אמיתיות שנאספו משנים קודמות), לא נתון רשמי של האוניברסיטה"
+              : "Average grade and difficulty — from the Arazim project (real grade statistics collected from past years), not an official university figure"}
           </p>
           <a
             href={`mailto:tzirin.ariel@gmail.com?subject=${encodeURIComponent(isHe ? "קורס חסר בקטלוג פכמון" : "Missing course in the Pakamon catalog")}`}

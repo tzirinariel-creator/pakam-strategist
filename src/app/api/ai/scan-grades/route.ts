@@ -15,7 +15,15 @@ import { detectProvider } from "@/lib/ai/provider";
 import { decrypt, encrypt } from "@/lib/crypto";
 import { checkRateLimit } from "@/lib/rate-limit";
 import { isDemoEmail, DEMO_READONLY_MESSAGE } from "@/server/trpc/demo";
-import { parseExtraction, parseEnglishLevelLabel, mapEnglishLevelLabel, GRADE_SHEET_SYSTEM } from "@/lib/grade-sheet";
+import {
+  parseExtraction,
+  parseEnglishLevelLabel,
+  parsePrintedAverage,
+  mapEnglishLevelLabel,
+  mergeDoubleRead,
+  printedAverageMismatch,
+  GRADE_SHEET_SYSTEM,
+} from "@/lib/grade-sheet";
 
 const ALLOWED_MIME = new Set([
   "image/jpeg",
@@ -134,16 +142,47 @@ export async function POST(request: NextRequest) {
       parsed.data.mimeType,
     );
 
-    const rows = parseExtraction(text);
-    if (!rows || rows.length === 0) {
+    const firstRows = parseExtraction(text);
+    if (!firstRows || firstRows.length === 0) {
       return NextResponse.json({ error: errs.unreadable }, { status: 422 });
     }
+
+    // #5 — VERIFICATION PASS. A single vision read of a dense RTL table can
+    // swap grades between adjacent rows or drop a row (this happened on a real
+    // sheet: 89 landed on the wrong course). A second, task-different read —
+    // "check each row against the image" — has a different error profile;
+    // rows where the two reads disagree are flagged so nothing lands silently.
+    let rows = firstRows.map((r) => ({ ...r }) as ReturnType<typeof mergeDoubleRead>[number]);
+    try {
+      const verifyText = await generateGeminiVision(
+        encryptedKey,
+        GRADE_SHEET_SYSTEM,
+        (locale === "en"
+          ? "VERIFY the following extraction against the sheet image, row by row. For every course, check that the grade belongs to THAT course's row (not a neighboring row) and that no course row is missing. Return the FULL corrected JSON in the same format.\n\nExtraction to verify:\n"
+          : "בדוק את החילוץ הבא מול תמונת הגיליון, שורה-שורה. לכל קורס ודא שהציון שייך לשורה שלו בדיוק (לא לשורה שכנה) ושאף שורת-קורס לא חסרה. החזר את ה-JSON המלא והמתוקן באותו פורמט.\n\nהחילוץ לבדיקה:\n") +
+          JSON.stringify({ rows: firstRows }),
+        parsed.data.imageBase64,
+        parsed.data.mimeType,
+      );
+      const verifyRows = parseExtraction(verifyText);
+      if (verifyRows && verifyRows.length > 0) {
+        rows = mergeDoubleRead(firstRows, verifyRows);
+      }
+    } catch {
+      // Verification is best-effort: if the second call fails (quota, blip),
+      // the first read still ships — without confidence flags.
+    }
+
+    // #5 — printed-average cross-check: computed weighted mean vs the ממוצע
+    // printed on the sheet. A drift means a misread somewhere → banner.
+    const printedAverage = parsePrintedAverage(text);
+    const averageMismatch = printedAverageMismatch(rows, printedAverage);
 
     // #23 — the English level printed on the sheet (no number). Mapped to an enum
     // here; the client offers it as an explicit, declared change (no silent write).
     const englishLevel = mapEnglishLevelLabel(parseEnglishLevelLabel(text));
 
-    return NextResponse.json({ rows, englishLevel });
+    return NextResponse.json({ rows, englishLevel, averageMismatch });
   } catch (e) {
     const status = (e as { status?: number })?.status;
     // Distinguish real causes instead of blaming the photo (and making the user

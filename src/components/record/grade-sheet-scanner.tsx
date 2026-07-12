@@ -15,6 +15,8 @@ import {
   type UserCourseLite,
 } from "@/lib/grade-sheet";
 import { getWrapTarget, wrapStorageKey } from "@/lib/semester-clock";
+import { calculateGrades } from "@/lib/grade-calculator";
+import type { UserCourseWithCourse } from "@/types/degree";
 import { WhereIsMySheet } from "@/components/record/where-is-my-sheet";
 import { fileToBase64, SCANNER_ACCEPT } from "@/lib/upload";
 import { invalidatePlanData } from "@/lib/trpc/invalidate-plan";
@@ -31,6 +33,13 @@ export function GradeSheetScanner() {
   const fileRef = useRef<HTMLInputElement>(null);
   const [scanning, setScanning] = useState(false);
   const [rows, setRows] = useState<MatchedRow[] | null>(null);
+  // #5 — printed-average cross-check result; #4 — post-apply personal summary.
+  const [avgMismatch, setAvgMismatch] = useState<{ computed: number; printed: number } | null>(null);
+  const [scanSummary, setScanSummary] = useState<{
+    updated: number;
+    failedGrades: number;
+    average: number | null;
+  } | null>(null);
   const [checked, setChecked] = useState<Set<number>>(new Set());
   const [applying, setApplying] = useState(false);
   // #23 — English level the scan read off the sheet (no number). Offered as an
@@ -90,6 +99,7 @@ export function GradeSheetScanner() {
       const data = (await res.json()) as {
         rows?: unknown[];
         englishLevel?: EnglishLevel | null;
+        averageMismatch?: { computed: number; printed: number } | null;
         error?: string;
       };
       if (!res.ok) {
@@ -101,6 +111,7 @@ export function GradeSheetScanner() {
         userCourses,
       );
       setRows(matched);
+      setAvgMismatch(data.averageMismatch ?? null);
       // #23 — offer the read-off English level only when it actually adds
       // something: present on the sheet AND not already the student's stored level.
       const current = profileQuery.data?.englishLevel ?? null;
@@ -110,7 +121,9 @@ export function GradeSheetScanner() {
       // Pre-check ONLY high-confidence, unambiguous matches (still requires a
       // grade — passText/EXEMPT rows are applicable but never auto-checked, so
       // a "עובר" is a deliberate tick). A fuzzy/ambiguous match stays unchecked.
-      setChecked(new Set(matched.map((r, i) => (r.autoApplySafe ? i : -1)).filter((i) => i >= 0)));
+      setChecked(
+        new Set(matched.map((r, i) => (r.autoApplySafe && !r.uncertain ? i : -1)).filter((i) => i >= 0)),
+      );
     } catch {
       toast.error(isHe ? "הסריקה נכשלה — נסו שוב" : "Scan failed — try again");
     } finally {
@@ -171,7 +184,18 @@ export function GradeSheetScanner() {
       }
       setRows(null);
       setScannedEnglish(null);
+      setAvgMismatch(null);
       invalidatePlanData(utils);
+      // #4 — a personal wrap-up right after the scan lands: the fresh average
+      // and what changed, computed deterministically from the updated plan
+      // (never invented). Fetched AFTER the writes so the numbers are real.
+      try {
+        const fresh = await utils.plan.getUserPlan.fetch();
+        const calc = calculateGrades((fresh?.courses ?? []) as unknown as UserCourseWithCourse[]);
+        setScanSummary({ updated: ok, failedGrades, average: calc.courseAverage });
+      } catch {
+        setScanSummary({ updated: ok, failedGrades, average: null });
+      }
     }
   };
 
@@ -231,6 +255,44 @@ export function GradeSheetScanner() {
       </div>
 
       {/* Review table — the student approves each row explicitly */}
+      {scanSummary && !rows && (
+        <div className="space-y-2 rounded-xl border border-emerald-500/30 bg-emerald-500/5 p-4">
+          <p className="flex items-center gap-2 text-sm font-bold text-foreground/85">
+            <Check className="size-4 text-emerald-500" />
+            {isHe ? `הגיליון נקלט — עודכנו ${scanSummary.updated} קורסים` : `Sheet applied — ${scanSummary.updated} courses updated`}
+          </p>
+          <div className="space-y-1 text-xs leading-relaxed text-foreground/70">
+            {scanSummary.average != null && (
+              <p>
+                {isHe
+                  ? <>הממוצע שלכם עכשיו: <bdi dir="ltr"><b>{scanSummary.average.toFixed(1)}</b></bdi></>
+                  : <>Your average now: <b>{scanSummary.average.toFixed(1)}</b></>}
+              </p>
+            )}
+            {scanSummary.failedGrades > 0 ? (
+              <p>
+                {isHe
+                  ? `${scanSummary.failedGrades} קורסים נרשמו כנכשלים — בבדיקת-המסלול תראו מה זה אומר ומה אפשר לעשות.`
+                  : `${scanSummary.failedGrades} courses recorded as failed — the track check shows what that means and what you can do.`}
+              </p>
+            ) : (
+              <p>
+                {isHe
+                  ? "אין נכשלים בגיליון הזה. כל הציונים נכנסו למחשבון ולבדיקת-המסלול."
+                  : "No failures on this sheet. All grades now feed the calculator and the track check."}
+              </p>
+            )}
+          </div>
+          <button
+            type="button"
+            onClick={() => setScanSummary(null)}
+            className="text-xs text-foreground/45 transition-colors hover:text-foreground/70"
+          >
+            {isHe ? "סגירה" : "Dismiss"}
+          </button>
+        </div>
+      )}
+
       {rows && (
         <div className="mt-4 space-y-2">
           <div className="flex items-center justify-between">
@@ -275,6 +337,18 @@ export function GradeSheetScanner() {
             );
           })()}
 
+          {avgMismatch && (
+            // #5 — the grades we read don't add up to the average printed on
+            // the sheet itself. Something was misread — say it before apply.
+            <div className="flex items-start gap-2 rounded-lg border border-amber-500/40 bg-amber-500/10 p-2.5 text-xs text-amber-800 dark:text-amber-300">
+              <AlertTriangle className="mt-0.5 size-3.5 shrink-0" />
+              <span>
+                {isHe
+                  ? <>משהו לא מסתדר: הממוצע בגיליון הוא <bdi dir="ltr">{avgMismatch.printed}</bdi>, אבל מהציונים שנקראו יוצא <bdi dir="ltr">{avgMismatch.computed}</bdi>. כנראה ציון אחד או יותר נקרא לא נכון — עברו על השורות לפני האישור.</>
+                  : <>Numbers don't add up: the sheet prints an average of {avgMismatch.printed}, but the grades we read compute to {avgMismatch.computed}. One or more grades were probably misread — review the rows before applying.</>}
+              </span>
+            </div>
+          )}
           <ul className="space-y-1.5">
             {rows.map((r, i) => {
               const decision = decideApplication(r);
@@ -367,6 +441,20 @@ export function GradeSheetScanner() {
                     <span className="flex items-center gap-1 rounded bg-amber-500/10 px-1.5 py-px text-[10px] font-semibold text-amber-600">
                       <AlertTriangle className="size-2.5" />
                       {isHe ? "לא נמצא בתוכנית — עדכנו ידנית" : "Not in your plan — update manually"}
+                    </span>
+                  )}
+                  {r.uncertain && (
+                    // #5 — the two reads disagreed here (or one dropped the
+                    // row). Loud, specific, and never pre-checked.
+                    <span className="flex items-center gap-1 rounded bg-amber-500/15 px-1.5 py-px text-[10px] font-bold text-amber-700">
+                      <AlertTriangle className="size-2.5" />
+                      {isHe
+                        ? r.otherGrade != null
+                          ? <>בקריאה חוזרת יצא <bdi dir="ltr">{r.otherGrade}</bdi> — ודאו מול הגיליון</>
+                          : "ודאו מול הגיליון — הקריאה לא הייתה חד-משמעית"
+                        : r.otherGrade != null
+                          ? `Second read gave ${r.otherGrade} — verify against the sheet`
+                          : "Verify against the sheet — the read was ambiguous"}
                     </span>
                   )}
                   {applicable && isEnglish && (

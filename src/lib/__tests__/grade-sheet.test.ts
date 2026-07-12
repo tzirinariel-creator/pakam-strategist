@@ -367,3 +367,59 @@ describe("matchExtractedToCatalog", () => {
     expect(m[1]?.course?.code).toBe("2222-2222"); // code still resolves it
   });
 });
+
+// =========================================================================
+// #5 (12.7) — double-read verification: the real-world failure was a vision
+// read that swapped 89 onto the wrong course and dropped a row entirely.
+// =========================================================================
+import { mergeDoubleRead, printedAverageMismatch } from "@/lib/grade-sheet";
+
+const mk = (name: string, grade: number | null, code: string | null = null, credits = 4) => ({
+  courseCode: code,
+  courseName: name,
+  grade,
+  credits,
+  passText: null,
+  semester: "2025/1",
+  inProgress: false,
+});
+
+describe("mergeDoubleRead (#5)", () => {
+  it("flags a grade the two reads disagree on, keeps the verify value, carries the other", () => {
+    const first = [mk("מבוא ללוגיקה", 89), mk("מתמטיקה", 100)];
+    const verify = [mk("מבוא ללוגיקה", 100), mk("מתמטיקה", 100)];
+    const merged = mergeDoubleRead(first, verify);
+    const logic = merged.find((r) => r.courseName.includes("לוגיקה"))!;
+    expect(logic.grade).toBe(100);
+    expect(logic.uncertain).toBe(true);
+    expect(logic.otherGrade).toBe(89);
+    expect(merged.find((r) => r.courseName.includes("מתמטיקה"))!.uncertain).toBeUndefined();
+  });
+
+  it("recovers a row the first read dropped (the קריאה-מודרכת-א׳ case), flagged", () => {
+    const first = [mk("מתמטיקה", 100)];
+    const verify = [mk("מתמטיקה", 100), mk("קריאה מודרכת א'", 94)];
+    const merged = mergeDoubleRead(first, verify);
+    const guided = merged.find((r) => r.courseName.includes("מודרכת"))!;
+    expect(guided.grade).toBe(94);
+    expect(guided.uncertain).toBe(true);
+  });
+
+  it("keeps a row the verify pass lost, flagged (never silently drops)", () => {
+    const merged = mergeDoubleRead([mk("מתמטיקה", 100), mk("מוסר", 96)], [mk("מתמטיקה", 100)]);
+    expect(merged.find((r) => r.courseName === "מוסר")!.uncertain).toBe(true);
+  });
+});
+
+describe("printedAverageMismatch (#5)", () => {
+  it("fires when the computed average drifts from the printed one", () => {
+    const rows = [mk("א", 89, null, 4), mk("ב", 95, null, 2), mk("ג", 96, null, 2), mk("ד", 100, null, 5)];
+    // computed ≈ 94.9; printed 97 → drift > 1.5
+    expect(printedAverageMismatch(rows, 97)).not.toBeNull();
+  });
+  it("stays quiet on rounding-level drift or missing printed average", () => {
+    const rows = [mk("א", 95, null, 4), mk("ב", 95, null, 2), mk("ג", 95, null, 2)];
+    expect(printedAverageMismatch(rows, 95.4)).toBeNull();
+    expect(printedAverageMismatch(rows, null)).toBeNull();
+  });
+});

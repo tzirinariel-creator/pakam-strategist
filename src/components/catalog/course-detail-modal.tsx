@@ -116,8 +116,8 @@ export function CourseDetailModal({
               </div>
               <p className="mt-2 text-[11px] leading-relaxed text-foreground/45">
                 {isHe
-                  ? `רמת הקושי מחושבת מהממוצע, החציון ואחוז-הנכשלים — הערכה מנתוני עבר${fromYear ? ` (${fromYear})` : ""}, לא ציון רשמי של האוניברסיטה.`
-                  : `Difficulty is derived from the average, median and fail-rate — an estimate from historical data${fromYear ? ` (${fromYear})` : ""}, not an official university figure.`}
+                  ? `הנתונים מפרויקט ארזים — סטטיסטיקות ציונים אמיתיות של סטודנטים משנים קודמות${fromYear ? ` (${fromYear})` : ""}. רמת הקושי מחושבת מהממוצע, החציון ואחוז-הנכשלים. לא נתון רשמי של האוניברסיטה.`
+                  : `Data from the Arazim project — real student grade statistics from past years${fromYear ? ` (${fromYear})` : ""}. Difficulty is derived from the average, median and fail-rate. Not an official university figure.`}
               </p>
             </div>
           ) : (

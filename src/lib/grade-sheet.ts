@@ -30,6 +30,9 @@ export const extractionSchema = z.object({
    * print it. Kept as raw text here and mapped to an enum by mapEnglishLevelLabel.
    */
   englishLevelLabel: z.string().max(60).nullish(),
+  /** #5 — the weighted average PRINTED on the sheet ("ממוצע משוקלל"), used to
+   *  cross-check the extracted grades. null when the sheet doesn't print one. */
+  printedAverage: z.number().min(0).max(100).nullish(),
 });
 
 export type ExtractedRow = z.infer<typeof extractedRowSchema>;
@@ -89,6 +92,96 @@ export function parseEnglishLevelLabel(text: string): string | null {
   return extractValidated(text)?.englishLevelLabel ?? null;
 }
 
+/** The weighted average printed on the sheet (#5 cross-check), or null. */
+export function parsePrintedAverage(text: string): number | null {
+  return extractValidated(text)?.printedAverage ?? null;
+}
+
+// =========================================================================
+// #5 — double-read verification. The sheet is read TWICE by the vision model
+// (extract, then verify). These pure helpers merge the two reads and flag
+// every disagreement, so a swapped digit can never land silently.
+// =========================================================================
+
+export interface VerifiedRow extends ExtractedRow {
+  /** True when the two reads disagreed on this row's grade/passText, or the
+   *  row appeared in only one read. The UI must visibly ask the student to
+   *  double-check flagged rows against the sheet. */
+  uncertain?: boolean;
+  /** The other read's grade when the reads disagreed (for the UI hint). */
+  otherGrade?: number | null;
+}
+
+const rowKey = (r: ExtractedRow): string =>
+  (r.courseCode?.replace(/\D/g, "") || "") + "|" + normalizeName(r.courseName);
+
+/**
+ * Merge two independent reads of the same sheet. Rules:
+ * - Row in both, same grade+passText → confident.
+ * - Row in both, different grade → keep the VERIFY pass's value (it looked at
+ *   the image a second time, specifically checking), but flag uncertain and
+ *   carry the other value for display.
+ * - Row in exactly one read → keep it, flagged uncertain (a dropped row is
+ *   exactly the קריאה-מודרכת-א׳ failure mode).
+ */
+export function mergeDoubleRead(first: ExtractedRow[], verify: ExtractedRow[]): VerifiedRow[] {
+  const verifyByKey = new Map<string, ExtractedRow>();
+  for (const v of verify) verifyByKey.set(rowKey(v), v);
+  const seen = new Set<string>();
+  const out: VerifiedRow[] = [];
+
+  for (const f of first) {
+    const key = rowKey(f);
+    const v = verifyByKey.get(key);
+    seen.add(key);
+    if (!v) {
+      out.push({ ...f, uncertain: true });
+      continue;
+    }
+    const gradeAgrees = (f.grade ?? null) === (v.grade ?? null);
+    const passAgrees = (f.passText ?? null) === (v.passText ?? null);
+    if (gradeAgrees && passAgrees) {
+      out.push({ ...f });
+    } else {
+      out.push({ ...v, uncertain: true, otherGrade: f.grade ?? null });
+    }
+  }
+  // Rows the verify pass found that the first read dropped entirely.
+  for (const v of verify) {
+    const key = rowKey(v);
+    if (!seen.has(key)) out.push({ ...v, uncertain: true });
+  }
+  return out;
+}
+
+/**
+ * Cross-check the extracted grades against the average PRINTED on the sheet.
+ * Simple credit-weighted mean over graded rows; a drift beyond the tolerance
+ * means at least one grade/credit was misread → the UI shows a banner. The
+ * sheet's own average may use slightly different inclusion rules, so the
+ * tolerance is generous (1.5) — this catches swaps, not rounding.
+ */
+export function printedAverageMismatch(
+  rows: ExtractedRow[],
+  printedAverage: number | null | undefined,
+): { computed: number; printed: number } | null {
+  if (printedAverage == null) return null;
+  const graded = rows.filter((r) => r.grade != null && !r.inProgress);
+  if (graded.length < 3) return null; // too little signal to judge
+  let credits = 0;
+  let sum = 0;
+  for (const r of graded) {
+    const c = r.credits ?? 1;
+    credits += c;
+    sum += (r.grade as number) * c;
+  }
+  if (credits === 0) return null;
+  const computed = sum / credits;
+  return Math.abs(computed - printedAverage) > 1.5
+    ? { computed: Math.round(computed * 10) / 10, printed: printedAverage }
+    : null;
+}
+
 /** Loose Hebrew-aware normalization for name matching. Exported so the
  *  onboarding catalog-matcher shares the exact same normalization. */
 export function normalizeName(s: string): string {
@@ -111,6 +204,11 @@ export interface UserCourseLite {
 }
 
 export interface MatchedRow extends ExtractedRow {
+  /** #5 — set when the two vision reads disagreed on this row (or one read
+   *  dropped it). UI must show a "verify against the sheet" badge and never
+   *  pre-check the row. */
+  uncertain?: boolean;
+  otherGrade?: number | null;
   match: UserCourseLite | null;
   /**
    * How confident the match is:
@@ -233,11 +331,12 @@ export const GRADE_SHEET_SYSTEM = `אתה קורא "אישור קורסים וצ
 - *** בעמודת הציון = הקורס עדיין בלימוד ואין לו ציון. אל תמציא ציון: grade=null ו-inProgress=true.
 - עמודת "אופן הוראה" מכילה קיצורים כמו ש', ת', ש'+ת', שו"ת — זה סוג השיעור, לא חלק משם הקורס. לעולם אל תכלול אותם ב-courseName.
 - גם עמודת "הערות" (למשל "לא לשקלול") אינה חלק משם הקורס.
-- דלג על שורות שאינן קורסים: "ממוצע משוקלל…", "ממוצע בחוג", "מפתח סימולי…", "סיכום מצב לימודים", כותרות עמוד וכותרות הטבלה עצמן.
+- דלג על שורות שאינן קורסים: "ממוצע משוקלל…", "ממוצע בחוג", "מפתח סימולי…", "סיכום מצב לימודים", כותרות עמוד וכותרות הטבלה עצמן. אבל: אם מופיעה שורת "ממוצע משוקלל" עם מספר — החזר את המספר בשדה printedAverage (מספר בלבד, למשל 95.7). אם אין — printedAverage=null.
+- קריטי: קרא את הטבלה שורה-אחר-שורה. הציון של קורס נמצא באותה שורה אופקית של שם-הקורס — לעולם אל תיקח ציון משורה סמוכה. לפני שתחזיר, ודא ששייכת לכל קורס את הציון שבשורה שלו בדיוק.
 - שורת "דרישות כלל אוניברסיטאיות" אינה קורס — אל תכניס אותה ל-rows. אבל אם כתוב בה "אנגלית: <רמה>" (למשל "אנגלית: מתקדמים ב'-מיון"), החזר את מילות-הרמה בלבד ("מתקדמים ב'") בשדה englishLevelLabel. בלי המילה "מיון" ובלי מספר. אם אין שורה כזו — englishLevelLabel=null.
 
 החזר JSON בלבד, בפורמט:
-{"rows":[{"courseCode":"0651-1001" או null,"courseName":"שם הקורס","grade":89 או null,"credits":4 או null,"passText":"עובר" או null,"semester":"2025/1" או null,"inProgress":false}],"englishLevelLabel":"מתקדמים ב'" או null}
+{"rows":[{"courseCode":"0651-1001" או null,"courseName":"שם הקורס","grade":89 או null,"credits":4 או null,"passText":"עובר" או null,"semester":"2025/1" או null,"inProgress":false}],"englishLevelLabel":"מתקדמים ב'" או null,"printedAverage":95.7 או null}
 
 כללים:
 - חלץ אך ורק את מה שכתוב במסמך — אל תמציא, אל תשלים ואל תנחש ציון שלא מופיע.
