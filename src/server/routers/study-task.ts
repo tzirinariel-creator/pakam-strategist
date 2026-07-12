@@ -310,7 +310,11 @@ export const studyTaskRouter = createTRPCRouter({
             taskType: "exam",
             courseCode: ex.courseCode,
             color: ex.color,
-            notes: `${AUTO_MARK} ${ex.difficulty}`,
+            // Persist the ORIGINAL hour BUDGET (not just what fit) so the
+            // capacity-shortfall / overload recs and the skyline legend stay
+            // honest on the reconstructed plan. `budget=N` (NOT `Nh`) so the
+            // study-hours regex /([\d.]+)h/ never mistakes it for study time.
+            notes: `${AUTO_MARK} ${ex.difficulty} budget=${ex.totalHours}`,
           });
         }
         // Study sessions — a study block starting 09:00, exact duration.

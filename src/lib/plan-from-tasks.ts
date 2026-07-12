@@ -33,6 +33,14 @@ function diffFromNotes(notes: string | null): Difficulty {
   return notes?.includes("high") ? "high" : notes?.includes("low") ? "low" : "medium";
 }
 
+/** The persisted hour BUDGET (`budget=N`) — the original target, so the
+ *  shortfall/overload recs reflect what SHOULD fit, not just what did. */
+function budgetFromNotes(notes: string | null): number | null {
+  const m = notes?.match(/budget=([\d.]+)/);
+  const n = m ? Number(m[1]) : NaN;
+  return Number.isFinite(n) && n > 0 ? n : null;
+}
+
 export function planFromStudyTasks(
   tasks: StudyTaskLike[],
   codeToName: Map<string, string>,
@@ -85,7 +93,10 @@ export function planFromStudyTasks(
     // must not be misread as Moed B.
     moed: (/\(מועד\s*ב׳\)/.test(t.title) ? "B" : "A") as "A" | "B",
     difficulty: diffFromNotes(t.notes),
-    totalHours: hoursByCourse.get(t.courseCode ?? "") ?? 2.5,
+    // Prefer the persisted budget so the shortfall/overload recs and the skyline
+    // legend stay honest on the saved plan; fall back to placed hours for plans
+    // saved before budget was persisted.
+    totalHours: budgetFromNotes(t.notes) ?? hoursByCourse.get(t.courseCode ?? "") ?? 2.5,
     color: t.color ?? "#6366f1",
   }));
 

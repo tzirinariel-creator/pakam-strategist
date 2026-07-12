@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { generateExamPlan, type ExamInput } from "@/lib/exam-planner";
+import { generateExamPlan, analyzeExamPeriod, type ExamInput } from "@/lib/exam-planner";
 import { planFromStudyTasks, type StudyTaskLike } from "@/lib/plan-from-tasks";
 
 const NOW = new Date("2026-06-01T00:00:00");
@@ -17,7 +17,7 @@ function persistShape(plan: ReturnType<typeof generateExamPlan>): StudyTaskLike[
       title: `מבחן: ${ex.courseName} (מועד ${ex.moed === "B" ? "ב׳" : "א׳"})`,
       courseCode: ex.courseCode,
       color: ex.color,
-      notes: `[auto] ${ex.difficulty}`,
+      notes: `[auto] ${ex.difficulty} budget=${ex.totalHours}`,
     });
   }
   for (const s of plan.sessions) {
@@ -79,5 +79,20 @@ describe("planFromStudyTasks — round-trip with the persist shape", () => {
   it("sessions inherit the exam's difficulty per course", () => {
     const hard = restored.sessions.find((s) => s.courseCode === "A1");
     expect(hard?.difficulty).toBe("high"); // avg 62 / fail .25 → high
+  });
+
+  it("restores the exam hour BUDGET (from notes), not just the placed hours", () => {
+    for (const [i, ex] of original.exams.entries()) {
+      expect(restored.exams[i]!.totalHours).toBe(ex.totalHours);
+    }
+  });
+
+  it("capacity-shortfall rec fires on the RECONSTRUCTED plan too — not just fresh", () => {
+    // Tiny capacity → most of the budget can't fit. The budget must survive the
+    // round-trip or the warning silently vanishes on the saved plan (STATE B).
+    const tight = generateExamPlan(inputs, NOW, [], "steady", { weekdayHours: [0.5, 0.5, 0.5, 0.5, 0.5, 0, 0] });
+    const back = planFromStudyTasks(persistShape(tight), new Map(), NOW);
+    expect(analyzeExamPeriod(tight, true, NOW).some((r) => r.kind === "capacity")).toBe(true);
+    expect(analyzeExamPeriod(back, true, NOW).some((r) => r.kind === "capacity")).toBe(true);
   });
 });
