@@ -712,7 +712,7 @@ export function SemesterPlanner({
       {declaredSemesterOver && (
         <div className="w-full max-w-2xl rounded-xl border border-sky-500/30 bg-sky-500/[0.06] p-3.5 text-xs leading-relaxed text-foreground/70">
           <b>{`רגע, ${data.semester === "SPRING" ? "סמסטר ב׳" : "סמסטר א׳"} כבר הסתיים 🙂`}</b>{" "}
-          ההוראה נגמרה, אז הקורסים שנבחר כאן יישמרו כ"בלימוד" — עד שיתפרסמו הציונים ותסמנו אותם.
+          ההוראה נגמרה, אז הקורסים שנבחר כאן יישמרו כ״בלימוד״ — עד שיתפרסמו הציונים ותסמנו אותם.
           בסיום אפשר להמשיך ישר לתכנון הסמסטר הבא (הכפתור יופיע במסך-הסיכום).
         </div>
       )}

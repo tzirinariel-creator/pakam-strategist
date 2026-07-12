@@ -24,7 +24,6 @@ import { usePersonalAddress } from "@/components/personal/use-personal-address";
  */
 export function RuleList({ results }: { results: RegulationResult[] }) {
   const t = useTranslations("regulations");
-  const { g: pg } = usePersonalAddress();
   const isHe = useLocale() === "he";
 
   const { redFlags, byGroup } = useMemo(() => {

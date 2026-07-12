@@ -345,7 +345,7 @@ export function GradeSheetScanner() {
               <span>
                 {isHe
                   ? <>משהו לא מסתדר: הממוצע בגיליון הוא <bdi dir="ltr">{avgMismatch.printed}</bdi>, אבל מהציונים שנקראו יוצא <bdi dir="ltr">{avgMismatch.computed}</bdi>. כנראה ציון אחד או יותר נקרא לא נכון — עברו על השורות לפני האישור.</>
-                  : <>Numbers don't add up: the sheet prints an average of {avgMismatch.printed}, but the grades we read compute to {avgMismatch.computed}. One or more grades were probably misread — review the rows before applying.</>}
+                  : <>The numbers disagree: the sheet prints an average of {avgMismatch.printed}, but the grades we read compute to {avgMismatch.computed}. One or more grades were probably misread — review the rows before applying.</>}
               </span>
             </div>
           )}
