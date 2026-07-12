@@ -15,7 +15,7 @@ import { DISCIPLINE_CONFIG, SEMESTER_CONFIG, YEAR_CONFIG } from "@/lib/constants
 import { DisciplineBadge } from "./discipline-badge";
 import { CourseDetailModal } from "./course-detail-modal";
 import { AskKingButton } from "@/components/ui/ask-king-button";
-import { api } from "@/lib/trpc/react";
+import { CohortCourseChip } from "@/components/cohort/cohort-course-chip";
 import { cn } from "@/lib/utils";
 import type { Course } from "@/types/degree";
 import type { Discipline } from "@/types/enums";
@@ -106,41 +106,6 @@ function formatSemesters(semesters: string[], locale: string): string {
       return locale === "he" ? (cfg?.short ?? s) : (cfg?.shortEn ?? s);
     })
     .join(", ");
-}
-
-/**
- * Tiny "community workload" chip (#3/#16). Renders ONLY when the app-community
- * ratings for this course have cleared the reveal threshold — otherwise nothing
- * (no empty cells, no noise). The query batches through httpBatchLink and is
- * long-cached; on a missing-table error (migration pending) it fails fast
- * (retry:false) and the chip simply never appears. MVP note: this is a per-row
- * read; the spec's §7 optimization folds the aggregate into `course.list` — a
- * router change outside these files. See the summary.
- */
-function CommunityWorkloadChip({ courseCode, isHe }: { courseCode: string; isHe: boolean }) {
-  const { data } = api.courseKnowledge.getForCourse.useQuery(
-    { courseCode },
-    { retry: false, staleTime: 5 * 60_000, refetchOnMount: false }
-  );
-  const r = data?.ratings;
-  if (!r?.revealed || r.workloadAvg == null) return null;
-  const rounded = Math.round(r.workloadAvg);
-  return (
-    <span
-      className="mt-1 inline-flex items-center gap-1 rounded-full bg-accent-brand/10 px-1.5 py-0.5 text-[10px] font-medium text-accent-brand"
-      title={isHe ? "עומס לפי הסטודנטים באפליקציה" : "Workload per students in the app"}
-    >
-      {isHe ? "עומס קהילתי" : "Community load"}
-      <span dir="ltr" className="inline-flex items-center gap-0.5" aria-hidden>
-        {[1, 2, 3, 4, 5].map((n) => (
-          <span
-            key={n}
-            className={cn("size-1 rounded-full", n <= rounded ? "bg-accent-brand" : "bg-accent-brand/25")}
-          />
-        ))}
-      </span>
-    </span>
-  );
 }
 
 // ---------------------------------------------------------------------------
@@ -510,14 +475,14 @@ export function CourseTable({ courses, allCourses, focusArea }: CourseTableProps
                         </span>
                       );
                     })()}
-                    <CommunityWorkloadChip courseCode={course.code} isHe={isHe} />
+                    <CohortCourseChip courseCode={course.code} isHe={isHe} className="mt-1" />
                   </div>
                 ) : (
                   <div className="flex flex-col items-center gap-0.5">
                     <span className="text-xs text-muted-foreground/40" title={isHe ? "אין נתון" : "No data"}>
                       —
                     </span>
-                    <CommunityWorkloadChip courseCode={course.code} isHe={isHe} />
+                    <CohortCourseChip courseCode={course.code} isHe={isHe} className="mt-1" />
                   </div>
                 )}
               </TableCell>

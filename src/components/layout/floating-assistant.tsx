@@ -94,7 +94,7 @@ interface Msg {
 export function FloatingAssistant() {
   const isHe = useLocale() === "he";
   const pathname = usePathname();
-  const { gender } = usePersonalAddress();
+  const { gender, g: pg } = usePersonalAddress();
   const [open, setOpen] = useState(false);
   const [messages, setMessages] = useState<Msg[]>([]);
   // Advisor persona — a device-local choice (Settings → "דמות היועץ"), re-read on
@@ -195,11 +195,11 @@ export function FloatingAssistant() {
       setListening(false);
       const err = e?.error;
       if (err === "not-allowed" || err === "service-not-allowed") {
-        toast.error(isHe ? "אין גישה למיקרופון — אפשר/י אותה בהגדרות הדפדפן ונסה/י שוב." : "No microphone access — allow it in your browser settings and try again.");
+        toast.error(isHe ? pg("אין גישה למיקרופון — אפשר אותה בהגדרות הדפדפן ונסה שוב.", "אין גישה למיקרופון — אפשרי אותה בהגדרות הדפדפן ונסי שוב.", "אין גישה למיקרופון — אפשר/י אותה בהגדרות הדפדפן ונסה/י שוב.") : "No microphone access — allow it in your browser settings and try again.");
       } else if (err === "no-speech") {
-        toast.error(isHe ? "לא נקלט קול — נסה/י שוב." : "No speech detected — try again.");
+        toast.error(isHe ? pg("לא נקלט קול — נסה שוב.", "לא נקלט קול — נסי שוב.", "לא נקלט קול — נסה/י שוב.") : "No speech detected — try again.");
       } else if (err && err !== "aborted") {
-        toast.error(isHe ? "הקלטה נכשלה — נסה/י שוב." : "Voice input failed — try again.");
+        toast.error(isHe ? pg("הקלטה נכשלה — נסה שוב.", "הקלטה נכשלה — נסי שוב.", "הקלטה נכשלה — נסה/י שוב.") : "Voice input failed — try again.");
       }
     };
     recognitionRef.current = rec;
@@ -639,7 +639,7 @@ export function FloatingAssistant() {
       // ── Image path: always goes to the King (vision), bypassing the free
       //    router + cache. Needs a key; if none, tell the student where to add one.
       if (image) {
-        const q = question || (isHe ? "מה זה? עזור/י לי להבין את זה בהקשר של התואר." : "What is this? Help me understand it in my degree context.");
+        const q = question || (isHe ? "מה זה? עזור לי להבין את זה בהקשר של התואר." : "What is this? Help me understand it in my degree context.");
         setInput("");
         // Persist the bubble thumbnail as a data URL — a stable copy that
         // survives clearImage() revoking the live attach preview's object URL
@@ -784,7 +784,7 @@ export function FloatingAssistant() {
           ref={fabRef}
           type="button"
           onClick={() => setOpen(true)}
-          aria-label={isHe ? "פתח/י את המלך הפילוסוף" : "Open the Philosopher King"}
+          aria-label={isHe ? pg("פתח את המלך הפילוסוף", "פתחי את המלך הפילוסוף", "פתח/י את המלך הפילוסוף") : "Open the Philosopher King"}
           className={cn(
             "fixed bottom-[calc(5rem+var(--safe-bottom))] end-4 z-[65] flex items-center gap-2 rounded-full py-3 shadow-lg md:bottom-6 md:end-6",
             "bg-accent-brand text-accent-brand-fg ring-1 ring-crown-gold-bright/30 transition-all press-scale",
@@ -1047,7 +1047,7 @@ export function FloatingAssistant() {
                         className="mt-1.5 flex items-center gap-1 text-[11px] font-medium text-accent-brand"
                       >
                         <Zap className="size-3" />
-                        {isHe ? "חבר/י מפתח חינמי לתשובות מעמיקות" : "Connect a free key for deeper answers"}
+                        {isHe ? pg("חבר מפתח חינמי לתשובות מעמיקות", "חברי מפתח חינמי לתשובות מעמיקות", "חבר/י מפתח חינמי לתשובות מעמיקות") : "Connect a free key for deeper answers"}
                       </Link>
                     )}
                   </div>
@@ -1067,7 +1067,7 @@ export function FloatingAssistant() {
               <div className="flex items-center gap-2 border-t border-border/60 px-3 pt-3">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img src={attachedImage.preview} alt="" className="size-12 rounded-lg border border-border/50 object-cover" />
-                <span className="flex-1 text-xs text-foreground/55">{isHe ? "תמונה מצורפת — שאל/י עליה" : "Image attached — ask about it"}</span>
+                <span className="flex-1 text-xs text-foreground/55">{isHe ? pg("תמונה מצורפת — שאל עליה", "תמונה מצורפת — שאלי עליה", "תמונה מצורפת — שאל/י עליה") : "Image attached — ask about it"}</span>
                 <button type="button" onClick={clearImage} aria-label={isHe ? "הסר תמונה" : "Remove image"} className="rounded-md p-1 text-foreground/40 hover:text-foreground/70">
                   <X className="size-4" />
                 </button>
@@ -1110,8 +1110,8 @@ export function FloatingAssistant() {
                 placeholder={
                   ready
                     ? attachedImage
-                      ? isHe ? "שאל/י על התמונה…" : "Ask about the image…"
-                      : isHe ? "כתוב/י שאלה…" : "Type a question…"
+                      ? isHe ? pg("שאל על התמונה…", "שאלי על התמונה…", "שאל/י על התמונה…") : "Ask about the image…"
+                      : isHe ? pg("כתוב שאלה…", "כתבי שאלה…", "כתוב/י שאלה…") : "Type a question…"
                     : isHe ? "טוען את הנתונים שלכם…" : "Loading your data…"
                 }
                 disabled={!ready || streaming}
@@ -1122,7 +1122,7 @@ export function FloatingAssistant() {
                   type="button"
                   onClick={toggleListening}
                   disabled={!ready || streaming}
-                  aria-label={isHe ? "דבר/י אל המלך" : "Speak to the King"}
+                  aria-label={isHe ? pg("דבר אל המלך", "דברי אל המלך", "דבר/י אל המלך") : "Speak to the King"}
                   aria-pressed={listening}
                   title={isHe ? "קלט קולי" : "Voice input"}
                   className={cn(

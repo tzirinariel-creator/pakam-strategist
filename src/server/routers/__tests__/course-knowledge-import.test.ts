@@ -147,3 +147,61 @@ describe("courseKnowledge.getForCourses (S3)", () => {
     expect(r["C"]).toEqual({ n: 0, revealed: false, recommendShare: null }); // no data — honest empty
   });
 });
+
+// ── #13 — getForCourse contributorBucket: privacy-safe 3-state for the chip.
+// The chip NEVER sees a raw small count; the server folds N=0 and N=1 into
+// EMPTY (a lone contributor is never exposed) and only crosses the count at
+// N>=2 (SEEDING). REVEALED is the existing k-anon reveal (N>=3). ──
+describe("courseKnowledge.getForCourse contributorBucket", () => {
+  function makeRatingDb(reviewCount: number) {
+    const reviews = Array.from({ length: reviewCount }, (_, i) => ({
+      id: `r${i}`,
+      tip: null,
+      tags: [] as string[],
+      verdict: "RECOMMEND" as const,
+      createdAt: new Date(0),
+      cohortYear: null,
+      workload: 3,
+      difficulty: 3,
+    }));
+    return {
+      user: { findUnique: async () => USER, upsert: async () => USER },
+      courseGradePoint: { findMany: async () => [] },
+      courseReview: { findMany: async () => reviews },
+    };
+  }
+  async function ratingsFor(n: number) {
+    const createCaller = createCallerFactory(courseKnowledgeRouter);
+    const caller = createCaller({ db: makeRatingDb(n) as never, userId: USER.supabaseId, session: { user: { id: USER.supabaseId } } as never, supabase: {} as never, headers: new Headers(), loaders: undefined });
+    return (await caller.getForCourse({ courseCode: "X" })).ratings;
+  }
+
+  it("N=0 → EMPTY, no seeding numbers exposed", async () => {
+    const r = await ratingsFor(0);
+    expect(r.contributorBucket).toBe("EMPTY");
+    expect(r.seedingContributors).toBeNull();
+    expect(r.seedingRemaining).toBeNull();
+  });
+
+  it("N=1 → EMPTY (a single contributor is NEVER exposed as SEEDING)", async () => {
+    const r = await ratingsFor(1);
+    expect(r.contributorBucket).toBe("EMPTY");
+    expect(r.seedingContributors).toBeNull();
+  });
+
+  it("N=2 → SEEDING, count 2, 1 more to reveal", async () => {
+    const r = await ratingsFor(2);
+    expect(r.contributorBucket).toBe("SEEDING");
+    expect(r.seedingContributors).toBe(2);
+    expect(r.seedingRemaining).toBe(1);
+    expect(r.revealed).toBe(false);
+  });
+
+  it("N=3 → REVEALED, no seeding numbers", async () => {
+    const r = await ratingsFor(3);
+    expect(r.contributorBucket).toBe("REVEALED");
+    expect(r.seedingContributors).toBeNull();
+    expect(r.seedingRemaining).toBeNull();
+    expect(r.revealed).toBe(true);
+  });
+});

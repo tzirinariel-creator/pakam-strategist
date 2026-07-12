@@ -15,11 +15,13 @@ import {
   Trash2,
   Calculator,
   GraduationCap,
+  Award,
 } from "lucide-react";
 import { api } from "@/lib/trpc/react";
 import { invalidatePlanData } from "@/lib/trpc/invalidate-plan";
-import { canonicalAttempts, countsTowardAverage } from "@/lib/grade-calculator";
+import { canonicalAttempts, countsTowardAverage, roundScore } from "@/lib/grade-calculator";
 import { deriveYearOfStudy } from "@/lib/academic-calendar";
+import { computeHonorsDistance, type HonorsDistance } from "@/lib/honors";
 import { isCurrentlyStudying } from "@/lib/semester-clock";
 import { passBarFor } from "@/lib/constants";
 import { Bidi } from "@/lib/bidi";
@@ -211,6 +213,55 @@ function GradeInput({
 // -----------------------------------------------------------------------
 // Summary card — completed credits, weighted average, focus-area progress.
 // -----------------------------------------------------------------------
+
+// Compact forecast strip at the top of /record — brings the predicted final
+// grade + honors gap onto the record itself so a grade-anxious student sees
+// "where this is going" without leaving. Read-only: grades are still entered
+// only in the table below. weightedScore comes from getGraduationScore (the
+// same source /graduation reads), so the two screens can never disagree.
+function ForecastStrip({
+  weightedScore,
+  honors,
+  t,
+}: {
+  weightedScore: number;
+  honors: HonorsDistance;
+  t: ReturnType<typeof useTranslations<"record">>;
+}) {
+  const score = roundScore(weightedScore) ?? weightedScore;
+  return (
+    <div className="data-card flex flex-wrap items-center justify-between gap-4 p-5">
+      <div className="flex items-center gap-3">
+        <GraduationCap className="h-6 w-6 shrink-0 text-accent-brand" />
+        <div>
+          <div className="flex items-baseline gap-2">
+            <span className="font-mono text-3xl font-bold text-foreground/85">
+              <Bidi text={score.toFixed(1)} />
+            </span>
+            <span className="text-sm font-medium text-foreground/60">{t("forecastTitle")}</span>
+          </div>
+          <p className="mt-0.5 text-[11px] text-foreground/45">{t("forecastCaption")}</p>
+        </div>
+      </div>
+
+      {honors.yearlyAverage !== null && (
+        <div className="flex items-center gap-2 text-xs">
+          <Award className="h-4 w-4 shrink-0 text-amber-500" />
+          <span className="text-foreground/60">
+            {honors.gap !== null && honors.gap > 0 ? (
+              <Bidi text={t("forecastHonorsGap", { gap: honors.gap.toFixed(1), year: honors.year })} />
+            ) : (
+              <Bidi text={t("forecastHonorsIn", { year: honors.year })} />
+            )}
+          </span>
+          <Link href="/graduation" className="font-medium text-accent-brand hover:underline">
+            {t("forecastFullLink")}
+          </Link>
+        </div>
+      )}
+    </div>
+  );
+}
 
 function SummaryCard({
   completedCredits,
@@ -865,6 +916,12 @@ export function AcademicRecordContent() {
     retry: false,
     staleTime: 5 * 60 * 1000,
   });
+  // The predicted FINAL grade (78% courses · 18% seminars · 4% referat) — the
+  // SAME source /graduation reads, so the record forecast strip and the
+  // calculator never disagree. Grades are entered here; this only reads.
+  const gradeQuery = api.plan.getGraduationScore.useQuery(undefined, {
+    retry: false,
+  });
 
   const invalidateAll = useCallback(() => invalidatePlanData(utils), [utils]);
 
@@ -982,6 +1039,14 @@ export function AcademicRecordContent() {
     profile?.currentYear ?? 1,
   );
 
+  // Distance to honors for the CURRENT study year — a computed aid (same
+  // exclusions as the GPA), null when no graded course this year yet. Same
+  // function /graduation uses, so the two never diverge.
+  const honors = useMemo(
+    () => computeHonorsDistance(planQuery.data?.courses ?? [], currentYear),
+    [planQuery.data?.courses, currentYear],
+  );
+
   // The PRESENT courses: PLANNED rows whose (year, semester) is the live
   // teaching/exams window right now. Derived, never stored.
   const inProgressCourses = useMemo(
@@ -1092,6 +1157,16 @@ export function AcademicRecordContent() {
           {t("crossLinkGrades")}
         </Link>
       </div>
+
+      {!isEmpty && gradeQuery.data?.weightedScore != null && (
+        <div className="animate-stagger-2">
+          <ForecastStrip
+            weightedScore={gradeQuery.data.weightedScore}
+            honors={honors}
+            t={t}
+          />
+        </div>
+      )}
 
       {!isEmpty && (
         <div className="animate-stagger-2">

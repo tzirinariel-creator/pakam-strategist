@@ -40,6 +40,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { StudySkyline } from "@/components/exam-planner/study-skyline";
+import { WeeklyGrid } from "@/components/exam-planner/weekly-grid";
 import dynamic from "next/dynamic";
 // PERF1: syllabus scanner (zod schema + parsing) is behind a button — lazy.
 const SyllabusScanner = dynamic(
@@ -578,6 +579,20 @@ export function ExamPlannerContent() {
                 isHe={isHe}
                 onDayClick={(key) => setFocusDay((f) => ({ key, n: (f?.n ?? 0) + 1 }))}
                 onMoveCourseDay={(courseCode, fromKey, toKey) => void moveCourseDay(courseCode, fromKey, toKey)}
+              />
+            </div>
+          )}
+          {persistedPlan.exams.length > 0 && (
+            <div className="animate-stagger-2">
+              <WeeklyGrid
+                plan={persistedPlan}
+                byDay={byDay}
+                isHe={isHe}
+                courses={persistedPlan.exams.map((e) => ({ code: e.courseCode, name: e.courseName, color: e.color }))}
+                onMoveCourseDay={(courseCode, fromKey, toKey) => void moveCourseDay(courseCode, fromKey, toKey)}
+                onQuickAdd={quickAdd}
+                onDelete={(id) => deleteMutation.mutate({ id })}
+                onDayClick={(key) => setFocusDay((f) => ({ key, n: (f?.n ?? 0) + 1 }))}
               />
             </div>
           )}

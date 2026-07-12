@@ -1,387 +1,26 @@
 "use client";
 
-import { useState, useCallback, useMemo, useEffect } from "react";
+import { useState, useMemo } from "react";
 import { useTranslations } from "next-intl";
 import { useLocale } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import {
   Calculator,
   GraduationCap,
-  BookOpen,
   Target,
   Check,
   AlertTriangle,
-  ChevronDown,
-  ChevronUp,
   FolderOpen,
   Award,
 } from "lucide-react";
 import { api } from "@/lib/trpc/react";
-import { invalidatePlanData } from "@/lib/trpc/invalidate-plan";
 import { ThemedLoader } from "@/components/ui/themed-loader";
-import { toast } from "sonner";
 import { cn } from "@/lib/utils";
-import {
-  GRADE_WEIGHTS,
-  DISCIPLINE_CONFIG,
-  SEMESTER_CONFIG,
-  YEAR_CONFIG,
-} from "@/lib/constants";
+import { GRADE_WEIGHTS } from "@/lib/constants";
 import { roundScore, countsTowardAverage, courseTypeCountsTowardAverage, canonicalAttempts } from "@/lib/grade-calculator";
 import { computeHonorsDistance, HONORS_YEARLY_BAR } from "@/lib/honors";
 import { deriveYearOfStudy } from "@/lib/academic-calendar";
 import type { UserCourseWithCourse, GradeBreakdown } from "@/types/degree";
-import type { CourseStatus, Semester } from "@/types/enums";
-
-// -----------------------------------------------------------------------
-// Types
-// -----------------------------------------------------------------------
-
-interface SemesterGroup {
-  year: number;
-  semester: Semester;
-  key: string;
-  courses: UserCourseWithCourse[];
-}
-
-// -----------------------------------------------------------------------
-// Debounced grade input component
-// -----------------------------------------------------------------------
-
-function GradeInput({
-  userCourseId,
-  initialGrade,
-  initialStatus,
-  onSave,
-  placeholder,
-  savedSignal,
-}: {
-  userCourseId: string;
-  initialGrade: number | null;
-  initialStatus: CourseStatus;
-  onSave: (id: string, grade: number | null, status: CourseStatus) => void;
-  placeholder: string;
-  /** Bumped by the parent when THIS course's save mutation succeeds. */
-  savedSignal: number;
-}) {
-  const [value, setValue] = useState<string>(
-    initialGrade !== null ? String(initialGrade) : ""
-  );
-  const [saved, setSaved] = useState(false);
-
-  const handleChange = useCallback(
-    (e: React.ChangeEvent<HTMLInputElement>) => {
-      const raw = e.target.value;
-
-      // Allow empty
-      if (raw === "") {
-        setValue("");
-        return;
-      }
-
-      // Only allow numeric input (integers 0-100)
-      const num = parseInt(raw, 10);
-      if (isNaN(num)) return;
-      if (num < 0 || num > 100) return;
-
-      setValue(String(num));
-    },
-    []
-  );
-
-  // Save immediately on blur — blur already means the user finished editing,
-  // so there's no debounce timer that could be lost on unmount (e.g. navigating
-  // away or collapsing the semester). The save fires synchronously here.
-  const handleBlur = useCallback(() => {
-    const num = parseInt(value, 10);
-
-    if (value === "" || isNaN(num)) {
-      // Cleared — remove the grade but KEEP the status (#30: deletion never
-      // silently changes status; /record behaved this way, /graduation used
-      // to revert — now they agree). A toast offers the in-progress action.
-      if (initialGrade !== null) {
-        onSave(userCourseId, null, initialStatus);
-      }
-      return;
-    }
-
-    const grade = Math.max(0, Math.min(100, num));
-    const newStatus: CourseStatus =
-      initialStatus === "PLANNED" || initialStatus === "IN_PROGRESS"
-        ? "COMPLETED"
-        : initialStatus;
-
-    onSave(userCourseId, grade, newStatus);
-  }, [value, userCourseId, initialStatus, initialGrade, onSave]);
-
-  // Show the "saved" checkmark only when the parent confirms the mutation
-  // actually succeeded (savedSignal bump), never on the fire-and-forget call —
-  // a failed/aborted save no longer shows a false "saved".
-  useEffect(() => {
-    if (savedSignal === 0) return;
-    setSaved(true);
-    const id = setTimeout(() => setSaved(false), 1500);
-    return () => clearTimeout(id);
-  }, [savedSignal]);
-
-  return (
-    <div className="relative">
-      <input
-        type="number"
-        min={0}
-        max={100}
-        step={1}
-        value={value}
-        onChange={handleChange}
-        onBlur={handleBlur}
-        placeholder={placeholder}
-        className={cn(
-          "w-20 rounded-md border border-border/50 bg-background/50 px-2 py-1.5",
-          "font-mono text-sm text-foreground text-center",
-          "placeholder:text-foreground/20",
-          "focus:border-foreground/35 focus:outline-none focus:ring-1 focus:ring-foreground/20",
-          "transition-all",
-          saved && "border-emerald-400/50 ring-1 ring-emerald-400/30"
-        )}
-        dir="ltr"
-      />
-      {saved && (
-        <Check className="absolute -end-5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-emerald-400 animate-in fade-in" />
-      )}
-    </div>
-  );
-}
-
-// -----------------------------------------------------------------------
-// Status badge component
-// -----------------------------------------------------------------------
-
-function StatusBadge({
-  status,
-  t,
-}: {
-  status: CourseStatus;
-  t: ReturnType<typeof useTranslations<"grades">>;
-}) {
-  const statusConfig: Record<
-    CourseStatus,
-    { label: string; className: string }
-  > = {
-    COMPLETED: {
-      label: t("completed"),
-      className: "bg-emerald-400/15 text-emerald-400 border-emerald-400/30",
-    },
-    IN_PROGRESS: {
-      label: t("inProgress"),
-      className: "bg-blue-400/15 text-blue-400 border-blue-400/30",
-    },
-    PLANNED: {
-      label: t("planned"),
-      className: "bg-foreground/10 text-foreground/50 border-foreground/20",
-    },
-    FAILED: {
-      label: t("failed"),
-      className: "bg-red-400/15 text-red-400 border-red-400/30",
-    },
-    EXEMPT: {
-      label: t("exempt"),
-      className: "bg-purple-400/15 text-purple-400 border-purple-400/30",
-    },
-  };
-
-  const cfg = statusConfig[status];
-  return (
-    <span
-      className={cn(
-        "inline-flex items-center rounded-full border px-2 py-0.5 text-xs font-medium",
-        cfg.className
-      )}
-    >
-      {cfg.label}
-    </span>
-  );
-}
-
-// -----------------------------------------------------------------------
-// Discipline badge
-// -----------------------------------------------------------------------
-
-function DisciplineBadge({ discipline, locale }: { discipline: string; locale: string }) {
-  const cfg = DISCIPLINE_CONFIG[discipline] ?? DISCIPLINE_CONFIG["GENERAL"];
-  if (!cfg) return <span className="text-xs">{discipline}</span>;
-  return (
-    <span
-      className={cn(
-        "inline-flex items-center rounded-full border px-2 py-0.5 text-xs font-medium",
-        cfg.badgeClass
-      )}
-    >
-      {locale === "he" ? cfg.nameHe : cfg.nameEn}
-    </span>
-  );
-}
-
-// -----------------------------------------------------------------------
-// Semester GPA mini display
-// -----------------------------------------------------------------------
-
-function SemesterGpaDisplay({
-  courses,
-  label,
-}: {
-  courses: UserCourseWithCourse[];
-  label: string;
-}) {
-  const graded = canonicalAttempts(courses.filter(countsTowardAverage));
-  if (graded.length === 0) return null;
-
-  const totalCredits = graded.reduce((sum, c) => sum + c.course.credits, 0);
-  const weightedSum = graded.reduce(
-    (sum, c) => sum + (c.grade ?? 0) * c.course.credits,
-    0
-  );
-  const gpa = totalCredits > 0 ? weightedSum / totalCredits : 0;
-
-  return (
-    <div className="flex items-center gap-2 text-sm">
-      <span className="text-foreground/50">{label}:</span>
-      <span className="font-mono tabular font-semibold text-foreground/80">
-        {gpa.toFixed(1)}
-      </span>
-    </div>
-  );
-}
-
-// -----------------------------------------------------------------------
-// Collapsible semester section
-// -----------------------------------------------------------------------
-
-function SemesterSection({
-  group,
-  onSaveGrade,
-  savedSignals,
-  t,
-  locale,
-}: {
-  group: SemesterGroup;
-  onSaveGrade: (id: string, grade: number | null, status: CourseStatus) => void;
-  /** Per-course success counters, bumped on a confirmed save. */
-  savedSignals: Record<string, number>;
-  t: ReturnType<typeof useTranslations<"grades">>;
-  locale: string;
-}) {
-  const [expanded, setExpanded] = useState(true);
-
-  const yearCfg = YEAR_CONFIG[group.year as keyof typeof YEAR_CONFIG];
-  const semCfg = SEMESTER_CONFIG[group.semester];
-  const yearLabel = locale === "he" ? yearCfg?.nameHe : yearCfg?.nameEn;
-  const semLabel = locale === "he" ? semCfg?.nameHe : semCfg?.nameEn;
-
-  return (
-    <div className="data-card overflow-hidden">
-      {/* Header */}
-      <button
-        type="button"
-        onClick={() => setExpanded(!expanded)}
-        className="flex w-full items-center justify-between px-5 py-4 text-start transition-colors hover:bg-foreground/[0.02]"
-      >
-        <div className="flex items-center gap-3">
-          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-foreground/10">
-            <BookOpen className="h-4 w-4 text-foreground/80" />
-          </div>
-          <div>
-            <span className="font-bold text-foreground/90">
-              {yearLabel} — {semLabel}
-            </span>
-            <span className="ms-3 text-xs text-foreground/40">
-              {group.courses.length} {t("course")}
-            </span>
-          </div>
-        </div>
-        <div className="flex items-center gap-2 sm:gap-4">
-          <div className="hidden sm:block">
-            <SemesterGpaDisplay
-              courses={group.courses}
-              label={t("semesterGpa")}
-            />
-          </div>
-          {expanded ? (
-            <ChevronUp className="h-4 w-4 shrink-0 text-foreground/40" />
-          ) : (
-            <ChevronDown className="h-4 w-4 shrink-0 text-foreground/40" />
-          )}
-        </div>
-      </button>
-
-      {/* Courses table */}
-      {expanded && (
-        <div className="border-t border-border/30">
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="border-b border-border/20 text-foreground/50">
-                  <th className="px-5 py-2.5 text-start font-medium">
-                    {t("course")}
-                  </th>
-                  <th className="px-3 py-2.5 text-start font-medium">
-                    {/* discipline */}
-                  </th>
-                  <th className="px-3 py-2.5 text-center font-medium">
-                    {t("credits")}
-                  </th>
-                  <th className="px-3 py-2.5 text-center font-medium">
-                    {t("status")}
-                  </th>
-                  <th className="px-3 py-2.5 text-center font-medium">
-                    {t("grade")}
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                {group.courses.map((uc) => (
-                  <tr
-                    key={uc.id}
-                    className="border-b border-border/10 transition-colors hover:bg-foreground/[0.02]"
-                  >
-                    <td className="px-5 py-3 font-medium text-foreground/80">
-                      {locale === "he" ? uc.course.nameHe : (uc.course.nameEn ?? uc.course.nameHe)}
-                    </td>
-                    <td className="px-3 py-3">
-                      <DisciplineBadge
-                        discipline={
-                          uc.disciplineOverride ?? uc.course.discipline
-                        }
-                        locale={locale}
-                      />
-                    </td>
-                    <td className="px-3 py-3 text-center font-mono text-foreground/60">
-                      {uc.course.credits}
-                    </td>
-                    <td className="px-3 py-3 text-center">
-                      <StatusBadge status={uc.status} t={t} />
-                    </td>
-                    <td className="px-3 py-3">
-                      <div className="flex justify-center">
-                        <GradeInput
-                          userCourseId={uc.id}
-                          initialGrade={uc.grade}
-                          initialStatus={uc.status}
-                          onSave={onSaveGrade}
-                          placeholder="0–100"
-                          savedSignal={savedSignals[uc.id] ?? 0}
-                        />
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </div>
-      )}
-    </div>
-  );
-}
 
 // -----------------------------------------------------------------------
 // Weight breakdown visual bar
@@ -803,7 +442,6 @@ export function GradeCalculatorContent() {
   const t = useTranslations("grades");
   const tRecord = useTranslations("record");
   const locale = useLocale();
-  const isHe = locale === "he";
 
   // Fetch all plan data. refetchOnMount: "always" so navigating to this screen
   // always pulls a fresh snapshot — a grade written on /record (or here) is
@@ -815,79 +453,6 @@ export function GradeCalculatorContent() {
   const gradeQuery = api.plan.getGraduationScore.useQuery(undefined, {
     retry: false,
   });
-
-  // Per-course "saved" counters — bumped only on a confirmed mutation success,
-  // so the GradeInput checkmark reflects a real save (never a fire-and-forget
-  // call that later failed).
-  const [savedSignals, setSavedSignals] = useState<Record<string, number>>({});
-
-  // Mutation for updating a course grade
-  const utils = api.useUtils();
-  const updateCourseMutation = api.plan.updateCourse.useMutation({
-    onSuccess: (_data, variables) => {
-      // A grade change can flip earned credits + compliance too, not just the
-      // forecast — invalidate the whole set (#23).
-      invalidatePlanData(utils);
-      setSavedSignals((prev) => ({
-        ...prev,
-        [variables.userCourseId]: (prev[variables.userCourseId] ?? 0) + 1,
-      }));
-      toast.success(t("gradeSaved"));
-    },
-    onError: () => {
-      toast.error(t("gradeSaveError"));
-    },
-  });
-
-  // Handle grade save
-  const handleSaveGrade = useCallback(
-    (userCourseId: string, grade: number | null, status: CourseStatus) => {
-      // grade === null clears the grade (backend accepts a nullable grade).
-      updateCourseMutation.mutate({ userCourseId, grade, status });
-      // Deleting a grade keeps the status — but offer the in-progress action
-      // instead of a silent decision (#30).
-      if (grade === null && status === "COMPLETED") {
-        toast(isHe ? "הציון הוסר — הקורס עדיין מסומן כ'הושלם'" : "Grade removed — course still marked completed", {
-          action: {
-            label: isHe ? "סמן כ'בלימוד'" : "Mark in-progress",
-            onClick: () => updateCourseMutation.mutate({ userCourseId, status: "IN_PROGRESS" }),
-          },
-        });
-      }
-    },
-    [updateCourseMutation, isHe]
-  );
-
-  // Group courses by year+semester
-  const semesterGroups = useMemo((): SemesterGroup[] => {
-    const courses = planQuery.data?.courses ?? [];
-    const grouped: Record<string, UserCourseWithCourse[]> = {};
-
-    for (const uc of courses) {
-      const key = `${uc.plannedYear}-${uc.plannedSemester}`;
-      if (!grouped[key]) {
-        grouped[key] = [];
-      }
-      grouped[key]!.push(uc);
-    }
-
-    return Object.entries(grouped)
-      .map(([key, courses]) => {
-        const parts = key.split("-");
-        const year = parseInt(parts[0] ?? "1", 10);
-        const semester = (parts[1] ?? "FALL") as Semester;
-        return { year, semester, key, courses };
-      })
-      .sort((a, b) => {
-        if (a.year !== b.year) return a.year - b.year;
-        const semOrder: Record<Semester, number> = {
-          FALL: 0,
-          SPRING: 1,
-          SUMMER: 2,
-        };
-        return semOrder[a.semester] - semOrder[b.semester];
-      });
-  }, [planQuery.data?.courses]);
 
   // Grade breakdown
   const gradeBreakdown: GradeBreakdown = gradeQuery.data ?? {
@@ -948,28 +513,9 @@ export function GradeCalculatorContent() {
           an official status. */}
       <HonorsDistanceCard allCourses={allCourses} t={t} />
 
-      {/* Section 1: Per-Course Grade Entry */}
-      <div className="animate-stagger-3 space-y-4">
-        <div className="flex items-center gap-3">
-          <Calculator className="h-5 w-5 text-foreground/80" />
-          <h2 className="font-display font-bold text-xl text-foreground/90">
-            {t("courseGrades")}
-          </h2>
-        </div>
-
-        <div className="space-y-4">
-          {semesterGroups.map((group) => (
-            <SemesterSection
-              key={group.key}
-              group={group}
-              onSaveGrade={handleSaveGrade}
-              savedSignals={savedSignals}
-              t={t}
-              locale={locale}
-            />
-          ))}
-        </div>
-      </div>
+      {/* Per-course grades are entered/edited ONLY in the academic record
+          (/record). This screen is analysis-only and READS that data — one
+          grade surface, one canonical average, no duplicate editable table. */}
     </div>
   );
 }

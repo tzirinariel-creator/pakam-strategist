@@ -137,6 +137,20 @@ export const courseKnowledgeRouter = createTRPCRouter({
           // while the N beside it counts workload/difficulty-only raters (#audit-r3).
           recommendShare:
             verdictVals.length >= RATING_MIN_N && recommendShare != null ? round1(recommendShare) : null,
+          // Privacy-safe 3-state bucket for the cohort chip. ALL threshold math
+          // is done HERE, never on the client: N=0 and N=1 both read as EMPTY so
+          // a single contributor is never exposed; the count crosses the wire
+          // only at N>=2 (SEEDING). REVEALED is the existing k-anon reveal
+          // (RATING_MIN_N). k-anonymity constants are untouched.
+          contributorBucket: (ratingRevealed
+            ? "REVEALED"
+            : ratingRows.length >= 2
+              ? "SEEDING"
+              : "EMPTY") as "EMPTY" | "SEEDING" | "REVEALED",
+          seedingContributors:
+            !ratingRevealed && ratingRows.length >= 2 ? ratingRows.length : null,
+          seedingRemaining:
+            !ratingRevealed && ratingRows.length >= 2 ? RATING_MIN_N - ratingRows.length : null,
         },
         reviews: reviews
           .filter((r) => r.tip && r.tip.trim().length > 0)

@@ -1123,7 +1123,10 @@ export function DashboardContent() {
             icon: Calculator,
             label: isHe ? pgd("הזן ציונים", "הזני ציונים", "הזן/י ציונים") : t("actionEnterGrades"),
             description: t("actionEnterGradesDesc"),
-            href: "/graduation",
+            // Grades are entered in the academic record (the calculator is now
+            // analysis-only after the #25 grades-door merge), so this CTA must
+            // land on the actual grade-entry surface, not /graduation.
+            href: "/record",
             color: "bg-emerald-500/10 text-emerald-400",
           });
         }
