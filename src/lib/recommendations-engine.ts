@@ -236,12 +236,12 @@ export function buildRecommendations(
       if (lvl && !lvl.isExempt) {
         recs.push({
           id: "amiram-deadline",
-          severity: "critical",
+          severity: "warning",
           icon: "languages",
           titleHe: `אנגלית: ${lvl.nameHe} (אמירנט ${input.amiramScore})`,
           titleEn: `English: ${lvl.nameEn} (Amiram ${input.amiramScore})`,
-          bodyHe: `הציון מציב אותך ב${lvl.nameHe} — חסרים ${lvl.levelCourses} קורסי-רמה. חובה להגיע לפטור (134+) עד סוף שנה א׳, אחרת הלימודים נעצרים. האופציות: קורס-רמה או מבחן אמירנט חוזר.`,
-          bodyEn: `Your score places you at ${lvl.nameEn} — ${lvl.levelCourses} level course(s) to go. You must reach exemption (134+) by the end of Year 1 or studies stop. Take a level course or retake Amiram.`,
+          bodyHe: `לפי הציון שהזנת (${input.amiramScore}) אתם ב${lvl.nameHe} — חסרים ${lvl.levelCourses} קורסי-רמה. לפי התקנון (נכון לתשפ״ו) צריך להגיע לפטור (134+) עד סוף שנה א׳. האופציות: קורס-רמה או מבחן אמירנט חוזר. אם כבר הגעתם לפטור — עדכנו את הציון בהגדרות.`,
+          bodyEn: `Per the score you entered (${input.amiramScore}) you're at ${lvl.nameEn} — ${lvl.levelCourses} level course(s) to go. Regulations (as of 2025-26) require exemption (134+) by end of Year 1. Take a level course or retake Amiram. Already exempt? Update your score in settings.`,
           href: "/catalog",
           ctaHe: "לקורסי אנגלית",
           ctaEn: "English courses",

@@ -604,6 +604,11 @@ export function StepProfile({ data, onUpdate }: StepProfileProps) {
               : "Determines how many English courses you need. The 50-150 scale is shared by AMIRANT and Psychometric. PPE requires 2 English content courses regardless."
             }
           </p>
+          <p className="mb-3 text-xs text-foreground/35">
+            {isHe
+              ? "עוד לא עשיתם אמירנט או לא זוכרים את הציון? אפשר לדלג ולהוסיף אחר כך בהגדרות."
+              : "Haven't taken AMIRANT yet or don't recall the score? Skip it and add it later in settings."}
+          </p>
           <div className="flex items-center gap-3">
             <input
               type="number"

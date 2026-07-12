@@ -320,6 +320,22 @@ export function FloatingAssistant() {
     }
   }, [open, topRec]);
   const proactiveNudge = nudgeAllowed && topRec && dismissedRecId !== topRec.id ? topRec : null;
+
+  // The closed-FAB dot (retention #2): the only in-app attention signal that
+  // lives on EVERY screen. Shown when there's a real critical/warning gap the
+  // user hasn't dismissed today and hasn't globally muted — computed WITHOUT
+  // `open` so it pulls the user IN rather than only rewarding an open.
+  const [fabAlert, setFabAlert] = useState(false);
+  useEffect(() => {
+    if (!topRec) { setFabAlert(false); return; }
+    try {
+      if (localStorage.getItem("pk-proactive-off")) { setFabAlert(false); return; }
+      const seen = localStorage.getItem(`pk-rec-nudge:${topRec.id}`);
+      setFabAlert(seen !== new Date().toISOString().slice(0, 10) && dismissedRecId !== topRec.id);
+    } catch {
+      setFabAlert(false);
+    }
+  }, [topRec, dismissedRecId]);
   const markNudgeSeen = () => {
     if (topRec) {
       try {
@@ -735,6 +751,15 @@ export function FloatingAssistant() {
             <ReferentIcon className="size-5 text-referent-teal" />
           ) : (
             <PhilosopherKingIcon className="size-5 text-crown-gold-bright" />
+          )}
+          {fabAlert && (
+            <span
+              aria-hidden="true"
+              className={cn(
+                "absolute -top-0.5 end-2 size-2.5 rounded-full ring-2 ring-accent-brand",
+                topRec?.severity === "critical" ? "bg-red-500" : "bg-amber-400",
+              )}
+            />
           )}
           <span className="hidden text-sm font-semibold sm:inline">
             {isReferent

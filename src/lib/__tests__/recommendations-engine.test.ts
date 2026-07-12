@@ -168,8 +168,12 @@ describe("buildRecommendations", () => {
     const recs = buildRecommendations(input({ currentYear: 1, amiramScore: 133 }));
     const rec = recs.find((r) => r.id === "amiram-deadline");
     expect(rec).toBeTruthy();
-    expect(rec?.severity).toBe("critical");
+    // Softened from critical→warning + sourced/conditional copy (audit A3):
+    // no absolute "studies stop" verdict on a self-reported score.
+    expect(rec?.severity).toBe("warning");
     expect(rec?.bodyHe).toContain("מתקדמים ב׳");
+    expect(rec?.bodyHe).toContain("נכון לתשפ״ו");
+    expect(rec?.bodyHe).not.toContain("הלימודים נעצרים");
   });
 
   it("does NOT flag the Amiram deadline once exempt (134+)", () => {
