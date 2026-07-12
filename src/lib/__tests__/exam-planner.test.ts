@@ -106,17 +106,21 @@ describe("E1′ — two answer profiles produce two different plans", () => {
   ];
   const now = new Date("2026-07-01T10:00:00");
 
-  it("steady spreads beyond a week; crammer concentrates into the last 7 days", () => {
+  it("steady spreads further back; crammer concentrates near the exam", () => {
     const steady = genPlan(exams, now, [], "steady");
     const crammer = genPlan(exams, now, [], "crammer");
     const exam = new Date("2026-08-01").getTime();
     const daysBefore = (d: Date) => Math.round((exam - d.getTime()) / 86_400_000);
-    // Crammer: every session within the last week before the exam.
-    expect(crammer.sessions.every((s) => daysBefore(s.date) <= 7)).toBe(true);
-    // Steady: the same sessions reach further back than crammer's window.
-    expect(Math.max(...steady.sessions.map((s) => daysBefore(s.date)))).toBeGreaterThan(7);
-    // Same total effort — the style shapes WHERE it lands, not how much.
-    expect(steady.sessions.length).toBe(crammer.sessions.length);
+    const crammerMax = Math.max(...crammer.sessions.map((s) => daysBefore(s.date)));
+    const steadyMax = Math.max(...steady.sessions.map((s) => daysBefore(s.date)));
+    // Crammer stays close to the exam (~last week, allowing for skipped no-study
+    // days); steady reaches meaningfully further back.
+    expect(crammerMax).toBeLessThanOrEqual(9);
+    expect(steadyMax).toBeGreaterThan(crammerMax);
+    // Same TOTAL effort — the style shapes WHERE the hours land, not how many.
+    const total = (p: { sessions: { hours: number }[] }) =>
+      Math.round(p.sessions.reduce((s, x) => s + x.hours, 0) * 10) / 10;
+    expect(total(steady)).toBe(total(crammer));
   });
 
   it("blocked days are never scheduled", () => {
@@ -124,5 +128,49 @@ describe("E1′ — two answer profiles produce two different plans", () => {
     const plan = genPlan(exams, now, blocked, "crammer");
     const keys = plan.sessions.map((s) => `${s.date.getFullYear()}-${String(s.date.getMonth() + 1).padStart(2, "0")}-${String(s.date.getDate()).padStart(2, "0")}`);
     for (const b of blocked) expect(keys).not.toContain(b);
+  });
+});
+
+// ── Phase 2 — capacity: the plan respects how many hours the student has ──
+import { type StudyCapacity } from "@/lib/exam-planner";
+
+describe("capacity model", () => {
+  const localKey = (d: Date) =>
+    `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+  // A heavy 3-course load to stress the shared per-day ledger.
+  const heavy = [
+    { courseCode: "A", courseName: "A", examDate: "2026-08-01", credits: 6, averageGrade: 60, failRate: 0.3, moed: "A" as const },
+    { courseCode: "B", courseName: "B", examDate: "2026-08-02", credits: 6, averageGrade: 60, failRate: 0.3, moed: "A" as const },
+    { courseCode: "C", courseName: "C", examDate: "2026-08-03", credits: 6, averageGrade: 60, failRate: 0.3, moed: "A" as const },
+  ];
+  const now = new Date("2026-07-01T10:00:00");
+
+  it("never schedules more than a day's capacity across ALL courses", () => {
+    const cap: StudyCapacity = { weekdayHours: [3, 3, 3, 3, 3, 2, 0] };
+    const { sessions } = genPlan(heavy, now, [], "steady", cap);
+    const byDay = new Map<string, number>();
+    for (const s of sessions) byDay.set(localKey(s.date), (byDay.get(localKey(s.date)) ?? 0) + s.hours);
+    for (const [key, hours] of byDay) {
+      const [y, m, d] = key.split("-").map(Number);
+      const wd = new Date(y!, m! - 1, d!).getDay();
+      expect(hours).toBeLessThanOrEqual(cap.weekdayHours[wd]! + 1e-6);
+    }
+  });
+
+  it("schedules nothing on a weekday whose capacity is 0 (default Saturday)", () => {
+    const { sessions } = genPlan(heavy, now, [], "steady"); // DEFAULT_CAPACITY: Sat=0
+    expect(sessions.some((s) => s.date.getDay() === 6)).toBe(false);
+  });
+
+  it("a per-date override caps a specific day", () => {
+    const cap: StudyCapacity = { weekdayHours: [8, 8, 8, 8, 8, 8, 8], overrides: { "2026-07-30": 1 } };
+    const { sessions } = genPlan(heavy, now, [], "steady", cap);
+    const on30 = sessions.filter((s) => localKey(s.date) === "2026-07-30").reduce((s, x) => s + x.hours, 0);
+    expect(on30).toBeLessThanOrEqual(1 + 1e-6);
+  });
+
+  it("no single course studies more than the per-day subject max in a day", () => {
+    const { sessions } = genPlan(heavy, now, [], "crammer", { weekdayHours: [8, 8, 8, 8, 8, 8, 8] });
+    for (const s of sessions) expect(s.hours).toBeLessThanOrEqual(2.5 + 1e-6);
   });
 });

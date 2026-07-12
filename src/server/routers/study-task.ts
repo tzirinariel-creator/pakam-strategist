@@ -215,6 +215,15 @@ export const studyTaskRouter = createTRPCRouter({
         // wizard preview — "light" (already started, just review) = ~25% fewer
         // hours; steady/crammer keep the engine's default window (#audit-r3).
         prepStyle: z.enum(["light", "steady", "crammer"]).optional(),
+        // Phase 2 — how many study hours the student has per weekday (0=Sun…6=Sat)
+        // + per-date overrides. The engine caps a day's TOTAL across all courses
+        // to this; omitted → DEFAULT_CAPACITY (Sun–Thu 3h, Fri 2h, Sat 0).
+        capacity: z
+          .object({
+            weekdayHours: z.array(z.number().min(0).max(16)).length(7),
+            overrides: z.record(z.string(), z.number().min(0).max(16)).optional(),
+          })
+          .optional(),
       })
     )
     .mutation(async ({ ctx, input }) => {
@@ -259,7 +268,9 @@ export const studyTaskRouter = createTRPCRouter({
         return { created: 0, message: "no exams with dates" };
       }
 
-      const plan = generateExamPlan(examInputs, new Date(), input.unavailable ?? [], input.prepStyle ?? "steady");
+      // input.capacity is undefined when the client sends none → the engine
+      // falls back to DEFAULT_CAPACITY, so plans are always capacity-bounded.
+      const plan = generateExamPlan(examInputs, new Date(), input.unavailable ?? [], input.prepStyle ?? "steady", input.capacity);
 
       // Atomic: clear previous auto tasks, then create the fresh plan.
       const created = await ctx.db.$transaction(async (tx) => {

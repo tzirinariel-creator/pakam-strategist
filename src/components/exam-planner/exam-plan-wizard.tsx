@@ -4,8 +4,11 @@ import { useMemo, useState } from "react";
 import {
   ChevronLeft,
   ChevronRight,
+  ChevronUp,
+  ChevronDown,
   X,
   CalendarOff,
+  Clock,
   Plus,
   Coffee,
   Gauge,
@@ -15,6 +18,10 @@ import {
 } from "lucide-react";
 import { Bidi } from "@/lib/bidi";
 import { cn } from "@/lib/utils";
+
+const HE_DAYS = ["א׳", "ב׳", "ג׳", "ד׳", "ה׳", "ו׳", "ש׳"];
+const EN_DAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+const MAX_DAY_HOURS = 12;
 
 // ─────────────────────────────────────────────────────────────────────
 // ExamPlanWizard — a 4-step question flow that refines the study plan.
@@ -78,6 +85,9 @@ interface ExamPlanWizardProps {
   onPrepStyle: (s: PrepStyle) => void;
   blockedDays: string[]; // "YYYY-MM-DD"
   onBlockedDays: (days: string[]) => void;
+  /** Study hours available per weekday (0=Sun…6=Sat) — the capacity model. */
+  weekdayHours: number[];
+  onWeekdayHours: (hours: number[]) => void;
   /** Fires the real generate/update on finish. */
   onFinish: () => void;
   finishBusy: boolean;
@@ -85,8 +95,8 @@ interface ExamPlanWizardProps {
   finishLabel: string;
 }
 
-const STEP_TITLES_HE = ["אילו מבחנים", "סגנון ההכנה", "ימים חסומים", "סקירה ובנייה"];
-const STEP_TITLES_EN = ["Which exams", "Prep style", "Blocked days", "Review & build"];
+const STEP_TITLES_HE = ["אילו מבחנים", "סגנון ההכנה", "הזמן שלכם", "סקירה ובנייה"];
+const STEP_TITLES_EN = ["Which exams", "Prep style", "Your time", "Review & build"];
 
 function fmtDayChip(key: string, isHe: boolean): string {
   const [yy, mm, dd] = key.split("-").map(Number);
@@ -105,12 +115,20 @@ export function ExamPlanWizard({
   onPrepStyle,
   blockedDays,
   onBlockedDays,
+  weekdayHours,
+  onWeekdayHours,
   onFinish,
   finishBusy,
   finishLabel,
 }: ExamPlanWizardProps) {
   const [step, setStep] = useState(1); // 1..4
   const [dayInput, setDayInput] = useState("");
+  const bumpDay = (i: number, delta: number) =>
+    onWeekdayHours(
+      weekdayHours.map((h, j) =>
+        j === i ? Math.max(0, Math.min(MAX_DAY_HOURS, Math.round((h + delta) * 10) / 10)) : h,
+      ),
+    );
 
   const titles = isHe ? STEP_TITLES_HE : STEP_TITLES_EN;
   const canNext = step === 1 ? selectedCount > 0 : true;
@@ -191,7 +209,52 @@ export function ExamPlanWizard({
         )}
 
         {step === 3 && (
-          <div className="space-y-3">
+          <div className="space-y-4">
+            {/* Weekly capacity — how many study hours the student has per weekday.
+                The engine caps a day's total across all courses to this. */}
+            <div>
+              <h3 className="flex items-center gap-1.5 text-sm font-bold text-foreground/85">
+                <Clock className="size-4 text-accent-brand" />
+                {isHe ? "כמה שעות ביום ללמוד?" : "Study hours per day?"}
+              </h3>
+              <p className="mt-0.5 text-xs text-foreground/50">
+                {isHe ? "נבנה את התוכנית לפי הזמן האמיתי שלכם — בלי ימים עמוסים מדי." : "We'll build the plan around your real time — no over-packed days."}
+              </p>
+              <div dir={isHe ? "rtl" : "ltr"} className="mt-2 grid grid-cols-7 gap-1">
+                {(isHe ? HE_DAYS : EN_DAYS).map((name, i) => (
+                  <div
+                    key={i}
+                    className={cn(
+                      "flex flex-col items-center gap-0.5 rounded-lg border p-1.5",
+                      weekdayHours[i] === 0 ? "border-border/40 bg-foreground/[0.02]" : "border-border/60 bg-card/40",
+                    )}
+                  >
+                    <span className={cn("text-[11px] font-medium", i === 6 ? "text-foreground/35" : "text-foreground/55")}>{name}</span>
+                    <button
+                      type="button"
+                      aria-label={isHe ? `יותר שעות ל${name}` : `more on ${name}`}
+                      onClick={() => bumpDay(i, 0.5)}
+                      className="text-foreground/40 transition-colors hover:text-accent-brand"
+                    >
+                      <ChevronUp className="size-3.5" />
+                    </button>
+                    <span dir="ltr" className="text-sm font-bold tabular-nums text-foreground/85">{weekdayHours[i]}</span>
+                    <button
+                      type="button"
+                      aria-label={isHe ? `פחות שעות ל${name}` : `less on ${name}`}
+                      onClick={() => bumpDay(i, -0.5)}
+                      disabled={weekdayHours[i] === 0}
+                      className="text-foreground/40 transition-colors hover:text-accent-brand disabled:opacity-30"
+                    >
+                      <ChevronDown className="size-3.5" />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Specific dates you can't study at all (work, reserve duty, an event). */}
+            <div className="space-y-3 border-t border-border/40 pt-3">
             <div>
               <h3 className="flex items-center gap-1.5 text-sm font-bold text-foreground/85">
                 <CalendarOff className="size-4 text-accent-brand" />
@@ -235,6 +298,7 @@ export function ExamPlanWizard({
                 ? "לא נחסום לכם שום מוֹעד — רק נמנע מלשבץ לימוד ביום הזה."
                 : "We won't block any exam sitting — we only avoid scheduling study on that day."}
             </p>
+            </div>
           </div>
         )}
 

@@ -30,6 +30,7 @@ import {
   generateExamPlan,
   analyzeExamPeriod,
   recommendMoed,
+  DEFAULT_CAPACITY,
   type ExamInput,
   type ExamPlanResult,
 } from "@/lib/exam-planner";
@@ -161,6 +162,9 @@ export function ExamPlannerContent() {
   // generate call. blockedDays are the engine's already-supported `unavailable`.
   const [prepStyle, setPrepStyle] = useState<PrepStyle>("steady");
   const [blockedDays, setBlockedDays] = useState<string[]>([]);
+  // Phase 2 — study hours available per weekday (0=Sun…6=Sat). Seeds from the
+  // sane default; the wizard lets the student adjust. Ephemeral like blockedDays.
+  const [weekdayHours, setWeekdayHours] = useState<number[]>(DEFAULT_CAPACITY.weekdayHours);
   // STATE B "re-tune" — reopens the wizard over the saved plan.
   const [retuneOpen, setRetuneOpen] = useState(false);
 
@@ -187,7 +191,7 @@ export function ExamPlannerContent() {
     return inputs;
   }, [examCourses, selected, prepStyle]);
 
-  const previewPlan = useMemo(() => generateExamPlan(previewInputs, new Date(), blockedDays, prepStyle), [previewInputs, blockedDays, prepStyle]);
+  const previewPlan = useMemo(() => generateExamPlan(previewInputs, new Date(), blockedDays, prepStyle, { weekdayHours }), [previewInputs, blockedDays, prepStyle, weekdayHours]);
   const previewRecs = useMemo(() => (previewInputs.length === 0 ? [] : analyzeExamPeriod(previewPlan, isHe)), [previewInputs, previewPlan, isHe]);
   const selectedCount = Object.values(selected).filter(Boolean).length;
 
@@ -203,6 +207,7 @@ export function ExamPlannerContent() {
       exams,
       unavailable: blockedDays.length > 0 ? blockedDays : undefined,
       prepStyle, // apply the SAME scaling the wizard preview showed (#audit-r3)
+      capacity: { weekdayHours }, // the same capacity the preview used
     });
     setRetuneOpen(false);
   };
@@ -630,6 +635,8 @@ export function ExamPlannerContent() {
                   onPrepStyle={setPrepStyle}
                   blockedDays={blockedDays}
                   onBlockedDays={setBlockedDays}
+                  weekdayHours={weekdayHours}
+                  onWeekdayHours={setWeekdayHours}
                   onFinish={handleGenerate}
                   finishBusy={generateMutation.isPending}
                   finishLabel={generateMutation.isPending ? (isHe ? "מעדכן…" : "Updating…") : isHe ? "עדכן את התוכנית" : "Update the plan"}
@@ -684,6 +691,8 @@ export function ExamPlannerContent() {
               onPrepStyle={setPrepStyle}
               blockedDays={blockedDays}
               onBlockedDays={setBlockedDays}
+              weekdayHours={weekdayHours}
+              onWeekdayHours={setWeekdayHours}
               onFinish={handleGenerate}
               finishBusy={generateMutation.isPending}
               finishLabel={generateMutation.isPending ? (isHe ? "בונה תוכנית…" : "Building…") : isHe ? "בנה לי תוכנית לימוד" : "Build my study plan"}

@@ -98,6 +98,22 @@ const WINDOW_DAYS_STEADY = 21;
 const WINDOW_DAYS_CRAMMER = 7;
 
 /**
+ * How many study hours the student actually has, per day. `weekdayHours` is
+ * indexed 0=Sunday … 6=Saturday; `overrides` are per-date (local YYYY-MM-DD →
+ * hours) for a specific partial day or a hard zero. The plan NEVER schedules
+ * more than a day's capacity across ALL courses — no more piled-up days.
+ */
+export interface StudyCapacity {
+  weekdayHours: number[];
+  overrides?: Record<string, number>;
+}
+/** Sane default — the Israeli study week: Sun–Thu 3h, Fri 2h, Sat 0. */
+export const DEFAULT_CAPACITY: StudyCapacity = { weekdayHours: [3, 3, 3, 3, 3, 2, 0] };
+/** Most hours of ONE course a student studies in a single day (spread > cram). */
+const MAX_COURSE_HOURS_PER_DAY = SESSION_HOURS; // 2.5
+const round2 = (n: number) => Math.round(n * 100) / 100;
+
+/**
  * Build a reverse-planned study schedule for a set of exams.
  *
  * @param exams           The exams to study for.
@@ -109,14 +125,45 @@ export function generateExamPlan(
   exams: ExamInput[],
   now: Date = new Date(),
   unavailable: string[] = [],
-  style: PrepSpreadStyle = "steady"
+  style: PrepSpreadStyle = "steady",
+  capacity: StudyCapacity = DEFAULT_CAPACITY,
 ): ExamPlanResult {
   const today = startOfDay(now);
   const blocked = new Set(unavailable);
-  const sessions: StudySession[] = [];
   const examSummaries: ExamPlanResult["exams"] = [];
 
-  // Sort by date so colors are assigned by exam order (stable + readable).
+  // A day's study capacity (hours): 0 if blocked, else a per-date override or
+  // the weekday default. This is the whole point of the capacity model — the
+  // plan NEVER schedules more than this on a day across ALL courses.
+  const capOf = (d: Date): number => {
+    const k = dayKey(d);
+    if (blocked.has(k)) return 0;
+    const override = capacity.overrides?.[k];
+    if (override != null) return Math.max(0, override);
+    return Math.max(0, capacity.weekdayHours[d.getDay()] ?? 0);
+  };
+
+  // Shared cross-course ledger + ONE accumulated session per (course, day).
+  const usedByDay = new Map<string, number>();
+  const alloc = new Map<string, StudySession>();
+  const addHours = (
+    courseCode: string,
+    courseName: string,
+    day: Date,
+    hours: number,
+    color: string,
+    difficulty: Difficulty,
+  ) => {
+    const dk = dayKey(day);
+    const key = `${dk}|${courseCode}`;
+    const cur = alloc.get(key);
+    if (cur) cur.hours = round2(cur.hours + hours);
+    else alloc.set(key, { courseCode, courseName, date: day, hours: round2(hours), color, difficulty });
+    usedByDay.set(dk, round2((usedByDay.get(dk) ?? 0) + hours));
+  };
+
+  // Nearest exam first — the soonest exam claims scarce capacity before later
+  // ones. (Also gives stable, date-ordered colors.)
   const ordered = exams
     .map((e) => ({ ...e, _date: startOfDay(new Date(e.examDate)) }))
     .filter((e) => !isNaN(e._date.getTime()) && e._date.getTime() > today.getTime())
@@ -126,7 +173,6 @@ export function generateExamPlan(
     const color = colorFor(idx);
     const difficulty = classifyDifficulty(exam.averageGrade, exam.failRate);
     const totalHours = Math.max(SESSION_HOURS, Math.round(exam.credits * HOURS_PER_CREDIT[difficulty]));
-    const sessionCount = Math.max(2, Math.round(totalHours / SESSION_HOURS));
 
     examSummaries.push({
       courseCode: exam.courseCode,
@@ -138,42 +184,57 @@ export function generateExamPlan(
       color,
     });
 
-    // Available study days = from today up to the day BEFORE the exam, minus
-    // blocked days. Reverse-planning: prefer days closer to the exam, so we walk
-    // backwards from exam-1. The window is the wizard's prep-style (E1′):
-    // steady looks ~3 weeks back; crammer concentrates into the last week.
+    // Candidate days: from the day BEFORE the exam back to today, within the
+    // prep-style window (steady ~3 weeks, crammer ~1 week), that have spare
+    // capacity. Reverse-planned nearest-first.
     const windowDays = style === "crammer" ? WINDOW_DAYS_CRAMMER : WINDOW_DAYS_STEADY;
-    const available: Date[] = [];
+    const candidates: Date[] = [];
     for (let d = addDays(exam._date, -1); d.getTime() >= today.getTime(); d = addDays(d, -1)) {
-      if (!blocked.has(dayKey(d))) available.push(d);
-      if (available.length >= windowDays) break;
+      if (capOf(d) > 0) candidates.push(d);
+      if (candidates.length >= windowDays) break;
     }
-    if (available.length === 0) return; // skip this exam (forEach callback)
+    if (candidates.length === 0) return; // no room for this exam (blocked/at capacity)
 
-    // Place `sessionCount` sessions on `available` days (nearest-first order).
-    // steady/light honor the wizard's promise ("פיזור מלא על כל החלון") by
-    // distributing EVENLY across the whole window; crammer stacks nearest-first
-    // (E1′ — the engine used to stack nearest-first for everyone, so "steady"
-    // never actually spread). More sessions than days wraps around.
-    for (let i = 0; i < sessionCount; i++) {
-      const idx =
-        style === "crammer"
-          ? i % available.length
-          : Math.floor((i * available.length) / sessionCount) % available.length;
-      const day = available[idx]!;
-      sessions.push({
-        courseCode: exam.courseCode,
-        courseName: exam.courseName,
-        date: day,
-        hours: SESSION_HOURS,
-        color,
-        difficulty,
-      });
+    const spareOf = (d: Date) => Math.max(0, capOf(d) - (usedByDay.get(dayKey(d)) ?? 0));
+    const courseSpareOf = (d: Date) =>
+      MAX_COURSE_HOURS_PER_DAY - (alloc.get(`${dayKey(d)}|${exam.courseCode}`)?.hours ?? 0);
+
+    let remaining = totalHours;
+    if (style === "crammer") {
+      // Concentrate: fill the nearest days to their spare capacity (up to the
+      // per-course daily max) before touching farther ones.
+      for (const day of candidates) {
+        if (remaining <= 1e-6) break;
+        const place = Math.min(remaining, spareOf(day), courseSpareOf(day));
+        if (place > 1e-6) {
+          addHours(exam.courseCode, exam.courseName, day, place, color, difficulty);
+          remaining = round2(remaining - place);
+        }
+      }
+    } else {
+      // Spread (steady/light): round-robin half-hour increments across the whole
+      // window, so every available day gets a little before any day gets a lot.
+      const STEP = 0.5;
+      let guard = 0;
+      let progress = true;
+      while (remaining > 1e-6 && progress && guard++ < 1000) {
+        progress = false;
+        for (const day of candidates) {
+          if (remaining <= 1e-6) break;
+          const place = Math.min(STEP, remaining, spareOf(day), courseSpareOf(day));
+          if (place > 1e-6) {
+            addHours(exam.courseCode, exam.courseName, day, place, color, difficulty);
+            remaining = round2(remaining - place);
+            progress = true;
+          }
+        }
+      }
     }
+    // If capacity ran out before totalHours, we place only what fits — honest:
+    // we never overload a day the student said they can't fill.
   });
 
-  // Stable order for display.
-  sessions.sort((a, b) => a.date.getTime() - b.date.getTime());
+  const sessions = [...alloc.values()].sort((a, b) => a.date.getTime() - b.date.getTime());
   return { sessions, exams: examSummaries };
 }
 

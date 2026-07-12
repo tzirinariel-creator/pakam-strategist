@@ -64,19 +64,23 @@ describe("buildSkylineModel", () => {
     expect(m.items.some((i) => i.kind === "rest")).toBe(true);
   });
 
-  it("computes today's load exactly (nearest-first packing leaves today empty)", () => {
-    // 5 credits, medium difficulty → 5 sessions of 2.5h packed onto the 5 days
-    // nearest the exam (Jun 5-9). Today (Jun 1) gets nothing — pinned exactly
-    // so a packing/grouping regression can't hide behind a >= 0 assertion.
-    const plan = generateExamPlan([exam({ credits: 5 })], NOW);
-    const m = buildSkylineModel(plan, NOW);
-    expect(m.todayHours).toBe(0);
-    expect(m.todayCourses).toBe(0);
-    const studyDays = m.items.filter((i) => i.kind === "day" && i.bars.length > 0);
-    expect(studyDays).toHaveLength(5);
-    for (const d of studyDays) {
-      if (d.kind === "day") expect(d.sumHours).toBe(2.5);
-    }
-    expect(m.maxDayHours).toBe(2.5);
+  it("sums daily load exactly; crammer leaves today empty, steady reaches it", () => {
+    // 5 credits, medium → a 13h budget. Crammer packs the days nearest the exam,
+    // leaving today (Jun 1, ~2 weeks out) empty; the capacity-aware steady engine
+    // spreads so today DOES get load. Values pinned so a summing/grouping
+    // regression can't hide behind a >= 0 assertion.
+    const crammer = buildSkylineModel(generateExamPlan([exam({ credits: 5 })], NOW, [], "crammer"), NOW);
+    expect(crammer.todayHours).toBe(0);
+    expect(crammer.todayCourses).toBe(0);
+    const study = crammer.items.filter((i) => i.kind === "day" && i.bars.length > 0);
+    // One course → no day exceeds the 2.5h per-subject daily max, and the total
+    // equals the 13h budget (capacity is ample in the crammer window).
+    for (const d of study) if (d.kind === "day") expect(d.sumHours).toBeLessThanOrEqual(2.5 + 1e-6);
+    expect(crammer.maxDayHours).toBeLessThanOrEqual(2.5 + 1e-6);
+    const total = study.reduce((s, d) => s + (d.kind === "day" ? d.sumHours : 0), 0);
+    expect(Math.round(total * 10) / 10).toBe(13);
+    // Steady spreads the same budget so today is no longer empty.
+    const steady = buildSkylineModel(generateExamPlan([exam({ credits: 5 })], NOW, [], "steady"), NOW);
+    expect(steady.todayHours).toBeGreaterThan(0);
   });
 });
