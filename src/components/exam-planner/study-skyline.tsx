@@ -268,6 +268,7 @@ function StudyBar({
   style,
   className,
   title,
+  onTap,
 }: {
   id: string;
   disabled: boolean;
@@ -275,10 +276,20 @@ function StudyBar({
   style: React.CSSProperties;
   className: string;
   title: string;
+  /** #43 (12.7) — a short TAP on a bar jumps to that day in the agenda (the
+   *  bars fill most of the column, so they must not swallow the day-click). */
+  onTap?: () => void;
 }) {
   const { attributes, listeners, setNodeRef, isDragging } = useDraggable({ id, disabled });
   if (disabled) {
-    return <div className={className} style={style} title={title} />;
+    return (
+      <div
+        className={cn(className, onTap && "cursor-pointer")}
+        style={style}
+        title={title}
+        onClick={onTap ? (e) => { e.stopPropagation(); onTap(); } : undefined}
+      />
+    );
   }
   return (
     <button
@@ -294,7 +305,12 @@ function StudyBar({
         isDragging && "opacity-40",
       )}
       style={style}
-      onClick={(e) => e.stopPropagation()}
+      onClick={(e) => {
+        e.stopPropagation();
+        // dnd-kit suppresses click after a real drag; a clean click = a tap →
+        // jump to the day, exactly like tapping the column background.
+        if (!isDragging) onTap?.();
+      }}
     />
   );
 }
@@ -332,7 +348,14 @@ export function StudySkyline({ plan, recommendations, isHe, now, onDayClick, onM
 
   // E2′ — drag sensors: a small pointer distance so a plain tap still bubbles
   // to the day column's click, plus keyboard dragging (year-board pattern).
-  const dragEnabled = !!onMoveCourseDay;
+  // #43 (12.7) — on touch the 200ms long-press drag on 6-40px slivers was
+  // effectively unusable AND stole the tap; phones get scroll+tap only.
+  const [coarsePointer, setCoarsePointer] = useState(false);
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    setCoarsePointer(window.matchMedia?.("(pointer: coarse)").matches ?? false);
+  }, []);
+  const dragEnabled = !!onMoveCourseDay && !coarsePointer;
   const pointerSensor = useSensor(PointerSensor, { activationConstraint: { distance: 6 } });
   const touchSensor = useSensor(TouchSensor, { activationConstraint: { delay: 200, tolerance: 8 } });
   const keyboardSensor = useSensor(KeyboardSensor);
@@ -543,6 +566,7 @@ export function StudySkyline({ plan, recommendations, isHe, now, onDayClick, onM
                             boxShadow: dim ? "none" : `inset 0 0 0 1px ${b.color}`,
                           }}
                           title={`${b.courseName} — ${b.hours} ${isHe ? "שעות" : "h"}`}
+                          onTap={onDayClick ? () => onDayClick(item.key) : undefined}
                         />
                       );
                     })}

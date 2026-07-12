@@ -118,12 +118,42 @@ export function ExamPlannerContent() {
       seen.add(c.code);
       out.push({ code: c.code, name: c.nameHe, credits: c.credits, examDateA, examDateB, averageGrade: c.averageGrade, failRate: c.failRate });
     }
+    // #37 (12.7) — the picker lists exams in CHRONOLOGICAL order (earliest
+    // upcoming sitting first), not catalog order.
+    const earliest = (c: (typeof out)[number]) =>
+      Math.min(c.examDateA?.getTime() ?? Infinity, c.examDateB?.getTime() ?? Infinity);
+    out.sort((a, b) => earliest(a) - earliest(b));
     return out;
   }, [planQuery.data]);
 
   const hasAnyPlannedCourses = (planQuery.data?.courses?.length ?? 0) > 0;
 
   const [selected, setSelected] = useState<Record<string, Moed | undefined>>({});
+  // #34 (12.7) — courses assessed by a PAPER / alternative assessment (מתווה
+  // תשפ"ו) have no exam to plan: marked here, they leave the picker + skyline,
+  // and get a gentle "add your submission deadline" pointer instead.
+  const [altAssessment, setAltAssessment] = useState<Set<string>>(() => {
+    if (typeof window === "undefined") return new Set();
+    try {
+      return new Set(JSON.parse(localStorage.getItem("pk-alt-assessment") ?? "[]") as string[]);
+    } catch {
+      return new Set();
+    }
+  });
+  const toggleAltAssessment = (code: string) => {
+    setAltAssessment((prev) => {
+      const next = new Set(prev);
+      if (next.has(code)) next.delete(code);
+      else {
+        next.add(code);
+        setSelected((sel) => ({ ...sel, [code]: undefined }));
+      }
+      try {
+        localStorage.setItem("pk-alt-assessment", JSON.stringify([...next]));
+      } catch { /* storage blocked — session-only */ }
+      return next;
+    });
+  };
   // Skyline→agenda link (#37); n bumps so re-clicking the same day re-scrolls.
   const [focusDay, setFocusDay] = useState<{ key: string; n: number } | null>(null);
   // Wizard tuning (#37) — prep style + blocked days feed the preview and the
@@ -371,7 +401,7 @@ export function ExamPlannerContent() {
               ? "ברירת המחדל היא מועד א׳ — רוב הסטודנטים ניגשים אליו, ומועד ב׳ נשאר כרשת ביטחון (שימו לב: הציון האחרון קובע)."
               : "Moed A is the default — most students take it, keeping Moed B as the safety net (note: the last grade counts)."}
           </p>
-          {examCourses.map((c) => {
+          {examCourses.filter((c) => !altAssessment.has(c.code)).map((c) => {
             const sel = selected[c.code];
             // Recommend a sitting against the OTHER selected exams' chosen
             // dates (#32): default A (last grade counts — B is the safety
@@ -418,13 +448,46 @@ export function ExamPlannerContent() {
                     );
                   })}
                 </div>
+                <button
+                  type="button"
+                  onClick={() => toggleAltAssessment(c.code)}
+                  title={isHe ? "אין מבחן בקורס הזה? סמנו — והוא יֵצא מתכנון המבחנים" : "No exam in this course? Mark it out of the exam plan"}
+                  className="rounded-full border border-border/60 px-2 py-0.5 text-[10px] text-foreground/45 transition-colors hover:border-foreground/30 hover:text-foreground/70"
+                >
+                  {isHe ? "עבודה במקום מבחן?" : "Paper instead?"}
+                </button>
               </div>
             );
           })}
-          <button type="button" onClick={handleGenerate} disabled={selectedCount === 0 || generateMutation.isPending} className="mt-2 inline-flex w-full items-center justify-center gap-2 rounded-lg bg-accent-brand px-4 py-2.5 text-sm font-semibold text-accent-brand-fg transition-colors hover:bg-accent-brand-hover disabled:opacity-40">
-            <CalendarRange className="size-4" />
-            {generateMutation.isPending ? (isHe ? "בונה תוכנית…" : "Building…") : hasPlan ? (isHe ? "עדכן את התוכנית" : "Update the plan") : isHe ? "בנה לי תוכנית לימוד" : "Build my study plan"}
-          </button>
+          {altAssessment.size > 0 && (
+            <div className="rounded-lg border border-border/40 bg-foreground/[0.02] p-2.5 text-[11px] leading-relaxed text-foreground/55">
+              <p className="font-semibold text-foreground/65">
+                {isHe ? "בהערכה חלופית / עבודה (לא בתכנון המבחנים):" : "Alternative assessment (out of the exam plan):"}
+              </p>
+              {examCourses.filter((c) => altAssessment.has(c.code)).map((c) => (
+                <p key={c.code} className="mt-1 flex flex-wrap items-center gap-2">
+                  <span>{c.name}</span>
+                  <button
+                    type="button"
+                    onClick={() => toggleAltAssessment(c.code)}
+                    className="text-accent-brand hover:underline"
+                  >
+                    {isHe ? "בעצם יש מבחן — החזירו" : "Actually has an exam — restore"}
+                  </button>
+                </p>
+              ))}
+              <p className="mt-1.5 text-foreground/40">
+                {isHe
+                  ? "טיפ: הוסיפו את דדליין-ההגשה דרך \"הוסיפו תאריכים וכלים\" למטה — והוא יופיע בציר לצד המבחנים."
+                  : "Tip: add the submission deadline via \"add dates & tools\" below — it shows on the timeline beside the exams."}
+              </p>
+            </div>
+          )}
+          {/* #39 (12.7) — no build button here: building happens at the END of
+              the wizard, after the blocked-days + style questions were answered. */}
+          <p className="mt-2 text-center text-[11px] text-foreground/40">
+            {isHe ? "אחרי הבחירה — המשיכו בשלבים למעלה עד לבניית התוכנית." : "After picking — continue through the steps above to build the plan."}
+          </p>
         </div>
       )}
     </div>

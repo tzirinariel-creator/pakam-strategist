@@ -51,7 +51,7 @@ describe("buildExamPlanWorkbook", () => {
     expect(built).not.toBeNull();
     const { wb, meta } = built!;
 
-    expect(wb.worksheets.map((w) => w.name)).toEqual(["תוכנית", "לוח-גאנט", "אג'נדה"]);
+    expect(wb.worksheets.map((w) => w.name)).toEqual(["לוח שבועי", "תוכנית", "לוח-גאנט", "אג'נדה"]);
     // 11.7 → 20.7 inclusive = 10 day columns; today = first column (B).
     expect(meta.dayCount).toBe(10);
     expect(meta.todayCol).toBe(2);
@@ -114,5 +114,32 @@ describe("buildExamPlanWorkbook", () => {
     const values: string[] = [];
     agenda.eachRow((row) => values.push(String(row.getCell(4).value)));
     expect(values.filter((v) => v.includes("מבחן:")).length).toBe(2);
+  });
+});
+
+// #35/#36 (12.7) — the weekly calendar grid, modeled on the real spreadsheet
+// students plan with: days across, weeks down, exams highlighted in cells.
+describe("weekly calendar grid sheet (#35/#36)", () => {
+  it("is the FIRST sheet, has day headers, and places the exam in its day cell", async () => {
+    const plan = makePlan();
+    const built = await buildExamPlanWorkbook(plan, { isHe: true, now: NOW });
+    expect(built).not.toBeNull();
+    const cal = built!.wb.worksheets[0]!;
+    expect(cal.name).toBe("לוח שבועי");
+    // header row = day names
+    expect(String(cal.getRow(1).getCell(1).value)).toBe("ראשון");
+    expect(String(cal.getRow(1).getCell(7).value)).toBe("שבת");
+    // somewhere in the grid the exam appears as an exam cell (📝 + מועד)
+    let foundExam = false;
+    let foundStudy = false;
+    cal.eachRow((row) => {
+      row.eachCell((cell) => {
+        const v = String(cell.value ?? "");
+        if (v.includes("📝") && v.includes("מועד")) foundExam = true;
+        if (v.includes("ש׳)")) foundStudy = true;
+      });
+    });
+    expect(foundExam).toBe(true);
+    expect(foundStudy).toBe(true);
   });
 });

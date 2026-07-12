@@ -20,7 +20,7 @@
 // exceljs is heavy; it is imported DYNAMICALLY inside the export function so
 // it stays out of the initial bundle.
 
-import type { ExamPlanResult } from "./exam-planner";
+import type { ExamPlanResult, StudySession } from "./exam-planner";
 import type { Workbook, Worksheet, Cell } from "exceljs";
 
 export interface XlsxExportOptions {
@@ -96,6 +96,15 @@ function tintFont(towardWhite: number): string {
 }
 
 const INK = "FF1E1B4B"; // deep indigo — headers
+
+/** Mix a 6-hex color with white (t=0 → color, t=1 → white) for soft tints. */
+function mixWithWhite(hex6: string, t: number): string {
+  const n = parseInt(hex6, 16);
+  const r = Math.round(((n >> 16) & 255) * (1 - t) + 255 * t);
+  const g = Math.round(((n >> 8) & 255) * (1 - t) + 255 * t);
+  const b = Math.round((n & 255) * (1 - t) + 255 * t);
+  return [r, g, b].map((x) => x.toString(16).padStart(2, "0")).join("").toUpperCase();
+}
 const HEAD = "FF312E81";
 const HEAD_WEEKEND = "FF4C1D95";
 const EXAM_RED = "FFEF4444";
@@ -178,7 +187,115 @@ export async function buildExamPlanWorkbook(
   const grandTotalHours = plan.sessions.reduce((sum, s) => sum + s.hours, 0);
 
   // ─────────────────────────────────────────────────────────────────
-  // Sheet 1 — the plan table (with a title/totals banner)
+  // Sheet 1 (#35/#36, 12.7) — the weekly CALENDAR grid. Modeled on how
+  // students actually plan on paper: days as columns, a block per week,
+  // each cell names what you study that day, exam days highlighted.
+  // ─────────────────────────────────────────────────────────────────
+  {
+    const cal = wb.addWorksheet(isHe ? "לוח שבועי" : "Weekly grid", {
+      views: [{ rightToLeft: isHe }],
+    });
+    const DAY_NAMES = isHe
+      ? ["ראשון", "שני", "שלישי", "רביעי", "חמישי", "שישי", "שבת"]
+      : ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+    cal.columns = DAY_NAMES.map(() => ({ width: 22 }));
+
+    // Range: from the week containing today (or the first session) to the
+    // week of the last exam.
+    const sessByDay = new Map<string, StudySession[]>();
+    for (const sess of plan.sessions) {
+      const k = dayKey(startOfDay(sess.date));
+      const list = sessByDay.get(k);
+      if (list) list.push(sess);
+      else sessByDay.set(k, [sess]);
+    }
+    const examByDay = new Map<string, { name: string; moed: "A" | "B"; color: string }[]>();
+    for (const ex of plan.exams) {
+      const k = dayKey(startOfDay(ex.examDate));
+      const list = examByDay.get(k);
+      const item = { name: ex.courseName, moed: ex.moed, color: ex.color };
+      if (list) list.push(item);
+      else examByDay.set(k, [item]);
+    }
+    const firstSession = plan.sessions.length
+      ? plan.sessions.reduce((min, sess) => (sess.date < min ? sess.date : min), plan.sessions[0]!.date)
+      : now;
+    const rangeStart = startOfDay(new Date(Math.min(now.getTime(), startOfDay(firstSession).getTime())));
+    const lastExam = plan.exams.reduce(
+      (max, ex) => (ex.examDate > max ? ex.examDate : max),
+      plan.exams[0]!.examDate,
+    );
+    // Snap to the containing week (Sunday) and cap at ~10 weeks for sanity.
+    const weekStart = addDays(rangeStart, -rangeStart.getDay());
+    const totalDays = Math.min(
+      70,
+      Math.ceil((startOfDay(lastExam).getTime() - weekStart.getTime()) / 86_400_000) + 1,
+    );
+    const weeks = Math.ceil(totalDays / 7);
+
+    // Header: day names.
+    const head = cal.addRow(DAY_NAMES);
+    head.height = 22;
+    head.eachCell((c) => {
+      c.font = { bold: true, size: 11, color: { argb: "FFFFFFFF" } };
+      c.fill = { type: "pattern", pattern: "solid", fgColor: { argb: INK } };
+      c.alignment = { horizontal: "center", vertical: "middle" };
+    });
+
+    for (let w = 0; w < weeks; w++) {
+      // Date row (small, gray) + content row (what you study).
+      const dates: string[] = [];
+      const contents: string[] = [];
+      const cellMeta: { exam: boolean; color?: string; today: boolean }[] = [];
+      for (let d = 0; d < 7; d++) {
+        const day = addDays(weekStart, w * 7 + d);
+        const k = dayKey(day);
+        dates.push(fmtDate(day));
+        const exams = examByDay.get(k) ?? [];
+        const sessions = sessByDay.get(k) ?? [];
+        const parts: string[] = [];
+        for (const ex of exams) {
+          parts.push(isHe ? `📝 ${ex.name} — מועד ${ex.moed === "A" ? "א׳" : "ב׳"}` : `📝 ${ex.name} — Moed ${ex.moed}`);
+        }
+        for (const sess of sessions) {
+          parts.push(isHe ? `${sess.courseName} (${sess.hours} ש׳)` : `${sess.courseName} (${sess.hours}h)`);
+        }
+        contents.push(parts.join("\n"));
+        cellMeta.push({
+          exam: exams.length > 0,
+          color: exams[0]?.color ?? sessions[0]?.color,
+          today: k === dayKey(now),
+        });
+      }
+      const dateRow = cal.addRow(dates);
+      dateRow.height = 14;
+      dateRow.eachCell((c, col) => {
+        c.font = { size: 9, color: { argb: cellMeta[col - 1]?.today ? "FF92400E" : "FF9CA3AF" }, bold: !!cellMeta[col - 1]?.today };
+        c.alignment = { horizontal: isHe ? "right" : "left" };
+        if (cellMeta[col - 1]?.today) {
+          c.fill = { type: "pattern", pattern: "solid", fgColor: { argb: "FFFEF3C7" } };
+        }
+      });
+      const contentRow = cal.addRow(contents);
+      contentRow.height = 44;
+      contentRow.eachCell((c, col) => {
+        const meta = cellMeta[col - 1];
+        c.alignment = { wrapText: true, vertical: "top", horizontal: isHe ? "right" : "left" };
+        c.font = { size: 10, bold: !!meta?.exam };
+        c.border = { bottom: { style: "thin", color: { argb: "FFE5E7EB" } } };
+        if (meta?.exam && meta.color) {
+          c.fill = { type: "pattern", pattern: "solid", fgColor: { argb: "FF" + meta.color.slice(1).toUpperCase() + "" } };
+          c.font = { size: 10, bold: true, color: { argb: "FFFFFFFF" } };
+        } else if (meta?.color && c.value) {
+          const hex = meta.color.slice(1).toUpperCase();
+          c.fill = { type: "pattern", pattern: "solid", fgColor: { argb: "FF" + mixWithWhite(hex, 0.85) } };
+        }
+      });
+    }
+  }
+
+  // ─────────────────────────────────────────────────────────────────
+  // Sheet 2 — the plan table (with a title/totals banner)
   // ─────────────────────────────────────────────────────────────────
   const table = wb.addWorksheet(isHe ? "תוכנית" : "Plan", {
     views: [{ rightToLeft: isHe }],
