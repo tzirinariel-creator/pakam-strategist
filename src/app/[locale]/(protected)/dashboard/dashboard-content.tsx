@@ -1,12 +1,13 @@
 "use client";
 
 import { useState, useEffect, useRef, useCallback } from "react";
-import { GraduationCap, Scale, Pencil, Target, ArrowRight, ArrowLeft, Calendar, X, RefreshCw, Calculator, CheckCircle2 } from "lucide-react";
+import { GraduationCap, Scale, Pencil, Target, ArrowRight, ArrowLeft, Calendar, X, RefreshCw, Calculator, CheckCircle2, Gavel } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 import { useSearchParams } from "next/navigation";
 import { Link, useRouter } from "@/i18n/navigation";
 import { consumeSharedPlanReturn } from "@/lib/plan-share";
 import { getAcademicNow, deriveYearOfStudy } from "@/lib/academic-calendar";
+import { getBiddingTarget, isBiddingSeason } from "@/lib/bidding-target";
 import { isCurrentlyStudying } from "@/lib/semester-clock";
 import { api } from "@/lib/trpc/react";
 import { firstNameOf } from "@/lib/personal-address";
@@ -936,6 +937,11 @@ export function DashboardContent() {
         />
       )}
 
+      {/* #15 (12.7) — the seasonal bidding entry: the one recurring moment
+          every student MUST re-plan. Appears only inside the window before
+          the next semester; links to the planner's bidding toolkit. */}
+      {!tourOpen && !isTransitioning && <BiddingSeasonCard />}
+
       {/* Returning-student prompt — year ≥ 2 with nothing marked completed yet.
           Hidden while the rite is up: both ask "enter your past grades" (#22
           critique fix 8 — one ask, not two side by side). */}
@@ -1142,3 +1148,39 @@ export function DashboardContent() {
     </div>
   );
 }
+
+/** #15 — seasonal bidding nudge. Window-based (≤45 days to the next teaching
+ *  start); never claims an exact bid date (TAU doesn't publish one). */
+function BiddingSeasonCard() {
+  const locale = useLocale();
+  const isHe = locale === "he";
+  const profileQuery = api.user.getProfile.useQuery();
+  const target = getBiddingTarget(profileQuery.data?.startYear, profileQuery.data?.currentYear ?? 1);
+  if (!isBiddingSeason(target) || !target) return null;
+  return (
+    <div className="data-card flex flex-wrap items-center gap-3 border-accent-brand/25 bg-accent-brand/[0.04] p-4">
+      <div className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-accent-brand/15 text-accent-brand">
+        <Gavel className="size-4.5" />
+      </div>
+      <div className="min-w-0 flex-1">
+        <p className="text-sm font-semibold text-foreground/85">
+          {isHe
+            ? `המכרז ל${target.labelHe} מתקרב`
+            : `Bidding for the coming ${target.semester === "FALL" ? "fall" : "spring"} is near`}
+        </p>
+        <p className="text-xs text-foreground/55">
+          {isHe
+            ? `ההוראה נפתחת בעוד ${target.daysUntilStart} ימים, וההרשמה מתקיימת לפני כן. שווה לסגור את התוכנית ולבדוק חפיפות עכשיו.`
+            : `Teaching starts in ${target.daysUntilStart} days and registration happens before. Finalize your plan and check clashes now.`}
+        </p>
+      </div>
+      <Link
+        href="/planner"
+        className="shrink-0 rounded-lg bg-accent-brand px-3 py-2 text-xs font-semibold text-accent-brand-fg transition-colors hover:bg-accent-brand-hover"
+      >
+        {isHe ? "לבדיקת חפיפות" : "Check clashes"}
+      </Link>
+    </div>
+  );
+}
+

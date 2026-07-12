@@ -121,3 +121,26 @@ describe("getTeachingRange (export regression — the corrected dates)", () => {
     expect(r.start.getFullYear()).toBe(2027);
   });
 });
+
+// #13/#15 (12.7) — bidding always targets the NEXT teaching semester
+import { getBiddingTarget, isBiddingSeason } from "@/lib/bidding-target";
+
+describe("getBiddingTarget", () => {
+  it("in July 2026 (post-spring) a year-1 student bids for FALL of year 2", () => {
+    const t = getBiddingTarget(2025, 1, new Date(2026, 6, 12));
+    expect(t).not.toBeNull();
+    expect(t!.semester).toBe("FALL");
+    expect(t!.yearOfStudy).toBe(2);
+  });
+  it("mid-fall teaching the target is SPRING of the same study year", () => {
+    const t = getBiddingTarget(2025, 1, new Date(2025, 11, 1));
+    expect(t!.semester).toBe("SPRING");
+    expect(t!.yearOfStudy).toBe(1);
+  });
+  it("season flag flips within 45 days of the next teaching start", () => {
+    const far = getBiddingTarget(2025, 1, new Date(2026, 6, 12)); // Oct 18 start → >90d
+    expect(isBiddingSeason(far)).toBe(false);
+    const near = getBiddingTarget(2025, 1, new Date(2026, 8, 20)); // <45d to Oct 18
+    expect(isBiddingSeason(near)).toBe(true);
+  });
+});

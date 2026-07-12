@@ -3,7 +3,6 @@
 import { useMemo } from "react";
 import { useLocale } from "next-intl";
 import { AlertTriangle, ShieldCheck } from "lucide-react";
-import { usePlannerStore } from "@/stores/planner-store";
 import { api } from "@/lib/trpc/react";
 import {
   detectAllConflicts,
@@ -23,9 +22,18 @@ import type { DayOfWeek } from "@/types/enums";
  * 10:00". Additive read-only card; never predicts points. Reuses the same
  * session assembly the live timetable uses (cached course.list, selectedGroups).
  */
-export function BiddingOverlapAlert({ courses }: { courses: UserCourseWithCourse[] }) {
+export function BiddingOverlapAlert({
+  courses,
+  targetYear,
+  targetSemester,
+}: {
+  courses: UserCourseWithCourse[];
+  /** #13 — the NEXT (bidding) semester, not the one on screen. */
+  targetYear: number;
+  targetSemester: "FALL" | "SPRING";
+}) {
   const isHe = useLocale() === "he";
-  const selectedYear = usePlannerStore((s) => s.selectedYear);
+  const selectedYear = targetYear;
 
   const coursesQuery = api.course.list.useQuery(undefined, { staleTime: 5 * 60 * 1000 });
   const profileQuery = api.user.getProfile.useQuery();
@@ -40,11 +48,9 @@ export function BiddingOverlapAlert({ courses }: { courses: UserCourseWithCourse
     [allCourses],
   );
 
-  // Follow the SAME semester the live timetable shows (shared store; null =
-  // the profile's current semester) — the alert must describe what's on screen.
-  const selectedSemester = usePlannerStore((s) => s.selectedSemester);
-  const semester =
-    selectedSemester ?? (profileQuery.data?.currentSemester === "SPRING" ? "SPRING" : "FALL");
+  // #13 (12.7) — the alert describes the BIDDING semester (the next one),
+  // which is what you actually submit requests for.
+  const semester = targetSemester;
 
   const { conflicts, distinctCourses, unscheduledCount } = useMemo(() => {
     const sessions: SessionInfo[] = [];

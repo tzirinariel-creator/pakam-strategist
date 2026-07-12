@@ -11,7 +11,6 @@ import {
   Check,
 } from "lucide-react";
 import { toast } from "sonner";
-import { usePlannerStore } from "@/stores/planner-store";
 import { api } from "@/lib/trpc/react";
 import {
   checkAllocations,
@@ -62,10 +61,19 @@ interface Row {
   hasClash: boolean;
 }
 
-export function BiddingWorksheet({ courses }: { courses: UserCourseWithCourse[] }) {
+export function BiddingWorksheet({
+  courses,
+  targetYear,
+  targetSemester,
+}: {
+  courses: UserCourseWithCourse[];
+  /** #13 — the NEXT (bidding) semester, not the one on screen. */
+  targetYear: number;
+  targetSemester: "FALL" | "SPRING";
+}) {
   const isHe = useLocale() === "he";
   const [open, setOpen] = useState(false);
-  const selectedYear = usePlannerStore((s) => s.selectedYear);
+  const selectedYear = targetYear;
 
   const coursesQuery = api.course.list.useQuery(undefined, { staleTime: 5 * 60 * 1000 });
   const profileQuery = api.user.getProfile.useQuery();
@@ -76,11 +84,8 @@ export function BiddingWorksheet({ courses }: { courses: UserCourseWithCourse[] 
     [coursesQuery.data],
   );
   const courseById = useMemo(() => new Map(allCourses.map((c) => [c.id, c])), [allCourses]);
-  // Follow the SAME semester the live timetable shows (shared store; null =
-  // the profile's current semester) — the worksheet plans the visible semester.
-  const selectedSemester = usePlannerStore((s) => s.selectedSemester);
-  const semester =
-    selectedSemester ?? (profileQuery.data?.currentSemester === "SPRING" ? "SPRING" : "FALL");
+  // #13 (12.7) — the worksheet plans the BIDDING semester (the next one).
+  const semester = targetSemester;
 
   // The semester's courses as worksheet rows + their clash set (same assembly
   // the overlap alert uses: group-filtered real sessions).

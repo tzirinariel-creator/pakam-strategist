@@ -16,6 +16,7 @@ import { PlannerLiveTimetable } from "./planner-live-timetable";
 import { DegreeStatus } from "@/components/dashboard/degree-status";
 import { api } from "@/lib/trpc/react";
 import { deriveYearOfStudy } from "@/lib/academic-calendar";
+import { getBiddingTarget } from "@/lib/bidding-target";
 import { ThemedLoader } from "@/components/ui/themed-loader";
 import { cn } from "@/lib/utils";
 import { Link } from "@/i18n/navigation";
@@ -99,6 +100,18 @@ export function PlannerContent() {
   // Year of study is DERIVED from the calendar (#39/#43) — powers the live
   // "בלימוד" tag on cards of the current semester.
   const currentYear = deriveYearOfStudy(profileQuery.data?.startYear, profileQuery.data?.currentYear ?? 1);
+  // #13/#15 (12.7) — bidding concerns the NEXT teaching semester (what you
+  // actually submit requests for), never the running one.
+  const biddingTarget = getBiddingTarget(profileQuery.data?.startYear, profileQuery.data?.currentYear ?? 1);
+  const biddingCourseCount = biddingTarget
+    ? courses.filter(
+        (uc) =>
+          uc.plannedYear === biddingTarget.yearOfStudy &&
+          uc.plannedSemester === biddingTarget.semester &&
+          uc.status !== "COMPLETED" &&
+          uc.status !== "FAILED",
+      ).length
+    : 0;
 
   // Share the plan as a link (no backend): pack course codes + placement into a
   // base64url token. The dialog shows exactly what a friend will (and won't)
@@ -247,13 +260,46 @@ export function PlannerContent() {
           <div className="animate-stagger-3">
             <YearBoard courses={courses} currentYear={currentYear} />
           </div>
-          {/* Bidding help — the overlap trap on YOUR real courses, the
-              worksheet for YOUR OWN points, then the mechanics explainer. */}
-          <div className="animate-stagger-4 flex flex-col gap-4">
-            <BiddingOverlapAlert courses={courses} />
-            <BiddingWorksheet courses={courses} />
-            <BiddingExplainer isHe={isHe} />
-          </div>
+          {/* #13/#15 (12.7) — bidding help targets the NEXT semester (the one
+              you bid for). With planned courses → the full toolkit; without —
+              a short pointer instead of tools running on enrolled courses. */}
+          {biddingTarget && (
+            <div id="bidding" className="animate-stagger-4 flex flex-col gap-4">
+              <div className="flex flex-wrap items-baseline gap-2">
+                <h2 className="text-base font-bold text-foreground/80">
+                  {isHe
+                    ? `לקראת המכרז — ${biddingTarget.labelHe} הקרוב`
+                    : `Toward the bidding round — the coming ${biddingTarget.semester === "FALL" ? "fall" : "spring"}`}
+                </h2>
+                <span className="text-xs text-foreground/45">
+                  {isHe
+                    ? `הסמסטר נפתח בעוד ${biddingTarget.daysUntilStart} ימים — המכרז מתקיים לפני כן`
+                    : `Semester starts in ${biddingTarget.daysUntilStart} days — bidding happens before`}
+                </span>
+              </div>
+              {biddingCourseCount > 0 ? (
+                <>
+                  <BiddingOverlapAlert
+                    courses={courses}
+                    targetYear={biddingTarget.yearOfStudy}
+                    targetSemester={biddingTarget.semester}
+                  />
+                  <BiddingWorksheet
+                    courses={courses}
+                    targetYear={biddingTarget.yearOfStudy}
+                    targetSemester={biddingTarget.semester}
+                  />
+                </>
+              ) : (
+                <div className="rounded-xl border border-border/60 bg-foreground/[0.02] p-4 text-xs leading-relaxed text-foreground/55">
+                  {isHe
+                    ? `עוד לא תכננתם קורסים ל${biddingTarget.labelHe} הקרוב. גררו קורסים ללוח למעלה — ואז נבדוק לכם חפיפות ונכין רשימת-בדיקה למכרז.`
+                    : "You haven't planned the coming semester yet. Drag courses onto the board above — then we'll check clashes and prep your bidding checklist."}
+                </div>
+              )}
+              <BiddingExplainer isHe={isHe} />
+            </div>
+          )}
         </div>
 
         {/* Live timetable — on top on a phone (order-first), sticky alongside
