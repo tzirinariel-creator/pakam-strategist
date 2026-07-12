@@ -499,7 +499,7 @@ export function InsightsBar({
             </span>
             <p className="mt-0.5 text-[10px] text-foreground/40" dir="auto">
               {isHe
-                ? <>‏<Bidi text={honestLoad.weeklyHours} /> ש׳ מגע · <Bidi text={honestLoad.credits} /> ש״ס</>
+                ? <>‏<Bidi text={honestLoad.weeklyHours} /> שעות לימוד בשבוע · <Bidi text={honestLoad.credits} /> ש״ס</>
                 : `${honestLoad.weeklyHours}h · ${honestLoad.credits} cr.`}
             </p>
             {/* Contextual workload tip */}

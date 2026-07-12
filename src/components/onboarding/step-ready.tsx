@@ -16,6 +16,7 @@ import type { CompletedCourse } from "./step-history";
 import type { CourseWithSchedule } from "@/lib/plan-generator";
 import type { SessionGroupSelections } from "./semester-planner/live-timetable";
 import { PersonaPicker } from "@/components/persona/persona-picker";
+import { PhilosopherKingCharacter } from "@/components/ui/philosopher-king-character";
 
 interface StepReadyProps {
   data: OnboardingData;
@@ -297,10 +298,10 @@ export function StepReady({ data, plannedSemesters, completedCourses, allCourses
   if (isSaving) {
     return (
       <div className="flex flex-col items-center justify-center text-center min-h-[50vh] gap-5">
-        <div className="relative">
-          <div className="h-24 w-24 animate-spin rounded-full border-4 border-foreground/10 border-t-foreground/50" />
-          <div className="absolute inset-0 flex items-center justify-center">
-            <GraduationCap className="h-10 w-10 text-foreground/50" />
+        <div className="relative size-24">
+          <div className="absolute -inset-2 animate-spin rounded-full border-[3px] border-accent-brand/15 border-t-accent-brand [animation-duration:1100ms]" />
+          <div className="absolute inset-0 flex items-center justify-center pk-float">
+            <PhilosopherKingCharacter className="size-24" />
           </div>
         </div>
         <div className="flex flex-col gap-1.5">

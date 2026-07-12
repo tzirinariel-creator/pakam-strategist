@@ -1,4 +1,4 @@
-import { PhilosopherKingIcon } from "@/components/ui/philosopher-king-icon";
+import { PhilosopherKingCharacter } from "@/components/ui/philosopher-king-character";
 
 /**
  * Shared auth-screen header (#6) — the identity chip uses the SAME grammar as
@@ -18,8 +18,8 @@ export function AuthHeader({
 }) {
   return (
     <div className="flex flex-col items-center gap-4 text-center">
-      <div className="animate-stagger-1 flex size-14 items-center justify-center rounded-2xl bg-accent-brand shadow-sm ring-1 ring-crown-gold-bright/30">
-        <PhilosopherKingIcon className="size-8 text-crown-gold-bright" />
+      <div className="animate-stagger-1 pk-float">
+        <PhilosopherKingCharacter className="size-16 drop-shadow-md" />
       </div>
       <div className="animate-stagger-2">
         <h1 className="font-display text-2xl font-bold text-foreground/85">פכמון</h1>

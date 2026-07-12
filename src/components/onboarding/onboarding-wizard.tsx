@@ -281,7 +281,7 @@ export function OnboardingWizard() {
   const canProceed = step === STEP_PROFILE;
 
   return (
-    <div className="bg-mesh min-h-full w-full">
+    <div className="bg-mesh -m-2 min-h-full w-auto sm:-m-4 md:-m-6">
     <div className="relative mx-auto flex min-h-[80vh] w-full max-w-4xl flex-col px-4 py-8 md:px-8">
       {/* Progress bar — only on Profile step */}
       {showProgressBar && (

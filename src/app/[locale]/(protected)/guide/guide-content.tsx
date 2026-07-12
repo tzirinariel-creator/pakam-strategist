@@ -14,6 +14,7 @@ import {
 import { useLocale } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import { Bidi } from "@/lib/bidi";
+import { DegreeInfoCard } from "@/components/onboarding/semester-planner/degree-info-card";
 
 /**
  * "פכמיסט מתחיל" — a friendly, accurate orientation page. Explains what the
@@ -69,6 +70,12 @@ export function GuideContent() {
           <Li>{isHe ? "ציון גמר = " : "Final grade = "}<Bidi text={isHe ? "78% קורסים + 18% סמינרים + 4% רפרט" : "78% courses + 18% seminars + 4% referat"} />.</Li>
         </ul>
       </Section>
+
+      {/* #12 (12.7) — the full degree explainer used to hide inside course
+          editing; every student deserves it here, whatever their stage. */}
+      <section className="animate-stagger-2">
+        <DegreeInfoCard />
+      </section>
 
       <Section icon={Lightbulb} title={isHe ? "איך לתכנן חכם" : "How to plan smartly"}>
         <ul className="space-y-1.5">

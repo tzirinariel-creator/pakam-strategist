@@ -712,3 +712,16 @@ h4, h5, h6 {
     scroll-behavior: auto !important;
   }
 }
+
+/* pk-float — the King character gently bobbing in loaders and idle moments.
+   Subtle by design (4px travel); honors reduced-motion. */
+@keyframes pk-float-kf {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-4px); }
+}
+.pk-float {
+  animation: pk-float-kf 2.6s ease-in-out infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .pk-float { animation: none; }
+}

@@ -30,6 +30,7 @@ import type { MentorPersona } from "@/lib/ai/mentor-prompt";
 import { routeQuestion } from "@/lib/ai/answer-router";
 import { detectActions, type AssistantAction } from "@/lib/ai/action-router";
 import { PhilosopherKingCharacter } from "@/components/ui/philosopher-king-character";
+import { ReferentCharacter } from "@/components/ui/referent-character";
 import { invalidatePlanData } from "@/lib/trpc/invalidate-plan";
 import { suggestedQuestions } from "@/lib/degree-qa";
 import { getAcademicNow } from "@/lib/academic-calendar";
@@ -310,6 +311,23 @@ export function FloatingAssistant() {
   // Track WHICH rec was dismissed (not a bare boolean) so dismissing gap A never
   // suppresses a later, different critical gap B in the same session.
   const [dismissedRecId, setDismissedRecId] = useState<string | null>(null);
+
+  // #15 — first-meeting intro: shown until dismissed once (localStorage).
+  const [showIntro, setShowIntro] = useState(false);
+  useEffect(() => {
+    if (!open) return;
+    try {
+      setShowIntro(localStorage.getItem("pk-met-advisor") !== "true");
+    } catch {
+      setShowIntro(false);
+    }
+  }, [open]);
+  const dismissIntro = () => {
+    setShowIntro(false);
+    try {
+      localStorage.setItem("pk-met-advisor", "true");
+    } catch { /* storage blocked */ }
+  };
   const topRec = useMemo(
     () => recommendations.find((r) => r.severity === "critical" || r.severity === "warning") ?? null,
     [recommendations],
@@ -424,7 +442,7 @@ export function FloatingAssistant() {
       if (p.includes("/regulations")) return "You're in the regulations. I'll explain any requirement, why it matters, and how to close it.";
       if (p.includes("/graduation") || p.includes("/record")) return "You're in your academic record. Ask about your average, honors, or how to improve.";
       if (p.includes("/exam")) return "You're in exam planning. Ask me how to spread your studying, or about the second sitting.";
-      return "Ask me anything about your degree — I answer from your data.";
+      return "Ask me anything about your degree — my answers are based on your own data.";
     }
     if (p.includes("/planner"))
       return `תכנון הסמסטר. ${ask} מה כדאי לקחת, אם העומס מאוזן, או איך לסגור פער — אענה מהמספרים שלך.`;
@@ -436,7 +454,7 @@ export function FloatingAssistant() {
       return `התיק האקדמי. ${ask} על הממוצע, על ההצטיינות, או איך לשפר ציון לפני שהוא ננעל.`;
     if (p.includes("/exam"))
       return `תקופת המבחנים. ${ask} איך לפזר את הלמידה נכון, או מתי מועד ב׳ באמת שווה.`;
-    return `${ask} כל דבר על התואר — אני עונה מהמספרים שלך, לא בכלליות.`;
+    return `${ask} אותי כל שאלה על התואר — התשובות שלי מבוססות על הנתונים האישיים שלך.`;
   }, [pathname, isHe, gender]);
 
   // Auto-focus the input ONLY on desktop. On touch (the whole target audience)
@@ -849,9 +867,9 @@ export function FloatingAssistant() {
                 className="shrink-0 rounded-md p-1.5 text-foreground/40 transition-colors hover:bg-foreground/10 hover:text-foreground/70"
               >
                 {isReferent ? (
-                  <PhilosopherKingIcon className="size-4 text-crown-gold-bright" />
+                  <PhilosopherKingCharacter className="size-6" />
                 ) : (
-                  <ReferentIcon className="size-4 text-referent-teal" />
+                  <ReferentCharacter className="size-6" />
                 )}
               </button>
               <button
@@ -879,9 +897,31 @@ export function FloatingAssistant() {
                       onDismiss={markNudgeSeen}
                     />
                   )}
-                  {!isReferent && (
-                    <div className="flex justify-center pt-1">
-                      <PhilosopherKingCharacter className="size-20 drop-shadow-md" title={isHe ? "המלך הפילוסוף" : "The Philosopher King"} />
+                  <div className="flex justify-center pt-1">
+                    {isReferent ? (
+                      <ReferentCharacter className="size-20 drop-shadow-md pk-float" title={isHe ? "הרפרנט" : "The Referent"} />
+                    ) : (
+                      <PhilosopherKingCharacter className="size-20 drop-shadow-md pk-float" title={isHe ? "המלך הפילוסוף" : "The Philosopher King"} />
+                    )}
+                  </div>
+                  {/* #15 (12.7) — a real first meeting: the advisor introduces
+                      HIMSELF once, in his own voice, before any question. */}
+                  {showIntro && (
+                    <div className="rounded-xl border border-border/60 bg-foreground/[0.03] p-3 text-sm leading-relaxed text-foreground/70">
+                      {isReferent
+                        ? isHe
+                          ? "נעים מאוד, אני הרפרנט — שנה ג׳ בפכ״מ, כבר עברתי את כל מה שמחכה לך. שואלים אותי הכול בגובה העיניים, ואני עונה לפי הנתונים שלך, לא מהזיכרון. ואם בא לך סגנון מכובד יותר — יש למעלה כפתור שמחליף אותי במלך."
+                          : "Hey, I'm the Referent — a final-year PPE student who's been through everything ahead of you. Ask me anything, I answer from your data. Prefer a more regal style? The button above swaps me for the King."
+                        : isHe
+                          ? "נעים מאוד, אני המלך הפילוסוף — היועץ האישי שלכם לתואר. אני מכיר את התקנון, את הקטלוג, ואת הנתונים שלכם — וכשאתם מספרים לי שסיימתם קורס או רוצים להוסיף אחד, אני גם מבצע. שאלו אותי כל דבר. ואם בא לכם סגנון של חבר משנה ג׳ — הכפתור למעלה מחליף אותי ברפרנט."
+                          : "A pleasure — I'm the Philosopher King, your personal degree advisor. I know the regulations, the catalog and your own data — and when you tell me you finished a course, I act on it. Ask me anything. Prefer a peer's tone? The button above swaps me for the Referent."}
+                      <button
+                        type="button"
+                        onClick={dismissIntro}
+                        className="mt-2 block text-xs text-accent-brand hover:underline"
+                      >
+                        {isHe ? "הבנתי, בואו נתחיל" : "Got it, let's go"}
+                      </button>
                     </div>
                   )}
                   <p className="text-sm text-foreground/60">{greeting}</p>
@@ -902,11 +942,11 @@ export function FloatingAssistant() {
                       out of the small daily cap. BYOK users never see this. */}
                   {!apiKeyQuery.data?.hasKey && apiKeyQuery.data?.sharedAvailable && (
                     <p className="text-[11px] leading-relaxed text-foreground/40">
-                      {isHe ? "עוזר משותף חינם. " : "Free shared assistant. "}
+                      {isHe ? "אתם על המכסה החינמית המשותפת — עובד מצוין. אם היא נגמרת לכם, " : "You're on the free shared quota — works great. If it runs out, "}
                       <Link href="/settings" className="text-accent-brand/80 underline-offset-2 hover:underline">
-                        {isHe ? "חברו מפתח Gemini משלכם" : "Connect your own Gemini key"}
+                        {isHe ? "מפתח Gemini אישי (גם חינם)" : "a personal Gemini key (also free)"}
                       </Link>
-                      {isHe ? " למכסה משלכם." : " for your own quota."}
+                      {isHe ? " נותן לכם מכסה פרטית." : " gives you a private one."}
                     </p>
                   )}
                 </div>

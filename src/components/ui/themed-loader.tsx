@@ -2,6 +2,7 @@
 
 import { useLocale } from "next-intl";
 import { PhilosopherKingIcon } from "@/components/ui/philosopher-king-icon";
+import { PhilosopherKingCharacter } from "@/components/ui/philosopher-king-character";
 import { cn } from "@/lib/utils";
 
 interface ThemedLoaderProps {
@@ -33,16 +34,16 @@ export function ThemedLoader({ variant = "page", className }: ThemedLoaderProps)
       role="status"
       aria-live="polite"
     >
-      <div className="relative size-16">
+      <div className="relative size-20">
         {/* Indigo ring — the product's voice, not generic grey. */}
-        <div className="absolute inset-0 animate-spin rounded-full border-[3px] border-accent-brand/15 border-t-accent-brand [animation-duration:900ms]" />
-        {/* The crown, thinking (the orb of the Good breathes) while it loads. */}
-        <div className="absolute inset-0 flex items-center justify-center">
-          <PhilosopherKingIcon state="thinking" className="size-7 text-accent-brand" />
+        <div className="absolute -inset-1.5 animate-spin rounded-full border-[3px] border-accent-brand/15 border-t-accent-brand [animation-duration:1100ms]" />
+        {/* #2 (12.7) — the King himself minds the load, gently floating. */}
+        <div className="absolute inset-0 flex items-center justify-center pk-float">
+          <PhilosopherKingCharacter className="size-20" />
         </div>
       </div>
       <p className="text-sm text-foreground/55">
-        {isHe ? "טוען את התוכנית שלכם…" : "Loading your plan…"}
+        {isHe ? "המלך מסדר לכם את הנתונים…" : "The King is arranging your data…"}
       </p>
     </div>
   );

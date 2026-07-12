@@ -43,7 +43,7 @@ function GridPickHint({ isHe }: { isHe: boolean }) {
       className="flex w-full items-center gap-2 rounded-lg border border-accent-brand/30 bg-accent-brand/[0.06] px-3 py-2 text-start text-xs text-foreground/70 transition-colors hover:bg-accent-brand/10"
     >
       <span aria-hidden className="shrink-0 rounded-md bg-accent-brand/15 px-1.5 py-0.5 font-semibold text-accent-brand">
-        {isHe ? "קבוצה" : "Group"}
+        {isHe ? "יש כמה קבוצות" : "Several groups"}
       </span>
       <span className="min-w-0 flex-1">
         {isHe

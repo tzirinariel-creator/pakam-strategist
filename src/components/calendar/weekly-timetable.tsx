@@ -357,7 +357,7 @@ export function WeeklyTimetable({
                                 aria-label={isHe ? "החלף קבוצה" : "Change group"}
                               >
                                 <Repeat className="size-3" />
-                                <span>{isHe ? "קבוצה" : "Group"}</span>
+                                <span>{isHe ? "החליפו קבוצה" : "Swap group"}</span>
                               </button>
                             )}
                           </div>
@@ -631,7 +631,7 @@ export function WeeklyTimetable({
                       >
                         <Repeat className="size-2.5" />
                         {!isNarrow && !isShort && (
-                          <span>{isHe ? "קבוצה" : "Group"}</span>
+                          <span>{isHe ? "החליפו קבוצה" : "Swap group"}</span>
                         )}
                       </button>
                     )}
