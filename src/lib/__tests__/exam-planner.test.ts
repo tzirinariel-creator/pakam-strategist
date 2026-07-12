@@ -173,6 +173,19 @@ describe("capacity model", () => {
     const { sessions } = genPlan(heavy, now, [], "crammer", { weekdayHours: [8, 8, 8, 8, 8, 8, 8] });
     for (const s of sessions) expect(s.hours).toBeLessThanOrEqual(2.5 + 1e-6);
   });
+
+  it("surfaces a capacity-shortfall recommendation when the hours don't fit", () => {
+    // A heavy load with almost no capacity → a big chunk can't be scheduled.
+    const plan = genPlan(heavy, now, [], "steady", { weekdayHours: [0.5, 0.5, 0.5, 0.5, 0.5, 0, 0] });
+    const recs = analyzeExamPeriod(plan, true, now);
+    expect(recs.some((r) => r.kind === "capacity")).toBe(true);
+  });
+
+  it("no capacity-shortfall recommendation when the plan fits comfortably", () => {
+    const plan = genPlan([exam({ credits: 2, averageGrade: 90 })], NOW, [], "steady", { weekdayHours: [8, 8, 8, 8, 8, 8, 8] });
+    const recs = analyzeExamPeriod(plan, true, NOW);
+    expect(recs.some((r) => r.kind === "capacity")).toBe(false);
+  });
 });
 
 // ── Phase 3 — self-reported confidence scales the hour budget (not a prediction) ──

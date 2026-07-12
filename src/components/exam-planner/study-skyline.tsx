@@ -379,7 +379,7 @@ export function StudySkyline({ plan, recommendations, isHe, now, onDayClick, onM
 
   const model = useMemo(() => {
     const m = buildSkylineModel(plan, now);
-    m.hasOverload = recommendations.some((r) => r.kind === "deferB");
+    m.hasOverload = recommendations.some((r) => r.kind === "deferB" || r.kind === "capacity");
     return m;
   }, [plan, recommendations, now]);
 

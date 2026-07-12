@@ -255,7 +255,7 @@ export function generateExamPlan(
 }
 
 export interface ExamRecommendation {
-  kind: "start" | "clash" | "deferB";
+  kind: "start" | "clash" | "deferB" | "capacity";
   textHe: string;
   textEn: string;
 }
@@ -302,6 +302,20 @@ export function analyzeExamPeriod(plan: ExamPlanResult, isHe: boolean, now: Date
       kind: "deferB",
       textHe: `העומס גבוה (${totalHours} שעות לימוד ב-${span} ימים). אם צריך — ${candidate.courseName} מועמד טוב לדחייה למועד ב׳. שים לב: הציון האחרון קובע, לא הגבוה.`,
       textEn: `High load (${totalHours} study hours in ${span} days). If needed, ${candidate.courseName} is a good candidate to defer to Moed B. Note: the last grade counts, not the higher one.`,
+    });
+  }
+
+  // 4. Capacity shortfall (precise, capacity-aware): compare the budgeted study
+  //    hours to what actually FIT under the per-day caps. If a meaningful chunk
+  //    didn't fit, say so honestly — the student's stated hours are too tight —
+  //    rather than letting them silently under-study.
+  const placedHours = plan.sessions.reduce((s, x) => s + x.hours, 0);
+  const shortfall = Math.round(totalHours - placedHours);
+  if (totalHours > 0 && placedHours < totalHours * 0.9 && shortfall >= 3) {
+    recs.push({
+      kind: "capacity",
+      textHe: `לפי הזמן שסימנתם, ${shortfall} שעות לימוד לא נכנסו ללוח. שקלו להוסיף שעות ביום, לפנות ימים חסומים, או לדחות מבחן למועד ב׳.`,
+      textEn: `Given the hours you set, ${shortfall} study hours didn't fit the board. Consider adding hours per day, freeing blocked days, or deferring an exam to Moed B.`,
     });
   }
 

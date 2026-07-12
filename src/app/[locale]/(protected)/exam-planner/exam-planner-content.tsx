@@ -566,8 +566,8 @@ export function ExamPlannerContent() {
         </div>
         <ul className="space-y-1.5">
           {recs.map((r, i) => (
-            <li key={i} className={cn("flex items-start gap-2 text-xs leading-relaxed", r.kind === "clash" || r.kind === "deferB" ? "text-amber-600" : "text-foreground/70")}>
-              {(r.kind === "clash" || r.kind === "deferB") && <AlertTriangle className="mt-0.5 size-3.5 shrink-0" />}
+            <li key={i} className={cn("flex items-start gap-2 text-xs leading-relaxed", r.kind === "clash" || r.kind === "deferB" || r.kind === "capacity" ? "text-amber-600" : "text-foreground/70")}>
+              {(r.kind === "clash" || r.kind === "deferB" || r.kind === "capacity") && <AlertTriangle className="mt-0.5 size-3.5 shrink-0" />}
               <span>{isHe ? r.textHe : r.textEn}</span>
             </li>
           ))}
