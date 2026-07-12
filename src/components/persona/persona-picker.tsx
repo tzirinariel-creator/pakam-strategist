@@ -3,8 +3,8 @@
 import { useEffect, useState } from "react";
 import { useLocale } from "next-intl";
 import { cn } from "@/lib/utils";
-import { PhilosopherKingIcon } from "@/components/ui/philosopher-king-icon";
-import { ReferentIcon } from "@/components/ui/referent-icon";
+import { PhilosopherKingCharacter } from "@/components/ui/philosopher-king-character";
+import { ReferentCharacter } from "@/components/ui/referent-character";
 
 /**
  * Q5 (notes 17/48) — the ONE advisor-persona picker, shared by settings and
@@ -51,8 +51,7 @@ export function PersonaPicker({
   const cards = [
     {
       id: "king" as const,
-      Icon: PhilosopherKingIcon,
-      tint: "var(--crown-gold)",
+      Char: PhilosopherKingCharacter,
       name: isHe ? "המלך הפילוסוף" : "The Philosopher King",
       desc: isHe
         ? "חזון ואסטרטגיה בגובה העיניים — רואה את התמונה הגדולה של התואר."
@@ -61,8 +60,7 @@ export function PersonaPicker({
     },
     {
       id: "referent" as const,
-      Icon: ReferentIcon,
-      tint: "var(--referent-teal)",
+      Char: ReferentCharacter,
       name: isHe ? "הרפרנט" : "The Referent",
       desc: isHe
         ? "ענייני, פורמלי וקצר — ישר לשורה התחתונה."
@@ -82,7 +80,7 @@ export function PersonaPicker({
         </p>
       )}
       <div className={cn("grid gap-3", compact ? "grid-cols-2" : "sm:grid-cols-2")}>
-        {cards.map(({ id, Icon, tint, name, desc, tag }) => {
+        {cards.map(({ id, Char, name, desc, tag }) => {
           const active = persona === id;
           return (
             <button
@@ -99,13 +97,8 @@ export function PersonaPicker({
                   : "border-border bg-card hover:border-foreground/25",
               )}
             >
-              <div className="flex w-full items-center gap-2">
-                <span
-                  className="flex size-8 items-center justify-center rounded-lg"
-                  style={{ backgroundColor: "color-mix(in srgb, " + tint + " 16%, transparent)", color: tint }}
-                >
-                  <Icon className="size-4.5" />
-                </span>
+              <div className="flex w-full items-center gap-2.5">
+                <Char className="size-11 shrink-0 drop-shadow-sm" />
                 <span className="text-sm font-bold text-foreground/85">{name}</span>
                 {tag && (
                   <span className="ms-auto rounded-full bg-foreground/[0.06] px-2 py-0.5 text-[10px] text-foreground/50">

@@ -16,6 +16,7 @@ import { Link } from "@/i18n/navigation";
 import { CREDIT_REQUIREMENTS, resolveEnglishLevel } from "@/lib/constants";
 import { Bidi } from "@/lib/bidi";
 import { CountUp } from "@/components/ui/count-up";
+import { PhilosopherKingCharacter } from "@/components/ui/philosopher-king-character";
 import { cn } from "@/lib/utils";
 import type { CreditBreakdown } from "@/types/degree";
 
@@ -143,6 +144,22 @@ export function DegreeStatus({
 
   return (
     <div>
+      {/* 18:19 (#8) — the coronation: when the degree is 100% done, the King
+          himself marks the moment. Gated hard on completion. */}
+      {degreePct >= 100 && (
+        <div className="mb-4 flex items-center gap-3 rounded-xl border border-crown-gold-bright/30 bg-accent-brand/[0.05] p-3">
+          <PhilosopherKingCharacter className="size-12 shrink-0 pk-float" />
+          <div>
+            <p className="text-sm font-bold text-foreground/85">
+              {isHe ? "סיימתם את כל הש״ס — כל הכבוד! 👑" : "All credits complete — congratulations! 👑"}
+            </p>
+            <p className="text-xs text-foreground/55">
+              {isHe ? "עברתם את הפוליס אבן-אבן. נשאר רק לסגור פורמלית מול המזכירות." : "You built the polis stone by stone. Just close it formally with the office."}
+            </p>
+          </div>
+        </div>
+      )}
+
       {/* Super-number — the single "where am I in the degree" line. */}
       <div className={cn("flex items-baseline gap-2.5", isHero ? "mb-4" : "mb-2")}>
         <span

@@ -31,7 +31,7 @@ import {
 import { Link } from "@/i18n/navigation";
 import { api } from "@/lib/trpc/react";
 import { cn } from "@/lib/utils";
-import { ReferentIcon } from "@/components/ui/referent-icon";
+import { ReferentCharacter } from "@/components/ui/referent-character";
 import { DISCIPLINE_CONFIG } from "@/lib/constants";
 import { ThemedLoader } from "@/components/ui/themed-loader";
 import { encodePlan, type SharedCourse } from "@/lib/plan-share";
@@ -57,9 +57,7 @@ export function CohortFileContent() {
     <div className="bg-mesh space-y-8 p-4 md:p-6">
       {/* Header — the Referent hosts */}
       <div className="animate-stagger-1 flex items-start gap-4">
-        <div className="flex size-12 shrink-0 items-center justify-center rounded-2xl bg-accent-brand text-accent-brand-fg">
-          <ReferentIcon className="size-7" />
-        </div>
+        <ReferentCharacter className="size-14 shrink-0 drop-shadow-sm" />
         <div>
           <h1 className="font-display text-3xl font-bold text-foreground/85">
             {isHe ? "תיק המחזור" : "The cohort file"}

@@ -425,8 +425,12 @@ export function FloatingAssistant() {
       if (merged.length >= 5) break;
       if (!merged.includes(q)) merged.push(q);
     }
-    return merged.slice(0, 5);
-  }, [isHe, pathname]);
+    const out = merged.slice(0, 5);
+    // 18:19 (#7) — on the first meeting, invite the "who are you?" question so
+    // the advisor's story is one tap away.
+    if (showIntro) out.unshift(isHe ? "מי אתה?" : "Who are you?");
+    return out.slice(0, 5);
+  }, [isHe, pathname, showIntro]);
 
   // The King greets you by where you ARE — a present companion, not a blank box.
   // Hebrew is gendered by the student's gender (unknown → inclusive "/" form).
@@ -913,7 +917,7 @@ export function FloatingAssistant() {
                           ? "נעים מאוד, אני הרפרנט — שנה ג׳ בפכ״מ, כבר עברתי את כל מה שמחכה לך. שואלים אותי הכול בגובה העיניים, ואני עונה לפי הנתונים שלך, לא מהזיכרון. ואם בא לך סגנון מכובד יותר — יש למעלה כפתור שמחליף אותי במלך."
                           : "Hey, I'm the Referent — a final-year PPE student who's been through everything ahead of you. Ask me anything, I answer from your data. Prefer a more regal style? The button above swaps me for the King."
                         : isHe
-                          ? "נעים מאוד, אני המלך הפילוסוף — היועץ האישי שלכם לתואר. אני מכיר את התקנון, את הקטלוג, ואת הנתונים שלכם — וכשאתם מספרים לי שסיימתם קורס או רוצים להוסיף אחד, אני גם מבצע. שאלו אותי כל דבר. ואם בא לכם סגנון של חבר משנה ג׳ — הכפתור למעלה מחליף אותי ברפרנט."
+                          ? "נעים מאוד, אני המלך הפילוסוף. השם בא מאפלטון — ב„מדינה” הוא דמיין מנהיג שמוביל לפי ידע ולא לפי דעה, ותמיד לטובת מי שהוא מוביל. זה בדיוק אני עבורכם: מכיר את התקנון, את הקטלוג ואת הנתונים שלכם, ומכוון למה שטוב לכם — לא לממוצע. ספרו לי שסיימתם קורס או שאתם רוצים להוסיף אחד — ואני גם אבצע. רוצים סגנון של חבר משנה ג׳? הכפתור למעלה מחליף אותי ברפרנט."
                           : "A pleasure — I'm the Philosopher King, your personal degree advisor. I know the regulations, the catalog and your own data — and when you tell me you finished a course, I act on it. Ask me anything. Prefer a peer's tone? The button above swaps me for the Referent."}
                       <button
                         type="button"

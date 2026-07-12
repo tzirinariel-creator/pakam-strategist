@@ -7,6 +7,8 @@ import { DegreeAssistant } from "./degree-assistant";
 import { MentorChat } from "./mentor-chat";
 import { cn } from "@/lib/utils";
 import { PhilosopherKingIcon } from "@/components/ui/philosopher-king-icon";
+import { PhilosopherKingCharacter } from "@/components/ui/philosopher-king-character";
+import { ReferentCharacter } from "@/components/ui/referent-character";
 import { ReferentIcon } from "@/components/ui/referent-icon";
 
 /**
@@ -53,18 +55,13 @@ export function MentorPageClient() {
 
   return (
     <div className="flex flex-col gap-4">
-      {/* Identity — matches the floating assistant, persona-aware. */}
+      {/* Identity — the full character (18:19), persona-aware. */}
       <div className="flex flex-col items-center gap-2 pt-1">
-        <div
-          className={cn(
-            "flex size-12 items-center justify-center rounded-2xl shadow-sm ring-1",
-            isReferent
-              ? "bg-referent-teal/15 text-referent-teal ring-referent-teal/40"
-              : "bg-accent-brand text-crown-gold-bright ring-crown-gold-bright/40",
-          )}
-        >
-          {isReferent ? <ReferentIcon className="size-7" /> : <PhilosopherKingIcon className="size-7" />}
-        </div>
+        {isReferent ? (
+          <ReferentCharacter className="size-16 drop-shadow-sm" />
+        ) : (
+          <PhilosopherKingCharacter className="size-16 drop-shadow-sm" />
+        )}
         <h1 className="font-display text-xl font-bold text-foreground/90">{advisorName}</h1>
         <p className="max-w-sm text-center text-xs leading-relaxed text-foreground/50">
           {isReferent
