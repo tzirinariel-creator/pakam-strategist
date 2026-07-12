@@ -154,6 +154,29 @@ export function SemesterSummary({
           </div>
         </div>
 
+        {/* B1 (audit launch-blocker) — the actual courses being confirmed.
+            Blind approval on a 3-number card was the worst first-run moment;
+            now the beginner sees exactly what "the recommended timetable" is. */}
+        {courses.length > 0 && (
+          <div className="space-y-1.5 rounded-lg border border-border/50 bg-foreground/[0.02] p-3 text-start">
+            <p className="text-[11px] font-medium text-foreground/45">
+              {isHe ? "הקורסים בסמסטר הזה:" : "Courses this semester:"}
+            </p>
+            <ul className="space-y-1">
+              {courses.map((c) => (
+                <li key={c.id} className="flex items-center justify-between gap-2 text-xs">
+                  <span className="min-w-0 flex-1 truncate text-foreground/75">
+                    {isHe ? c.nameHe : (c.nameEn ?? c.nameHe)}
+                  </span>
+                  <span className="shrink-0 font-mono text-[10px] text-foreground/40">
+                    {c.credits} {isHe ? "ש״ס" : "cr."}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+
         {/* Total progress */}
         <div className="space-y-1.5">
           <div className="flex items-center justify-between text-xs">
@@ -209,7 +232,7 @@ export function SemesterSummary({
             className="flex items-center justify-center gap-1.5 rounded-xl px-6 py-2 text-xs font-medium text-foreground/45 transition-colors hover:text-foreground/70 disabled:opacity-50"
           >
             <Pencil className="h-3 w-3" />
-            {isHe ? "חזרה לעריכה — שכחתי משהו" : "Back to editing — I forgot something"}
+            {isHe ? "הצגה ועריכה של הקורסים" : "View & edit the courses"}
           </button>
         </div>
       </div>

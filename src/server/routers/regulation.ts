@@ -2,7 +2,7 @@ import { TRPCError } from "@trpc/server";
 import { createTRPCRouter, protectedProcedure, createRequestLoaders } from "../trpc/init";
 import { runRegulationEngine } from "@/lib/regulations/rule-engine";
 import { computeCreditExemption, deriveCurrentGroup, getCurrentAcademicYear } from "@/lib/miluim";
-import { getAcademicNow } from "@/lib/academic-calendar";
+import { getAcademicNow, deriveYearOfStudy } from "@/lib/academic-calendar";
 
 export const regulationRouter = createTRPCRouter({
   /**
@@ -54,8 +54,10 @@ export const regulationRouter = createTRPCRouter({
         {
           amirantScore: user.amiramScore,
           englishLevel: user.englishLevel,
-          academicYear: user.currentYear,
-          currentSemester: user.currentSemester,
+          // A4: calendar-derived standing so the English-deadline rule isn't
+          // computed against a stale stored year/semester.
+          academicYear: deriveYearOfStudy(user.startYear, user.currentYear ?? 1),
+          currentSemester: getAcademicNow().semester,
           miluimGroup: currentGroup,
           miluimBinaryUsed: user.miluimBinaryUsed,
           miluimCreditsUsed: user.miluimCreditsUsed,

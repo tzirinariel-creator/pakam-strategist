@@ -411,11 +411,37 @@ export function FloatingAssistant() {
     return `${ask} כל דבר על התואר — אני עונה מהמספרים שלך, לא בכלליות.`;
   }, [pathname, isHe, gender]);
 
+  // Auto-focus the input ONLY on desktop. On touch (the whole target audience)
+  // an auto-focus pops the keyboard the instant the panel opens, hiding the
+  // greeting + suggested-question chips the user is meant to tap first (C1).
   useEffect(() => {
-    if (open) {
-      const id = setTimeout(() => inputRef.current?.focus(), 80);
-      return () => clearTimeout(id);
-    }
+    if (!open) return;
+    const isTouch = typeof window !== "undefined" && window.matchMedia?.("(pointer: coarse)").matches;
+    if (isTouch) return;
+    const id = setTimeout(() => inputRef.current?.focus(), 80);
+    return () => clearTimeout(id);
+  }, [open]);
+
+  // Keyboard-inset handling (C1): on mobile the bottom-sheet is position:fixed
+  // bottom:0, so an on-screen keyboard covers the input + newest message. Track
+  // the visualViewport and lift the sheet by the covered height. No-op on
+  // desktop (no visualViewport shrink) and gracefully absent on old browsers.
+  const [kbInset, setKbInset] = useState(0);
+  useEffect(() => {
+    if (!open || typeof window === "undefined" || !window.visualViewport) return;
+    const vv = window.visualViewport;
+    const update = () => {
+      const covered = window.innerHeight - vv.height - vv.offsetTop;
+      setKbInset(covered > 80 ? covered : 0); // ignore tiny toolbars
+    };
+    update();
+    vv.addEventListener("resize", update);
+    vv.addEventListener("scroll", update);
+    return () => {
+      vv.removeEventListener("resize", update);
+      vv.removeEventListener("scroll", update);
+      setKbInset(0);
+    };
   }, [open]);
 
   useEffect(() => {
@@ -731,11 +757,12 @@ export function FloatingAssistant() {
             aria-modal="true"
             aria-label={isHe ? "המלך הפילוסוף" : "The Philosopher King"}
             dir={isHe ? "rtl" : "ltr"}
+            style={kbInset > 0 ? { bottom: `${kbInset}px` } : undefined}
             className={cn(
               "fixed z-[66] flex flex-col overflow-hidden border border-border bg-card shadow-2xl",
               // Mobile: bottom sheet. Desktop: anchored panel at the inline-end.
               "inset-x-0 bottom-0 max-h-[85vh] rounded-t-2xl",
-              "md:inset-x-auto md:bottom-6 md:end-6 md:h-[600px] md:max-h-[80vh] md:w-[400px] md:rounded-2xl",
+              "md:inset-x-auto md:bottom-6 md:end-6 md:h-[600px] md:max-h-[80vh] md:w-[400px] md:rounded-2xl md:!bottom-6",
               "animate-in fade-in slide-in-from-bottom-4 duration-200",
             )}
           >

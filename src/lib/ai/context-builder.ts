@@ -18,7 +18,7 @@ import { calculateGrades } from "@/lib/grade-calculator";
 import { runRegulationEngine } from "@/lib/regulations/rule-engine";
 import { computeCreditExemption, deriveCurrentGroup, getCurrentAcademicYear } from "@/lib/miluim";
 import { buildExamPeriodBlock } from "@/lib/ai/exam-facts";
-import { getAcademicNow } from "@/lib/academic-calendar";
+import { getAcademicNow, deriveYearOfStudy } from "@/lib/academic-calendar";
 
 // -------------------------------------------------------------------
 // Types
@@ -37,6 +37,9 @@ export interface UserForContext {
   focusArea: string | null;
   currentYear: number;
   currentSemester: string;
+  /** The degree-start anchor — lets the context derive standing from the
+   *  calendar (A4), matching the dashboard. Optional for back-compat. */
+  startYear?: number | null;
   /** Personal address — so the King greets by name and in the right gender. */
   firstName?: string | null;
   displayName?: string | null;
@@ -259,8 +262,11 @@ export async function buildUserContext(
     courseAverage: gradeResult.courseAverage,
     focusAreaCredits: creditResult.breakdown.focusArea,
     regulationIssues,
-    currentYear: user.currentYear,
-    currentSemester: user.currentSemester,
+    // A4: derive from the calendar (like the dashboard) so the King never
+    // disagrees with the header about what year/semester it is. The stored
+    // pair is only a fallback for a user with no startYear.
+    currentYear: deriveYearOfStudy(user.startYear, user.currentYear ?? 1),
+    currentSemester: getAcademicNow().semester,
     completedCourses,
     currentCourses,
     availableNextSemester,

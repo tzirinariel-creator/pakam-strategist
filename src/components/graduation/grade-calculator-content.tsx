@@ -27,7 +27,7 @@ import {
   SEMESTER_CONFIG,
   YEAR_CONFIG,
 } from "@/lib/constants";
-import { roundScore, countsTowardAverage, courseTypeCountsTowardAverage } from "@/lib/grade-calculator";
+import { roundScore, countsTowardAverage, courseTypeCountsTowardAverage, canonicalAttempts } from "@/lib/grade-calculator";
 import { computeHonorsDistance, HONORS_YEARLY_BAR } from "@/lib/honors";
 import { deriveYearOfStudy } from "@/lib/academic-calendar";
 import type { UserCourseWithCourse, GradeBreakdown } from "@/types/degree";
@@ -232,7 +232,7 @@ function SemesterGpaDisplay({
   courses: UserCourseWithCourse[];
   label: string;
 }) {
-  const graded = courses.filter(countsTowardAverage);
+  const graded = canonicalAttempts(courses.filter(countsTowardAverage));
   if (graded.length === 0) return null;
 
   const totalCredits = graded.reduce((sum, c) => sum + c.course.credits, 0);
@@ -496,7 +496,10 @@ function ScoreDashboard({
 
   // Overall GPA — same definition as everywhere else (excludes seminar,
   // binary and English), so it matches the course-average shown beside it.
-  const completed = allCourses.filter(countsTowardAverage);
+  // canonicalAttempts collapses grade-improvement retakes to the DETERMINING
+  // sitting — without it a retaken course double-counted and the two averages
+  // on this very card diverged (audit launch-blocker A1).
+  const completed = canonicalAttempts(allCourses.filter(countsTowardAverage));
   const totalCreditsCompleted = completed.reduce(
     (s, c) => s + c.course.credits,
     0
@@ -596,7 +599,7 @@ function ReverseCalculator({
   const [target, setTarget] = useState(80);
 
   const result = useMemo(() => {
-    const completed = allCourses.filter(countsTowardAverage);
+    const completed = canonicalAttempts(allCourses.filter(countsTowardAverage));
     // Remaining courses must share the SAME population as `completed`: only those
     // whose TYPE counts toward the average (not seminar/English/binary). Counting
     // planned non-average courses into the divisor produced a wrong "needed
