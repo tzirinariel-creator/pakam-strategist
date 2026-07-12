@@ -40,6 +40,7 @@ export function StepReady({ data, plannedSemesters, completedCourses, allCourses
   const updateProfile = api.user.updateProfile.useMutation();
   const savePlanMutation = api.plan.savePlan.useMutation();
   const saveCompletedMutation = api.plan.saveCompletedCourses.useMutation();
+  const addScannedMutation = api.plan.addScannedCourse.useMutation();
   const upsertMiluimSemester = api.user.upsertMiluimSemester.useMutation();
   const utils = api.useUtils();
 
@@ -209,7 +210,12 @@ export function StepReady({ data, plannedSemesters, completedCourses, allCourses
       setSaveStage(2);
       // 2b. Save the past academic record as COMPLETED courses (with grades).
       //     Runs after savePlan so it isn't wiped by savePlan's delete-replace.
-      const completedPayload = (completedCourses ?? []).map((c) => ({
+      //     Catalog courses go through saveCompletedCourses; CUSTOM courses (a
+      //     real elective outside the PPE list, like דוגרי — 18:19 #10) go
+      //     through addScannedCourse, which CREATES the Course row first.
+      const catalogCompleted = (completedCourses ?? []).filter((c) => !c.customName);
+      const customCompleted = (completedCourses ?? []).filter((c) => c.customName);
+      const completedPayload = catalogCompleted.map((c) => ({
         courseCode: c.courseCode,
         plannedYear: c.plannedYear,
         plannedSemester: c.plannedSemester,
@@ -220,6 +226,24 @@ export function StepReady({ data, plannedSemesters, completedCourses, allCourses
           saveCompletedMutation.mutateAsync({ courses: completedPayload }),
           20000,
         );
+      }
+      // Custom courses — one addScannedCourse each (idempotent upsert).
+      for (const c of customCompleted) {
+        try {
+          await withTimeout(
+            addScannedMutation.mutateAsync({
+              courseCode: c.courseCode.startsWith("CUSTOM-") ? null : c.courseCode,
+              courseName: c.customName!,
+              credits: c.credits ?? 2,
+              grade: c.grade,
+              plannedYear: c.plannedYear,
+              plannedSemester: c.plannedSemester,
+            }),
+            15000,
+          );
+        } catch {
+          /* one custom course failing must not abort the whole save */
+        }
       }
 
       setSaveStage(3);

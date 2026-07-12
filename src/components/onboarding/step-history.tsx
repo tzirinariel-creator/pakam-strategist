@@ -66,6 +66,12 @@ export interface CompletedCourse {
   plannedYear: number;
   plannedSemester: "FALL" | "SPRING";
   grade: number | null;
+  /** 18:19 (#10 דוגרי) — a completed course NOT in the PPE catalog (a real
+   *  general elective the student took). When set, step-ready persists it via
+   *  plan.addScannedCourse (which creates the Course) instead of the catalog
+   *  save (which skips unknown codes). */
+  customName?: string;
+  credits?: number | null;
 }
 
 interface PastSemester {
@@ -220,8 +226,29 @@ export function StepHistory({
         let hits = 0;
         let graded = 0;
         let skipped = 0;
+        let added = 0;
         for (const { row, course } of matched) {
-          if (!course) continue;
+          if (!course) {
+            // 18:19 (#10 דוגרי) — a graded row that matched no catalog course
+            // is a real elective taken outside the PPE list. Capture it as a
+            // CUSTOM completed course so it's not silently dropped.
+            if (!row.inProgress && row.grade != null && row.grade >= 60 && row.courseCode) {
+              const key = row.courseCode.trim();
+              const placement = latestPast ?? { year: 1, semester: "FALL" as const };
+              if (!next[key]) {
+                next[key] = {
+                  courseCode: key,
+                  plannedYear: placement.year,
+                  plannedSemester: placement.semester,
+                  grade: row.grade,
+                  customName: row.courseName,
+                  credits: row.credits,
+                };
+                added++;
+              }
+            }
+            continue;
+          }
           if (row.inProgress) continue; // *** rows aren't completed yet
           const full = allCourses.find((c) => c.code === course.code);
           // The onboarding history map is COMPLETED-only (no FAILED/EXEMPT), so it
@@ -250,7 +277,7 @@ export function StepHistory({
           if (row.grade != null) graded++;
         }
         onChange(next);
-        if (hits === 0) {
+        if (hits === 0 && added === 0) {
           toast(
             isHe
               ? "לא מצאנו קורסים שהושלמו בגיליון — אפשר לסמן ידנית למטה."
@@ -259,6 +286,7 @@ export function StepHistory({
         } else {
           const parts: string[] = [];
           if (graded > 0) parts.push(isHe ? `${graded} עם ציון` : `${graded} with a grade`);
+          if (added > 0) parts.push(isHe ? `${added} קורסים מחוץ לרשימה נוספו` : `${added} courses outside the list added`);
           if (skipped > 0) parts.push(isHe ? `${skipped} נכשלו/פטור — הוסיפו ב"הרשומה" אחרי ההרשמה` : `${skipped} failed/exempt — add them in the record after signup`);
           parts.push(isHe ? "עברו לוודא ולתקן למטה" : "review below");
           toast.success(
@@ -682,7 +710,78 @@ export function StepHistory({
               </div>
             )}
             {search.trim().length >= 2 && searchResults.length === 0 && (
-              <p className="mt-2 text-xs text-foreground/35">{t("historyNoResults")}</p>
+              <div className="mt-2 space-y-2">
+                <p className="text-xs text-foreground/35">{t("historyNoResults")}</p>
+                {/* 18:19 (#10 דוגרי) — a course that isn't in the list can still
+                    be added: real electives (like דוגרי) live outside the 117
+                    PPE catalog. Adds a custom completed course. */}
+                <button
+                  type="button"
+                  onClick={() => {
+                    const name = search.trim();
+                    const key = `CUSTOM-${name.replace(/\s+/g, "-").slice(0, 24)}`;
+                    if (value[key]) return;
+                    const placement = defaultElectiveTarget ?? { year: 1, semester: "FALL" as const };
+                    onChange({
+                      ...value,
+                      [key]: {
+                        courseCode: key,
+                        plannedYear: placement.year,
+                        plannedSemester: placement.semester,
+                        grade: null,
+                        customName: name,
+                        credits: 2,
+                      },
+                    });
+                    setSearch("");
+                    toast.success(isHe ? `"${name}" נוסף — הזינו ציון למטה` : `"${name}" added — enter a grade below`);
+                  }}
+                  className="flex w-full items-center gap-2 rounded-lg border border-dashed border-accent-brand/40 bg-accent-brand/[0.04] px-3 py-2 text-start text-sm font-medium text-accent-brand transition-colors hover:bg-accent-brand/10"
+                >
+                  <Plus className="h-4 w-4 shrink-0" />
+                  {isHe ? `הוסיפו "${search.trim()}" — קורס שאינו ברשימה` : `Add "${search.trim()}" — a course not in the list`}
+                </button>
+              </div>
+            )}
+
+            {/* 18:19 (#10) — custom courses the student added (outside the PPE
+                list, e.g. דוגרי): shown here so they can set a grade / remove. */}
+            {Object.values(value).filter((c) => c.customName).length > 0 && (
+              <div className="mt-3 space-y-1.5 border-t border-border/40 pt-3">
+                <p className="text-[11px] font-medium text-foreground/45">
+                  {isHe ? "קורסים שהוספתם (מחוץ לרשימה):" : "Courses you added (outside the list):"}
+                </p>
+                {Object.values(value)
+                  .filter((c) => c.customName)
+                  .map((c) => (
+                    <div key={c.courseCode} className="flex items-center gap-2 rounded-lg border border-border/50 bg-card px-2.5 py-2">
+                      <span className="min-w-0 flex-1 truncate text-sm text-foreground/80">{c.customName}</span>
+                      <input
+                        type="number"
+                        min={0}
+                        max={100}
+                        value={c.grade ?? ""}
+                        onChange={(e) => setGrade(c.courseCode, e.target.value)}
+                        placeholder={isHe ? "ציון" : "grade"}
+                        aria-label={isHe ? `ציון ל${c.customName}` : `Grade for ${c.customName}`}
+                        className="w-16 rounded-md border border-border bg-card px-2 py-1 text-center text-sm"
+                        dir="ltr"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const next = { ...value };
+                          delete next[c.courseCode];
+                          onChange(next);
+                        }}
+                        aria-label={isHe ? "הסרה" : "Remove"}
+                        className="rounded-md p-1 text-foreground/40 transition-colors hover:bg-foreground/10 hover:text-foreground/70"
+                      >
+                        <X className="h-3.5 w-3.5" />
+                      </button>
+                    </div>
+                  ))}
+              </div>
             )}
           </div>
         )}

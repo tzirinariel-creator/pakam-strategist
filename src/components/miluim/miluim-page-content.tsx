@@ -164,7 +164,7 @@ export function MiluimPageContent() {
               )}
               <p className="mt-1.5 text-[11px] leading-relaxed text-foreground/45">
                 {isHe
-                  ? `הפטור נספר לפי שנה (לא לפי סמסטר) — קבוצה C נותנת 8 ש״ס לשנה. מימשתם בפועל: ${creditsUsed} ש״ס — את המימוש מגישים במדור מילואים, ומעדכנים בעורך למטה.`
+                  ? `לפי המתווה הרשמי (תשפ״ו): קבוצה C מזכה ב-8 ש״ס פטור. חשוב — C בשני סמסטרים של אותה שנה = 8, לא 16; ה-10 הוא תקרת-התואר, שמגיעים אליה רק בשילוב פטור נוסף של עד 2 ש״ס משנה אחרת. מימשתם בפועל: ${creditsUsed} ש״ס — את המימוש מגישים במדור מילואים, ומעדכנים בעורך למטה.`
                   : `Exemption accrues per YEAR (not per semester) — Group C grants 8 credits/year. Actually redeemed: ${creditsUsed} — redemption is filed at the miluim desk; update it in the editor below.`}
               </p>
             </div>

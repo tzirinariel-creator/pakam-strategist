@@ -351,8 +351,8 @@ export function CourseTable({ courses, allCourses, focusArea }: CourseTableProps
                 onClick={() => handleSort("averageGrade")}
                 title={
                   isHe
-                    ? "הערכה מנתוני עבר (ערזים), לא ציון רשמי של האוניברסיטה"
-                    : "An estimate from historical data (Arazim), not an official university grade"
+                    ? "נתוני פרויקט ארזים — סטטיסטיקות ציונים אמיתיות משנים קודמות, לא ציון רשמי של האוניברסיטה"
+                    : "Arazim Project data — real grade statistics from past years, not an official university grade"
                 }
                 className="inline-flex items-center gap-1 text-foreground/80 font-bold bg-transparent appearance-none cursor-pointer select-none"
               >
@@ -498,11 +498,17 @@ export function CourseTable({ courses, allCourses, focusArea }: CourseTableProps
                         <bdi dir="ltr">{Math.round(course.failRate)}%</bdi> {isHe ? "נכשלים" : "fail"}
                       </span>
                     )}
+                    {/* 18:19 — a PERSISTENT source token under every average, so a
+                        skeptic scanning the list never suspects invention. A fake
+                        number would never carry a real, specific semester. */}
                     {(() => {
                       const from = formatGradeDataYear(course.gradeDataYear, isHe);
-                      return from ? (
-                        <span className="text-[11px] text-muted-foreground/50">{from}</span>
-                      ) : null;
+                      return (
+                        <span className="text-[10px] text-muted-foreground/55">
+                          {isHe ? "ארזים" : "Arazim"}
+                          {from ? ` · ${from}` : ""}
+                        </span>
+                      );
                     })()}
                     <CommunityWorkloadChip courseCode={course.code} isHe={isHe} />
                   </div>

@@ -3,6 +3,7 @@
 import { useState, useMemo, useEffect } from "react";
 import { useTranslations, useLocale } from "next-intl";
 import { Shield, ChevronDown, Swords, Check, BadgeCheck, FileText } from "lucide-react";
+import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { Bidi } from "@/lib/bidi";
 import { MILUIM_CONFIG, AMIRNET_CONFIG, ENGLISH_CONFIG, DISCIPLINE_CONFIG, FOCUS_DISCIPLINE_IDS } from "@/lib/constants";
@@ -38,7 +39,14 @@ export function StepProfile({ data, onUpdate }: StepProfileProps) {
   const utils3010 = api.useUtils();
   const semesters3010 = api.user.listMiluimSemesters.useQuery();
   const upsert3010 = api.user.upsertMiluimSemester.useMutation({
-    onSuccess: () => void utils3010.user.listMiluimSemesters.invalidate(),
+    // 18:19 ROOT-CAUSE: this used to be a SILENT write — no toast, no onError —
+    // so "אישור והחלה" showed nothing and swallowed any failure. That's exactly
+    // the "3010 upload didn't work" report. Now it always speaks.
+    onSuccess: () => {
+      void utils3010.user.listMiluimSemesters.invalidate();
+      toast.success("נשמר — עודכנו ימי המילואים לסמסטר");
+    },
+    onError: (e) => toast.error(e.message || "השמירה נכשלה — נסו שוב"),
   });
   const nowSem = getAcademicNow().semester === "SPRING" ? "SPRING" : "FALL";
   const nowYear = getCurrentAcademicYear();
@@ -389,9 +397,18 @@ export function StepProfile({ data, onUpdate }: StepProfileProps) {
                       pending={upsert3010.isPending}
                       onApply={(academicYear, semester, appliedDays) => {
                         upsert3010.mutate({ academicYear, semester, daysServed: appliedDays, isCombat });
+                        const appliedGroup = deriveGroup(appliedDays, isCombat);
+                        // 18:19 fix: reflect the STRONGEST uploaded semester in the
+                        // profile group — a C reservist who served in a PAST semester
+                        // used to see "no service" because we only updated for the
+                        // current one. The per-semester rows keep the exact history.
+                        const rank = (g: string) =>
+                          ({ NONE: 0, GROUP_A: 1, GROUP_B: 2, GROUP_C: 3, GROUP_G: 3 })[g] ?? 0;
+                        if (rank(appliedGroup) > rank(data.miluimGroup ?? "NONE")) {
+                          applyDerived(appliedGroup);
+                        }
                         if (academicYear === nowYear && semester === nowSem) {
                           setDays(appliedDays);
-                          applyDerived(deriveGroup(appliedDays, isCombat));
                           onUpdate({ miluimDays: appliedDays, miluimCombat: isCombat, miluimCareerService: false });
                         }
                       }}
