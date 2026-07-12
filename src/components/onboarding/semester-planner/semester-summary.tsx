@@ -149,10 +149,24 @@ export function SemesterSummary({
               <span className="font-mono text-xl font-bold">{honest.weeklyHours}</span>
             </div>
             <div className="text-[10px] text-foreground/40">
-              {isHe ? `ש׳ מגע · ${levelLabel}` : `contact hrs · ${levelLabel}`}
+              {isHe ? "שעות לימוד בשבוע" : "weekly class hours"}
             </div>
           </div>
         </div>
+
+        {/* #6 (12.7) — the load verdict, in a sentence a beginner understands
+            instead of a cryptic "ש׳ מגע · מבחנים צפופים" chip. */}
+        {honest.label !== "light" && (
+          <p className={cn("text-xs leading-relaxed", LEVEL_COLORS[honest.label])}>
+            {isHe
+              ? honest.label === "examCrunch"
+                ? `שימו לב: המבחנים בסמסטר הזה יוצאים קרובים זה לזה${honest.tightestExamGapDays != null ? ` (המרווח הצפוף ביותר — ${honest.tightestExamGapDays} ימים)` : ""}. שווה לתכנן את הלמידה מראש — יש לנו כלי בדיוק לזה.`
+                : honest.label === "hours"
+                  ? `זה שבוע עמוס בשעות (${honest.weeklyHours} שעות-לימוד) — לגמרי אפשרי, רק ודאו שאין יום בלתי-אפשרי.`
+                  : `הסמסטר כבד בש״ס — נורמלי לפכ״מ, אבל טוב לדעת את זה מראש.`
+              : levelLabel}
+          </p>
+        )}
 
         {/* B1 (audit launch-blocker) — the actual courses being confirmed.
             Blind approval on a 3-number card was the worst first-run moment;

@@ -28,6 +28,8 @@ export interface XlsxExportOptions {
   /** Injectable "today" for tests / determinism. Defaults to new Date(). */
   now?: Date;
   filename?: string;
+  /** Student's name for a personal banner ("תקופת המבחנים של אריאל צירין"). */
+  studentName?: string | null;
 }
 
 // ─── date helpers (LOCAL-midnight — must match exam-planner/study-skyline) ───
@@ -185,8 +187,15 @@ export async function buildExamPlanWorkbook(
   const COLS = 7;
 
   // Banner rows: title + subtitle. Merged across the table width.
+  const studentName = opts.studentName?.trim();
   const title = table.addRow([
-    isHe ? "תקופת המבחנים שלי — פכמון" : "My exam period — Pakamon",
+    isHe
+      ? studentName
+        ? `תקופת המבחנים של ${studentName} — פכמון`
+        : "תקופת המבחנים שלי — פכמון"
+      : studentName
+        ? `${studentName}'s exam period — Pakamon`
+        : "My exam period — Pakamon",
   ]);
   table.mergeCells(1, 1, 1, COLS);
   title.height = 30;

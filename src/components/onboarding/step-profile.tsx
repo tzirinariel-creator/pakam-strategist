@@ -171,14 +171,24 @@ export function StepProfile({ data, onUpdate }: StepProfileProps) {
             {t("personalTitle")}
           </h3>
           <p className="mb-3 text-xs text-foreground/40">{t("personalHint")}</p>
-          <input
-            type="text"
-            value={data.firstName ?? ""}
-            onChange={(e) => onUpdate({ firstName: e.target.value || null })}
-            placeholder={t("firstNamePlaceholder")}
-            maxLength={50}
-            className="w-full rounded-xl border-2 border-border bg-card px-4 py-3 text-sm text-foreground/80 outline-none transition-colors focus:border-foreground/40"
-          />
+          <div className="grid grid-cols-2 gap-3">
+            <input
+              type="text"
+              value={data.firstName ?? ""}
+              onChange={(e) => onUpdate({ firstName: e.target.value || null })}
+              placeholder={t("firstNamePlaceholder")}
+              maxLength={50}
+              className="w-full rounded-xl border-2 border-border bg-card px-4 py-3 text-sm text-foreground/80 outline-none transition-colors focus:border-foreground/40"
+            />
+            <input
+              type="text"
+              value={data.lastName ?? ""}
+              onChange={(e) => onUpdate({ lastName: e.target.value || null })}
+              placeholder={t("lastNamePlaceholder")}
+              maxLength={50}
+              className="w-full rounded-xl border-2 border-border bg-card px-4 py-3 text-sm text-foreground/80 outline-none transition-colors focus:border-foreground/40"
+            />
+          </div>
           <div className="mt-3 grid grid-cols-2 gap-3">
             {([
               { value: "female" as const, label: t("genderFemale") },

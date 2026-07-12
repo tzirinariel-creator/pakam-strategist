@@ -132,6 +132,78 @@ export function CalendarContent() {
     return planData.semesters[activeSemester] ?? [];
   }, [planData?.semesters, activeSemester]);
 
+  // #41 (12.7) — a course whose sessionType still has SEVERAL groups (no
+  // choice saved) used to paint ALL of them on the grid ("נראה זוועה").
+  // Now: detect them, show only the first group, and ask for the choice.
+  const utils41 = api.useUtils();
+  const updateGroups = api.plan.updateCourse.useMutation({
+    onSuccess: () => {
+      void utils41.schedule.getScheduleForSemester.invalidate();
+      void utils41.plan.getUserPlan.invalidate();
+      toast.success("הקבוצה נשמרה");
+    },
+    onError: (e) => toast.error(e.message || "השמירה נכשלה"),
+  });
+  const { unchosen, displaySessions } = useMemo(() => {
+    interface SessLite {
+      courseCode: string;
+      sessionType: string | null;
+      groupCode?: string | null;
+      dayOfWeek: number | string;
+      startTime: string;
+      endTime: string;
+      course: { nameHe: string };
+    }
+    const raw = (scheduleData?.sessions ?? []) as unknown as SessLite[];
+    const sessions = raw;
+    const byKey = new Map<string, Set<string>>();
+    for (const sIt of sessions) {
+      const type = (sIt.sessionType ?? "").toLowerCase();
+      const key = `${sIt.courseCode}|${type}`;
+      if (!byKey.has(key)) byKey.set(key, new Set());
+      if (sIt.groupCode) byKey.get(key)!.add(sIt.groupCode);
+    }
+    const multi = new Map<string, string>(); // key → first (kept) group
+    for (const [key, groups] of byKey) {
+      if (groups.size > 1) multi.set(key, [...groups].sort()[0]!);
+    }
+    const display = sessions.filter((sIt) => {
+      const key = `${sIt.courseCode}|${(sIt.sessionType ?? "").toLowerCase()}`;
+      const kept = multi.get(key);
+      return kept === undefined || sIt.groupCode === kept;
+    });
+    // one banner entry per course, with its per-type options
+    const perCourse = new Map<string, { nameHe: string; types: Map<string, { code: string; label: string }[]> }>();
+    for (const [key] of multi) {
+      const [courseCode, type] = key.split("|") as [string, string];
+      const opts = new Map<string, { code: string; label: string }>();
+      for (const sIt of sessions) {
+        if (sIt.courseCode !== courseCode || (sIt.sessionType ?? "").toLowerCase() !== type || !sIt.groupCode) continue;
+        const label = `${sIt.groupCode} · ${["", "א", "ב", "ג", "ד", "ה", "ו", "ש"][Number(sIt.dayOfWeek)] ?? sIt.dayOfWeek}׳ ${sIt.startTime}-${sIt.endTime}`;
+        if (!opts.has(sIt.groupCode)) opts.set(sIt.groupCode, { code: sIt.groupCode, label });
+      }
+      if (!perCourse.has(courseCode)) {
+        const nameHe = sessions.find((x) => x.courseCode === courseCode)?.course.nameHe ?? courseCode;
+        perCourse.set(courseCode, { nameHe, types: new Map() });
+      }
+      perCourse.get(courseCode)!.types.set(type, [...opts.values()]);
+    }
+    return {
+      unchosen: perCourse,
+      displaySessions: display as unknown as NonNullable<typeof scheduleData>["sessions"],
+    };
+  }, [scheduleData]);
+
+  const chooseGroup = (courseCode: string, type: string, groupCode: string) => {
+    const uc = semesterCourses.find((c) => c.course.code === courseCode);
+    if (!uc) return;
+    const current = (uc as { selectedGroups?: Record<string, string> | null }).selectedGroups ?? {};
+    updateGroups.mutate({
+      userCourseId: uc.id,
+      selectedGroups: { ...current, [type]: groupCode },
+    });
+  };
+
   // Google Calendar sync
   const googleStatus = api.schedule.getGoogleStatus.useQuery();
   const syncToGoogle = api.schedule.syncToGoogle.useMutation({
@@ -347,7 +419,39 @@ export function CalendarContent() {
               <span className="ms-2 text-sm text-muted-foreground">{tCommon("loading")}</span>
             </div>
           ) : (
-            <WeeklyTimetable sessions={scheduleData?.sessions ?? []} />
+            <>
+              {unchosen.size > 0 && (
+                <div className="mb-3 space-y-2 rounded-xl border border-amber-500/35 bg-amber-500/[0.07] p-3.5">
+                  <p className="text-xs font-bold text-amber-700 dark:text-amber-400">
+                    יש קורסים שעוד לא בחרתם בהם קבוצה — המערכת מציגה בינתיים את הקבוצה הראשונה:
+                  </p>
+                  {[...unchosen.entries()].map(([code, info]) => (
+                    <div key={code} className="space-y-1.5">
+                      <p className="text-xs font-semibold text-foreground/75">{info.nameHe}</p>
+                      {[...info.types.entries()].map(([type, opts]) => (
+                        <div key={type} className="flex flex-wrap items-center gap-1.5">
+                          <span className="text-[11px] text-foreground/50">
+                            {type === "tutorial" ? "תרגיל" : type === "lab" ? "מעבדה" : type === "lecture" ? "הרצאה" : type}:
+                          </span>
+                          {opts.map((o) => (
+                            <button
+                              key={o.code}
+                              type="button"
+                              disabled={updateGroups.isPending}
+                              onClick={() => chooseGroup(code, type, o.code)}
+                              className="rounded-full border border-amber-500/40 bg-card px-2.5 py-1 text-[11px] font-medium text-foreground/70 transition-colors hover:border-amber-500 hover:bg-amber-500/10 disabled:opacity-50"
+                            >
+                              <bdi dir="ltr">{o.label}</bdi>
+                            </button>
+                          ))}
+                        </div>
+                      ))}
+                    </div>
+                  ))}
+                </div>
+              )}
+              <WeeklyTimetable sessions={displaySessions} />
+            </>
           )}
         </div>
       ) : null}

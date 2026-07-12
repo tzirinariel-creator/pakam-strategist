@@ -31,6 +31,7 @@ import { SemesterSummary } from "./semester-summary";
 import { CustomCourseModal } from "./custom-course-modal";
 import { SemesterIntroCard } from "./semester-intro-card";
 import { ExamGantt } from "./exam-gantt";
+import { getAcademicNow } from "@/lib/academic-calendar";
 
 // ─── Types ───────────────────────────────────────────────────────────
 
@@ -99,6 +100,16 @@ export function SemesterPlanner({
   // ─── State ─────────────────────────────────────────────────────────
   const [currentYear, setCurrentYear] = useState(data.year);
   const [currentSemester, setCurrentSemester] = useState<"FALL" | "SPRING">(data.semester);
+  // #7 (12.7) — the app must KNOW the date: if the semester the student says
+  // they're "in" has already finished teaching (e.g. registering on 12.7 and
+  // picking סמסטר ב׳), say so honestly instead of silently planning a semester
+  // that's over — and point at planning the next one right after.
+  const acadNowInfo = getAcademicNow();
+  const declaredSemesterOver =
+    currentSemester === data.semester &&
+    acadNowInfo.semester === data.semester &&
+    acadNowInfo.phase !== "teaching" &&
+    !acadNowInfo.isStale;
   // Restore the current semester's electives from an existing plan (standalone
   // edit); empty in onboarding. Mandatory ids are re-derived, so seeding with
   // the full course list is harmless (selectedElectives filters them out).
@@ -646,7 +657,8 @@ export function SemesterPlanner({
 
   if (showSummary) {
     return (
-      <div className="flex flex-col items-center gap-5">
+      <div className="flex w-full flex-col items-start justify-center gap-5 lg:flex-row">
+        <div className="w-full lg:max-w-md">
         <SemesterSummary
           year={currentYear}
           semester={currentSemester}
@@ -659,6 +671,17 @@ export function SemesterPlanner({
           isSaving={isSaving}
           autoRecommended={summaryPref === null && mandatoryHeavy}
         />
+        </div>
+        {/* #17 (12.7) — "לא באמת ראיתי את התכנון": the real weekly grid, right
+            next to the approve button. Read-only here; edits go through the
+            "הצגה ועריכה" link. */}
+        <div className="w-full min-w-0 lg:flex-1">
+          <LiveTimetable
+            courses={groupFilteredCourses}
+            currentSemester={currentSemester}
+            sessionGroupSelections={sessionGroupSelections}
+          />
+        </div>
       </div>
     );
   }
@@ -685,6 +708,14 @@ export function SemesterPlanner({
         </DialogContent>
       </Dialog>
 
+
+      {declaredSemesterOver && (
+        <div className="w-full max-w-2xl rounded-xl border border-sky-500/30 bg-sky-500/[0.06] p-3.5 text-xs leading-relaxed text-foreground/70">
+          <b>{`רגע, ${data.semester === "SPRING" ? "סמסטר ב׳" : "סמסטר א׳"} כבר הסתיים 🙂`}</b>{" "}
+          ההוראה נגמרה, אז הקורסים שנבחר כאן יישמרו כ"בלימוד" — עד שיתפרסמו הציונים ותסמנו אותם.
+          בסיום אפשר להמשיך ישר לתכנון הסמסטר הבא (הכפתור יופיע במסך-הסיכום).
+        </div>
+      )}
 
       {/* Title bar */}
       <div className="animate-stagger-1 text-center">

@@ -144,6 +144,7 @@ export function StepReady({ data, plannedSemesters, completedCourses, allCourses
   const doSave = useCallback(async () => {
     setIsSaving(true);
     setSaveError(false);
+    setSaveStage(0);
     try {
       // 1. Update user profile (including miluim + AMIRANT) — 15s timeout.
       //    The DB column is still `amiramScore` (schema unchanged); the
@@ -186,6 +187,7 @@ export function StepReady({ data, plannedSemesters, completedCourses, allCourses
         );
       }
 
+      setSaveStage(1);
       // 2. Bulk save all planned courses in a single request — 20s timeout.
       //    NOTE: savePlan replaces all UserCourses, so it MUST run before the
       //    completed-history save below (which upserts COMPLETED courses on top).
@@ -196,6 +198,7 @@ export function StepReady({ data, plannedSemesters, completedCourses, allCourses
         20000,
       );
 
+      setSaveStage(2);
       // 2b. Save the past academic record as COMPLETED courses (with grades).
       //     Runs after savePlan so it isn't wiped by savePlan's delete-replace.
       const completedPayload = (completedCourses ?? []).map((c) => ({
@@ -211,6 +214,7 @@ export function StepReady({ data, plannedSemesters, completedCourses, allCourses
         );
       }
 
+      setSaveStage(3);
       // 3. Invalidate caches (fire-and-forget, don't block on refetch)
       utils.plan.getUserPlan.invalidate();
       utils.plan.getCredits.invalidate();
@@ -273,6 +277,9 @@ export function StepReady({ data, plannedSemesters, completedCourses, allCourses
 
   // Show "continue anyway" after 6 seconds of saving
   const [savingTooLong, setSavingTooLong] = useState(false);
+  // #8 (12.7) — staged progress: the overlay text moves as the save advances,
+  // so a slow prod-DB save reads as "working", never "stuck".
+  const [saveStage, setSaveStage] = useState(0);
   useEffect(() => {
     if (!isSaving) {
       setSavingTooLong(false);
@@ -294,10 +301,18 @@ export function StepReady({ data, plannedSemesters, completedCourses, allCourses
         </div>
         <div className="flex flex-col gap-1.5">
           <p className="text-sm font-medium text-foreground/70 animate-pulse">
-            {t("savingCoursesCount", { count: totalCourseCount })}
+            {saveStage === 0
+              ? (isHe ? "שומרים את הפרופיל שלכם…" : "Saving your profile…")
+              : saveStage === 1
+                ? t("savingCoursesCount", { count: totalCourseCount })
+                : saveStage === 2
+                  ? (isHe ? "רושמים את הקורסים שכבר עברתם…" : "Recording your completed courses…")
+                  : (isHe ? "רגע אחרון — מסדרים הכול…" : "One moment — wrapping up…")}
           </p>
           <p className="text-xs text-foreground/40">
-            {t("allDoneSavingDesc")}
+            {savingTooLong
+              ? (isHe ? "לוקח קצת יותר מהרגיל — אנחנו עדיין כאן, שומרים." : "Taking a bit longer than usual — still saving.")
+              : t("allDoneSavingDesc")}
           </p>
         </div>
         {savingTooLong && (

@@ -143,6 +143,7 @@ function ProfileSection() {
 
   const [displayName, setDisplayName] = useState<string>("");
   const [firstName, setFirstName] = useState<string>("");
+  const [lastName, setLastName] = useState<string>("");
   const [gender, setGender] = useState<string>(""); // "" | "male" | "female"
   const [amirantScore, setAmirantScore] = useState<string>("");
   // #23 — the English level as printed on the grade sheet (no number). "" = לא
@@ -157,6 +158,7 @@ function ProfileSection() {
     if (profileQuery.data) {
       setDisplayName(profileQuery.data.displayName ?? "");
       setFirstName(profileQuery.data.firstName ?? "");
+      setLastName(profileQuery.data.lastName ?? "");
       setGender(profileQuery.data.gender ?? "");
       setAmirantScore(
         profileQuery.data.amiramScore != null
@@ -186,6 +188,7 @@ function ProfileSection() {
     }
     // Personal address — first name (for greetings) + gender (for gendered copy).
     input.firstName = firstName.trim() || null;
+    input.lastName = lastName.trim() || null;
     input.gender = gender === "male" || gender === "female" ? gender : null;
     // AMIRANT/English-placement score — clamp into the 50–150 zod range, or
     // clear it (null) when the field is emptied.
@@ -292,13 +295,23 @@ function ProfileSection() {
             {t("firstNameLabel")}
           </label>
           <p className="text-xs text-foreground/40">{t("firstNameHint")}</p>
-          <Input
-            id="settings-first-name"
-            value={firstName}
-            onChange={(e) => setFirstName(e.target.value)}
-            maxLength={50}
-            placeholder={t("firstNamePlaceholder")}
-          />
+          <div className="grid grid-cols-2 gap-2">
+            <Input
+              id="settings-first-name"
+              value={firstName}
+              onChange={(e) => setFirstName(e.target.value)}
+              maxLength={50}
+              placeholder={t("firstNamePlaceholder")}
+            />
+            <Input
+              id="settings-last-name"
+              value={lastName}
+              onChange={(e) => setLastName(e.target.value)}
+              maxLength={50}
+              placeholder={t("lastNamePlaceholder")}
+              aria-label={t("lastNamePlaceholder")}
+            />
+          </div>
           <div className="mt-1 grid grid-cols-3 gap-2">
             {([
               { value: "female", label: t("genderFemale") },

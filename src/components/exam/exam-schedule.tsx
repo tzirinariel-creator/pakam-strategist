@@ -98,6 +98,7 @@ export function ExamSchedule() {
   const [activeTab, setActiveTab] = useState<"list" | "gantt">("list");
   const [isExportingXlsx, setIsExportingXlsx] = useState(false);
   const { data, isLoading, error } = api.schedule.getExamSchedule.useQuery();
+  const profileQuery = api.user.getProfile.useQuery();
 
   // Group UPCOMING exams by date. The board previously listed every sitting and
   // merely dimmed past ones (opacity-60), so it stayed cluttered with exams that
@@ -279,7 +280,10 @@ export function ExamSchedule() {
     }
     try {
       setIsExportingXlsx(true);
-      const ok = await exportExamPlanXlsx(timelinePlan, { isHe: isRTL });
+      const fullName = [profileQuery.data?.firstName, profileQuery.data?.lastName]
+        .filter(Boolean)
+        .join(" ") || null;
+      const ok = await exportExamPlanXlsx(timelinePlan, { isHe: isRTL, studentName: fullName });
       if (ok) toast.success(t("exportSuccess"));
     } catch {
       toast.error(isRTL ? "ייצוא ה-Excel נכשל." : "Excel export failed.");

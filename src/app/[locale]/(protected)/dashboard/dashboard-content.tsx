@@ -880,7 +880,10 @@ export function DashboardContent() {
           <h1 className="font-display text-2xl font-bold text-foreground md:text-3xl">
             {(() => {
               // Prefer the first name — a warmer, shorter greeting ("היי דני").
-              const name = firstNameOf(profileQuery.data);
+              // #1 (12.7) — greet with the full name when we have both parts.
+              const first = firstNameOf(profileQuery.data);
+              const last = (profileQuery.data as { lastName?: string | null } | undefined)?.lastName?.trim();
+              const name = first && last ? `${first} ${last}` : first;
               // In Hebrew, only greet by name if it's actually a Hebrew name —
               // never jam a Latin name into a Hebrew greeting ("היי Ariel").
               const isHebrewName = !!name && /[֐-׿]/.test(name);
