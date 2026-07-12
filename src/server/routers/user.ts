@@ -7,11 +7,25 @@ import { seedDemoData } from "@/lib/demo-data";
 import { getAllDisciplineIds } from "@/lib/programs/registry";
 import { deriveGroupFromDays } from "@/lib/miluim";
 import { dedupeHashFor } from "./course-knowledge";
+import { calendarFeedToken } from "@/lib/calendar-feed-token";
 
 // Discipline enum covering ALL registered programs (PPE, Law, etc.)
 const disciplineEnum = z.enum(getAllDisciplineIds());
 
 export const userRouter = createTRPCRouter({
+  /** The personal calendar-subscribe URL (retention hook #1). Stateless HMAC
+   *  token — no stored secret. Demo gets no feed (it's shared + read-only). */
+  getCalendarFeedUrl: protectedProcedure.query(async ({ ctx }) => {
+    const base = process.env.NEXT_PUBLIC_APP_URL ?? "https://pakam-strategist.vercel.app";
+    const token = calendarFeedToken(ctx.user.id);
+    const httpUrl = `${base}/api/calendar/${token}.ics`;
+    return {
+      httpUrl,
+      // webcal:// makes phones/desktops offer "subscribe" instead of download.
+      webcalUrl: httpUrl.replace(/^https?:\/\//, "webcal://"),
+    };
+  }),
+
   /**
    * Get current user's profile
    */

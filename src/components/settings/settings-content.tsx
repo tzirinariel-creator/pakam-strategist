@@ -13,6 +13,7 @@ import {
   Moon,
   Monitor,
   Calendar,
+  CalendarClock,
   RefreshCw,
   Unlink,
   Link2,
@@ -710,6 +711,68 @@ function AppearanceSection() {
 // Google Calendar Section
 // ---------------------------------------------------------------
 
+function CalendarFeedCard({ isHe }: { isHe: boolean }) {
+  const feed = api.user.getCalendarFeedUrl.useQuery();
+  const [copied, setCopied] = useState(false);
+  const profileQuery = api.user.getProfile.useQuery();
+  const demoEmail = process.env.NEXT_PUBLIC_DEMO_USER_EMAIL;
+  const isDemo = Boolean(demoEmail && profileQuery.data?.email === demoEmail);
+
+  if (isDemo) return null;
+
+  const copy = async () => {
+    if (!feed.data) return;
+    try {
+      await navigator.clipboard.writeText(feed.data.httpUrl);
+      setCopied(true);
+      toast.success(isHe ? "הקישור הועתק" : "Link copied");
+      setTimeout(() => setCopied(false), 1800);
+    } catch {
+      toast.error(isHe ? "לא הצלחנו להעתיק" : "Couldn't copy");
+    }
+  };
+
+  return (
+    <div className="rounded-lg border border-accent-brand/30 bg-accent-brand/5 p-4">
+      <p className="flex items-center gap-2 text-sm font-semibold text-foreground/80">
+        <CalendarClock className="size-4 text-accent-brand" />
+        {isHe ? "תזכורות ליומן שלכם (הכי מומלץ)" : "Reminders in your calendar (recommended)"}
+      </p>
+      <p className="mt-1.5 text-xs leading-relaxed text-foreground/60">
+        {isHe
+          ? "הירשמו פעם אחת, והיומן שלכם יראה מבחנים, מועד ב׳, ותזכורת \"עדכנו ציונים\" בסוף הסמסטר — עם התראה יום מראש, בלי להיכנס לאפליקציה."
+          : "Subscribe once and your calendar shows exams, Moed B, and an end-of-semester \"enter grades\" reminder — with a day-before alert, no app-open needed."}
+      </p>
+      <div className="mt-3 flex flex-wrap gap-2">
+        {feed.data && (
+          <>
+            <a
+              href={feed.data.webcalUrl}
+              className="inline-flex items-center gap-1.5 rounded-lg bg-foreground px-3 py-2 text-xs font-semibold text-background transition-colors hover:bg-foreground/90"
+            >
+              <CalendarClock className="size-3.5" />
+              {isHe ? "הוספה ליומן" : "Add to my calendar"}
+            </a>
+            <button
+              type="button"
+              onClick={copy}
+              className="inline-flex items-center gap-1.5 rounded-lg bg-foreground/8 px-3 py-2 text-xs font-medium text-foreground/70 transition-colors hover:bg-foreground/15"
+            >
+              {copied ? <Check className="size-3.5" /> : null}
+              {isHe ? "העתקת קישור" : "Copy link"}
+            </button>
+          </>
+        )}
+      </div>
+      <p className="mt-2 text-[11px] text-foreground/40">
+        {isHe
+          ? "טיפ: ב-iPhone בחרו \"הוספה ליומן\" ← מנוי; ב-Google Calendar הדביקו את הקישור תחת \"יומנים אחרים ← מכתובת\"."
+          : "Tip: on iPhone tap \"Add to my calendar\" → subscribe; in Google Calendar paste the link under \"Other calendars → From URL\"."}
+      </p>
+    </div>
+  );
+}
+
 function GoogleCalendarSection() {
   const t = useTranslations("settings");
   const locale = useLocale();
@@ -846,6 +909,12 @@ function GoogleCalendarSection() {
       description={t("googleCalendarDesc")}
     >
       <div className="flex flex-col gap-4">
+        {/* Retention hook #1 — subscribe once, get exam/grade/semester
+            reminders in the calendar you already open, no app-open needed. */}
+        <CalendarFeedCard isHe={isHe} />
+
+        <div className="border-t border-border/40" />
+
         {/* Connection status */}
         <div className="flex items-center gap-2">
           <div
