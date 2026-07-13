@@ -49,10 +49,17 @@ export interface ExamPlanResult {
   }[];
 }
 
-// A stable, accessible-ish palette — one color per course (cap ~8).
+// One CALM color per course (#27). Six harmonious hues, not eight neon ones —
+// color signals course IDENTITY only. RED and AMBER are deliberately NOT here:
+// they're reserved for meaning (red = the exam day / danger, amber = a warning),
+// so the same red no longer means three different things at once.
 const PALETTE = [
-  "#6366f1", "#10b981", "#f59e0b", "#ef4444",
-  "#3b82f6", "#a855f7", "#14b8a6", "#ec4899",
+  "#6366f1", // indigo (brand)
+  "#2563eb", // blue
+  "#0891b2", // cyan
+  "#059669", // emerald
+  "#7c3aed", // violet
+  "#db2777", // pink
 ];
 
 const HOURS_PER_CREDIT: Record<Difficulty, number> = { low: 1.5, medium: 2.5, high: 4 };

@@ -33,11 +33,11 @@ import { AskKingButton } from "@/components/ui/ask-king-button";
 // client-computed plan (preview) or the persisted plan (committed).
 // ─────────────────────────────────────────────────────────────────────
 
-const DIFFICULTY_ALPHA: Record<string, string> = {
-  high: "ff",
-  medium: "e6",
-  low: "b3",
-};
+// Color is course IDENTITY only — one consistent opacity for every bar (#27).
+// Difficulty is NOT painted as transparency anymore (that made the same course
+// color read as several different shades); it's already conveyed by bar HEIGHT
+// (harder course → more hours → taller stack).
+const BAR_ALPHA = "e6";
 
 function startOfDay(d: Date): Date {
   const x = new Date(d);
@@ -547,7 +547,6 @@ export function StudySkyline({ plan, recommendations, isHe, now, onDayClick, onM
                   >
                     {item.bars.map((b, bi) => {
                       const dim = hoveredCourse != null && hoveredCourse !== b.courseCode;
-                      const alpha = DIFFICULTY_ALPHA[b.difficulty] ?? "e6";
                       return (
                         <StudyBar
                           key={`${b.courseCode}-${bi}`}
@@ -562,7 +561,7 @@ export function StudySkyline({ plan, recommendations, isHe, now, onDayClick, onM
                           style={{
                             height: `${Math.max(6, b.hours * pxPerHour)}px`,
                             marginTop: bi === 0 ? 0 : 2,
-                            backgroundColor: `${b.color}${dim ? "26" : alpha}`,
+                            backgroundColor: `${b.color}${dim ? "26" : BAR_ALPHA}`,
                             boxShadow: dim ? "none" : `inset 0 0 0 1px ${b.color}`,
                           }}
                           title={`${b.courseName} — ${b.hours} ${isHe ? "שעות" : "h"}`}
