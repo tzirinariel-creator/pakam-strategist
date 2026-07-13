@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef, useCallback } from "react";
-import { PartyPopper, Calendar, BookOpen, Check, GraduationCap, RefreshCw, AlertTriangle, Download, CalendarDays } from "lucide-react";
+import { PartyPopper, Calendar, BookOpen, Check, RefreshCw, AlertTriangle, Download, CalendarDays } from "lucide-react";
 import { useTranslations, useLocale } from "next-intl";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";

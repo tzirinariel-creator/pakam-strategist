@@ -179,6 +179,19 @@ export function CalendarContent() {
       const kept = multi.get(key);
       return kept === undefined || sIt.groupCode === kept;
     });
+    // dayOfWeek arrives either as a 1-indexed number OR the string enum
+    // ("SUNDAY"…). Number("SUNDAY") is NaN, so the old code fell through to the
+    // raw uppercase string and the group-picker banner showed "SUNDAY" inside a
+    // Hebrew calendar (live-verify 13.7). Normalize both forms to the 1-indexed
+    // day arrays below (1 = Sunday = א׳).
+    const DOW_TO_IDX: Record<string, number> = {
+      SUNDAY: 1, MONDAY: 2, TUESDAY: 3, WEDNESDAY: 4, THURSDAY: 5, FRIDAY: 6, SATURDAY: 7,
+    };
+    const dayIdx = (d: number | string): number => {
+      if (typeof d === "number") return d;
+      const n = Number(d);
+      return Number.isNaN(n) ? (DOW_TO_IDX[d.toUpperCase()] ?? 0) : n;
+    };
     // one banner entry per course, with its per-type options
     const perCourse = new Map<string, { nameHe: string; types: Map<string, { code: string; label: string }[]> }>();
     for (const [key] of multi) {
@@ -186,8 +199,9 @@ export function CalendarContent() {
       const opts = new Map<string, { code: string; label: string }>();
       for (const sIt of sessions) {
         if (sIt.courseCode !== courseCode || (sIt.sessionType ?? "").toLowerCase() !== type || !sIt.groupCode) continue;
-        const dayHe = ["", "א׳", "ב׳", "ג׳", "ד׳", "ה׳", "ו׳", "ש׳"][Number(sIt.dayOfWeek)] ?? String(sIt.dayOfWeek);
-        const dayEn = ["", "Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"][Number(sIt.dayOfWeek)] ?? String(sIt.dayOfWeek);
+        const dIdx = dayIdx(sIt.dayOfWeek);
+        const dayHe = ["", "א׳", "ב׳", "ג׳", "ד׳", "ה׳", "ו׳", "ש׳"][dIdx] ?? String(sIt.dayOfWeek);
+        const dayEn = ["", "Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"][dIdx] ?? String(sIt.dayOfWeek);
         const label = `${sIt.groupCode} · ${isHe ? dayHe : dayEn} ${sIt.startTime}-${sIt.endTime}`;
         if (!opts.has(sIt.groupCode)) opts.set(sIt.groupCode, { code: sIt.groupCode, label });
       }

@@ -971,7 +971,7 @@ export const ruleFailTwice: RegulationRule = (ctx: RuleContext) => {
           .join(", ")}.`,
     passed
       ? `אין קורס שנכשל בו ${maxFailures} פעמים או יותר.`
-      : `${violations.length} קורס/ים נכשלו ${maxFailures} פעמים או יותר — לא ניתן להמשיך בפכ"מ: ${violations
+      : `${violations.length} קורס/ים נכשלו ${maxFailures} פעמים או יותר — לא ניתן להמשיך בפכ״מ: ${violations
           .map((v) => `${v.courseCode} (${v.count} כשלונות)`)
           .join(", ")}.`,
     {
@@ -1035,7 +1035,7 @@ export const ruleRetakeAdvisory: RegulationRule = (ctx: RuleContext) => {
         .join(", ")}). Registration needs teaching-committee approval; another failure means leaving PPE. Consider a lighter semester around it.`,
       `${secondAttempts.length === 1 ? "קורס אחד מתוכנן" : `${secondAttempts.length} קורסים מתוכננים`} כניסיון שני אחרי כישלון — הניסיון האחרון לפי התקנון (${secondAttempts
         .map((e) => e.nameHe)
-        .join(", ")}). הרישום דורש אישור ועדת-הוראה, וכישלון נוסף משמעו הפסקת לימודים בפכ"מ — שווה לתכנן סמסטר מקל סביבו.`,
+        .join(", ")}). הרישום דורש אישור ועדת-הוראה, וכישלון נוסף משמעו הפסקת לימודים בפכ״מ — שווה לתכנן סמסטר מקל סביבו.`,
       { courses: secondAttempts.map((e) => e.courseCode) },
       secondAttempts.flatMap((e) => e.ids)
     );
@@ -1196,7 +1196,7 @@ export const ruleYearTransitionMajorGPA: RegulationRule = (ctx: RuleContext) => 
       true,
       "INFO",
       "No graded PPE-core courses in year 1 yet. This check applies once year-1 core grades are entered.",
-      "אין עדיין ציונים בקורסי הליבה (פכ\"מ ייעודי) בשנה א׳. הבדיקה תיכנס לתוקף לאחר הזנת ציונים.",
+      "אין עדיין ציונים בקורסי הליבה (פכ״מ ייעודי) בשנה א׳. הבדיקה תיכנס לתוקף לאחר הזנת ציונים.",
       { majorAverage: null, required: requiredMajorGPA },
     );
   }
@@ -1214,8 +1214,8 @@ export const ruleYearTransitionMajorGPA: RegulationRule = (ctx: RuleContext) => 
       ? `PPE-core year-1 average is ${average}, above the ${requiredMajorGPA} required to advance to year 2.`
       : `PPE-core year-1 average is ${average}, below the ${requiredMajorGPA} required to advance to year 2. This blocks continuation.`,
     passed
-      ? `ממוצע קורסי הליבה (פכ"מ ייעודי) בשנה א׳ הוא ${average}, מעל ה-${requiredMajorGPA} הנדרש למעבר לשנה ב׳.`
-      : `ממוצע קורסי הליבה (פכ"מ ייעודי) בשנה א׳ הוא ${average}, מתחת ל-${requiredMajorGPA} הנדרש למעבר לשנה ב׳. המעבר חסום.`,
+      ? `ממוצע קורסי הליבה (פכ״מ ייעודי) בשנה א׳ הוא ${average}, מעל ה-${requiredMajorGPA} הנדרש למעבר לשנה ב׳.`
+      : `ממוצע קורסי הליבה (פכ״מ ייעודי) בשנה א׳ הוא ${average}, מתחת ל-${requiredMajorGPA} הנדרש למעבר לשנה ב׳. המעבר חסום.`,
     { majorAverage: average, required: requiredMajorGPA, discipline: PPE_CORE_DISCIPLINE },
   );
 };

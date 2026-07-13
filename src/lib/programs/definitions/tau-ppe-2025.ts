@@ -9,7 +9,7 @@ export const TAU_PPE_2025: ProgramDefinition = {
   id: "tau-ppe-2025",
   universityId: "tau",
   programCode: "PPE",
-  nameHe: 'פכ"מ',
+  nameHe: 'פכ״מ',
   nameEn: "PPE",
   fullNameHe: "פילוסופיה, כלכלה ומדע המדינה",
   fullNameEn: "Philosophy, Economics & Political Science",
@@ -51,7 +51,7 @@ export const TAU_PPE_2025: ProgramDefinition = {
     },
     {
       id: "PPE_CORE",
-      nameHe: 'פכ"מ ייעודי',
+      nameHe: 'פכ״מ ייעודי',
       nameEn: "PPE Core",
       // Official PPE-dedicated requirement is 29 ש"ז, but that figure is met only
       // once the student layers elective/seminar PPE_CORE courses on top of the

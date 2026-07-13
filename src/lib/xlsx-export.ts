@@ -21,7 +21,7 @@
 // it stays out of the initial bundle.
 
 import type { ExamPlanResult, StudySession } from "./exam-planner";
-import type { Workbook, Worksheet, Cell } from "exceljs";
+import type { Workbook } from "exceljs";
 
 export interface XlsxExportOptions {
   isHe?: boolean;
@@ -58,8 +58,6 @@ function daysBetween(a: Date, b: Date): number {
   return Math.round((startOfDay(b).getTime() - startOfDay(a).getTime()) / 86400000);
 }
 
-const HE_WEEKDAYS = ["א", "ב", "ג", "ד", "ה", "ו", "ש"];
-const EN_WEEKDAYS = ["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"];
 const HE_WEEKDAYS_FULL = ["ראשון", "שני", "שלישי", "רביעי", "חמישי", "שישי", "שבת"];
 const EN_WEEKDAYS_FULL = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
 
@@ -75,24 +73,6 @@ const DIFFICULTY_LABEL: Record<string, { he: string; en: string }> = {
 function argb(hex: string): string {
   const clean = hex.replace(/^#/, "");
   return clean.length === 6 ? `FF${clean.toUpperCase()}` : "FF6366F1";
-}
-
-/** Blend a course color toward white — 0 = untouched, 1 = white. Used to tint
- *  study cells by intensity so a 1h touch-up reads lighter than a 4h grind. */
-function tintArgb(hex: string, towardWhite: number): string {
-  const clean = hex.replace(/^#/, "");
-  if (clean.length !== 6) return "FF6366F1";
-  const mix = (c: number) => Math.round(c + (255 - c) * towardWhite);
-  const r = mix(parseInt(clean.slice(0, 2), 16));
-  const g = mix(parseInt(clean.slice(2, 4), 16));
-  const b = mix(parseInt(clean.slice(4, 6), 16));
-  const h = (n: number) => n.toString(16).padStart(2, "0").toUpperCase();
-  return `FF${h(r)}${h(g)}${h(b)}`;
-}
-
-/** White text on the full color, dark text on light tints. */
-function tintFont(towardWhite: number): string {
-  return towardWhite > 0.45 ? "FF1E1B4B" : "FFFFFFFF";
 }
 
 const INK = "FF1E1B4B"; // deep indigo — headers
@@ -127,20 +107,7 @@ function mixWithWhite(hex6: string, t: number): string {
   return [r, g, b].map((x) => x.toString(16).padStart(2, "0")).join("").toUpperCase();
 }
 const HEAD = "FF312E81";
-const HEAD_WEEKEND = "FF4C1D95";
-const EXAM_RED = "FFEF4444";
-const WEEKEND_WASH = "FFF1F0FB";
-const TODAY_GOLD = "FFF59E0B";
-const CRUNCH_AMBER = "FFFDE68A";
 const CRUNCH_RED = "FFFECACA";
-
-/** Intensity → how far toward white the course color is washed. */
-function intensityTint(hours: number): number {
-  if (hours >= 4) return 0; // full color
-  if (hours >= 2.5) return 0.2;
-  if (hours >= 1.5) return 0.45;
-  return 0.65; // a light touch-up
-}
 
 // ─── workbook builder (pure — unit-testable in node) ─────────────────
 

@@ -641,7 +641,7 @@ export function InsightsBar({
               <span className="text-[10px] text-foreground/40">{t("nz")}</span>
             </div>
             <p className="text-[10px] text-foreground/30">
-              {isHe ? "נקודות זכות" : "Credits"}
+              {isHe ? "שעות סמסטריאליות" : "Credits"}
             </p>
           </div>
 

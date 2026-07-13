@@ -72,7 +72,7 @@ export interface ProgramDefinition {
   universityId: string;
   /** Program code: "PPE" */
   programCode: string;
-  /** Hebrew name: 'פכ"מ' */
+  /** Hebrew name: 'פכ״מ' */
   nameHe: string;
   /** English name: "PPE" */
   nameEn: string;
