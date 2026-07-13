@@ -287,13 +287,22 @@ export function StepReady({ data, plannedSemesters, completedCourses, allCourses
       // This survives page navigation / React Query cache isolation.
       if (typeof window !== "undefined") {
         localStorage.setItem("pakamon-onboarding-complete", Date.now().toString());
-        // A brand-new student who just onboarded should ALWAYS get the tour —
-        // clear any stale "tour seen" flag left over from earlier test runs
-        // (test-user resets wipe the DB but not the browser). Fixes #15.
-        localStorage.removeItem("pakamon-tour-done");
-        // The plan is saved — drop the in-progress onboarding snapshot (#13) so a
-        // future fresh onboarding starts clean, not from this finished run.
-        localStorage.removeItem("pakamon-onboarding-state");
+        // A brand-new student who just onboarded should ALWAYS get the full fresh
+        // experience. Clear EVERY stale "already seen / dismissed" flag left over
+        // from an earlier run — the test-user reset wipes the DB but NOT the
+        // browser, so a "fresh" account was silently suppressing the King intro,
+        // the welcome card, the tour and the nudges (QA 13.7 — "still never met
+        // the King"). Also drops the in-progress onboarding snapshot (#13).
+        for (const k of [
+          "pakamon-tour-done",
+          "pakamon-onboarding-state",
+          "pakamon-welcome-dismissed",
+          "pakamon-guide-nudge-done",
+          "pakamon-google-banner-dismissed",
+          "pk-met-king-card",
+        ]) {
+          localStorage.removeItem(k);
+        }
       }
     } catch (error) {
       console.error("Failed to save onboarding plan:", error);
