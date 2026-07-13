@@ -126,6 +126,15 @@ export const DEFAULT_CAPACITY: StudyCapacity = { weekdayHours: [3, 3, 3, 3, 3, 2
 const MAX_COURSE_HOURS_PER_DAY = SESSION_HOURS; // 2.5
 const round2 = (n: number) => Math.round(n * 100) / 100;
 
+/** A study block already fixed in place — one the student moved/locked, or a
+ *  manual quick-add — that a re-tune must fill AROUND (not wipe): its hours
+ *  consume the day's capacity and reduce its course's remaining budget. */
+export interface PrePlacedBlock {
+  courseCode: string;
+  date: Date | string;
+  hours: number;
+}
+
 /**
  * Build a reverse-planned study schedule for a set of exams.
  *
@@ -140,6 +149,7 @@ export function generateExamPlan(
   unavailable: string[] = [],
   style: PrepSpreadStyle = "steady",
   capacity: StudyCapacity = DEFAULT_CAPACITY,
+  prePlaced: PrePlacedBlock[] = [],
 ): ExamPlanResult {
   const today = startOfDay(now);
   const blocked = new Set(unavailable);
@@ -174,6 +184,22 @@ export function generateExamPlan(
     else alloc.set(key, { courseCode, courseName, date: day, hours: round2(hours), color, difficulty });
     usedByDay.set(dk, round2((usedByDay.get(dk) ?? 0) + hours));
   };
+
+  // Seed the ledger with pre-placed (locked/manual) blocks so the plan fills
+  // AROUND them: their hours consume the day's capacity AND shrink their
+  // course's remaining budget. Only FUTURE blocks count — a past locked session
+  // must not eat a future day's cap or reduce a budget.
+  const preByCourseDay = new Map<string, number>();
+  const preHoursByCourse = new Map<string, number>();
+  for (const p of prePlaced) {
+    const d = startOfDay(new Date(p.date));
+    if (isNaN(d.getTime()) || d.getTime() < today.getTime() || !(p.hours > 0)) continue;
+    const dk = dayKey(d);
+    const key = `${dk}|${p.courseCode}`;
+    usedByDay.set(dk, round2((usedByDay.get(dk) ?? 0) + p.hours));
+    preByCourseDay.set(key, round2((preByCourseDay.get(key) ?? 0) + p.hours));
+    preHoursByCourse.set(p.courseCode, round2((preHoursByCourse.get(p.courseCode) ?? 0) + p.hours));
+  }
 
   // Nearest exam first — the soonest exam claims scarce capacity before later
   // ones. (Also gives stable, date-ordered colors.)
@@ -212,10 +238,15 @@ export function generateExamPlan(
     if (candidates.length === 0) return; // no room for this exam (blocked/at capacity)
 
     const spareOf = (d: Date) => Math.max(0, capOf(d) - (usedByDay.get(dayKey(d)) ?? 0));
-    const courseSpareOf = (d: Date) =>
-      MAX_COURSE_HOURS_PER_DAY - (alloc.get(`${dayKey(d)}|${exam.courseCode}`)?.hours ?? 0);
+    const courseSpareOf = (d: Date) => {
+      const k = `${dayKey(d)}|${exam.courseCode}`;
+      return MAX_COURSE_HOURS_PER_DAY - (alloc.get(k)?.hours ?? 0) - (preByCourseDay.get(k) ?? 0);
+    };
 
-    let remaining = totalHours;
+    // Locked/manual hours already count toward this course's budget, so only the
+    // shortfall still needs scheduling. examSummaries.totalHours stays the FULL
+    // budget (the shortfall rec compares full budget vs everything placed).
+    let remaining = Math.max(0, round2(totalHours - (preHoursByCourse.get(exam.courseCode) ?? 0)));
     if (style === "crammer") {
       // Concentrate: fill the nearest days to their spare capacity (up to the
       // per-course daily max) before touching farther ones.

@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { generateExamPlan, analyzeExamPeriod, type ExamInput } from "@/lib/exam-planner";
-import { planFromStudyTasks, type StudyTaskLike } from "@/lib/plan-from-tasks";
+import { planFromStudyTasks, survivesRetune, buildPrePlaced, type StudyTaskLike } from "@/lib/plan-from-tasks";
 
 const NOW = new Date("2026-06-01T00:00:00");
 
@@ -94,5 +94,31 @@ describe("planFromStudyTasks — round-trip with the persist shape", () => {
     const back = planFromStudyTasks(persistShape(tight), new Map(), NOW);
     expect(analyzeExamPeriod(tight, true, NOW).some((r) => r.kind === "capacity")).toBe(true);
     expect(analyzeExamPeriod(back, true, NOW).some((r) => r.kind === "capacity")).toBe(true);
+  });
+});
+
+describe("survivesRetune + buildPrePlaced (Phase 5)", () => {
+  it("survivesRetune: auto is wiped, locked/manual are kept", () => {
+    expect(survivesRetune("[auto] 2.5h")).toBe(false);
+    expect(survivesRetune("[auto] 2.5h [locked]")).toBe(true);
+    expect(survivesRetune("2.5h")).toBe(true); // manual quick-add
+    expect(survivesRetune(null)).toBe(true);
+  });
+
+  it("buildPrePlaced keeps only future, uncompleted, in-set locked/manual STUDY blocks", () => {
+    const today = new Date("2026-06-01T00:00:00");
+    const tasks = [
+      { taskType: "study", startDate: new Date("2026-06-10T09:00:00"), notes: "[auto] 2.5h [locked]", courseCode: "A", completed: false }, // keep
+      { taskType: "study", startDate: new Date("2026-06-11T09:00:00"), notes: "[auto] 2.5h", courseCode: "A", completed: false }, // unlocked auto → drop
+      { taskType: "study", startDate: new Date("2026-06-12T09:00:00"), notes: "2h", courseCode: "A", completed: false }, // manual → keep
+      { taskType: "study", startDate: new Date("2026-06-13T09:00:00"), notes: "[auto] 2.5h [locked]", courseCode: "A", completed: true }, // completed → drop
+      { taskType: "study", startDate: new Date("2026-05-20T09:00:00"), notes: "[auto] 2.5h [locked]", courseCode: "A", completed: false }, // past → drop
+      { taskType: "exam", startDate: new Date("2026-06-15T12:00:00"), notes: "[auto] high budget=20", courseCode: "A", completed: false }, // not study → drop
+      { taskType: "study", startDate: new Date("2026-06-14T09:00:00"), notes: "[auto] 2.5h [locked]", courseCode: "B", completed: false }, // not in set → drop
+    ];
+    const pre = buildPrePlaced(tasks, today, new Set(["A"]));
+    expect(pre).toHaveLength(2);
+    expect(pre.every((p) => p.courseCode === "A")).toBe(true);
+    expect(pre.map((p) => p.hours).sort()).toEqual([2, 2.5]);
   });
 });

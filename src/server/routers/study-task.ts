@@ -2,6 +2,7 @@ import { z } from "zod/v4";
 import { TRPCError } from "@trpc/server";
 import { createTRPCRouter, protectedProcedure } from "../trpc/init";
 import { generateExamPlan, type ExamInput } from "@/lib/exam-planner";
+import { buildPrePlaced, LOCK_MARK } from "@/lib/plan-from-tasks";
 
 // Marker stored in `notes` so we can regenerate the auto plan without wiping a
 // student's manually-added tasks (assignments, work shifts, custom).
@@ -273,14 +274,41 @@ export const studyTaskRouter = createTRPCRouter({
         return { created: 0, message: "no exams with dates" };
       }
 
+      // Phase 5 — blocks the student MOVED/locked ([locked]) or added manually
+      // survive a re-tune and become PRE-PLACED, so the fresh plan fills AROUND
+      // them instead of wiping the arrangement. Limited to courses still in the
+      // plan (examCodes) so a de-selected course's locks don't linger (D3).
+      const today = new Date();
+      const examCodes = new Set(examInputs.map((e) => e.courseCode));
+      const survivors = await ctx.db.studyTask.findMany({
+        where: { userId: user.id, taskType: "study", completed: false },
+        select: { taskType: true, startDate: true, notes: true, courseCode: true, completed: true },
+      });
+      const prePlaced = buildPrePlaced(survivors, today, examCodes);
+
       // input.capacity is undefined when the client sends none → the engine
       // falls back to DEFAULT_CAPACITY, so plans are always capacity-bounded.
-      const plan = generateExamPlan(examInputs, new Date(), input.unavailable ?? [], input.prepStyle ?? "steady", input.capacity);
+      const plan = generateExamPlan(examInputs, today, input.unavailable ?? [], input.prepStyle ?? "steady", input.capacity, prePlaced);
 
-      // Atomic: clear previous auto tasks, then create the fresh plan.
+      // Atomic: clear the regeneratable auto plan, then create the fresh one.
       const created = await ctx.db.$transaction(async (tx) => {
+        // Wipe auto tasks — but SPARE locked blocks (moved/edited study) so the
+        // student's arrangement survives. Exam blocks ([auto] <difficulty>)
+        // never carry [locked], so they're still deleted + recreated (intended).
         await tx.studyTask.deleteMany({
-          where: { userId: user.id, notes: { startsWith: AUTO_MARK } },
+          where: { userId: user.id, notes: { startsWith: AUTO_MARK, not: { contains: LOCK_MARK } } },
+        });
+        // Orphan cleanup (D3): drop an AUTO locked block for a course no longer
+        // planned. Scoped to [auto] ONLY — a MANUAL block the student added and
+        // then moved ("2.5h [locked]", no [auto]) is user-authored and must never
+        // be wiped, matching the quick-add "manual additions survive" contract.
+        await tx.studyTask.deleteMany({
+          where: {
+            userId: user.id,
+            taskType: "study",
+            notes: { startsWith: AUTO_MARK, contains: LOCK_MARK },
+            courseCode: { notIn: Array.from(examCodes) },
+          },
         });
 
         const rows: {

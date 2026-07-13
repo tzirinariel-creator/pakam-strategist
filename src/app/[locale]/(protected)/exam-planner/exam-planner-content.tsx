@@ -50,7 +50,7 @@ const SyllabusScanner = dynamic(
 );
 import { MoedBenefitBanner } from "@/components/exam-planner/moed-benefit-banner";
 import { ExamPlanWizard, MoedPrinciplesCard, type PrepStyle } from "@/components/exam-planner/exam-plan-wizard";
-import { planFromStudyTasks } from "@/lib/plan-from-tasks";
+import { planFromStudyTasks, buildPrePlaced } from "@/lib/plan-from-tasks";
 import { downloadGanttCsv, type GanttTask } from "@/lib/excel-export";
 import { exportExamPlanXlsx } from "@/lib/xlsx-export";
 import { cn } from "@/lib/utils";
@@ -195,7 +195,30 @@ export function ExamPlannerContent() {
     return inputs;
   }, [examCourses, selected, prepStyle, confidence]);
 
-  const previewPlan = useMemo(() => generateExamPlan(previewInputs, new Date(), blockedDays, prepStyle, { weekdayHours }), [previewInputs, blockedDays, prepStyle, weekdayHours]);
+  const previewPlan = useMemo(() => {
+    // Fill around the student's locked/manual blocks so the preview matches what
+    // a re-tune will actually save (Phase 5 D4). Empty in the fresh setup (no
+    // saved tasks). Same pure helper the server mutation uses — no divergence.
+    const now = new Date();
+    const pre = buildPrePlaced(
+      (tasksQuery.data?.tasks ?? []) as StudyTask[],
+      now,
+      new Set(previewInputs.map((e) => e.courseCode)),
+    );
+    const fresh = generateExamPlan(previewInputs, now, blockedDays, prepStyle, { weekdayHours }, pre);
+    // The engine returns only the FRESH fill-around sessions (the locked blocks
+    // already exist in the DB, which is why the server persists just these). But
+    // for the PREVIEW display + the shortfall rec, merge the pre-placed blocks
+    // back in so the preview shows the FULL arrangement (locks + fill-around) and
+    // "placed" hours include the locks — otherwise the warning false-fires.
+    if (pre.length === 0) return fresh;
+    const byCourse = new Map(fresh.exams.map((e) => [e.courseCode, e]));
+    const locked = pre.flatMap((p) => {
+      const sum = byCourse.get(p.courseCode);
+      return sum ? [{ courseCode: p.courseCode, courseName: sum.courseName, date: new Date(p.date), hours: p.hours, color: sum.color, difficulty: sum.difficulty }] : [];
+    });
+    return { ...fresh, sessions: [...fresh.sessions, ...locked].sort((a, b) => a.date.getTime() - b.date.getTime()) };
+  }, [previewInputs, blockedDays, prepStyle, weekdayHours, tasksQuery.data]);
   const previewRecs = useMemo(() => (previewInputs.length === 0 ? [] : analyzeExamPeriod(previewPlan, isHe)), [previewInputs, previewPlan, isHe]);
   const selectedCount = Object.values(selected).filter(Boolean).length;
 
@@ -305,10 +328,17 @@ export function ExamPlannerContent() {
           const start = new Date(t.startDate);
           const duration = new Date(t.endDate).getTime() - start.getTime();
           start.setFullYear(y, m - 1, d);
+          // Phase 5 — a MOVE is a manual arrangement to keep: stamp [locked] so a
+          // re-tune fills around it instead of wiping it. Preserve the "Nh" token
+          // so the hours still parse.
+          const lockedNotes = t.notes?.includes("[locked]")
+            ? t.notes
+            : `${(t.notes ?? "").trim()} [locked]`.trim();
           return batchUpdateMutation.mutateAsync({
             id: t.id,
             startDate: start,
             endDate: new Date(start.getTime() + Math.max(0, duration)),
+            notes: lockedNotes,
           });
         }),
       );

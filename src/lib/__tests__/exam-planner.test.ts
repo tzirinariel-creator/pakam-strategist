@@ -212,3 +212,37 @@ describe("confidence", () => {
     expect(confidenceMultiplier(9)).toBe(0.7);
   });
 });
+
+// ── Phase 5 — pre-placed (locked/manual) blocks: the plan fills AROUND them ──
+describe("pre-placed / locked blocks", () => {
+  const lk = (d: Date) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+  const cap8 = { weekdayHours: [8, 8, 8, 8, 8, 8, 8] };
+  const sumX = (p: { sessions: { courseCode: string; hours: number }[] }) =>
+    p.sessions.filter((s) => s.courseCode === "X").reduce((a, b) => a + b.hours, 0);
+
+  it("reduces the course's newly-scheduled hours by the pre-placed amount", () => {
+    const e = [exam({ courseCode: "X", credits: 5, averageGrade: 60, failRate: 0.3 })]; // high → 20h budget
+    const base = sumX(generateExamPlan(e, NOW, [], "steady", cap8));
+    const withPre = sumX(generateExamPlan(e, NOW, [], "steady", cap8, [{ courseCode: "X", date: new Date("2026-06-05T09:00:00"), hours: 5 }]));
+    expect(Math.round(withPre)).toBe(Math.round(base - 5));
+  });
+
+  it("a pre-placed block consumes that day's shared capacity (fills around)", () => {
+    const e = [exam({ courseCode: "Y", credits: 3, averageGrade: 90 })];
+    const plan = generateExamPlan(e, NOW, [], "crammer", { weekdayHours: [3, 3, 3, 3, 3, 3, 3] }, [{ courseCode: "Z", date: new Date("2026-06-14T09:00:00"), hours: 3 }]);
+    expect(plan.sessions.filter((s) => lk(s.date) === "2026-06-14").reduce((a, b) => a + b.hours, 0)).toBe(0);
+  });
+
+  it("counts a pre-placed block toward the per-course daily max", () => {
+    const e = [exam({ courseCode: "X", credits: 6, averageGrade: 60, failRate: 0.3 })];
+    const plan = generateExamPlan(e, NOW, [], "crammer", cap8, [{ courseCode: "X", date: new Date("2026-06-14T09:00:00"), hours: 2.5 }]);
+    expect(plan.sessions.filter((s) => s.courseCode === "X" && lk(s.date) === "2026-06-14").reduce((a, b) => a + b.hours, 0)).toBe(0);
+  });
+
+  it("a PAST pre-placed block is ignored (doesn't consume budget or capacity)", () => {
+    const e = [exam({ courseCode: "X", credits: 5, averageGrade: 60, failRate: 0.3 })];
+    const base = sumX(generateExamPlan(e, NOW, [], "steady", cap8));
+    const past = sumX(generateExamPlan(e, NOW, [], "steady", cap8, [{ courseCode: "X", date: new Date("2026-05-20T09:00:00"), hours: 5 }]));
+    expect(Math.round(past)).toBe(Math.round(base));
+  });
+});

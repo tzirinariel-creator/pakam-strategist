@@ -8,7 +8,44 @@
 // on the exact same skyline as the live preview. Extracted from the component
 // so the round-trip (generate → persist-shape → reconstruct) is unit-tested.
 
-import type { ExamPlanResult, Difficulty } from "@/lib/exam-planner";
+import type { ExamPlanResult, Difficulty, PrePlacedBlock } from "@/lib/exam-planner";
+
+/** Notes marker for engine-generated tasks (exams + auto study blocks). */
+export const AUTO_MARK = "[auto]";
+/** A moved/locked auto block: re-tune leaves it and the engine treats its hours
+ *  as pre-placed (fills around it) instead of wiping and re-scheduling. */
+export const LOCK_MARK = "[locked]";
+
+/** A study task survives a re-tune (its hours are pre-placed, not wiped) when
+ *  it's a manual add (no [auto]) OR an auto block the student locked ([locked]). */
+export function survivesRetune(notes: string | null): boolean {
+  if (!notes) return true; // no marker at all → treat as a user block, don't wipe
+  return !notes.includes(AUTO_MARK) || notes.includes(LOCK_MARK);
+}
+
+/** Build the pre-placed blocks a re-tune must fill AROUND: FUTURE, uncompleted
+ *  STUDY tasks that survive (manual or locked), optionally limited to the
+ *  courses being planned so a de-selected course's locks don't linger (D3). */
+export function buildPrePlaced(
+  tasks: Array<Pick<StudyTaskLike, "taskType" | "startDate" | "notes" | "courseCode"> & { completed?: boolean }>,
+  today: Date,
+  examCodes?: Set<string>,
+): PrePlacedBlock[] {
+  const t0 = new Date(new Date(today).setHours(0, 0, 0, 0)).getTime();
+  const out: PrePlacedBlock[] = [];
+  for (const t of tasks) {
+    if (t.taskType !== "study" || t.completed) continue;
+    if (!survivesRetune(t.notes)) continue;
+    const code = t.courseCode ?? "";
+    if (examCodes && !examCodes.has(code)) continue;
+    const d = new Date(t.startDate);
+    if (isNaN(d.getTime()) || new Date(new Date(d).setHours(0, 0, 0, 0)).getTime() < t0) continue;
+    const m = t.notes?.match(/([\d.]+)h/);
+    const h = m ? Number(m[1]) : NaN;
+    out.push({ courseCode: code, date: d, hours: Number.isFinite(h) && h > 0 ? h : 2.5 });
+  }
+  return out;
+}
 
 export interface StudyTaskLike {
   taskType: string;
