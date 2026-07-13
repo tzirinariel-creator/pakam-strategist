@@ -4,7 +4,8 @@
 // selected changes to the database
 // =========================================
 
-import type { PrismaClient, Semester } from "@prisma/client";
+import type { Semester } from "@prisma/client";
+import type { Db } from "@/lib/db";
 import type { CourseDiff, ApplyResult, ScrapedCourse } from "./types";
 import { buildYedionUrl } from "./fetcher";
 
@@ -35,7 +36,7 @@ export async function applyDiff(
   diff: CourseDiff,
   courseIds: string[],
   scrapeData: Map<string, ScrapedCourse>,
-  db: PrismaClient,
+  db: Db,
   academicYear: number = 2025
 ): Promise<ApplyResult> {
   const result: ApplyResult = { applied: 0, failed: [] };
@@ -154,7 +155,7 @@ export async function applyDiff(
 export async function autoApplySafe(
   diff: CourseDiff,
   scrapeData: Map<string, ScrapedCourse>,
-  db: PrismaClient,
+  db: Db,
   academicYear: number = 2025
 ): Promise<ApplyResult> {
   // Filter to courses that ONLY have "safe" changes

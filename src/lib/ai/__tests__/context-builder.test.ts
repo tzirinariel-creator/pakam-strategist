@@ -7,7 +7,7 @@
 // =========================================================================
 
 import { describe, it, expect } from "vitest";
-import type { PrismaClient } from "@prisma/client";
+import type { Db } from "@/lib/db";
 import { buildUserContext } from "@/lib/ai/context-builder";
 import { buildMentorSystemPrompt } from "@/lib/ai/mentor-prompt";
 import { getActiveProgram } from "@/lib/programs/registry";
@@ -69,7 +69,7 @@ const db = {
   studyTask: { findMany: async () => [] },
   miluimSemester: { findMany: async () => [] },
   course: { findMany: async () => [] },
-} as unknown as PrismaClient;
+} as unknown as Db;
 
 const USER = {
   id: "u1",

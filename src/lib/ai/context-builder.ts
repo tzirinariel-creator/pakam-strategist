@@ -11,7 +11,8 @@ import type {
 } from "@/lib/ai/mentor-prompt";
 import type { UserCourseWithCourse } from "@/types/degree";
 import type { Semester } from "@/types/enums";
-import type { PrismaClient, MiluimGroup } from "@prisma/client";
+import type { MiluimGroup } from "@prisma/client";
+import type { Db } from "@/lib/db";
 import { calculateCredits } from "@/lib/credit-calculator";
 import { greetNameForLocale } from "@/lib/personal-address";
 import { calculateGrades } from "@/lib/grade-calculator";
@@ -129,7 +130,7 @@ function mapToCourseInfo(
  * Works with any Prisma-like DB client.
  */
 export async function buildUserContext(
-  db: PrismaClient,
+  db: Db,
   user: UserForContext,
 ): Promise<MentorContext> {
   const userCourses = (await db.userCourse.findMany({

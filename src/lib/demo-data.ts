@@ -19,7 +19,7 @@
  * code — same demo every reset, honest spread, always above the year gates.
  */
 
-import type { PrismaClient } from "@prisma/client";
+import type { Db } from "@/lib/db";
 import { generateExamPlan, type ExamInput } from "@/lib/exam-planner";
 
 // Stable tiny hash — same course code → same demo grade on every reset.
@@ -61,7 +61,7 @@ function pickSemester(c: CatalogCourse, index: number): "FALL" | "SPRING" {
   return index % 2 === 0 ? "FALL" : "SPRING";
 }
 
-export async function seedDemoData(db: PrismaClient, userId: string) {
+export async function seedDemoData(db: Db, userId: string) {
   // 1. Wipe — the reset must be idempotent (same pristine state every login).
   await db.$transaction([
     db.studyTask.deleteMany({ where: { userId } }),

@@ -35,6 +35,10 @@ const DEMO_EMAIL = (process.env.NEXT_PUBLIC_DEMO_USER_EMAIL || "demo@pakamon.dev
 
 const PROFILE = {
   displayName: "סטודנט/ית דמו",
+  // A named persona so the demo dashboard greets "היי יובל" — showcasing the
+  // personalization instead of the awkward "היי חשבון" (live-verify 13.7;
+  // firstNameOf prefers firstName, then displayName's first word).
+  firstName: "יובל",
   focusArea: "ECONOMICS",
   currentYear: 2,
   currentSemester: "SPRING" as Semester,
@@ -117,6 +121,7 @@ async function main() {
     where: { id: user.id },
     data: {
       displayName: PROFILE.displayName,
+      firstName: PROFILE.firstName,
       focusArea: PROFILE.focusArea,
       currentYear: PROFILE.currentYear,
       currentSemester: PROFILE.currentSemester,

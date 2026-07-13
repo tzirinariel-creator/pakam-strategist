@@ -15,6 +15,7 @@ import { fetchSyllabus, clearSessionCache } from "@/lib/scraper/fetcher";
 import { parseSyllabusHtml } from "@/lib/scraper/parser";
 import { computeDiff, type CourseWithSchedule } from "@/lib/scraper/differ";
 import { autoApplySafe } from "@/lib/scraper/applier";
+import { extendDb } from "@/lib/db";
 import type { ScrapeResult, ScrapedCourse } from "@/lib/scraper/types";
 import path from "node:path";
 import fs from "node:fs";
@@ -202,7 +203,7 @@ async function main() {
 
     // Auto-apply safe changes
     console.log(`${c.bold}Applying safe changes...${c.reset}`);
-    const applyResult = await autoApplySafe(diff, scrapeDataMap, prisma, year);
+    const applyResult = await autoApplySafe(diff, scrapeDataMap, extendDb(prisma), year);
 
     // Update sync log
     await prisma.syncLog.update({
