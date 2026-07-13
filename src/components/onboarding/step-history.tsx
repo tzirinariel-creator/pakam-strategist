@@ -756,6 +756,27 @@ export function StepHistory({
                   .map((c) => (
                     <div key={c.courseCode} className="flex items-center gap-2 rounded-lg border border-border/50 bg-card px-2.5 py-2">
                       <span className="min-w-0 flex-1 truncate text-sm text-foreground/80">{c.customName}</span>
+                      {/* Editable credits — an off-catalog course (e.g. a 4-ש״ס
+                          דוגרי) was hard-locked at 2, under-counting total credits,
+                          the elective requirement, and its average weight (#18). */}
+                      <span className="shrink-0 text-[11px] text-foreground/40">{t("nz")}</span>
+                      <input
+                        type="number"
+                        min={1}
+                        max={12}
+                        step={0.5}
+                        value={c.credits ?? 2}
+                        onChange={(e) => {
+                          const n = parseFloat(e.target.value);
+                          onChange({
+                            ...value,
+                            [c.courseCode]: { ...c, credits: Number.isFinite(n) && n > 0 ? n : c.credits },
+                          });
+                        }}
+                        aria-label={isHe ? `ש״ס ל${c.customName}` : `Credits for ${c.customName}`}
+                        className="w-12 rounded-md border border-border bg-card px-1.5 py-1 text-center text-sm"
+                        dir="ltr"
+                      />
                       <input
                         type="number"
                         min={0}
