@@ -80,6 +80,16 @@ export function StepReady({ data, plannedSemesters, completedCourses, allCourses
     (sum, c) => sum + (courseMap.get(c.courseId)?.credits ?? 0),
     0
   );
+  // The save callback is a STABLE useCallback, so it would otherwise freeze
+  // render-1's flattenedCourses — which is EMPTY until the course catalog loads
+  // (courseMap empty → every planned id dropped). Read the payload through this
+  // ref so the save always sends the CURRENT courses, never the empty first one
+  // (the plan-not-saved bug, QA 13.7).
+  const flattenedRef = useRef(flattenedCourses);
+  flattenedRef.current = flattenedCourses;
+  // How many courses the student actually planned (before catalog mapping) — used
+  // to tell "nothing planned" (legit) apart from "catalog not loaded yet" (wait).
+  const plannedCourseCount = (plannedSemesters ?? []).reduce((n, s) => n + s.courseIds.length, 0);
 
   // Credits the student already COMPLETED (the history step). Surfaced in the
   // summary next to the planned total so a mid-degree student sees their REAL
@@ -148,6 +158,17 @@ export function StepReady({ data, plannedSemesters, completedCourses, allCourses
 
   // Save function — can be called for initial save or retry
   const doSave = useCallback(async () => {
+    // Never persist an EMPTY plan when the student actually planned courses — it
+    // means the catalog hasn't mapped yet (courseMap empty). Surface the retry
+    // state instead of silently saving nothing over the real plan (QA 13.7).
+    // plannedCourseCount is stable (from plannedSemesters, ready at mount);
+    // flattenedRef is live.
+    if (plannedCourseCount > 0 && flattenedRef.current.length === 0) {
+      didSave.current = false; // let the auto-save effect fire again once courses load
+      setSaveError(true);
+      setIsSaving(false);
+      return;
+    }
     setIsSaving(true);
     setSaveError(false);
     setSaveStage(0);
@@ -206,7 +227,7 @@ export function StepReady({ data, plannedSemesters, completedCourses, allCourses
       //    completed-history save below (which upserts COMPLETED courses on top).
       await withTimeout(
         savePlanMutation.mutateAsync({
-          courses: flattenedCourses,
+          courses: flattenedRef.current,
         }),
         20000,
       );
@@ -284,13 +305,21 @@ export function StepReady({ data, plannedSemesters, completedCourses, allCourses
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Auto-save on mount
+  // Auto-save — but ONLY once the course catalog has actually loaded, so the
+  // payload is never empty. If allCourses hasn't arrived (courseMap empty → every
+  // planned id dropped) or the planned courses haven't mapped yet, this effect
+  // just re-runs when they do (deps on allCourses/flattenedCourses length) instead
+  // of persisting an empty plan that silently wipes the plan and shows the
+  // celebration over an empty dashboard (QA 13.7 — the plan-not-saved bug).
   useEffect(() => {
-    if (didSave.current || !plannedSemesters || plannedSemesters.length === 0) return;
+    if (didSave.current) return;
+    if (!plannedSemesters || plannedSemesters.length === 0) return;
+    if (allCourses.length === 0) return; // catalog not loaded → would drop every course
+    if (plannedCourseCount > 0 && flattenedCourses.length === 0) return; // planned but nothing mapped yet → wait
     didSave.current = true;
     doSave();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [allCourses.length, flattenedCourses.length, plannedCourseCount]);
 
   // Once the save succeeds, gently tell the student if a manually-added custom
   // course was left out (it carries no real catalog id, so it can't be saved

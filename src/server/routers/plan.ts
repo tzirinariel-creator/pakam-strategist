@@ -328,6 +328,17 @@ export const planRouter = createTRPCRouter({
         return true;
       });
 
+      // GUARD (QA 13.7): an EMPTY payload must NEVER wipe the plan. A stray empty
+      // save — e.g. onboarding auto-saving before the course catalog finished
+      // loading, so every planned courseId got dropped — previously deleted the
+      // PLANNED/IN_PROGRESS rows and then wrote nothing, silently "succeeding"
+      // with a zero-course plan (→ empty dashboard + the 8x retry loop). No UI
+      // legitimately clears the plan to zero (the planner's Done button is
+      // disabled at 0 courses), so treat an empty save as a NO-OP.
+      if (deduped.length === 0) {
+        return { savedCount: 0, skippedEmpty: true };
+      }
+
       // Atomic: delete + create inside a single transaction so the user
       // never ends up with zero courses if createMany fails.
       const savedCount = await ctx.db.$transaction(async (tx) => {
