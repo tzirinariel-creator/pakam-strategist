@@ -441,7 +441,6 @@ export function FloatingAssistant() {
     const p = pathname ?? "";
     const gg = (m: string, f: string, n: string) =>
       gender === "male" ? m : gender === "female" ? f : n;
-    const you = gg("אתה", "את", "את/ה");
     const ask = gg("שאל", "שאלי", "שאל/י");
     if (!isHe) {
       if (p.includes("/planner")) return "You're planning your semester. Ask me what to take, whether the load makes sense, or how to close a gap.";

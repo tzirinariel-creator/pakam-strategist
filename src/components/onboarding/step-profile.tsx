@@ -126,11 +126,6 @@ export function StepProfile({ data, onUpdate }: StepProfileProps) {
     { value: 3, label: t("yearC") },
   ] as const;
 
-  const semesterOptions = [
-    { value: "FALL" as const, label: t("semesterA") },
-    { value: "SPRING" as const, label: t("semesterB") },
-  ] as const;
-
   const focusOptions = [
     ...FOCUS_DISCIPLINE_IDS.map((id) => {
       const cfg = DISCIPLINE_CONFIG[id]!;

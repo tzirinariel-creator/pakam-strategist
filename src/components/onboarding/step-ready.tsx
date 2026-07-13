@@ -87,9 +87,6 @@ export function StepReady({ data, plannedSemesters, completedCourses, allCourses
   // (the plan-not-saved bug, QA 13.7).
   const flattenedRef = useRef(flattenedCourses);
   flattenedRef.current = flattenedCourses;
-  // How many courses the student actually planned (before catalog mapping) — used
-  // to tell "nothing planned" (legit) apart from "catalog not loaded yet" (wait).
-  const plannedCourseCount = (plannedSemesters ?? []).reduce((n, s) => n + s.courseIds.length, 0);
 
   // Credits the student already COMPLETED (the history step). Surfaced in the
   // summary next to the planned total so a mid-degree student sees their REAL
@@ -158,17 +155,12 @@ export function StepReady({ data, plannedSemesters, completedCourses, allCourses
 
   // Save function — can be called for initial save or retry
   const doSave = useCallback(async () => {
-    // Never persist an EMPTY plan when the student actually planned courses — it
-    // means the catalog hasn't mapped yet (courseMap empty). Surface the retry
-    // state instead of silently saving nothing over the real plan (QA 13.7).
-    // plannedCourseCount is stable (from plannedSemesters, ready at mount);
-    // flattenedRef is live.
-    if (plannedCourseCount > 0 && flattenedRef.current.length === 0) {
-      didSave.current = false; // let the auto-save effect fire again once courses load
-      setSaveError(true);
-      setIsSaving(false);
-      return;
-    }
+    // The auto-save effect only fires once the catalog has loaded (allCourses > 0),
+    // so flattenedRef is the REAL mapped plan by the time we get here — no empty-
+    // payload race. And savePlan no-ops an empty courses[] server-side, so even an
+    // all-custom plan (nothing maps to a catalog id) still saves the profile,
+    // history and custom courses without wiping anything. No empty-refusal guard
+    // here (it caused a silent dead-end for an all-custom plan — QA 13.7 verify).
     setIsSaving(true);
     setSaveError(false);
     setSaveStage(0);
@@ -327,12 +319,11 @@ export function StepReady({ data, plannedSemesters, completedCourses, allCourses
   useEffect(() => {
     if (didSave.current) return;
     if (!plannedSemesters || plannedSemesters.length === 0) return;
-    if (allCourses.length === 0) return; // catalog not loaded → would drop every course
-    if (plannedCourseCount > 0 && flattenedCourses.length === 0) return; // planned but nothing mapped yet → wait
+    if (allCourses.length === 0) return; // catalog not loaded → would drop every course; re-fires when it loads
     didSave.current = true;
     doSave();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [allCourses.length, flattenedCourses.length, plannedCourseCount]);
+  }, [allCourses.length]);
 
   // Once the save succeeds, gently tell the student if a manually-added custom
   // course was left out (it carries no real catalog id, so it can't be saved

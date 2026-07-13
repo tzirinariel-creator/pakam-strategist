@@ -588,14 +588,18 @@ export function DashboardContent() {
   // read "סמסטר א׳", not "ב׳" (QA 13.7). Falls back to the planning anchor when
   // there's no plan yet.
   const activeSemester: "FALL" | "SPRING" = (() => {
-    const calSem: "FALL" | "SPRING" = acadNow.semester === "FALL" ? "FALL" : "SPRING";
     const cs = planQuery.data?.courses ?? [];
     const inYear = (sem: "FALL" | "SPRING") =>
       cs.some((c) => c.plannedYear === currentYear && c.plannedSemester === sem);
+    // Prefer the PLANNING ANCHOR (the semester the student is working on) — same
+    // rule /calendar uses — so the two surfaces never disagree (verify 13.7).
+    const anchorSem = getPlanningAnchor().semester;
+    if (inYear(anchorSem)) return anchorSem;
+    const calSem: "FALL" | "SPRING" = acadNow.semester === "FALL" ? "FALL" : "SPRING";
     if (inYear(calSem)) return calSem;
     if (inYear("FALL")) return "FALL";
     if (inYear("SPRING")) return "SPRING";
-    return getPlanningAnchor().semester;
+    return anchorSem;
   })();
 
   // How many planned courses the student is literally sitting in RIGHT NOW —

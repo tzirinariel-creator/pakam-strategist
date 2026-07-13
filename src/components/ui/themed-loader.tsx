@@ -1,7 +1,6 @@
 "use client";
 
 import { useLocale } from "next-intl";
-import { PhilosopherKingIcon } from "@/components/ui/philosopher-king-icon";
 import { PhilosopherKingCharacter } from "@/components/ui/philosopher-king-character";
 import { cn } from "@/lib/utils";
 
