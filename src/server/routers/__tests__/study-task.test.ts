@@ -104,3 +104,66 @@ describe("studyTask.update — the drag-day persistence path (E2′)", () => {
     expect(db.tasks.find((x) => x.id === FOREIGN_ID)!.startDate.getDate()).toBe(21);
   });
 });
+
+// Phase 5 — re-tune must NOT wipe a MANUAL locked block (data-loss regression).
+function makeGenerateDb() {
+  const deleteWheres: Record<string, unknown>[] = [];
+  const created: unknown[] = [];
+  const examDate = new Date(new Date().getTime() + 10 * 86_400_000); // 10 days out (future)
+  return {
+    deleteWheres,
+    created,
+    user: { findUnique: async () => USER, upsert: async () => USER },
+    userCourse: {
+      findMany: async () => [
+        { course: { code: "1011-2103", nameHe: "מיקרו", examDateA: examDate, examDateB: null, credits: 5, averageGrade: 78, failRate: 0.1 } },
+      ],
+    },
+    studyTask: {
+      // A MANUAL locked block (no [auto]) for a course NOT being planned.
+      findMany: async () => [
+        { taskType: "study", startDate: examDate, notes: "2.5h [locked]", courseCode: "9999-9999", completed: false },
+      ],
+      deleteMany: async ({ where }: { where: Record<string, unknown> }) => {
+        deleteWheres.push(where);
+        return { count: 0 };
+      },
+      createMany: async ({ data }: { data: unknown[] }) => {
+        created.push(...data);
+        return { count: data.length };
+      },
+    },
+    $transaction: async (fn: (tx: unknown) => Promise<number>) => fn(makeTx(deleteWheres, created)),
+  };
+}
+function makeTx(deleteWheres: Record<string, unknown>[], created: unknown[]) {
+  return {
+    studyTask: {
+      deleteMany: async ({ where }: { where: Record<string, unknown> }) => {
+        deleteWheres.push(where);
+        return { count: 0 };
+      },
+      createMany: async ({ data }: { data: unknown[] }) => {
+        created.push(...data);
+        return { count: data.length };
+      },
+    },
+  };
+}
+
+describe("studyTask.generateExamPlan — re-tune preserves manual/locked blocks", () => {
+  it("orphan cleanup is scoped to [auto], so a MANUAL locked block is never wiped", async () => {
+    const db = makeGenerateDb();
+    const caller = makeCaller(db as unknown as ReturnType<typeof makeFakeDb>);
+    const r = await caller.generateExamPlan({ exams: [{ courseCode: "1011-2103", moed: "A" }] });
+    expect(r.created).toBeGreaterThan(0); // a plan was built
+    // The orphan-cleanup deleteMany (the one with courseCode.notIn) MUST require
+    // startsWith [auto] — otherwise it would delete the student's manual
+    // "2.5h [locked]" block for the de-selected course 9999-9999.
+    const orphan = db.deleteWheres.find((w) => (w.courseCode as { notIn?: unknown })?.notIn);
+    expect(orphan).toBeDefined();
+    const notes = orphan!.notes as { startsWith?: string; contains?: string };
+    expect(notes.startsWith).toBe("[auto]");
+    expect(notes.contains).toBe("[locked]");
+  });
+});
