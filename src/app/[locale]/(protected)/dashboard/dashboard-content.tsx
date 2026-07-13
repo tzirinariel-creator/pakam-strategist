@@ -35,6 +35,7 @@ import { ExamCountdown } from "@/components/dashboard/exam-countdown";
 import { RecommendationsWidget } from "@/components/dashboard/recommendations-widget";
 import { StudyPlannerWidget } from "@/components/dashboard/study-planner-widget";
 import { MyStatusHero, type DisciplineProgress } from "@/components/dashboard/my-status-hero";
+import { MeetTheKingCard } from "@/components/dashboard/meet-the-king-card";
 import { getActiveProgram } from "@/lib/programs/registry";
 import { buildRecommendations } from "@/lib/recommendations-engine";
 import { binaryCapRemaining, type MiluimGroupKey } from "@/lib/miluim";
@@ -962,6 +963,16 @@ export function DashboardContent() {
               localStorage.setItem("pakamon-welcome-dismissed", "true");
             }}
           />
+        </div>
+      )}
+
+      {/* Meet the King (#13/#14/#26) — introduces the assistant to a first-timer
+          and hands interactive starters (incl. one that teaches he can be
+          COMMANDED). Own dismiss; suppressed during the tour (which now has its
+          own King step) so the two never stack. */}
+      {tourChecked && !tourOpen && hasPlanData && (fromOnboarding || onboardingFlag || isNewUser) && (
+        <div className="animate-stagger-1">
+          <MeetTheKingCard />
         </div>
       )}
 

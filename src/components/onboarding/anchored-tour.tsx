@@ -58,6 +58,17 @@ const STEPS: Step[] = [
     bodyEn: "If you served, this bar always shows your group + benefits. Tap it for the full list.",
   },
   {
+    // #13/#14/#26 — the single highest-leverage "meet the King" moment: spotlight
+    // the floating FAB, name him, and teach that he's interactive (you can COMMAND
+    // him) and always present. Without this, a user finishes the whole tour and
+    // never learns the King is a chattable person who can add/complete a course.
+    selector: '[data-tour="king"]',
+    titleHe: "וזה המלך — היועץ האישי שלכם",
+    titleEn: "And this is the King — your advisor",
+    bodyHe: 'לחיצה כאן פותחת שיחה. אפשר גם פשוט להגיד לו "סיימתי מיקרו עם 88" או "תוסיף לי סטטיסטיקה" — והוא יעשה את זה בשבילכם. הוא כאן, בכל מסך.',
+    bodyEn: 'Tap here to chat. You can even tell him "I finished Micro with 88" or "add Statistics for me" — and he\'ll do it. He\'s here, on every screen.',
+  },
+  {
     selector: null,
     titleHe: "זהו, אתם מוכנים",
     titleEn: "You're all set",

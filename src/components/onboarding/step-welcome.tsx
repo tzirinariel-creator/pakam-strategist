@@ -4,7 +4,7 @@ import {
   GraduationCap,
   CalendarDays,
   ShieldCheck,
-  MessageCircle,
+  Check,
   BookOpen,
   Scale,
   Lock,
@@ -12,6 +12,7 @@ import {
 import { useTranslations, useLocale } from "next-intl";
 import { cn } from "@/lib/utils";
 import { listPrograms } from "@/lib/programs/registry";
+import { PhilosopherKingIcon } from "@/components/ui/philosopher-king-icon";
 
 interface StepWelcomeProps {
   onNext: () => void;
@@ -48,7 +49,10 @@ export function StepWelcome({ onNext, selectedProgram, onProgramSelect }: StepWe
       delay: "animate-stagger-2",
     },
     {
-      icon: MessageCircle,
+      // The King himself, named — this is the "meet the King" card, not a generic
+      // locked AI feature (#5/#8/#13). The note stays but its badge is a positive
+      // check (free-first), not a Lock that reads as premium/locked.
+      icon: PhilosopherKingIcon,
       title: t("featureMentor"),
       description: t("featureMentorDesc"),
       note: t("featureMentorByok"),
@@ -117,8 +121,8 @@ export function StepWelcome({ onNext, selectedProgram, onProgramSelect }: StepWe
                 {feature.description}
               </p>
               {"note" in feature && (
-                <span className="mt-1.5 inline-flex items-center gap-1 rounded-full bg-foreground/5 px-2 py-0.5 text-[10px] font-medium text-foreground/40">
-                  <Lock className="h-2.5 w-2.5" />
+                <span className="mt-1.5 inline-flex items-center gap-1 rounded-full bg-emerald-500/10 px-2 py-0.5 text-[10px] font-medium text-emerald-600 dark:text-emerald-400">
+                  <Check className="h-2.5 w-2.5" />
                   {feature.note}
                 </span>
               )}

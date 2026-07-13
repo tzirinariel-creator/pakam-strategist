@@ -363,25 +363,39 @@ export function CalendarContent() {
             </button>
           )}
 
-          {/* Google Calendar sync button */}
-          {semesterCourses.length > 0 && viewMode !== "exams" && googleStatus.data?.connected && parsedSemester && (
-            <button
-              type="button"
-              onClick={() => {
-                if (parsedSemester) {
-                  syncToGoogle.mutate({
-                    year: parsedSemester.year,
-                    semester: parsedSemester.semester,
-                  });
-                }
-              }}
-              disabled={syncToGoogle.isPending}
-              className="flex items-center gap-1.5 rounded-lg border border-border bg-card px-3 py-1.5 text-sm font-medium text-foreground/70 transition-colors hover:bg-foreground/5 hover:text-foreground disabled:opacity-50"
-              title={t("syncToGoogle")}
-            >
-              <RefreshCw className={cn("size-3.5", syncToGoogle.isPending && "animate-spin")} />
-              <span className="hidden sm:inline">{t("syncToGoogle")}</span>
-            </button>
+          {/* Google Calendar — connected: sync now. NOT connected: offer to
+              connect, so an unconnected student can DISCOVER and start calendar
+              sync from the calendar itself, not only after they've already
+              connected in settings (#30). */}
+          {semesterCourses.length > 0 && viewMode !== "exams" && parsedSemester && (
+            googleStatus.data?.connected ? (
+              <button
+                type="button"
+                onClick={() => {
+                  if (parsedSemester) {
+                    syncToGoogle.mutate({
+                      year: parsedSemester.year,
+                      semester: parsedSemester.semester,
+                    });
+                  }
+                }}
+                disabled={syncToGoogle.isPending}
+                className="flex items-center gap-1.5 rounded-lg border border-border bg-card px-3 py-1.5 text-sm font-medium text-foreground/70 transition-colors hover:bg-foreground/5 hover:text-foreground disabled:opacity-50"
+                title={t("syncToGoogle")}
+              >
+                <RefreshCw className={cn("size-3.5", syncToGoogle.isPending && "animate-spin")} />
+                <span className="hidden sm:inline">{t("syncToGoogle")}</span>
+              </button>
+            ) : (
+              <Link
+                href="/settings"
+                className="flex items-center gap-1.5 rounded-lg bg-emerald-500/10 px-3 py-1.5 text-sm font-medium text-emerald-600 transition-colors hover:bg-emerald-500/20 dark:text-emerald-400"
+                title={locale === "he" ? "חברו את יומן Google כדי לסנכרן את המערכת" : "Connect Google Calendar to sync your timetable"}
+              >
+                <CalendarDays className="size-3.5" />
+                <span>{locale === "he" ? "חברו ליומן Google" : "Connect Google Calendar"}</span>
+              </Link>
+            )
           )}
         </div>
       </div>

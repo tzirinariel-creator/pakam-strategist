@@ -60,10 +60,10 @@
     "errWeakPassword": "Password must be at least 6 characters",
     "errRateLimit": "Too many attempts — wait a minute and try again",
     "signupWarmLine": "One minute, and we build your degree together.",
-    "loginValueLine": "Plan and track your PPE degree — in one place",
-    "loginBenefit1": "Whole-degree planning against the real regulations",
-    "loginBenefit2": "Timetable, exams and grades — no spreadsheets",
-    "loginBenefit3": "An advisor that answers from your data, not generalities"
+    "loginValueLine": "Your whole PPE degree in one place — no spreadsheets, no guessing.",
+    "loginBenefit1": "See exactly what's left, by the real PPE regulations.",
+    "loginBenefit2": "Timetable, exam board and average — all worked out for you.",
+    "loginBenefit3": "And the Philosopher King: a personal advisor who knows your data."
   },
   "demo": {
     "banner": "Demo Mode — data shown is for demonstration only"
@@ -626,8 +626,8 @@
     "featurePlanDesc": "All courses organized by semester — see where you're headed",
     "featureRegulations": "Regulation Check",
     "featureRegulationsDesc": "PPE regulation rules checked automatically in the background",
-    "featureMentor": "AI Mentor",
-    "featureMentorDesc": "Questions about your degree? The mentor knows the regulations",
+    "featureMentor": "The Philosopher King",
+    "featureMentorDesc": "Questions about your degree? The King answers from your data — and you can even ask him to add a course or log a grade",
     "featurePersonalized": "Fits Your Year",
     "featurePersonalizedDesc": "Your plan updates based on your year, semester, and focus area",
     "featureCommunity": "All Courses Built In",
@@ -845,7 +845,7 @@
     "coursesWithoutScheduleExplain": "Meeting times haven't been set yet, or these may be online courses. They're in your plan but won't appear on the timetable.",
     "dropHere": "Drop here",
     "noCoursesEmpty": "No courses",
-    "featureMentorByok": "Requires your own AI key (a free Gemini key works)",
+    "featureMentorByok": "Works instantly and free. Want a private quota? Add a free Gemini key in settings",
     "historyTitle": "Your history",
     "historyDesc": "Check the courses you've already completed. We've laid out the mandatory courses by semester for convenience — pick only the ones you finished and add grades (optional), so your dashboard shows the right credits and GPA.",
     "historySelectedCount": "{count, plural, one {1 completed course} other {# completed courses}}",

@@ -783,6 +783,7 @@ export function FloatingAssistant() {
         <button
           ref={fabRef}
           type="button"
+          data-tour="king"
           onClick={() => setOpen(true)}
           aria-label={isHe ? pg("פתח את המלך הפילוסוף", "פתחי את המלך הפילוסוף", "פתח/י את המלך הפילוסוף") : "Open the Philosopher King"}
           className={cn(
@@ -806,7 +807,10 @@ export function FloatingAssistant() {
               )}
             />
           )}
-          <span className="hidden text-sm font-semibold sm:inline">
+          {/* Label shows on EVERY width now (was sm:inline only) — the audience is
+              mobile, and an icon-only FAB is exactly why "15 minutes in and I never
+              met the King" (#13/#26). Naming him on the button introduces him. */}
+          <span className="text-sm font-semibold">
             {isReferent
               ? isHe ? "הרפרנט" : "The Referent"
               : isHe ? "המלך הפילוסוף" : "The Philosopher King"}
