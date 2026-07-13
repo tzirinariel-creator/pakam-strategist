@@ -18,6 +18,7 @@ import { calculateGrades } from "@/lib/grade-calculator";
 import { runRegulationEngine } from "@/lib/regulations/rule-engine";
 import { computeCreditExemption, deriveCurrentGroup, getCurrentAcademicYear } from "@/lib/miluim";
 import { buildExamPeriodBlock } from "@/lib/ai/exam-facts";
+import { getProgramById } from "@/lib/programs/registry";
 import { getAcademicNow, deriveYearOfStudy } from "@/lib/academic-calendar";
 
 // -------------------------------------------------------------------
@@ -37,6 +38,9 @@ export interface UserForContext {
   focusArea: string | null;
   currentYear: number;
   currentSemester: string;
+  /** Program membership — scopes the King's course list to this program's
+   *  disciplines so a PPE student is never offered another program's courses. */
+  programId?: string | null;
   /** The degree-start anchor — lets the context derive standing from the
    *  calendar (A4), matching the dashboard. Optional for back-compat. */
   startYear?: number | null;
@@ -221,8 +225,21 @@ export async function buildUserContext(
     user.currentSemester,
   );
 
+  // Scope the King's course list to the student's PROGRAM. `Course` has no
+  // programId column — the only program signal is the discipline string — so a
+  // PPE student must never be offered another program's courses (a real bug: the
+  // King was listing TAU law-school courses to a PPE first-year, QA 13.7). Filter
+  // to the program's disciplines. (Rows whose discipline is the shared "GENERAL"
+  // still need the DB-level cleanup of the foreign 0910-xxxx set.)
+  const program = getProgramById(user.programId ?? null);
+  const programDisciplines = program.disciplines.map((d) => d.id);
+
   const allCourses = await db.course.findMany({
-    where: { semesterOffered: { has: nextSemesterInfo.semester }, isActive: true },
+    where: {
+      semesterOffered: { has: nextSemesterInfo.semester },
+      isActive: true,
+      discipline: { in: programDisciplines },
+    },
     select: {
       code: true,
       nameHe: true,
@@ -232,6 +249,10 @@ export async function buildUserContext(
       difficultyLevel: true,
       failRate: true,
       prerequisites: true,
+      // So the King can lead with "what's mandatory this semester" instead of
+      // dumping the whole catalog (#14).
+      courseType: true,
+      isMandatory: true,
     },
   });
 
@@ -249,6 +270,7 @@ export async function buildUserContext(
       averageGrade: course.averageGrade,
       difficultyLevel: course.difficultyLevel,
       failRate: course.failRate,
+      isMandatory: course.courseType === "MANDATORY" || course.isMandatory === true,
     }));
 
   return {

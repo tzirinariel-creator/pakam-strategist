@@ -272,14 +272,18 @@ export function StepReady({ data, plannedSemesters, completedCourses, allCourses
       }
 
       setSaveStage(3);
-      // 3. Invalidate caches (fire-and-forget, don't block on refetch)
-      utils.plan.getUserPlan.invalidate();
+      // 3. Invalidate the NON-gating caches only. Do NOT touch getUserPlan here:
+      // DashboardContent gates the whole onboarding wizard — including THIS finale
+      // — on getUserPlan's result (hasPlanData). Invalidating/refetching it mid-
+      // finale flips hasPlanData→true and unmounts the wizard (and the just-painted
+      // celebration) within ~1s — exactly the "finale flashed by / passed in a
+      // second" bug (QA 13.7). The finale's CTA navigates to
+      // /dashboard?from=onboarding, where PostOnboardingTransition refetches the
+      // plan deliberately, so it still loads — just not while the user is reading
+      // the celebration.
       utils.plan.getCredits.invalidate();
       utils.plan.getGraduationScore.invalidate();
       utils.user.getProfile.invalidate();
-      // Fire-and-forget refetch — the dashboard refetches on its own anyway;
-      // blocking here just made the "רגע אחרון" stage feel stuck (#17).
-      void utils.plan.getUserPlan.refetch().catch(() => {});
 
       setHasSaved(true);
 

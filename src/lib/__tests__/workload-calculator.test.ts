@@ -52,7 +52,7 @@ describe("calculateHonestLoad", () => {
       { credits: 3, examDate: new Date("2026-02-01T09:00:00") },
       { credits: 3, examDate: new Date("2026-02-10T09:00:00") }, // 9 days after first
       { credits: 3, examDate: new Date("2026-02-12T09:00:00") }, // 2 days after second
-    ]);
+    ], new Date("2026-01-01").getTime()); // anchor "now" so the exams are future
     expect(r.tightestExamGapDays).toBe(2);
     expect(r.label).toBe("examCrunch");
   });
@@ -61,7 +61,7 @@ describe("calculateHonestLoad", () => {
     const r = calculateHonestLoad([
       { credits: 3, examDate: "2026-02-01" },
       { credits: 3, examDate: "2026-02-03" },
-    ]);
+    ], new Date("2026-01-01").getTime());
     expect(r.tightestExamGapDays).toBe(2);
     expect(r.label).toBe("examCrunch");
   });
@@ -94,7 +94,7 @@ describe("calculateHonestLoad", () => {
         examDate: "2026-02-01",
       },
       { credits: 5, examDate: "2026-02-02" }, // 1-day gap
-    ]);
+    ], new Date("2026-01-01").getTime());
     expect(r.label).toBe("examCrunch");
   });
 });
@@ -104,7 +104,22 @@ describe("calculateHonestLoad", () => {
     const r = calculateHonestLoad([
       { credits: 4, examDate: "2026-07-20" },
       { credits: 4, examDate: "2026-07-20" },
-    ]);
+    ], new Date("2026-07-01").getTime());
     expect(r.tightestExamGapDays).toBe(0);
     expect(r.label).toBe("examCrunch"); // 0 ≤ 3 — the sharpest real pain
+  });
+
+  // QA 13.7 — stale PAST exam dates (a FALL plan viewed in July inherits the
+  // last-scraped SPRING dates) must NOT read as a 0-day crunch; the gap is unknown.
+  it("ignores past exam dates → gap is unknown (null), not a false 0-day crunch", () => {
+    const now = new Date("2026-07-13").getTime();
+    const r = calculateHonestLoad(
+      [
+        { credits: 4, examDate: "2026-07-11" }, // past, same day
+        { credits: 4, examDate: "2026-07-11" }, // past, same day
+      ],
+      now,
+    );
+    expect(r.tightestExamGapDays).toBeNull();
+    expect(r.label).not.toBe("examCrunch");
   });

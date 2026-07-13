@@ -74,6 +74,8 @@ export interface CourseInfo {
   difficultyLevel?: string | null;
   /** Fail rate as percentage (0-100). */
   failRate?: number | null;
+  /** Mandatory this semester — so the King can lead with the required courses. */
+  isMandatory?: boolean;
 }
 
 export interface RegulationIssue {
@@ -148,7 +150,8 @@ function formatCourseList(courses: CourseInfo[], includeGrade: boolean): string 
         diffTag = ` | ${parts.join(", ")}`;
       }
 
-      return `  • ${c.nameHe} (${c.code}) | ${disc} | ${c.credits} ש״ס${diffTag}${grade}`;
+      const mand = c.isMandatory ? " [חובה]" : "";
+      return `  • ${c.nameHe} (${c.code})${mand} | ${disc} | ${c.credits} ש״ס${diffTag}${grade}`;
     })
     .join("\n");
 }
@@ -258,7 +261,13 @@ export function buildMentorSystemPrompt(
 
   const completedBlock = formatCourseList(context.completedCourses, true);
   const currentBlock = formatCourseList(context.currentCourses, false);
-  const availableBlock = formatCourseList(context.availableNextSemester, false);
+  // Hand the King ALL mandatory courses + only a capped set of electives — never
+  // the whole ~60-course catalog. The raw dump both read as an unhelpful wall AND
+  // tripped Gemini's RECITATION filter (→ the "crash") when the model echoed it
+  // (#14 / QA 13.7).
+  const availMandatory = context.availableNextSemester.filter((c) => c.isMandatory);
+  const availElectives = context.availableNextSemester.filter((c) => !c.isMandatory).slice(0, 12);
+  const availableBlock = formatCourseList([...availMandatory, ...availElectives], false);
 
   // Build discipline names list for the prompt
   const disciplineNames = program.disciplines
@@ -341,8 +350,11 @@ ${regulationBlock}
 
 ## כללי עבודה
 1. אם הסטודנט שואל שאלה על תקנות — בדוק את המידע הרגולטורי למעלה קודם.
-2. אם הסטודנט שואל "מה לקחת" או "מה כדאי לי" — תייחס לרשימת הקורסים הזמינים למעלה.
-   תן המלצות ספציפיות: שם קורס, קוד, ש״ס, דיסציפלינה, ולמה זה מתאים.
+2. **"מה לקחת" / "תבנה לי סמסטר" / "איזה קורסים":** אל תשפוך את הרשימה — ענה כמו יועץ אמיתי:
+   (א) התחל מקורסי ה**חובה** של הסמסטר (מסומנים [חובה] למעלה) — הם קודם, כי אין עליהם ברירה.
+   (ב) הצע **3-4 קורסי בחירה מתאימים בלבד** (לפי דיסציפלינה שחסרה לו, העומס, וההעדפה שאמר) — עם שם, קוד, ש״ס וסיבה קצרה לכל אחד.
+   (ג) הזמן אותו לפעולה: "רוצה שאוסיף? כתוב לי 'תוסיף לי [שם הקורס]' ואני אבצע." (זה מפעיל כרטיס-אישור שמוסיף אותו באמת.)
+   לעולם אל תמנה יותר מ-6-8 קורסים בתשובה אחת, ולעולם אל תדביק את הקטלוג המלא כרשימה ארוכה.
 3. אם הסטודנט שואל שאלה כללית על ${program.nameHe} (מה התוכנית, מבנה, וכו') — ענה בקצרה ובדיוק.
 4. אם הסטודנט שואל שאלה שלא קשורה ל${program.nameHe} — אמור לו בנימוס שאתה מתמחה ב${program.nameHe} בלבד.
 5. אל תמציא קורסים, תקנות, או מספרים. אם אתה לא בטוח — אמור שאתה לא בטוח.

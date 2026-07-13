@@ -58,6 +58,7 @@ function sessionHours(s: HonestLoadSession): number {
  */
 export function calculateHonestLoad(
   courses: HonestLoadCourse[],
+  now: number = Date.now(),
 ): HonestLoadResult {
   const credits = courses.reduce((sum, c) => sum + (c.credits || 0), 0);
 
@@ -69,7 +70,13 @@ export function calculateHonestLoad(
   }
   weeklyHours = Math.round(weeklyHours * 2) / 2;
 
-  // Exam density — tightest gap between two KNOWN exam dates.
+  // Exam density — tightest gap between two KNOWN, FUTURE exam dates. Only future
+  // dates count: Course.examDate is a single global field the sync overwrites with
+  // the LAST-scraped period, so in July a FALL plan carries stale (now-past) SPRING
+  // dates. Without this filter, two stale dates on the same day rounded to a false
+  // "0-day exam crunch" for a plan whose real exams are months away / unpublished
+  // (QA 13.7). Fewer than 2 future dates → gap is unknown (null), never 0.
+  const nowMs = now;
   const examTimes = courses
     .map((c) => {
       if (!c.examDate) return null;
@@ -77,7 +84,7 @@ export function calculateHonestLoad(
       const t = d.getTime();
       return Number.isFinite(t) ? t : null;
     })
-    .filter((t): t is number => t != null)
+    .filter((t): t is number => t != null && t >= nowMs)
     .sort((a, b) => a - b);
 
   let tightestExamGapDays: number | null = null;
