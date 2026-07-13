@@ -88,7 +88,11 @@ export function StepReady({ data, plannedSemesters, completedCourses, allCourses
   const creditsByCode = new Map(allCourses.map((c) => [c.code, c.credits]));
   const completedCount = completedCourses?.length ?? 0;
   const completedCredits = (completedCourses ?? []).reduce(
-    (sum, c) => sum + (creditsByCode.get(c.courseCode) ?? 0),
+    // A CUSTOM completed course (דוגרי #10, code "CUSTOM-…") isn't in the PPE
+    // catalog, so fall back to its own credits — the SAME value addScannedCourse
+    // persists (c.credits ?? 2). Without this the summary undercounted vs the
+    // dashboard one screen later (QA 13.7).
+    (sum, c) => sum + (creditsByCode.get(c.courseCode) ?? c.credits ?? 2),
     0
   );
   const combinedCredits = totalCredits + completedCredits;

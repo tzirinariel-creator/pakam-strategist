@@ -116,7 +116,10 @@ export async function POST(request: NextRequest) {
       console.error("[scan-3010] provider 404 (model retired?):", e);
       return NextResponse.json({ error: errs.unavailable }, { status: 503 });
     }
+    // A genuinely unreadable form is already answered above (422, line ~105).
+    // An UNEXPECTED error here is a server/provider/network failure — don't blame
+    // the student's photo ("take a sharper photo") for our outage (#12).
     console.error("[scan-3010] failed:", e);
-    return NextResponse.json({ error: errs.unreadable }, { status: 500 });
+    return NextResponse.json({ error: errs.unavailable }, { status: 503 });
   }
 }

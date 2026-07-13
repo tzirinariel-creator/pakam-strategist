@@ -122,20 +122,46 @@ export function planFromStudyTasks(
     hoursByCourse.set(s.courseCode, (hoursByCourse.get(s.courseCode) ?? 0) + s.hours);
   }
 
-  const exams = examTasks.map((t) => ({
-    courseCode: t.courseCode ?? "",
-    courseName: cleanCourseName(t, codeToName),
-    examDate: new Date(t.startDate),
-    // Anchor to the "(מועד ב׳)" suffix — a course whose NAME contains "ב׳"
-    // must not be misread as Moed B.
-    moed: (/\(מועד\s*ב׳\)/.test(t.title) ? "B" : "A") as "A" | "B",
-    difficulty: diffFromNotes(t.notes),
-    // Prefer the persisted budget so the shortfall/overload recs and the skyline
-    // legend stay honest on the saved plan; fall back to placed hours for plans
-    // saved before budget was persisted.
-    totalHours: budgetFromNotes(t.notes) ?? hoursByCourse.get(t.courseCode ?? "") ?? 2.5,
-    color: t.color ?? "#6366f1",
-  }));
+  // Study hours already ELAPSED per course (past sessions, which are dropped
+  // from the future-only `sessions` above). The persisted `budget=N` is the FULL
+  // target, but the sessions we keep are future-only — so we bill the budget
+  // down by what's already behind us. Otherwise, as the exam period progresses,
+  // elapsed sessions read as hours that "didn't fit the board": the skyline
+  // painted a false red overload tile and fired a bogus shortfall warning on a
+  // plan that was actually on track (QA 13.7). It also realigns the legend's
+  // per-course hours with the FUTURE bars the student actually sees.
+  const elapsedByCourse = new Map<string, number>();
+  for (const t of tasks) {
+    if (t.taskType !== "study") continue;
+    if (dayMs(new Date(t.startDate)) >= todayMs) continue; // future counted above
+    const m = t.notes?.match(/([\d.]+)h/);
+    const h = m ? Number(m[1]) : NaN;
+    const code = t.courseCode ?? "";
+    elapsedByCourse.set(code, (elapsedByCourse.get(code) ?? 0) + (Number.isFinite(h) && h > 0 ? h : 2.5));
+  }
+
+  const exams = examTasks.map((t) => {
+    const code = t.courseCode ?? "";
+    const budget = budgetFromNotes(t.notes);
+    return {
+      courseCode: code,
+      courseName: cleanCourseName(t, codeToName),
+      examDate: new Date(t.startDate),
+      // Anchor to the "(מועד ב׳)" suffix — a course whose NAME contains "ב׳"
+      // must not be misread as Moed B.
+      moed: (/\(מועד\s*ב׳\)/.test(t.title) ? "B" : "A") as "A" | "B",
+      difficulty: diffFromNotes(t.notes),
+      // Prefer the persisted budget (billed down by elapsed hours) so the
+      // shortfall/overload recs and the skyline legend stay honest on the saved
+      // plan as time passes; fall back to placed hours for plans saved before
+      // budget was persisted (those already reflect future-only hours).
+      totalHours:
+        budget != null
+          ? Math.max(0, budget - (elapsedByCourse.get(code) ?? 0))
+          : (hoursByCourse.get(code) ?? 2.5),
+      color: t.color ?? "#6366f1",
+    };
+  });
 
   return { sessions, exams };
 }

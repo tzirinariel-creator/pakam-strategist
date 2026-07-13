@@ -346,12 +346,19 @@ function CommunityKnowledge({
       {/* Block 1 — what students say */}
       {ratings?.revealed ? (
         <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5 text-xs text-foreground/70">
-          <span className="inline-flex items-center gap-1.5">
-            {isHe ? "עומס" : "Workload"} <Dots value={ratings.workloadAvg} />
-          </span>
-          <span className="inline-flex items-center gap-1.5">
-            {isHe ? "קושי" : "Difficulty"} <Dots value={ratings.difficultyAvg} />
-          </span>
+          {/* Only render a dots row when there's actually an average — null maps
+              to 0 filled dots, which reads as "lightest/easiest workload" instead
+              of "no data" (QA 13.7). CohortCourseChip already guards this. */}
+          {ratings.workloadAvg != null && (
+            <span className="inline-flex items-center gap-1.5">
+              {isHe ? "עומס" : "Workload"} <Dots value={ratings.workloadAvg} />
+            </span>
+          )}
+          {ratings.difficultyAvg != null && (
+            <span className="inline-flex items-center gap-1.5">
+              {isHe ? "קושי" : "Difficulty"} <Dots value={ratings.difficultyAvg} />
+            </span>
+          )}
           {ratings.recommendShare != null && (
             <span className="font-medium text-foreground/80">
               <Bidi text={`${Math.round(ratings.recommendShare * 100)}%`} /> {isHe ? "ממליצים" : "recommend"}

@@ -54,22 +54,37 @@ export function StepProfile({ data, onUpdate }: StepProfileProps) {
   // #7 — derive the semester once and write it into the wizard state; the UI
   // states the fact instead of asking. SUMMER folds onto SPRING (no teaching).
   const acadNow = getAcademicNow();
-  const derivedSemester: "FALL" | "SPRING" = acadNow.semester === "SPRING" ? "SPRING" : "FALL";
+  // The academic-calendar semester describes where the YEAR is right now — it
+  // drives the status line below (accurate for everyone, regardless of year).
+  const calendarSemester: "FALL" | "SPRING" = acadNow.semester === "SPRING" ? "SPRING" : "FALL";
+  // The student's PLANNING semester. A first-year's first semester is the FALL
+  // intake regardless of where the calendar sits now — so a fresh year-1
+  // registration in the spring/summer window (e.g. July) still skips the history
+  // step and plans FALL, instead of being placed in SPRING with year-1-FALL
+  // courses pre-checked as "completed" (a click-through would otherwise inflate a
+  // brand-new account's degree progress — QA 13.7). Year 2+ follows the live
+  // calendar (#7). This restores getDefaultSemester(1)="FALL"'s intent, which the
+  // blanket calendar override was silently nullifying during spring/summer.
+  const derivedSemester: "FALL" | "SPRING" = data.year <= 1 ? "FALL" : calendarSemester;
   useEffect(() => {
     if (data.semester !== derivedSemester) onUpdate({ semester: derivedSemester });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [derivedSemester]);
-  const semLabelHe = derivedSemester === "FALL" ? "סמסטר א׳" : "סמסטר ב׳";
+  const semLabelHe = calendarSemester === "FALL" ? "סמסטר א׳" : "סמסטר ב׳";
   const acadStatusLine =
     acadNow.phase === "teaching"
       ? `אנחנו עכשיו ב${semLabelHe} — באמצע תקופת הלימודים.`
       : acadNow.phase === "exams"
         ? `${semLabelHe} הסתיים — אנחנו בתקופת המבחנים שלו.`
         : `${semLabelHe} הסתיים — אנחנו בחופשת הסמסטר.`;
+  // A first-year student skips the history step (nothing to mark), so the
+  // "we'll mark what you've already done" copy would be misleading for them.
   const acadNextLine =
-    acadNow.phase === "teaching"
-      ? "נסמן יחד מה כבר עברתם, ונבנה את המערכת של הסמסטר הזה."
-      : "נסמן יחד מה כבר עברתם (כולל הסמסטר שנגמר), ואז אפשר יהיה לתכנן קדימה.";
+    data.year <= 1
+      ? "נבנה יחד את מערכת הלימודים של הסמסטר הראשון שלכם."
+      : acadNow.phase === "teaching"
+        ? "נסמן יחד מה כבר עברתם, ונבנה את המערכת של הסמסטר הזה."
+        : "נסמן יחד מה כבר עברתם (כולל הסמסטר שנגמר), ואז אפשר יהיה לתכנן קדימה.";
   const [showMiluimDetails, setShowMiluimDetails] = useState(hasGroup);
   // Common-path question state.
   const [served, setServed] = useState<boolean | null>(hasGroup ? true : null);
@@ -693,8 +708,23 @@ export function StepProfile({ data, onUpdate }: StepProfileProps) {
               max={150}
               value={data.amirantScore ?? ""}
               onChange={(e) => {
+                // Store what they type as-is (so "134" can be typed digit by
+                // digit); NaN → null. The 50–150 clamp happens on blur so a
+                // partial "1" isn't yanked to 50 mid-typing.
                 const val = e.target.value;
-                onUpdate({ amirantScore: val === "" ? null : parseInt(val, 10) });
+                if (val === "") return onUpdate({ amirantScore: null });
+                const n = parseInt(val, 10);
+                onUpdate({ amirantScore: Number.isNaN(n) ? null : n });
+              }}
+              onBlur={(e) => {
+                // Normalize to the valid 50–150 range so an out-of-range value
+                // or typo (200, 1340, 40) can never reach updateProfile and fail
+                // the ENTIRE onboarding save with a generic error (QA 13.7). The
+                // clamp is visible, so the student sees the corrected number.
+                const val = e.target.value;
+                if (val === "") return;
+                const n = parseInt(val, 10);
+                onUpdate({ amirantScore: Number.isNaN(n) ? null : Math.min(150, Math.max(50, n)) });
               }}
               placeholder={isHe ? "למשל: 134" : "e.g. 134"}
               className="w-32 rounded-xl border-2 border-border bg-card px-4 py-2.5 text-sm text-foreground placeholder:text-foreground/30 focus:border-foreground/30 focus:outline-none transition-colors"

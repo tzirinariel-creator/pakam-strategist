@@ -97,6 +97,30 @@ describe("planFromStudyTasks — round-trip with the persist shape", () => {
   });
 });
 
+describe("shortfall stays horizon-consistent as sessions elapse (QA 13.7)", () => {
+  // One hard exam far enough out that the default capacity comfortably fits it.
+  const one: ExamInput[] = [
+    { courseCode: "A1", courseName: "מיקרו", examDate: "2026-06-20T00:00:00", credits: 5, averageGrade: 62, failRate: 0.25, moed: "A" },
+  ];
+  const MID = new Date("2026-06-14T00:00:00"); // ~half the June 1→20 window is behind us
+
+  it("an on-track plan does NOT false-fire once part of it is behind us", () => {
+    const built = generateExamPlan(one, NOW); // generous default capacity → everything fit
+    expect(analyzeExamPeriod(built, true, NOW).some((r) => r.kind === "capacity")).toBe(false);
+    // Reconstruct mid-period: elapsed sessions are gone but the budget is billed
+    // down to match, so no phantom "hours didn't fit" alert on a healthy plan.
+    const back = planFromStudyTasks(persistShape(built), new Map(), MID);
+    expect(analyzeExamPeriod(back, true, MID).some((r) => r.kind === "capacity")).toBe(false);
+  });
+
+  it("a genuinely tight plan STILL fires after elapse (the fix didn't just mute it)", () => {
+    const tight = generateExamPlan(one, NOW, [], "steady", { weekdayHours: [0.5, 0.5, 0.5, 0.5, 0.5, 0, 0] });
+    expect(analyzeExamPeriod(tight, true, NOW).some((r) => r.kind === "capacity")).toBe(true);
+    const back = planFromStudyTasks(persistShape(tight), new Map(), MID);
+    expect(analyzeExamPeriod(back, true, MID).some((r) => r.kind === "capacity")).toBe(true);
+  });
+});
+
 describe("survivesRetune + buildPrePlaced (Phase 5)", () => {
   it("survivesRetune: auto is wiped, locked/manual are kept", () => {
     expect(survivesRetune("[auto] 2.5h")).toBe(false);

@@ -891,7 +891,11 @@ export function DashboardContent() {
           {googleStatus.data && !googleStatus.data.connected && (
             <Link
               href="/settings"
-              className="hidden shrink-0 items-center gap-1.5 rounded-lg bg-emerald-500/10 px-3 py-1.5 text-xs font-semibold text-emerald-500 transition-colors hover:bg-emerald-500/20 sm:inline-flex"
+              // Was hidden on mobile (hidden … sm:inline-flex) — but the MAJORITY
+              // of students are on their phone at the exact moment a timetable is
+              // saved, which is when calendar-sync matters most (#30). Show it on
+              // every width.
+              className="inline-flex shrink-0 items-center gap-1.5 rounded-lg bg-emerald-500/10 px-3 py-1.5 text-xs font-semibold text-emerald-500 transition-colors hover:bg-emerald-500/20"
             >
               <Calendar className="size-3.5" />
               {isHe ? "המערכת סגורה? סנכרנו ליומן Google" : "Timetable locked? Sync to Google Calendar"}

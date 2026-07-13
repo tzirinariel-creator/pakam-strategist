@@ -152,17 +152,27 @@ export function SemesterPlannerPage() {
     // Build courseId → code map for looking up session group selections
     const courseCodeById = new Map(allCourses.map((c) => [c.id, c.code]));
 
-    // Convert to the format savePlan expects, including selectedGroups
+    // Convert to the format savePlan expects, including selectedGroups.
+    // A client-only custom course carries a fake id ("custom-<uuid>") that isn't
+    // a catalog UUID; savePlan validates every courseId with z.string().uuid()
+    // and rejects the WHOLE save if any is invalid — so we drop non-catalog ids
+    // here (exactly like the onboarding save, step-ready.tsx) instead of losing
+    // every planned edit to a generic "save failed" (#18).
+    let droppedCustomCourse = false;
     const courses = plannedSemesters.flatMap((sem) =>
-      sem.courseIds.map((courseId) => {
+      sem.courseIds.flatMap((courseId) => {
+        if (!courseCodeById.has(courseId)) {
+          droppedCustomCourse = true;
+          return [];
+        }
         const code = courseCodeById.get(courseId);
         const groups = code ? sessionGroupSelections[code] : undefined;
-        return {
+        return [{
           courseId,
           plannedYear: sem.year,
           plannedSemester: sem.semester,
           ...(groups && Object.keys(groups).length > 0 ? { selectedGroups: groups } : {}),
-        };
+        }];
       })
     );
 
@@ -199,6 +209,11 @@ export function SemesterPlannerPage() {
       // the disconnect (מסלול E). The dashboard shows the same unmissable green
       // banner from ?saved=1 (the transient toast alone was easy to miss in the
       // navigation transition over the slow prod DB — the core of #18).
+      if (droppedCustomCourse) {
+        toast(isHe
+          ? "קורס שאינו בקטלוג לא נשמר בתוכנית — אפשר להוסיף אותו בתיק האקדמי אחרי שתסיימו אותו."
+          : "A course outside the catalog wasn't saved to the plan — add it in your record once completed.");
+      }
       toast.success(t("planSaved"));
       router.push("/dashboard?saved=1");
     } catch {

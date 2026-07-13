@@ -1,19 +1,7 @@
 import { Suspense } from "react";
 import { setRequestLocale } from "next-intl/server";
 import { DashboardContent } from "./dashboard-content";
-
-function DashboardFallback() {
-  return (
-    <div className="flex min-h-[60vh] items-center justify-center">
-      <div className="flex flex-col items-center gap-4">
-        <div className="h-16 w-16 animate-spin rounded-full border-4 border-foreground/10 border-t-foreground/50" />
-        <p className="text-sm text-foreground/40 animate-pulse">
-          {/* Fallback shown before hydration — locale not available in Suspense fallback */}
-        </p>
-      </div>
-    </div>
-  );
-}
+import { ThemedLoader } from "@/components/ui/themed-loader";
 
 export default async function DashboardPage({
   params,
@@ -23,8 +11,13 @@ export default async function DashboardPage({
   const { locale } = await params;
   setRequestLocale(locale);
 
+  // The dashboard is the FIRST screen a brand-new account lands on, so its
+  // loading state must be the branded crown loader (with a real reassuring
+  // caption) — not a bare grey spinner with an empty label, which read as "a
+  // colour square on white" (#6/#9). The locale provider sits above this
+  // boundary, so ThemedLoader's useLocale() resolves correctly here.
   return (
-    <Suspense fallback={<DashboardFallback />}>
+    <Suspense fallback={<ThemedLoader variant="page" className="min-h-[60vh]" />}>
       <DashboardContent />
     </Suspense>
   );

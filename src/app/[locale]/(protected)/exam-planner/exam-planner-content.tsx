@@ -401,7 +401,18 @@ export function ExamPlannerContent() {
     const d = new Date(addDate);
     const end = new Date(d);
     end.setHours(23, 59, 0, 0);
-    createMutation.mutate({ title: addTitle.trim(), startDate: d, endDate: end, taskType: addType });
+    // A "study" block must carry its hours in notes ("2.5h") like the per-day
+    // quick-add does — otherwise the skyline counts it as 2.5h (its missing-hours
+    // default) while the weekly grid and agenda count it as 0, so the same day
+    // shows three different totals and the 2.5h is an unsourced invented number
+    // (QA 13.7). Assignment/custom carry no hours, so no notes.
+    createMutation.mutate({
+      title: addTitle.trim(),
+      startDate: d,
+      endDate: end,
+      taskType: addType,
+      notes: addType === "study" ? "2.5h" : undefined,
+    });
     setAddTitle("");
     setAddDate("");
   };

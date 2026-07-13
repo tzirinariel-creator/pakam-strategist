@@ -405,7 +405,10 @@ function CourseRow({
             {courseName}
           </span>
           <div className="flex flex-wrap items-center gap-1.5">
-            <span dir="ltr" className="font-mono text-[10px] text-foreground/40">{course.code}</span>
+            {/* <bdi> (not dir="ltr") so a custom code containing Hebrew (e.g.
+                CUSTOM-דוגרי) isolates without garbling — a numeric catalog code
+                still renders LTR correctly (#18, RTL iron rule). */}
+            <bdi className="font-mono text-[10px] text-foreground/40">{course.code}</bdi>
             {isElective && (
               <span className="rounded-full bg-foreground/8 px-1.5 py-0.5 text-[11px] font-medium text-foreground/50">
                 {t("electiveBadge")}

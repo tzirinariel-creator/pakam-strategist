@@ -13,7 +13,7 @@ import type { UserCourseWithCourse } from "@/types/degree";
 import type { Semester } from "@/types/enums";
 import type { PrismaClient, MiluimGroup } from "@prisma/client";
 import { calculateCredits } from "@/lib/credit-calculator";
-import { firstNameOf } from "@/lib/personal-address";
+import { greetNameForLocale } from "@/lib/personal-address";
 import { calculateGrades } from "@/lib/grade-calculator";
 import { runRegulationEngine } from "@/lib/regulations/rule-engine";
 import { computeCreditExemption, deriveCurrentGroup, getCurrentAcademicYear } from "@/lib/miluim";
@@ -252,7 +252,11 @@ export async function buildUserContext(
     }));
 
   return {
-    firstName: firstNameOf(user),
+    // The mentor prompt is Hebrew, so guard the greeting name by script: a
+    // Google-auth user whose only name is a Latin displayName ("Ariel") returns
+    // null → the King uses a generic greeting instead of jamming "Ariel" into
+    // Hebrew (#8). A real Hebrew name ("אריאל") passes through.
+    firstName: greetNameForLocale(user, true),
     gender: user.gender === "male" || user.gender === "female" ? user.gender : null,
     focusArea: user.focusArea as MentorContext["focusArea"],
     // effectiveTotal (credits + miluim exemption) — the same figure the "My

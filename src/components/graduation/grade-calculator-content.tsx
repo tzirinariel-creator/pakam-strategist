@@ -239,6 +239,13 @@ function ReverseCalculator({
 
   const result = useMemo(() => {
     const completed = canonicalAttempts(allCourses.filter(countsTowardAverage));
+    // A course already counted as completed (canonicalAttempts keeps a passed
+    // course that's being retaken as EARNED, #audit-r6) must not also appear in
+    // `remaining` — else its credits land in BOTH completedCredits and
+    // remainingCredits, double-counting it in totalCredits and skewing the
+    // needed-average (a borderline target could flip to a false "impossible")
+    // (QA 13.7). This also keeps the reverse calc consistent with the dashboard.
+    const completedCodes = new Set(completed.map((c) => c.course.code));
     // Remaining courses must share the SAME population as `completed`: only those
     // whose TYPE counts toward the average (not seminar/English/binary). Counting
     // planned non-average courses into the divisor produced a wrong "needed
@@ -246,7 +253,8 @@ function ReverseCalculator({
     const remaining = allCourses.filter(
       (c) =>
         (c.status === "PLANNED" || c.status === "IN_PROGRESS") &&
-        courseTypeCountsTowardAverage(c)
+        courseTypeCountsTowardAverage(c) &&
+        !completedCodes.has(c.course.code)
     );
 
     const completedCredits = completed.reduce(

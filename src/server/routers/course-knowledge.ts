@@ -130,8 +130,12 @@ export const courseKnowledgeRouter = createTRPCRouter({
           revealed: ratingRevealed,
           // null (not 0) when nobody supplied a numeric rating — 0 would render
           // as "lightest/easiest", the opposite of "no data" (#audit-r2).
-          workloadAvg: ratingRevealed && workloadVals.length ? round1(avg(workloadVals) as number) : null,
-          difficultyAvg: ratingRevealed && difficultyVals.length ? round1(avg(difficultyVals) as number) : null,
+          // Gate each average on ITS OWN contributor count >= RATING_MIN_N — not
+          // just the total row count — or a single person's 1-5 rating shows as
+          // the cohort aggregate under an N>=3 label (k-anon leak, QA 13.7).
+          // Mirrors the recommendShare guard below.
+          workloadAvg: ratingRevealed && workloadVals.length >= RATING_MIN_N ? round1(avg(workloadVals) as number) : null,
+          difficultyAvg: ratingRevealed && difficultyVals.length >= RATING_MIN_N ? round1(avg(difficultyVals) as number) : null,
           // Only reveal the recommend-share when ENOUGH people actually gave a
           // verdict — otherwise "100% ממליצים" could reflect a single opinion
           // while the N beside it counts workload/difficulty-only raters (#audit-r3).
@@ -227,8 +231,13 @@ export const courseKnowledgeRouter = createTRPCRouter({
       .filter(([, rows]) => rows.length >= RATING_MIN_N)
       .map(([code, rows]) => {
         const course = nameByCode.get(code);
-        const workload = avg(rows.map((r) => r.workload).filter((x): x is number => x != null));
-        const difficulty = avg(rows.map((r) => r.difficulty).filter((x): x is number => x != null));
+        // Gate each average on its OWN contributor count >= RATING_MIN_N (not the
+        // total row count), same as recommendShare below — else one person's 1-5
+        // rating leaks as a cohort aggregate under an N>=3 label (QA 13.7).
+        const workloadVals = rows.map((r) => r.workload).filter((x): x is number => x != null);
+        const difficultyVals = rows.map((r) => r.difficulty).filter((x): x is number => x != null);
+        const workload = workloadVals.length >= RATING_MIN_N ? avg(workloadVals) : null;
+        const difficulty = difficultyVals.length >= RATING_MIN_N ? avg(difficultyVals) : null;
         const verdicts = rows.map((r) => r.verdict).filter((v) => v != null);
         const recommendShare = verdicts.length >= RATING_MIN_N
           ? verdicts.filter((v) => v === "RECOMMEND").length / verdicts.length

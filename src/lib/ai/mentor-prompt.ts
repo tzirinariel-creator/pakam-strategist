@@ -248,8 +248,12 @@ export function buildMentorSystemPrompt(
       : context.gender === "male"
         ? "לשון זכר"
         : "לשון נייטרלית או רבים (המגדר לא ידוע — אל תנחש)";
+  // Belt-and-suspenders: this prompt is Hebrew, so only ever tell the King to use
+  // the name when it's actually Hebrew script — a Latin name that slips in must
+  // never be spoken inside Hebrew text (#8). context-builder already guards it.
+  const hebrewName = context.firstName && /[֐-׿]/.test(context.firstName) ? context.firstName : null;
   const personalAddress = `- **פנייה אישית:** ${
-    context.firstName ? `קרא/י לסטודנט/ית בשם ${context.firstName} מדי פעם (טבעי, לא בכל משפט), ` : ""
+    hebrewName ? `קרא/י לסטודנט/ית בשם ${hebrewName} מדי פעם (טבעי, לא בכל משפט), ` : ""
   }ופנה/י אליו/אליה ב${genderPhrase}.`;
 
   const completedBlock = formatCourseList(context.completedCourses, true);
