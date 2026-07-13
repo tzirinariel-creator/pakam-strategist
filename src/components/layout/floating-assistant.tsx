@@ -33,7 +33,7 @@ import { PhilosopherKingCharacter } from "@/components/ui/philosopher-king-chara
 import { ReferentCharacter } from "@/components/ui/referent-character";
 import { invalidatePlanData } from "@/lib/trpc/invalidate-plan";
 import { suggestedQuestions } from "@/lib/degree-qa";
-import { getAcademicNow } from "@/lib/academic-calendar";
+import { getPlanningAnchor } from "@/lib/academic-calendar";
 import { fileToBase64 } from "@/lib/upload";
 
 /** Minimal surface of the browser SpeechRecognition API we use. */
@@ -261,7 +261,10 @@ export function FloatingAssistant() {
           await addMutation.mutateAsync({
             courseId: action.courseId,
             plannedYear: ctx.currentYear,
-            plannedSemester: getAcademicNow().semester === "FALL" ? "FALL" : "SPRING",
+            // Stamp the PLANNING ANCHOR (→ FALL in July), not the wall-clock
+            // semester — otherwise a fresh year-1's added course lands in a spurious
+            // 1-SPRING bucket, which is what made the calendar open on ב׳ (QA 13.7).
+            plannedSemester: getPlanningAnchor().semester,
           });
         }
         invalidatePlanData(trpcUtils);

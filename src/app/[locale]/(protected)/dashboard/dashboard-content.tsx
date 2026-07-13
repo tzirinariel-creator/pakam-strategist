@@ -6,7 +6,7 @@ import { useLocale, useTranslations } from "next-intl";
 import { useSearchParams } from "next/navigation";
 import { Link, useRouter } from "@/i18n/navigation";
 import { consumeSharedPlanReturn } from "@/lib/plan-share";
-import { getAcademicNow, deriveYearOfStudy } from "@/lib/academic-calendar";
+import { getAcademicNow, deriveYearOfStudy, getPlanningAnchor } from "@/lib/academic-calendar";
 import { getBiddingTarget, isBiddingSeason } from "@/lib/bidding-target";
 import { getTimeFocus } from "@/lib/time-focus";
 import { TimeFocusHero } from "@/components/dashboard/time-focus-hero";
@@ -18,13 +18,17 @@ import { usePersonalAddress } from "@/components/personal/use-personal-address";
 import { TipCard } from "@/components/shared/tip-card";
 import { getContextualTips, getRandomTip } from "@/lib/tips-engine";
 import { DashboardSkeleton } from "@/components/dashboard/dashboard-skeleton";
+import { ThemedLoader } from "@/components/ui/themed-loader";
 import { Progress } from "@/components/ui/progress";
 import dynamic from "next/dynamic";
 // PERF1: the wizard (and its whole scanner/planner graph) loads only for the
 // one dashboard state that actually renders it — genuine new users.
 const OnboardingWizard = dynamic(
   () => import("@/components/onboarding/onboarding-wizard").then((m) => m.OnboardingWizard),
-  { ssr: false, loading: () => <DashboardSkeleton /> },
+  // A user about to ONBOARD should not see a dashboard-shaped skeleton while the
+  // wizard chunk downloads — that "loading a screen I'm not going to see" flash
+  // is part of the מבולגן feel (QA 13.7). Use the neutral branded loader instead.
+  { ssr: false, loading: () => <ThemedLoader variant="page" /> },
 );
 import { AnchoredTour, TourReopenButton, TOUR_DONE_KEY } from "@/components/onboarding/anchored-tour";
 import { cn } from "@/lib/utils";
@@ -578,6 +582,21 @@ export function DashboardContent() {
     profileQuery.data?.startYear,
     profileQuery.data?.currentYear ?? 1,
   );
+  // Plan-aware "active semester": the calendar semester IF the plan has courses
+  // there this year, else the semester the plan is actually about. A fresh year-1
+  // in July has a FALL plan while the calendar says SPRING — so the header must
+  // read "סמסטר א׳", not "ב׳" (QA 13.7). Falls back to the planning anchor when
+  // there's no plan yet.
+  const activeSemester: "FALL" | "SPRING" = (() => {
+    const calSem: "FALL" | "SPRING" = acadNow.semester === "FALL" ? "FALL" : "SPRING";
+    const cs = planQuery.data?.courses ?? [];
+    const inYear = (sem: "FALL" | "SPRING") =>
+      cs.some((c) => c.plannedYear === currentYear && c.plannedSemester === sem);
+    if (inYear(calSem)) return calSem;
+    if (inYear("FALL")) return "FALL";
+    if (inYear("SPRING")) return "SPRING";
+    return getPlanningAnchor().semester;
+  })();
 
   // How many planned courses the student is literally sitting in RIGHT NOW —
   // derived from the calendar (#4/#22), never stored. Powers the "בלימוד עכשיו"
@@ -938,7 +957,7 @@ export function DashboardContent() {
         {profileQuery.data && (
           <p className="mt-1 text-sm text-foreground/50">
             {isHe ? "פכ\"מ" : "PPE"} · {t("semesterContext", {
-              semester: acadNow.semester === "FALL" ? (isHe ? "א׳" : "A") : (isHe ? "ב׳" : "B"),
+              semester: activeSemester === "FALL" ? (isHe ? "א׳" : "A") : (isHe ? "ב׳" : "B"),
               year: currentYear,
             })}
           </p>

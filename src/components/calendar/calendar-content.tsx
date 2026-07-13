@@ -22,7 +22,7 @@ import { WeeklyTimetable } from "./weekly-timetable";
 import { ExamSchedule } from "@/components/exam/exam-schedule";
 import { downloadICSFromSessions } from "@/lib/ics-export";
 import { buildWeekShareText } from "@/lib/week-share";
-import { getAcademicNow, deriveYearOfStudy } from "@/lib/academic-calendar";
+import { getAcademicNow, deriveYearOfStudy, getPlanningAnchor } from "@/lib/academic-calendar";
 import type { Semester } from "@/types/enums";
 
 // ─── Types ───────────────────────────────────────────────────────────
@@ -98,8 +98,14 @@ export function CalendarContent() {
     if (!calendarProfile) return "";
     const acadNow = getAcademicNow();
     const year = deriveYearOfStudy(calendarProfile.startYear, calendarProfile.currentYear ?? 1);
-    const key = `${year}-${acadNow.semester}`;
-    return semesterOptions.some((o) => o.key === key) ? key : "";
+    // Open on the semester the student is actually working on: the PLANNING ANCHOR
+    // (→ FALL in July, the upcoming teaching semester) when the plan has it, else
+    // the live calendar semester — so a fresh year-1 opens on their FALL plan and
+    // not on a ב׳ bucket (QA 13.7).
+    const anchorKey = `${year}-${getPlanningAnchor().semester}`;
+    if (semesterOptions.some((o) => o.key === anchorKey)) return anchorKey;
+    const calKey = `${year}-${acadNow.semester}`;
+    return semesterOptions.some((o) => o.key === calKey) ? calKey : "";
   }, [calendarProfile, semesterOptions]);
 
   // Default: explicit selection → current semester → first available.

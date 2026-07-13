@@ -141,8 +141,11 @@ export async function* streamGemini(
   signal?: AbortSignal,
   /** Optional image attached to the CURRENT (last) user turn — "photo & ask". */
   image?: { base64: string; mimeType: string },
-  /** Out-param: set truncated=true when Gemini stopped on MAX_TOKENS (#36). */
-  state?: { truncated?: boolean },
+  /** Out-param: truncated=true on MAX_TOKENS (#36); blocked=true when Gemini
+   *  ends on a terminal reason with NO text (RECITATION/SAFETY/OTHER) — the
+   *  "crash" the King hit when it echoed a long course list (QA 13.7). The route
+   *  already surfaces the empty response as an error; this flag records why. */
+  state?: { truncated?: boolean; blocked?: boolean },
 ): AsyncGenerator<string> {
   const apiKey = decrypt(encryptedKey);
   if (!validateGeminiKey(apiKey)) {
@@ -197,6 +200,15 @@ export async function* streamGemini(
       const obj = JSON.parse(json) as GeminiStreamChunk;
       const cand = obj.candidates?.[0];
       if (cand?.finishReason === "MAX_TOKENS" && state) state.truncated = true;
+      else if (
+        cand?.finishReason &&
+        cand.finishReason !== "STOP" &&
+        cand.finishReason !== "MAX_TOKENS"
+      ) {
+        // RECITATION / SAFETY / OTHER — a terminal block with no usable text.
+        console.error("[gemini] terminal finishReason with no usable text:", cand.finishReason);
+        if (state) state.blocked = true;
+      }
       const parts = cand?.content?.parts;
       if (Array.isArray(parts)) {
         const text = parts.map((p) => p.text ?? "").join("");

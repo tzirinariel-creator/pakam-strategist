@@ -10,7 +10,7 @@ import { MILUIM_CONFIG, AMIRNET_CONFIG, ENGLISH_CONFIG, DISCIPLINE_CONFIG, FOCUS
 import { deriveGroupFromDays, type MiluimGroupKey } from "@/lib/miluim";
 import { Form3010Uploader } from "@/components/settings/settings-content";
 import { api } from "@/lib/trpc/react";
-import { getAcademicNow } from "@/lib/academic-calendar";
+import { getAcademicNow, getPlanningAnchor } from "@/lib/academic-calendar";
 import { getCurrentAcademicYear } from "@/lib/miluim";
 import type { OnboardingData } from "./onboarding-wizard";
 
@@ -65,7 +65,13 @@ export function StepProfile({ data, onUpdate }: StepProfileProps) {
   // brand-new account's degree progress — QA 13.7). Year 2+ follows the live
   // calendar (#7). This restores getDefaultSemester(1)="FALL"'s intent, which the
   // blanket calendar override was silently nullifying during spring/summer.
-  const derivedSemester: "FALL" | "SPRING" = data.year <= 1 ? "FALL" : calendarSemester;
+  // Year 1 → FALL (a fresh intake's first semester, regardless of the calendar).
+  // Year 2+ → the PLANNING ANCHOR (the upcoming teaching semester), NOT the raw
+  // calendar semester — in July that's the FALL that's about to start, not the
+  // SPRING that just ended, so a returning student isn't seated on a dead
+  // semester (QA 13.7). calendarSemester stays only for the descriptive status
+  // line below.
+  const derivedSemester: "FALL" | "SPRING" = data.year <= 1 ? "FALL" : getPlanningAnchor().semester;
   useEffect(() => {
     if (data.semester !== derivedSemester) onUpdate({ semester: derivedSemester });
     // eslint-disable-next-line react-hooks/exhaustive-deps
