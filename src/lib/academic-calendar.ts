@@ -32,6 +32,25 @@ export interface AcademicYearCalendar {
 
 export const TAU_CALENDARS: AcademicYearCalendar[] = [
   {
+    // תשפ"ד — the Iron-Swords WAR year: teaching started 31.12 (not October!)
+    // and ran into August. These irregular dates are exactly why guessing was
+    // forbidden — sourced from the official TAU calendar page
+    // (tau.ac.il/calendar/2023-2024, fetched 14.7.2026). Enables 3010 service-
+    // period mapping for year-3 students who served during תשפ"ד.
+    startYear: 2023,
+    labelHe: "תשפ״ד",
+    FALL: { teachingStart: d(2023, 12, 31), teachingEnd: d(2024, 3, 15), examStart: d(2024, 3, 25), examEnd: d(2024, 5, 24) },
+    SPRING: { teachingStart: d(2024, 5, 26), teachingEnd: d(2024, 8, 12), examStart: d(2024, 8, 14), examEnd: null },
+  },
+  {
+    // תשפ"ה — official TAU calendar (tau.ac.il/calendar_2024-2025, fetched
+    // 14.7.2026).
+    startYear: 2024,
+    labelHe: "תשפ״ה",
+    FALL: { teachingStart: d(2024, 11, 3), teachingEnd: d(2025, 2, 2), examStart: d(2025, 2, 3), examEnd: d(2025, 3, 16) },
+    SPRING: { teachingStart: d(2025, 3, 17), teachingEnd: d(2025, 7, 2), examStart: d(2025, 7, 6), examEnd: null },
+  },
+  {
     startYear: 2025,
     labelHe: "תשפ״ו",
     FALL: { teachingStart: d(2025, 10, 26), teachingEnd: d(2026, 1, 25), examStart: d(2026, 1, 28), examEnd: d(2026, 3, 13) },

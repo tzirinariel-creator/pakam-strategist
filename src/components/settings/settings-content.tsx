@@ -2049,8 +2049,8 @@ export function Form3010Uploader({
               </table>
               <p className="mt-1.5 text-[10px] leading-relaxed text-foreground/40">
                 {isHe
-                  ? "לא הצלחנו לשייך את התקופות האלה לסמסטר — לוחות-הזמנים שבאפליקציה מתחילים בתשפ״ו. אם שירתם בזמן הלימודים לפני כן, הזינו את הימים ידנית לסמסטר המתאים והם ייספרו. שירות שקדם לתואר לא מזכה בהטבות."
-                  : "We couldn't assign these periods to a semester — the app's calendars start at 2025-26. If you served during earlier study semesters, enter those days manually for the right semester and they'll count. Service from before the degree doesn't grant benefits."}
+                  ? "לא הצלחנו לשייך את התקופות האלה לסמסטר — לוחות-הזמנים שבאפליקציה מתחילים בתשפ״ד. אם שירתם בזמן הלימודים לפני כן, הזינו את הימים ידנית לסמסטר המתאים והם ייספרו. שירות שקדם לתואר לא מזכה בהטבות."
+                  : "We couldn't assign these periods to a semester — the app's calendars start at 2023-24. If you served during earlier study semesters, enter those days manually for the right semester and they'll count. Service from before the degree doesn't grant benefits."}
               </p>
             </details>
           )}

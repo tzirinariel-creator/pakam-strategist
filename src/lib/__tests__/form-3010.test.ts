@@ -61,12 +61,28 @@ describe("summarizeForm3010 — midpoint attribution, printed days only", () => 
 
   it("refuses to guess for periods outside the known TAU calendars", () => {
     const summary = summarizeForm3010({
-      periods: [{ startDate: "21/05/2024", endDate: "26/05/2024", days: 5 }],
+      periods: [{ startDate: "21/05/2022", endDate: "26/05/2022", days: 5 }],
       totalDays: null,
     });
-    // 2024 predates the known calendar table → unmapped, zero suggestions.
+    // 2022 predates the calendar table (which now starts at תשפ"ד) →
+    // unmapped, zero suggestions — still never guessing.
     expect(summary.suggestions).toHaveLength(0);
     expect(summary.unmapped).toHaveLength(1);
+  });
+
+  it("maps a תשפ\"ד war-year period with the OFFICIAL revised dates (14.7)", () => {
+    // May 2024 was תשפ"ד SPRING *teaching* under the revised calendar
+    // (teaching 26.5–12.8.24). A guessed normal calendar would have called
+    // this summer break — the exact reason the dates had to be sourced.
+    const summary = summarizeForm3010({
+      periods: [{ startDate: "01/06/2024", endDate: "10/06/2024", days: 10 }],
+      totalDays: null,
+    });
+    expect(summary.unmapped).toHaveLength(0);
+    expect(summary.suggestions).toHaveLength(1);
+    expect(summary.suggestions[0]!.academicYear).toBe(2023);
+    expect(summary.suggestions[0]!.semester).toBe("SPRING");
+    expect(summary.suggestions[0]!.days).toBe(10);
   });
 });
 

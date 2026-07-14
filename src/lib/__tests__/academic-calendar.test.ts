@@ -11,9 +11,27 @@ const at = (y: number, m: number, d: number) => new Date(y, m - 1, d, 12, 0, 0);
 
 describe("getAcademicNow — attribution + phase (dates verified vs tau.ac.il/calendar)", () => {
   it("before the first calendar → pinned to first FALL, stale", () => {
-    const a = getAcademicNow(at(2025, 10, 25));
+    // The table now starts at תשפ"ד (war year, teaching from 31.12.23 — the
+    // official revised calendar), so "before everything" means autumn 2023:
+    // the war-delay months with no teaching to attribute to.
+    const a = getAcademicNow(at(2023, 11, 15));
     expect(a.semester).toBe("FALL");
     expect(a.isStale).toBe(true);
+  });
+
+  it("25.10.25 — the day before תשפ\"ו fall — belongs to תשפ\"ה SPRING's tail, not limbo", () => {
+    const a = getAcademicNow(at(2025, 10, 25));
+    expect(a.startYear).toBe(2024);
+    expect(a.semester).toBe("SPRING");
+  });
+
+  it("war-year attribution: February 2024 is תשפ\"ד FALL *teaching* (the revised calendar)", () => {
+    // Under a guessed 'normal' calendar this date would read as exams/spring —
+    // the whole reason these dates had to come from the official source.
+    const a = getAcademicNow(at(2024, 2, 15));
+    expect(a.startYear).toBe(2023);
+    expect(a.semester).toBe("FALL");
+    expect(a.phase).toBe("teaching");
   });
 
   it("26.10.25 — first day of תשפ\"ו fall teaching", () => {
