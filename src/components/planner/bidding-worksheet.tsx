@@ -358,7 +358,7 @@ export function BiddingWorksheet({
               <li className="flex gap-1.5"><Check className="mt-0.5 size-3 shrink-0 text-foreground/35" />{isHe ? "שוויון בסף נשבר בהגרלה — מספר קצת לא-עגול (כמו 41) גובר על העגול שכולם בוחרים (40)." : "Ties at the cutoff go to a lottery — a slightly odd number (41) beats the round one everyone picks (40)."}</li>
               <li className="flex gap-1.5"><Check className="mt-0.5 size-3 shrink-0 text-foreground/35" />{isHe ? "ביטול בין המקצים מחזיר את הנקודות — מקצה 2 מתחיל מחדש עם כל המאגר." : "Cancelling between rounds refunds points — round 2 starts fresh with the full pool."}</li>
               <li className="flex gap-1.5"><Check className="mt-0.5 size-3 shrink-0 text-foreground/35" />{isHe ? "תעדפו את מה שחייבים ומהר-מתמלא; את הבטוחים אפשר להשאיר על המינימום." : "Prioritize must-haves and fast-fillers; safe picks can sit at the minimum."}</li>
-              <li className="flex gap-1.5"><Check className="mt-0.5 size-3 shrink-0 text-foreground/35" />{isHe ? "איננו יודעים את המכסה — הכלי רק בודק שהמספרים שלכם מסתדרים." : "We don't know the quota — this tool only checks your own numbers add up."}</li>
+              <li className="flex gap-1.5"><Check className="mt-0.5 size-3 shrink-0 text-foreground/35" />{isHe ? "אנחנו לא יודעים את המכסה — הכלי רק בודק שהמספרים שלכם מסתדרים." : "We don't know the quota — this tool only checks your own numbers add up."}</li>
             </ul>
           </div>
 

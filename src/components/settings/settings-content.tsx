@@ -1627,7 +1627,7 @@ export function MiluimSection() {
                         <bdi dir="ltr">{s.daysServed}</bdi> {isHe ? "ימים" : "days"}
                       </span>
                       {s.isCombat && (
-                        <span className="text-amber-500">{isHe ? "לוחם/ת" : "combat"}</span>
+                        <span className="text-amber-500">{isHe ? "תפקיד לחימה" : "combat"}</span>
                       )}
                       <span className="rounded-full bg-foreground/8 px-2 py-0.5 font-bold text-foreground/70">
                         {s.derivedGroup === "NONE"
@@ -1684,7 +1684,7 @@ export function MiluimSection() {
                 </SelectItem>
               ))}
               <SelectItem value="CAREER_SERVICE">
-                {isHe ? "משרת/ת קבע (בתוכנית שירות) — קבוצה C" : "Career service (service-track) — Group C"}
+                {isHe ? "שירות קבע (בתוכנית שירות) — קבוצה C" : "Career service (service-track) — Group C"}
               </SelectItem>
             </SelectContent>
           </Select>
@@ -1696,7 +1696,7 @@ export function MiluimSection() {
             deriveGroupFromDays(days ?? 0, combat) !== manualGroup && (
               <p className="mt-2 rounded-md border border-amber-500/25 bg-amber-500/5 px-3 py-2 text-[11px] leading-relaxed text-amber-600">
                 {isHe
-                  ? "שים לב: הזנת ימים לסמסטר הנוכחי — הם קובעים את הקבוצה לסמסטר זה ויגברו על הסיווג-הידני. הסיווג-הידני חל על סמסטרים שבהם לא הזנת ימים."
+                  ? "שימו לב: הזנתם ימים לסמסטר הנוכחי — הם קובעים את הקבוצה לסמסטר הזה וגוברים על הסיווג הידני. הסיווג הידני חל על סמסטרים בלי ימים."
                   : "Note: you entered days for the current semester — those set the group for this semester and override the manual classification. The manual classification applies to semesters with no days entered."}
               </p>
             )}

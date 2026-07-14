@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo, useRef, useEffect } from "react";
+import { useState, useRef, useEffect } from "react";
 import { Send, ArrowLeft, ArrowRight } from "lucide-react";
 import { PhilosopherKingIcon } from "@/components/ui/philosopher-king-icon";
 import { useLocale } from "next-intl";

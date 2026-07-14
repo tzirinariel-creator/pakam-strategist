@@ -154,7 +154,7 @@ export function BinaryAdvisor() {
               {convertMutation.isPending && confirmId === course.userCourseId ? (
                 <Loader2 className="size-3 animate-spin" />
               ) : confirmId === course.userCourseId ? (
-                isHe ? "בטוח? בלתי-הפיך" : "Sure? Irreversible"
+                isHe ? "ההמרה בלתי-הפיכה — להמשיך?" : "Irreversible — continue?"
               ) : (
                 isHe ? "המר לבינארי" : "Convert"
               )}

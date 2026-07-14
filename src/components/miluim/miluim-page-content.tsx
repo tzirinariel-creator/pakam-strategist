@@ -182,7 +182,7 @@ export function MiluimPageContent() {
                     {binaryExternal > 0 ? ` + ${binaryExternal} שדיווחתם שבוצעו מחוץ לאפליקציה` : ""}.
                     {" "}
                     <Link href="/record" className="text-accent-brand hover:underline">
-                      לסימון קורס בינארי →
+                      לסימון קורס בינארי ←
                     </Link>
                   </>
                 ) : (

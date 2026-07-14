@@ -84,7 +84,7 @@ export function MentorPageClient() {
           ) : (
             <ReferentIcon className="size-3.5 text-referent-teal" />
           )}
-          {isHe ? `העדפת ${otherName}? החליפו` : `Prefer ${otherName}? Switch`}
+          {isHe ? `מעדיפים את ${otherName}? החליפו` : `Prefer ${otherName}? Switch`}
         </button>
       </div>
 
@@ -124,7 +124,7 @@ export function MentorPageClient() {
               ? "תשובות מיידיות מהנתונים שלכם — בלי בינה מלאכותית, תמיד חינם."
               : "Instant answers from your data — no AI, always free."
             : isHe
-              ? "שיחה חכמה עם בינה מלאכותית, מבוססת על התוכנית שלכם (מפתח Gemini חינמי)."
+              ? "שיחה פתוחה עם בינה מלאכותית על התוכנית שלכם — עובד מיד וחינם. מפתח Gemini אישי (גם חינמי) נותן מכסה פרטית."
               : "A smart AI conversation grounded in your plan (free Gemini key)."}
         </p>
       </div>

@@ -203,7 +203,7 @@ function GradeInput({
       {isFailing && (
         <p className="flex items-center gap-1 text-xs leading-tight text-amber-600 dark:text-amber-500">
           <AlertTriangle className="size-3 shrink-0" />
-          {isHe ? "ציון נכשל — לא נספר לקרדיט. אפשר לחזור על הקורס." : "Failing — won't count toward credit. You can retake it."}
+          {isHe ? "ציון נכשל — הש״ס לא נספרות. אפשר לחזור על הקורס." : "Failing — the credits don't count. You can retake it."}
         </p>
       )}
     </div>
@@ -988,7 +988,7 @@ export function AcademicRecordContent() {
       if (grade === null && status === "COMPLETED") {
         toast(isHe ? "הציון הוסר — הקורס עדיין מסומן כ'הושלם'" : "Grade removed — course still marked completed", {
           action: {
-            label: isHe ? "סמן כ'בלימוד'" : "Mark in-progress",
+            label: isHe ? "סמנו כ׳בלימוד׳" : "Mark in-progress",
             onClick: () => updateCourseMutation.mutate({ userCourseId, status: "IN_PROGRESS" }),
           },
         });

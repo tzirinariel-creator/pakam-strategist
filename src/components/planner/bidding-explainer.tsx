@@ -68,7 +68,7 @@ export function BiddingExplainer({ isHe }: { isHe: boolean }) {
 
           <p className="text-xs leading-tight text-foreground/40">
             {isHe
-              ? "מנגנון יציב. איננו מנחשים כמה נקודות צריך לקורס — זה משתנה כל סמסטר ולא מתפרסם מראש."
+              ? "מנגנון יציב. אנחנו לא מנחשים כמה נקודות צריך לקורס — זה משתנה כל סמסטר ולא מתפרסם מראש."
               : "Stable mechanism. We don't guess how many points a course needs — it changes each semester and isn't published in advance."}
           </p>
         </div>

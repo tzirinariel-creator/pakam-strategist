@@ -255,7 +255,7 @@ export function YearBoard({ courses, currentYear }: YearBoardProps) {
             </p>
             <p className="mt-0.5 text-xs text-amber-800/80 dark:text-amber-200/70">
               {isHe
-                ? "פכ\"מ מתוכנן לסתיו ולאביב בלבד. כדי שהקורסים האלה לא יאבדו, העבירו אותם לאביב."
+                ? "פכ״מ מתוכנן לסתיו ולאביב בלבד. כדי שהקורסים האלה לא יאבדו, העבירו אותם לאביב."
                 : "This degree is planned for fall and spring only. Move these to spring so they aren't lost."}
             </p>
             <div className="mt-2 flex flex-col gap-1.5">
@@ -274,7 +274,7 @@ export function YearBoard({ courses, currentYear }: YearBoardProps) {
                     disabled={updateCourse.isPending}
                     className="shrink-0 rounded-md border border-amber-400/60 px-2 py-1 text-[11px] font-semibold text-amber-900 transition-colors hover:bg-amber-100 disabled:opacity-50 dark:text-amber-200 dark:hover:bg-amber-900/30"
                   >
-                    {isHe ? "העבר/י לאביב" : "Move to spring"}
+                    {isHe ? "העבירו לאביב" : "Move to spring"}
                   </button>
                 </div>
               ))}

@@ -72,7 +72,7 @@ const STEPS: Step[] = [
     selector: null,
     titleHe: "זהו, אתם מוכנים",
     titleEn: "You're all set",
-    bodyHe: "תתחילו מהמתכנן או מתכנון המבחנים. בסוף כל סמסטר — סורקים את גיליון-הציונים ב\"תיק\" והכול מתעדכן. והעוזר עונה על כל שאלה.",
+    bodyHe: "תתחילו מהמתכנן או מתכנון המבחנים. בסוף כל סמסטר — סורקים את גיליון-הציונים ב״תיק״ והכול מתעדכן. והמלך עונה על כל שאלה — בכל מסך.",
     bodyEn: "Start from the planner or exam planner. At each semester's end, scan your grade sheet in \"Record\" and everything updates. The assistant answers any question.",
   },
 ];
@@ -173,7 +173,7 @@ export function AnchoredTour({ open, onClose }: { open: boolean; onClose: () => 
       <button
         type="button"
         onClick={close}
-        aria-label={isHe ? "דלג" : "Skip"}
+        aria-label={isHe ? "דלגו" : "Skip"}
         className="absolute end-2 top-2 rounded-md p-1 text-foreground/40 transition-colors hover:bg-foreground/5 hover:text-foreground/70"
       >
         <X className="size-4" />
