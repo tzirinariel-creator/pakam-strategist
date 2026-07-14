@@ -389,7 +389,7 @@ export const MILUIM_CONFIG = {
       nameEn: "Group B — 21-34 days per semester",
       descHe: "שירות של 21–34 ימים בסמסטר. נכללים גם: לוחמים עם 14–20 ימים, מי שצבר 35+ ימים במהלך השנה, 60+ ימים לפני תחילת הסמסטר, או 100+ ימים בשנה הקודמת.",
       descEn: "21–34 days of service in a semester. Also included: combat soldiers with 14–20 days, anyone with 35+ cumulative days during the year, 60+ days before the semester starts, or 100+ days in the previous year.",
-      criteria: "21-34 ימים/סמסטר | לוחמים 14-20 | 35+ בשנה | 60+ לפני סמסטר | 100+ בתשפ\"ה",
+      criteria: "21-34 ימים/סמסטר | לוחמים 14-20 | 35+ בשנה | 60+ לפני סמסטר | 100+ בתשפ״ה",
       criteriaEn: "21-34 days/sem | combat 14-20 | 35+ in year | 60+ pre-semester | 100+ prev year",
       creditExemptionPerYear: 6,   // 6 ש״ס per year
       binaryGradePerYear: 2,       // BA: 2 courses/year; MA: 1 course/year
@@ -404,7 +404,7 @@ export const MILUIM_CONFIG = {
       prerequisiteFlexibility: true, // גמישות בדרישות קדם למי שלקח ולא עבר
       benefits: [
         "פטור 6 ש״ס בשנה (עד 10 בתואר)",
-        "2 קורסים בציון עובר/לא עובר בשנה (עד 5 בתואר, עד 10% מנ\"ז)",
+        "2 קורסים בציון עובר/לא עובר בשנה (עד 5 בתואר, עד 10% מהש״ס)",
         "בחירת 2 מתוך 3 מועדי בחינה — הציון הגבוה ביותר קובע (אוטומטי)",
         "פטור מחובת נוכחות (למעט סדנאות וקורסים מעשיים)",
         "ציון ש״ב כרשת ביטחון (ציון מבחן קובע אם גבוה יותר)",
@@ -435,7 +435,7 @@ export const MILUIM_CONFIG = {
       prerequisiteFlexibility: true,
       benefits: [
         "פטור 8 ש״ס לקבוצה C (סה״כ עד 10 בתואר, בשילוב פטור נוסף של עד 2 ש״ס משנה אחרת)",
-        "3 קורסים בציון עובר/לא עובר בשנה (עד 5 בתואר, עד 10% מנ\"ז)",
+        "3 קורסים בציון עובר/לא עובר בשנה (עד 5 בתואר, עד 10% מהש״ס)",
         "בחירת 2 מתוך 3 מועדי בחינה — הציון הגבוה ביותר קובע (אוטומטי)",
         "25% תוספת זמן בבחינות (עד 50% מצטבר עם תוספות אחרות)",
         "+10% נקודות שיבוץ (בידינג) לרישום לקורסים",
@@ -502,7 +502,7 @@ export const MILUIM_CONFIG = {
       { minDays: 21, maxDays: Infinity, mappedGroup: "GROUP_C" as const, descHe: "21+ ימים בסמסטר → קבוצה C" },
     ],
     yearCumulativeRules: [
-      { minDays: 21, mappedGroup: "GROUP_B" as const, semester: "SPRING" as const, descHe: "21+ ימים מצטברים בשנת תשפ\"ו → קבוצה B בסמ׳ ב׳ בלבד" },
+      { minDays: 21, mappedGroup: "GROUP_B" as const, semester: "SPRING" as const, descHe: "21+ ימים מצטברים בשנת תשפ״ו → קבוצה B בסמ׳ ב׳ בלבד" },
     ],
   },
   // 300+ fighters — automatic C through degree completion
@@ -527,7 +527,7 @@ export const MILUIM_CONFIG = {
   },
   // Retroactive rules — per official doc section 2
   RETROACTIVE: {
-    descHe: "100+ ימים בתשפ\"ה → קבוצה B בסמ׳ א׳ תשפ\"ו (לסטודנטים פעילים בתשפ\"ה)",
+    descHe: "100+ ימים בתשפ״ה → קבוצה B בסמ׳ א׳ תשפ״ו (לסטודנטים פעילים בתשפ״ה)",
     descEn: "100+ days in 5785 → Group B in sem A 5786 (for students active in 5785)",
     prevYearMinDays: 100,
     grantedGroup: "GROUP_B" as const,
@@ -536,11 +536,11 @@ export const MILUIM_CONFIG = {
   },
   // Tuition fee exemptions — per official doc section 5
   TUITION: {
-    dragging42: { daysRequired: 42, semestersExempt: 1, descHe: "42+ ימים מצטברים בתשפ\"ו — פטור דמי גרירה סמסטר 1" },
-    dragging84: { daysRequired: 84, semestersExempt: 2, descHe: "84+ ימים מצטברים בתשפ\"ו — פטור דמי גרירה 2 סמסטרים" },
+    dragging42: { daysRequired: 42, semestersExempt: 1, descHe: "42+ ימים מצטברים בתשפ״ו — פטור דמי גרירה סמסטר 1" },
+    dragging84: { daysRequired: 84, semestersExempt: 2, descHe: "84+ ימים מצטברים בתשפ״ו — פטור דמי גרירה 2 סמסטרים" },
     dragging150: { daysRequired: 150, semestersExempt: 2, descHe: "150+ ימים מצטברים בתואר — פטור גרירה 2 סמסטרים (חוק זכויות הסטודנט, אין כפל מעבר ל-2)" },
     completionBenefit: {
-      descHe: "קבוצה C + סיום חובות שמיעה בתשפ\"ו + הגשת עבודה אחרונה עד 31/12/26 → פטור גרירה בתשפ\"ז",
+      descHe: "קבוצה C + סיום חובות שמיעה בתשפ״ו + הגשת עבודה אחרונה עד 31/12/26 → פטור גרירה בתשפ״ז",
       descEn: "Group C + finish coursework in 5786 + submit last paper by 31/12/26 → dragging exemption in 5787",
       requiredGroup: "GROUP_C" as const,
       submissionDeadline: "2026-12-31",
@@ -556,7 +556,7 @@ export const MILUIM_CONFIG = {
   // Social involvement exemption — per official doc section 6
   SOCIAL_INVOLVEMENT_EXEMPTION: {
     credits: 2,                    // 2 ש״ס פטור (חוק מעורבות חברתית)
-    descHe: "סטודנטים ממשיכים: 2 ש״ס פטור בגין מילואים בתשפ\"ו (אם לא מימשו בעבר, ובתנאי שסה\"כ פטורי המלחמה עד 10 ש״ס)",
+    descHe: "סטודנטים ממשיכים: 2 ש״ס פטור בגין מילואים בתשפ״ו (אם לא מימשו בעבר, ובתנאי שסה״כ פטורי המלחמה עד 10 ש״ס)",
     descEn: "Continuing students: 2 SH\"S exemption for reserve service in 5786 (if not used before, total war exemptions ≤ 10)",
     onlyIfNotUsedBefore: true,
     maxTotalWarExemptions: 10,

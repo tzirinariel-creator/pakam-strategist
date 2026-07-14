@@ -149,7 +149,7 @@ export function CourseBubble({
             className="shrink-0 rounded-full bg-emerald-500/10 px-1.5 py-0 text-[11px] font-semibold text-emerald-600"
             title={isHe ? "לפחות 60% מהמדרגים במחזור ממליצים (3 מדרגים ומעלה)" : "≥60% of cohort raters recommend (3+ raters)"}
           >
-            {isHe ? "מומלץ ע\"י המחזור" : "Cohort pick"}
+            {isHe ? "מומלץ ע״י המחזור" : "Cohort pick"}
           </span>
         )}
 

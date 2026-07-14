@@ -604,7 +604,7 @@ export const ruleEnglishLevel: RegulationRule = (ctx: RuleContext) => {
       true,
       "INFO",
       "No AMIRANT score provided — English level cannot be determined.",
-      "לא הוזן ציון אמירנט — לא ניתן לקבוע רמת אנגלית. (נכון לתשפ\"ו)",
+      "לא הוזן ציון אמירנט — לא ניתן לקבוע רמת אנגלית. (נכון לתשפ״ו)",
       { amirantScore: null }
     );
   }
@@ -625,7 +625,7 @@ export const ruleEnglishLevel: RegulationRule = (ctx: RuleContext) => {
       false,
       "ERROR",
       `${srcEn} → ${nameEn} (pre-basic): below the admission minimum (auto-rejection). At least ${levelCourses} level courses would be required.`,
-      `${srcHe} → ${nameHe}: מתחת לרף הקבלה (דחייה אוטומטית). נדרשים לפחות ${levelCourses} קורסי רמה. (נכון לתשפ\"ו)`,
+      `${srcHe} → ${nameHe}: מתחת לרף הקבלה (דחייה אוטומטית). נדרשים לפחות ${levelCourses} קורסי רמה. (נכון לתשפ״ו)`,
       { amirantScore: score, level, levelCourses, isExempt, isRejected }
     );
   }
@@ -640,8 +640,8 @@ export const ruleEnglishLevel: RegulationRule = (ctx: RuleContext) => {
       ? `${srcEn} → ${nameEn}: exempt from level courses. The 2 English content courses still apply.`
       : `${srcEn} → ${nameEn}: ${levelCourses} preparatory level course(s) still needed (not counted in the 150 credits). The 2 English content courses still apply.`,
     isExempt
-      ? `${srcHe} → ${nameHe}: פטור מקורסי רמה. עדיין נדרשים 2 קורסי תוכן באנגלית. (נכון לתשפ\"ו)`
-      : `${srcHe} → ${nameHe}: נדרשים עוד ${levelCourses} קורסי רמה (לא נספרים ב-150 ש״ס). עדיין נדרשים 2 קורסי תוכן באנגלית. (נכון לתשפ\"ו)`,
+      ? `${srcHe} → ${nameHe}: פטור מקורסי רמה. עדיין נדרשים 2 קורסי תוכן באנגלית. (נכון לתשפ״ו)`
+      : `${srcHe} → ${nameHe}: נדרשים עוד ${levelCourses} קורסי רמה (לא נספרים ב-150 ש״ס). עדיין נדרשים 2 קורסי תוכן באנגלית. (נכון לתשפ״ו)`,
     { amirantScore: score, level, levelCourses, isExempt, isRejected }
   );
 };
@@ -671,7 +671,7 @@ export const ruleEnglishExemptionDeadline: RegulationRule = (ctx: RuleContext) =
       true,
       "INFO",
       "No AMIRANT score provided — exemption deadline cannot be evaluated.",
-      "לא הוזן ציון אמירנט — לא ניתן להעריך את המועד האחרון לפטור. (נכון לתשפ\"ו)",
+      "לא הוזן ציון אמירנט — לא ניתן להעריך את המועד האחרון לפטור. (נכון לתשפ״ו)",
       { amirantScore: null }
     );
   }
@@ -685,7 +685,7 @@ export const ruleEnglishExemptionDeadline: RegulationRule = (ctx: RuleContext) =
       true,
       "INFO",
       `Exempt from English (${srcEn}). No exemption deadline applies.`,
-      `פטור מאנגלית (${srcHe}). אין מועד אחרון רלוונטי. (נכון לתשפ\"ו)`,
+      `פטור מאנגלית (${srcHe}). אין מועד אחרון רלוונטי. (נכון לתשפ״ו)`,
       { amirantScore: ctx.amirantScore, level: info.level, isExempt: true }
     );
   }
@@ -706,7 +706,7 @@ export const ruleEnglishExemptionDeadline: RegulationRule = (ctx: RuleContext) =
       false,
       "WARNING",
       `Not yet exempt in English (${srcEn}, ${info.nameEn}). You must reach exemption by the end of the 2nd semester (year 1, semester B) or studies stop.`,
-      `עדיין לא הושג פטור באנגלית (${srcHe}, ${info.nameHe}). יש להגיע לפטור עד סוף הסמסטר השני (שנה א׳, סמסטר ב׳) אחרת הלימודים נפסקים. (נכון לתשפ\"ו)`,
+      `עדיין לא הושג פטור באנגלית (${srcHe}, ${info.nameHe}). יש להגיע לפטור עד סוף הסמסטר השני (שנה א׳, סמסטר ב׳) אחרת הלימודים נפסקים. (נכון לתשפ״ו)`,
       { amirantScore: ctx.amirantScore, level: info.level, isExempt: false }
     );
   }
@@ -733,7 +733,7 @@ export const ruleEnglishExemptionDeadline: RegulationRule = (ctx: RuleContext) =
       false,
       "WARNING",
       `Past the English exemption deadline (end of year 1, semester B) without exemption (${srcEn}, ${info.nameEn}). Reach exemption to continue — if you're already exempt, update your AMIRANT score in Settings.`,
-      `חלף המועד האחרון לפטור באנגלית (סוף שנה א׳, סמסטר ב׳) ללא פטור (${srcHe}, ${info.nameHe}). יש להגיע לפטור כדי להמשיך — אם כבר קיבלת פטור, עדכן/י את ציון האמירנט בהגדרות. (נכון לתשפ\"ו)`,
+      `חלף המועד האחרון לפטור באנגלית (סוף שנה א׳, סמסטר ב׳) ללא פטור (${srcHe}, ${info.nameHe}). יש להגיע לפטור כדי להמשיך — אם כבר קיבלת פטור, עדכן/י את ציון האמירנט בהגדרות. (נכון לתשפ״ו)`,
       { amirantScore: ctx.amirantScore, level: info.level, isExempt: false, pastDeadline: true }
     );
   }
@@ -746,7 +746,7 @@ export const ruleEnglishExemptionDeadline: RegulationRule = (ctx: RuleContext) =
     false,
     "WARNING",
     `Not yet exempt in English (${srcEn}, ${info.nameEn}). Reach exemption by the end of the 2nd semester (year 1, semester B) — ${info.levelCourses} level course(s) needed — or studies stop.`,
-    `עדיין לא הושג פטור באנגלית (${srcHe}, ${info.nameHe}). יש להגיע לפטור עד סוף הסמסטר השני (שנה א׳, סמסטר ב׳) — נדרשים ${info.levelCourses} קורסי רמה — אחרת הלימודים נפסקים. (נכון לתשפ\"ו)`,
+    `עדיין לא הושג פטור באנגלית (${srcHe}, ${info.nameHe}). יש להגיע לפטור עד סוף הסמסטר השני (שנה א׳, סמסטר ב׳) — נדרשים ${info.levelCourses} קורסי רמה — אחרת הלימודים נפסקים. (נכון לתשפ״ו)`,
     { amirantScore: ctx.amirantScore, level: info.level, isExempt: false, pastDeadline: false, currentRank, deadlineRank }
   );
 };

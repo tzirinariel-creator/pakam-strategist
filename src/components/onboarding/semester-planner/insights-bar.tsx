@@ -108,7 +108,7 @@ function generateWorkloadExplanation(
   }
   if (hardCourseCount >= 2 && credits > 16) {
     return isHe
-      ? "עומס גבוה עם קורסים קשים — שקלו להוריד ש\"ס"
+      ? "עומס גבוה עם קורסים קשים — שקלו להוריד ש״ס"
       : "High load with hard courses — consider reducing credits";
   }
   if (mandatoryRatio === 1 && courses.length >= 4) {

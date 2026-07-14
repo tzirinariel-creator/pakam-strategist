@@ -75,7 +75,7 @@ export function ConnectGeminiGuide() {
         <ul className="space-y-1 text-[11px] leading-relaxed text-foreground/60">
           <li>
             {isHe
-              ? "כששואלים את העוזר, נשלחים ל-Google Gemini: השאלה שלכם + תמצית נתוני-התואר שלכם (ש\"ס, ממוצע, קורסים, דרישות) — כדי שהתשובה תהיה אישית."
+              ? "כששואלים את העוזר, נשלחים ל-Google Gemini: השאלה שלכם + תמצית נתוני-התואר שלכם (ש״ס, ממוצע, קורסים, דרישות) — כדי שהתשובה תהיה אישית."
               : "When you ask the assistant, your question + a summary of your degree data (credits, average, courses, requirements) is sent to Google Gemini — so the answer is personal."}
           </li>
           <li>

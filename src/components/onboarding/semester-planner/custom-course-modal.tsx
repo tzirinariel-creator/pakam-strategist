@@ -143,7 +143,7 @@ export function CustomCourseModal({
           <AlertTriangle className="mt-0.5 size-3.5 shrink-0 text-amber-500" />
           <span>
             {isHe
-              ? "ודאו מול המזכירות או הידיעון שהקורס מאושר לתואר פכ\"מ לפני שמוסיפים — קורס שאינו בקטלוג שלנו אנחנו לא יכולים לבדוק בשבילכם."
+              ? "ודאו מול המזכירות או הידיעון שהקורס מאושר לתואר פכ״מ לפני שמוסיפים — קורס שאינו בקטלוג שלנו אנחנו לא יכולים לבדוק בשבילכם."
               : "Make sure this course is approved for the PPE degree (with the secretariat / catalog) before adding — we can't verify a course that isn't in our catalog."}
           </span>
         </div>

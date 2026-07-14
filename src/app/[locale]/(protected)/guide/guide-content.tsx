@@ -42,7 +42,7 @@ export function GuideContent() {
         </p>
       </div>
 
-      <Section icon={Compass} title={isHe ? "מה זה פכ\"מ?" : "What is PPE?"}>
+      <Section icon={Compass} title={isHe ? "מה זה פכ״מ?" : "What is PPE?"}>
         <p>
           {isHe ? (
             <>
@@ -83,8 +83,8 @@ export function GuideContent() {
           <Li>{isHe ? "בחרו תחום מיקוד מוקדם — הוא משפיע על כל התכנון." : "Choose your focus area early — it drives the whole plan."}</Li>
           <Li>{isHe ? "כדאי לקחת אנגלית מוקדם — קורסים קלים יחסית שמורידים עומס בהמשך." : "Take English early — relatively easy courses that ease your load later."}</Li>
           <Li>{isHe ? "אל תשימו 3 קורסים כבדים באותו סמסטר." : "Don't stack 3 heavy courses in one semester."}</Li>
-          <Li>{isHe ? "מעבר שנה: " : "Year transition: "}<Bidi text={isHe ? "ממוצע 75 כללי + 80 בקורסי פכ\"מ" : "75 overall + 80 in PPE courses"} />.</Li>
-          <Li>{isHe ? "בסוף כל סמסטר: מורידים 'אישור קורסים וציונים' מהאזור האישי של ת\"א וסורקים אותו ב'רשומה' — כל הציונים מתעדכנים בבת-אחת." : "At each semester's end: download your 'Record of study' from the TAU personal area and scan it in 'Record' — all grades update at once."}</Li>
+          <Li>{isHe ? "מעבר שנה: " : "Year transition: "}<Bidi text={isHe ? "ממוצע 75 כללי + 80 בקורסי פכ״מ" : "75 overall + 80 in PPE courses"} />.</Li>
+          <Li>{isHe ? "בסוף כל סמסטר: מורידים 'אישור קורסים וציונים' מהאזור האישי של ת״א וסורקים אותו ב'רשומה' — כל הציונים מתעדכנים בבת-אחת." : "At each semester's end: download your 'Record of study' from the TAU personal area and scan it in 'Record' — all grades update at once."}</Li>
         </ul>
       </Section>
 
@@ -101,7 +101,7 @@ export function GuideContent() {
       <Section icon={Shield} title={isHe ? "מילואים" : "Reserve duty (Miluim)"}>
         <p>
           {isHe
-            ? "אם שירתתם — עדכנו בהגדרות. תקבלו פטור ש\"ס, אפשרות לסמן קורסים כ\"בינארי\" (עובר/לא־עובר, יוצא מהממוצע), בחירת מועדים ועוד. פס המילואים למעלה מראה לכם תמיד מה מגיע לכם."
+            ? "אם שירתתם — עדכנו בהגדרות. תקבלו פטור ש״ס, אפשרות לסמן קורסים כ׳בינארי׳ (עובר/לא־עובר, יוצא מהממוצע), בחירת מועדים ועוד. פס המילואים למעלה מראה לכם תמיד מה מגיע לכם."
             : "If you served, set it in settings. You'll get credit exemptions, the option to mark courses binary (pass/fail, excluded from the average), exam-date choice, and more. The miluim bar up top always shows your benefits."}
         </p>
       </Section>

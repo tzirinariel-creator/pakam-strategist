@@ -15,7 +15,7 @@ export const TAU_LAW_2025: ProgramDefinition = {
   programCode: "LAW",
   nameHe: "משפטים",
   nameEn: "Law (LLB)",
-  fullNameHe: "הפקולטה למשפטים ע\"ש בוכמן",
+  fullNameHe: "הפקולטה למשפטים ע״ש בוכמן",
   fullNameEn: "Buchmann Faculty of Law",
   academicYear: 2025,
 
