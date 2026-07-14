@@ -9,14 +9,23 @@
 // the battle-tested components relocated from settings.
 // =========================================================================
 
+import { useState } from "react";
 import { useLocale } from "next-intl";
-import { Shield, CalendarRange, BadgeCheck, Scale as ScaleIcon, CalendarClock } from "lucide-react";
+import { Shield, CalendarRange, BadgeCheck, Scale as ScaleIcon, CalendarClock, Plus, Trash2, Loader2 } from "lucide-react";
+import { toast } from "sonner";
 import { api } from "@/lib/trpc/react";
 import { Link } from "@/i18n/navigation";
 import { MiluimSection } from "@/components/settings/settings-content";
-import { deriveExemptionEntitlement, type MiluimSemesterLite } from "@/lib/miluim";
+import {
+  deriveExemptionEntitlement,
+  deriveCurrentGroup,
+  binaryBenefitOf,
+  getCurrentAcademicYear,
+  type MiluimSemesterLite,
+  type MiluimGroupKey,
+} from "@/lib/miluim";
 import { MILUIM_CONFIG } from "@/lib/constants";
-import { hebrewYearLabel } from "@/lib/academic-calendar";
+import { hebrewYearLabel, getAcademicNow } from "@/lib/academic-calendar";
 import { cn } from "@/lib/utils";
 
 function groupChip(group: string, isHe: boolean): { label: string; cls: string } {
@@ -38,20 +47,77 @@ export function MiluimPageContent() {
   const locale = useLocale();
   const isHe = locale === "he";
 
+  const utils = api.useUtils();
   const semestersQuery = api.user.listMiluimSemesters.useQuery();
   const profileQuery = api.user.getProfile.useQuery();
   const planQuery = api.plan.getUserPlan.useQuery();
+  const invalidateMiluim = () => {
+    void utils.user.listMiluimSemesters.invalidate();
+    void utils.plan.getCredits.invalidate();
+    void utils.regulation.checkCompliance.invalidate();
+  };
+  const deleteMutation = api.user.deleteMiluimSemester.useMutation({
+    onSuccess: invalidateMiluim,
+    onError: () => toast.error(isHe ? "המחיקה נכשלה" : "Delete failed"),
+  });
+  const upsertMutation = api.user.upsertMiluimSemester.useMutation({
+    onSuccess: () => {
+      invalidateMiluim();
+      toast.success(isHe ? "הסמסטר נשמר — הקבוצה חושבה לבד" : "Semester saved — group derived");
+    },
+    onError: () => toast.error(isHe ? "השמירה נכשלה" : "Save failed"),
+  });
 
   const rows = (semestersQuery.data ?? []) as MiluimSemesterLite[];
-  const entitlement = deriveExemptionEntitlement(rows);
+  const fallbackGroup = (profileQuery.data?.miluimGroup ?? "NONE") as MiluimGroupKey;
+  // The fallback (manual) group is materialized for the CURRENT year only —
+  // so a student with a group but no recorded semesters no longer sees a
+  // false 0 (the two-engines disagreement, overnight verify 14.7).
+  const entitlement = deriveExemptionEntitlement(rows, fallbackGroup, getCurrentAcademicYear());
   const creditsUsed = profileQuery.data?.miluimCreditsUsed ?? 0;
 
   // #18 — binary conversions are COUNTED from the plan, not typed by hand.
-  const binaryFromPlan = (planQuery.data?.courses ?? []).filter(
+  const binaryCourses = (planQuery.data?.courses ?? []).filter(
     (c) => (c as { isBinary?: boolean }).isBinary,
-  ).length;
+  );
+  const binaryFromPlan = binaryCourses.length;
   const binaryExternal = profileQuery.data?.miluimBinaryUsed ?? 0;
   const binaryTotal = binaryFromPlan + binaryExternal;
+  // The binary card speaks each group's own unit: B/C in courses (X/5),
+  // G in credits (עד 6 ש״ס), and no benefit → say so instead of a fake /5.
+  const currentGroup = deriveCurrentGroup(semestersQuery.data ?? [], fallbackGroup, {
+    academicYear: getCurrentAcademicYear(),
+    semester: getAcademicNow().semester,
+  });
+  const binaryBenefit = binaryBenefitOf(currentGroup);
+  const binaryCreditsUsed =
+    binaryCourses.reduce(
+      (s, c) => s + ((c as { course?: { credits?: number } }).course?.credits ?? 0),
+      0,
+    ) + binaryExternal * 2; // external conversions: assume the 2-ש״ס minimum — under-promise, never over
+
+  // Add-a-semester mini form (the editor below only writes the CURRENT
+  // semester — this is the any-semester door, overnight verify 14.7).
+  const nowYear = getCurrentAcademicYear();
+  const [addYear, setAddYear] = useState<number>(nowYear);
+  const [addSemester, setAddSemester] = useState<"FALL" | "SPRING">("FALL");
+  const [addDays, setAddDays] = useState<string>("");
+  const [addCombat, setAddCombat] = useState(false);
+  const yearOptions = [nowYear - 3, nowYear - 2, nowYear - 1, nowYear];
+  const handleAddSemester = () => {
+    const days = Number(addDays);
+    if (!Number.isFinite(days) || days <= 0) {
+      toast.error(isHe ? "כמה ימים שירתם באותו סמסטר?" : "How many days did you serve?");
+      return;
+    }
+    upsertMutation.mutate({
+      academicYear: addYear,
+      semester: addSemester,
+      daysServed: Math.min(365, Math.round(days)),
+      isCombat: addCombat,
+    });
+    setAddDays("");
+  };
 
   const sortedRows = [...rows].sort((a, b) =>
     a.academicYear === b.academicYear
@@ -97,6 +163,7 @@ export function MiluimPageContent() {
                     <th className="pb-2 pe-3 text-start font-medium">{isHe ? "ימי שירות" : "Days"}</th>
                     <th className="pb-2 pe-3 text-start font-medium">{isHe ? "לחימה" : "Combat"}</th>
                     <th className="pb-2 text-start font-medium">{isHe ? "קבוצה" : "Group"}</th>
+                    <th className="pb-2" aria-label={isHe ? "מחיקה" : "Delete"} />
                   </tr>
                 </thead>
                 <tbody>
@@ -120,6 +187,35 @@ export function MiluimPageContent() {
                             {chip.label}
                           </span>
                         </td>
+                        <td className="py-2 ps-2 text-end">
+                          <button
+                            type="button"
+                            disabled={deleteMutation.isPending}
+                            aria-label={isHe ? `מחקו את ${hebrewYearLabel(r.academicYear)} ${r.semester === "FALL" ? "א׳" : "ב׳"}` : "Delete row"}
+                            onClick={() => {
+                              // Reversible by design: the undo toast re-writes
+                              // the exact same row (12.7 #26 — nothing here is
+                              // irreversible anymore).
+                              const snapshot = { academicYear: r.academicYear, semester: r.semester as "FALL" | "SPRING", daysServed: r.daysServed, isCombat: r.isCombat ?? false };
+                              deleteMutation.mutate(
+                                { academicYear: r.academicYear, semester: r.semester as "FALL" | "SPRING" },
+                                {
+                                  onSuccess: () => {
+                                    toast.success(isHe ? "הסמסטר נמחק" : "Semester deleted", {
+                                      action: {
+                                        label: isHe ? "בטלו" : "Undo",
+                                        onClick: () => upsertMutation.mutate(snapshot),
+                                      },
+                                    });
+                                  },
+                                },
+                              );
+                            }}
+                            className="rounded-md p-1 text-foreground/30 transition-colors hover:bg-red-500/10 hover:text-red-500 disabled:opacity-40"
+                          >
+                            <Trash2 className="size-3.5" />
+                          </button>
+                        </td>
                       </tr>
                     );
                   })}
@@ -127,10 +223,67 @@ export function MiluimPageContent() {
               </table>
             </div>
           )}
-          <p className="mt-3 text-[11px] leading-relaxed text-foreground/40">
+          {/* Any-semester add form — the editor below writes only the CURRENT
+              semester; here you can record ANY past semester (verify 14.7). */}
+          <div className="mt-3 flex flex-wrap items-end gap-2 rounded-lg border border-border/40 bg-foreground/[0.02] p-2.5">
+            <label className="flex flex-col gap-1 text-[10px] text-foreground/45">
+              {isHe ? "שנה" : "Year"}
+              <select
+                value={addYear}
+                onChange={(e) => setAddYear(Number(e.target.value))}
+                className="rounded-md border border-border/60 bg-card px-2 py-1.5 text-xs text-foreground/80 focus:outline-none"
+              >
+                {yearOptions.map((y) => (
+                  <option key={y} value={y}>{isHe ? hebrewYearLabel(y) : `${y}/${y + 1}`}</option>
+                ))}
+              </select>
+            </label>
+            <label className="flex flex-col gap-1 text-[10px] text-foreground/45">
+              {isHe ? "סמסטר" : "Semester"}
+              <select
+                value={addSemester}
+                onChange={(e) => setAddSemester(e.target.value as "FALL" | "SPRING")}
+                className="rounded-md border border-border/60 bg-card px-2 py-1.5 text-xs text-foreground/80 focus:outline-none"
+              >
+                <option value="FALL">{isHe ? "א׳" : "Fall"}</option>
+                <option value="SPRING">{isHe ? "ב׳" : "Spring"}</option>
+              </select>
+            </label>
+            <label className="flex flex-col gap-1 text-[10px] text-foreground/45">
+              {isHe ? "ימי שירות" : "Days"}
+              <input
+                type="number"
+                min={1}
+                max={365}
+                value={addDays}
+                onChange={(e) => setAddDays(e.target.value)}
+                placeholder="0"
+                className="w-20 rounded-md border border-border/60 bg-card px-2 py-1.5 text-center font-mono text-xs tabular-nums text-foreground/80 focus:outline-none"
+              />
+            </label>
+            <label className="flex items-center gap-1.5 pb-1.5 text-[11px] text-foreground/55">
+              <input
+                type="checkbox"
+                checked={addCombat}
+                onChange={(e) => setAddCombat(e.target.checked)}
+                className="size-3.5 accent-current"
+              />
+              {isHe ? "תפקיד לחימה" : "Combat"}
+            </label>
+            <button
+              type="button"
+              disabled={upsertMutation.isPending}
+              onClick={handleAddSemester}
+              className="inline-flex items-center gap-1 rounded-md bg-foreground/10 px-2.5 py-1.5 text-xs font-medium text-foreground/75 transition-colors hover:bg-foreground/15 disabled:opacity-50"
+            >
+              {upsertMutation.isPending ? <Loader2 className="size-3.5 animate-spin" /> : <Plus className="size-3.5" />}
+              {isHe ? "הוסיפו סמסטר" : "Add semester"}
+            </button>
+          </div>
+          <p className="mt-2 text-[11px] leading-relaxed text-foreground/40">
             {isHe
-              ? "הקבוצה נקבעת מחדש בכל סמסטר לפי הימים של אותו סמסטר. עדכון או הוספה — בעורך למטה או דרך טופס 3010."
-              : "The group is re-assigned each semester from that semester's days. Update or add — in the editor below or via Form 3010."}
+              ? "הקבוצה נקבעת מחדש בכל סמסטר לפי הימים של אותו סמסטר — מוסיפים כאן ידנית או דרך טופס 3010 למטה, ומוחקים שורה בלחיצה (עם ביטול)."
+              : "The group is re-assigned each semester from that semester's days — add here or via Form 3010 below; delete a row in one tap (with undo)."}
           </p>
         </div>
 
@@ -172,26 +325,59 @@ export function MiluimPageContent() {
               <p className="text-xs font-semibold text-foreground/70">
                 {isHe ? "המרות בינארי" : "Binary conversions"}
               </p>
-              <p className="mt-1 font-mono text-xl font-bold text-foreground/85">
-                <bdi dir="ltr">{binaryTotal}/5</bdi>
-              </p>
-              <p className="mt-1.5 text-[11px] leading-relaxed text-foreground/45">
-                {isHe ? (
-                  <>
-                    נספר אוטומטית מהקורסים שסימנתם כבינארי בתיק האקדמי ({binaryFromPlan})
-                    {binaryExternal > 0 ? ` + ${binaryExternal} שדיווחתם שבוצעו מחוץ לאפליקציה` : ""}.
-                    {" "}
-                    <Link href="/record" className="text-accent-brand hover:underline">
-                      לסימון קורס בינארי ←
-                    </Link>
-                  </>
-                ) : (
-                  <>
-                    Counted automatically from courses you marked binary in your record ({binaryFromPlan})
-                    {binaryExternal > 0 ? ` + ${binaryExternal} reported outside the app` : ""}.
-                  </>
-                )}
-              </p>
+              {/* Each group's OWN unit: B/C count courses (X/5); G counts
+                  CREDITS (עד 6 ש״ס per the מתווה); no benefit → say so
+                  honestly instead of a fake /5 (verify 14.7). */}
+              {binaryBenefit == null ? (
+                <p className="mt-1.5 text-[11px] leading-relaxed text-foreground/45">
+                  {isHe
+                    ? "לקבוצה הנוכחית שלכם המתווה לא מעניק המרות בינארי. אם הקבוצה תשתנה — הזכאות תתעדכן כאן לבד."
+                    : "Your current group doesn't grant binary conversions under the outline. If your group changes, this updates automatically."}
+                </p>
+              ) : binaryBenefit.unit === "credits" ? (
+                <>
+                  <p className="mt-1 font-mono text-xl font-bold text-foreground/85">
+                    <bdi dir="ltr">{binaryCreditsUsed}/{binaryBenefit.degreeCap}</bdi>
+                    <span className="ms-1 text-xs font-normal text-foreground/45">{isHe ? "ש״ס" : "credits"}</span>
+                  </p>
+                  <p className="mt-1.5 text-[11px] leading-relaxed text-foreground/45">
+                    {isHe ? (
+                      <>
+                        קבוצה G: המתווה מעניק המרה של עד {binaryBenefit.degreeCap} ש״ס לעובר/לא־עובר. נסכם מהקורסים שסימנתם כבינארי בתיק
+                        {binaryExternal > 0 ? ` (+ ${binaryExternal} שדווחו מחוץ לאפליקציה, נספרו לפי 2 ש״ס כל אחת)` : ""}.{" "}
+                        <Link href="/record" className="text-accent-brand hover:underline">
+                          לסימון קורס בינארי ←
+                        </Link>
+                      </>
+                    ) : (
+                      <>Group G: the outline grants converting up to {binaryBenefit.degreeCap} credits to pass/fail — summed from courses you marked binary.</>
+                    )}
+                  </p>
+                </>
+              ) : (
+                <>
+                  <p className="mt-1 font-mono text-xl font-bold text-foreground/85">
+                    <bdi dir="ltr">{binaryTotal}/{binaryBenefit.degreeCap}</bdi>
+                  </p>
+                  <p className="mt-1.5 text-[11px] leading-relaxed text-foreground/45">
+                    {isHe ? (
+                      <>
+                        נספר אוטומטית מהקורסים שסימנתם כבינארי בתיק האקדמי ({binaryFromPlan})
+                        {binaryExternal > 0 ? ` + ${binaryExternal} שדיווחתם שבוצעו מחוץ לאפליקציה` : ""}.
+                        {" "}
+                        <Link href="/record" className="text-accent-brand hover:underline">
+                          לסימון קורס בינארי ←
+                        </Link>
+                      </>
+                    ) : (
+                      <>
+                        Counted automatically from courses you marked binary in your record ({binaryFromPlan})
+                        {binaryExternal > 0 ? ` + ${binaryExternal} reported outside the app` : ""}.
+                      </>
+                    )}
+                  </p>
+                </>
+              )}
             </div>
           </div>
         </div>

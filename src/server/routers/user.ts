@@ -203,6 +203,40 @@ export const userRouter = createTRPCRouter({
     }),
 
   /**
+   * Delete ONE per-semester miluim record (the user's own). Powers row-delete
+   * in the /miluim editor and the one-tap UNDO after a 3010 import — miluim
+   * data was the last irreversible bulk-write in the app (12.7 #26 spirit;
+   * overnight verify 14.7). Deleting by the composite key keeps it idempotent:
+   * deleting an already-gone row is a no-op, not an error.
+   */
+  deleteMiluimSemester: protectedProcedure
+    .input(
+      z.object({
+        academicYear: z.number().int().min(2020).max(2100),
+        semester: z.enum(["FALL", "SPRING", "SUMMER"]),
+      })
+    )
+    .mutation(async ({ ctx, input }) => {
+      const user = await ctx.db.user.findUnique({
+        where: { supabaseId: ctx.userId },
+        select: { id: true },
+      });
+      if (!user) {
+        throw new TRPCError({ code: "NOT_FOUND", message: "User not found" });
+      }
+      // deleteMany (not delete) so a missing row is a quiet no-op — the undo
+      // toast can fire after the list already refreshed.
+      const res = await ctx.db.miluimSemester.deleteMany({
+        where: {
+          userId: user.id,
+          academicYear: input.academicYear,
+          semester: input.semester,
+        },
+      });
+      return { deleted: res.count };
+    }),
+
+  /**
    * List the current user's per-semester miluim records (most recent first).
    */
   listMiluimSemesters: protectedProcedure.query(async ({ ctx }) => {

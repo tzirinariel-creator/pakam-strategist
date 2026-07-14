@@ -1485,6 +1485,34 @@ export function MiluimSection() {
     },
     onError: () => toast.error(isHe ? "השמירה נכשלה" : "Save failed"),
   });
+  // Quiet twins for the 3010 UNDO path — restoring N rows must not fire N
+  // "saved" toasts; ONE invalidate at the end.
+  const silentUpsert = api.user.upsertMiluimSemester.useMutation();
+  const silentDelete = api.user.deleteMiluimSemester.useMutation();
+  const restoreSnapshot = (
+    snapshot: Array<{ prior: { academicYear: number; semester: "FALL" | "SPRING"; daysServed: number; isCombat: boolean } | null; academicYear: number; semester: "FALL" | "SPRING" }>,
+  ) => {
+    void Promise.allSettled(
+      snapshot.map((s) =>
+        s.prior
+          ? silentUpsert.mutateAsync(s.prior)
+          : silentDelete.mutateAsync({ academicYear: s.academicYear, semester: s.semester }),
+      ),
+    ).then(() => {
+      void utils.user.listMiluimSemesters.invalidate();
+      void utils.plan.getCredits.invalidate();
+      void utils.regulation.checkCompliance.invalidate();
+      toast.success(isHe ? "הייבוא בוטל — הנתונים חזרו למצב הקודם" : "Import undone — data restored");
+    });
+  };
+  const snapshotOf = (academicYear: number, semester: "FALL" | "SPRING") => {
+    const row = (semestersQuery.data ?? []).find(
+      (r) => r.academicYear === academicYear && r.semester === semester,
+    );
+    return row
+      ? { academicYear: row.academicYear, semester: row.semester as "FALL" | "SPRING", daysServed: row.daysServed, isCombat: row.isCombat ?? false }
+      : null;
+  };
 
   const updateProfileMutation = api.user.updateProfile.useMutation({
     onSuccess: () => {
@@ -1586,15 +1614,56 @@ export function MiluimSection() {
           existing={semestersQuery.data ?? []}
           pending={upsertMutation.isPending}
           onApply={(academicYearApply, semesterApply, daysApply) => {
-            const row = (semestersQuery.data ?? []).find(
-              (r) => r.academicYear === academicYearApply && r.semester === semesterApply,
+            const prior = snapshotOf(academicYearApply, semesterApply);
+            upsertMutation.mutate(
+              {
+                academicYear: academicYearApply,
+                semester: semesterApply,
+                daysServed: daysApply,
+                // Preserve an existing combat flag — the form doesn't state it.
+                isCombat: prior?.isCombat ?? false,
+              },
+              {
+                onSuccess: () =>
+                  toast.success(isHe ? "הסמסטר עודכן מהטופס" : "Semester applied from the form", {
+                    action: {
+                      label: isHe ? "בטלו" : "Undo",
+                      onClick: () => restoreSnapshot([{ prior, academicYear: academicYearApply, semester: semesterApply }]),
+                    },
+                  }),
+              },
             );
-            upsertMutation.mutate({
-              academicYear: academicYearApply,
-              semester: semesterApply,
-              daysServed: daysApply,
-              // Preserve an existing combat flag — the form doesn't state it.
-              isCombat: row?.isCombat ?? false,
+          }}
+          onApplyAll={(items) => {
+            // Snapshot EVERYTHING before the first write — one tap restores all.
+            const snapshot = items.map((it) => ({
+              prior: snapshotOf(it.academicYear, it.semester),
+              academicYear: it.academicYear,
+              semester: it.semester,
+            }));
+            void Promise.allSettled(
+              items.map((it) =>
+                silentUpsert.mutateAsync({
+                  academicYear: it.academicYear,
+                  semester: it.semester,
+                  daysServed: it.days,
+                  isCombat: snapshot.find((s) => s.academicYear === it.academicYear && s.semester === it.semester)?.prior?.isCombat ?? false,
+                }),
+              ),
+            ).then((results) => {
+              void utils.user.listMiluimSemesters.invalidate();
+              void utils.plan.getCredits.invalidate();
+              void utils.regulation.checkCompliance.invalidate();
+              const ok = results.filter((r) => r.status === "fulfilled").length;
+              toast.success(
+                isHe ? `הוחלו ${ok} סמסטרים מהטופס` : `Applied ${ok} semesters from the form`,
+                {
+                  action: {
+                    label: isHe ? "בטלו הכול" : "Undo all",
+                    onClick: () => restoreSnapshot(snapshot),
+                  },
+                },
+              );
             });
           }}
         />
@@ -1815,11 +1884,15 @@ export function Form3010Uploader({
   existing,
   pending,
   onApply,
+  onApplyAll,
 }: {
   isHe: boolean;
   existing: Array<{ academicYear: number; semester: string; daysServed: number }>;
   pending: boolean;
   onApply: (academicYear: number, semester: "FALL" | "SPRING", days: number) => void;
+  /** Batch apply — lets the parent snapshot BEFORE the whole import and offer
+   *  ONE undo for all of it (the last irreversible bulk-write, 12.7 #26). */
+  onApplyAll?: (items: Array<{ academicYear: number; semester: "FALL" | "SPRING"; days: number }>) => void;
 }) {
   const fileRef = useRef<HTMLInputElement>(null);
   const [scanning, setScanning] = useState(false);
@@ -1891,10 +1964,13 @@ export function Form3010Uploader({
               type="button"
               disabled={pending}
               onClick={() => {
-                for (const s of summary.suggestions) {
-                  const key = `${s.academicYear}-${s.semester}`;
-                  onApply(s.academicYear, s.semester, edited[key] ?? Math.round(s.days));
-                }
+                const items = summary.suggestions.map((s) => ({
+                  academicYear: s.academicYear,
+                  semester: s.semester,
+                  days: edited[`${s.academicYear}-${s.semester}`] ?? Math.round(s.days),
+                }));
+                if (onApplyAll) onApplyAll(items);
+                else for (const it of items) onApply(it.academicYear, it.semester, it.days);
               }}
               className="inline-flex w-full items-center justify-center gap-1.5 rounded-lg bg-accent-brand px-3 py-2 text-xs font-semibold text-accent-brand-fg transition-colors hover:bg-accent-brand-hover disabled:opacity-50"
             >

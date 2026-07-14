@@ -36,6 +36,8 @@ export interface BenefitGroup {
 interface GroupCfg {
   creditExemptionPerYear: number;
   binaryGradeDegreeCap: number;
+  /** G's binary benefit is CREDIT-denominated (עד 6 ש״ס) — see constants. */
+  binaryCreditDegreeCap?: number;
   examChoice2of3: boolean;
   examTimeBonus: number;
   biddingBonus: number;
@@ -75,6 +77,13 @@ export function buildBenefitGroups(group: MiluimGroupKey, cfg: GroupCfg): Benefi
     degree.push({
       he: `קורסים בעובר/לא־עובר (בינארי) — עד ${cfg.binaryGradeDegreeCap} בתואר. פכמון סופר כמה ניצלת, מוציא אותם מהממוצע אוטומטית, ומתריע כשמתקרבים למכסה. את ההמרה עצמה מבצעים מול האוניברסיטה.`,
       en: `Pass/fail (binary) courses — up to ${cfg.binaryGradeDegreeCap} across the degree. Pakamon counts how many you've used, keeps them out of your GPA automatically, and warns as you near the cap. The conversion itself is done through the university.`,
+      auto: true,
+    });
+  } else if ((cfg.binaryCreditDegreeCap ?? 0) > 0) {
+    // Group G — the מתווה grants the benefit in CREDITS, not courses.
+    degree.push({
+      he: `המרת קורסים לעובר/לא־עובר (בינארי) — עד ${cfg.binaryCreditDegreeCap} ש״ס בתואר. פכמון סוכם את הש״ס של הקורסים שסימנתם כבינארי ומתריע כשמתקרבים למכסה. את ההמרה עצמה מבצעים מול האוניברסיטה.`,
+      en: `Pass/fail (binary) conversion — up to ${cfg.binaryCreditDegreeCap} CREDITS across the degree. Pakamon sums the credits of courses you marked binary and warns near the cap. The conversion itself is done through the university.`,
       auto: true,
     });
   }

@@ -456,8 +456,14 @@ export const MILUIM_CONFIG = {
       criteria: "נפגעי מלחמה, שכולים, פצועים, כוחות ביטחון, סדיר",
       criteriaEn: "War casualties, bereaved, wounded, security forces, regular army",
       creditExemptionPerYear: 3,   // 3 ש״ס (new students only)
-      binaryGradePerYear: 0,       // 6 ש״ס binary (for new students who weren't in previous מתווה)
-      binaryGradeDegreeCap: 0,
+      binaryGradePerYear: 0,       // G's binary benefit is CREDIT-denominated, not per-year courses
+      binaryGradeDegreeCap: 0,     // course-count caps don't apply to G —
+      // the מתווה grants G "המרת עד 6 ש״ס לציון בינארי" (CREDITS, not courses —
+      // pakam-domain-rules-2026 §Layer-B). Kept in a separate field so course-
+      // count surfaces never over-promise; binaryBenefitOf() resolves the unit.
+      // Was 0-everything until 14.7, which told bereaved-family students they
+      // have NO benefit they legally hold.
+      binaryCreditDegreeCap: 6,
       isCombat: false,
       attendanceExempt: true,
       examChoice2of3: true,        // 2 מתוך 3 מועדים (BA only)

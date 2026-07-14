@@ -8,7 +8,7 @@ import { DISCIPLINE_CONFIG, CREDIT_REQUIREMENTS } from "@/lib/constants";
 import {
   deriveCurrentGroup,
   binaryCapRemaining,
-  hasMiluimBinaryBenefit,
+  binaryBenefitOf,
   getCurrentAcademicYear,
   type MiluimGroupKey,
 } from "@/lib/miluim";
@@ -85,11 +85,15 @@ export function useDegreeQAContext(
       // the King must see it too, or he asks for a score the app doesn't need.
       englishLevel: profile?.englishLevel ?? null,
       miluimGroupName: groupName,
-      // Binary conversion is a miluim benefit only groups B/C actually grant.
-      // binaryCapRemaining falls back to the universal BA cap of 5 for any
-      // non-NONE group, so gate on the single hasMiluimBinaryBenefit source —
-      // A/G/NONE get 0, and the King never offers them a phantom conversion.
-      binaryRemaining: hasMiluimBinaryBenefit(group) ? binaryCapRemaining(profile?.miluimBinaryUsed ?? 0, group) : 0,
+      // binaryRemaining is COURSE-denominated. B/C count courses; G's benefit
+      // is credit-denominated (עד 6 ש״ס — see binaryBenefitOf), so a course
+      // count would over-promise: G answers stay countless here and the
+      // correct ש״ס framing lives on /miluim + the benefits window + the
+      // record advisor. A/NONE get 0 (no phantom conversions).
+      binaryRemaining:
+        binaryBenefitOf(group)?.unit === "courses"
+          ? binaryCapRemaining(profile?.miluimBinaryUsed ?? 0, group)
+          : 0,
       failedRules,
       seminarPlannedCount:
         planQuery.data?.courses?.filter((c) => c.course.courseType === "SEMINAR").length ?? 0,
@@ -132,7 +136,12 @@ export function useDegreeQAContext(
       hasFocusArea: !!profile?.focusArea,
       currentYear: deriveYearOfStudy(profile?.startYear, profile?.currentYear ?? 1),
       miluimGroup,
-      binaryRemaining: binaryCapRemaining(profile?.miluimBinaryUsed ?? 0, miluimGroup as MiluimGroupKey),
+      // Same unit-guard as the QA context above: only course-denominated
+      // groups (B/C) get a course count; G is credit-denominated, NONE/A = 0.
+      binaryRemaining:
+        binaryBenefitOf(miluimGroup as MiluimGroupKey)?.unit === "courses"
+          ? binaryCapRemaining(profile?.miluimBinaryUsed ?? 0, miluimGroup as MiluimGroupKey)
+          : 0,
       regulationResults: regulationQuery.data?.results ?? [],
       now: new Date(),
     });

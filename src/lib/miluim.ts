@@ -194,13 +194,14 @@ export function binaryDegreeCap(group?: MiluimGroupKey | null): number {
  * (retroactively removing a graded course from the average). This is the ONE
  * gate every surface must use so they never disagree: the "My benefits" window,
  * the dashboard recommendations, the record advisor and the King all agree.
- * Per MILUIM_CONFIG only groups B and C set binaryGradeDegreeCap > 0; A, G and
- * NONE do not get this benefit (their config cap is 0). If the מתווה says
- * otherwise for a group, change its config cap — not this gate.
+ * B/C grant it in COURSES (binaryGradeDegreeCap); G grants it in CREDITS
+ * (binaryCreditDegreeCap = 6 ש״ס per the מתווה — the config wrongly said 0
+ * until 14.7). A and NONE get nothing. If the מתווה says otherwise for a
+ * group, change its config cap — not this gate. Course-count surfaces MUST
+ * check binaryBenefitOf().unit before showing a course number for G.
  */
 export function hasMiluimBinaryBenefit(group?: MiluimGroupKey | null): boolean {
-  if (!group || group === "NONE") return false;
-  return (MILUIM_CONFIG.GROUPS[group]?.binaryGradeDegreeCap ?? 0) > 0;
+  return binaryBenefitOf(group) != null;
 }
 
 /**
@@ -261,8 +262,19 @@ export function bestGroupOf(rows: MiluimSemesterLite[]): MiluimGroupKey {
  * recorded semesters: each academic year contributes its best group's
  * creditExemptionPerYear, summed across years and capped at the degree max
  * (10). Returns the per-year breakdown for display.
+ *
+ * `fallbackGroup` + `currentAcademicYear` — a student with a MANUAL group on
+ * the profile but no per-semester rows was falsely shown 0 (the two miluim
+ * engines disagreed: deriveCurrentGroup honored the fallback, this didn't —
+ * overnight verify 14.7). The fallback is materialized for the CURRENT year
+ * ONLY: we know they hold that group now, and we never invent past service.
+ * A recorded row for the current year always wins over the fallback.
  */
-export function deriveExemptionEntitlement(rows: MiluimSemesterLite[]): {
+export function deriveExemptionEntitlement(
+  rows: MiluimSemesterLite[],
+  fallbackGroup?: MiluimGroupKey | null,
+  currentAcademicYear?: number,
+): {
   total: number;
   perYear: Array<{ academicYear: number; group: MiluimGroupKey; credits: number }>;
 } {
@@ -279,6 +291,40 @@ export function deriveExemptionEntitlement(rows: MiluimSemesterLite[]): {
       return { academicYear, group, credits: MILUIM_CONFIG.GROUPS[group].creditExemptionPerYear };
     })
     .filter((y) => y.credits > 0);
+  if (
+    fallbackGroup &&
+    fallbackGroup !== "NONE" &&
+    currentAcademicYear != null &&
+    !byYear.has(currentAcademicYear)
+  ) {
+    const credits = MILUIM_CONFIG.GROUPS[fallbackGroup]?.creditExemptionPerYear ?? 0;
+    if (credits > 0) {
+      perYear.push({ academicYear: currentAcademicYear, group: fallbackGroup, credits });
+      perYear.sort((a, b) => a.academicYear - b.academicYear);
+    }
+  }
   const raw = perYear.reduce((s, y) => s + y.credits, 0);
   return { total: Math.min(raw, MILUIM_CONFIG.MAX_CREDIT_EXEMPTIONS_DEGREE), perYear };
+}
+
+/**
+ * The BINARY benefit in the unit each group's מתווה actually uses.
+ * B/C are COURSE-denominated (2-3/year, max 5 for the degree); G is
+ * CREDIT-denominated — "המרת עד 6 ש״ס לציון בינארי" (pakam-domain-rules-2026
+ * §Layer-B: G converts 6 credits, the code wrongly granted 0 until 14.7).
+ * Returns null for groups with no binary benefit at all.
+ */
+export function binaryBenefitOf(
+  group: MiluimGroupKey | null | undefined,
+):
+  | { unit: "courses"; degreeCap: number }
+  | { unit: "credits"; degreeCap: number }
+  | null {
+  if (!group || group === "NONE") return null;
+  const cfg = MILUIM_CONFIG.GROUPS[group];
+  if (!cfg) return null;
+  if (cfg.binaryGradeDegreeCap > 0) return { unit: "courses", degreeCap: binaryDegreeCap(group) };
+  const creditCap = (cfg as { binaryCreditDegreeCap?: number }).binaryCreditDegreeCap ?? 0;
+  if (creditCap > 0) return { unit: "credits", degreeCap: creditCap };
+  return null;
 }

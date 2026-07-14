@@ -384,16 +384,20 @@ describe("hasMiluimBinaryBenefit — the single binary-eligibility gate (verific
     expect(hasMiluimBinaryBenefit("GROUP_B")).toBe(true);
     expect(hasMiluimBinaryBenefit("GROUP_C")).toBe(true);
   });
-  it("denies it to A, G and NONE (config binary cap 0) so every surface agrees", () => {
+  it("denies it to A and NONE; G HAS it (credit-denominated, 6 ש״ס per the מתווה — corrected 14.7)", () => {
+    // The 4.7 version of this test denied G too — that matched the config's
+    // wrong 0, not the domain doc (pakam-domain-rules-2026 §Layer-B: G
+    // converts up to 6 CREDITS to binary). The gate now says yes for G, and
+    // course-count surfaces read binaryBenefitOf().unit before showing numbers.
     expect(hasMiluimBinaryBenefit("GROUP_A")).toBe(false);
-    expect(hasMiluimBinaryBenefit("GROUP_G")).toBe(false);
+    expect(hasMiluimBinaryBenefit("GROUP_G")).toBe(true);
     expect(hasMiluimBinaryBenefit("NONE")).toBe(false);
     expect(hasMiluimBinaryBenefit(null)).toBe(false);
   });
 });
 
 // #18 (12.7) — auto-derived entitlement from recorded semesters
-import { deriveExemptionEntitlement, bestGroupOf } from "@/lib/miluim";
+import { deriveExemptionEntitlement, bestGroupOf, binaryBenefitOf } from "@/lib/miluim";
 
 describe("deriveExemptionEntitlement (#18)", () => {
   const row = (academicYear: number, semester: string, daysServed: number, derivedGroup: string) =>
@@ -422,5 +426,48 @@ describe("deriveExemptionEntitlement (#18)", () => {
 
   it("no rows → zero entitlement", () => {
     expect(deriveExemptionEntitlement([]).total).toBe(0);
+  });
+});
+
+// ── 14.7 — the two-engines unification + G's credit-denominated benefit ──
+describe("deriveExemptionEntitlement — fallback group materialization (verify 14.7)", () => {
+  it("a manual group with NO recorded semesters counts for the CURRENT year only", () => {
+    const e = deriveExemptionEntitlement([], "GROUP_C", 2025);
+    expect(e.total).toBe(8); // C = 8/year, one year — never invents past years
+    expect(e.perYear).toEqual([{ academicYear: 2025, group: "GROUP_C", credits: 8 }]);
+  });
+
+  it("a recorded row for the current year WINS over the fallback", () => {
+    const rows = [
+      { academicYear: 2025, semester: "FALL", daysServed: 25, isCombat: false, derivedGroup: "GROUP_B" },
+    ] as never[];
+    const e = deriveExemptionEntitlement(rows, "GROUP_C", 2025);
+    expect(e.perYear).toHaveLength(1);
+    expect(e.perYear[0]!.group).toBe("GROUP_B"); // the real row, not the fallback
+    expect(e.total).toBe(6);
+  });
+
+  it("no fallback and no rows → honest 0", () => {
+    const e = deriveExemptionEntitlement([], "NONE", 2025);
+    expect(e.total).toBe(0);
+    expect(e.perYear).toEqual([]);
+  });
+});
+
+describe("binaryBenefitOf — each group's own unit (domain doc §Layer-B)", () => {
+  it("B/C are course-denominated with the degree cap", () => {
+    expect(binaryBenefitOf("GROUP_B")).toEqual({ unit: "courses", degreeCap: 5 });
+    expect(binaryBenefitOf("GROUP_C")).toEqual({ unit: "courses", degreeCap: 5 });
+  });
+
+  it("G is CREDIT-denominated — עד 6 ש״ס (was falsely 'no benefit' before 14.7)", () => {
+    expect(binaryBenefitOf("GROUP_G")).toEqual({ unit: "credits", degreeCap: 6 });
+    expect(hasMiluimBinaryBenefit("GROUP_G")).toBe(true);
+  });
+
+  it("A and NONE have no binary benefit", () => {
+    expect(binaryBenefitOf("GROUP_A")).toBeNull();
+    expect(binaryBenefitOf("NONE")).toBeNull();
+    expect(hasMiluimBinaryBenefit("GROUP_A")).toBe(false);
   });
 });

@@ -12,7 +12,7 @@ import { usePersonalAddress } from "@/components/personal/use-personal-address";
 import {
   deriveCurrentGroup,
   binaryCapRemaining,
-  hasMiluimBinaryBenefit,
+  binaryBenefitOf,
   getCurrentAcademicYear,
 } from "@/lib/miluim";
 import { AskKingButton } from "@/components/ui/ask-king-button";
@@ -62,27 +62,41 @@ export function BinaryAdvisor() {
     academicYear: getCurrentAcademicYear(),
     semester: getAcademicNow().semester,
   });
-  // Retroactively converting a graded course to pass/fail (removing it from the
-  // average) is a miluim benefit granted ONLY to groups that actually have it
-  // (B/C). Gate on the single hasMiluimBinaryBenefit source so this advisor
-  // agrees with the "My benefits" window and the dashboard recommendations —
-  // groups A/G/NONE (config binary cap 0) never see it. (verification 4.7)
-  if (!hasMiluimBinaryBenefit(group)) return null;
-  // 18:19 (#11) — the quota now COUNTS actual plan conversions (isBinary), plus
+  // Retroactively converting a graded course to pass/fail (removing it from
+  // the average) is a miluim benefit — gate on the ONE source every surface
+  // uses. B/C get it in COURSES; G gets it in CREDITS (עד 6 ש״ס per the
+  // מתווה — was wrongly 0 until 14.7); A/NONE never see this. (verify 4.7/14.7)
+  const benefit = binaryBenefitOf(group);
+  if (!benefit) return null;
+  // 18:19 (#11) — the quota COUNTS actual plan conversions (isBinary), plus
   // the manual "converted outside the app" offset — the same model /miluim
-  // uses. So converting a course here immediately moves the quota, instead of
-  // the old disconnected hand-typed number.
-  const binaryInPlan = (planQuery.data?.courses ?? []).filter(
+  // uses. So converting a course here immediately moves the quota.
+  const binaryCourses = (planQuery.data?.courses ?? []).filter(
     (uc) => (uc as { isBinary?: boolean }).isBinary,
-  ).length;
-  const usedTotal = binaryInPlan + (profile.miluimBinaryUsed ?? 0);
-  const quotaLeft = binaryCapRemaining(usedTotal, group);
+  );
+  const usedTotal = binaryCourses.length + (profile.miluimBinaryUsed ?? 0);
+  // Credit-denominated (G): sum the ש״ס of in-app conversions against the
+  // 6-credit cap. External conversions have unknown credits — assume the
+  // 2-ש״ס minimum so we UNDER-promise, never over.
+  const creditsUsed =
+    binaryCourses.reduce((s, uc) => s + ((uc as { course?: { credits?: number } }).course?.credits ?? 0), 0) +
+    (profile.miluimBinaryUsed ?? 0) * 2;
+  const creditsLeft = benefit.unit === "credits" ? Math.max(0, benefit.degreeCap - creditsUsed) : null;
+  const quotaLeft =
+    benefit.unit === "credits"
+      ? (creditsLeft! > 0 ? Number.MAX_SAFE_INTEGER : 0) // ranked list is credit-filtered below
+      : binaryCapRemaining(usedTotal, group);
   if (quotaLeft <= 0) return null;
 
   const { current, candidates } = rankBinaryCandidates(graded, quotaLeft);
   if (current == null || candidates.length === 0) return null;
 
-  const top = candidates.slice(0, 3);
+  // For a credit cap, only offer courses that still FIT the remaining credits.
+  const fitting =
+    creditsLeft != null ? candidates.filter((c) => c.course.credits <= creditsLeft) : candidates;
+  if (fitting.length === 0) return null;
+
+  const top = fitting.slice(0, 3);
 
   return (
     <div className="data-card p-4">
@@ -96,8 +110,12 @@ export function BinaryAdvisor() {
           </p>
           <p className="text-xs text-foreground/50">
             {isHe
-              ? `כהטבת מילואים נשארו לך ${quotaLeft} המרות. הנה מה שהיה קורה לממוצע (${current.toFixed(1)}):`
-              : `Your miluim benefit leaves ${quotaLeft} conversions. Here's what your average (${current.toFixed(1)}) would do:`}
+              ? creditsLeft != null
+                ? `כהטבת מילואים (קבוצה G) נשארו לך עד ${creditsLeft} ש״ס להמרה. הנה מה שהיה קורה לממוצע (${current.toFixed(1)}):`
+                : `כהטבת מילואים נשארו לך ${quotaLeft} המרות. הנה מה שהיה קורה לממוצע (${current.toFixed(1)}):`
+              : creditsLeft != null
+                ? `Your miluim benefit (Group G) leaves up to ${creditsLeft} credits to convert. Here's what your average (${current.toFixed(1)}) would do:`
+                : `Your miluim benefit leaves ${quotaLeft} conversions. Here's what your average (${current.toFixed(1)}) would do:`}
           </p>
         </div>
       </div>
