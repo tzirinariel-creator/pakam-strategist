@@ -117,6 +117,10 @@ const SESSION_TYPE_KEYS: Record<string, string> = {
   lecture: "lecture",
   tutorial: "tutorial",
   lab: "lab",
+  // Raw English "seminar" leaked into the Hebrew grid for year-3 courses
+  // (live-verify 14.7 — the demo's 0651-3001 showed "· seminar").
+  seminar: "seminarSession",
+  workshop: "workshopSession",
 };
 
 // ─── Conflict detection ──────────────────────────────────────────────

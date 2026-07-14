@@ -506,6 +506,8 @@
     "lecture": "Lecture",
     "tutorial": "Tutorial",
     "lab": "Lab",
+    "seminarSession": "Seminar",
+    "workshopSession": "Workshop",
     "syncToGoogle": "Sync to Google Calendar",
     "syncSuccess": "Schedule synced to Google Calendar",
     "syncFailed": "Sync failed — please try again",
