@@ -87,7 +87,10 @@ export function CatalogContent() {
   return (
     <div className="flex flex-col gap-6 p-4 md:p-6">
       {/* Header — the ONE canonical page header (קו-עיצובי pattern #1). */}
-      <PageHeader icon={BookOpen} title={t("title")} subtitle={t("subtitle")} />
+      {/* Live catalog size — the hardcoded "117" drifted the moment the
+          catalog changed (verify 14.7); "…" while loading, never a made-up
+          number. */}
+      <PageHeader icon={BookOpen} title={t("title")} subtitle={t("subtitle", { count: allCourses.length > 0 ? allCourses.length : "…" })} />
 
       {/* Discovery: the cohort file is WHERE elective-picking wisdom lives */}
       <Link

@@ -399,7 +399,7 @@
   },
   "catalog": {
     "title": "Course Catalog",
-    "subtitle": "All 117 PPE courses — search, filter, and pick",
+    "subtitle": "All {count} PPE courses — search, filter, and pick",
     "searchPlaceholder": "Search by course name, code, or instructor...",
     "allDisciplines": "All Disciplines",
     "allTypes": "All Course Types",
@@ -500,7 +500,6 @@
     "exportSuccess": "Calendar file created",
     "exportEmpty": "No schedule to export for this semester",
     "exportHint": "Import the .ics file into Google or Apple Calendar",
-    "mockDataNotice": "Sample schedule — real time data will be added later",
     "hrsPerWeek": "hrs/week",
     "coursesCount": "courses",
     "sessionsCount": "sessions",
@@ -631,7 +630,7 @@
     "featurePersonalized": "Fits Your Year",
     "featurePersonalizedDesc": "Your plan updates based on your year, semester, and focus area",
     "featureCommunity": "All Courses Built In",
-    "featureCommunityDesc": "117 courses with prerequisites, hours, and exam dates — no need to dig through the Yedion",
+    "featureCommunityDesc": "Every PPE course with prerequisites, hours, and exam dates — no need to dig through the Yedion",
     "letsStart": "Let's Start",
     "welcomeNote": "A few minutes, and it's saved",
     "howItWorksStep1": "Tell us about you",
@@ -932,7 +931,7 @@
     "signup": "Sign Up",
     "badge": "The Philosopher King included — always free",
     "heroTitle": "Three departments, one degree — and nobody's counting your credits",
-    "heroSubtitle": "Pakamon keeps count: 117 real courses, prerequisites, the regulations and your final grade — computed from your data, no spreadsheets.",
+    "heroSubtitle": "Pakamon keeps count: 110+ real courses, prerequisites, the regulations and your final grade — computed from your data, no spreadsheets.",
     "ctaStart": "Get started",
     "ctaLogin": "I have an account",
     "featuresTitle": "What's inside",
@@ -948,7 +947,7 @@
       },
       "catalog": {
         "title": "Course Catalog",
-        "desc": "117 courses with prerequisites, hours, and type — filter and find in seconds"
+        "desc": "Every program course with prerequisites, hours, and type — filter and find in seconds"
       },
       "calendar": {
         "title": "Weekly Schedule",
@@ -1163,12 +1162,10 @@
     "degreePlannerDesc": "Organize courses by semester",
     "checkRegulations": "Degree check",
     "checkRegulationsDesc": "Meeting all the regulation requirements?",
-    "aiMentor": "AI Mentor",
-    "aiMentorDesc": "Questions? The mentor knows the rules",
     "weeklySchedule": "Weekly Schedule",
     "weeklyScheduleDesc": "Where you need to be this week",
     "courseCatalog": "Course Catalog",
-    "courseCatalogDesc": "All 117 courses in one place",
+    "courseCatalogDesc": "All PPE courses in one place",
     "gradeCalculator": "Grade Calculator",
     "gradeCalculatorDesc": "Graduation score + \"What if\" simulation",
     "errorTitle": "Couldn't load your data",

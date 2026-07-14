@@ -22,7 +22,7 @@ import { WeeklyTimetable } from "./weekly-timetable";
 import { ExamSchedule } from "@/components/exam/exam-schedule";
 import { downloadICSFromSessions } from "@/lib/ics-export";
 import { buildWeekShareText } from "@/lib/week-share";
-import { getAcademicNow, deriveYearOfStudy, getPlanningAnchor } from "@/lib/academic-calendar";
+import { getAcademicNow, deriveYearOfStudy, getPlanningAnchor , hebrewYearLabel } from "@/lib/academic-calendar";
 import type { Semester } from "@/types/enums";
 
 // ─── Types ───────────────────────────────────────────────────────────
@@ -116,6 +116,22 @@ export function CalendarContent() {
   // Default: explicit selection → current semester → first available.
   const activeSemester =
     selectedSemester || currentSemesterKey || (semesterOptions[0]?.key ?? "");
+
+  // Honest "not published yet" note (verify 14.7): when the SELECTED semester
+  // belongs to the NEXT academic year (the July case — planning FALL תשפ"ז),
+  // its hours/rooms come from the CURRENT ידיעון and may shift when the new
+  // one is published. Only fires when the anchor's ידיעון year is actually
+  // newer than the published (current) one — mid-year SPRING planning is
+  // already covered by the current ידיעון and gets no false warning.
+  const yedionCaveat = (() => {
+    if (!calendarProfile) return null;
+    const acadNow = getAcademicNow();
+    const anchor = getPlanningAnchor();
+    if (anchor.startYear <= acadNow.startYear) return null;
+    const anchorYear = deriveYearOfStudy(calendarProfile.startYear, calendarProfile.currentYear ?? 1, anchor.startYear);
+    if (activeSemester !== `${anchorYear}-${anchor.semester}`) return null;
+    return { published: acadNow.startYear, upcoming: anchor.startYear };
+  })();
 
   // Parse active semester into year + semester
   const parsedSemester = useMemo(() => {
@@ -424,6 +440,15 @@ export function CalendarContent() {
           )}
         </div>
       </div>
+
+      {/* Honest ידיעון note — next year's schedule isn't published yet */}
+      {yedionCaveat && semesterCourses.length > 0 && viewMode !== "exams" && (
+        <p className="-mt-2 text-xs leading-relaxed text-amber-600/80 dark:text-amber-400/80">
+          {locale === "he"
+            ? `שימו לב: השעות והמיקומים לסמסטר הקרוב מוצגים לפי ידיעון ${hebrewYearLabel(yedionCaveat.published)} — ידיעון ${hebrewYearLabel(yedionCaveat.upcoming)} טרם פורסם, וייתכנו עדכונים.`
+            : `Heads up: next semester's hours and rooms follow the ${yedionCaveat.published}/${yedionCaveat.published + 1} catalog — the ${yedionCaveat.upcoming}/${yedionCaveat.upcoming + 1} one isn't published yet, so details may shift.`}
+        </p>
+      )}
 
       {/* .ics import hint — clarifies the downloaded file must be imported */}
       {semesterCourses.length > 0 && viewMode !== "exams" && (
