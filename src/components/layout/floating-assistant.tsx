@@ -260,7 +260,10 @@ export function FloatingAssistant() {
         } else {
           await addMutation.mutateAsync({
             courseId: action.courseId,
-            plannedYear: ctx.currentYear,
+            // Year AT the anchor — pairing the anchor SEMESTER with today's
+            // year filed a continuing student's add into the fall that already
+            // ENDED (launch-gate 14.7).
+            plannedYear: ctx.anchorYear ?? ctx.currentYear,
             // Stamp the PLANNING ANCHOR (→ FALL in July), not the wall-clock
             // semester — otherwise a fresh year-1's added course lands in a spurious
             // 1-SPRING bucket, which is what made the calendar open on ב׳ (QA 13.7).

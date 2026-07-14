@@ -33,6 +33,8 @@ export interface QAContext {
   focusAreaNameHe: string | null;
   focusAreaNameEn: string | null;
   currentYear: number;
+  /** Year at the PLANNING anchor — for write paths (quick-add). */
+  anchorYear?: number;
   /** "male" | "female" | null — for gendered second-person phrasing. */
   gender?: "male" | "female" | null;
   amiramScore: number | null;

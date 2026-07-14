@@ -1,6 +1,6 @@
 import { z } from "zod/v4";
 import { createClient } from "@supabase/supabase-js";
-import { getAcademicNow, deriveYearOfStudy } from "@/lib/academic-calendar";
+import { getAcademicNow, getPlanningAnchor, deriveYearOfStudy } from "@/lib/academic-calendar";
 import { TRPCError } from "@trpc/server";
 import { createTRPCRouter, protectedProcedure } from "../trpc/init";
 import { seedDemoData } from "@/lib/demo-data";
@@ -109,7 +109,14 @@ export const userRouter = createTRPCRouter({
       const data: typeof input & { startYear?: number } = { ...input };
       const acadNow = getAcademicNow();
       if (input.currentYear !== undefined && input.startYear === undefined) {
-        data.startYear = acadNow.startYear - (input.currentYear - 1);
+        // The declared year means "my year at the NEXT teaching semester" (the
+        // onboarding's whole flow plans the anchor). Deriving at TODAY's
+        // academic year stored a July fresh-year-1 signup as starting תשפ"ו —
+        // one year off — so she opened the planner on "שנה ב׳" and would
+        // silently become year-2 app-wide on day one of fall (launch-gate
+        // blocker, 14.7). Anchor at the PLANNING anchor: during teaching it
+        // equals today's year, in the summer gap it's the year being planned.
+        data.startYear = getPlanningAnchor().startYear - (input.currentYear - 1);
       }
       if (input.startYear !== undefined) {
         data.currentYear = deriveYearOfStudy(input.startYear, input.currentYear ?? 1);

@@ -3,7 +3,7 @@
 import { useMemo } from "react";
 import { useLocale } from "next-intl";
 import { api } from "@/lib/trpc/react";
-import { getAcademicNow, deriveYearOfStudy } from "@/lib/academic-calendar";
+import { getAcademicNow, getPlanningAnchor, deriveYearOfStudy } from "@/lib/academic-calendar";
 import { DISCIPLINE_CONFIG, CREDIT_REQUIREMENTS } from "@/lib/constants";
 import {
   deriveCurrentGroup,
@@ -79,6 +79,10 @@ export function useDegreeQAContext(
       // in October the stored year is one behind until the profile is touched
       // (spirit-audit 14.7).
       currentYear: deriveYearOfStudy(profile?.startYear, profile?.currentYear ?? 1),
+      // Year AT the planning anchor — WRITE paths (King quick-add) must file
+      // courses into the semester being PLANNED, not the one that just ended
+      // (launch-gate 14.7: a continuing student's add landed in a dead bucket).
+      anchorYear: deriveYearOfStudy(profile?.startYear, profile?.currentYear ?? 1, getPlanningAnchor().startYear),
       gender: profile?.gender === "male" || profile?.gender === "female" ? profile.gender : null,
       amiramScore: profile?.amiramScore ?? null,
       // #23 — the DECLARED level (grade sheet) overrides the score everywhere;

@@ -20,7 +20,7 @@ import { runRegulationEngine } from "@/lib/regulations/rule-engine";
 import { computeCreditExemption, deriveCurrentGroup, getCurrentAcademicYear } from "@/lib/miluim";
 import { buildExamPeriodBlock } from "@/lib/ai/exam-facts";
 import { getProgramById } from "@/lib/programs/registry";
-import { getAcademicNow, deriveYearOfStudy } from "@/lib/academic-calendar";
+import { getAcademicNow, getPlanningAnchor, deriveYearOfStudy } from "@/lib/academic-calendar";
 
 // -------------------------------------------------------------------
 // Types
@@ -232,7 +232,17 @@ export async function buildUserContext(
     userCourses.map((uc) => uc.course.code),
   );
 
-  const nextSemesterInfo = getNextSemester(derivedYear, liveSemester);
+  // The "next semester" the King recommends FOR is the PLANNING ANCHOR — the
+  // next TEACHING semester at ITS study-year. getNextSemester's SPRING→SUMMER
+  // hop left availableNextSemester EMPTY for every student from mid-April to
+  // mid-October (PPE offers no summer courses), so the flagship "מה כדאי
+  // לקחת בסמסטר הבא?" starter had no grounded list at exactly the launch
+  // window (launch-gate blocker, 14.7).
+  const anchor = getPlanningAnchor();
+  const nextSemesterInfo = {
+    year: deriveYearOfStudy(user.startYear, user.currentYear, anchor.startYear),
+    semester: anchor.semester as Semester,
+  };
 
   // Scope the King's course list to the student's PROGRAM. `Course` has no
   // programId column — the only program signal is the discipline string — so a
