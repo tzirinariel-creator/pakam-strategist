@@ -14,6 +14,7 @@ import {
   deriveCurrentGroup,
   computeCreditExemption,
   binaryCapRemaining,
+  binaryBenefitOf,
   binaryDegreeCap,
   getCurrentAcademicYear,
   honorsBinaryPercent,
@@ -119,8 +120,19 @@ export function MiluimStatusBar() {
   const binaryUsed = profile.miluimBinaryUsed ?? 0;
   const creditExemption = computeCreditExemption(group, creditsUsed);
   const creditCap = MILUIM_CONFIG.MAX_CREDIT_EXEMPTIONS_DEGREE;
-  const binaryCap = binaryDegreeCap(group);
-  const binaryLeft = binaryCapRemaining(binaryUsed, group);
+  // Unit-aware (launch-gate 14.7): B/C count COURSES; G's benefit is
+  // CREDIT-denominated (עד 6 ש״ס) — binaryDegreeCap(G) falls back to the
+  // universal 5-course BA cap, which over-promised 5 phantom conversions in
+  // this very bar. G gets an honest credit-worded hint instead of a counter.
+  const binaryBenefit = binaryBenefitOf(group);
+  const binaryCap = binaryBenefit?.unit === "courses" ? binaryDegreeCap(group) : 0;
+  const binaryLeft = binaryCap > 0 ? binaryCapRemaining(binaryUsed, group) : 0;
+  const binaryCreditHint =
+    binaryBenefit?.unit === "credits"
+      ? isHe
+        ? `המרה של עד ${binaryBenefit.degreeCap} ש״ס בתואר (קבוצה G) — המעקב בעמוד המילואים.`
+        : `Convert up to ${binaryBenefit.degreeCap} credits across the degree (Group G) — tracked on the miluim page.`
+      : null;
 
   const Chevron = isHe ? ChevronLeft : ChevronRight;
 
@@ -216,7 +228,7 @@ export function MiluimStatusBar() {
                       text={
                         binaryCap > 0
                           ? t("binaryQuotaHint", { left: binaryLeft, percent: honorsBinaryPercent() })
-                          : t("binaryNone")
+                          : (binaryCreditHint ?? t("binaryNone"))
                       }
                     />
                   }

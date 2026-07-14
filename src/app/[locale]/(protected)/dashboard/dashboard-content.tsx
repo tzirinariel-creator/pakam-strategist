@@ -44,7 +44,7 @@ import { MyStatusHero, type DisciplineProgress } from "@/components/dashboard/my
 import { MeetTheKingCard } from "@/components/dashboard/meet-the-king-card";
 import { getActiveProgram } from "@/lib/programs/registry";
 import { buildRecommendations } from "@/lib/recommendations-engine";
-import { binaryCapRemaining, type MiluimGroupKey } from "@/lib/miluim";
+import { binaryCapRemaining, binaryBenefitOf, type MiluimGroupKey } from "@/lib/miluim";
 import type { GradeBreakdown, CreditBreakdown } from "@/types/degree";
 import { diffBreakdown } from "@/lib/degree-delta";
 import { Bidi } from "@/lib/bidi";
@@ -601,12 +601,19 @@ export function DashboardContent() {
       cs.some((c) => c.plannedYear === y && c.plannedSemester === sem);
     // Prefer the PLANNING ANCHOR pair (the semester the student is working on,
     // at ITS year) — same rule /calendar uses, so the surfaces never disagree.
-    if (has(anchorYear, anchor.semester)) return { activeSemester: anchor.semester, activeYear: anchorYear };
+    // EXCEPT a graduating student (unclamped anchor-year > 3): their "next
+    // fall" doesn't exist, and the clamped pair is last year's fall.
+    const rawAnchorYear =
+      profileQuery.data?.startYear != null ? anchor.startYear - profileQuery.data.startYear + 1 : null;
+    const anchorIsReal = rawAnchorYear == null || rawAnchorYear <= 3;
+    if (anchorIsReal && has(anchorYear, anchor.semester)) return { activeSemester: anchor.semester, activeYear: anchorYear };
     const calSem: "FALL" | "SPRING" = acadNow.semester === "FALL" ? "FALL" : "SPRING";
     if (has(currentYear, calSem)) return { activeSemester: calSem, activeYear: currentYear };
     if (has(currentYear, "FALL")) return { activeSemester: "FALL" as const, activeYear: currentYear };
     if (has(currentYear, "SPRING")) return { activeSemester: "SPRING" as const, activeYear: currentYear };
-    return { activeSemester: anchor.semester, activeYear: anchorYear };
+    return anchorIsReal
+      ? { activeSemester: anchor.semester, activeYear: anchorYear }
+      : { activeSemester: acadNow.semester === "FALL" ? ("FALL" as const) : ("SPRING" as const), activeYear: currentYear };
   })();
 
   // How many planned courses the student is literally sitting in RIGHT NOW —
@@ -668,14 +675,20 @@ export function DashboardContent() {
     hasFocusArea,
     currentYear,
     miluimGroup: profileQuery.data?.miluimGroup ?? "NONE",
-    binaryRemaining: binaryCapRemaining(
-      // 18:19 (#11) — count actual plan conversions (isBinary) + the manual
-      // external offset, so the remaining quota agrees with the record advisor
-      // and the /miluim page.
-      (planQuery.data?.courses ?? []).filter((uc) => uc.isBinary).length +
-        (profileQuery.data?.miluimBinaryUsed ?? 0),
-      (profileQuery.data?.miluimGroup ?? "NONE") as MiluimGroupKey
-    ),
+    // COURSE-count remaining — only for course-denominated groups (B/C).
+    // G's benefit is CREDIT-denominated (עד 6 ש״ס): a course count here made
+    // the dashboard recommend 5 phantom conversions to a G student
+    // (launch-gate regression lane, 14.7).
+    binaryRemaining:
+      binaryBenefitOf((profileQuery.data?.miluimGroup ?? "NONE") as MiluimGroupKey)?.unit === "courses"
+        ? binaryCapRemaining(
+            // 18:19 (#11) — count actual plan conversions (isBinary) + the
+            // manual external offset, agreeing with the record advisor + /miluim.
+            (planQuery.data?.courses ?? []).filter((uc) => uc.isBinary).length +
+              (profileQuery.data?.miluimBinaryUsed ?? 0),
+            (profileQuery.data?.miluimGroup ?? "NONE") as MiluimGroupKey
+          )
+        : 0,
     regulationResults: regulationSummary?.results ?? [],
     now: new Date(),
   });

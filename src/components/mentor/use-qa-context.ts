@@ -82,7 +82,14 @@ export function useDegreeQAContext(
       // Year AT the planning anchor — WRITE paths (King quick-add) must file
       // courses into the semester being PLANNED, not the one that just ended
       // (launch-gate 14.7: a continuing student's add landed in a dead bucket).
-      anchorYear: deriveYearOfStudy(profile?.startYear, profile?.currentYear ?? 1, getPlanningAnchor().startYear),
+      // A GRADUATING student (unclamped anchor-year > 3) has no next fall —
+      // their adds go to the CURRENT year instead of a clamped past bucket.
+      anchorYear: (() => {
+        const anchor = getPlanningAnchor();
+        const raw = profile?.startYear != null ? anchor.startYear - profile.startYear + 1 : null;
+        if (raw != null && raw > 3) return deriveYearOfStudy(profile?.startYear, profile?.currentYear ?? 1);
+        return deriveYearOfStudy(profile?.startYear, profile?.currentYear ?? 1, anchor.startYear);
+      })(),
       gender: profile?.gender === "male" || profile?.gender === "female" ? profile.gender : null,
       amiramScore: profile?.amiramScore ?? null,
       // #23 — the DECLARED level (grade sheet) overrides the score everywhere;

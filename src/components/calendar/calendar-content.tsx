@@ -105,9 +105,15 @@ export function CalendarContent() {
     // today's study-year opened a continuing student on the fall that already
     // ENDED (spirit-audit 14.7).
     const anchor = getPlanningAnchor();
+    // A GRADUATING student (year-3 after spring) has no "next fall": the
+    // UNCLAMPED year-at-anchor exceeds the 3-year degree, and the clamped
+    // pair (3, FALL) is their already-taught fall — preferring it opened the
+    // calendar a year back (launch-gate 14.7). Skip the anchor for them.
+    const rawAnchorYear =
+      calendarProfile.startYear != null ? anchor.startYear - calendarProfile.startYear + 1 : null;
     const anchorYear = deriveYearOfStudy(calendarProfile.startYear, calendarProfile.currentYear ?? 1, anchor.startYear);
     const anchorKey = `${anchorYear}-${anchor.semester}`;
-    if (semesterOptions.some((o) => o.key === anchorKey)) return anchorKey;
+    if ((rawAnchorYear == null || rawAnchorYear <= 3) && semesterOptions.some((o) => o.key === anchorKey)) return anchorKey;
     const year = deriveYearOfStudy(calendarProfile.startYear, calendarProfile.currentYear ?? 1);
     const calKey = `${year}-${acadNow.semester}`;
     return semesterOptions.some((o) => o.key === calKey) ? calKey : "";

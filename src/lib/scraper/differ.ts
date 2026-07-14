@@ -5,6 +5,7 @@
 // =========================================
 
 import type { Course, ScheduleSession } from "@prisma/client";
+import { normalizeHebrewPunct } from "@/lib/hebrew-punct";
 import type {
   CourseDiff,
   FieldChange,
@@ -131,7 +132,11 @@ function diffSingleCourse(
   const changes: FieldChange[] = [];
 
   // Name (Hebrew)
-  if (!stringsEqual(scraped.nameHe, existing.nameHe)) {
+  // Compare NORMALIZED forms on both sides: `existing` is read through the
+  // extended Prisma client (gershayim-normalized) while scraped ידיעון text is
+  // raw ASCII quotes — without this every nightly sync flagged a phantom
+  // nameHe change for every acronym course (launch-gate regression lane).
+  if (!stringsEqual(normalizeHebrewPunct(scraped.nameHe ?? ""), normalizeHebrewPunct(existing.nameHe ?? ""))) {
     changes.push({
       field: "nameHe",
       oldValue: existing.nameHe,
