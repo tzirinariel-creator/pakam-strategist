@@ -446,13 +446,24 @@ export function GradeSheetScanner() {
                       disabled={addScannedMutation.isPending}
                       onClick={() => {
                         const sem = r.semester?.endsWith("/2") ? "SPRING" : "FALL";
+                        // The sheet's semester header is "2025/1" (academic year /
+                        // sitting). Derive the study-year from the student's own
+                        // start year — hardcoding 1 misfiled every added elective
+                        // under שנה א׳ (evening-wave verify). Fallback: their
+                        // current year, never a blind 1.
+                        const sheetYear = Number(r.semester?.split("/")[0]);
+                        const startYear = profileQuery.data?.startYear ?? null;
+                        const plannedYear =
+                          Number.isFinite(sheetYear) && startYear
+                            ? Math.min(3, Math.max(1, sheetYear - startYear + 1))
+                            : (profileQuery.data?.currentYear ?? 1);
                         addScannedMutation.mutate(
                           {
                             courseCode: r.courseCode,
                             courseName: r.courseName,
                             credits: r.credits,
                             grade: r.grade,
-                            plannedYear: 1,
+                            plannedYear,
                             plannedSemester: sem,
                           },
                           {
@@ -473,6 +484,16 @@ export function GradeSheetScanner() {
                     >
                       + {isHe ? "לא בתוכנית — הוסיפו לתיק" : "Not in plan — add to record"}
                     </button>
+                  ) : r.match ? (
+                    // #5 (12.7, sub-fix 5) — the course IS matched in the plan
+                    // but the sheet row came back with no grade/pass-text.
+                    // Saying "לא נמצא בתוכנית" here was factually wrong.
+                    <span className="flex items-center gap-1 rounded bg-amber-500/10 px-1.5 py-px text-[10px] font-semibold text-amber-600">
+                      <AlertTriangle className="size-2.5" />
+                      {isHe
+                        ? `בגיליון אין ציון ל${r.match.nameHe} — אם כבר יש ציון, הזינו אותו בתיק`
+                        : `No grade on the sheet for ${r.match.nameHe} — enter it in the record if you have one`}
+                    </span>
                   ) : (
                     <span className="flex items-center gap-1 rounded bg-amber-500/10 px-1.5 py-px text-[10px] font-semibold text-amber-600">
                       <AlertTriangle className="size-2.5" />

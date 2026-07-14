@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { generateExamPlan, analyzeExamPeriod, classifyDifficulty, confidenceMultiplier, type ExamInput } from "@/lib/exam-planner";
+import { generateExamPlan, analyzeExamPeriod, classifyDifficulty, confidenceMultiplier, explainBudget, type ExamInput } from "@/lib/exam-planner";
 
 const NOW = new Date("2026-06-01T00:00:00Z");
 
@@ -244,5 +244,33 @@ describe("pre-placed / locked blocks", () => {
     const base = sumX(generateExamPlan(e, NOW, [], "steady", cap8));
     const past = sumX(generateExamPlan(e, NOW, [], "steady", cap8, [{ courseCode: "X", date: new Date("2026-05-20T09:00:00"), hours: 5 }]));
     expect(Math.round(past)).toBe(Math.round(base));
+  });
+});
+
+describe("hoursOverride + explainBudget (13.7 #25 — sourced, editable, explained)", () => {
+  it("the student's hoursOverride replaces the formula entirely", () => {
+    const e = [exam({ hoursOverride: 6 })];
+    const plan = generateExamPlan(e, NOW, [], "steady", { weekdayHours: [8, 8, 8, 8, 8, 8, 8] });
+    expect(plan.exams[0]!.totalHours).toBe(6);
+  });
+
+  it("without an override the formula stands (credits × rate × readiness)", () => {
+    const e = [exam({ credits: 4, averageGrade: 78, failRate: 0.1, confidence: null })];
+    const plan = generateExamPlan(e, NOW, [], "steady", { weekdayHours: [8, 8, 8, 8, 8, 8, 8] });
+    expect(plan.exams[0]!.totalHours).toBe(Math.round(4 * 2.5)); // medium = 2.5h/credit
+  });
+
+  it("explainBudget mirrors the engine and flags an override honestly", () => {
+    const base = explainBudget({ credits: 4, averageGrade: 78, failRate: 0.1, confidence: 4 });
+    expect(base.difficulty).toBe("medium");
+    expect(base.perCredit).toBe(2.5);
+    expect(base.multiplier).toBe(0.85);
+    expect(base.overridden).toBe(false);
+    expect(base.total).toBe(base.estimated);
+
+    const own = explainBudget({ credits: 4, averageGrade: 78, failRate: 0.1, confidence: 4, hoursOverride: 20 });
+    expect(own.overridden).toBe(true);
+    expect(own.total).toBe(20);
+    expect(own.estimated).toBe(base.estimated); // the formula's number survives for display
   });
 });

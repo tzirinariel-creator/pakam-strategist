@@ -647,7 +647,7 @@ export function StudySkyline({ plan, recommendations, isHe, now, onDayClick, onM
           >
             <span className="size-2.5 shrink-0 rounded-full" style={{ backgroundColor: c.color }} />
             <span className="max-w-[130px] truncate text-xs text-foreground/70">{c.courseName}</span>
-            <span className="text-[11px] text-foreground/40" dir={isHe ? "rtl" : "ltr"}>{c.totalHours}{isHe ? "ש׳" : "h"} · {moedLabel(c.moed, isHe)}</span>
+            <span className="text-[11px] text-foreground/40" dir={isHe ? "rtl" : "ltr"}>{c.totalHours} {isHe ? "שע׳" : "h"} · {moedLabel(c.moed, isHe)}</span>
           </button>
         ))}
       </div>

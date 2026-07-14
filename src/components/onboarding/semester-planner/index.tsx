@@ -713,9 +713,19 @@ export function SemesterPlanner({
 
       {declaredSemesterOver && (
         <div className="w-full max-w-2xl rounded-xl border border-sky-500/30 bg-sky-500/[0.06] p-3.5 text-xs leading-relaxed text-foreground/70">
-          <b>{`רגע, ${data.semester === "SPRING" ? "סמסטר ב׳" : "סמסטר א׳"} כבר הסתיים 🙂`}</b>{" "}
-          ההוראה נגמרה, אז הקורסים שנבחר כאן יישמרו בתוכנית שלכם — וכשיתפרסמו הציונים תסמנו אותם כ״הושלם״ ותזינו ציון בתיק האקדמי.
-          בסיום אפשר להמשיך ישר לתכנון הסמסטר הבא (הכפתור יופיע במסך-הסיכום).
+          {isHe ? (
+            <>
+              <b>{`רגע, ${data.semester === "SPRING" ? "סמסטר ב׳" : "סמסטר א׳"} כבר הסתיים 🙂`}</b>{" "}
+              ההוראה נגמרה, אז הקורסים שנבחר כאן יישמרו בתוכנית שלכם — וכשיתפרסמו הציונים תסמנו אותם כ״הושלם״ ותזינו ציון בתיק האקדמי.
+              בסיום אפשר להמשיך ישר לתכנון הסמסטר הבא (הכפתור יופיע במסך-הסיכום).
+            </>
+          ) : (
+            <>
+              <b>{`Heads up — semester ${data.semester === "SPRING" ? "B" : "A"} already ended 🙂`}</b>{" "}
+              Teaching is over, so the courses picked here are saved to your plan — once grades are published, mark them complete and enter the grade in your record.
+              When you finish, you can continue straight to planning the next semester (the button appears on the summary screen).
+            </>
+          )}
         </div>
       )}
 

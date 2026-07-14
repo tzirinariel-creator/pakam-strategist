@@ -19,6 +19,10 @@ export interface ExamInput {
   /** Self-reported readiness 1 (not ready) … 5 (very ready). The student's OWN
    *  report, NOT our prediction — it scales the hour budget only. */
   confidence?: number | null;
+  /** The student's own total-hours choice for this exam (13.7 #25 — "who said
+   *  2.5 hours?"). When set (> 0) it REPLACES the credits×difficulty×readiness
+   *  estimate entirely: their judgment wins over our formula. */
+  hoursOverride?: number | null;
   /** Which sitting this date is. */
   moed: "A" | "B";
 }
@@ -73,6 +77,45 @@ export function confidenceMultiplier(c?: number | null): number {
   if (c == null || !Number.isFinite(c)) return 1;
   const k = Math.min(5, Math.max(1, Math.round(c)));
   return CONFIDENCE_MULT[k] ?? 1;
+}
+
+/**
+ * The in-product answer to "למה 12 שעות למיקרו?" (13.7 #25). Recomputes the
+ * budget the engine uses and returns every component, so the UI can show ONE
+ * honest line instead of a bare number. `overridden` = the student's own hours
+ * replaced the formula entirely.
+ */
+export interface BudgetExplanation {
+  credits: number;
+  difficulty: Difficulty;
+  /** Hours budgeted per ש״ס at this difficulty (1.5 / 2.5 / 4). */
+  perCredit: number;
+  /** Readiness multiplier actually applied (1 = neutral/unset). */
+  multiplier: number;
+  /** The formula's own result (before any override). */
+  estimated: number;
+  overridden: boolean;
+  /** The budget the engine schedules with. */
+  total: number;
+}
+
+export function explainBudget(
+  exam: Pick<ExamInput, "credits" | "averageGrade" | "failRate" | "confidence" | "hoursOverride">,
+): BudgetExplanation {
+  const difficulty = classifyDifficulty(exam.averageGrade, exam.failRate);
+  const perCredit = HOURS_PER_CREDIT[difficulty];
+  const multiplier = confidenceMultiplier(exam.confidence);
+  const estimated = Math.max(SESSION_HOURS, Math.round(exam.credits * perCredit * multiplier));
+  const overridden = exam.hoursOverride != null && exam.hoursOverride > 0;
+  return {
+    credits: exam.credits,
+    difficulty,
+    perCredit,
+    multiplier,
+    estimated,
+    overridden,
+    total: overridden ? Math.max(1, Math.round(exam.hoursOverride!)) : estimated,
+  };
 }
 
 function startOfDay(d: Date): Date {
@@ -218,10 +261,16 @@ export function generateExamPlan(
   ordered.forEach((exam, idx) => {
     const color = colorFor(idx);
     const difficulty = classifyDifficulty(exam.averageGrade, exam.failRate);
-    const totalHours = Math.max(
-      SESSION_HOURS,
-      Math.round(exam.credits * HOURS_PER_CREDIT[difficulty] * confidenceMultiplier(exam.confidence)),
-    );
+    // The student's own hours (13.7 #25) win over the formula, floor 1h; the
+    // estimate keeps the SESSION_HOURS floor so a tiny course still gets one
+    // real session.
+    const totalHours =
+      exam.hoursOverride != null && exam.hoursOverride > 0
+        ? Math.max(1, Math.round(exam.hoursOverride))
+        : Math.max(
+            SESSION_HOURS,
+            Math.round(exam.credits * HOURS_PER_CREDIT[difficulty] * confidenceMultiplier(exam.confidence)),
+          );
 
     examSummaries.push({
       courseCode: exam.courseCode,
@@ -307,13 +356,16 @@ export function analyzeExamPeriod(plan: ExamPlanResult, isHe: boolean, now: Date
   const exams = plan.exams.slice().sort((a, b) => a.examDate.getTime() - b.examDate.getTime());
   if (exams.length === 0) return recs;
 
-  // 1. Start with the soonest.
+  // 1. Start with the soonest. Product voice is PLURAL (אתם), and days are
+  //    counted like a person would — never "בעוד 1 ימים".
   const first = exams[0]!;
   const days = Math.max(0, Math.round((first.examDate.getTime() - startOfDay(now).getTime()) / 86400000));
+  const whenHe = days === 0 ? "היום!" : days === 1 ? "מחר" : days === 2 ? "מחרתיים" : `בעוד ${days} ימים`;
+  const whenEn = days === 0 ? "today!" : days === 1 ? "tomorrow" : `in ${days} days`;
   recs.push({
     kind: "start",
-    textHe: `התחל מ${first.courseName} — המבחן הכי קרוב (בעוד ${days} ימים).`,
-    textEn: `Start with ${first.courseName} — your soonest exam (in ${days} days).`,
+    textHe: `התחילו מ${first.courseName} — המבחן הכי קרוב (${whenHe}).`,
+    textEn: `Start with ${first.courseName} — your soonest exam (${whenEn}).`,
   });
 
   // 2. Clashes: exams < 3 days apart.
@@ -322,7 +374,7 @@ export function analyzeExamPeriod(plan: ExamPlanResult, isHe: boolean, now: Date
     if (gap < 3) {
       recs.push({
         kind: "clash",
-        textHe: `${exams[i - 1]!.courseName} ו${exams[i]!.courseName} במרחק ${gap} ימים בלבד — צפוף. שקול לדחות אחד למועד ב׳.`,
+        textHe: `${exams[i - 1]!.courseName} ו${exams[i]!.courseName} במרחק ${gap === 1 ? "יום אחד" : `${gap} ימים`} בלבד — צפוף. שקלו לדחות אחד למועד ב׳.`,
         textEn: `${exams[i - 1]!.courseName} and ${exams[i]!.courseName} are only ${gap} days apart — tight. Consider deferring one to Moed B.`,
       });
     }
@@ -338,7 +390,7 @@ export function analyzeExamPeriod(plan: ExamPlanResult, isHe: boolean, now: Date
     const candidate = exams.slice().sort((a, b) => b.examDate.getTime() - a.examDate.getTime())[0]!;
     recs.push({
       kind: "deferB",
-      textHe: `העומס גבוה (${totalHours} שעות לימוד ב-${span} ימים). אם צריך — ${candidate.courseName} מועמד טוב לדחייה למועד ב׳. שים לב: הציון האחרון קובע, לא הגבוה.`,
+      textHe: `העומס גבוה (${totalHours} שעות לימוד ב-${span} ימים). אם צריך — ${candidate.courseName} מועמד טוב לדחייה למועד ב׳. שימו לב: הציון האחרון קובע, לא הגבוה.`,
       textEn: `High load (${totalHours} study hours in ${span} days). If needed, ${candidate.courseName} is a good candidate to defer to Moed B. Note: the last grade counts, not the higher one.`,
     });
   }

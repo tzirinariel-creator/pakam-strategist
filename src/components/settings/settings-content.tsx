@@ -1948,8 +1948,8 @@ export function Form3010Uploader({
             <details className="rounded-lg border border-border/40 bg-foreground/[0.02] p-2.5">
               <summary className="cursor-pointer text-[11px] font-medium text-foreground/55">
                 {isHe
-                  ? `עוד ${summary.unmapped.length} תקופות שירות מלפני תחילת התואר (לא נספרות להטבות) — לפירוט`
-                  : `${summary.unmapped.length} more service period(s) from before the degree (don't count for benefits) — details`}
+                  ? `עוד ${summary.unmapped.length} תקופות שירות שלא שויכו לסמסטר — לפירוט`
+                  : `${summary.unmapped.length} more service period(s) not assigned to a semester — details`}
               </summary>
               <table className="mt-2 w-full text-[11px]">
                 <thead>
@@ -1973,8 +1973,8 @@ export function Form3010Uploader({
               </table>
               <p className="mt-1.5 text-[10px] leading-relaxed text-foreground/40">
                 {isHe
-                  ? "התקופות האלה קדמו ללוחות-השנה של התואר (למשל שירות לפני תשפ״ו), ולכן אינן משויכות לסמסטר. ההטבות באוניברסיטה נספרות רק על שירות במהלך הלימודים."
-                  : "These periods predate the degree calendars (e.g. service before 2025-26), so they aren't assigned to a semester. University benefits count only service during your studies."}
+                  ? "לא הצלחנו לשייך את התקופות האלה לסמסטר — לוחות-הזמנים שבאפליקציה מתחילים בתשפ״ו. אם שירתם בזמן הלימודים לפני כן, הזינו את הימים ידנית לסמסטר המתאים והם ייספרו. שירות שקדם לתואר לא מזכה בהטבות."
+                  : "We couldn't assign these periods to a semester — the app's calendars start at 2025-26. If you served during earlier study semesters, enter those days manually for the right semester and they'll count. Service from before the degree doesn't grant benefits."}
               </p>
             </details>
           )}

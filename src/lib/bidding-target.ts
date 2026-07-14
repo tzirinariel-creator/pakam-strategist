@@ -8,7 +8,7 @@
 import { getAcademicNow, deriveYearOfStudy } from "@/lib/academic-calendar";
 
 export interface BiddingTarget {
-  /** The plan's year-of-study (1..4) rows this bidding round fills. */
+  /** The plan's year-of-study (1..3) rows this bidding round fills. */
   yearOfStudy: number;
   semester: "FALL" | "SPRING";
   /** When that semester's teaching starts (bidding precedes it). */
@@ -24,8 +24,8 @@ const DAY_MS = 24 * 60 * 60 * 1000;
  * The next teaching semester relative to `now`, mapped onto the student's
  * year-of-study. During FALL teaching → SPRING of the same study-year;
  * during/after SPRING → FALL of the NEXT study-year. Returns null when the
- * student would be past the modeled degree length (year > 4) or the calendar
- * is stale.
+ * student is past the degree length — PPE is a 3-year program, so a year-3
+ * student after spring has no "year 4" to bid for — or the calendar is stale.
  */
 export function getBiddingTarget(
   startYear: number | null | undefined,
@@ -48,7 +48,7 @@ export function getBiddingTarget(
     semester = "FALL";
     yearOfStudy = acad.semester === "FALL" ? currentStudyYear : currentStudyYear + 1;
   }
-  if (yearOfStudy > 4) return null;
+  if (yearOfStudy > 3) return null;
 
   const teachingStart = acad.nextTeachingStart;
   const daysUntilStart = Math.max(0, Math.ceil((teachingStart.getTime() - now.getTime()) / DAY_MS));

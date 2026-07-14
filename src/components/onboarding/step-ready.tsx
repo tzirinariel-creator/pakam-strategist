@@ -296,6 +296,7 @@ export function StepReady({ data, plannedSemesters, completedCourses, allCourses
           "pakamon-guide-nudge-done",
           "pakamon-google-banner-dismissed",
           "pk-met-king-card",
+          "pk-met-advisor", // the chat-panel intro (floating-assistant) — missing it skipped the King intro on a reset account
         ]) {
           localStorage.removeItem(k);
         }

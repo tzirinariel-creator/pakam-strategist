@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import {
   CalendarClock,
   CalendarRange,
@@ -30,6 +30,7 @@ import {
   generateExamPlan,
   analyzeExamPeriod,
   recommendMoed,
+  explainBudget,
   DEFAULT_CAPACITY,
   type ExamInput,
   type ExamPlanResult,
@@ -135,6 +136,9 @@ export function ExamPlannerContent() {
   // blockedDays; unset = neutral (engine treats it as 1.0×). NOT a grade
   // prediction — the student's own read on how ready they feel.
   const [confidence, setConfidence] = useState<Record<string, number>>({});
+  // 13.7 #25 — the student's OWN hours per exam. Unset = the formula's
+  // estimate (which the UI now explains); set = their number wins outright.
+  const [hoursOverride, setHoursOverride] = useState<Record<string, number>>({});
   // #34 (12.7) — courses assessed by a PAPER / alternative assessment (מתווה
   // תשפ"ו) have no exam to plan: marked here, they leave the picker + skyline,
   // and get a gentle "add your submission deadline" pointer instead.
@@ -190,10 +194,10 @@ export function ExamPlannerContent() {
       // (min 1 kept so a course never drops to zero sessions). steady/crammer
       // don't reshape the client preview — the engine owns the window.
       const credits = prepStyle === "light" ? Math.max(1, Math.round(c.credits * 0.75)) : c.credits;
-      inputs.push({ courseCode: c.code, courseName: c.name, examDate: date, credits, averageGrade: c.averageGrade, failRate: c.failRate, confidence: confidence[c.code], moed });
+      inputs.push({ courseCode: c.code, courseName: c.name, examDate: date, credits, averageGrade: c.averageGrade, failRate: c.failRate, confidence: confidence[c.code], hoursOverride: hoursOverride[c.code], moed });
     }
     return inputs;
-  }, [examCourses, selected, prepStyle, confidence]);
+  }, [examCourses, selected, prepStyle, confidence, hoursOverride]);
 
   const previewPlan = useMemo(() => {
     // Fill around the student's locked/manual blocks so the preview matches what
@@ -236,9 +240,33 @@ export function ExamPlannerContent() {
       prepStyle, // apply the SAME scaling the wizard preview showed (#audit-r3)
       capacity: { weekdayHours }, // the same capacity the preview used
       confidence: Object.keys(confidence).length > 0 ? confidence : undefined,
+      hoursOverride: Object.keys(hoursOverride).length > 0 ? hoursOverride : undefined,
     });
     setRetuneOpen(false);
   };
+
+  // Re-tune honesty (13.7 #25 depth): the saved exam blocks carry the wizard
+  // answers (`conf=K`, `own=1` + `budget=N`), so reopening the wizard re-seeds
+  // the SAME assumptions the student approved instead of silently resetting to
+  // neutral. In-session edits win (seed only fills unset keys, once).
+  const seededFromSave = useRef(false);
+  useEffect(() => {
+    if (!retuneOpen || seededFromSave.current) return;
+    seededFromSave.current = true;
+    const conf: Record<string, number> = {};
+    const own: Record<string, number> = {};
+    for (const t of (tasksQuery.data?.tasks ?? []) as StudyTask[]) {
+      if (t.taskType !== "exam" || !t.courseCode || !t.notes) continue;
+      const mc = /\bconf=([1-5])\b/.exec(t.notes);
+      if (mc) conf[t.courseCode] = Number(mc[1]);
+      if (t.notes.includes("own=1")) {
+        const mb = /\bbudget=(\d+)\b/.exec(t.notes);
+        if (mb) own[t.courseCode] = Number(mb[1]);
+      }
+    }
+    if (Object.keys(conf).length) setConfidence((p) => ({ ...conf, ...p }));
+    if (Object.keys(own).length) setHoursOverride((p) => ({ ...own, ...p }));
+  }, [retuneOpen, tasksQuery.data]);
 
   const tasks = useMemo(() => (tasksQuery.data?.tasks ?? []) as StudyTask[], [tasksQuery.data]);
   const byDay = useMemo(() => {
@@ -393,6 +421,9 @@ export function ExamPlannerContent() {
   const [addTitle, setAddTitle] = useState("");
   const [addDate, setAddDate] = useState("");
   const [addType, setAddType] = useState<"assignment" | "custom" | "study">("assignment");
+  // 13.7 #25 — a manual study block's length is the student's to set (the old
+  // silent 2.5h default was an unexplained magic number).
+  const [addHours, setAddHours] = useState(2.5);
   const handleAdd = () => {
     if (!addTitle.trim() || !addDate) {
       toast.error(isHe ? "מלאו כותרת ותאריך" : "Fill a title and date");
@@ -411,7 +442,7 @@ export function ExamPlannerContent() {
       startDate: d,
       endDate: end,
       taskType: addType,
-      notes: addType === "study" ? "2.5h" : undefined,
+      notes: addType === "study" ? `${addHours}h` : undefined,
     });
     setAddTitle("");
     setAddDate("");
@@ -522,6 +553,70 @@ export function ExamPlannerContent() {
                     <span className="text-[10px] text-foreground/35">{isHe ? "פחות מוכנים = יותר שעות" : "less ready = more hours"}</span>
                   </div>
                 )}
+                {sel && (() => {
+                  // 13.7 #25 — "למה 12 שעות למיקרו?" answered IN the product, and
+                  // the number itself is the student's to change. Same inputs the
+                  // engine uses (incl. the "light" credits scaling), so the line
+                  // never disagrees with the plan.
+                  const effCredits = prepStyle === "light" ? Math.max(1, Math.round(c.credits * 0.75)) : c.credits;
+                  const exp = explainBudget({
+                    credits: effCredits,
+                    averageGrade: c.averageGrade,
+                    failRate: c.failRate,
+                    confidence: confidence[c.code],
+                    hoursOverride: hoursOverride[c.code],
+                  });
+                  // Only claim the Arazim source when there IS data behind the
+                  // classification; unknown course → an honest default label.
+                  const hasSignal = c.averageGrade != null || c.failRate != null;
+                  const diffHe = hasSignal
+                    ? `קורס ${exp.difficulty === "high" ? "קשה" : exp.difficulty === "low" ? "קל" : "בינוני"} לפי נתוני ארזים`
+                    : "אין נתוני עבר — הנחנו בינוני";
+                  const diffEn = hasSignal
+                    ? `${exp.difficulty === "high" ? "hard" : exp.difficulty === "low" ? "easy" : "medium"} per Arazim data`
+                    : "no history — assumed medium";
+                  return (
+                    <div className="flex basis-full flex-wrap items-center gap-x-2 gap-y-1">
+                      <span className="text-[11px] text-foreground/50">{isHe ? "שעות לימוד:" : "Study hours:"}</span>
+                      <input
+                        type="number"
+                        min={1}
+                        max={120}
+                        step={1}
+                        value={hoursOverride[c.code] ?? exp.total}
+                        aria-label={isHe ? `שעות לימוד ל${c.name}` : `Study hours for ${c.name}`}
+                        onChange={(e) => {
+                          const v = Number(e.target.value);
+                          setHoursOverride((p) => {
+                            const next = { ...p };
+                            if (!Number.isFinite(v) || v <= 0) delete next[c.code];
+                            else next[c.code] = Math.min(120, Math.round(v));
+                            return next;
+                          });
+                        }}
+                        className="w-14 rounded-md border border-border/60 bg-transparent px-1.5 py-0.5 text-center font-mono text-xs tabular-nums text-foreground/80 focus:border-accent-brand focus:outline-none"
+                      />
+                      {exp.overridden ? (
+                        <span className="text-[10px] text-foreground/40">
+                          {isHe ? `קבעתם בעצמכם (ההערכה שלנו: ${exp.estimated} שע׳) · ` : `Your call (our estimate: ${exp.estimated}h) · `}
+                          <button
+                            type="button"
+                            onClick={() => setHoursOverride((p) => { const n = { ...p }; delete n[c.code]; return n; })}
+                            className="text-accent-brand hover:underline"
+                          >
+                            {isHe ? "חזרו להערכה" : "back to estimate"}
+                          </button>
+                        </span>
+                      ) : (
+                        <span className="text-[10px] text-foreground/40">
+                          {isHe
+                            ? `ההערכה שלנו: ${effCredits} ש״ס × ${exp.perCredit} שע׳ (${diffHe}${exp.multiplier !== 1 ? ` · מוכנות ×${exp.multiplier}` : ""}) — אפשר לשנות`
+                            : `Our estimate: ${effCredits} cr × ${exp.perCredit}h (${diffEn}${exp.multiplier !== 1 ? ` · readiness ×${exp.multiplier}` : ""}) — yours to change`}
+                        </span>
+                      )}
+                    </div>
+                  );
+                })()}
                 <button
                   type="button"
                   onClick={() => toggleAltAssessment(c.code)}
@@ -578,6 +673,20 @@ export function ExamPlannerContent() {
           <option value="custom">{isHe ? "אישי/עבודה" : "Personal/work"}</option>
           <option value="study">{isHe ? "לימוד" : "Study"}</option>
         </select>
+        {addType === "study" && (
+          <label className="flex items-center gap-1.5 text-[11px] text-foreground/55">
+            {isHe ? "שעות:" : "Hours:"}
+            <input
+              type="number"
+              min={0.5}
+              max={12}
+              step={0.5}
+              value={addHours}
+              onChange={(e) => setAddHours(Math.min(12, Math.max(0.5, Number(e.target.value) || 2.5)))}
+              className="w-16 rounded-lg border border-border/60 bg-card px-2 py-2 text-center font-mono text-sm tabular-nums text-foreground/80 focus:border-foreground/30 focus:outline-none"
+            />
+          </label>
+        )}
         <button type="button" onClick={handleAdd} className="inline-flex items-center gap-1 rounded-lg bg-foreground/10 px-3 py-2 text-sm font-medium text-foreground/75 transition-colors hover:bg-foreground/15">
           <Plus className="size-4" />
           {isHe ? "הוסף" : "Add"}

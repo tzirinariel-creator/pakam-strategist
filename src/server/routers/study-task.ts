@@ -229,6 +229,9 @@ export const studyTaskRouter = createTRPCRouter({
         // report, NOT a prediction). Scales that exam's budget; omitted codes
         // stay neutral (1.0×).
         confidence: z.record(z.string(), z.number().min(1).max(5)).optional(),
+        // 13.7 #25 — the student's OWN total-hours choice per course. When set
+        // it replaces the credits×difficulty×readiness estimate entirely.
+        hoursOverride: z.record(z.string(), z.number().min(1).max(120)).optional(),
       })
     )
     .mutation(async ({ ctx, input }) => {
@@ -266,6 +269,7 @@ export const studyTaskRouter = createTRPCRouter({
           averageGrade: uc.course.averageGrade,
           failRate: uc.course.failRate,
           confidence: input.confidence?.[code],
+          hoursOverride: input.hoursOverride?.[code],
           moed,
         });
       }
@@ -342,7 +346,12 @@ export const studyTaskRouter = createTRPCRouter({
             // capacity-shortfall / overload recs and the skyline legend stay
             // honest on the reconstructed plan. `budget=N` (NOT `Nh`) so the
             // study-hours regex /([\d.]+)h/ never mistakes it for study time.
-            notes: `${AUTO_MARK} ${ex.difficulty} budget=${ex.totalHours}`,
+            // `conf=K` / `own=1` record the wizard answers behind that budget,
+            // so a re-tune re-seeds the SAME assumptions the student approved
+            // instead of silently resetting to neutral (13.7 #25 depth).
+            notes: `${AUTO_MARK} ${ex.difficulty} budget=${ex.totalHours}${
+              input.confidence?.[ex.courseCode] ? ` conf=${input.confidence[ex.courseCode]}` : ""
+            }${input.hoursOverride?.[ex.courseCode] ? " own=1" : ""}`,
           });
         }
         // Study sessions — a study block starting 09:00, exact duration.
