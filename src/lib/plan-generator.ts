@@ -101,9 +101,9 @@ export type CourseWithSchedule = Course & {
 
 const FUN_FACTS_HE = [
   "ידעת ש-78% מהציון הסופי בפכ\"מ מגיע מציוני הקורסים?",
-  "ידעת שצריך 4 סמינריונים כדי לסיים את התואר?",
+  "ידעת שצריך 3 עבודות סמינריוניות ורפרט כדי לסיים את התואר?",
   "ידעת שתואר פכ\"מ כולל 150 ש\"ס?",
-  "ידעת שאפשר לבחור תחום מיקוד מתוך 3 דיסציפלינות?",
+  "ידעת שאפשר לבחור תחום מיקוד מתוך 3 תחומים?",
   "ידעת שהציון המינימלי למעבר שנה הוא 75 כללי ו-80 בפכ\"מ?",
   "ידעת שאפשר לספור קורס מתחום אחד לתחום אחר?",
   "ידעת שיש 10 קורסי יסוד במשפטים לבחור מתוכם?",
@@ -112,7 +112,7 @@ const FUN_FACTS_HE = [
 
 const FUN_FACTS_EN = [
   "Did you know 78% of your final PPE grade comes from course grades?",
-  "Did you know you need 4 seminars to graduate?",
+  "Did you know you need 3 seminar papers and a referat to graduate?",
   "Did you know the PPE degree totals 150 credit hours?",
   "Did you know you can choose a focus area from 3 disciplines?",
   "Did you know the minimum passing grade is 75 overall and 80 in PPE?",

@@ -8,21 +8,12 @@ import { toast } from "sonner";
 import { api } from "@/lib/trpc/react";
 import { Link } from "@/i18n/navigation";
 import { greetNameForLocale, gendered, normalizeGender } from "@/lib/personal-address";
-import { DISCIPLINE_CONFIG } from "@/lib/constants";
-import {
-  deriveCurrentGroup,
-  binaryCapRemaining,
-  hasMiluimBinaryBenefit,
-  getCurrentAcademicYear,
-  type MiluimGroupKey,
-} from "@/lib/miluim";
+import { useDegreeQAContext } from "@/components/mentor/use-qa-context";
 import {
   answerDegreeQuestion,
   suggestedQuestions,
-  type QAContext,
   type QAAnswer,
 } from "@/lib/degree-qa";
-import { CREDIT_REQUIREMENTS } from "@/lib/constants";
 import { cn } from "@/lib/utils";
 import { Bidi } from "@/lib/bidi";
 
@@ -41,73 +32,13 @@ export function DegreeAssistant() {
   const isHe = locale === "he";
   const Arrow = isHe ? ArrowLeft : ArrowRight;
 
-  const creditsQuery = api.plan.getCredits.useQuery(undefined, { retry: 1 });
-  const gradeQuery = api.plan.getGraduationScore.useQuery(undefined, { retry: 1 });
-  const regulationQuery = api.regulation.checkCompliance.useQuery(undefined, { retry: 1 });
+  // ONE source of truth with the floating assistant (use-qa-context) — the
+  // inline copy of this context had drifted: it dropped `gender` (so /mentor
+  // answers were ungendered) and read the fossilized stored semester
+  // (spirit-audit 14.7).
+  const { ctx, ready: dataReady } = useDegreeQAContext();
+  // Greeting only — react-query dedupes with the hook's own profile query.
   const profileQuery = api.user.getProfile.useQuery(undefined, { retry: 1 });
-  const semestersQuery = api.user.listMiluimSemesters.useQuery(undefined, { retry: 1 });
-  const planQuery = api.plan.getUserPlan.useQuery(undefined, { retry: 1 });
-
-  const ctx: QAContext = useMemo(() => {
-    const b = creditsQuery.data?.breakdown ?? null;
-    const profile = profileQuery.data;
-    const focusArea = profile?.focusArea ?? null;
-    const focusCfg = focusArea ? DISCIPLINE_CONFIG[focusArea] : null;
-
-    const group = deriveCurrentGroup(
-      semestersQuery.data ?? [],
-      (profile?.miluimGroup ?? "NONE") as MiluimGroupKey,
-      { academicYear: getCurrentAcademicYear(), semester: profile?.currentSemester ?? null }
-    );
-    // Locale-aware so the English assistant says "Group C", not "קבוצה C"
-    // embedded mid-sentence in English (#37).
-    const groupName =
-      group === "NONE"
-        ? null
-        : `${isHe ? "קבוצה" : "Group"} ${group.replace("GROUP_", "")}`;
-
-    const failedRules = (regulationQuery.data?.results ?? [])
-      .filter((r) => !r.passed && (r.severity === "ERROR" || r.severity === "WARNING"))
-      .map((r) => ({
-        nameHe: r.ruleNameHe,
-        nameEn: r.ruleNameEn,
-        deficit: Number((r.details as Record<string, unknown> | undefined)?.deficit ?? 0),
-      }));
-
-    return {
-      isHe,
-      effectiveTotal: b?.effectiveTotal ?? 0,
-      earned: b?.earned ?? 0,
-      planned: b?.planned ?? 0,
-      miluimExemption: b?.miluimExemption ?? 0,
-      mandatory: b?.mandatory ?? 0,
-      elective: b?.elective ?? 0,
-      seminar: b?.seminar ?? 0,
-      focusAreaCredits: b?.focusArea ?? 0,
-      focusAreaTarget: b?.focusAreaTarget ?? CREDIT_REQUIREMENTS.FOCUS_AREA_MIN,
-      englishCourseCount: b?.englishCourseCount ?? 0,
-      courseAverage: gradeQuery.data?.courseAverage ?? null,
-      hasFocusArea: !!focusArea,
-      focusAreaNameHe: focusCfg?.nameHe ?? null,
-      focusAreaNameEn: focusCfg?.nameEn ?? null,
-      currentYear: profile?.currentYear ?? 1,
-      amiramScore: profile?.amiramScore ?? null,
-      miluimGroupName: groupName,
-      // Same single gate as use-qa-context — only B/C get binary; A/G/NONE = 0.
-      binaryRemaining: hasMiluimBinaryBenefit(group) ? binaryCapRemaining(profile?.miluimBinaryUsed ?? 0, group) : 0,
-      failedRules,
-      seminarPlannedCount:
-        planQuery.data?.courses?.filter((c) => c.course.courseType === "SEMINAR").length ?? 0,
-    };
-  }, [
-    creditsQuery.data,
-    gradeQuery.data,
-    regulationQuery.data,
-    profileQuery.data,
-    semestersQuery.data,
-    planQuery.data,
-    isHe,
-  ]);
 
   const [input, setInput] = useState("");
   const [turns, setTurns] = useState<Turn[]>([]);
@@ -116,9 +47,6 @@ export function DegreeAssistant() {
   useEffect(() => {
     endRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [turns]);
-
-  // Don't answer from empty defaults before the student's data has loaded.
-  const dataReady = !creditsQuery.isLoading && !profileQuery.isLoading;
 
   const ask = (question: string) => {
     const q = question.trim();
@@ -147,7 +75,7 @@ export function DegreeAssistant() {
           </h1>
           <p className="text-xs text-foreground/50">
             {isHe
-              ? "תשובות מהנתונים שלכם — בלי בינה מלאכותית, בלי המצאות."
+              ? "תשובות מהנתונים שלך — בלי בינה מלאכותית, בלי המצאות."
               : "Answers from your own data — no AI, no made-up facts."}
           </p>
         </div>
@@ -211,7 +139,7 @@ export function DegreeAssistant() {
         <input
           value={input}
           onChange={(e) => setInput(e.target.value)}
-          placeholder={isHe ? "כתבו שאלה על התואר…" : "Type a question about your degree…"}
+          placeholder={isHe ? gendered(normalizeGender(profileQuery.data?.gender), { m: "כתוב שאלה על התואר…", f: "כתבי שאלה על התואר…", n: "כתוב/כתבי שאלה על התואר…" }) : "Type a question about your degree…"}
           className="flex-1 rounded-xl border border-border/60 bg-card px-4 py-2.5 text-sm text-foreground placeholder:text-foreground/30 focus:border-foreground/30 focus:outline-none focus:ring-1 focus:ring-foreground/20"
         />
         <button

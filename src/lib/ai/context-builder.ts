@@ -51,6 +51,8 @@ export interface UserForContext {
   gender?: string | null;
   /** AMIRANT English placement score (DB column kept as amiramScore). */
   amiramScore?: number | null;
+  /** #23 — the DECLARED English level (grade sheet); overrides the score. */
+  englishLevel?: string | null;
   /** Miluim fields — so the mentor's credit total + regulation list match the
    *  dashboard hero exactly (#19). Optional: absent → NONE / 0 (no change). */
   miluimGroup?: MiluimGroup | string | null;
@@ -171,6 +173,12 @@ export async function buildUserContext(
   const creditResult = calculateCredits(userCourses, user.focusArea, miluimExemption);
   const gradeResult = calculateGrades(userCourses);
 
+  // Standing derived from the calendar anchor, never the fossilized stored
+  // pair — in October the stored year is one behind until the profile is
+  // touched, and the stored semester can lag a whole season (spirit 14.7).
+  const derivedYear = deriveYearOfStudy(user.startYear, user.currentYear);
+  const liveSemester = getAcademicNow().semester;
+
   const regulationSummary = runRegulationEngine(
     userCourses,
     user.focusArea,
@@ -178,8 +186,11 @@ export async function buildUserContext(
     undefined,
     {
       amirantScore: user.amiramScore ?? null,
-      academicYear: user.currentYear,
-      currentSemester: user.currentSemester,
+      // #23 — the declared level must reach the rule engine here too, or the
+      // King's regulation list diverges from the dashboard's.
+      englishLevel: user.englishLevel ?? null,
+      academicYear: derivedYear,
+      currentSemester: liveSemester,
       miluimGroup: currentGroup,
       miluimBinaryUsed: user.miluimBinaryUsed,
       miluimCreditsUsed: user.miluimCreditsUsed,
@@ -205,8 +216,8 @@ export async function buildUserContext(
   const currentSemesterCredits = userCourses
     .filter(
       (uc) =>
-        uc.plannedSemester === user.currentSemester &&
-        uc.plannedYear === user.currentYear &&
+        uc.plannedSemester === liveSemester &&
+        uc.plannedYear === derivedYear &&
         (uc.status === "IN_PROGRESS" || uc.status === "PLANNED"),
     )
     .reduce((sum, uc) => sum + uc.course.credits, 0);
@@ -221,10 +232,7 @@ export async function buildUserContext(
     userCourses.map((uc) => uc.course.code),
   );
 
-  const nextSemesterInfo = getNextSemester(
-    user.currentYear,
-    user.currentSemester,
-  );
+  const nextSemesterInfo = getNextSemester(derivedYear, liveSemester);
 
   // Scope the King's course list to the student's PROGRAM. `Course` has no
   // programId column — the only program signal is the discipline string — so a

@@ -13,7 +13,7 @@
 // exam date, a real unmet requirement. If the data isn't there, the
 // recommendation isn't shown.
 
-import { CREDIT_REQUIREMENTS, GRADE_REQUIREMENTS, getEnglishLevel } from "@/lib/constants";
+import { CREDIT_REQUIREMENTS, GRADE_REQUIREMENTS, resolveEnglishLevel } from "@/lib/constants";
 import { hasMiluimBinaryBenefit, type MiluimGroupKey } from "@/lib/miluim";
 
 // -------------------------------------------------------------------
@@ -83,6 +83,8 @@ export interface RecommendationInput {
   englishCourseCount: number;
   /** Amiram/Amirnet English placement score (50–150), or null if unknown. */
   amiramScore: number | null;
+  /** #23 — declared English level (grade sheet); overrides the score. */
+  englishLevel?: string | null;
   hasFocusArea: boolean;
   currentYear: number;
   /** Current miluim group key (e.g. "GROUP_C") — gates the binary suggestion. */
@@ -217,7 +219,9 @@ export function buildRecommendations(
   //     non-exempt student must reach פטור (score 134+) by the end of Year 1, or
   //     studies stop. Highest urgency while still in Year 1.
   if (input.currentYear <= 1) {
-    if (input.amiramScore === null) {
+    const resolvedLvl = resolveEnglishLevel(input.englishLevel, input.amiramScore);
+    const lvlDeclared = resolveEnglishLevel(input.englishLevel, null) != null;
+    if (!resolvedLvl) {
       recs.push({
         id: "amiram-missing",
         severity: "info",
@@ -232,16 +236,16 @@ export function buildRecommendations(
         priority: 1.5,
       });
     } else {
-      const lvl = getEnglishLevel(input.amiramScore);
+      const lvl = resolvedLvl;
       if (lvl && !lvl.isExempt) {
         recs.push({
           id: "amiram-deadline",
           severity: "warning",
           icon: "languages",
-          titleHe: `אנגלית: ${lvl.nameHe} (אמירנט ${input.amiramScore})`,
-          titleEn: `English: ${lvl.nameEn} (Amiram ${input.amiramScore})`,
-          bodyHe: `לפי הציון שהזנת (${input.amiramScore}) אתם ב${lvl.nameHe} — חסרים ${lvl.levelCourses} קורסי-רמה. לפי התקנון (נכון לתשפ״ו) צריך להגיע לפטור (134+) עד סוף שנה א׳. האופציות: קורס-רמה או מבחן אמירנט חוזר. אם כבר הגעתם לפטור — עדכנו את הציון בהגדרות.`,
-          bodyEn: `Per the score you entered (${input.amiramScore}) you're at ${lvl.nameEn} — ${lvl.levelCourses} level course(s) to go. Regulations (as of 2025-26) require exemption (134+) by end of Year 1. Take a level course or retake Amiram. Already exempt? Update your score in settings.`,
+          titleHe: `אנגלית: ${lvl.nameHe}${lvlDeclared ? "" : ` (אמירנט ${input.amiramScore})`}`,
+          titleEn: `English: ${lvl.nameEn}${lvlDeclared ? "" : ` (Amiram ${input.amiramScore})`}`,
+          bodyHe: `${lvlDeclared ? "לפי הרמה שנקלטה מהגיליון" : `לפי הציון שהזנתם (${input.amiramScore})`} אתם ב${lvl.nameHe} — חסרים ${lvl.levelCourses} קורסי-רמה. לפי התקנון (נכון לתשפ״ו) צריך להגיע לפטור (134+) עד סוף שנה א׳. האופציות: קורס-רמה או מבחן אמירנט חוזר. אם כבר הגעתם לפטור — עדכנו את הרמה בהגדרות.`,
+          bodyEn: `${lvlDeclared ? "Per the level from your grade sheet" : `Per the score you entered (${input.amiramScore})`} you're at ${lvl.nameEn} — ${lvl.levelCourses} level course(s) to go. Regulations (as of 2025-26) require exemption (134+) by end of Year 1. Take a level course or retake Amiram. Already exempt? Update your level in settings.`,
           href: "/catalog",
           ctaHe: "לקורסי אנגלית",
           ctaEn: "English courses",

@@ -157,7 +157,7 @@ export function Sidebar() {
               <GraduationCap className="h-5 w-5 text-primary-foreground" />
             </div>
             <span className="font-display text-lg font-bold text-foreground/80">
-              {isRTL ? "פכ\"מ" : "PKM"}
+              {isRTL ? "פכ״מ" : "PKM"}
             </span>
           </div>
         )}

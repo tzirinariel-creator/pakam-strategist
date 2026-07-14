@@ -97,13 +97,18 @@ export function CalendarContent() {
   const currentSemesterKey = useMemo(() => {
     if (!calendarProfile) return "";
     const acadNow = getAcademicNow();
-    const year = deriveYearOfStudy(calendarProfile.startYear, calendarProfile.currentYear ?? 1);
     // Open on the semester the student is actually working on: the PLANNING ANCHOR
     // (→ FALL in July, the upcoming teaching semester) when the plan has it, else
     // the live calendar semester — so a fresh year-1 opens on their FALL plan and
-    // not on a ב׳ bucket (QA 13.7).
-    const anchorKey = `${year}-${getPlanningAnchor().semester}`;
+    // not on a ב׳ bucket (QA 13.7). The anchor's year must be derived AT THE
+    // ANCHOR: in July the anchor is NEXT academic year's fall, so pairing it with
+    // today's study-year opened a continuing student on the fall that already
+    // ENDED (spirit-audit 14.7).
+    const anchor = getPlanningAnchor();
+    const anchorYear = deriveYearOfStudy(calendarProfile.startYear, calendarProfile.currentYear ?? 1, anchor.startYear);
+    const anchorKey = `${anchorYear}-${anchor.semester}`;
     if (semesterOptions.some((o) => o.key === anchorKey)) return anchorKey;
+    const year = deriveYearOfStudy(calendarProfile.startYear, calendarProfile.currentYear ?? 1);
     const calKey = `${year}-${acadNow.semester}`;
     return semesterOptions.some((o) => o.key === calKey) ? calKey : "";
   }, [calendarProfile, semesterOptions]);

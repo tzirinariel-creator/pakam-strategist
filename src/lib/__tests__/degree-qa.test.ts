@@ -66,10 +66,19 @@ describe("answerDegreeQuestion", () => {
     expect(a.text).toContain("אני יכול לעזור");
   });
 
-  it("prompts to add an Amiram score when missing", () => {
+  it("prompts to add an English level when BOTH score and declared level are missing", () => {
     const a = answerDegreeQuestion("אנגלית", ctx({ amiramScore: null }));
-    expect(a.text).toContain("לא הזנת");
+    expect(a.text).toContain("אין רמת-אנגלית");
     expect(a.href).toBe("/settings");
+  });
+
+  // #23 — the DECLARED level (grade sheet) overrides the score everywhere:
+  // with no score at all, a declared EXEMPT must answer "פטור" and must NOT
+  // claim the Amiram is the source.
+  it("honors a declared English level with no Amiram score (#23)", () => {
+    const a = answerDegreeQuestion("אנגלית", ctx({ amiramScore: null, englishLevel: "EXEMPT" }));
+    expect(a.text).toContain("פטור");
+    expect(a.text).toContain("לפי הרמה מהגיליון");
   });
 
   // ── Normalized matching (step 1) — these paraphrases dropped to the fallback

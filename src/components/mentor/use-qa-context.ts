@@ -3,7 +3,7 @@
 import { useMemo } from "react";
 import { useLocale } from "next-intl";
 import { api } from "@/lib/trpc/react";
-import { getAcademicNow } from "@/lib/academic-calendar";
+import { getAcademicNow, deriveYearOfStudy } from "@/lib/academic-calendar";
 import { DISCIPLINE_CONFIG, CREDIT_REQUIREMENTS } from "@/lib/constants";
 import {
   deriveCurrentGroup,
@@ -75,9 +75,15 @@ export function useDegreeQAContext(
       hasFocusArea: !!focusArea,
       focusAreaNameHe: focusCfg?.nameHe ?? null,
       focusAreaNameEn: focusCfg?.nameEn ?? null,
-      currentYear: profile?.currentYear ?? 1,
+      // Derived from the calendar anchor, never the fossilized stored year —
+      // in October the stored year is one behind until the profile is touched
+      // (spirit-audit 14.7).
+      currentYear: deriveYearOfStudy(profile?.startYear, profile?.currentYear ?? 1),
       gender: profile?.gender === "male" || profile?.gender === "female" ? profile.gender : null,
       amiramScore: profile?.amiramScore ?? null,
+      // #23 — the DECLARED level (grade sheet) overrides the score everywhere;
+      // the King must see it too, or he asks for a score the app doesn't need.
+      englishLevel: profile?.englishLevel ?? null,
       miluimGroupName: groupName,
       // Binary conversion is a miluim benefit only groups B/C actually grant.
       // binaryCapRemaining falls back to the universal BA cap of 5 for any
@@ -122,8 +128,9 @@ export function useDegreeQAContext(
       courseAverage: gradeQuery.data?.courseAverage ?? null,
       englishCourseCount: b?.englishCourseCount ?? 0,
       amiramScore: profile?.amiramScore ?? null,
+      englishLevel: profile?.englishLevel ?? null,
       hasFocusArea: !!profile?.focusArea,
-      currentYear: profile?.currentYear ?? 1,
+      currentYear: deriveYearOfStudy(profile?.startYear, profile?.currentYear ?? 1),
       miluimGroup,
       binaryRemaining: binaryCapRemaining(profile?.miluimBinaryUsed ?? 0, miluimGroup as MiluimGroupKey),
       regulationResults: regulationQuery.data?.results ?? [],

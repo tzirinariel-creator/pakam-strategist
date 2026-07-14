@@ -582,24 +582,29 @@ export function DashboardContent() {
     profileQuery.data?.startYear,
     profileQuery.data?.currentYear ?? 1,
   );
-  // Plan-aware "active semester": the calendar semester IF the plan has courses
-  // there this year, else the semester the plan is actually about. A fresh year-1
-  // in July has a FALL plan while the calendar says SPRING — so the header must
-  // read "סמסטר א׳", not "ב׳" (QA 13.7). Falls back to the planning anchor when
-  // there's no plan yet.
-  const activeSemester: "FALL" | "SPRING" = (() => {
+  // Plan-aware "active semester" — WITH its matching year. The planning anchor
+  // in July is NEXT year's FALL, so pairing the anchor's semester with TODAY's
+  // study-year showed a continuing student last year's fall ("שנה 2 · סמסטר א׳"
+  // for a student about to start year-3 fall) — the year-at-anchor must ride
+  // along (spirit-audit 14.7; same pattern as semester-planner-page).
+  const anchor = getPlanningAnchor();
+  const anchorYear = deriveYearOfStudy(
+    profileQuery.data?.startYear,
+    profileQuery.data?.currentYear ?? 1,
+    anchor.startYear,
+  );
+  const { activeSemester, activeYear } = (() => {
     const cs = planQuery.data?.courses ?? [];
-    const inYear = (sem: "FALL" | "SPRING") =>
-      cs.some((c) => c.plannedYear === currentYear && c.plannedSemester === sem);
-    // Prefer the PLANNING ANCHOR (the semester the student is working on) — same
-    // rule /calendar uses — so the two surfaces never disagree (verify 13.7).
-    const anchorSem = getPlanningAnchor().semester;
-    if (inYear(anchorSem)) return anchorSem;
+    const has = (y: number, sem: "FALL" | "SPRING") =>
+      cs.some((c) => c.plannedYear === y && c.plannedSemester === sem);
+    // Prefer the PLANNING ANCHOR pair (the semester the student is working on,
+    // at ITS year) — same rule /calendar uses, so the surfaces never disagree.
+    if (has(anchorYear, anchor.semester)) return { activeSemester: anchor.semester, activeYear: anchorYear };
     const calSem: "FALL" | "SPRING" = acadNow.semester === "FALL" ? "FALL" : "SPRING";
-    if (inYear(calSem)) return calSem;
-    if (inYear("FALL")) return "FALL";
-    if (inYear("SPRING")) return "SPRING";
-    return anchorSem;
+    if (has(currentYear, calSem)) return { activeSemester: calSem, activeYear: currentYear };
+    if (has(currentYear, "FALL")) return { activeSemester: "FALL" as const, activeYear: currentYear };
+    if (has(currentYear, "SPRING")) return { activeSemester: "SPRING" as const, activeYear: currentYear };
+    return { activeSemester: anchor.semester, activeYear: anchorYear };
   })();
 
   // How many planned courses the student is literally sitting in RIGHT NOW —
@@ -960,9 +965,9 @@ export function DashboardContent() {
         </div>
         {profileQuery.data && (
           <p className="mt-1 text-sm text-foreground/50">
-            {isHe ? "פכ\"מ" : "PPE"} · {t("semesterContext", {
+            {isHe ? "פכ״מ" : "PPE"} · {t("semesterContext", {
               semester: activeSemester === "FALL" ? (isHe ? "א׳" : "A") : (isHe ? "ב׳" : "B"),
-              year: currentYear,
+              year: activeYear,
             })}
           </p>
         )}

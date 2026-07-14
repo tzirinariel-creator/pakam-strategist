@@ -49,8 +49,9 @@ export interface Tip {
 const FUN_FACTS: Tip[] = [
   {
     id: "ff-1",
-    textEn: "Someone got 95 on their seminar paper and 70 on courses — their final score was 73. Courses count for 78%.",
-    textHe: "שמעתם על מישהו שעשה 95 בסמינריון ו-70 בקורסים? ציון הגמר שלו 73. הקורסים שווים 78%.",
+    // Arithmetic honors the real formula: 0.78×70 + 0.18×90 + 0.04×80 = 74.0
+    textEn: "Someone got 90 on seminars, 80 on the referat — and 70 on courses. Final score: 74. Courses count for 78%.",
+    textHe: "מישהו עשה 90 בסמינריונים, 80 ברפרט — ו-70 בקורסים. ציון הגמר: 74. הקורסים שווים 78%.",
     category: "fun_fact",
     icon: Calculator,
   },

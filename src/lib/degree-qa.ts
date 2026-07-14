@@ -9,7 +9,7 @@
 // Pure + testable: the UI fills a QAContext from its tRPC queries and calls
 // answerDegreeQuestion().
 
-import { CREDIT_REQUIREMENTS, GRADE_REQUIREMENTS, GRADE_WEIGHTS, SEMINAR_REQUIREMENTS, getEnglishLevel } from "@/lib/constants";
+import { CREDIT_REQUIREMENTS, GRADE_REQUIREMENTS, GRADE_WEIGHTS, SEMINAR_REQUIREMENTS, resolveEnglishLevel } from "@/lib/constants";
 
 export interface QAContext {
   isHe: boolean;
@@ -36,6 +36,8 @@ export interface QAContext {
   /** "male" | "female" | null — for gendered second-person phrasing. */
   gender?: "male" | "female" | null;
   amiramScore: number | null;
+  /** #23 — the DECLARED English level (grade sheet); overrides the score. */
+  englishLevel?: string | null;
   miluimGroupName: string | null; // localized group name, or null if NONE
   binaryRemaining: number;
   // Requirements
@@ -300,7 +302,7 @@ const HANDLERS: Handler[] = [
     answer: (c) => ({
       text: he(
         c,
-        "מועד ב׳ = הזדמנות שנייה למבחן. שים לב: בישראל הציון האחרון קובע (לא הגבוה) — אז כדאי ללכת רק אם אתה בטוח שתשתפר. שיבוץ הלמידה, פריסה אחורה מכל מבחן ואיזון עומס — במתכנן המבחנים.",
+        `מועד ב׳ = הזדמנות שנייה למבחן. ${gm(c, "שים לב", "שימי לב", "שימו לב")}: בישראל הציון האחרון קובע (לא הגבוה) — אז כדאי ללכת רק אם ${gm(c, "אתה בטוח שתשתפר", "את בטוחה שתשתפרי", "בטוחים שתשתפרו")}. שיבוץ הלמידה, פריסה אחורה מכל מבחן ואיזון עומס — במתכנן המבחנים.`,
         "Moed B is a second exam sitting. Note: in Israel the LAST grade counts (not the higher one) — so retake only if you're confident you'll improve. Study spread, reverse-planning and load balancing are in the exam planner."
       ),
       href: "/exam-planner",
@@ -324,7 +326,10 @@ const HANDLERS: Handler[] = [
   {
     keys: ["אנגלית", "אמירם", "אמירנט", "english", "amiram"],
     answer: (c) => {
-      const lvl = getEnglishLevel(c.amiramScore);
+      // #23 — the declared level (grade sheet) wins over the score; only
+      // claim "לפי האמירנט" when the score is actually the source.
+      const lvl = resolveEnglishLevel(c.englishLevel, c.amiramScore);
+      const declared = resolveEnglishLevel(c.englishLevel, null) != null;
       const content = he(
         c,
         `דרישת-התוכן: ${CREDIT_REQUIREMENTS.ENGLISH_MIN_COURSES} קורסים אקדמיים שנלמדים באנגלית (חובה לכולם, בלי קשר לרמה) — השלמת ${c.englishCourseCount} מתוכם.`,
@@ -332,7 +337,7 @@ const HANDLERS: Handler[] = [
       );
       if (!lvl) {
         return {
-          text: he(c, `${content} לא הזנת ציון אמירנט — ${gm(c, "הוסף", "הוסיפי", "הוסף/י")} אותו בהגדרות כדי לדעת אם ${gm(c, "אתה פטור או צריך", "את פטורה או צריכה", "את/ה פטור/ה או צריך/ה")} קורסי רמה.`, `${content} You haven't entered an Amiram score — add it in settings to see if you're exempt or owe level courses.`),
+          text: he(c, `${content} אין רמת-אנגלית בפרופיל — ${gm(c, "הוסף", "הוסיפי", "הוסיפו")} ציון אמירנט בהגדרות (או ${gm(c, "סרוק", "סרקי", "סרקו")} גיליון ציונים והרמה תיקלט לבד) כדי לדעת אם יש פטור או קורסי רמה.`, `${content} No English level on your profile — add an Amiram score in settings (or scan your grade sheet and the level is picked up) to see if you're exempt or owe level courses.`),
           href: "/settings",
           cta: he(c, "להגדרות", "Settings"),
         };
@@ -341,10 +346,10 @@ const HANDLERS: Handler[] = [
       // year 1, so a year-2+ student shouldn't be told to take level courses —
       // they should already be exempt (#11). The CONTENT courses still stand.
       const lvlTxt = lvl.isExempt
-        ? he(c, `${gm(c, "אתה פטור", "את פטורה", "את/ה פטור/ה")} מקורסי רמה (אמירנט ${c.amiramScore}).`, `You're exempt from level courses (Amiram ${c.amiramScore}).`)
+        ? he(c, `${gm(c, "אתה פטור", "את פטורה", "את/ה פטור/ה")} מקורסי רמה (${declared ? "לפי הרמה מהגיליון" : `אמירנט ${c.amiramScore}`}).`, `You're exempt from level courses (${declared ? "per your declared level" : `Amiram ${c.amiramScore}`}).`)
         : c.currentYear <= 1
-          ? he(c, `דרישת-הרמה: לפי האמירנט (${c.amiramScore}) ${gm(c, "אתה", "את", "את/ה")} ברמת ${lvl.nameHe}, כלומר ${lvl.levelCourses === 1 ? "נשאר קורס-אנגלית אחד" : `נשארו ${lvl.levelCourses} קורסי-אנגלית`} עד הפטור. לפי התקנון מגיעים לפטור (134+) עד סוף שנה א׳.`, `Level requirement: per your Amiram (${c.amiramScore}) you're at ${lvl.nameEn} — ${lvl.levelCourses === 1 ? "one level course left" : `${lvl.levelCourses} level courses left`} to exemption. Regulations expect exemption (134+) by the end of Year 1.`)
-          : he(c, `${gm(c, "אתה", "את", "את/ה")} ב${lvl.nameHe} (אמירנט ${c.amiramScore}), אבל הדדליין לפטור היה סוף שנה א׳ — אם עדיין אין לך פטור, ${gm(c, "פנה", "פני", "פנה/י")} לייעוץ אקדמי (קורסי-התוכן באנגלית עדיין נדרשים).`, `You're at ${lvl.nameEn} (Amiram ${c.amiramScore}), but the exemption deadline was the end of Year 1 — if you're still not exempt, see academic advising (the English content courses are still required).`);
+          ? he(c, `דרישת-הרמה: ${declared ? "לפי הרמה מהגיליון" : `לפי האמירנט (${c.amiramScore})`} ${gm(c, "אתה", "את", "את/ה")} ברמת ${lvl.nameHe}, כלומר ${lvl.levelCourses === 1 ? "נשאר קורס-אנגלית אחד" : `נשארו ${lvl.levelCourses} קורסי-אנגלית`} עד הפטור. לפי התקנון מגיעים לפטור (134+) עד סוף שנה א׳.`, `Level requirement: ${declared ? "per your declared level" : `per your Amiram (${c.amiramScore})`} you're at ${lvl.nameEn} — ${lvl.levelCourses === 1 ? "one level course left" : `${lvl.levelCourses} level courses left`} to exemption. Regulations expect exemption (134+) by the end of Year 1.`)
+          : he(c, `${gm(c, "אתה", "את", "את/ה")} ב${lvl.nameHe} (${declared ? "לפי הגיליון" : `אמירנט ${c.amiramScore}`}), אבל הדדליין לפטור היה סוף שנה א׳ — אם עדיין אין לך פטור, ${gm(c, "פנה", "פני", "פנה/י")} לייעוץ אקדמי (קורסי-התוכן באנגלית עדיין נדרשים).`, `You're at ${lvl.nameEn} (${declared ? "per your sheet" : `Amiram ${c.amiramScore}`}), but the exemption deadline was the end of Year 1 — if you're still not exempt, see academic advising (the English content courses are still required).`);
       // #36 (owner-verified 4.7): English grades do NOT count toward the PPE
       // degree average — Ariel confirmed against a real transcript. (Earlier
       // research had inferred the opposite; the owner's check overrides it.)
@@ -459,7 +464,7 @@ const HANDLERS: Handler[] = [
       ({
         text: he(
           c,
-          "בידינג = מכרז: המציע הגבוה זוכה (לא כל-הקודם-זוכה). 2 מקצים, הנקודות מתאפסות בכל מקצה, מינ' 5 לקורס, והרצאה+תרגיל ביחד. המלכודת: רישום לקורס שחופף בזמן מבטל את הקודם! ראה את המסביר המלא במתכנן.",
+          `בידינג = מכרז: המציע הגבוה זוכה (לא כל-הקודם-זוכה). 2 מקצים, הנקודות מתאפסות בכל מקצה, מינ׳ 5 לקורס, והרצאה+תרגיל ביחד. המלכודת: רישום לקורס שחופף בזמן מבטל את הקודם! ${gm(c, "ראה", "ראי", "ראו")} את המסביר המלא במתכנן.`,
           "Bidding is an auction: highest bidder wins (not first-come). 2 rounds, points reset each round, min 5 per course, lecture+tutorial together. The trap: registering for a time-overlapping course cancels the earlier one! See the full explainer in the planner."
         ),
         href: "/planner",
@@ -479,7 +484,7 @@ const HANDLERS: Handler[] = [
         return {
           text: he(
             c,
-            "השלמת את כל הש״ס לתואר. נשאר רק לוודא שכל הדרישות מולאו — ראה 'המצב שלי'.",
+            `השלמת את כל הש״ס לתואר. נשאר רק לוודא שכל הדרישות מולאו — ${gm(c, "ראה", "ראי", "ראו")} את ׳המצב שלי׳.`,
             "You've completed all degree credits. Just confirm every requirement is met — see 'My status'."
           ),
           href: "/regulations",
