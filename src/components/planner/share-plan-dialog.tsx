@@ -3,6 +3,7 @@
 import { useLocale } from "next-intl";
 import { Copy, MessageCircle } from "lucide-react";
 import { toast } from "sonner";
+import { advisorError } from "@/lib/advisor-toast";
 import {
   Dialog,
   DialogContent,
@@ -39,7 +40,7 @@ export function SharePlanDialog({
       toast.success(isHe ? "הקישור הועתק — שלחו לחבר" : "Link copied — send it to a friend");
       onOpenChange(false);
     } catch {
-      toast.error(isHe ? "ההעתקה נכשלה" : "Copy failed");
+      advisorError(isHe ? "ההעתקה לא הצליחה — סמנו את הקישור והעתיקו ידנית." : "Copy didn't work — select the link and copy manually.");
     }
   };
 

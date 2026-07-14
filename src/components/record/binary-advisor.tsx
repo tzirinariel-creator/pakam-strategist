@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 import { useLocale } from "next-intl";
 import { Scale, TrendingUp, Loader2 } from "lucide-react";
 import { toast } from "sonner";
+import { advisorError } from "@/lib/advisor-toast";
 import { api } from "@/lib/trpc/react";
 import { invalidatePlanData } from "@/lib/trpc/invalidate-plan";
 import { getAcademicNow } from "@/lib/academic-calendar";
@@ -158,7 +159,7 @@ export function BinaryAdvisor() {
                           : `${course.nameHe} converted — average is now ${newAverage.toFixed(1)}`,
                       );
                     },
-                    onError: (e) => toast.error(e.message || (isHe ? "ההמרה נכשלה" : "Conversion failed")),
+                    onError: (e) => advisorError(e.message || (isHe ? "ההמרה לא הצליחה — הקורס נשאר עם הציון. נסו שוב." : "The conversion didn't go through — the course keeps its grade. Try again.")),
                   },
                 );
               }}

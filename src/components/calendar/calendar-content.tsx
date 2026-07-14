@@ -14,6 +14,7 @@ import {
   Share2,
 } from "lucide-react";
 import { toast } from "sonner";
+import { advisorError } from "@/lib/advisor-toast";
 import { api } from "@/lib/trpc/react";
 import { cn } from "@/lib/utils";
 import { ThemedLoader } from "@/components/ui/themed-loader";
@@ -176,7 +177,7 @@ export function CalendarContent() {
       void utils41.plan.getUserPlan.invalidate();
       toast.success(isHe ? "הקבוצה נשמרה" : "Group saved");
     },
-    onError: (e) => toast.error(e.message || (isHe ? "השמירה נכשלה" : "Save failed")),
+    onError: (e) => advisorError(e.message || (isHe ? "השמירה לא הצליחה — נסו שוב. הבחירה הקודמת נשארה." : "Save failed")),
   });
   const { unchosen, displaySessions } = useMemo(() => {
     interface SessLite {
@@ -263,7 +264,7 @@ export function CalendarContent() {
           ? `${t("syncSuccess")} (${data.synced})`
           : t("syncSuccess"),
       ),
-    onError: () => toast.error(t("syncFailed")),
+    onError: () => advisorError(t("syncFailed")),
   });
 
   const isLoading = planLoading;

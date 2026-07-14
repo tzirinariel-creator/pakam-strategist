@@ -4,6 +4,7 @@ import { useRef, useState } from "react";
 import { useLocale } from "next-intl";
 import { FileScan, Loader2, Check, X, GraduationCap, BookOpen } from "lucide-react";
 import { toast } from "sonner";
+import { advisorError } from "@/lib/advisor-toast";
 import { api } from "@/lib/trpc/react";
 import { fileToBase64, SCANNER_ACCEPT } from "@/lib/upload";
 import { syllabusDateToLocalNoon, type SyllabusExtraction } from "@/lib/syllabus-scan";
@@ -47,13 +48,13 @@ export function SyllabusScanner() {
       });
       const data = (await res.json()) as SyllabusExtraction & { error?: string };
       if (!res.ok) {
-        toast.error(data.error ?? (isHe ? "הסריקה נכשלה" : "Scan failed"));
+        advisorError(data.error ?? (isHe ? "הסריקה לא הצליחה — נסו שוב או צלמו תמונה חדה יותר." : "The scan didn't work — try again or take a sharper photo."));
         return;
       }
       setResult(data);
       setChecked(new Set(data.items.map((_, i) => i)));
     } catch {
-      toast.error(isHe ? "הסריקה נכשלה — נסו שוב" : "Scan failed — try again");
+      advisorError(isHe ? "הסריקה לא הצליחה — נסו שוב. שום דבר לא נשמר בינתיים." : "The scan didn't work — try again. Nothing was saved.");
     } finally {
       setScanning(false);
       if (fileRef.current) fileRef.current.value = "";

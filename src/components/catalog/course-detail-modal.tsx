@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useLocale } from "next-intl";
 import { toast } from "sonner";
+import { advisorError } from "@/lib/advisor-toast";
 import { Clock, Calendar, ArrowLeftRight, Flag, MessageSquarePlus } from "lucide-react";
 import {
   Dialog,
@@ -272,7 +273,7 @@ function CommunityKnowledge({
       void utils.courseKnowledge.getForCourse.invalidate({ courseCode: course.code });
       toast.success(isHe ? "תודה — נבדוק את זה." : "Thanks — we'll review it.");
     },
-    onError: () => toast.error(isHe ? "הדיווח נכשל. נסו שוב." : "Report failed. Try again."),
+    onError: () => advisorError(isHe ? "הדיווח לא נשלח — נסו שוב." : "Report failed. Try again."),
   });
 
   const data = q.data;

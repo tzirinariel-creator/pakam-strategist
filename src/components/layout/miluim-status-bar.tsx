@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Dialog as DialogPrimitive } from "radix-ui";
 import { Shield, X, Check, CalendarClock, Clock, Target, BookOpen, GraduationCap, ChevronLeft, ChevronRight, BadgeCheck } from "lucide-react";
 import { toast } from "sonner";
+import { advisorError } from "@/lib/advisor-toast";
 import { useLocale, useTranslations } from "next-intl";
 import { api } from "@/lib/trpc/react";
 import { getAcademicNow } from "@/lib/academic-calendar";
@@ -78,7 +79,7 @@ export function MiluimStatusBar() {
       void utils.regulation.checkCompliance.invalidate();
     },
     onError: (e) =>
-      toast.error(e.message || (isHe ? "העדכון נכשל" : "Update failed")),
+      advisorError(e.message || (isHe ? "העדכון לא הצליח — הערך הקודם נשאר. נסו שוב." : "The update didn't go through — the previous value stands. Try again.")),
   });
 
   const profile = profileQuery.data;

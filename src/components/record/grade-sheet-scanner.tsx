@@ -5,6 +5,7 @@ import { useSearchParams } from "next/navigation";
 import { useLocale } from "next-intl";
 import { ScanLine, Loader2, Check, AlertTriangle, X, Languages } from "lucide-react";
 import { toast } from "sonner";
+import { advisorError } from "@/lib/advisor-toast";
 import { api } from "@/lib/trpc/react";
 import { getEnglishLevelInfo, type EnglishLevel } from "@/lib/constants";
 import {
@@ -104,7 +105,7 @@ export function GradeSheetScanner() {
         error?: string;
       };
       if (!res.ok) {
-        toast.error(data.error ?? (isHe ? "הסריקה נכשלה" : "Scan failed"));
+        advisorError(data.error ?? (isHe ? "הסריקה לא הצליחה — נסו שוב או צלמו תמונה חדה יותר." : "The scan didn't work — try again or take a sharper photo."));
         return;
       }
       const matched = matchExtractedToCourses(
@@ -126,7 +127,7 @@ export function GradeSheetScanner() {
         new Set(matched.map((r, i) => (r.autoApplySafe && !r.uncertain ? i : -1)).filter((i) => i >= 0)),
       );
     } catch {
-      toast.error(isHe ? "הסריקה נכשלה — נסו שוב" : "Scan failed — try again");
+      advisorError(isHe ? "הסריקה לא הצליחה — נסו שוב. הציונים שלכם לא נגעו." : "The scan didn't work — try again. Your grades are untouched.");
     } finally {
       setScanning(false);
       if (fileRef.current) fileRef.current.value = "";
@@ -156,7 +157,7 @@ export function GradeSheetScanner() {
       } catch (e) {
         failed++;
         if (failed === 1) {
-          toast.error((e as { message?: string })?.message ?? (isHe ? "עדכון נכשל" : "Update failed"));
+          advisorError((e as { message?: string })?.message ?? (isHe ? "העדכון לא הצליח — השורות שכבר עודכנו נשמרו." : "The update didn't go through — rows already applied are saved."));
         }
       }
     }

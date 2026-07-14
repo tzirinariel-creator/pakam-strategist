@@ -4,6 +4,7 @@ import { useState, useEffect, useRef, useCallback } from "react";
 import { PartyPopper, Calendar, BookOpen, Check, RefreshCw, AlertTriangle, Download, CalendarDays } from "lucide-react";
 import { useTranslations, useLocale } from "next-intl";
 import { toast } from "sonner";
+import { advisorError } from "@/lib/advisor-toast";
 import { cn } from "@/lib/utils";
 import { api } from "@/lib/trpc/react";
 import { downloadICSFromSessions } from "@/lib/ics-export";
@@ -117,7 +118,7 @@ export function StepReady({ data, plannedSemesters, completedCourses, allCourses
   const googleStatus = api.schedule.getGoogleStatus.useQuery(undefined, { enabled: hasSaved });
   const syncToGoogle = api.schedule.syncToGoogle.useMutation({
     onSuccess: () => toast.success(tCal("syncSuccess")),
-    onError: () => toast.error(tCal("syncFailed")),
+    onError: () => advisorError(tCal("syncFailed")),
   });
 
   const scheduleSessions = scheduleQuery.data?.sessions ?? [];
@@ -304,7 +305,7 @@ export function StepReady({ data, plannedSemesters, completedCourses, allCourses
     } catch (error) {
       console.error("Failed to save onboarding plan:", error);
       setSaveError(true);
-      toast.error(t("saveFailedMessage"));
+      advisorError(t("saveFailedMessage"));
     } finally {
       setIsSaving(false);
     }

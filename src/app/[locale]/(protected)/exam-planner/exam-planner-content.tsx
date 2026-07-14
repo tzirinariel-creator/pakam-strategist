@@ -21,6 +21,7 @@ import {
 } from "lucide-react";
 import { useLocale } from "next-intl";
 import { toast } from "sonner";
+import { advisorError } from "@/lib/advisor-toast";
 import { Link } from "@/i18n/navigation";
 import { api } from "@/lib/trpc/react";
 import { usePersonalAddress } from "@/components/personal/use-personal-address";
@@ -94,7 +95,7 @@ export function ExamPlannerContent() {
       void invalidate();
       toast.success(isHe ? `נבנתה תוכנית: ${r.sessions ?? 0} מפגשי לימוד` : `Plan built: ${r.sessions ?? 0} study sessions`);
     },
-    onError: () => toast.error(isHe ? "יצירת התוכנית נכשלה" : "Failed to generate plan"),
+    onError: () => advisorError(isHe ? "בניית התוכנית לא הצליחה — נסו שוב. הבחירות שלכם נשמרו." : "Building the plan didn't work — try again. Your picks are kept."),
   });
   const createMutation = api.studyTask.create.useMutation({ onSuccess: () => void invalidate() });
   const toggleMutation = api.studyTask.toggleComplete.useMutation({ onSuccess: () => void invalidate() });

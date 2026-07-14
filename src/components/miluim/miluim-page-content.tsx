@@ -13,6 +13,7 @@ import { useState } from "react";
 import { useLocale } from "next-intl";
 import { Shield, CalendarRange, BadgeCheck, Scale as ScaleIcon, CalendarClock, Plus, Trash2, Loader2 } from "lucide-react";
 import { toast } from "sonner";
+import { advisorError } from "@/lib/advisor-toast";
 import { api } from "@/lib/trpc/react";
 import { Link } from "@/i18n/navigation";
 import { MiluimSection } from "@/components/settings/settings-content";
@@ -58,14 +59,14 @@ export function MiluimPageContent() {
   };
   const deleteMutation = api.user.deleteMiluimSemester.useMutation({
     onSuccess: invalidateMiluim,
-    onError: () => toast.error(isHe ? "המחיקה נכשלה" : "Delete failed"),
+    onError: () => advisorError(isHe ? "המחיקה לא הצליחה — הרשומה נשארה במקומה. נסו שוב." : "The delete didn't go through — the row is still there. Try again."),
   });
   const upsertMutation = api.user.upsertMiluimSemester.useMutation({
     onSuccess: () => {
       invalidateMiluim();
       toast.success(isHe ? "הסמסטר נשמר — הקבוצה חושבה לבד" : "Semester saved — group derived");
     },
-    onError: () => toast.error(isHe ? "השמירה נכשלה" : "Save failed"),
+    onError: () => advisorError(isHe ? "השמירה לא הצליחה — נסו שוב. שום דבר לא אבד." : "The save didn't go through — try again. Nothing was lost."),
   });
 
   const rows = (semestersQuery.data ?? []) as MiluimSemesterLite[];

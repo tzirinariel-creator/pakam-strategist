@@ -31,6 +31,7 @@ import {
 } from "lucide-react";
 import { useTranslations, useLocale } from "next-intl";
 import { toast } from "sonner";
+import { advisorError } from "@/lib/advisor-toast";
 import { cn } from "@/lib/utils";
 import { getAcademicNow, deriveYearOfStudy, hebrewYearLabel } from "@/lib/academic-calendar";
 import { Bidi } from "@/lib/bidi";
@@ -1483,7 +1484,7 @@ export function MiluimSection() {
       setTimeout(() => setSaved(false), 2000);
       toast.success(t("saved"));
     },
-    onError: () => toast.error(isHe ? "השמירה נכשלה" : "Save failed"),
+    onError: () => advisorError(isHe ? "השמירה לא הצליחה — נסו שוב. שום דבר לא אבד." : "The save didn't go through — try again. Nothing was lost."),
   });
   // Quiet twins for the 3010 UNDO path — restoring N rows must not fire N
   // "saved" toasts; ONE invalidate at the end.
@@ -1915,13 +1916,13 @@ export function Form3010Uploader({
       });
       const data = (await res.json()) as { summary?: Form3010Summary; error?: string };
       if (!res.ok || !data.summary) {
-        toast.error(data.error ?? (isHe ? "הסריקה נכשלה" : "Scan failed"));
+        advisorError(data.error ?? (isHe ? "הסריקה לא הצליחה — נסו שוב או צלמו תמונה חדה יותר." : "The scan didn't work — try again or take a sharper photo."));
         return;
       }
       setSummary(data.summary);
       setEdited({});
     } catch {
-      toast.error(isHe ? "הסריקה נכשלה — נסו שוב" : "Scan failed — try again");
+      advisorError(isHe ? "הסריקה לא הצליחה — נסו שוב. הנתונים שלכם לא נגעו." : "The scan didn't work — try again. Your data is untouched.");
     } finally {
       setScanning(false);
       if (fileRef.current) fileRef.current.value = "";

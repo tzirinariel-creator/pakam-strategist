@@ -19,6 +19,7 @@ import {
   Printer,
 } from "lucide-react";
 import { toast } from "sonner";
+import { advisorError } from "@/lib/advisor-toast";
 import { api } from "@/lib/trpc/react";
 import { cn } from "@/lib/utils";
 import { downloadExamICS } from "@/lib/ics-export";
@@ -286,7 +287,7 @@ export function ExamSchedule() {
       const ok = await exportExamPlanXlsx(timelinePlan, { isHe: isRTL, studentName: fullName });
       if (ok) toast.success(t("exportSuccess"));
     } catch {
-      toast.error(isRTL ? "ייצוא ה-Excel נכשל." : "Excel export failed.");
+      advisorError(isRTL ? "ייצוא ה-Excel לא הצליח — נסו שוב." : "The Excel export didn't work — try again.");
     } finally {
       setIsExportingXlsx(false);
     }

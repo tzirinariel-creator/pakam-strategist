@@ -4,6 +4,7 @@ import { useState, useMemo, useEffect } from "react";
 import { useTranslations, useLocale } from "next-intl";
 import { Shield, ChevronDown, Swords, Check, BadgeCheck, FileText } from "lucide-react";
 import { toast } from "sonner";
+import { advisorError } from "@/lib/advisor-toast";
 import { cn } from "@/lib/utils";
 import { Bidi } from "@/lib/bidi";
 import { MILUIM_CONFIG, AMIRNET_CONFIG, ENGLISH_CONFIG, DISCIPLINE_CONFIG, FOCUS_DISCIPLINE_IDS } from "@/lib/constants";
@@ -46,7 +47,7 @@ export function StepProfile({ data, onUpdate }: StepProfileProps) {
       void utils3010.user.listMiluimSemesters.invalidate();
       toast.success("נשמר — עודכנו ימי המילואים לסמסטר");
     },
-    onError: (e) => toast.error(e.message || "השמירה נכשלה — נסו שוב"),
+    onError: (e) => advisorError(e.message || "השמירה לא הצליחה — נסו שוב"),
   });
   const nowSem = getAcademicNow().semester === "SPRING" ? "SPRING" : "FALL";
   const nowYear = getCurrentAcademicYear();

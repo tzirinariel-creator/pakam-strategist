@@ -21,6 +21,7 @@ function Markdown({ children }: { children: string }) {
   );
 }
 import { toast } from "sonner";
+import { advisorError } from "@/lib/advisor-toast";
 import { api } from "@/lib/trpc/react";
 import { cn } from "@/lib/utils";
 import { Link } from "@/i18n/navigation";
@@ -199,7 +200,7 @@ export function FloatingAssistant() {
       } else if (err === "no-speech") {
         toast.error(isHe ? pg("לא נקלט קול — נסה שוב.", "לא נקלט קול — נסי שוב.", "לא נקלט קול — נסה/י שוב.") : "No speech detected — try again.");
       } else if (err && err !== "aborted") {
-        toast.error(isHe ? pg("הקלטה נכשלה — נסה שוב.", "הקלטה נכשלה — נסי שוב.", "הקלטה נכשלה — נסה/י שוב.") : "Voice input failed — try again.");
+        advisorError(isHe ? pg("ההקלטה לא הצליחה — נסה שוב.", "הקלטה נכשלה — נסי שוב.", "הקלטה נכשלה — נסה/י שוב.") : "Voice input failed — try again.");
       }
     };
     recognitionRef.current = rec;
