@@ -13,7 +13,9 @@ import { TimeFocusHero } from "@/components/dashboard/time-focus-hero";
 import { getWrapTarget } from "@/lib/semester-clock";
 import { isCurrentlyStudying } from "@/lib/semester-clock";
 import { api } from "@/lib/trpc/react";
-import { firstNameOf } from "@/lib/personal-address";
+import { firstNameOf, normalizeGender } from "@/lib/personal-address";
+import { CREDIT_REQUIREMENTS, resolveEnglishLevel } from "@/lib/constants";
+import { MilestoneMoment } from "@/components/dashboard/milestone-moment";
 import { usePersonalAddress } from "@/components/personal/use-personal-address";
 import { TipCard } from "@/components/shared/tip-card";
 import { getContextualTips, getRandomTip } from "@/lib/tips-engine";
@@ -1068,6 +1070,23 @@ export function DashboardContent() {
         <div className="animate-stagger-1" data-tour="status">
           <MyStatusHero credits={credits} grade={gradeBreakdown} isHe={isHe} topGap={topGap} hasFocusArea={hasFocusArea} amiramScore={profileQuery.data?.amiramScore ?? null} declaredEnglishLevel={profileQuery.data?.englishLevel ?? null} currentYear={currentYear} disciplines={disciplineBreakdown} inProgressCount={inProgressCount} />
         </div>
+      )}
+
+      {/* Wave-4 gamification, the HONEST version: one King-voiced moment when
+          the student's own data crosses a real threshold (25/50/75% of the
+          degree, first grade, English exemption). Dismiss once — no backlog,
+          no points, no badges. Suppressed during the tour. */}
+      {hasAnyCourses && !tourOpen && profileQuery.data && (
+        <MilestoneMoment
+          isHe={isHe}
+          earnedCredits={(credits?.earned ?? 0) + (credits?.miluimExemption ?? 0)}
+          totalCredits={CREDIT_REQUIREMENTS.TOTAL}
+          gradedCount={gradeBreakdown.totalGradedCourses}
+          englishExempt={
+            resolveEnglishLevel(profileQuery.data.englishLevel ?? null, profileQuery.data.amiramScore ?? null)?.isExempt ?? false
+          }
+          gender={normalizeGender(profileQuery.data.gender ?? null)}
+        />
       )}
 
       {/* My week — today's classes + next exams, framed as one zone (home
