@@ -536,7 +536,9 @@ function LevelChip({ isHe }: { isHe: boolean }) {
             </div>
             <p className="mt-1 text-xs text-foreground/45">
               {isHe
-                ? `עוד ${lvl.nextAt - stats.data.total} תרומות לדרגה הבאה — חוות-דעת, תובנה או מסלול.`
+                ? (lvl.nextAt - stats.data.total === 1
+                    ? "עוד תרומה אחת לדרגה הבאה — חוות-דעת, תובנה או מסלול."
+                    : `עוד ${lvl.nextAt - stats.data.total} תרומות לדרגה הבאה — חוות-דעת, תובנה או מסלול.`)
                 : `${lvl.nextAt - stats.data.total} more to the next rank — a review, an insight or a plan.`}
             </p>
           </>
