@@ -308,7 +308,10 @@ export function FloatingAssistant() {
         );
       }
     },
-    [completeMutation, addMutation, updateEnglishMutation, ctx.currentYear, isHe, trpcUtils],
+    // ctx.anchorYear (the quick-add plannedYear) MUST be a dep — else an add
+    // fired right after the anchor year changes files into the stale year
+    // (research 14.7; anchorYear was added to ctx but not to these deps).
+    [completeMutation, addMutation, updateEnglishMutation, ctx.currentYear, ctx.anchorYear, isHe, trpcUtils],
   );
 
   // ── Proactive suggestion (note #10, restrained per note #12) ──
@@ -777,7 +780,10 @@ export function FloatingAssistant() {
         ]);
       }
     },
-    [ctx, aiAvailable, keyProvider, ready, streaming, streamLLM, attachedImage, isHe, messages.length, planLite, catalogLite, runAction],
+    // `persona` MUST be here: send() reads the persona-scoped answer cache
+    // (readCachedAnswer above) — without it, a student who switches King↔Referent
+    // mid-chat gets the OTHER persona's cached answer (research 14.7).
+    [ctx, aiAvailable, keyProvider, ready, streaming, streamLLM, attachedImage, isHe, messages.length, planLite, catalogLite, runAction, persona],
   );
 
   if (onMentorPage) return null;
@@ -924,7 +930,7 @@ export function FloatingAssistant() {
                     <div className="rounded-xl border border-border/60 bg-foreground/[0.03] p-3 text-sm leading-relaxed text-foreground/70">
                       {isReferent
                         ? isHe
-                          ? "נעים מאוד, אני הרפרנט — שנה ג׳ בפכ״מ, כבר עברתי את כל מה שמחכה לך. שואלים אותי הכול בגובה העיניים, ואני עונה לפי הנתונים שלך, לא מהזיכרון. ואם בא לך סגנון מכובד יותר — יש למעלה כפתור שמחליף אותי במלך."
+                          ? "נעים מאוד, אני הרפרנט — שנה ג׳ בפכ״מ, כבר עברתי את כל מה שמחכה לכם. שואלים אותי הכול בגובה העיניים, ואני עונה לפי הנתונים שלכם, לא מהזיכרון. ואם בא לכם סגנון מכובד יותר — יש למעלה כפתור שמחליף אותי במלך."
                           : "Hey, I'm the Referent — a final-year PPE student who's been through everything ahead of you. Ask me anything, I answer from your data. Prefer a more regal style? The button above swaps me for the King."
                         : isHe
                           ? "נעים מאוד, אני המלך הפילוסוף. השם בא מאפלטון — ב„מדינה” הוא דמיין מנהיג שמוביל לפי ידע ולא לפי דעה, ותמיד לטובת מי שהוא מוביל. זה בדיוק אני עבורכם: מכיר את התקנון, את הקטלוג ואת הנתונים שלכם, ומכוון למה שטוב לכם — לא לממוצע. ספרו לי שסיימתם קורס או שאתם רוצים להוסיף אחד — ואני גם אבצע. רוצים סגנון של חבר משנה ג׳? הכפתור למעלה מחליף אותי ברפרנט."

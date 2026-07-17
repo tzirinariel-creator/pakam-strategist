@@ -80,12 +80,11 @@ export function MeetTheKingCard() {
             {isHe ? "היי, אני המלך הפילוסוף" : "Hi, I'm the Philosopher King"}
           </h3>
           <p className="mt-1 text-sm leading-relaxed text-foreground/60">
+            {/* The KING is always male ("היועץ") — only the STUDENT-facing verbs
+                are gendered. The female form used to say "היועצת", misgendering
+                the King himself (research 14.7). */}
             {isHe
-              ? pg(
-                  "היועץ האישי שלך לתואר. שאל אותי כל דבר — או פשוט ספר לי מה עשית, ואני אעדכן בשבילך. אני כאן בכל מסך.",
-                  "היועצת האישית שלך לתואר. שאלי אותי כל דבר — או פשוט ספרי לי מה עשית, ואני אעדכן בשבילך. אני כאן בכל מסך.",
-                  "היועץ האישי שלך לתואר. שאל/י אותי כל דבר — או פשוט ספר/י לי מה עשית, ואני אעדכן בשבילך. אני כאן בכל מסך.",
-                )
+              ? `היועץ האישי שלך לתואר. ${pg("שאל", "שאלי", "שאל/י")} אותי כל דבר — או פשוט ${pg("ספר", "ספרי", "ספר/י")} לי מה עשית, ואני אעדכן בשבילך. אני כאן בכל מסך.`
               : "Your personal degree advisor. Ask me anything — or just tell me what you did and I'll update it for you. I'm on every screen."}
           </p>
         </div>

@@ -7,7 +7,6 @@
 // =========================================================================
 
 import type { Gender } from "@/lib/personal-address";
-import { gendered } from "@/lib/personal-address";
 
 export interface MilestoneInput {
   /** Credits actually EARNED (completed, after exemptions math) — the hero's number. */
@@ -34,8 +33,10 @@ export interface Milestone {
  * one; the card marks all reached ids as seen so there's no backlog nagging).
  */
 export function reachedMilestones(input: MilestoneInput): Milestone[] {
-  const { earnedCredits, totalCredits, gradedCount, englishExempt, gender } = input;
-  const g = (m: string, f: string, n: string) => gendered(gender, { m, f, n });
+  // Milestones are PRODUCT cards on the dashboard → plural voice, no gendered
+  // verbs (the 50%-card mixed 'טיפסתם' plural with a gendered 'המשך' — research
+  // 14.7). `gender` stays on the input for forward-compat but isn't used here.
+  const { earnedCredits, totalCredits, gradedCount, englishExempt } = input;
   const out: Milestone[] = [];
   if (totalCredits <= 0) return out;
 
@@ -50,7 +51,7 @@ export function reachedMilestones(input: MilestoneInput): Milestone[] {
   } else if (share >= 0.5) {
     out.push({
       id: "credits-50",
-      textHe: `חצי התואר מאחוריכם — ${earnedCredits} מתוך ${totalCredits} ש״ס. מנקודת האמצע רואים גם כמה טיפסתם וגם את ההמשך. ${g("המשך", "המשיכי", "המשיכו")} באותו קצב.`,
+      textHe: `חצי התואר מאחוריכם — ${earnedCredits} מתוך ${totalCredits} ש״ס. מנקודת האמצע רואים גם כמה טיפסתם וגם את ההמשך. המשיכו באותו קצב.`,
       textEn: `Half the degree behind you — ${earnedCredits} of ${totalCredits} credits. Keep the pace.`,
     });
   } else if (share >= 0.25) {
