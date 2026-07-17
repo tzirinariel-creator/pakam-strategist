@@ -440,7 +440,7 @@ export const ruleMandatoryCourses: RegulationRule = (ctx: RuleContext) => {
       false,
       "WARNING",
       "No mandatory courses found in your plan. Make sure all required courses are added.",
-      "לא נמצאו קורסי חובה בתוכנית שלך. ודא שכל קורסי החובה הוספו.",
+      "לא נמצאו קורסי חובה בתוכנית שלכם. ודאו שכל קורסי החובה הוספו.",
       { total: 0, completed: 0, incomplete: 0, mandatoryCreditsCurrent, mandatoryCreditsRequired }
     );
   }
@@ -733,7 +733,7 @@ export const ruleEnglishExemptionDeadline: RegulationRule = (ctx: RuleContext) =
       false,
       "WARNING",
       `Past the English exemption deadline (end of year 1, semester B) without exemption (${srcEn}, ${info.nameEn}). Reach exemption to continue — if you're already exempt, update your AMIRANT score in Settings.`,
-      `חלף המועד האחרון לפטור באנגלית (סוף שנה א׳, סמסטר ב׳) ללא פטור (${srcHe}, ${info.nameHe}). יש להגיע לפטור כדי להמשיך — אם כבר קיבלת פטור, עדכן/י את ציון האמירנט בהגדרות. (נכון לתשפ״ו)`,
+      `חלף המועד האחרון לפטור באנגלית (סוף שנה א׳, סמסטר ב׳) ללא פטור (${srcHe}, ${info.nameHe}). יש להגיע לפטור כדי להמשיך — אם כבר קיבלתם פטור, עדכנו את ציון האמירנט בהגדרות. (נכון לתשפ״ו)`,
       { amirantScore: ctx.amirantScore, level: info.level, isExempt: false, pastDeadline: true }
     );
   }

@@ -68,7 +68,7 @@ export function buildBenefitGroups(group: MiluimGroupKey, cfg: GroupCfg): Benefi
   const degree: BenefitItem[] = [];
   if (cfg.creditExemptionPerYear > 0) {
     degree.push({
-      he: `פטור אוטומטי משעות סמסטריאליות — ${cfg.creditExemptionPerYear} ש״ס בשנה (עד ${CREDIT_DEGREE_CAP} בתואר). הפטור כבר בתוך ספירת הנקודות ובדיקת ההתקדמות שלך, בלי שתצטרך לעשות דבר.`,
+      he: `פטור אוטומטי משעות סמסטריאליות — ${cfg.creditExemptionPerYear} ש״ס בשנה (עד ${CREDIT_DEGREE_CAP} בתואר). הפטור כבר בתוך ספירת הנקודות ובדיקת ההתקדמות שלכם, בלי שתצטרכו לעשות דבר.`,
       en: `Automatic semester-hours exemption — ${cfg.creditExemptionPerYear} credits/year (up to ${CREDIT_DEGREE_CAP} across the degree). It's already in your credit total and progress check, with nothing for you to do.`,
       auto: true,
     });
@@ -176,6 +176,6 @@ export function buildBenefitGroups(group: MiluimGroupKey, cfg: GroupCfg): Benefi
 
 /** The honest "how this works" footer — auto vs. request-elsewhere. */
 export const BENEFITS_HONESTY_NOTE = {
-  he: 'ההטבות המסומנות "אוטומטי" מיושמות עבורך בתוך פכמון — הפטור משעות והמעקב אחר קורסים בינאריים כבר בתוך ספירת הנקודות והממוצע, בלי שתעשה דבר. שאר ההטבות הן זכויות אמיתיות שלך, אבל את מימושן מבקשים במקום הנכון: בחינות ותוספת זמן מול המזכירות או מדור הבחינות, ורישום מאוחר, דחיות וליווי אישי מול דיקנט הסטודנטים.',
+  he: 'ההטבות המסומנות "אוטומטי" מיושמות עבורכם בתוך פכמון — הפטור משעות והמעקב אחר קורסים בינאריים כבר בתוך ספירת הנקודות והממוצע, בלי שתעשו דבר. שאר ההטבות הן זכויות אמיתיות שלכם, אבל את מימושן מבקשים במקום הנכון: בחינות ותוספת זמן מול המזכירות או מדור הבחינות, ורישום מאוחר, דחיות וליווי אישי מול דיקנט הסטודנטים.',
   en: 'The benefits marked "auto" are applied for you inside Pakamon — the credit exemption and binary tracking are already in your credit count and GPA, with nothing to do. The rest are real entitlements you realize in the right place: exams and extra time through the secretariat or exams office, and late registration, deferrals and personal support through the Dean of Students.',
 };
