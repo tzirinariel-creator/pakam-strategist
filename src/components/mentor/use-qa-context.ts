@@ -59,6 +59,59 @@ export function useDegreeQAContext(
         deficit: Number((r.details as Record<string, unknown> | undefined)?.deficit ?? 0),
       }));
 
+    // ── Live plan facts for the new deterministic handlers (14.7 W1) ──
+    // All derived from the plan cache already in hand — zero new queries.
+    const planCourses = planQuery.data?.courses ?? [];
+    const nowMs = Date.now();
+    const derivedYear = deriveYearOfStudy(profile?.startYear, profile?.currentYear ?? 1);
+    const liveSemester = getAcademicNow().semester;
+
+    const upcomingExams = planCourses
+      .filter((uc) => uc.status !== "COMPLETED" && uc.status !== "FAILED")
+      .flatMap((uc) => {
+        const out: { nameHe: string; nameEn: string; date: Date; moed: "A" | "B" }[] = [];
+        for (const [d, moed] of [[uc.course.examDateA, "A"], [uc.course.examDateB, "B"]] as const) {
+          if (!d) continue;
+          const dt = new Date(d);
+          if (dt.getTime() >= nowMs) out.push({ nameHe: uc.course.nameHe, nameEn: uc.course.nameEn ?? uc.course.nameHe, date: dt, moed });
+        }
+        return out;
+      })
+      .sort((a, b) => a.date.getTime() - b.date.getTime());
+
+    const currentSemesterCourses = planCourses
+      .filter(
+        (uc) =>
+          uc.plannedYear === derivedYear &&
+          uc.plannedSemester === liveSemester &&
+          (uc.status === "IN_PROGRESS" || uc.status === "PLANNED"),
+      )
+      .map((uc) => ({ nameHe: uc.course.nameHe, nameEn: uc.course.nameEn ?? uc.course.nameHe, credits: uc.course.credits }));
+
+    // Hardest remaining = non-completed course WITH difficulty data. Rank by the
+    // difficulty label first, then the historical fail-rate / low average.
+    const DIFF_RANK: Record<string, number> = { very_hard: 4, hard: 3, medium: 2, easy: 1 };
+    const hardestRemaining =
+      planCourses
+        .filter(
+          (uc) =>
+            uc.status !== "COMPLETED" &&
+            uc.status !== "FAILED" &&
+            (uc.course.difficultyLevel != null || uc.course.averageGrade != null || uc.course.failRate != null),
+        )
+        .map((uc) => ({
+          nameHe: uc.course.nameHe,
+          nameEn: uc.course.nameEn ?? uc.course.nameHe,
+          difficultyLevel: uc.course.difficultyLevel ?? null,
+          averageGrade: uc.course.averageGrade ?? null,
+          failRate: uc.course.failRate ?? null,
+          _score:
+            (DIFF_RANK[uc.course.difficultyLevel ?? ""] ?? 0) * 1000 +
+            (uc.course.failRate != null ? uc.course.failRate * 100 : 0) +
+            (uc.course.averageGrade != null ? (100 - uc.course.averageGrade) : 0),
+        }))
+        .sort((a, b) => b._score - a._score)[0] ?? null;
+
     return {
       isHe,
       effectiveTotal: b?.effectiveTotal ?? 0,
@@ -108,6 +161,18 @@ export function useDegreeQAContext(
       failedRules,
       seminarPlannedCount:
         planQuery.data?.courses?.filter((c) => c.course.courseType === "SEMINAR").length ?? 0,
+      upcomingExams,
+      currentSemesterCourses,
+      // strip the internal _score before it reaches the context type
+      hardestRemaining: hardestRemaining
+        ? {
+            nameHe: hardestRemaining.nameHe,
+            nameEn: hardestRemaining.nameEn,
+            difficultyLevel: hardestRemaining.difficultyLevel,
+            averageGrade: hardestRemaining.averageGrade,
+            failRate: hardestRemaining.failRate,
+          }
+        : null,
     };
   }, [
     creditsQuery.data,

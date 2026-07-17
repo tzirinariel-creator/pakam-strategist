@@ -45,6 +45,21 @@ export interface QAContext {
   // Requirements
   failedRules: { nameHe: string; nameEn: string; deficit: number }[];
   seminarPlannedCount: number;
+  // ── Live plan facts (14.7 W1 — new deterministic handlers) ──
+  /** Upcoming exam sittings (future examDateA/B on non-completed courses),
+   *  soonest first. Empty = no dates published; NEVER a guessed date. */
+  upcomingExams?: { nameHe: string; nameEn: string; date: Date; moed: "A" | "B" }[];
+  /** Courses in the LIVE semester (derived year+semester), for "what am I
+   *  taking now". */
+  currentSemesterCourses?: { nameHe: string; nameEn: string; credits: number }[];
+  /** The hardest not-yet-completed course that HAS difficulty data, or null. */
+  hardestRemaining?: {
+    nameHe: string;
+    nameEn: string;
+    difficultyLevel: string | null;
+    averageGrade: number | null;
+    failRate: number | null;
+  } | null;
 }
 
 export interface QAAnswer {
@@ -311,18 +326,126 @@ const HANDLERS: Handler[] = [
       cta: he(c, "למתכנן המבחנים", "Exam planner"),
     }),
   },
+  // ── Next exam(s) — real dates only, never invented (14.7 W1) ───────
+  {
+    keys: ["מתי המבחן", "המבחן הקרוב", "המבחן הבא", "אילו מבחנים", "מתי הבחינה", "הבחינה הקרובה", "מבחנים קרובים", "next exam", "upcoming exam", "when is my exam"],
+    answer: (c) => {
+      const list = c.upcomingExams ?? [];
+      if (list.length === 0) {
+        return {
+          text: he(
+            c,
+            "אין כרגע תאריכי-מבחן שפורסמו לקורסים שלך — ואני לא ממציא תאריכים. ברגע שת״א תפרסם, הם יופיעו כאן ובמתכנן המבחנים.",
+            "No published exam dates for your courses yet — and I don't invent dates. Once TAU publishes them they'll show here and in the exam planner.",
+          ),
+          href: "/exam-planner",
+          cta: he(c, "למתכנן המבחנים", "Exam planner"),
+        };
+      }
+      const now = c.now ?? new Date();
+      const daysTo = (d: Date) => Math.max(0, Math.round((d.getTime() - now.getTime()) / 86_400_000));
+      const whenHe = (d: Date) => { const n = daysTo(d); return n === 0 ? "היום" : n === 1 ? "מחר" : `בעוד ${n} ימים`; };
+      const top = list.slice(0, 3);
+      const linesHe = top.map((e) => `• ${e.nameHe} (מועד ${e.moed === "B" ? "ב׳" : "א׳"}) — ${whenHe(e.date)}`);
+      const linesEn = top.map((e) => `• ${e.nameEn} (Moed ${e.moed}) — in ${daysTo(e.date)} days`);
+      return {
+        text: he(
+          c,
+          `${list.length === 1 ? "המבחן הקרוב שלך" : `${top.length} המבחנים הקרובים שלך`}:\n${linesHe.join("\n")}`,
+          `${list.length === 1 ? "Your next exam" : `Your next ${top.length} exams`}:\n${linesEn.join("\n")}`,
+        ),
+        href: "/exam-planner",
+        cta: he(c, "לתכנון תקופת המבחנים", "Plan the exam period"),
+      };
+    },
+  },
+  // ── This semester's courses (14.7 W1) ─────────────────────────────
+  {
+    keys: ["כמה קורסים אני לוקח", "מה אני לומד הסמסטר", "אילו קורסים יש לי הסמסטר", "הקורסים שלי הסמסטר", "מה יש לי הסמסטר", "courses this semester", "what am i taking"],
+    answer: (c) => {
+      const list = c.currentSemesterCourses ?? [];
+      if (list.length === 0) {
+        return {
+          text: he(
+            c,
+            "לא רשומים לך קורסים בסמסטר הנוכחי בתוכנית. אפשר להוסיף אותם במתכנן התואר.",
+            "No courses in your plan for the current semester. Add them in the degree planner.",
+          ),
+          href: "/planner",
+          cta: he(c, "לתכנון התואר", "Degree planner"),
+        };
+      }
+      const credits = list.reduce((s, x) => s + x.credits, 0);
+      const namesHe = list.map((x) => x.nameHe).join(", ");
+      const namesEn = list.map((x) => x.nameEn).join(", ");
+      return {
+        text: he(
+          c,
+          `הסמסטר יש לך ${list.length} קורסים, ${credits} ש״ס: ${namesHe}.`,
+          `This semester you have ${list.length} courses, ${credits} credits: ${namesEn}.`,
+        ),
+        href: "/planner",
+        cta: he(c, "לתכנון התואר", "Degree planner"),
+      };
+    },
+  },
+  // ── Hardest remaining course — sourced, or honest "no data" (14.7 W1) ─
+  {
+    keys: ["הכי קשה", "קורס קשה שנשאר", "הקורס הקשה", "מה הכי קשה", "hardest course", "toughest course"],
+    answer: (c) => {
+      const h = c.hardestRemaining;
+      if (!h) {
+        return {
+          text: he(
+            c,
+            "אין לי נתוני-קושי לקורסים שנשארו לך — אז אני לא מדרג בלי נתונים. בקטלוג יש ממוצע ואחוז-כישלון היכן שנאספו.",
+            "I don't have difficulty data for your remaining courses — so I won't rank without it. The catalog shows average and fail-rate where collected.",
+          ),
+          href: "/catalog",
+          cta: he(c, "לקטלוג", "Catalog"),
+        };
+      }
+      const bits: string[] = [];
+      if (h.averageGrade != null) bits.push(he(c, `ממוצע ${h.averageGrade}`, `avg ${h.averageGrade}`));
+      if (h.failRate != null) bits.push(he(c, `${Math.round(h.failRate * 100)}% כישלון`, `${Math.round(h.failRate * 100)}% fail`));
+      const src = bits.length ? ` (לפי נתוני-הציונים בקטלוג: ${bits.join(", ")})` : "";
+      const srcEn = bits.length ? ` (per catalog grade data: ${bits.join(", ")})` : "";
+      return {
+        text: he(
+          c,
+          `מבין הקורסים שנשארו לך, הכי מאתגר לפי הנתונים הוא ${h.nameHe}${src}. שווה לתת לו מקום נפרד בתכנון הלמידה.`,
+          `Of your remaining courses, the toughest by the data is ${h.nameEn}${srcEn}. Worth giving it its own space in your study plan.`,
+        ),
+        href: "/exam-planner",
+        cta: he(c, "למתכנן המבחנים", "Exam planner"),
+      };
+    },
+  },
   // ── Final-grade formula ───────────────────────────────────────────
   {
     keys: ["ציון גמר", "ציון הגמר", "ציון סופי", "איך מחשבים ציון", "מחשבים את ציון", "שקלול", "final grade", "grade formula", "how is my grade"],
-    answer: (c) => ({
-      text: he(
+    answer: (c) => {
+      const formula = he(
         c,
         `ציון הגמר משוקלל: ${Math.round(GRADE_WEIGHTS.COURSES * 100)}% ממוצע קורסי חובה+בחירה, ${Math.round(GRADE_WEIGHTS.SEMINAR_PAPERS * 100)}% מ-${SEMINAR_REQUIREMENTS.PAPERS} עבודות סמינריוניות, ו-${Math.round(GRADE_WEIGHTS.REFERAT * 100)}% רפרט.`,
-        `Your final grade is weighted: ${Math.round(GRADE_WEIGHTS.COURSES * 100)}% course average, ${Math.round(GRADE_WEIGHTS.SEMINAR_PAPERS * 100)}% from ${SEMINAR_REQUIREMENTS.PAPERS} seminar papers, and ${Math.round(GRADE_WEIGHTS.REFERAT * 100)}% referat.`
-      ),
-      href: "/graduation",
-      cta: he(c, "לצפי הגמר", "Graduation"),
-    }),
+        `Your final grade is weighted: ${Math.round(GRADE_WEIGHTS.COURSES * 100)}% course average, ${Math.round(GRADE_WEIGHTS.SEMINAR_PAPERS * 100)}% from ${SEMINAR_REQUIREMENTS.PAPERS} seminar papers, and ${Math.round(GRADE_WEIGHTS.REFERAT * 100)}% referat.`,
+      );
+      // Honesty (מבחן-המלך #12): with no graded seminar/referat yet, a projected
+      // final grade would be mostly guesswork — say so before the formula.
+      const noSeminarYet = c.seminar === 0;
+      const prefix = noSeminarYet
+        ? he(
+            c,
+            "עדיין אי-אפשר לחשב ציון-גמר צפוי — אין עדיין עבודה סמינריונית או רפרט עם ציון. אבל ככה הוא ישוקלל בסוף: ",
+            "A projected final grade isn't possible yet — no seminar paper or referat has a grade. Here's how it will be weighted, though: ",
+          )
+        : "";
+      return {
+        text: `${prefix}${formula}`,
+        href: "/graduation",
+        cta: he(c, "לצפי הגמר", "Graduation"),
+      };
+    },
   },
   // ── English / Amiram ──────────────────────────────────────────────
   {

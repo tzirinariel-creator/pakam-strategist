@@ -25,6 +25,12 @@ export function hashContext(c: QAContext): string {
     c.amiramScore ?? "n", c.miluimGroupName ?? "n", c.binaryRemaining,
     c.hasFocusArea ? 1 : 0, c.failedRules.length, c.seminarPlannedCount,
     c.isHe ? "he" : "en",
+    // 14.7 W1 — the new plan-fact handlers: a changed exam list / semester
+    // course set / hardest course must flip the hash so a stale answer can't
+    // resurface after a re-plan or a newly-published exam date.
+    (c.upcomingExams ?? []).map((e) => `${e.moed}${e.date.getTime()}`).join("|"),
+    (c.currentSemesterCourses ?? []).length,
+    c.hardestRemaining?.nameHe ?? "n",
   ].join(",");
   let h = 5381;
   for (let i = 0; i < sig.length; i++) {

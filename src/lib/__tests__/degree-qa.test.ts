@@ -206,3 +206,63 @@ describe("answerDegreeQuestion", () => {
     expect(a.text).not.toContain("לא הגדרת שירות מילואים");
   });
 });
+
+// ── 14.7 W1 — new plan-fact handlers (never invent a date; honest empties) ──
+describe("W1 handlers — next exam / semester load / hardest / grade honesty", () => {
+  const may = new Date("2026-05-01T00:00:00");
+  const exam = (name: string, days: number, moed: "A" | "B" = "A") => ({
+    nameHe: name, nameEn: name, date: new Date(may.getTime() + days * 86_400_000), moed,
+  });
+
+  it("H-NEXT-EXAM lists the soonest real dates, never a guess", () => {
+    const a = answerDegreeQuestion("מתי המבחן הקרוב שלי?", ctx({
+      now: may,
+      upcomingExams: [exam("מיקרו", 10), exam("מאקרו", 3)],
+    }));
+    expect(a.matched).toBe(true);
+    expect(a.text).toContain("מאקרו"); // soonest first (sorted by caller; handler shows as-given)
+    expect(a.text).not.toMatch(/המצא|לא ידוע/);
+  });
+
+  it("H-NEXT-EXAM with no dates refuses to invent one", () => {
+    const a = answerDegreeQuestion("מתי הבחינה הקרובה?", ctx({ upcomingExams: [] }));
+    expect(a.text).toContain("שפורסמו");
+    expect(a.text).toContain("לא ממציא");
+  });
+
+  it("'מתי מועד ב׳' still routes to the Moed-B handler (guard, not next-exam)", () => {
+    const a = answerDegreeQuestion("מתי כדאי ללכת למועד ב׳?", ctx({ upcomingExams: [exam("מיקרו", 5)] }));
+    expect(a.text).toContain("הציון האחרון קובע");
+  });
+
+  it("H-SEMESTER-LOAD counts credits + names, or says none", () => {
+    const a = answerDegreeQuestion("מה אני לומד הסמסטר?", ctx({
+      currentSemesterCourses: [
+        { nameHe: "מיקרו", nameEn: "Micro", credits: 5 },
+        { nameHe: "לוגיקה", nameEn: "Logic", credits: 4 },
+      ],
+    }));
+    expect(a.text).toContain("2 קורסים");
+    expect(a.text).toContain("9 ש״ס");
+    const empty = answerDegreeQuestion("אילו קורסים יש לי הסמסטר?", ctx({ currentSemesterCourses: [] }));
+    expect(empty.text).toContain("לא רשומים");
+  });
+
+  it("H-HARDEST names a source, or admits no data", () => {
+    const a = answerDegreeQuestion("מה הקורס הכי קשה שנשאר לי?", ctx({
+      hardestRemaining: { nameHe: "סטטיסטיקה", nameEn: "Stats", difficultyLevel: "hard", averageGrade: 69, failRate: 0.15 },
+    }));
+    expect(a.text).toContain("סטטיסטיקה");
+    expect(a.text).toContain("ממוצע 69");
+    expect(a.text).toContain("קטלוג");
+    const none = answerDegreeQuestion("איזה קורס הכי קשה?", ctx({ hardestRemaining: null }));
+    expect(none.text).toContain("אין לי נתוני-קושי");
+  });
+
+  it("final-grade is honest when no seminar is graded yet", () => {
+    const a = answerDegreeQuestion("איך מחשבים את ציון הגמר?", ctx({ seminar: 0 }));
+    expect(a.text).toContain("עדיין אי-אפשר");
+    const withSem = answerDegreeQuestion("איך מחשבים את ציון הגמר?", ctx({ seminar: 8 }));
+    expect(withSem.text).not.toContain("עדיין אי-אפשר");
+  });
+});
