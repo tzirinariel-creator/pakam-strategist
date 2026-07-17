@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { useLocale } from "next-intl";
-import { ScanLine, Loader2, Check, AlertTriangle, X, Languages } from "lucide-react";
+import { ScanLine, Loader2, Check, AlertTriangle, X, Languages, Users } from "lucide-react";
 import { toast } from "sonner";
 import { advisorError } from "@/lib/advisor-toast";
 import { api } from "@/lib/trpc/react";
@@ -21,6 +21,7 @@ import type { UserCourseWithCourse } from "@/types/degree";
 import { WhereIsMySheet } from "@/components/record/where-is-my-sheet";
 import { fileToBase64, SCANNER_ACCEPT } from "@/lib/upload";
 import { invalidatePlanData } from "@/lib/trpc/invalidate-plan";
+import { maybeNudgeCourseReview } from "@/components/catalog/review-nudge";
 import { cn } from "@/lib/utils";
 
 /**
@@ -53,6 +54,22 @@ export function GradeSheetScanner() {
   const updateMutation = api.plan.updateCourse.useMutation();
   const addScannedMutation = api.plan.addScannedCourse.useMutation();
   const updateProfile = api.user.updateProfile.useMutation();
+  // S1b's third door (W2) — the other two (planner course-card, manual record
+  // edit) already call this on a locked grade; the bulk scan-apply never did.
+  const importGrades = api.courseKnowledge.importMyGrades.useMutation({
+    onSuccess: (r) => {
+      toast.success(
+        isHe
+          ? r.imported > 0
+            ? `שותפו ${r.imported} ציונים כנקודות אנונימיות`
+            : "אין ציונים חדשים לשתף — הכול כבר משותף"
+          : r.imported > 0
+            ? `Shared ${r.imported} grades as anonymous points`
+            : "Nothing new to share — everything is already in",
+      );
+    },
+    onError: (e) => toast.error(e.message),
+  });
 
   // The end-of-semester rite (#22) deep-links here with ?scan=1 — scroll to the
   // scanner so the student lands right on the action they came for.
@@ -141,6 +158,10 @@ export function GradeSheetScanner() {
     let failed = 0;
     let failedGrades = 0; // rows written as FAILED — surfaced honestly (#30)
     let englishApplied = 0;
+    // W2 — offer the 10-second cohort nudge once, for the first course this
+    // scan actually locked a grade for (grade non-null + COMPLETED, same bar
+    // as the other two grade doors).
+    let nudgeTarget: { code: string; nameHe: string } | null = null;
     for (const i of checked) {
       const r = rows[i];
       const decision = r ? decideApplication(r) : null;
@@ -154,6 +175,9 @@ export function GradeSheetScanner() {
         ok++;
         if (decision.status === "FAILED") failedGrades++;
         if (r.match.courseType === "ENGLISH") englishApplied++;
+        if (!nudgeTarget && decision.status === "COMPLETED" && decision.grade != null) {
+          nudgeTarget = { code: r.match.courseCode, nameHe: r.match.nameHe };
+        }
       } catch (e) {
         failed++;
         if (failed === 1) {
@@ -175,6 +199,9 @@ export function GradeSheetScanner() {
         isHe ? `עודכנו ${ok} קורסים מהגיליון` : `Updated ${ok} courses from the sheet`,
         parts.length ? { description: parts.join(" · ") } : undefined,
       );
+      if (nudgeTarget) {
+        maybeNudgeCourseReview(nudgeTarget.code, nudgeTarget.nameHe, isHe);
+      }
       // Close the end-of-semester rite for this semester once grades are in.
       const wrap = getWrapTarget();
       if (wrap) {
@@ -284,6 +311,26 @@ export function GradeSheetScanner() {
                   : "No failures on this sheet. All grades now feed the calculator and the track check."}
               </p>
             )}
+          </div>
+          {/* W2 — the strongest moment to ask for a cohort contribution is the
+              instant a student just locked real grades. Same k-anon engine as
+              settings' "חוכמת המחזור" (importMyGrades, N>=5 to reveal). */}
+          <div className="flex flex-wrap items-center gap-2 border-t border-emerald-500/20 pt-2">
+            <Users className="size-3.5 shrink-0 text-emerald-600 dark:text-emerald-400" />
+            <p className="min-w-0 flex-1 text-xs leading-relaxed text-foreground/70">
+              {isHe
+                ? "רוצים שהציונים האלה יעזרו למחזור? שתפו אותם כנקודות אנונימיות — בלי שם ובלי דרך לשחזר מי. ממוצע נחשף רק מ-5 תורמים, ואפשר למשוך הכול בכל רגע."
+                : "Want these grades to help your cohort? Share them as anonymous points — no name, no way to trace who. Averages reveal only above 5 contributors, and you can withdraw everything anytime."}
+            </p>
+            <button
+              type="button"
+              onClick={() => importGrades.mutate()}
+              disabled={importGrades.isPending}
+              className="inline-flex shrink-0 items-center gap-1 rounded-md bg-emerald-500/10 px-2.5 py-1 text-xs font-semibold text-emerald-700 transition-colors hover:bg-emerald-500/20 disabled:opacity-50 dark:text-emerald-400"
+            >
+              {importGrades.isPending ? <Loader2 className="size-3.5 animate-spin" /> : <Users className="size-3.5" />}
+              {isHe ? "שתפו אנונימית למחזור" : "Share anonymously"}
+            </button>
           </div>
           <button
             type="button"
