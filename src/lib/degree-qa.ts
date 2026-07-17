@@ -330,7 +330,10 @@ const HANDLERS: Handler[] = [
   {
     keys: ["מתי המבחן", "המבחן הקרוב", "המבחן הבא", "אילו מבחנים", "מתי הבחינה", "הבחינה הקרובה", "מבחנים קרובים", "next exam", "upcoming exam", "when is my exam"],
     answer: (c) => {
-      const list = c.upcomingExams ?? [];
+      const now = c.now ?? new Date();
+      // Future-only filter lives HERE (pure, at answer time), not in the React
+      // context builder where Date.now() is impure-during-render (14.7 W1).
+      const list = (c.upcomingExams ?? []).filter((e) => e.date.getTime() >= now.getTime());
       if (list.length === 0) {
         return {
           text: he(
@@ -342,7 +345,6 @@ const HANDLERS: Handler[] = [
           cta: he(c, "למתכנן המבחנים", "Exam planner"),
         };
       }
-      const now = c.now ?? new Date();
       const daysTo = (d: Date) => Math.max(0, Math.round((d.getTime() - now.getTime()) / 86_400_000));
       const whenHe = (d: Date) => { const n = daysTo(d); return n === 0 ? "היום" : n === 1 ? "מחר" : `בעוד ${n} ימים`; };
       const top = list.slice(0, 3);

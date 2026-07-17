@@ -61,8 +61,10 @@ export function useDegreeQAContext(
 
     // ── Live plan facts for the new deterministic handlers (14.7 W1) ──
     // All derived from the plan cache already in hand — zero new queries.
+    // NOTE: no Date.now()/new Date() here — that's impure-during-render. The
+    // "future only" filter lives in the H-NEXT-EXAM handler (c.now ?? new
+    // Date()), the established pattern for the whole degree-qa layer.
     const planCourses = planQuery.data?.courses ?? [];
-    const nowMs = Date.now();
     const derivedYear = deriveYearOfStudy(profile?.startYear, profile?.currentYear ?? 1);
     const liveSemester = getAcademicNow().semester;
 
@@ -72,8 +74,7 @@ export function useDegreeQAContext(
         const out: { nameHe: string; nameEn: string; date: Date; moed: "A" | "B" }[] = [];
         for (const [d, moed] of [[uc.course.examDateA, "A"], [uc.course.examDateB, "B"]] as const) {
           if (!d) continue;
-          const dt = new Date(d);
-          if (dt.getTime() >= nowMs) out.push({ nameHe: uc.course.nameHe, nameEn: uc.course.nameEn ?? uc.course.nameHe, date: dt, moed });
+          out.push({ nameHe: uc.course.nameHe, nameEn: uc.course.nameEn ?? uc.course.nameHe, date: new Date(d), moed });
         }
         return out;
       })
