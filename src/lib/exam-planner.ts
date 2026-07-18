@@ -138,6 +138,26 @@ function dayKey(d: Date): string {
   return `${x.getFullYear()}-${String(x.getMonth() + 1).padStart(2, "0")}-${String(x.getDate()).padStart(2, "0")}`;
 }
 
+/**
+ * "Today" as the Israel CIVIL date, returned as a Date whose local Y/M/D equal
+ * that civil date — so the local-based dayKey()/startOfDay() above produce
+ * Israel day keys. On the client this already equals new Date(); the point is
+ * the SERVER, which runs UTC: a bare new Date() between 00:00–03:00 Israel is
+ * still "yesterday" in UTC, which placed the saved study blocks a day off from
+ * what the student previewed (client-local). Anchoring the server build to this
+ * removes that shift. `now` is injectable for testing.
+ */
+export function israelCivilDate(now: Date = new Date()): Date {
+  const parts = new Intl.DateTimeFormat("en-CA", {
+    timeZone: "Asia/Jerusalem",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  }).formatToParts(now);
+  const get = (t: string) => Number(parts.find((p) => p.type === t)!.value);
+  return new Date(get("year"), get("month") - 1, get("day"));
+}
+
 /** Classify difficulty from the course's historical grade signal. */
 export function classifyDifficulty(averageGrade?: number | null, failRate?: number | null): Difficulty {
   if ((failRate != null && failRate >= 0.2) || (averageGrade != null && averageGrade < 70)) return "high";

@@ -3,8 +3,10 @@ import path from "node:path";
 
 export default defineConfig({
   test: {
+    // Default env is node (fast) for the pure-logic suites; component tests opt
+    // into jsdom per-file via a `// @vitest-environment jsdom` docblock.
     environment: "node",
-    include: ["src/**/*.test.ts"],
+    include: ["src/**/*.test.ts", "src/**/*.test.tsx"],
     // Harmless placeholders for the build-time-public Supabase vars. The router
     // tests import the tRPC stack, which loads @/lib/supabase/* and validates
     // these at import time. Unit tests never make a real Supabase call (the

@@ -4,6 +4,7 @@ import { useTranslations, useLocale } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import { GraduationCap } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { CONTACT_EMAIL } from "@/lib/constants";
 
 export default function PublicLayout({
   children,
@@ -84,7 +85,7 @@ export default function PublicLayout({
             </Link>
             {/* L3 — feedback channel for logged-out visitors too */}
             <a
-              href="mailto:ariel@pakamon.app?subject=%D7%9E%D7%A9%D7%95%D7%91%20%D7%A2%D7%9C%20%D7%A4%D7%9B%D7%9E%D7%95%D7%9F"
+              href={`mailto:${CONTACT_EMAIL}?subject=%D7%9E%D7%A9%D7%95%D7%91%20%D7%A2%D7%9C%20%D7%A4%D7%9B%D7%9E%D7%95%D7%9F`}
               className="transition-colors hover:text-foreground"
             >
               {t("footerFeedback")}

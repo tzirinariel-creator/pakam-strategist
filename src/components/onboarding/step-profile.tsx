@@ -9,7 +9,7 @@ import { cn } from "@/lib/utils";
 import { Bidi } from "@/lib/bidi";
 import { MILUIM_CONFIG, AMIRNET_CONFIG, ENGLISH_CONFIG, DISCIPLINE_CONFIG, FOCUS_DISCIPLINE_IDS } from "@/lib/constants";
 import { deriveGroupFromDays, type MiluimGroupKey } from "@/lib/miluim";
-import { Form3010Uploader } from "@/components/settings/settings-content";
+import { Form3010Uploader } from "@/components/settings/form-3010-uploader";
 import { api } from "@/lib/trpc/react";
 import { getAcademicNow, getPlanningAnchor } from "@/lib/academic-calendar";
 import { getCurrentAcademicYear } from "@/lib/miluim";

@@ -16,7 +16,7 @@ import { toast } from "sonner";
 import { advisorError } from "@/lib/advisor-toast";
 import { api } from "@/lib/trpc/react";
 import { Link } from "@/i18n/navigation";
-import { MiluimSection } from "@/components/settings/settings-content";
+import { MiluimSection } from "@/components/settings/miluim-section";
 import {
   deriveExemptionEntitlement,
   deriveCurrentGroup,

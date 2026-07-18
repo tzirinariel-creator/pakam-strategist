@@ -8,7 +8,7 @@
 
 import { describe, it, expect } from "vitest";
 import type { Db } from "@/lib/db";
-import { buildUserContext } from "@/lib/ai/context-builder";
+import { buildUserContext, isForeignLawCourseCode } from "@/lib/ai/context-builder";
 import { buildMentorSystemPrompt } from "@/lib/ai/mentor-prompt";
 import { getActiveProgram } from "@/lib/programs/registry";
 import { calculateCredits } from "@/lib/credit-calculator";
@@ -117,5 +117,55 @@ describe("Q9 — the mentor context equals plan.getCredits for the same rows", (
     const total = ctx.regulationIssues.find((r) => r.ruleId === "PKM-001");
     expect(total).toBeDefined();
     expect(total!.messageHe).toContain("17/150");
+  });
+});
+
+// =========================================================================
+// Foreign-course scoping (data-correctness) — the King must never recommend a
+// non-PPE course. The TAU law catalog (0910-xxxx) was co-seeded into the shared
+// Course table under the "GENERAL" discipline, so the discipline scope alone
+// doesn't catch it. Guarded in code (not only the manual prod cleanup), and
+// 0910-1000 ("דיני איכות סביבה") — a REAL PPE law-foundation course — is kept.
+// =========================================================================
+describe("foreign-course scoping — the King never surfaces a non-PPE course", () => {
+  it("flags the foreign 0910 set but keeps the real PPE 0910-1000 and PPE codes", () => {
+    expect(isForeignLawCourseCode("0910-4601")).toBe(true);
+    expect(isForeignLawCourseCode("0910-7002")).toBe(true);
+    expect(isForeignLawCourseCode("0910-1000")).toBe(false); // real PPE course
+    expect(isForeignLawCourseCode("0618-1085")).toBe(false);
+    expect(isForeignLawCourseCode("1411-9001")).toBe(false); // PPE law-division
+  });
+
+  it("availableNextSemester drops foreign 0910 courses but keeps 0910-1000 + PPE courses", async () => {
+    const courseRow = (code: string, discipline = "GENERAL") => ({
+      code,
+      nameHe: `קורס ${code}`,
+      discipline,
+      credits: 4,
+      averageGrade: null,
+      difficultyLevel: null,
+      failRate: null,
+      prerequisites: [],
+      courseType: "ELECTIVE",
+      isMandatory: false,
+    });
+    const dbWithCourses = {
+      userCourse: { findMany: async () => ROWS },
+      studyTask: { findMany: async () => [] },
+      miluimSemester: { findMany: async () => [] },
+      course: {
+        findMany: async () => [
+          courseRow("0910-4601"), // foreign law — must be dropped
+          courseRow("0910-1000"), // real PPE law-foundation — must stay
+          courseRow("0618-2000", "ECONOMICS"), // ordinary PPE — must stay
+        ],
+      },
+    } as unknown as Db;
+
+    const ctx = await buildUserContext(dbWithCourses, USER);
+    const codes = ctx.availableNextSemester.map((c) => c.code);
+    expect(codes).not.toContain("0910-4601");
+    expect(codes).toContain("0910-1000");
+    expect(codes).toContain("0618-2000");
   });
 });

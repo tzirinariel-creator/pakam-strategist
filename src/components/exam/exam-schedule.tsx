@@ -370,6 +370,15 @@ export function ExamSchedule() {
         </div>
       </div>
 
+      {/* Honesty (A5): exam dates are scraped from the official TAU site and
+          can change — surface the source so a countdown is never read as an
+          authoritative promise (the no-invented/unsourced-date rule). */}
+      <p className="-mt-2 text-center text-xs text-muted-foreground/70">
+        {isRTL
+          ? "תאריכי-המבחן נאספים מהאתר הרשמי ועשויים להשתנות — ודאו מולו לפני כל מבחן."
+          : "Exam dates are gathered from the official site and may change — verify there before each exam."}
+      </p>
+
       {/* Tab switch + Export button */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-1 rounded-lg border border-border/40 bg-card/40 p-0.5">

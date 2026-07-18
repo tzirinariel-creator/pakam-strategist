@@ -2,6 +2,7 @@
 
 import { useTranslations } from "next-intl";
 import { Mail } from "lucide-react";
+import { CONTACT_EMAIL } from "@/lib/constants";
 
 export default function AboutPage() {
   const t = useTranslations("about");
@@ -52,11 +53,11 @@ export default function AboutPage() {
       <div className="rounded-xl border border-border/60 bg-card p-5">
         <p className="mb-2 text-sm text-foreground/70">{t("contact")}</p>
         <a
-          href="mailto:ariel@pakamon.app"
+          href={`mailto:${CONTACT_EMAIL}`}
           className="inline-flex items-center gap-2 text-sm font-medium text-foreground transition-colors hover:text-foreground/70"
         >
           <Mail className="size-4" />
-          ariel@pakamon.app
+          {CONTACT_EMAIL}
         </a>
       </div>
     </div>

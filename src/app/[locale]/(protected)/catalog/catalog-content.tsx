@@ -11,6 +11,7 @@ import { CourseTable } from "@/components/catalog/course-table";
 import { PageHeader } from "@/components/ui/page-header";
 import type { Course } from "@/types/degree";
 import type { Discipline, CourseType } from "@/types/enums";
+import { CONTACT_EMAIL } from "@/lib/constants";
 
 const DEFAULT_FILTERS: CourseFiltersState = {
   search: "",
@@ -168,7 +169,7 @@ export function CatalogContent() {
               : "Average grade and difficulty — from the Arazim project (real grade statistics collected from past years), not an official university figure"}
           </p>
           <a
-            href={`mailto:tzirin.ariel@gmail.com?subject=${encodeURIComponent(isHe ? "קורס חסר בקטלוג פכמון" : "Missing course in the Pakamon catalog")}`}
+            href={`mailto:${CONTACT_EMAIL}?subject=${encodeURIComponent(isHe ? "קורס חסר בקטלוג פכמון" : "Missing course in the Pakamon catalog")}`}
             className="w-fit text-foreground/70 underline underline-offset-2 transition-colors hover:text-foreground/90"
           >
             {isHe ? "לא מצאתם קורס? דווחו לנו" : "Missing a course? Let us know"}

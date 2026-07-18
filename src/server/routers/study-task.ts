@@ -1,7 +1,7 @@
 import { z } from "zod/v4";
 import { TRPCError } from "@trpc/server";
 import { createTRPCRouter, protectedProcedure } from "../trpc/init";
-import { generateExamPlan, type ExamInput } from "@/lib/exam-planner";
+import { generateExamPlan, israelCivilDate, type ExamInput } from "@/lib/exam-planner";
 import { buildPrePlaced, LOCK_MARK } from "@/lib/plan-from-tasks";
 
 // Marker stored in `notes` so we can regenerate the auto plan without wiping a
@@ -282,7 +282,10 @@ export const studyTaskRouter = createTRPCRouter({
       // survive a re-tune and become PRE-PLACED, so the fresh plan fills AROUND
       // them instead of wiping the arrangement. Limited to courses still in the
       // plan (examCodes) so a de-selected course's locks don't linger (D3).
-      const today = new Date();
+      // Israel civil "today" — the server runs UTC, so a bare new Date() at
+      // 00:00–03:00 Israel is still yesterday and would place study blocks a day
+      // off from the client-local preview. See israelCivilDate.
+      const today = israelCivilDate();
       const examCodes = new Set(examInputs.map((e) => e.courseCode));
       const survivors = await ctx.db.studyTask.findMany({
         where: { userId: user.id, taskType: "study", completed: false },

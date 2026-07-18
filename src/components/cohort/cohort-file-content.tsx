@@ -34,6 +34,7 @@ import { cn } from "@/lib/utils";
 import { ReferentCharacter } from "@/components/ui/referent-character";
 import { DISCIPLINE_CONFIG } from "@/lib/constants";
 import { ThemedLoader } from "@/components/ui/themed-loader";
+import { CohortShareNudge } from "@/components/cohort/cohort-share-nudge";
 import { encodePlan, type SharedCourse } from "@/lib/plan-share";
 import { contributorLevel } from "@/lib/contributor-level";
 
@@ -87,6 +88,10 @@ export function CohortFileContent() {
               : `${totals.reviews} reviews and ${totals.gradePoints} grade contributions across ${totals.coursesCovered} courses so far.${totals.mostDiscussed ? ` Most discussed: ${totals.mostDiscussed.nameHe} (${totals.mostDiscussed.count} reviews).` : ""}`}
         </p>
       </div>
+
+      {/* One-click contribution path — lower friction than writing a review;
+          self-hides once the student has shared or dismissed it. */}
+      <CohortShareNudge variant="card" className="animate-stagger-2" />
 
       {hasData ? (
         <>

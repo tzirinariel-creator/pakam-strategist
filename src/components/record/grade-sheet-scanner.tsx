@@ -19,6 +19,7 @@ import { getWrapTarget, wrapStorageKey } from "@/lib/semester-clock";
 import { calculateGrades } from "@/lib/grade-calculator";
 import type { UserCourseWithCourse } from "@/types/degree";
 import { WhereIsMySheet } from "@/components/record/where-is-my-sheet";
+import { CohortShareNudge } from "@/components/cohort/cohort-share-nudge";
 import { fileToBase64, SCANNER_ACCEPT } from "@/lib/upload";
 import { invalidatePlanData } from "@/lib/trpc/invalidate-plan";
 import { cn } from "@/lib/utils";
@@ -285,6 +286,9 @@ export function GradeSheetScanner() {
               </p>
             )}
           </div>
+          {/* Growth loop: right after grades land is the strongest moment to
+              invite an anonymous contribution to the cohort pool (#3/#16). */}
+          <CohortShareNudge variant="inline" />
           <button
             type="button"
             onClick={() => setScanSummary(null)}

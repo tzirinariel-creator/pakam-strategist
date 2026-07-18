@@ -1,0 +1,45 @@
+# =============================================================================
+# Free scheduled DB backup (no paid Supabase plan needed).
+#
+# DORMANT until the owner adds a repository secret named DATABASE_URL
+# (Settings → Secrets and variables → Actions). Until then the job runs, sees
+# no secret, prints a notice, and exits 0 — nothing is dumped, nothing fails.
+#
+# Once active it dumps the DB daily and stores it as a private workflow
+# artifact (downloadable only by people with repo access, kept 30 days).
+# NOTE for the owner: the artifact contains real student data. Artifacts are
+# private to the repo, but if you prefer a different destination (a private
+# backup repo, external object storage), tell me and I'll repoint it.
+# =============================================================================
+name: DB Backup (free)
+
+on:
+  schedule:
+    - cron: "0 2 * * *" # daily, 02:00 UTC
+  workflow_dispatch: {}
+
+jobs:
+  backup:
+    runs-on: ubuntu-latest
+    env:
+      DATABASE_URL: ${{ secrets.DATABASE_URL }}
+    steps:
+      - name: Dump database (skips cleanly if the secret is missing)
+        run: |
+          if [ -z "${DATABASE_URL}" ]; then
+            echo "DATABASE_URL secret not set — backups are inactive."
+            echo "Owner: add it in Settings → Secrets and variables → Actions to activate."
+            exit 0
+          fi
+          STAMP="$(date +%Y-%m-%d-%H%M%S)"
+          npx --yes supabase db dump --db-url "$DATABASE_URL" -f "pakam-${STAMP}.sql"
+          echo "STAMP=${STAMP}" >> "$GITHUB_ENV"
+
+      - name: Upload backup artifact
+        if: ${{ env.STAMP != '' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: db-backup-${{ env.STAMP }}
+          path: "pakam-*.sql"
+          retention-days: 30
+          if-no-files-found: ignore

@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { generateExamPlan, analyzeExamPeriod, classifyDifficulty, confidenceMultiplier, explainBudget, type ExamInput } from "@/lib/exam-planner";
+import { generateExamPlan, analyzeExamPeriod, classifyDifficulty, confidenceMultiplier, explainBudget, israelCivilDate, type ExamInput } from "@/lib/exam-planner";
 
 const NOW = new Date("2026-06-01T00:00:00Z");
 
@@ -272,5 +272,22 @@ describe("hoursOverride + explainBudget (13.7 #25 — sourced, editable, explain
     expect(own.overridden).toBe(true);
     expect(own.total).toBe(20);
     expect(own.estimated).toBe(base.estimated); // the formula's number survives for display
+  });
+});
+
+describe("israelCivilDate — server 'today' matches the Israeli student's day", () => {
+  it("returns the Israel civil date, not the UTC date, in the pre-dawn window", () => {
+    // 22:30 UTC in July = 01:30 Israel (IDT, UTC+3) the NEXT day → civil 16th,
+    // even though the UTC date is still the 15th. This is the shift the server
+    // build must avoid vs the client-local preview.
+    const d = israelCivilDate(new Date("2026-07-15T22:30:00Z"));
+    expect(d.getFullYear()).toBe(2026);
+    expect(d.getMonth()).toBe(6); // July (0-indexed)
+    expect(d.getDate()).toBe(16);
+  });
+
+  it("agrees with UTC when they are the same civil day (midday)", () => {
+    const d = israelCivilDate(new Date("2026-07-15T09:00:00Z")); // 12:00 Israel
+    expect(d.getDate()).toBe(15);
   });
 });

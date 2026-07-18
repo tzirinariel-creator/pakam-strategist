@@ -12,6 +12,14 @@ import type { ProgramDefinition } from "@/lib/programs/types";
 export const APP_NAME = "Pakamon";
 export const APP_NAME_HE = "פכמון";
 
+// Public contact address — ONE source of truth for every mailto in the app
+// (footer, about/privacy/accessibility, settings feedback, catalog report).
+// Points at an owner-controlled inbox until a real domain is bought; the
+// pakamon.app domain was never registered, so a mailto there would leak
+// inbound student mail to whoever claims it. When the domain lands, change
+// this ONE line.
+export const CONTACT_EMAIL = "tzirin.ariel@gmail.com";
+
 // ── Discipline display config ──────────────────────────────────────
 
 export interface DisciplineDisplayConfig {

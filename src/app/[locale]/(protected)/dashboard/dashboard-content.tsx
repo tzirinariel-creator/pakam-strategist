@@ -18,6 +18,7 @@ import { CREDIT_REQUIREMENTS, resolveEnglishLevel } from "@/lib/constants";
 import { MilestoneMoment } from "@/components/dashboard/milestone-moment";
 import { usePersonalAddress } from "@/components/personal/use-personal-address";
 import { TipCard } from "@/components/shared/tip-card";
+import { CohortShareNudge } from "@/components/cohort/cohort-share-nudge";
 import { getContextualTips, getRandomTip } from "@/lib/tips-engine";
 import { DashboardSkeleton } from "@/components/dashboard/dashboard-skeleton";
 import { ThemedLoader } from "@/components/ui/themed-loader";
@@ -1313,7 +1314,12 @@ function CohortWisdomTeaser() {
   const isHe = locale === "he";
   const insights = api.cohort.listInsights.useQuery(undefined, { staleTime: 300_000 });
   const latest = insights.data?.[0];
-  if (!latest) return null;
+  // Still loading — stay silent to avoid flashing the nudge before data lands.
+  if (!insights.data) return null;
+  // Loaded but empty: instead of silence, an honest doorway that explains the
+  // file grows as the cohort shares, and invites the student to contribute what
+  // they've completed. Self-hides once shared or dismissed (per-device).
+  if (!latest) return <CohortShareNudge variant="card" />;
   return (
     <div className="data-card flex flex-wrap items-center gap-3 p-4">
       <div className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-foreground/8 text-foreground/60">

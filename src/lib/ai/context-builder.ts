@@ -22,6 +22,18 @@ import { buildExamPeriodBlock } from "@/lib/ai/exam-facts";
 import { getProgramById } from "@/lib/programs/registry";
 import { getAcademicNow, getPlanningAnchor, deriveYearOfStudy } from "@/lib/academic-calendar";
 
+// Defense-in-depth against the foreign TAU law-school catalog (0910-xxxx) that
+// was co-seeded into the shared Course table and hides under the shared
+// "GENERAL" discipline — so the discipline scope alone doesn't catch it. The
+// King must never recommend a non-PPE course even if the prod-DB cleanup
+// (prisma/cleanup-nonppe-courses.ts) has not run. IMPORTANT: 0910-1000
+// ("דיני איכות סביבה") is the ONE 0910 course that genuinely belongs to the PPE
+// catalog (law-foundation basket, present in ppe-courses-2025.json), so it is
+// explicitly preserved. Exported for its regression test.
+export function isForeignLawCourseCode(code: string): boolean {
+  return code.startsWith("0910-") && code !== "0910-1000";
+}
+
 // -------------------------------------------------------------------
 // Types
 // -------------------------------------------------------------------
@@ -258,6 +270,10 @@ export async function buildUserContext(
       semesterOffered: { has: nextSemesterInfo.semester },
       isActive: true,
       discipline: { in: programDisciplines },
+      // Suspenders: drop the foreign 0910-xxxx law set at the query level (kept
+      // out even before it's fetched). 0910-1000 is a real PPE course, so it is
+      // NOT excluded. Belt version below re-checks in JS. See isForeignLawCourseCode.
+      NOT: { AND: [{ code: { startsWith: "0910-" } }, { code: { not: "0910-1000" } }] },
     },
     select: {
       code: true,
@@ -277,6 +293,9 @@ export async function buildUserContext(
 
   const availableNextSemester: CourseInfo[] = allCourses
     .filter((course) => {
+      // Belt: never surface a foreign law course to the King, regardless of
+      // what the DB returned (guards against stale rows before cleanup).
+      if (isForeignLawCourseCode(course.code)) return false;
       if (allUserCourseCodes.has(course.code)) return false;
       const prereqs = course.prerequisites ?? [];
       return prereqs.every((code) => completedCodes.has(code));

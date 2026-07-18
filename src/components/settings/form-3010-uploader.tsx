@@ -1,0 +1,195 @@
+"use client";
+
+import { useState, useRef } from "react";
+import { Loader2, Check, Shield } from "lucide-react";
+import { toast } from "sonner";
+import { advisorError } from "@/lib/advisor-toast";
+import { Bidi } from "@/lib/bidi";
+import { fileToBase64, SCANNER_ACCEPT } from "@/lib/upload";
+import type { Form3010Summary } from "@/lib/form-3010";
+import { Button } from "@/components/ui/button";
+
+// ---------------------------------------------------------------
+// M2 — Form 3010 uploader (extraction → explicit per-semester approval)
+// ---------------------------------------------------------------
+
+export function Form3010Uploader({
+  isHe,
+  existing,
+  pending,
+  onApply,
+  onApplyAll,
+}: {
+  isHe: boolean;
+  existing: Array<{ academicYear: number; semester: string; daysServed: number }>;
+  pending: boolean;
+  onApply: (academicYear: number, semester: "FALL" | "SPRING", days: number) => void;
+  /** Batch apply — lets the parent snapshot BEFORE the whole import and offer
+   *  ONE undo for all of it (the last irreversible bulk-write, 12.7 #26). */
+  onApplyAll?: (items: Array<{ academicYear: number; semester: "FALL" | "SPRING"; days: number }>) => void;
+}) {
+  const fileRef = useRef<HTMLInputElement>(null);
+  const [scanning, setScanning] = useState(false);
+  const [summary, setSummary] = useState<Form3010Summary | null>(null);
+  const [edited, setEdited] = useState<Record<string, number>>({});
+
+  const handleFile = async (file: File) => {
+    setScanning(true);
+    setSummary(null);
+    try {
+      const { b64, mime } = await fileToBase64(file);
+      if (b64.length > 5_000_000) {
+        toast.error(isHe ? "הקובץ גדול מדי — צלמו את העמוד עצמו (עד ~3.5MB)." : "File too large — photograph the page (max ~3.5MB).");
+        return;
+      }
+      const res = await fetch("/api/ai/scan-3010", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ imageBase64: b64, mimeType: mime }),
+      });
+      const data = (await res.json()) as { summary?: Form3010Summary; error?: string };
+      if (!res.ok || !data.summary) {
+        advisorError(data.error ?? (isHe ? "הסריקה לא הצליחה — נסו שוב או צלמו תמונה חדה יותר." : "The scan didn't work — try again or take a sharper photo."));
+        return;
+      }
+      setSummary(data.summary);
+      setEdited({});
+    } catch {
+      advisorError(isHe ? "הסריקה לא הצליחה — נסו שוב. הנתונים שלכם לא נגעו." : "The scan didn't work — try again. Your data is untouched.");
+    } finally {
+      setScanning(false);
+      if (fileRef.current) fileRef.current.value = "";
+    }
+  };
+
+  return (
+    <div className="rounded-xl border border-border/60 bg-foreground/[0.02] p-4">
+      <div className="flex flex-wrap items-center gap-3">
+        <div className="min-w-0 flex-1">
+          <p className="text-sm font-semibold text-foreground/75">
+            {isHe ? "יש לכם טופס 3010? נמלא את הימים בשבילכם" : "Have a Form 3010? We'll fill the days for you"}
+          </p>
+          <p className="text-xs text-foreground/45">
+            {isHe
+              ? "מעלים את האישור הרשמי — אנחנו מחלצים את תקופות השירות ומציעים חלוקה לסמסטרים. שום דבר לא נשמר בלי אישור שלכם."
+              : "Upload the official confirmation — we extract the service periods and suggest a per-semester split. Nothing is saved without your approval."}
+          </p>
+        </div>
+        <input
+          ref={fileRef}
+          type="file"
+          accept={SCANNER_ACCEPT}
+          className="hidden"
+          onChange={(e) => {
+            const f = e.target.files?.[0];
+            if (f) void handleFile(f);
+          }}
+        />
+        <Button type="button" variant="outline" disabled={scanning} onClick={() => fileRef.current?.click()} className="gap-1.5">
+          {scanning ? <Loader2 className="size-4 animate-spin" /> : <Shield className="size-4" />}
+          {scanning ? (isHe ? "קורא את הטופס…" : "Reading…") : isHe ? "העלו טופס 3010" : "Upload Form 3010"}
+        </Button>
+      </div>
+
+      {summary && (
+        <div className="mt-3 space-y-2">
+          {summary.suggestions.length > 1 && (
+            <button
+              type="button"
+              disabled={pending}
+              onClick={() => {
+                const items = summary.suggestions.map((s) => ({
+                  academicYear: s.academicYear,
+                  semester: s.semester,
+                  days: edited[`${s.academicYear}-${s.semester}`] ?? Math.round(s.days),
+                }));
+                if (onApplyAll) onApplyAll(items);
+                else for (const it of items) onApply(it.academicYear, it.semester, it.days);
+              }}
+              className="inline-flex w-full items-center justify-center gap-1.5 rounded-lg bg-accent-brand px-3 py-2 text-xs font-semibold text-accent-brand-fg transition-colors hover:bg-accent-brand-hover disabled:opacity-50"
+            >
+              <Check className="size-3.5" />
+              {isHe
+                ? `אישור והחלה של הכול (${summary.suggestions.length} סמסטרים)`
+                : `Apply all (${summary.suggestions.length} semesters)`}
+            </button>
+          )}
+          {summary.suggestions.length === 0 && (
+            <p className="text-xs text-foreground/50">
+              {isHe ? "לא נמצאו תקופות בטווח הלוחות המוכרים — אפשר להזין ידנית למטה." : "No periods within the known calendars — enter manually below."}
+            </p>
+          )}
+          {summary.suggestions.map((s) => {
+            const key = `${s.academicYear}-${s.semester}`;
+            const days = edited[key] ?? Math.round(s.days);
+            const current = existing.find((r) => r.academicYear === s.academicYear && r.semester === s.semester);
+            return (
+              <div key={key} className="flex flex-wrap items-center gap-2 rounded-lg border border-border/50 p-2 text-xs">
+                <span className="min-w-0 flex-1 text-foreground/75">
+                  <Bidi text={isHe ? `${s.labelHe} · ${s.semester === "FALL" ? "סמסטר א׳" : "סמסטר ב׳"}` : `${s.academicYear} · ${s.semester === "FALL" ? "Fall" : "Spring"}`} />
+                  <span className="ms-1 text-foreground/40">
+                    ({s.periodCount} {isHe ? "תקופות" : "periods"})
+                  </span>
+                </span>
+                <input
+                  type="number"
+                  min={0}
+                  max={366}
+                  value={days}
+                  aria-label={isHe ? `ימי שירות ל${s.labelHe}` : `Service days for ${s.labelHe}`}
+                  onChange={(e) => setEdited((prev) => ({ ...prev, [key]: Math.max(0, Math.min(366, parseInt(e.target.value, 10) || 0)) }))}
+                  className="w-16 rounded-md border border-border bg-card px-2 py-1 text-center font-mono"
+                  dir="ltr"
+                />
+                {current && current.daysServed !== days && (
+                  <span className="rounded bg-amber-500/10 px-1.5 py-px text-[10px] font-semibold text-amber-600">
+                    {isHe ? <>רשום כרגע <bdi dir="ltr">{current.daysServed}</bdi> — יוחלף</> : `Recorded ${current.daysServed} — will replace`}
+                  </span>
+                )}
+                <Button type="button" size="sm" disabled={pending} onClick={() => onApply(s.academicYear, s.semester, days)} className="h-7 px-2.5 text-xs">
+                  {isHe ? "החילו לסמסטר" : "Apply"}
+                </Button>
+              </div>
+            );
+          })}
+          {summary.unmapped.length > 0 && (
+            // #21 (12.7) — the old one-line dump of 14 periods was unreadable.
+            // Collapsed by default; opens to a proper table, oldest first.
+            <details className="rounded-lg border border-border/40 bg-foreground/[0.02] p-2.5">
+              <summary className="cursor-pointer text-[11px] font-medium text-foreground/55">
+                {isHe
+                  ? `עוד ${summary.unmapped.length} תקופות שירות שלא שויכו לסמסטר — לפירוט`
+                  : `${summary.unmapped.length} more service period(s) not assigned to a semester — details`}
+              </summary>
+              <table className="mt-2 w-full text-[11px]">
+                <thead>
+                  <tr className="text-foreground/40">
+                    <th className="pb-1 pe-3 text-start font-medium">{isHe ? "מתאריך" : "From"}</th>
+                    <th className="pb-1 pe-3 text-start font-medium">{isHe ? "עד תאריך" : "To"}</th>
+                    <th className="pb-1 text-start font-medium">{isHe ? "ימים" : "Days"}</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {[...summary.unmapped]
+                    .sort((a, b) => a.startDate.localeCompare(b.startDate))
+                    .map((p) => (
+                      <tr key={`${p.startDate}-${p.endDate}`} className="border-t border-border/30 text-foreground/60">
+                        <td className="py-1 pe-3"><bdi dir="ltr">{p.startDate}</bdi></td>
+                        <td className="py-1 pe-3"><bdi dir="ltr">{p.endDate}</bdi></td>
+                        <td className="py-1 font-mono"><bdi dir="ltr">{p.days}</bdi></td>
+                      </tr>
+                    ))}
+                </tbody>
+              </table>
+              <p className="mt-1.5 text-[10px] leading-relaxed text-foreground/40">
+                {isHe
+                  ? "לא הצלחנו לשייך את התקופות האלה לסמסטר — לוחות-הזמנים שבאפליקציה מתחילים בתשפ״ד. אם שירתם בזמן הלימודים לפני כן, הזינו את הימים ידנית לסמסטר המתאים והם ייספרו. שירות שקדם לתואר לא מזכה בהטבות."
+                  : "We couldn't assign these periods to a semester — the app's calendars start at 2023-24. If you served during earlier study semesters, enter those days manually for the right semester and they'll count. Service from before the degree doesn't grant benefits."}
+              </p>
+            </details>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}

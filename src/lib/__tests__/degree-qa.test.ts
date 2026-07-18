@@ -40,6 +40,16 @@ describe("answerDegreeQuestion", () => {
     expect(a.text).toContain("84");
   });
 
+  it("routes a course-specific grade question to the honest record answer, NOT the average (#36)", () => {
+    // "הציון שלי ב<קורס>" must beat the general "הציון שלי" under the
+    // length-weighted matcher: no per-course grade is in the aggregate context,
+    // so the King must send the student to /record and never guess a grade.
+    const a = answerDegreeQuestion("מה הציון שלי בקורס מבוא לכלכלה?", ctx({}));
+    expect(a.href).toBe("/record");
+    expect(a.text).toContain("אני לא מנחש ציונים");
+    expect(a.text).not.toContain("84"); // did not fall through to the average
+  });
+
   it("explains binary and shows the remaining quota for a miluim student", () => {
     const a = answerDegreeQuestion("מה זה בינארי?", ctx({ binaryRemaining: 3 }));
     expect(a.text).toContain("עובר");
