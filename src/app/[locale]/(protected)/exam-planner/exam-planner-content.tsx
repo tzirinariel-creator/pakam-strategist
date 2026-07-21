@@ -3,21 +3,12 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import {
   CalendarClock,
-  CalendarRange,
   ListChecks,
   Lightbulb,
   Plus,
-  Trash2,
   Check,
   GraduationCap,
-  BookOpen,
-  Briefcase,
   AlertTriangle,
-  ChevronDown,
-  Clock,
-  Share2,
-  FileSpreadsheet,
-  CalendarPlus,
 } from "lucide-react";
 import { useLocale } from "next-intl";
 import { toast } from "sonner";
@@ -36,12 +27,6 @@ import {
   type ExamInput,
   type ExamPlanResult,
 } from "@/lib/exam-planner";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import { StudySkyline } from "@/components/exam-planner/study-skyline";
 import { WeeklyGrid } from "@/components/exam-planner/weekly-grid";
 import dynamic from "next/dynamic";
@@ -56,29 +41,11 @@ import { planFromStudyTasks, buildPrePlaced } from "@/lib/plan-from-tasks";
 import { downloadGanttCsv, type GanttTask } from "@/lib/excel-export";
 import { exportExamPlanXlsx } from "@/lib/xlsx-export";
 import { cn } from "@/lib/utils";
-
-type Moed = "A" | "B";
-type StudyTask = { id: string; title: string; startDate: string | Date; endDate: string | Date; taskType: string; courseCode: string | null; color: string | null; notes: string | null; completed: boolean };
-
-const TYPE_META: Record<string, { he: string; en: string; icon: React.ComponentType<{ className?: string }> }> = {
-  exam: { he: "מבחן", en: "Exam", icon: GraduationCap },
-  study: { he: "לימוד", en: "Study", icon: BookOpen },
-  assignment: { he: "מטלה", en: "Assignment", icon: BookOpen },
-  custom: { he: "אישי", en: "Personal", icon: Briefcase },
-};
-
-/** Hours a study session is worth — stored in `notes` as "2.5h" by the planner. */
-function taskHours(t: StudyTask): number | null {
-  if (!t.notes) return null;
-  const m = t.notes.match(/([\d.]+)h/);
-  return m ? Number(m[1]) || null : null;
-}
-
-/** Local YYYY-MM-DD key (never UTC) so an all-day exam at local midnight doesn't
- *  roll to the previous day for an Israel (UTC+2/+3) user. */
-function dayKey(d: Date): string {
-  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
-}
+import { dayKey, taskHours, type Moed, type StudyTask } from "@/components/exam-planner/exam-planner-utils";
+import { Agenda } from "@/components/exam-planner/agenda";
+import { Disclosure } from "@/components/exam-planner/disclosure";
+import { ShareMenu } from "@/components/exam-planner/share-menu";
+import { ExamSeasonWisdom } from "@/components/exam-planner/exam-season-wisdom";
 
 export function ExamPlannerContent() {
   const isHe = useLocale() === "he";
@@ -887,254 +854,3 @@ export function ExamPlannerContent() {
     </div>
   );
 }
-
-// ── Share menu — Radix DropdownMenu (portal), so a transformed/stacking
-// ancestor can never trap it under sibling cards again (#34). ICS primary,
-// CSV secondary; RTL comes from the RadixDirection provider.
-function ShareMenu({ isHe, onXlsx, onIcs, onCsv }: { isHe: boolean; onXlsx: () => void; onIcs: () => void; onCsv: () => void }) {
-  return (
-    <DropdownMenu>
-      <DropdownMenuTrigger className="inline-flex items-center gap-1.5 rounded-lg border border-border/60 bg-card/40 px-3 py-2 text-sm text-foreground/70 transition-colors hover:border-foreground/25 hover:text-foreground/90">
-        <Share2 className="size-4" />
-        {isHe ? "שיתוף / ייצוא" : "Share / export"}
-        <ChevronDown className="size-3.5" />
-      </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-60 rounded-xl">
-        <DropdownMenuItem onSelect={onXlsx} className="gap-2 text-sm font-medium text-foreground/85">
-          <FileSpreadsheet className="size-4 text-emerald-600" />
-          {isHe ? "אקסל — לוח שבועי לתלייה" : "Excel — a weekly grid to print"}
-        </DropdownMenuItem>
-        <DropdownMenuItem onSelect={onIcs} className="gap-2 text-sm text-foreground/80">
-          <CalendarPlus className="size-4 text-accent-brand" />
-          {isHe ? "הוסיפו ליומן Google" : "Add to Google Calendar"}
-        </DropdownMenuItem>
-        <DropdownMenuItem onSelect={onCsv} className="gap-2 text-xs text-foreground/55">
-          <FileSpreadsheet className="size-3.5" />
-          {isHe ? "טבלה פשוטה (CSV)" : "Plain table (CSV)"}
-        </DropdownMenuItem>
-      </DropdownMenuContent>
-    </DropdownMenu>
-  );
-}
-
-// ── Disclosure — collapsed secondary tools so they don't shout on first load ──
-function Disclosure({ title, children }: { title: string; children: React.ReactNode }) {
-  const [open, setOpen] = useState(false);
-  return (
-    <div className="animate-stagger-4">
-      <button type="button" onClick={() => setOpen((o) => !o)} aria-expanded={open} className="flex w-full items-center gap-2 rounded-xl border border-border/50 bg-foreground/[0.02] px-4 py-2.5 text-sm font-medium text-foreground/65 transition-colors hover:bg-foreground/[0.04]">
-        <ChevronDown className={cn("size-4 transition-transform", open && "rotate-180")} />
-        {title}
-      </button>
-      {open && <div className="mt-3">{children}</div>}
-    </div>
-  );
-}
-
-// ── Agenda — TODAY-first, hours-aware, with inline done / push / remove ──
-function Agenda({
-  byDay,
-  isHe,
-  onToggle,
-  onDelete,
-  onPush,
-  onPushDay,
-  courses,
-  onQuickAdd,
-  focusDay,
-}: {
-  byDay: [string, StudyTask[]][];
-  isHe: boolean;
-  onToggle: (id: string) => void;
-  onDelete: (id: string) => void;
-  onPush: (t: StudyTask) => void;
-  onPushDay: (list: StudyTask[]) => void;
-  courses: { code: string; name: string; color: string | null }[];
-  onQuickAdd: (dayKey: string, course: { code: string; name: string; color: string | null }) => void;
-  /** Skyline day-click target — n bumps so re-clicking the same day re-scrolls. */
-  focusDay: { key: string; n: number } | null;
-}) {
-  const [showTail, setShowTail] = useState(false);
-  const [addingDay, setAddingDay] = useState<string | null>(null);
-  const [highlight, setHighlight] = useState<string | null>(null);
-  const todayKey = dayKey(new Date());
-  // Only future/today days (a past auto-generated session is noise once it's gone).
-  const upcoming = byDay.filter(([k]) => k >= todayKey);
-
-  // Skyline day-click (#37): open the tail if needed, scroll to the day card,
-  // flash a ring for 2s. Runs before the empty-state return (hooks order).
-  useEffect(() => {
-    if (!focusDay) return;
-    const inTail = upcoming.slice(3).some(([k]) => k === focusDay.key);
-    if (inTail) setShowTail(true);
-    const raf = requestAnimationFrame(() => {
-      document
-        .getElementById(`agenda-day-${focusDay.key}`)
-        ?.scrollIntoView({ behavior: "smooth", block: "center" });
-    });
-    setHighlight(focusDay.key);
-    const t = setTimeout(() => setHighlight(null), 2000);
-    return () => {
-      cancelAnimationFrame(raf);
-      clearTimeout(t);
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- fire per click (n bump), not on list churn
-  }, [focusDay]);
-
-  if (upcoming.length === 0) {
-    return (
-      <div className="rounded-xl border border-dashed border-border/50 bg-foreground/[0.02] p-8 text-center text-sm text-foreground/45">
-        {isHe ? "אין משימות קרובות. הוסף מבחנים כדי לבנות תוכנית." : "No upcoming tasks. Add exams to build a plan."}
-      </div>
-    );
-  }
-  const head = upcoming.slice(0, 3);
-  const tail = upcoming.slice(3);
-
-  const dayTotal = (list: StudyTask[]) => list.reduce((s, t) => s + (taskHours(t) ?? 0), 0);
-
-  const renderDay = (key: string, list: StudyTask[], isToday: boolean) => {
-    const [yy, mm, dd] = key.split("-").map(Number);
-    const d = new Date(yy!, mm! - 1, dd!);
-    const hours = dayTotal(list);
-    const hasMovable = list.some((t) => t.taskType !== "exam" && !t.completed);
-    // Load tint echoes the skyline thresholds (2.5 / 5h).
-    const loadColor = hours >= 5 ? "bg-red-400/70" : hours >= 2.5 ? "bg-amber-400/70" : "bg-emerald-400/70";
-    return (
-      <div
-        key={key}
-        id={`agenda-day-${key}`}
-        className={cn(
-          "data-card p-3.5",
-          isToday && "border-accent-brand/40 ring-1 ring-accent-brand/20",
-          highlight === key && "ring-2 ring-accent-brand/40",
-        )}
-      >
-        <div className="mb-2.5 flex flex-wrap items-center gap-2">
-          <span className={cn("text-sm font-bold", isToday ? "text-accent-brand" : "text-foreground/80")}>
-            {isToday ? (isHe ? "היום" : "Today") : d.toLocaleDateString(isHe ? "he-IL" : "en-US", { weekday: "long", day: "numeric", month: "short" })}
-          </span>
-          {isToday && <span className="text-[11px] text-foreground/45">{d.toLocaleDateString(isHe ? "he-IL" : "en-US", { day: "numeric", month: "short" })}</span>}
-          {hours > 0 && (
-            <span className="ms-auto flex items-center gap-1.5">
-              <span className="h-1.5 w-10 overflow-hidden rounded-full bg-foreground/10">
-                <span className={cn("block h-full rounded-full", loadColor)} style={{ width: `${Math.min((hours / 6) * 100, 100)}%` }} />
-              </span>
-              <span className="font-mono text-[11px] tabular-nums text-foreground/60" dir="ltr">
-                <Clock className="mb-0.5 me-0.5 inline size-3" />{hours} {isHe ? "שע׳" : "h"}
-              </span>
-            </span>
-          )}
-          <span className={cn("flex items-center gap-1", hours === 0 && "ms-auto")}>
-            {courses.length > 0 && (
-              <button
-                type="button"
-                onClick={() => setAddingDay((a) => (a === key ? null : key))}
-                className="rounded-md px-1.5 py-0.5 text-[11px] font-medium text-foreground/45 transition-colors hover:bg-foreground/10 hover:text-foreground/70"
-              >
-                {isHe ? "+ לימוד" : "+ study"}
-              </button>
-            )}
-            {hasMovable && (
-              <button
-                type="button"
-                onClick={() => onPushDay(list)}
-                className="rounded-md px-1.5 py-0.5 text-[11px] font-medium text-foreground/45 transition-colors hover:bg-foreground/10 hover:text-foreground/70"
-              >
-                {isHe ? "דחו יום" : "Push day"}
-              </button>
-            )}
-          </span>
-        </div>
-        {addingDay === key && courses.length > 0 && (
-          <div className="mb-2 flex flex-wrap gap-1.5">
-            {courses.map((c) => (
-              <button
-                key={c.code}
-                type="button"
-                onClick={() => {
-                  onQuickAdd(key, c);
-                  setAddingDay(null);
-                }}
-                className="flex items-center gap-1.5 rounded-lg border border-border/50 px-2 py-1 text-xs text-foreground/70 transition-colors hover:bg-foreground/5"
-              >
-                <span className="size-2 rounded-full" style={{ backgroundColor: c.color ?? "var(--accent-brand)" }} />
-                {c.name}
-              </button>
-            ))}
-          </div>
-        )}
-        <div className="space-y-1.5">
-          {list.map((t) => {
-            const meta = TYPE_META[t.taskType] ?? TYPE_META.custom!;
-            const Icon = meta.icon;
-            const h = taskHours(t);
-            const isExam = t.taskType === "exam";
-            return (
-              <div key={t.id} className="flex items-center gap-2 rounded-lg border border-border/40 p-2" style={{ borderInlineStartWidth: 3, borderInlineStartColor: t.color ?? "var(--border)" }}>
-                {!isExam && (
-                  <button type="button" onClick={() => onToggle(t.id)} className={cn("flex size-5 shrink-0 items-center justify-center rounded-full border transition-colors", t.completed ? "border-emerald-400 bg-emerald-400 text-white" : "border-foreground/25 hover:border-foreground/40")} aria-label={isHe ? "סמנו שהושלם" : "toggle done"}>
-                    {t.completed && <Check className="size-3" />}
-                  </button>
-                )}
-                <Icon className={cn("size-3.5 shrink-0", isExam ? "text-accent-brand" : "text-foreground/40")} />
-                <span className={cn("min-w-0 flex-1 truncate text-sm", t.completed ? "text-foreground/40 line-through" : "text-foreground/80")}>{t.title}</span>
-                {h != null && <span className="shrink-0 font-mono text-[11px] tabular-nums text-foreground/45" dir="ltr">{h}{isHe ? "שע׳" : "h"}</span>}
-                <span className="shrink-0 rounded-full bg-foreground/[0.06] px-1.5 py-0.5 text-[11px] text-foreground/50">{isHe ? meta.he : meta.en}</span>
-                {!isExam && (
-                  <button type="button" onClick={() => onPush(t)} className="shrink-0 rounded-md p-1 text-foreground/30 transition-colors hover:bg-foreground/10 hover:text-foreground/60" title={isHe ? "דחו ביום" : "Push a day"} aria-label={isHe ? "דחו ביום" : "push a day"}>
-                    <span className="text-xs font-bold">+1</span>
-                  </button>
-                )}
-                <button type="button" onClick={() => onDelete(t.id)} className="shrink-0 rounded-md p-1 text-foreground/30 transition-colors hover:bg-red-500/10 hover:text-red-400" aria-label={isHe ? "הסר" : "delete"}>
-                  <Trash2 className="size-3.5" />
-                </button>
-              </div>
-            );
-          })}
-        </div>
-      </div>
-    );
-  };
-
-  return (
-    <div className="animate-stagger-3 flex flex-col gap-3">
-      {head.map(([key, list]) => renderDay(key, list, key === todayKey))}
-      {tail.length > 0 && (
-        <>
-          {showTail && tail.map(([key, list]) => renderDay(key, list, false))}
-          <button type="button" onClick={() => setShowTail((s) => !s)} className="flex items-center justify-center gap-1.5 rounded-xl border border-border/50 bg-foreground/[0.02] px-4 py-2 text-xs font-medium text-foreground/55 transition-colors hover:bg-foreground/[0.04]">
-            <ChevronDown className={cn("size-3.5 transition-transform", showTail && "rotate-180")} />
-            {showTail ? (isHe ? "הסתר" : "Hide") : isHe ? `שאר התוכנית (${tail.length} ימים)` : `Rest of the plan (${tail.length} days)`}
-          </button>
-        </>
-      )}
-    </div>
-  );
-}
-
-/** #24 (12.7) — what earlier cohorts would tell themselves before exams,
- *  right where exam planning starts. Up to two lines, attributed. */
-function ExamSeasonWisdom({ isHe }: { isHe: boolean }) {
-  const insights = api.cohort.listInsights.useQuery(undefined, { staleTime: 300_000 });
-  const examTips = (insights.data ?? []).filter((i) => i.stage === "EXAMS").slice(0, 2);
-  if (examTips.length === 0) return null;
-  return (
-    <div className="data-card space-y-2 p-4">
-      <p className="text-xs font-bold text-foreground/60">
-        {isHe ? "לפני מבחנים — מהמחזורים שכבר עברו את זה:" : "Before exams — from cohorts who've been there:"}
-      </p>
-      {examTips.map((t) => (
-        <p key={t.id} className="text-sm leading-relaxed text-foreground/75">
-          “{t.text}”
-          {t.cohortYear && (
-            <span className="ms-1.5 text-[11px] text-foreground/40">
-              {isHe ? `— מחזור ${t.cohortYear}` : `— class of ${t.cohortYear}`}
-            </span>
-          )}
-        </p>
-      ))}
-    </div>
-  );
-}
-

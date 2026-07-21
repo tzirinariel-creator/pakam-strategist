@@ -3,7 +3,6 @@
 import { GraduationCap, ArrowLeft, ArrowRight, BookOpen } from "lucide-react";
 import { Link } from "@/i18n/navigation";
 import { GRADE_REQUIREMENTS } from "@/lib/constants";
-import { roundScore } from "@/lib/grade-calculator";
 import { cn } from "@/lib/utils";
 import type { CreditBreakdown, GradeBreakdown } from "@/types/degree";
 import { DegreeStatus, type DisciplineProgress } from "./degree-status";

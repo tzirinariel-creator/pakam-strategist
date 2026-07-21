@@ -1,13 +1,12 @@
 "use client";
 
 import { useState, useEffect, useRef, useCallback } from "react";
-import { GraduationCap, Scale, Pencil, Target, ArrowRight, ArrowLeft, Calendar, X, RefreshCw, Calculator, CheckCircle2, Gavel, Users2 } from "lucide-react";
+import { GraduationCap, Scale, Pencil, Target, ArrowRight, ArrowLeft, Calendar, X, Calculator, CheckCircle2 } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 import { useSearchParams } from "next/navigation";
 import { Link, useRouter } from "@/i18n/navigation";
 import { consumeSharedPlanReturn } from "@/lib/plan-share";
 import { getAcademicNow, deriveYearOfStudy, getPlanningAnchor } from "@/lib/academic-calendar";
-import { getBiddingTarget, isBiddingSeason } from "@/lib/bidding-target";
 import { getTimeFocus } from "@/lib/time-focus";
 import { TimeFocusHero } from "@/components/dashboard/time-focus-hero";
 import { getWrapTarget } from "@/lib/semester-clock";
@@ -18,11 +17,9 @@ import { CREDIT_REQUIREMENTS, resolveEnglishLevel } from "@/lib/constants";
 import { MilestoneMoment } from "@/components/dashboard/milestone-moment";
 import { usePersonalAddress } from "@/components/personal/use-personal-address";
 import { TipCard } from "@/components/shared/tip-card";
-import { CohortShareNudge } from "@/components/cohort/cohort-share-nudge";
 import { getContextualTips, getRandomTip } from "@/lib/tips-engine";
 import { DashboardSkeleton } from "@/components/dashboard/dashboard-skeleton";
 import { ThemedLoader } from "@/components/ui/themed-loader";
-import { Progress } from "@/components/ui/progress";
 import dynamic from "next/dynamic";
 // PERF1: the wizard (and its whole scanner/planner graph) loads only for the
 // one dashboard state that actually renders it — genuine new users.
@@ -49,284 +46,12 @@ import { binaryCapRemaining, binaryBenefitOf, type MiluimGroupKey } from "@/lib/
 import type { GradeBreakdown, CreditBreakdown } from "@/types/degree";
 import { diffBreakdown } from "@/lib/degree-delta";
 import { Bidi } from "@/lib/bidi";
-
-// -----------------------------------------------------------------------
-// Post-Onboarding Transition — auto-retries plan fetch after saving
-// -----------------------------------------------------------------------
-
-function PostOnboardingTransition({
-  onRetry,
-  onContinue,
-}: {
-  onRetry: () => void;
-  onContinue: () => void;
-}) {
-  const t = useTranslations("dashboard");
-  const retryCount = useRef(0);
-  const maxRetries = 8;
-  const [currentAttempt, setCurrentAttempt] = useState(0);
-  const [exhausted, setExhausted] = useState(false);
-  const [showContinue, setShowContinue] = useState(false);
-
-  useEffect(() => {
-    // Show "Continue anyway" after 2 seconds — don't block the user
-    const continueTimer = setTimeout(() => setShowContinue(true), 2000);
-
-    const interval = setInterval(() => {
-      retryCount.current += 1;
-      setCurrentAttempt(retryCount.current);
-      onRetry();
-
-      if (retryCount.current >= maxRetries) {
-        clearInterval(interval);
-        setExhausted(true);
-        // Auto-continue after exhausted — don't leave user stuck
-        setTimeout(() => onContinue(), 1500);
-      }
-    }, 1200);
-
-    return () => {
-      clearInterval(interval);
-      clearTimeout(continueTimer);
-    };
-  }, [onRetry, onContinue]);
-
-  if (exhausted) {
-    return (
-      <div className="flex min-h-[60vh] flex-col items-center justify-center gap-5">
-        <div className="flex h-16 w-16 items-center justify-center rounded-full bg-foreground/5">
-          <GraduationCap className="h-8 w-8 text-foreground/40" />
-        </div>
-        <div className="flex flex-col items-center gap-1.5">
-          <p className="text-sm font-medium text-foreground/70">
-            {t("settingUpPlan")}
-          </p>
-          <p className="text-xs text-foreground/40">
-            {t("settingUpPlanDesc")}
-          </p>
-        </div>
-        <div className="flex items-center gap-3">
-          <button
-            type="button"
-            onClick={() => {
-              retryCount.current = 0;
-              setCurrentAttempt(0);
-              setExhausted(false);
-              setShowContinue(false);
-              onRetry();
-            }}
-            className="rounded-lg bg-foreground/10 px-5 py-2 text-sm font-medium text-foreground/70 transition-colors hover:bg-foreground/15"
-          >
-            {t("retry")}
-          </button>
-          <button
-            type="button"
-            onClick={onContinue}
-            className="rounded-lg border border-foreground/20 px-5 py-2 text-sm font-medium text-foreground/50 transition-colors hover:bg-foreground/5"
-          >
-            {t("continueAnyway")}
-          </button>
-        </div>
-      </div>
-    );
-  }
-
-  const progressPct = Math.min((currentAttempt / maxRetries) * 100, 100);
-
-  return (
-    <div className="flex min-h-[60vh] flex-col items-center justify-center gap-5">
-      <div className="relative">
-        <div className="h-20 w-20 animate-spin rounded-full border-4 border-foreground/10 border-t-foreground/60" />
-        <div className="absolute inset-0 flex items-center justify-center">
-          <GraduationCap className="h-9 w-9 text-foreground/60" />
-        </div>
-      </div>
-      <div className="flex flex-col items-center gap-1.5">
-        <p className="text-sm font-medium text-foreground/70 animate-pulse">
-          {t("settingUpPlan")}
-        </p>
-        <p className="text-xs text-foreground/40">
-          {t("syncProgress", { current: currentAttempt, max: maxRetries })}
-        </p>
-      </div>
-      {/* Progress bar */}
-      <div className="w-48">
-        <Progress value={progressPct} className="h-1.5" />
-      </div>
-      {/* Continue button after 8 seconds */}
-      {showContinue && (
-        <button
-          type="button"
-          onClick={onContinue}
-          className="animate-fade-in rounded-lg border border-foreground/20 px-5 py-2 text-sm font-medium text-foreground/50 transition-colors hover:bg-foreground/5"
-        >
-          {t("continueAnyway")}
-        </button>
-      )}
-    </div>
-  );
-}
-
-// -----------------------------------------------------------------------
-// Quick Action Card — locale-aware
-// -----------------------------------------------------------------------
-
-function QuickActionCard({
-  icon: Icon,
-  label,
-  href,
-  color,
-  description,
-}: {
-  icon: React.ComponentType<{ className?: string }>;
-  label: string;
-  href: string;
-  color: string;
-  description?: string;
-}) {
-  return (
-    <Link
-      href={href}
-      className="data-card data-card-interactive group flex items-center gap-3 p-4 transition-all press-scale"
-    >
-      <div className={cn("rounded-lg p-2.5 transition-transform group-hover:scale-110", color)}>
-        <Icon className="h-5 w-5" />
-      </div>
-      <div className="flex-1">
-        <span className="text-sm font-medium text-foreground/80 block">{label}</span>
-        {description && (
-          <span className="text-xs text-foreground/40">{description}</span>
-        )}
-      </div>
-    </Link>
-  );
-}
-
-// -----------------------------------------------------------------------
-// Google Calendar Banner
-// -----------------------------------------------------------------------
-
-function GoogleCalendarBanner({
-  isConnected,
-  isHe,
-  t,
-  onDismiss,
-}: {
-  isConnected: boolean;
-  isHe: boolean;
-  t: (key: string) => string;
-  onDismiss: () => void;
-}) {
-  return (
-    <div className="data-card relative flex items-center gap-3 p-4 border-border/50">
-      <div className="rounded-lg bg-emerald-500/10 p-2">
-        <Calendar className="size-5 text-emerald-400" />
-      </div>
-      <div className="flex-1 min-w-0">
-        <p className="text-sm font-medium text-foreground/80">
-          {isConnected ? t("googleBannerConnected") : t("googleBanner")}
-        </p>
-        <p className="text-xs text-foreground/40 mt-0.5">
-          {isConnected
-            ? (isHe ? "הלו״ז שלכם מסונכרן ליומן Google" : "Your schedule is synced to Google Calendar")
-            : (isHe
-                // Q4 (note 14): name the RIGHT MOMENT to sync, not just the button.
-                ? "סנכרנו את המערכת ישירות ליומן שלכם. הרגע הכי טוב — אחרי שסגרתם את מערכת הסמסטר."
-                : "Sync your schedule directly to your calendar. Best moment — right after you lock in your semester timetable.")}
-        </p>
-      </div>
-      <div className="flex items-center gap-2">
-        {!isConnected && (
-          <Link
-            href="/settings"
-            className="inline-flex items-center gap-1.5 rounded-lg bg-emerald-500/10 px-3 py-1.5 text-sm font-medium text-emerald-400 transition-colors hover:bg-emerald-500/20"
-          >
-            {t("googleBannerConnect")}
-          </Link>
-        )}
-        {isConnected && (
-          <Link
-            href="/settings"
-            className="inline-flex items-center gap-1.5 rounded-lg bg-foreground/5 px-3 py-1.5 text-sm font-medium text-foreground/60 transition-colors hover:bg-foreground/10"
-          >
-            <RefreshCw className="size-3.5" />
-            {t("googleBannerSyncNow")}
-          </Link>
-        )}
-        <button
-          type="button"
-          onClick={onDismiss}
-          className="rounded-md p-1 text-foreground/20 hover:text-foreground/50 transition-colors"
-        >
-          <X className="size-4" />
-        </button>
-      </div>
-    </div>
-  );
-}
-
-// -----------------------------------------------------------------------
-// Welcome Home Card — friendly first-time guidance, dismissible
-// -----------------------------------------------------------------------
-
-function WelcomeHomeCard({
-  t,
-  isHe,
-  onDismiss,
-}: {
-  t: (key: string, values?: Record<string, string | number>) => string;
-  isHe: boolean;
-  onDismiss: () => void;
-}) {
-  const Arrow = isHe ? ArrowLeft : ArrowRight;
-  const { greetName, g: pg } = usePersonalAddress();
-  const steps: { href: string; label: string; icon: React.ComponentType<{ className?: string }> }[] = [
-    { href: "/calendar", label: isHe ? pg("בדוק את מערכת השעות שלך", "בדקי את מערכת השעות שלך", "בדוק/י את מערכת השעות שלך") : t("welcomeStepSchedule"), icon: Calendar },
-    { href: "/record", label: isHe ? pg("הוסף ציונים וקורסים מהעבר", "הוסיפי ציונים וקורסים מהעבר", "הוסף/י ציונים וקורסים מהעבר") : t("welcomeStepRecord"), icon: Pencil },
-    { href: "/regulations", label: isHe ? pg("בדוק שאתה עומד בתקנון", "בדקי שאת עומדת בתקנון", "בדוק/י שאת/ה עומד/ת בתקנון") : t("welcomeStepRegulations"), icon: Scale },
-  ];
-
-  return (
-    <div className="data-card relative overflow-hidden p-6">
-      <button
-        type="button"
-        onClick={onDismiss}
-        aria-label={t("welcomeDismiss")}
-        className="absolute end-3 top-3 rounded-md p-1 text-foreground/25 transition-colors hover:text-foreground/60"
-      >
-        <X className="size-4" />
-      </button>
-      <h2 className="font-display text-xl font-bold text-foreground/90">
-        {greetName ? `${greetName}, ` : ""}{t("welcomeHomeTitle")}
-      </h2>
-      <p className="mt-1 text-sm text-foreground/55">
-        {t("welcomeHomeSubtitle")}
-      </p>
-      <div className="mt-5 grid gap-3 sm:grid-cols-3">
-        {steps.map(({ href, label, icon: Icon }, i) => (
-          <Link
-            key={href}
-            href={href}
-            className="group flex items-center gap-3 rounded-xl border border-foreground/10 bg-foreground/[0.02] p-3.5 transition-all hover:border-foreground/25 hover:bg-foreground/[0.04]"
-          >
-            <div className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-foreground/[0.06] text-foreground/60">
-              <Icon className="size-4" />
-            </div>
-            <div className="min-w-0 flex-1">
-              <span className="block text-[11px] font-medium text-foreground/35">
-                {t("welcomeStepLabel", { num: i + 1 })}
-              </span>
-              <span className="block text-sm font-medium text-foreground/80">
-                {label}
-              </span>
-            </div>
-            <Arrow className="size-3.5 shrink-0 text-foreground/30 transition-transform group-hover:translate-x-0.5 rtl:group-hover:-translate-x-0.5" />
-          </Link>
-        ))}
-      </div>
-    </div>
-  );
-}
+import { PostOnboardingTransition } from "@/components/dashboard/post-onboarding-transition";
+import { QuickActionCard } from "@/components/dashboard/quick-action-card";
+import { GoogleCalendarBanner } from "@/components/dashboard/google-calendar-banner";
+import { WelcomeHomeCard } from "@/components/dashboard/welcome-home-card";
+import { BiddingSeasonCard } from "@/components/dashboard/bidding-season-card";
+import { CohortWisdomTeaser } from "@/components/dashboard/cohort-wisdom-teaser";
 
 // -----------------------------------------------------------------------
 // Main dashboard content
@@ -1271,75 +996,3 @@ export function DashboardContent() {
     </div>
   );
 }
-
-/** #15 — seasonal bidding nudge. Window-based (≤45 days to the next teaching
- *  start); never claims an exact bid date (TAU doesn't publish one). */
-function BiddingSeasonCard() {
-  const locale = useLocale();
-  const isHe = locale === "he";
-  const profileQuery = api.user.getProfile.useQuery();
-  const target = getBiddingTarget(profileQuery.data?.startYear, profileQuery.data?.currentYear ?? 1);
-  if (!isBiddingSeason(target) || !target) return null;
-  return (
-    <div className="data-card flex flex-wrap items-center gap-3 border-accent-brand/25 bg-accent-brand/[0.04] p-4">
-      <div className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-accent-brand/15 text-accent-brand">
-        <Gavel className="size-4.5" />
-      </div>
-      <div className="min-w-0 flex-1">
-        <p className="text-sm font-semibold text-foreground/85">
-          {isHe
-            ? `המכרז ל${target.labelHe} מתקרב`
-            : `Bidding for the coming ${target.semester === "FALL" ? "fall" : "spring"} is near`}
-        </p>
-        <p className="text-xs text-foreground/55">
-          {isHe
-            ? `ההוראה נפתחת בעוד ${target.daysUntilStart} ימים, וההרשמה מתקיימת לפני כן. שווה לסגור את התוכנית ולבדוק חפיפות עכשיו.`
-            : `Teaching starts in ${target.daysUntilStart} days and registration happens before. Finalize your plan and check clashes now.`}
-        </p>
-      </div>
-      <Link
-        href="/planner"
-        className="shrink-0 rounded-lg bg-accent-brand px-3 py-2 text-xs font-semibold text-accent-brand-fg transition-colors hover:bg-accent-brand-hover"
-      >
-        {isHe ? "לבדיקת חפיפות" : "Check clashes"}
-      </Link>
-    </div>
-  );
-}
-
-/** #24 — one fresh line of cohort wisdom on the home screen. Quiet, honest
- *  (attributed to its cohort year), and a doorway to the full file. */
-function CohortWisdomTeaser() {
-  const locale = useLocale();
-  const isHe = locale === "he";
-  const insights = api.cohort.listInsights.useQuery(undefined, { staleTime: 300_000 });
-  const latest = insights.data?.[0];
-  // Still loading — stay silent to avoid flashing the nudge before data lands.
-  if (!insights.data) return null;
-  // Loaded but empty: instead of silence, an honest doorway that explains the
-  // file grows as the cohort shares, and invites the student to contribute what
-  // they've completed. Self-hides once shared or dismissed (per-device).
-  if (!latest) return <CohortShareNudge variant="card" />;
-  return (
-    <div className="data-card flex flex-wrap items-center gap-3 p-4">
-      <div className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-foreground/8 text-foreground/60">
-        <Users2 className="size-4.5" />
-      </div>
-      <div className="min-w-0 flex-1">
-        <p className="text-xs font-semibold text-foreground/50">
-          {isHe
-            ? `מתיק המחזור${latest.cohortYear ? ` · מחזור ${latest.cohortYear}` : ""}`
-            : `From the cohort file${latest.cohortYear ? ` · class of ${latest.cohortYear}` : ""}`}
-        </p>
-        <p className="mt-0.5 truncate text-sm text-foreground/75">“{latest.text}”</p>
-      </div>
-      <Link
-        href="/cohort"
-        className="shrink-0 rounded-lg bg-foreground/8 px-3 py-1.5 text-xs font-medium text-foreground/70 transition-colors hover:bg-foreground/15"
-      >
-        {isHe ? "לתיק המחזור" : "Open the file"}
-      </Link>
-    </div>
-  );
-}
-

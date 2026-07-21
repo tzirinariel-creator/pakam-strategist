@@ -76,7 +76,6 @@ export function BiddingWorksheet({
   const selectedYear = targetYear;
 
   const coursesQuery = api.course.list.useQuery(undefined, { staleTime: 5 * 60 * 1000 });
-  const profileQuery = api.user.getProfile.useQuery();
   // Reference-stable (`?? []` mints a new array every render while loading —
   // the onboarding wizard's hydration render-loop class of bug, fixed 10.7).
   const allCourses = useMemo(

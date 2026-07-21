@@ -104,7 +104,7 @@ export function ExamGantt({ courses }: ExamGanttProps) {
   }, [courses, isHe]);
 
   // Calculate timeline range
-  const { startDate, endDate, totalDays } = useMemo(() => {
+  const { startDate, totalDays } = useMemo(() => {
     if (events.length === 0) return { startDate: new Date(), endDate: new Date(), totalDays: 0 };
     const allDates = events.flatMap((e) => [e.moedA, e.moedB].filter(Boolean) as Date[]);
     const min = new Date(Math.min(...allDates.map((d) => d.getTime())));

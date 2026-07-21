@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeAll } from "vitest";
+import { describe, it, expect } from "vitest";
 import { TRPCError } from "@trpc/server";
 import { z } from "zod/v4";
 

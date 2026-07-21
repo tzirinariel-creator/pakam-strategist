@@ -65,7 +65,7 @@ export function AddCourseModal() {
       endTime: s.endTime,
       sessionType: s.sessionType,
     }));
-  }, [scheduleData?.sessions]);
+  }, [scheduleData?.sessions, isHe]);
 
   const utils = api.useUtils();
   const addCourseMutation = api.plan.addCourse.useMutation({
@@ -115,7 +115,7 @@ export function AddCourseModal() {
       }
     }
     return map;
-  }, [allCourses, existingSessions, targetSemester, locale]);
+  }, [allCourses, existingSessions, targetSemester, locale, isHe]);
 
   const handleAddCourse = (courseId: string) => {
     if (!targetYear || !targetSemester) return;

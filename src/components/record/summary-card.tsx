@@ -1,6 +1,6 @@
 "use client";
 
-import { useTranslations, useLocale } from "next-intl";
+import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import { Calculator } from "lucide-react";
 import { CREDIT_REQUIREMENTS } from "@/lib/constants";
@@ -25,7 +25,6 @@ export function SummaryCard({
   hasFocus: boolean;
   t: ReturnType<typeof useTranslations<"record">>;
 }) {
-  const isHe = useLocale() === "he";
   const totalTarget = CREDIT_REQUIREMENTS.TOTAL;
   const totalPct = Math.min((completedCredits / totalTarget) * 100, 100);
   const focusPct = focusTarget > 0 ? Math.min((focusCredits / focusTarget) * 100, 100) : 0;

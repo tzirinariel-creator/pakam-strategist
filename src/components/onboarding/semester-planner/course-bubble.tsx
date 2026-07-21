@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo } from "react";
-import { useLocale, useTranslations } from "next-intl";
+import { useLocale } from "next-intl";
 import { Lock, Check, AlertTriangle, Star, Info, GitBranch } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { DISCIPLINE_CONFIG } from "@/lib/constants";

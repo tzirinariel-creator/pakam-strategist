@@ -51,7 +51,6 @@ export interface OnboardingData {
 // Welcome → Profile → History → SemesterPlanner → Ready
 // (History is skipped for a fresh year-1-FALL student — see goNext/goBack.)
 const TOTAL_STEPS = 5;
-const STEP_WELCOME = 0;
 const STEP_PROFILE = 1;
 const STEP_HISTORY = 2;
 const STEP_PLANNER = 3;

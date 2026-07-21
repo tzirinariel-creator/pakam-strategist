@@ -3,7 +3,6 @@
 import { useState } from "react";
 import { Dialog as DialogPrimitive } from "radix-ui";
 import { Shield, X, Check, CalendarClock, Clock, Target, BookOpen, GraduationCap, ChevronLeft, ChevronRight, BadgeCheck } from "lucide-react";
-import { toast } from "sonner";
 import { advisorError } from "@/lib/advisor-toast";
 import { useLocale, useTranslations } from "next-intl";
 import { api } from "@/lib/trpc/react";

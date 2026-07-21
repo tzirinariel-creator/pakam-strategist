@@ -7,7 +7,7 @@ import { useSearchParams } from "next/navigation";
 import { Calculator } from "lucide-react";
 import { api } from "@/lib/trpc/react";
 import { invalidatePlanData } from "@/lib/trpc/invalidate-plan";
-import { canonicalAttempts, countsTowardAverage } from "@/lib/grade-calculator";
+import { calculateGrades } from "@/lib/grade-calculator";
 import { deriveYearOfStudy } from "@/lib/academic-calendar";
 import { computeHonorsDistance } from "@/lib/honors";
 import { isCurrentlyStudying } from "@/lib/semester-clock";
@@ -301,18 +301,15 @@ export function AcademicRecordContent() {
   // caps and so disagree with Home (#audit-r2).
   const completedCredits = creditsQuery.data?.breakdown.earned ?? 0;
   const weightedAvg = useMemo(() => {
-    // Use the ONE shared definition (excludes seminar, binary AND English) so
-    // this number agrees with the dashboard, the King and /graduation — not a
-    // near-copy that drifts. (audit: /record was excluding binary but still
-    // counting seminars and English.) canonicalAttempts collapses a
-    // grade-improvement retake to the determining sitting — without it a
-    // retaken course double-counted here and /record diverged from everywhere
-    // else that already applies it (graduation, honors, credits, the King).
-    const graded = canonicalAttempts(completedCourses.filter(countsTowardAverage));
-    const totalCredits = graded.reduce((s, c) => s + c.course.credits, 0);
-    if (totalCredits === 0) return null;
-    const weightedSum = graded.reduce((s, c) => s + (c.grade ?? 0) * c.course.credits, 0);
-    return weightedSum / totalCredits;
+    // Call the CANONICAL engine (the same calculateGrades the server's
+    // getGraduationScore, the dashboard, the King and /graduation all use)
+    // instead of re-deriving the weighted average here. A hand-rolled copy of
+    // this loop is exactly what produced launch-blocker A1 (two conflicting
+    // averages shown to the same student): the filters drifted apart over time.
+    // Computing it client-side (rather than reading the server query) keeps the
+    // number live while the student types grades; routing it through the shared
+    // engine means it can no longer diverge from everywhere else.
+    return calculateGrades(completedCourses).courseAverage;
   }, [completedCourses]);
 
   const focusCredits = creditsQuery.data?.breakdown.focusArea ?? 0;

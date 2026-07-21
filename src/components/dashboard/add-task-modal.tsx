@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useLocale, useTranslations } from "next-intl";
+import { useTranslations } from "next-intl";
 import { CalendarDays } from "lucide-react";
 import {
   Dialog,
@@ -49,8 +49,6 @@ export function AddTaskModal({
   courseCodes = [],
   initialData,
 }: AddTaskModalProps) {
-  const locale = useLocale();
-  const isHe = locale === "he";
   const t = useTranslations("studyPlanner");
 
   const today = new Date().toISOString().slice(0, 10);

@@ -1,15 +1,17 @@
 # =============================================================================
 # Free scheduled DB backup (no paid Supabase plan needed).
 #
-# DORMANT until the owner adds a repository secret named DATABASE_URL
-# (Settings → Secrets and variables → Actions). Until then the job runs, sees
-# no secret, prints a notice, and exits 0 — nothing is dumped, nothing fails.
+# DORMANT until the owner adds a repository secret — DIRECT_URL (preferred, a
+# non-pooled connection) or DATABASE_URL — in Settings → Secrets and variables
+# → Actions. Until then the job runs, sees no secret, prints a notice, exits 0.
 #
-# Once active it dumps the DB daily and stores it as a private workflow
+# Once active it dumps the DB daily with an exact-version pg_dump (run via the
+# official postgres:17 image, since GitHub runners have Docker and pg17 can dump
+# any server <= 17 — Supabase runs 15/17), and stores it as a PRIVATE workflow
 # artifact (downloadable only by people with repo access, kept 30 days).
 # NOTE for the owner: the artifact contains real student data. Artifacts are
-# private to the repo, but if you prefer a different destination (a private
-# backup repo, external object storage), tell me and I'll repoint it.
+# private to the repo; if you prefer another destination (a private backup repo
+# or external object storage) say so and it can be repointed.
 # =============================================================================
 name: DB Backup (free)
 
@@ -22,18 +24,19 @@ jobs:
   backup:
     runs-on: ubuntu-latest
     env:
-      DATABASE_URL: ${{ secrets.DATABASE_URL }}
+      DUMP_URL: ${{ secrets.DIRECT_URL != '' && secrets.DIRECT_URL || secrets.DATABASE_URL }}
     steps:
-      - name: Dump database (skips cleanly if the secret is missing)
+      - name: Dump database (skips cleanly if no secret is set)
         run: |
-          if [ -z "${DATABASE_URL}" ]; then
-            echo "DATABASE_URL secret not set — backups are inactive."
-            echo "Owner: add it in Settings → Secrets and variables → Actions to activate."
+          if [ -z "${DUMP_URL}" ]; then
+            echo "No DIRECT_URL/DATABASE_URL secret set — backups are inactive."
+            echo "Owner: add DIRECT_URL (preferred) or DATABASE_URL in Settings → Secrets and variables → Actions to activate."
             exit 0
           fi
           STAMP="$(date +%Y-%m-%d-%H%M%S)"
-          npx --yes supabase db dump --db-url "$DATABASE_URL" -f "pakam-${STAMP}.sql"
+          docker run --rm -i postgres:17 pg_dump "${DUMP_URL}" --no-owner --no-privileges > "pakam-${STAMP}.sql"
           echo "STAMP=${STAMP}" >> "$GITHUB_ENV"
+          echo "Backup size: $(du -h "pakam-${STAMP}.sql" | cut -f1)"
 
       - name: Upload backup artifact
         if: ${{ env.STAMP != '' }}

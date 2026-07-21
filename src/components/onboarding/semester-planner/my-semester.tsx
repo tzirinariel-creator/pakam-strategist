@@ -79,7 +79,7 @@ export function MySemester({
     });
 
     return sortedEntries;
-  }, [mandatoryCourses, selectedCourses, isHe]);
+  }, [mandatoryCourses, selectedCourses]);
 
   const allCourses = [...mandatoryCourses, ...selectedCourses];
 

@@ -154,7 +154,6 @@ export function filterSessionsBySelectedGroups(
 
 export function SessionGroupSelector({
   courseCode,
-  courseName,
   sessions,
   selectedGroups,
   onSelectGroup,

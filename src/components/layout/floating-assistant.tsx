@@ -1,25 +1,12 @@
 "use client";
 
-import { lazy, Suspense, useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useLocale } from "next-intl";
 import { usePathname } from "next/navigation";
 import { usePersonalAddress } from "@/components/personal/use-personal-address";
 import {
   X, Send, Zap, Loader2, Database, Mic, ImagePlus,
-  CalendarClock, TrendingDown, TrendingUp, Languages, Target, FileText, Scale, GraduationCap, ArrowLeft,
 } from "lucide-react";
-import type { Recommendation, RecommendationIcon } from "@/lib/recommendations-engine";
-// PERF1: this component sits in the protected LAYOUT, so a static
-// react-markdown import would ship remark/rehype on every page's first load.
-// It lazy-loads with the first LLM answer; until then the raw text shows.
-const LazyMarkdown = lazy(() => import("react-markdown"));
-function Markdown({ children }: { children: string }) {
-  return (
-    <Suspense fallback={<p className="whitespace-pre-line">{children}</p>}>
-      <LazyMarkdown>{children}</LazyMarkdown>
-    </Suspense>
-  );
-}
 import { toast } from "sonner";
 import { advisorError } from "@/lib/advisor-toast";
 import { api } from "@/lib/trpc/react";
@@ -36,52 +23,18 @@ import { invalidatePlanData } from "@/lib/trpc/invalidate-plan";
 import { suggestedQuestions } from "@/lib/degree-qa";
 import { getPlanningAnchor } from "@/lib/academic-calendar";
 import { fileToBase64 } from "@/lib/upload";
+import { Markdown } from "@/components/layout/assistant-markdown";
+import { ProactiveNudgeCard } from "@/components/layout/proactive-nudge-card";
+import {
+  CHAT_IMAGE_ACCEPT,
+  CHAT_IMAGE_MIME_SET,
+  type Msg,
+  type SpeechRecognitionLike,
+} from "@/components/layout/floating-assistant.types";
 
-/** Minimal surface of the browser SpeechRecognition API we use. */
-interface SpeechRecognitionLike {
-  lang: string;
-  interimResults: boolean;
-  continuous: boolean;
-  onresult: ((e: { results: ArrayLike<ArrayLike<{ transcript: string }>> }) => void) | null;
-  onend: (() => void) | null;
-  onerror: ((e: { error?: string }) => void) | null;
-  start: () => void;
-  stop: () => void;
-}
 import { useDegreeQAContext } from "@/components/mentor/use-qa-context";
 import { hashContext, readCachedAnswer, writeCachedAnswer } from "@/lib/ai/answer-cache";
 
-// Image types the chat vision route accepts (mirror of CHAT_IMAGE_MIME in the
-// stream route). HEIC/HEIF cover iPhone photos — omitting them from `accept`
-// silently blocked the picker from even offering them, which read as "it didn't
-// take my image". The `.heic`/`.heif` extension hints help browsers that don't
-// map the MIME in the file picker.
-const CHAT_IMAGE_ACCEPT =
-  "image/jpeg,image/png,image/webp,image/heic,image/heif,.heic,.heif";
-const CHAT_IMAGE_MIME_SET = new Set([
-  "image/jpeg",
-  "image/png",
-  "image/webp",
-  "image/heic",
-  "image/heif",
-]);
-
-type Source = "rules" | "llm";
-interface Msg {
-  role: "user" | "assistant";
-  content: string;
-  source?: Source;
-  href?: string;
-  cta?: string;
-  /** The assistant couldn't reach the LLM and offered a free fallback. */
-  needsKey?: boolean;
-  /** A thumbnail (object URL) for an image the student attached to the turn. */
-  imagePreview?: string;
-  /** An ACTIVE-assistant proposal — rendered as a confirm card (#active-ai).
-   *  resolved marks the card as already confirmed/dismissed. */
-  action?: AssistantAction;
-  actionResolved?: boolean;
-}
 
 /**
  * The always-available floating assistant. One FAB on every protected screen
@@ -783,7 +736,7 @@ export function FloatingAssistant() {
     // `persona` MUST be here: send() reads the persona-scoped answer cache
     // (readCachedAnswer above) — without it, a student who switches King↔Referent
     // mid-chat gets the OTHER persona's cached answer (research 14.7).
-    [ctx, aiAvailable, keyProvider, ready, streaming, streamLLM, attachedImage, isHe, messages.length, planLite, catalogLite, runAction, persona],
+    [ctx, aiAvailable, keyProvider, ready, streaming, streamLLM, attachedImage, isHe, messages.length, planLite, catalogLite, persona],
   );
 
   if (onMentorPage) return null;
@@ -1164,70 +1117,5 @@ export function FloatingAssistant() {
         </>
       )}
     </>
-  );
-}
-
-// Recommendation icon → Lucide (mirrors the dashboard widget's map).
-const REC_ICON: Record<RecommendationIcon, React.ComponentType<{ className?: string }>> = {
-  calendarClock: CalendarClock,
-  trendingDown: TrendingDown,
-  trendingUp: TrendingUp,
-  languages: Languages,
-  target: Target,
-  fileText: FileText,
-  scale: Scale,
-  graduationCap: GraduationCap,
-};
-
-/**
- * The King's proactive nudge — ONE pressing gap, delivered plainly, then silence.
- * A restrained inset card (not a toast, not a popup), severity-tinted, with an
- * "act on it" link and a bare dismiss. Only ever shown in the empty state when
- * the student opened the King themselves.
- */
-function ProactiveNudgeCard({
-  rec,
-  isHe,
-  onAct,
-  onDismiss,
-}: {
-  rec: Recommendation;
-  isHe: boolean;
-  onAct: () => void;
-  onDismiss: () => void;
-}) {
-  const Icon = REC_ICON[rec.icon] ?? Target;
-  const critical = rec.severity === "critical";
-  return (
-    <div
-      className={cn(
-        "relative rounded-xl border p-3",
-        critical ? "border-red-400/40 bg-red-400/[0.06]" : "border-amber-400/40 bg-amber-400/[0.06]",
-      )}
-    >
-      <button
-        type="button"
-        onClick={onDismiss}
-        aria-label={isHe ? "הבנתי, אל תזכיר שוב היום" : "Got it, don't remind me today"}
-        className="absolute end-2 top-2 rounded-md p-1 text-foreground/30 transition-colors hover:text-foreground/60"
-      >
-        <X className="size-3.5" />
-      </button>
-      <div className="flex items-start gap-2.5 pe-5">
-        <Icon className={cn("mt-0.5 size-4 shrink-0", critical ? "text-red-400" : "text-amber-500")} />
-        <div className="min-w-0 flex-1">
-          <p className="text-sm font-bold text-foreground/85">{isHe ? rec.titleHe : rec.titleEn}</p>
-          <p className="mt-0.5 text-xs leading-relaxed text-foreground/60">{isHe ? rec.bodyHe : rec.bodyEn}</p>
-          <Link
-            href={rec.href}
-            onClick={onAct}
-            className="mt-2 inline-flex items-center gap-1 text-xs font-semibold text-accent-brand transition-colors hover:underline"
-          >
-            {isHe ? rec.ctaHe : rec.ctaEn}
-            <ArrowLeft className="size-3 ltr:rotate-180" />
-          </Link>
-        </div>
-      </div>
-    </div>
   );
 }

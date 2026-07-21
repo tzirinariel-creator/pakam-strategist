@@ -1,6 +1,6 @@
 "use client";
 
-import { useTranslations, useLocale } from "next-intl";
+import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import { GraduationCap } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -12,7 +12,6 @@ export default function PublicLayout({
   children: React.ReactNode;
 }) {
   const t = useTranslations("landing");
-  const locale = useLocale();
 
   return (
     <div className="min-h-screen bg-background">

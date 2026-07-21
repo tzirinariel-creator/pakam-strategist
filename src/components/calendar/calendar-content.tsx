@@ -243,7 +243,7 @@ export function CalendarContent() {
       unchosen: perCourse,
       displaySessions: display as unknown as NonNullable<typeof scheduleData>["sessions"],
     };
-  }, [scheduleData]);
+  }, [scheduleData, isHe]);
 
   const chooseGroup = (courseCode: string, type: string, groupCode: string) => {
     const uc = semesterCourses.find((c) => c.course.code === courseCode);

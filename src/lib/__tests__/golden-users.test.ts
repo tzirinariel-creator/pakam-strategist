@@ -211,6 +211,12 @@ describe("golden G2 — year-1 spring student (semester A graded, B in progress)
 
   it("honest load: three verifiable numbers for semester B, exam crunch labeled", () => {
     // שלושה מספרים שהסטודנט יכול לאמת מול הגריד — לא "ציון קסם" (עקרון 1).
+    // Pin `now` BEFORE both exam dates so the future-only filter keeps them
+    // both (calculateHonestLoad excludes past exams). Without this the test
+    // silently depends on the wall clock — it passed until the real date
+    // crossed 2026-07-20, then the July-20 exam dropped out and the gap read
+    // null. Deterministic now = one clean fix for a whole class of flakiness.
+    const NOW_BEFORE_EXAMS = new Date("2026-07-01T00:00:00Z").getTime();
     const load = calculateHonestLoad([
       { credits: 5, sessions: [
         { dayOfWeek: "SUN", startTime: "10:00", endTime: "12:00" },
@@ -223,7 +229,7 @@ describe("golden G2 — year-1 spring student (semester A graded, B in progress)
       { credits: 4, sessions: [
         { dayOfWeek: "THU", startTime: "12:00", endTime: "15:00" },
       ] }, // בלי תאריך מבחן — לא מומצא, פשוט לא נספר בצפיפות
-    ]);
+    ], NOW_BEFORE_EXAMS);
     expect(load.credits).toBe(14); // 5+5+4 — ניתן לאימות מול הרשימה
     expect(load.weeklyHours).toBe(11); // 4+4+3 שעות מגע אמיתיות מהמערכת
     expect(load.tightestExamGapDays).toBe(2); // 20.7 → 22.7

@@ -406,7 +406,7 @@ export function SemesterPlanner({
 
   const handleDoneSemester = useCallback(() => {
     setShowSummary(true);
-  }, []);
+  }, [setShowSummary]);
 
   const handlePlanNext = useCallback(() => {
     markDirty();
@@ -439,7 +439,7 @@ export function SemesterPlanner({
     setShowSummary(false);
     undoStack.current = [];
     redoStack.current = [];
-  }, [currentYear, currentSemester, mandatoryIds, selectedCourseIds, markDirty]);
+  }, [currentYear, currentSemester, mandatoryIds, selectedCourseIds, markDirty, setShowSummary]);
 
   const handleAddCustomCourse = useCallback(
     (course: CourseWithSchedule) => {
@@ -641,7 +641,7 @@ export function SemesterPlanner({
       undoStack.current = [];
       redoStack.current = [];
     },
-    [currentYear, currentSemester, mandatoryIds, selectedCourseIds, completedSemesters]
+    [currentYear, currentSemester, mandatoryIds, selectedCourseIds, completedSemesters, setShowSummary]
   );
 
   // Can we plan more semesters?

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useCallback } from "react";
-import { useTranslations, useLocale } from "next-intl";
+import { useTranslations } from "next-intl";
 import { usePathname, Link } from "@/i18n/navigation";
 import {
   LayoutDashboard,
@@ -41,7 +41,6 @@ const MORE_MENU_ITEMS = [
 
 export function MobileNav() {
   const t = useTranslations("nav");
-  const locale = useLocale();
   const pathname = usePathname();
   const [moreOpen, setMoreOpen] = useState(false);
 
