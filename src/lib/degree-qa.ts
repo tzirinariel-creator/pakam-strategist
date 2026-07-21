@@ -417,7 +417,11 @@ const HANDLERS: Handler[] = [
       }
       const bits: string[] = [];
       if (h.averageGrade != null) bits.push(he(c, `ממוצע ${h.averageGrade}`, `avg ${h.averageGrade}`));
-      if (h.failRate != null) bits.push(he(c, `${Math.round(h.failRate * 100)}% כישלון`, `${Math.round(h.failRate * 100)}% fail`));
+      // Course.failRate is stored as a PERCENTAGE 0-100 (schema.prisma:184,
+      // enricher computeFailRate = failCount/total*100) — every catalog display
+      // renders it as `${Math.round(failRate)}%`. Do NOT ×100 here (that printed
+      // an impossible "2250% כישלון" — a fabricated number, cardinal-sin bug).
+      if (h.failRate != null) bits.push(he(c, `${Math.round(h.failRate)}% כישלון`, `${Math.round(h.failRate)}% fail`));
       const src = bits.length ? ` (לפי נתוני-הציונים בקטלוג: ${bits.join(", ")})` : "";
       const srcEn = bits.length ? ` (per catalog grade data: ${bits.join(", ")})` : "";
       return {

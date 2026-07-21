@@ -91,7 +91,10 @@ export function useDegreeQAContext(
 
     // Hardest remaining = non-completed course WITH difficulty data. Rank by the
     // difficulty label first, then the historical fail-rate / low average.
-    const DIFF_RANK: Record<string, number> = { very_hard: 4, hard: 3, medium: 2, easy: 1 };
+    // Canonical difficultyLevel enum is "easy"|"moderate"|"hard"|"very_hard"
+    // (schema.prisma:185). It's "moderate", NOT "medium" — the old "medium" key
+    // scored every moderate course 0, letting an easy course outrank it.
+    const DIFF_RANK: Record<string, number> = { very_hard: 4, hard: 3, moderate: 2, easy: 1 };
     const hardestRemaining =
       planCourses
         .filter(
@@ -107,8 +110,11 @@ export function useDegreeQAContext(
           averageGrade: uc.course.averageGrade ?? null,
           failRate: uc.course.failRate ?? null,
           _score:
+            // failRate is a 0-100 percentage (schema.prisma:184) — do NOT ×100,
+            // or it (≤10000) swamps the difficulty tier (≤4000) and the ranking
+            // is driven by fail-rate noise instead of the difficulty label first.
             (DIFF_RANK[uc.course.difficultyLevel ?? ""] ?? 0) * 1000 +
-            (uc.course.failRate != null ? uc.course.failRate * 100 : 0) +
+            (uc.course.failRate ?? 0) +
             (uc.course.averageGrade != null ? (100 - uc.course.averageGrade) : 0),
         }))
         .sort((a, b) => b._score - a._score)[0] ?? null;

@@ -17,13 +17,15 @@ function exam(over: Partial<ExamInput>): ExamInput {
 }
 
 describe("exam-planner", () => {
-  it("classifies difficulty from grade/fail-rate signals", () => {
-    expect(classifyDifficulty(60, 0.05)).toBe("high");
-    expect(classifyDifficulty(85, 0.3)).toBe("high");
-    expect(classifyDifficulty(76, 0.1)).toBe("medium");
+  it("classifies difficulty from grade/fail-rate signals (failRate is a 0-100 percentage)", () => {
+    expect(classifyDifficulty(60, 5)).toBe("high"); // avg < 70 → high regardless
+    expect(classifyDifficulty(85, 30)).toBe("high"); // 30% fail ≥ 20% bar → high
+    expect(classifyDifficulty(76, 10)).toBe("medium"); // 10% fail, mid average
     expect(classifyDifficulty(null, null)).toBe("medium");
+    // A 0.2% fail rate must NOT read as "high" — the old 0.2 fraction bug.
+    expect(classifyDifficulty(76, 0.2)).toBe("medium");
     // Known-easy course budgets fewer hours — "low" must be reachable.
-    expect(classifyDifficulty(85, 0.05)).toBe("low");
+    expect(classifyDifficulty(85, 5)).toBe("low");
     expect(classifyDifficulty(90, null)).toBe("low");
   });
 

@@ -160,7 +160,11 @@ export function israelCivilDate(now: Date = new Date()): Date {
 
 /** Classify difficulty from the course's historical grade signal. */
 export function classifyDifficulty(averageGrade?: number | null, failRate?: number | null): Difficulty {
-  if ((failRate != null && failRate >= 0.2) || (averageGrade != null && averageGrade < 70)) return "high";
+  // failRate is a PERCENTAGE 0-100 (Course.failRate — schema.prisma:184, and the
+  // UI passes c.failRate straight in). The bar is 20% fail, NOT 0.2 — the old
+  // 0.2 fired at a 0.2% fail rate, tagging almost every course "high" and
+  // over-budgeting study hours across the whole plan.
+  if ((failRate != null && failRate >= 20) || (averageGrade != null && averageGrade < 70)) return "high";
   // A known-easy course (avg ≥ 80, no fail-rate red flag) budgets fewer hours.
   // Without this branch "low" was unreachable and easy courses were over-
   // budgeted at the medium rate, inflating the whole study plan.

@@ -280,10 +280,14 @@ describe("W1 handlers — next exam / semester load / hardest / grade honesty", 
 
   it("H-HARDEST names a source, or admits no data", () => {
     const a = answerDegreeQuestion("מה הקורס הכי קשה שנשאר לי?", ctx({
-      hardestRemaining: { nameHe: "סטטיסטיקה", nameEn: "Stats", difficultyLevel: "hard", averageGrade: 69, failRate: 0.15 },
+      // failRate is a 0-100 percentage (schema.prisma:184). 22 → "22% כישלון".
+      hardestRemaining: { nameHe: "סטטיסטיקה", nameEn: "Stats", difficultyLevel: "hard", averageGrade: 69, failRate: 22 },
     }));
     expect(a.text).toContain("סטטיסטיקה");
     expect(a.text).toContain("ממוצע 69");
+    // The fail-rate must render as-is (22%), NOT ×100 into a fabricated "2200%".
+    expect(a.text).toContain("22% כישלון");
+    expect(a.text).not.toContain("2200");
     expect(a.text).toContain("קטלוג");
     const none = answerDegreeQuestion("איזה קורס הכי קשה?", ctx({ hardestRemaining: null }));
     expect(none.text).toContain("אין לי נתוני-קושי");
