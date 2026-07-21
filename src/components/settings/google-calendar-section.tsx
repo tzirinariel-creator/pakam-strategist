@@ -109,7 +109,10 @@ export function GoogleCalendarSection() {
   const googleStatus = api.schedule.getGoogleStatus.useQuery();
   const syncMutation = api.schedule.syncToGoogle.useMutation({
     onSuccess: (data) => {
-      toast.success(isHe ? `סונכרנו ${data.synced} אירועים ליומן` : `Synced ${data.synced} events to Google Calendar`);
+      const removed = data.removed ?? 0;
+      const base = isHe ? `סונכרנו ${data.synced} אירועים ליומן` : `Synced ${data.synced} events to Google Calendar`;
+      const tail = removed > 0 ? (isHe ? ` · הוסרו ${removed} של קורסים שהוסרו מהתוכנית` : ` · removed ${removed} for dropped courses`) : "";
+      toast.success(base + tail);
       setSyncing(false);
     },
     onError: () => {

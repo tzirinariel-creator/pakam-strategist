@@ -29,4 +29,16 @@ describe("plan-share", () => {
     ]);
     expect(decodePlan(token)).toEqual([{ c: "0651-1007", y: 1, s: "FALL" }]);
   });
+
+  it("drops out-of-range / fractional years instead of letting the whole import fail (audit-r2)", () => {
+    const token = encodePlan([
+      { c: "0651-1007", y: 1, s: "FALL" },
+      { c: "A", y: 99, s: "FALL" }, // out-of-range year
+      { c: "B", y: -5, s: "SPRING" }, // negative year
+      { c: "D", y: 1.7, s: "SUMMER" }, // fractional (savePlan's zod requires int 1..4)
+    ]);
+    // Only the valid row survives — the batch degrades to the salvageable subset
+    // rather than being rejected wholesale downstream.
+    expect(decodePlan(token)).toEqual([{ c: "0651-1007", y: 1, s: "FALL" }]);
+  });
 });

@@ -88,6 +88,16 @@ export function StepReady({ data, plannedSemesters, completedCourses, allCourses
   // (the plan-not-saved bug, QA 13.7).
   const flattenedRef = useRef(flattenedCourses);
   flattenedRef.current = flattenedCourses;
+  // Same reason for the OTHER save inputs: doSave is a useCallback([]) (stable so
+  // the auto-save effect fires once), so it closes over the FIRST-render props.
+  // completedCourses (parsed history / a grade-sheet scan) and data (profile
+  // fields) can arrive/refine a render later — reading them through refs means
+  // the save never persists stale-or-empty completed history (a silent data-loss
+  // in the most important flow — audit-r2).
+  const completedRef = useRef(completedCourses);
+  completedRef.current = completedCourses;
+  const dataRef = useRef(data);
+  dataRef.current = data;
 
   // Credits the student already COMPLETED (the history step). Surfaced in the
   // summary next to the planned total so a mid-degree student sees their REAL
@@ -162,6 +172,9 @@ export function StepReady({ data, plannedSemesters, completedCourses, allCourses
     // all-custom plan (nothing maps to a catalog id) still saves the profile,
     // history and custom courses without wiping anything. No empty-refusal guard
     // here (it caused a silent dead-end for an all-custom plan — QA 13.7 verify).
+    // Read the current props through refs (doSave's closure is first-render).
+    const data = dataRef.current;
+    const completedCourses = completedRef.current;
     setIsSaving(true);
     setSaveError(false);
     setSaveStage(0);

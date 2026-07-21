@@ -87,8 +87,14 @@ export function decodePlan(token: string): SharedCourse[] | null {
       if (
         typeof r.c === "string" &&
         typeof r.y === "number" &&
+        Number.isInteger(r.y) &&
+        r.y >= 1 &&
+        r.y <= 4 &&
         (r.s === "FALL" || r.s === "SPRING" || r.s === "SUMMER")
       ) {
+        // Year is validated to an int in 1..4 HERE so a hand-crafted token with
+        // y:99 / y:-5 / y:1.7 drops just that row, degrading to the valid subset
+        // instead of failing the whole "copy to my plan" batch at savePlan's zod.
         out.push({ c: r.c, y: r.y, s: r.s });
       }
     }

@@ -233,11 +233,16 @@ const HANDLERS: Handler[] = [
   // is a precise redirect to the record — NOT the overall average (which is
   // what a bare "ציון" match used to fall into). Longer keys out-score the
   // average handler's "הציון שלי"/"ממוצע" under the length-weighted matcher.
-  // A course-SCOPED average ("הממוצע שלי ב<קורס>" / "average in <course>") is
-  // the same honest case — a single course has a grade, not an average — so it
-  // must land here, not on the overall-average handler (King-audit 22.7).
+  // A course-SCOPED average ("ממוצע בקורס X") is the same honest case — a single
+  // course has a grade, not an average — so it lands here. NOTE: we deliberately
+  // do NOT key the bare prefixes "הממוצע שלי ב" / "average in" here: Hebrew ‏ב‏ is a
+  // one-letter preposition that glues to the next word, so those matched — and
+  // wrongly deflected — legit OVERALL-average questions ("הממוצע שלי בתואר",
+  // "average in the degree"). Only unambiguously course-scoped keys stay
+  // (ממוצע בקורס / ממוצע של הקורס / average for the course). The common
+  // honest-grade phrasing "הציון שלי ב<קורס>" is kept and still routes here.
   {
-    keys: ["הציון שלי ב", "ציון בקורס", "ציון של הקורס", "אין לי ציון", "עוד אין ציון", "הממוצע שלי ב", "ממוצע שלי ב", "ממוצע בקורס", "ממוצע של הקורס", "my grade in", "grade for", "grade in the course", "average in", "average for the course"],
+    keys: ["הציון שלי ב", "ציון בקורס", "ציון של הקורס", "אין לי ציון", "עוד אין ציון", "ממוצע בקורס", "ממוצע של הקורס", "my grade in", "grade for", "grade in the course", "average for the course"],
     answer: (c) => ({
       text: he(
         c,

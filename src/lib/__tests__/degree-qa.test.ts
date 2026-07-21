@@ -50,17 +50,24 @@ describe("answerDegreeQuestion", () => {
     expect(a.text).not.toContain("84"); // did not fall through to the average
   });
 
-  it("a course-SCOPED average also routes to the honest redirect, not the overall average (King-audit 22.7)", () => {
-    // "הממוצע שלי ב<קורס>" / "average in <course>" is the same honest case — a
-    // single course has a grade, not an average — so it must land on the record
-    // redirect, NOT the general-average handler that returns the overall number.
-    for (const q of ["מה הממוצע שלי בסטטיסטיקה?", "what is my average in microeconomics?"]) {
-      const a = answerDegreeQuestion(q, ctx({}));
-      expect(a.href).toBe("/record");
-      expect(a.text).not.toContain("84"); // must NOT leak the overall average
+  it("overall / degree / year / general average questions return the REAL overall average (King-audit 22.7 regression fix)", () => {
+    // Regression guard: round-1 keyed the greedy prefixes "הממוצע שלי ב" /
+    // "average in". Hebrew ‏ב‏ is a one-letter preposition that glues to the next
+    // word, so those swallowed legit overall-average questions and deflected them
+    // to /record. All of these must now return the actual overall number (84).
+    for (const q of [
+      "מה הממוצע שלי בתואר?",
+      "what is my average in the degree?",
+      "מה הממוצע שלי בשנה הזאת?",
+      "מה הממוצע הכללי שלי?",
+    ]) {
+      expect(answerDegreeQuestion(q, ctx({})).text).toContain("84");
     }
-    // …while the bare overall-average question still works:
-    expect(answerDegreeQuestion("מה הממוצע שלי?", ctx({})).text).toContain("84");
+    // …while an UNAMBIGUOUSLY course-scoped average ("ממוצע בקורס X") still routes
+    // to the honest record redirect — a single course has a grade, not an average.
+    const c = answerDegreeQuestion("מה הממוצע בקורס מבוא לכלכלה?", ctx({}));
+    expect(c.href).toBe("/record");
+    expect(c.text).not.toContain("84");
   });
 
   it("explains binary and shows the remaining quota for a miluim student", () => {

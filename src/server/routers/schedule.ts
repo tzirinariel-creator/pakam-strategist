@@ -485,7 +485,33 @@ export const scheduleRouter = createTRPCRouter({
         }
       }
 
-      return { synced: persisted };
+      // Reconcile removals: a course dropped from the plan since the last sync
+      // still has its lecture/exam sitting on the student's real calendar. Any
+      // previously-synced event whose id is NOT in the current payload is stale —
+      // take it off Google and drop its local row. Without this, dropped classes
+      // linger forever and the only escape is the all-or-nothing "מחק אירועים".
+      const currentIds = new Set(events.map((e) => e.id));
+      const staleGoogleIds = existingCalEvents
+        .filter((e) => e.googleEventId && !currentIds.has(e.id))
+        .map((e) => e.googleEventId!)
+        .filter((id): id is string => id !== null);
+
+      let removed = 0;
+      if (staleGoogleIds.length > 0) {
+        // A failed Google delete keeps its local row so the next sync retries —
+        // never orphan an event on the calendar with no record left (#audit-r2).
+        const deletedStale = await withTokenRefresh(ctx.userId!, (calendar) =>
+          deleteEventsFromGoogle(calendar, staleGoogleIds),
+        );
+        if (deletedStale.length > 0) {
+          await ctx.db.calendarEvent.deleteMany({
+            where: { userId: user.id, googleEventId: { in: deletedStale } },
+          });
+          removed = deletedStale.length;
+        }
+      }
+
+      return { synced: persisted, removed };
     }),
 
   /**
@@ -560,10 +586,35 @@ export const scheduleRouter = createTRPCRouter({
       (calendar) => pullEventsFromGoogle(calendar),
     );
 
+    // The events WE pushed (base RRULE ids). pullEventsFromGoogle expands
+    // recurring lectures with singleEvents:true, so each pushed lecture comes
+    // back as many dated instances whose ids are `{baseId}_{ts}` — none of which
+    // match our stored base id, so a naive import would insert dozens of copies
+    // of our own lectures. Skip any instance whose recurringEventId (or id-base)
+    // is one we pushed; only genuinely external events are imported.
+    const ourEvents = await ctx.db.calendarEvent.findMany({
+      where: { userId: user.id, googleEventId: { not: null } },
+      select: { googleEventId: true },
+    });
+    const ourGoogleIds = new Set(
+      ourEvents.map((e) => e.googleEventId).filter((id): id is string => id !== null),
+    );
+
     let imported = 0;
 
     for (const gEvent of googleEvents) {
       if (!gEvent.id || !gEvent.start?.dateTime || !gEvent.end?.dateTime) {
+        continue;
+      }
+
+      // Don't re-import an event we pushed (base id, or a recurring instance
+      // whose recurringEventId / `{baseId}_{ts}` id points back at our base).
+      const idBase = gEvent.id.split("_")[0]!;
+      if (
+        ourGoogleIds.has(gEvent.id) ||
+        (gEvent.recurringEventId && ourGoogleIds.has(gEvent.recurringEventId)) ||
+        ourGoogleIds.has(idBase)
+      ) {
         continue;
       }
 
