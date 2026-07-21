@@ -130,6 +130,7 @@ export const planRouter = createTRPCRouter({
           .optional(),
         grade: z.number().min(0).max(100).nullable().optional(), // null clears the grade
         isBinary: z.boolean().optional(), // miluim pass/fail conversion
+        altAssessment: z.boolean().optional(), // W4 — paper instead of an exam
         disciplineOverride: disciplineEnum.nullable().optional(), // null clears a mis-assigned discipline
         attempt: z.number().int().min(1).optional(),
         selectedGroups: z

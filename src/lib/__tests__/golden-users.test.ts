@@ -211,6 +211,11 @@ describe("golden G2 — year-1 spring student (semester A graded, B in progress)
 
   it("honest load: three verifiable numbers for semester B, exam crunch labeled", () => {
     // שלושה מספרים שהסטודנט יכול לאמת מול הגריד — לא "ציון קסם" (עקרון 1).
+    // `now` מקובע ל-לפני שני תאריכי-המבחן (calculateHonestLoad סופר רק מבחנים
+    // עתידיים — ראו workload-calculator.ts) כדי שהבדיקה לא תידרדר ביום שהשעון
+    // האמיתי יעבור את 20.7/22.7 — זה בדיוק מה שקרה: הבדיקה נכשלה כי לא הועבר
+    // now והשעון האמיתי כבר עבר את 20.7.
+    const now = Date.parse("2026-01-01T00:00:00Z");
     const load = calculateHonestLoad([
       { credits: 5, sessions: [
         { dayOfWeek: "SUN", startTime: "10:00", endTime: "12:00" },
@@ -223,7 +228,7 @@ describe("golden G2 — year-1 spring student (semester A graded, B in progress)
       { credits: 4, sessions: [
         { dayOfWeek: "THU", startTime: "12:00", endTime: "15:00" },
       ] }, // בלי תאריך מבחן — לא מומצא, פשוט לא נספר בצפיפות
-    ]);
+    ], now);
     expect(load.credits).toBe(14); // 5+5+4 — ניתן לאימות מול הרשימה
     expect(load.weeklyHours).toBe(11); // 4+4+3 שעות מגע אמיתיות מהמערכת
     expect(load.tightestExamGapDays).toBe(2); // 20.7 → 22.7

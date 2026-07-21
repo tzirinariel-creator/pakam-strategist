@@ -110,7 +110,7 @@ export function ExamPlannerContent() {
     const now = new Date();
     now.setHours(0, 0, 0, 0);
     const futureOnly = (d: Date | null): Date | null => (d && d.getTime() >= now.getTime() ? d : null);
-    const out: { code: string; name: string; credits: number; examDateA: Date | null; examDateB: Date | null; averageGrade: number | null; failRate: number | null }[] = [];
+    const out: { code: string; name: string; credits: number; examDateA: Date | null; examDateB: Date | null; averageGrade: number | null; failRate: number | null; userCourseId: string; altAssessment: boolean }[] = [];
     const seen = new Set<string>();
     for (const uc of planQuery.data?.courses ?? []) {
       const c = uc.course;
@@ -120,7 +120,7 @@ export function ExamPlannerContent() {
       const examDateB = futureOnly(c.examDateB ? new Date(c.examDateB) : null);
       if (!examDateA && !examDateB) continue;
       seen.add(c.code);
-      out.push({ code: c.code, name: c.nameHe, credits: c.credits, examDateA, examDateB, averageGrade: c.averageGrade, failRate: c.failRate });
+      out.push({ code: c.code, name: c.nameHe, credits: c.credits, examDateA, examDateB, averageGrade: c.averageGrade, failRate: c.failRate, userCourseId: uc.id, altAssessment: uc.altAssessment });
     }
     // #37 (12.7) — the picker lists exams in CHRONOLOGICAL order (earliest
     // upcoming sitting first), not catalog order.
@@ -143,28 +143,42 @@ export function ExamPlannerContent() {
   // #34 (12.7) — courses assessed by a PAPER / alternative assessment (מתווה
   // תשפ"ו) have no exam to plan: marked here, they leave the picker + skyline,
   // and get a gentle "add your submission deadline" pointer instead.
-  const [altAssessment, setAltAssessment] = useState<Set<string>>(() => {
-    if (typeof window === "undefined") return new Set();
-    try {
-      return new Set(JSON.parse(localStorage.getItem("pk-alt-assessment") ?? "[]") as string[]);
-    } catch {
-      return new Set();
-    }
+  // W4 — server-backed (UserCourse.altAssessment) so the mark survives across
+  // devices; examCourses already carries it per row. onError matches every
+  // other write in the app (demo read-only shows a toast, never a crash).
+  const setAltAssessmentMutation = api.plan.updateCourse.useMutation({
+    onSuccess: () => void utils.plan.getUserPlan.invalidate(),
+    onError: () => advisorError(isHe ? "הסימון לא נשמר — נסו שוב." : "That didn't save — try again."),
   });
-  const toggleAltAssessment = (code: string) => {
-    setAltAssessment((prev) => {
-      const next = new Set(prev);
-      if (next.has(code)) next.delete(code);
-      else {
-        next.add(code);
-        setSelected((sel) => ({ ...sel, [code]: undefined }));
-      }
-      try {
-        localStorage.setItem("pk-alt-assessment", JSON.stringify([...next]));
-      } catch { /* storage blocked — session-only */ }
-      return next;
-    });
+  const toggleAltAssessment = (course: { code: string; userCourseId: string; altAssessment: boolean }) => {
+    if (!course.altAssessment) {
+      setSelected((sel) => ({ ...sel, [course.code]: undefined }));
+    }
+    setAltAssessmentMutation.mutate({ userCourseId: course.userCourseId, altAssessment: !course.altAssessment });
   };
+  // One-time migration (W4): the mark used to live only in this browser's
+  // localStorage. On first load with real exam data, push any legacy code
+  // that isn't already true server-side — never overwrites a server `true`,
+  // and never clears the old key (harmless if it stays; the demo account
+  // rejects the write like every other mutation, same toast as above).
+  const legacyAltAssessmentImportedRef = useRef(false);
+  useEffect(() => {
+    if (legacyAltAssessmentImportedRef.current || examCourses.length === 0) return;
+    legacyAltAssessmentImportedRef.current = true;
+    let legacy: string[] = [];
+    try {
+      legacy = JSON.parse(localStorage.getItem("pk-alt-assessment") ?? "[]") as string[];
+    } catch {
+      legacy = [];
+    }
+    if (legacy.length === 0) return;
+    const legacySet = new Set(legacy);
+    for (const c of examCourses) {
+      if (legacySet.has(c.code) && !c.altAssessment) {
+        setAltAssessmentMutation.mutate({ userCourseId: c.userCourseId, altAssessment: true });
+      }
+    }
+  }, [examCourses]);
   // Skyline→agenda link (#37); n bumps so re-clicking the same day re-scrolls.
   const [focusDay, setFocusDay] = useState<{ key: string; n: number } | null>(null);
   // Wizard tuning (#37) — prep style + blocked days feed the preview and the
@@ -485,7 +499,7 @@ export function ExamPlannerContent() {
               ? "ברירת המחדל היא מועד א׳ — רוב הסטודנטים ניגשים אליו, ומועד ב׳ נשאר כרשת ביטחון (שימו לב: הציון האחרון קובע)."
               : "Moed A is the default — most students take it, keeping Moed B as the safety net (note: the last grade counts)."}
           </p>
-          {examCourses.filter((c) => !altAssessment.has(c.code)).map((c) => {
+          {examCourses.filter((c) => !c.altAssessment).map((c) => {
             const sel = selected[c.code];
             // Recommend a sitting against the OTHER selected exams' chosen
             // dates (#32): default A (last grade counts — B is the safety
@@ -620,7 +634,7 @@ export function ExamPlannerContent() {
                 })()}
                 <button
                   type="button"
-                  onClick={() => toggleAltAssessment(c.code)}
+                  onClick={() => toggleAltAssessment(c)}
                   title={isHe ? "אין מבחן בקורס הזה? סמנו — והוא יֵצא מתכנון המבחנים" : "No exam in this course? Mark it out of the exam plan"}
                   className="rounded-full border border-border/60 px-2 py-0.5 text-[10px] text-foreground/45 transition-colors hover:border-foreground/30 hover:text-foreground/70"
                 >
@@ -629,17 +643,17 @@ export function ExamPlannerContent() {
               </div>
             );
           })}
-          {altAssessment.size > 0 && (
+          {examCourses.some((c) => c.altAssessment) && (
             <div className="rounded-lg border border-border/40 bg-foreground/[0.02] p-2.5 text-[11px] leading-relaxed text-foreground/55">
               <p className="font-semibold text-foreground/65">
                 {isHe ? "בהערכה חלופית / עבודה (לא בתכנון המבחנים):" : "Alternative assessment (out of the exam plan):"}
               </p>
-              {examCourses.filter((c) => altAssessment.has(c.code)).map((c) => (
+              {examCourses.filter((c) => c.altAssessment).map((c) => (
                 <p key={c.code} className="mt-1 flex flex-wrap items-center gap-2">
                   <span>{c.name}</span>
                   <button
                     type="button"
-                    onClick={() => toggleAltAssessment(c.code)}
+                    onClick={() => toggleAltAssessment(c)}
                     className="text-accent-brand hover:underline"
                   >
                     {isHe ? "בעצם יש מבחן — החזירו" : "Actually has an exam — restore"}

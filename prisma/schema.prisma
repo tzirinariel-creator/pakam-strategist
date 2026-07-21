@@ -212,6 +212,7 @@ model UserCourse {
   attemptNumber      Int             @default(1)
   isGradeImproved    Boolean         @default(false)
   isBinary           Boolean         @default(false) // Miluim pass/fail conversion — grade excluded from the average
+  altAssessment      Boolean         @default(false) // W4 — paper/alternative assessment instead of an exam; keeps the exam planner in sync across devices (was localStorage-only)
   disciplineOverride String? // Override: which discipline this counts toward
   submissionType     SubmissionType?
   submissionGrade    Float?
