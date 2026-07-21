@@ -25,6 +25,20 @@ export function hashContext(c: QAContext): string {
     c.amiramScore ?? "n", c.miluimGroupName ?? "n", c.binaryRemaining,
     c.hasFocusArea ? 1 : 0, c.failedRules.length, c.seminarPlannedCount,
     c.isHe ? "he" : "en",
+    // King-audit 22.7 — fields that CHANGE the correct answer but were missing
+    // from the key, letting a stale answer resurface:
+    //  • englishLevel: the DECLARED level overrides the amiram score everywhere
+    //    (iron rule), so after the King marks it EXEMPT the old "you still owe
+    //    level courses" answer must not resurface.
+    //  • today (YYYY-MM-DD): a cached LLM answer can bake in a relative countdown
+    //    ("in 5 days"); rotate the key daily so it can't go stale on an unchanged
+    //    plan. (Deterministic date/exam handlers recompute live and are immune.)
+    //  • focus discipline + gender: a cached answer must not name the wrong focus
+    //    area or address the student in the wrong gender after a profile change.
+    c.englishLevel ?? "n",
+    new Date().toISOString().slice(0, 10),
+    c.focusAreaNameHe ?? "n",
+    c.gender ?? "n",
     // 14.7 W1 — the new plan-fact handlers: a changed exam list / semester
     // course set / hardest course must flip the hash so a stale answer can't
     // resurface after a re-plan or a newly-published exam date.

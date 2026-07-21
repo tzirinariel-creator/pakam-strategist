@@ -232,9 +232,12 @@ const HANDLERS: Handler[] = [
   // The aggregate QAContext has no per-course grades, so the honest answer
   // is a precise redirect to the record — NOT the overall average (which is
   // what a bare "ציון" match used to fall into). Longer keys out-score the
-  // average handler's "הציון שלי" under the length-weighted matcher.
+  // average handler's "הציון שלי"/"ממוצע" under the length-weighted matcher.
+  // A course-SCOPED average ("הממוצע שלי ב<קורס>" / "average in <course>") is
+  // the same honest case — a single course has a grade, not an average — so it
+  // must land here, not on the overall-average handler (King-audit 22.7).
   {
-    keys: ["הציון שלי ב", "ציון בקורס", "ציון של הקורס", "אין לי ציון", "עוד אין ציון", "my grade in", "grade for", "grade in the course"],
+    keys: ["הציון שלי ב", "ציון בקורס", "ציון של הקורס", "אין לי ציון", "עוד אין ציון", "הממוצע שלי ב", "ממוצע שלי ב", "ממוצע בקורס", "ממוצע של הקורס", "my grade in", "grade for", "grade in the course", "average in", "average for the course"],
     answer: (c) => ({
       text: he(
         c,

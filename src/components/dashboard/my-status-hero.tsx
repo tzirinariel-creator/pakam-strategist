@@ -61,7 +61,6 @@ export function MyStatusHero({
         </h2>
         {gpa !== null && (
           <span
-            dir="ltr"
             className={cn(
               "ms-auto inline-flex items-baseline gap-1 rounded-full px-2.5 py-0.5 text-xs font-medium",
               gpa >= gpaBar
@@ -69,7 +68,9 @@ export function MyStatusHero({
                 : "bg-amber-400/10 text-amber-500",
             )}
           >
-            <span className="font-mono font-bold tabular-nums">{gpa.toFixed(1)}</span>
+            {/* RTL: only the NUMBER is LTR-isolated; "ממוצע" stays in the RTL
+                flow (was inside dir="ltr", flipping to "8.5 ממוצע"). */}
+            <bdi dir="ltr" className="font-mono font-bold tabular-nums">{gpa.toFixed(1)}</bdi>
             <span className="opacity-60">{isHe ? "ממוצע" : "GPA"}</span>
           </span>
         )}

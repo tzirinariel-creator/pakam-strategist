@@ -1,7 +1,6 @@
 import type { RuleContext, RegulationRule } from "@/types/regulation";
 import {
-  binaryDegreeCap,
-  binaryCapRemaining,
+  binaryBenefitOf,
   honorsBinaryStatus,
   type MiluimGroupKey,
 } from "@/lib/miluim";
@@ -19,8 +18,44 @@ import { result } from "./_result";
 export const ruleMiluimBinaryCap: RegulationRule = (ctx: RuleContext) => {
   const group = (ctx.miluimGroup ?? "NONE") as MiluimGroupKey;
   const used = Math.max(0, ctx.miluimBinaryUsed ?? 0);
-  const cap = binaryDegreeCap(group);
-  const remaining = binaryCapRemaining(used, group);
+  // Source of truth = binaryBenefitOf (what the King and the record advisor use),
+  // so this rule can't disagree with the rest of the app (data-audit 22.7):
+  //   • NONE / no benefit → binary conversion isn't part of this student's
+  //     entitlement — a neutral INFO, never a phantom "0/5 courses" cap.
+  //   • credit-denominated group (G) → the benefit is up to N ש״ס, tracked on
+  //     the miluim page; the course-count 'used' counter can't express it, so
+  //     show the credit benefit rather than a wrong course number.
+  //   • course-denominated group (B/C) → the real course cap (unchanged).
+  const benefit = binaryBenefitOf(group);
+
+  if (!benefit) {
+    return result(
+      "PKM-024",
+      "Miluim Binary Conversion Cap",
+      "מכסת המרת קורסים לבינארי (מילואים)",
+      true,
+      "INFO",
+      "Binary (pass/fail) conversion is a reserve-service benefit — it doesn't apply to your group.",
+      `המרה לבינארי (עובר/לא-עובר) היא הטבת-מילואים — לא רלוונטית לקבוצה שלך. (נכון לתשפ"ו)`,
+      { used, cap: 0, remaining: 0, over: false, group, unit: "courses" as const },
+    );
+  }
+
+  if (benefit.unit === "credits") {
+    return result(
+      "PKM-024",
+      "Miluim Binary Conversion Cap",
+      "מכסת המרת קורסים לבינארי (מילואים)",
+      true,
+      "INFO",
+      `Your reserve group's binary benefit is credit-based — up to ${benefit.degreeCap} credits across the degree. See the miluim page for the details.`,
+      `הטבת הבינארי של קבוצת-המילואים שלך היא לפי ש״ס — עד ${benefit.degreeCap} ש״ס בתואר. הפירוט המלא בעמוד המילואים. (נכון לתשפ"ו)`,
+      { used, cap: benefit.degreeCap, remaining: benefit.degreeCap, over: false, group, unit: "credits" as const },
+    );
+  }
+
+  const cap = benefit.degreeCap;
+  const remaining = Math.max(0, cap - used);
   const over = used > cap;
 
   return result(

@@ -369,3 +369,30 @@ describe("runRegulationEngine — regression: verified review fixes", () => {
     expect(pkm014?.details?.totalAttempted).toBe(2); // RETAKE + OTHER, deduped by course
   });
 });
+
+describe("PKM-016 year-1→2 BLOCKING gate — English excluded + retakes collapsed (data-audit 22.7)", () => {
+  const pkm016 = (courses: UserCourseWithCourse[]) =>
+    runRegulationEngine(courses, "ECONOMICS" as never).results.find((r) => r.ruleId === "PKM-016");
+
+  it("does NOT let a year-1 English grade pollute the blocking average", () => {
+    // Philosophy 78 (3 ש״ס) + English 60 (3 ש״ס). English is out of EVERY degree
+    // average (iron rule) → the gate must read 78 (pass), not (78·3+60·3)/6 = 69 (block).
+    const r = pkm016([
+      course({ grade: 78, credits: 3, courseType: "MANDATORY" }),
+      course({ grade: 60, credits: 3, courseType: "ENGLISH" }),
+    ]);
+    expect((r?.details as { courseAverage: number }).courseAverage).toBe(78);
+    expect(r?.passed).toBe(true);
+  });
+
+  it("collapses a grade-improvement retake to the DETERMINING sitting in the gate", () => {
+    // MICRO retaken 50→85 (both year-1, 4 ש״ס). Must read 85 (last sitting), not
+    // (50·4+85·4)/8 = 67.5 which would falsely block continuation.
+    const r = pkm016([
+      course({ courseId: "MICRO", grade: 50, credits: 4, attemptNumber: 1, courseType: "MANDATORY" }),
+      course({ courseId: "MICRO", grade: 85, credits: 4, attemptNumber: 2, courseType: "MANDATORY" }),
+    ]);
+    expect((r?.details as { courseAverage: number }).courseAverage).toBe(85);
+    expect(r?.passed).toBe(true);
+  });
+});

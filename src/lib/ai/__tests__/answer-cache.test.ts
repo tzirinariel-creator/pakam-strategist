@@ -52,6 +52,17 @@ describe("hashContext", () => {
     expect(hashContext(ctx())).not.toBe(hashContext(ctx({ courseAverage: 85 })));
     expect(hashContext(ctx())).not.toBe(hashContext(ctx({ isHe: false })));
   });
+
+  it("changes when englishLevel / gender / focus discipline change (King-audit 22.7 — these were COLLIDING, letting a stale answer resurface)", () => {
+    const base = hashContext(ctx());
+    // Declared englishLevel overrides the amiram score everywhere — a change
+    // (e.g. the King marking EXEMPT) must invalidate the cached English answer.
+    expect(base).not.toBe(hashContext(ctx({ englishLevel: "EXEMPT" })));
+    // A gender change must not serve a wrongly-gendered cached answer…
+    expect(base).not.toBe(hashContext(ctx({ gender: "female" })));
+    // …nor a focus-area switch (same 0 credits) a wrong-discipline answer.
+    expect(base).not.toBe(hashContext(ctx({ focusAreaNameHe: "פילוסופיה" })));
+  });
 });
 
 describe("answer cache", () => {

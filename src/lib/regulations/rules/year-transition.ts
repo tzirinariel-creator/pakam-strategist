@@ -1,5 +1,6 @@
 import type { RuleContext, RegulationRule } from "@/types/regulation";
 import { result } from "./_result";
+import { canonicalAttempts } from "@/lib/grade-calculator";
 
 // -------------------------------------------------------------------
 // Year 1→2 transition gate helper
@@ -15,7 +16,7 @@ function year1WeightedAverage(
   ctx: RuleContext,
   match: (uc: RuleContext["userCourses"][number]) => boolean
 ): { average: number | null; courseCount: number } {
-  const courses = ctx.userCourses.filter(
+  const candidates = ctx.userCourses.filter(
     (uc) =>
       uc.plannedYear === 1 &&
       uc.status === "COMPLETED" &&
@@ -25,8 +26,18 @@ function year1WeightedAverage(
       // reservist who converts a weak year-1 course to protect standing would
       // otherwise be misled by a gate that still counts that grade.
       !uc.isBinary &&
+      // English is excluded from EVERY degree average (owner-verified iron rule)
+      // — it must not pollute this BLOCKING gate either. A year-1 English content
+      // course's grade was leaking in and could falsely block (or mask a block)
+      // the 75/80 continuation (King/data-audit 22.7).
+      uc.course.courseType !== "ENGLISH" &&
       match(uc)
   );
+  // Collapse a grade-improvement retake to the DETERMINING (last) sitting, so a
+  // year-1 course retaken doesn't double-count its credits AND average both
+  // grades in the BLOCKING gate — the exact #audit-r5/r6 fix applied to every
+  // other average (grade/credit engines) but missing here until now.
+  const courses = canonicalAttempts(candidates);
   if (courses.length === 0) return { average: null, courseCount: 0 };
 
   let totalWeighted = 0;

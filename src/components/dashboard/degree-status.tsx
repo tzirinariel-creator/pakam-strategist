@@ -207,11 +207,14 @@ export function DegreeStatus({
       {isHero && (
         <div className="flex items-end justify-between gap-3">
           <div>
-            <div className="flex items-baseline gap-1.5" dir="ltr">
-              <span className="font-mono text-3xl font-bold tabular-nums text-foreground/85">
-                <CountUp value={effective} />
-              </span>
-              <span className="font-mono text-base text-foreground/40">/ {target}</span>
+            <div className="flex items-baseline gap-1.5">
+              {/* RTL: number "107 / 150" is LTR-isolated; "ש״ס" stays RTL. */}
+              <bdi dir="ltr" className="inline-flex items-baseline gap-1.5">
+                <span className="font-mono text-3xl font-bold tabular-nums text-foreground/85">
+                  <CountUp value={effective} />
+                </span>
+                <span className="font-mono text-base text-foreground/40">/ {target}</span>
+              </bdi>
               <span className="ms-1 text-sm text-foreground/50">{isHe ? "ש״ס" : "cr."}</span>
             </div>
             <p className="mt-0.5 text-xs text-foreground/55">
