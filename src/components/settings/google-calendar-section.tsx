@@ -297,6 +297,14 @@ export function GoogleCalendarSection() {
                 </SelectContent>
               </Select>
             </div>
+            {/* Sync is per-semester: re-syncing updates only the chosen semester
+                and removes courses you dropped from it. If you move a course to a
+                different semester, re-sync the old one too to clear its events. */}
+            <p className="text-xs text-foreground/45">
+              {isHe
+                ? "הסנכרון מעדכן את הסמסטר שנבחר בלבד — ומסיר קורסים שהורדתם ממנו. אם העברתם קורס לסמסטר אחר, סנכרנו גם את הסמסטר הקודם כדי לנקות את האירועים שלו."
+                : "Sync updates only the chosen semester — and removes courses you dropped from it. If you moved a course to another semester, re-sync the old one too to clear its events."}
+            </p>
           </>
         )}
 
