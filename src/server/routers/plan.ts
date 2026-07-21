@@ -431,6 +431,13 @@ export const planRouter = createTRPCRouter({
             prerequisites: [],
             canCountAs: [],
             isMandatory: false,
+            // A user-scanned ad-hoc course must NOT leak into the shared, PUBLIC
+            // catalog (course.list is a publicProcedure gated on isActive:true).
+            // isActive defaults to true, so set it false: the row still backs
+            // THIS user's record (UserCourse joins by id regardless of isActive),
+            // but nobody else sees the free-text name. If the real course is later
+            // scraped, the arazim sync upserts by code and reactivates it.
+            isActive: false,
           },
         });
       }

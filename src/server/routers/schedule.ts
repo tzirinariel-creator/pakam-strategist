@@ -382,11 +382,12 @@ export const scheduleRouter = createTRPCRouter({
           // ScheduleSession ids are GLOBAL (shared by every student of a course),
           // and CalendarEvent.id is the primary key — so a bare session.id here
           // let one student's sync overwrite another's Google-event mapping.
-          // Namespace it per user so each student owns a distinct CalendarEvent
-          // row. (Exam ids already use the per-user UserCourse id.) A user who
-          // synced before this fix may see their lecture events once more on the
-          // next sync; "מחק אירועים מהיומן" clears the old rows.
-          id: `lec-${user.id}-${session.id}`,
+          // Namespace per user AND per year+semester so each student owns a
+          // distinct row AND the stale-reconcile below can scope deletions to
+          // THIS semester only (never wipe another semester's calendar). A user
+          // who synced before this id-scheme change may see their events once
+          // more on the next sync; "מחק אירועים מהיומן" clears the old rows.
+          id: `lec-${user.id}-${input.year}-${input.semester}-${session.id}`,
           title: `${courseName} — ${typeLabel}`,
           description: [session.courseCode, session.lecturerName].filter(Boolean).join(" · "),
           startTime: startDate,
@@ -406,7 +407,7 @@ export const scheduleRouter = createTRPCRouter({
           examEnd.setHours(12, 0, 0, 0);
 
           events.push({
-            id: `exam-a-${uc.id}`,
+            id: `exam-a-${input.year}-${input.semester}-${uc.id}`,
             title: `${uc.course.nameHe} — מועד א׳`,
             description: `${uc.course.code} · ${uc.course.credits} ש״ס`,
             startTime: examDate,
@@ -421,7 +422,7 @@ export const scheduleRouter = createTRPCRouter({
           examEnd.setHours(12, 0, 0, 0);
 
           events.push({
-            id: `exam-b-${uc.id}`,
+            id: `exam-b-${input.year}-${input.semester}-${uc.id}`,
             title: `${uc.course.nameHe} — מועד ב׳`,
             description: `${uc.course.code} · ${uc.course.credits} ש״ס`,
             startTime: examDate,
@@ -490,9 +491,26 @@ export const scheduleRouter = createTRPCRouter({
       // previously-synced event whose id is NOT in the current payload is stale —
       // take it off Google and drop its local row. Without this, dropped classes
       // linger forever and the only escape is the all-or-nothing "מחק אירועים".
+      //
+      // CRITICAL scope guard: only ever delete events that belong to THIS sync's
+      // scope — same year+semester AND the content categories this run actually
+      // rebuilt. The id encodes {year}-{semester}, so we match by prefix. This
+      // must NOT delete (a) another semester's events, (b) the other content
+      // category when the user syncs lectures-only / exams-only, or (c) the
+      // user's own personal Google events pulled in as GOOGLE_SYNCED rows (UUID
+      // ids, no lec-/exam- prefix). Getting this wrong wipes real calendar data.
       const currentIds = new Set(events.map((e) => e.id));
+      const scope = `${input.year}-${input.semester}-`;
+      const lecPrefix = `lec-${user.id}-${scope}`;
+      const examPrefixA = `exam-a-${scope}`;
+      const examPrefixB = `exam-b-${scope}`;
+      const reconcilesLectures = input.contentFilter !== "exams"; // this run built lectures
+      const reconcilesExams = input.contentFilter !== "lectures"; // this run built exams
+      const inReconcileScope = (id: string) =>
+        (reconcilesLectures && id.startsWith(lecPrefix)) ||
+        (reconcilesExams && (id.startsWith(examPrefixA) || id.startsWith(examPrefixB)));
       const staleGoogleIds = existingCalEvents
-        .filter((e) => e.googleEventId && !currentIds.has(e.id))
+        .filter((e) => e.googleEventId && inReconcileScope(e.id) && !currentIds.has(e.id))
         .map((e) => e.googleEventId!)
         .filter((id): id is string => id !== null);
 

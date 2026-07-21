@@ -70,7 +70,9 @@ export function CourseDetailPopover({ course, children, onDisciplineOverride }: 
             {course.weeklyHours && (
               <>
                 <span>·</span>
-                <span>{course.weeklyHours} {isHe ? "ש״ס" : "hrs/wk"}</span>
+                {/* weeklyHours is contact-hours-per-week, NOT credits — the ש״ס
+                    label here contradicted the real credits shown right beside it. */}
+                <span><bdi dir="ltr">{course.weeklyHours}</bdi> {isHe ? "שע׳ שבועיות" : "hrs/wk"}</span>
               </>
             )}
           </div>
