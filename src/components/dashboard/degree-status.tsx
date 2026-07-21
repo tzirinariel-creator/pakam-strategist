@@ -74,6 +74,26 @@ export function DegreeStatus({
   // bucket map to understand the degree); returning students start collapsed.
   const [showDetail, setShowDetail] = useState(currentYear <= 1);
 
+  // Loading skeleton: `credits === null` means the credits query hasn't landed
+  // yet (getCredits always returns a real breakdown — zeros for a 0-course user
+  // — so null is never an "empty student", only "still loading"). Without this
+  // the hero briefly rendered "0% · 0/150" next to the plan-derived numbers that
+  // HAD loaded, a jarring, contradictory flash on the two busiest screens. A new
+  // user still sees a truthful 0% once their (non-null) zero-breakdown arrives.
+  if (credits === null) {
+    return (
+      <div className="animate-pulse" aria-hidden="true">
+        <div className={cn("flex items-baseline gap-2.5", isHero ? "mb-4" : "mb-2")}>
+          <div className={cn("rounded-md bg-foreground/10", isHero ? "h-9 w-20" : "h-7 w-14")} />
+          <div className="h-4 w-28 rounded bg-foreground/10" />
+        </div>
+        {isHero && <div className="mb-2 h-8 w-40 rounded-md bg-foreground/10" />}
+        <div className={cn("w-full rounded-full bg-foreground/10", isHero ? "mt-2 h-3" : "h-2")} />
+        <div className="mt-1.5 h-3 w-32 rounded bg-foreground/10" />
+      </div>
+    );
+  }
+
   const earned = credits?.earned ?? 0;
   const planned = credits?.planned ?? 0;
   const exempt = credits?.miluimExemption ?? 0;
