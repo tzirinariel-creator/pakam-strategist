@@ -232,15 +232,20 @@ export function DegreeStatus({
             </p>
             {nearHonors && gpa != null && (
               <p className="mt-0.5 text-[11px] text-foreground/45">
+                {/* HONESTY: gpa here is the CUMULATIVE course average, but honors
+                    is a per-STUDY-YEAR weighted average (honors.ts). So we must
+                    NOT claim "you're in honors range" off the cumulative number —
+                    we attribute it to the overall average and say honors is yearly,
+                    pointing to /record where the true per-year check lives. */}
                 <Bidi
                   text={
                     gpa >= HONORS_THRESHOLD
                       ? isHe
-                        ? `בטווח ההצטיינות (סף שנתי סביב ${HONORS_THRESHOLD})`
-                        : `In honors range (annual bar ~${HONORS_THRESHOLD})`
+                        ? `הממוצע הכולל שלך גבוה — הצטיינות נקבעת לפי ממוצע שנתי (סביב ${HONORS_THRESHOLD}). בדקו בתיק`
+                        : `Your overall average is high — honors is by yearly average (~${HONORS_THRESHOLD}); check your record`
                       : isHe
-                        ? `קרוב לטווח ההצטיינות — סף שנתי סביב ${HONORS_THRESHOLD}`
-                        : `Close to honors — annual bar ~${HONORS_THRESHOLD}`
+                        ? `הממוצע הכולל שלך קרוב — הצטיינות לפי ממוצע שנתי (סביב ${HONORS_THRESHOLD})`
+                        : `Your overall average is close — honors is by yearly average (~${HONORS_THRESHOLD})`
                   }
                 />
               </p>
