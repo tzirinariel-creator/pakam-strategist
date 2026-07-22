@@ -143,7 +143,7 @@ export function CourseDetailPopover({ course, children, onDisciplineOverride }: 
               color: cfg?.color ?? "gray",
               backgroundColor: `${cfg?.color ?? "gray"}10`,
             }}
-            title={onDisciplineOverride ? (isHe ? "לחץ לשנות שיוך" : "Click to change") : undefined}
+            title={onDisciplineOverride ? (isHe ? "לחצו לשנות שיוך" : "Click to change") : undefined}
           >
             {isHe ? cfg?.nameHe : cfg?.nameEn}
             {onDisciplineOverride && <Pencil className="inline h-2.5 w-2.5 opacity-40" />}

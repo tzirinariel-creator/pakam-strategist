@@ -14,7 +14,8 @@ export interface ExamInput {
   credits: number;
   /** 0–100 average grade (lower = harder), if known. */
   averageGrade?: number | null;
-  /** 0–1 fail rate (higher = harder), if known. */
+  /** Fail-rate PERCENTAGE 0–100 (higher = harder), if known. Matches
+   *  Course.failRate (schema.prisma:184) — classifyDifficulty tests `>= 20`. */
   failRate?: number | null;
   /** Self-reported readiness 1 (not ready) … 5 (very ready). The student's OWN
    *  report, NOT our prediction — it scales the hour budget only. */

@@ -349,7 +349,7 @@ export function GoogleCalendarSection() {
                   <Trash2 className="size-4" />
                 )}
                 {confirmDelete
-                  ? (isHe ? "לחץ שוב לאישור מחיקה" : "Click again to confirm delete")
+                  ? (isHe ? "לחצו שוב לאישור מחיקה" : "Click again to confirm delete")
                   : t("deleteGoogleEvents")}
               </Button>
               <Button

@@ -395,4 +395,22 @@ describe("PKM-016 year-1→2 BLOCKING gate — English excluded + retakes collap
     expect((r?.details as { courseAverage: number }).courseAverage).toBe(85);
     expect(r?.passed).toBe(true);
   });
+
+  it("a student ALREADY in year 2+ is never shown a present-tense block for a weak year-1 (audit 22.7)", () => {
+    // Year-1 average 68 (below 75). Someone in year 2 has already advanced — the
+    // gate must be non-blocking INFO (retrospective), NOT a false "continuation
+    // blocked" ERROR. A still-year-1 student with the same average IS blocked.
+    const weak = [course({ grade: 68, credits: 4, courseType: "MANDATORY" })];
+    const y2 = runRegulationEngine(weak, "ECONOMICS" as never, 0, undefined, {
+      academicYear: 2,
+    } as never).results.find((r) => r.ruleId === "PKM-016");
+    expect(y2?.severity).toBe("INFO");
+    expect(y2?.passed).toBe(true);
+
+    const y1 = runRegulationEngine(weak, "ECONOMICS" as never, 0, undefined, {
+      academicYear: 1,
+    } as never).results.find((r) => r.ruleId === "PKM-016");
+    expect(y1?.severity).toBe("ERROR");
+    expect(y1?.passed).toBe(false);
+  });
 });

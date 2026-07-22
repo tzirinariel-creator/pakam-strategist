@@ -120,7 +120,7 @@ function PlannerPreview({ isRTL }: { isRTL: boolean }) {
           <Scale className="size-3" />
           {isRTL ? "תקנון" : "Regulations"}
         </span>
-        <span className="rounded-full bg-[#2ECC71]/15 px-2 py-0.5 font-medium text-[#1f9d55]">
+        <span className="rounded-full bg-emerald-500/15 px-2 py-0.5 font-medium text-emerald-700 dark:text-emerald-400">
           {isRTL ? "עומד בתקנון ✓" : "Compliant ✓"}
         </span>
       </div>

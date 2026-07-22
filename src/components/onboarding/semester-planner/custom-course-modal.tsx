@@ -130,7 +130,7 @@ export function CustomCourseModal({
       <DialogContent className="max-w-md">
         <DialogHeader>
           <DialogTitle className="text-base font-semibold">
-            {isHe ? "הוסף קורס ידני" : "Add Custom Course"}
+            {isHe ? "הוספת קורס ידני" : "Add Custom Course"}
           </DialogTitle>
           <p className="text-xs text-foreground/40 mt-1">
             {isHe ? "לקורסים שלא נמצאים בקטלוג שלנו (בחירות חיצוניות, סדנאות וכו׳)" : "For courses not in our catalog (external electives, workshops, etc.)"}

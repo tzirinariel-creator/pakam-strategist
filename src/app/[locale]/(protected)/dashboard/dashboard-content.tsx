@@ -356,7 +356,14 @@ export function DashboardContent() {
   // holds. Nearest upcoming exam (future examDateA/B across the plan) + whether
   // a finished semester has ungraded courses feed the pure getTimeFocus ladder.
   const timeFocus = (() => {
-    const nowMs = Date.now();
+    const nowDate = new Date();
+    const nowMs = nowDate.getTime();
+    // Count CIVIL days the SAME way the exam-countdown list does: normalize both
+    // "today" and the exam to UTC-midnight and round. Exam dates are stored at
+    // UTC-midnight, so Math.ceil on the raw (exam - now) ms — which carries the
+    // current time-of-day — inflated the banner by a day (13.04→14) while the
+    // list showed 13. Two different countdowns for the same exam is a no-go.
+    const todayUTC = Date.UTC(nowDate.getUTCFullYear(), nowDate.getUTCMonth(), nowDate.getUTCDate());
     let nearestExamMs: number | null = null;
     for (const uc of planQuery.data?.courses ?? []) {
       if (uc.status === "COMPLETED" || uc.status === "FAILED") continue;
@@ -366,8 +373,12 @@ export function DashboardContent() {
         if (t >= nowMs && (nearestExamMs == null || t < nearestExamMs)) nearestExamMs = t;
       }
     }
-    const daysToNearestExam =
-      nearestExamMs != null ? Math.ceil((nearestExamMs - nowMs) / 86_400_000) : null;
+    const daysToNearestExam = (() => {
+      if (nearestExamMs == null) return null;
+      const e = new Date(nearestExamMs);
+      const examUTC = Date.UTC(e.getUTCFullYear(), e.getUTCMonth(), e.getUTCDate());
+      return Math.round((examUTC - todayUTC) / 86_400_000);
+    })();
     const gradesPending =
       getWrapTarget() != null &&
       (planQuery.data?.courses ?? []).some((uc) => uc.grade == null && uc.status === "IN_PROGRESS");

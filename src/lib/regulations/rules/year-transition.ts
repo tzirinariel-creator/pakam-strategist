@@ -80,20 +80,30 @@ export const ruleYearTransitionGPA: RegulationRule = (ctx: RuleContext) => {
   }
 
   const passed = average >= requiredGPA;
+  // Year-awareness (honesty): this is the year-1→2 gate. A student ALREADY in
+  // year 2+ has, by definition, advanced — telling them "continuation is
+  // blocked" (present tense) would be false. Past the boundary we show the same
+  // number retrospectively as non-blocking INFO, and never count it as a
+  // violation. Still year 1 (or year unknown) → the real blocking gate stands.
+  const advanced = (ctx.academicYear ?? 1) >= 2;
+  const compliant = passed || advanced;
 
   return result(
     "PKM-016",
     "Year Transition GPA",
     "ממוצע מעבר שנה",
-    passed,
-    // Blocking gate: a failure is an ERROR (continuation is blocked).
-    passed ? "INFO" : "ERROR",
+    compliant,
+    compliant ? "INFO" : "ERROR",
     passed
       ? `Year-1 average is ${average}, above the ${requiredGPA} required to advance to year 2.`
-      : `Year-1 average is ${average}, below the ${requiredGPA} required to advance to year 2. This blocks continuation.`,
+      : advanced
+        ? `Your year-1 average was ${average}, below the nominal ${requiredGPA} year-1→2 bar — but you've already advanced, so this is for reference only.`
+        : `Year-1 average is ${average}, below the ${requiredGPA} required to advance to year 2. This blocks continuation.`,
     passed
       ? `ממוצע שנה א׳ הוא ${average}, מעל ה-${requiredGPA} הנדרש למעבר לשנה ב׳.`
-      : `ממוצע שנה א׳ הוא ${average}, מתחת ל-${requiredGPA} הנדרש למעבר לשנה ב׳. המעבר חסום.`,
+      : advanced
+        ? `ממוצע שנה א׳ שלכם היה ${average}, מתחת ל-${requiredGPA} — סף המעבר לשנה ב׳. כבר עברתם לשנה ב׳, אז זה מוצג לרקע בלבד.`
+        : `ממוצע שנה א׳ הוא ${average}, מתחת ל-${requiredGPA} הנדרש למעבר לשנה ב׳. המעבר חסום.`,
     { courseAverage: average, required: requiredGPA }
   );
 };
@@ -142,20 +152,27 @@ export const ruleYearTransitionMajorGPA: RegulationRule = (ctx: RuleContext) => 
   }
 
   const passed = average >= requiredMajorGPA;
+  // Same year-awareness as PKM-016: a year-2+ student has already advanced, so
+  // the core-GPA gate is retrospective, not a live block.
+  const advanced = (ctx.academicYear ?? 1) >= 2;
+  const compliant = passed || advanced;
 
   return result(
     "PKM-017",
     "Year Transition Core GPA",
     "ממוצע מעבר שנה בקורסי הליבה",
-    passed,
-    // Blocking gate: a failure is an ERROR (continuation is blocked).
-    passed ? "INFO" : "ERROR",
+    compliant,
+    compliant ? "INFO" : "ERROR",
     passed
       ? `PPE-core year-1 average is ${average}, above the ${requiredMajorGPA} required to advance to year 2.`
-      : `PPE-core year-1 average is ${average}, below the ${requiredMajorGPA} required to advance to year 2. This blocks continuation.`,
+      : advanced
+        ? `Your PPE-core year-1 average was ${average}, below the nominal ${requiredMajorGPA} bar — but you've already advanced, so this is for reference only.`
+        : `PPE-core year-1 average is ${average}, below the ${requiredMajorGPA} required to advance to year 2. This blocks continuation.`,
     passed
       ? `ממוצע קורסי הליבה (פכ״מ ייעודי) בשנה א׳ הוא ${average}, מעל ה-${requiredMajorGPA} הנדרש למעבר לשנה ב׳.`
-      : `ממוצע קורסי הליבה (פכ״מ ייעודי) בשנה א׳ הוא ${average}, מתחת ל-${requiredMajorGPA} הנדרש למעבר לשנה ב׳. המעבר חסום.`,
+      : advanced
+        ? `ממוצע קורסי הליבה (פכ״מ ייעודי) בשנה א׳ שלכם היה ${average}, מתחת ל-${requiredMajorGPA}. כבר עברתם לשנה ב׳, אז זה מוצג לרקע בלבד.`
+        : `ממוצע קורסי הליבה (פכ״מ ייעודי) בשנה א׳ הוא ${average}, מתחת ל-${requiredMajorGPA} הנדרש למעבר לשנה ב׳. המעבר חסום.`,
     { majorAverage: average, required: requiredMajorGPA, discipline: PPE_CORE_DISCIPLINE },
   );
 };
