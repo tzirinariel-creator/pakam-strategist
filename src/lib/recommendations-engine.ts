@@ -186,7 +186,7 @@ export function buildRecommendations(
       icon: "calendarClock",
       titleHe: `כדאי לשקול מועד ב׳ ב${nameHe}`,
       titleEn: `Consider Moed B in ${nameEn}`,
-      bodyHe: `קיבלתם ${c.grade} ב${nameHe}. מועד ב׳ ${whenHe} — אפשרות לשפר. שימו לב: בישראל הציון האחרון קובע (לא הגבוה), אז שווה לגשת רק אם אתם בטוחים שתשתפרו.`,
+      bodyHe: `קיבלתם ${c.grade} ב${nameHe}. מועד ב׳ ${whenHe} — אפשרות לשפר. שימו לב: בת״א הציון האחרון קובע (לא הגבוה), אז שווה לגשת רק אם אתם בטוחים שתשתפרו.`,
       bodyEn: `You got ${c.grade} in ${nameEn}. Moed B is ${whenEn} — a chance to improve. Note: in Israel the LAST sitting counts (not the higher), so only go if you're confident you'll do better.`,
       href: "/exam",
       ctaHe: "ללוח הבחינות",

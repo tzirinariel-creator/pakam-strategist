@@ -327,8 +327,8 @@ const HANDLERS: Handler[] = [
     answer: (c) => ({
       text: he(
         c,
-        `מועד ב׳ = הזדמנות שנייה למבחן. ${gm(c, "שים לב", "שימי לב", "שימו לב")}: בישראל הציון האחרון קובע (לא הגבוה) — אז כדאי ללכת רק אם ${gm(c, "אתה בטוח שתשתפר", "את בטוחה שתשתפרי", "בטוחים שתשתפרו")}. שיבוץ הלמידה, פריסה אחורה מכל מבחן ואיזון עומס — במתכנן המבחנים.`,
-        "Moed B is a second exam sitting. Note: in Israel the LAST grade counts (not the higher one) — so retake only if you're confident you'll improve. Study spread, reverse-planning and load balancing are in the exam planner."
+        `מועד ב׳ = הזדמנות שנייה למבחן. ${gm(c, "שים לב", "שימי לב", "שימו לב")}: בת״א הציון האחרון קובע (לא הגבוה) — אז כדאי ללכת רק אם ${gm(c, "אתה בטוח שתשתפר", "את בטוחה שתשתפרי", "בטוחים שתשתפרו")}.${c.miluimGroupName ? " למילואימניקים בקבוצת-הטבה (B/C/G) יש זכות לגשת ל-2 מתוך 3 מועדים, והגבוה מביניהם נשמר — הפירוט בעמוד המילואים." : ""} שיבוץ הלמידה, פריסה אחורה מכל מבחן ואיזון עומס — במתכנן המבחנים.`,
+        `Moed B is a second exam sitting. Note: at TAU the LAST grade counts (not the higher one) — so retake only if you're confident you'll improve.${c.miluimGroupName ? " Reservists in a benefit group (B/C/G) may sit 2 of 3 dates with the higher grade kept — see the miluim page." : ""} Study spread, reverse-planning and load balancing are in the exam planner.`
       ),
       href: "/exam-planner",
       cta: he(c, "למתכנן המבחנים", "Exam planner"),
