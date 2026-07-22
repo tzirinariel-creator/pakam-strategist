@@ -3,7 +3,7 @@ import { TRPCError } from "@trpc/server";
 import { createTRPCRouter, protectedProcedure, createRequestLoaders } from "../trpc/init";
 import { calculateCredits } from "@/lib/credit-calculator";
 import { calculateGraduationScore } from "@/lib/grade-calculator";
-import { computeCreditExemption, deriveCurrentGroup, getCurrentAcademicYear } from "@/lib/miluim";
+import { computeCreditExemption, deriveCurrentGroup, getCurrentAcademicYear, prefersHigherGrade, type MiluimGroupKey } from "@/lib/miluim";
 import { getAcademicNow } from "@/lib/academic-calendar";
 import { getAllDisciplineIds } from "@/lib/programs/registry";
 
@@ -284,7 +284,11 @@ export const planRouter = createTRPCRouter({
       (uc) => uc.status === "COMPLETED" && uc.grade !== null,
     );
 
-    const gradeBreakdown = calculateGraduationScore(userCourses);
+    // B/C/G reservists' higher exam grade counts (Ariel 23.7) — the headline
+    // graduation score must honor the same rule the app promises them.
+    const gradeBreakdown = calculateGraduationScore(userCourses, {
+      preferHigherGrade: prefersHigherGrade((user.miluimGroup ?? "NONE") as MiluimGroupKey),
+    });
     return gradeBreakdown;
   }),
 

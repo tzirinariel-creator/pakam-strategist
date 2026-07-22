@@ -16,6 +16,18 @@ import type { MiluimGroup, Semester } from "@/types/enums";
 export type MiluimGroupKey = keyof typeof MILUIM_CONFIG.GROUPS;
 
 /**
+ * True when the student's reserve group carries the "2 of 3 exam dates, HIGHER
+ * grade counts (auto)" right (docs Layer B) — B/C/G. A and NONE follow the
+ * standard TAU "last grade counts" rule. This is the single source the grade
+ * engine, the year-transition gate and honors read to decide whether a retake
+ * collapses to the higher grade or the last sitting (Ariel 23.7).
+ */
+export function prefersHigherGrade(group: MiluimGroupKey | null | undefined): boolean {
+  if (!group) return false;
+  return MILUIM_CONFIG.GROUPS[group]?.examChoice2of3 ?? false;
+}
+
+/**
  * The current Israeli academic year as a single calendar-year key, used as the
  * `MiluimSemester.academicYear` value on BOTH the write path (onboarding +
  * settings) and the read path (plan / regulation resolution). MUST be the one

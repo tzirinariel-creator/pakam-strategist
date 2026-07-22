@@ -1,6 +1,7 @@
 import type { RuleContext, RegulationRule } from "@/types/regulation";
 import { result } from "./_result";
 import { canonicalAttempts } from "@/lib/grade-calculator";
+import { prefersHigherGrade, type MiluimGroupKey } from "@/lib/miluim";
 
 // -------------------------------------------------------------------
 // Year 1→2 transition gate helper
@@ -37,7 +38,11 @@ function year1WeightedAverage(
   // year-1 course retaken doesn't double-count its credits AND average both
   // grades in the BLOCKING gate — the exact #audit-r5/r6 fix applied to every
   // other average (grade/credit engines) but missing here until now.
-  const courses = canonicalAttempts(candidates);
+  // The year-1→2 gate must honor the reservist "higher grade counts" rule too —
+  // a B/C/G reservist's higher grade counts toward the 75/80 (Ariel 23.7).
+  const courses = canonicalAttempts(candidates, {
+    preferHigherGrade: prefersHigherGrade((ctx.miluimGroup ?? "NONE") as MiluimGroupKey),
+  });
   if (courses.length === 0) return { average: null, courseCount: 0 };
 
   let totalWeighted = 0;

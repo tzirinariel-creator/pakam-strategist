@@ -17,7 +17,7 @@ import { calculateCredits } from "@/lib/credit-calculator";
 import { greetNameForLocale } from "@/lib/personal-address";
 import { calculateGrades } from "@/lib/grade-calculator";
 import { runRegulationEngine } from "@/lib/regulations/rule-engine";
-import { computeCreditExemption, deriveCurrentGroup, getCurrentAcademicYear } from "@/lib/miluim";
+import { computeCreditExemption, deriveCurrentGroup, getCurrentAcademicYear, prefersHigherGrade, type MiluimGroupKey } from "@/lib/miluim";
 import { buildExamPeriodBlock } from "@/lib/ai/exam-facts";
 import { getProgramById } from "@/lib/programs/registry";
 import { getAcademicNow, getPlanningAnchor, deriveYearOfStudy } from "@/lib/academic-calendar";
@@ -184,7 +184,9 @@ export async function buildUserContext(
   const miluimExemption = computeCreditExemption(currentGroup, user.miluimCreditsUsed ?? 0);
 
   const creditResult = calculateCredits(userCourses, user.focusArea, miluimExemption);
-  const gradeResult = calculateGrades(userCourses);
+  const gradeResult = calculateGrades(userCourses, {
+    preferHigherGrade: prefersHigherGrade(currentGroup as MiluimGroupKey),
+  });
 
   // Standing derived from the calendar anchor, never the fossilized stored
   // pair — in October the stored year is one behind until the profile is

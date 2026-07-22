@@ -16,6 +16,7 @@ import type {
 import type { ProgramDefinition } from "@/lib/programs/types";
 import { calculateCredits } from "@/lib/credit-calculator";
 import { calculateGrades } from "@/lib/grade-calculator";
+import { prefersHigherGrade, type MiluimGroupKey } from "@/lib/miluim";
 import { getActiveProgram } from "@/lib/programs/registry";
 import { ALL_RULES, getAllRulesFor } from "./rules";
 
@@ -89,7 +90,9 @@ export function runRegulationEngine(
     miluimExemption,
     programDef
   );
-  const gradeBreakdown = calculateGrades(userCourses);
+  const gradeBreakdown = calculateGrades(userCourses, {
+    preferHigherGrade: prefersHigherGrade((student?.miluimGroup ?? "NONE") as MiluimGroupKey),
+  });
   const seminars = extractSeminars(userCourses);
 
   // 2. Build the context shared by all rules.

@@ -10,6 +10,7 @@ import { invalidatePlanData } from "@/lib/trpc/invalidate-plan";
 import { calculateGrades } from "@/lib/grade-calculator";
 import { deriveYearOfStudy } from "@/lib/academic-calendar";
 import { computeHonorsDistance } from "@/lib/honors";
+import { prefersHigherGrade, type MiluimGroupKey } from "@/lib/miluim";
 import { isCurrentlyStudying } from "@/lib/semester-clock";
 import { ThemedLoader } from "@/components/ui/themed-loader";
 import dynamic from "next/dynamic";
@@ -240,8 +241,8 @@ export function AcademicRecordContent() {
   // exclusions as the GPA), null when no graded course this year yet. Same
   // function /graduation uses, so the two never diverge.
   const honors = useMemo(
-    () => computeHonorsDistance(planQuery.data?.courses ?? [], currentYear),
-    [planQuery.data?.courses, currentYear],
+    () => computeHonorsDistance(planQuery.data?.courses ?? [], currentYear, profile?.miluimGroup),
+    [planQuery.data?.courses, currentYear, profile?.miluimGroup],
   );
 
   // The PRESENT courses: PLANNED rows whose (year, semester) is the live
@@ -309,8 +310,10 @@ export function AcademicRecordContent() {
     // Computing it client-side (rather than reading the server query) keeps the
     // number live while the student types grades; routing it through the shared
     // engine means it can no longer diverge from everywhere else.
-    return calculateGrades(completedCourses).courseAverage;
-  }, [completedCourses]);
+    return calculateGrades(completedCourses, {
+      preferHigherGrade: prefersHigherGrade((profile?.miluimGroup ?? "NONE") as MiluimGroupKey),
+    }).courseAverage;
+  }, [completedCourses, profile?.miluimGroup]);
 
   const focusCredits = creditsQuery.data?.breakdown.focusArea ?? 0;
   const focusTarget =

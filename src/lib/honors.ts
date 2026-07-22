@@ -12,6 +12,7 @@
 // =========================================================================
 
 import { countsTowardAverage, canonicalAttempts } from "@/lib/grade-calculator";
+import { prefersHigherGrade, type MiluimGroupKey } from "@/lib/miluim";
 import type { UserCourseWithCourse } from "@/types/degree";
 
 /** The dean's-list yearly weighted-average bar — נכון לתשפ"ו, yearly policy. */
@@ -40,6 +41,7 @@ export interface HonorsDistance {
 export function computeHonorsDistance(
   courses: UserCourseWithCourse[],
   year: number,
+  miluimGroup?: MiluimGroupKey | string | null,
 ): HonorsDistance {
   const yearCourses = canonicalAttempts(
     courses.filter(
@@ -49,6 +51,9 @@ export function computeHonorsDistance(
         uc.grade !== null &&
         countsTowardAverage(uc),
     ),
+    // Honors is the same average as the GPA — so a B/C/G reservist's higher
+    // grade must count here too, or the honors gap would understate them.
+    { preferHigherGrade: prefersHigherGrade((miluimGroup ?? "NONE") as MiluimGroupKey) },
   );
 
   let weighted = 0;

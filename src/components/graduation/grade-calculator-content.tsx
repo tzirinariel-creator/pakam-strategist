@@ -19,6 +19,7 @@ import { cn } from "@/lib/utils";
 import { GRADE_WEIGHTS } from "@/lib/constants";
 import { roundScore, countsTowardAverage, courseTypeCountsTowardAverage, canonicalAttempts } from "@/lib/grade-calculator";
 import { computeHonorsDistance, HONORS_YEARLY_BAR } from "@/lib/honors";
+import { prefersHigherGrade, type MiluimGroupKey } from "@/lib/miluim";
 import { deriveYearOfStudy } from "@/lib/academic-calendar";
 import type { UserCourseWithCourse, GradeBreakdown } from "@/types/degree";
 
@@ -123,11 +124,13 @@ function ScoreDashboard({
   allCourses,
   t,
   isHe,
+  preferHigherGradeFlag,
 }: {
   breakdown: GradeBreakdown;
   allCourses: UserCourseWithCourse[];
   t: ReturnType<typeof useTranslations<"grades">>;
   isHe: boolean;
+  preferHigherGradeFlag: boolean;
 }) {
   const score = roundScore(breakdown.weightedScore);
   // Raw (single toFixed(1) at render), NOT roundScore→toFixed(1) — a pre-round to
@@ -140,7 +143,9 @@ function ScoreDashboard({
   // canonicalAttempts collapses grade-improvement retakes to the DETERMINING
   // sitting — without it a retaken course double-counted and the two averages
   // on this very card diverged (audit launch-blocker A1).
-  const completed = canonicalAttempts(allCourses.filter(countsTowardAverage));
+  const completed = canonicalAttempts(allCourses.filter(countsTowardAverage), {
+    preferHigherGrade: preferHigherGradeFlag,
+  });
   const totalCreditsCompleted = completed.reduce(
     (s, c) => s + c.course.credits,
     0
@@ -235,14 +240,18 @@ function ScoreDashboard({
 function ReverseCalculator({
   allCourses,
   t,
+  preferHigherGradeFlag,
 }: {
   allCourses: UserCourseWithCourse[];
   t: ReturnType<typeof useTranslations<"grades">>;
+  preferHigherGradeFlag: boolean;
 }) {
   const [target, setTarget] = useState(80);
 
   const result = useMemo(() => {
-    const completed = canonicalAttempts(allCourses.filter(countsTowardAverage));
+    const completed = canonicalAttempts(allCourses.filter(countsTowardAverage), {
+      preferHigherGrade: preferHigherGradeFlag,
+    });
     // A course already counted as completed (canonicalAttempts keeps a passed
     // course that's being retaken as EARNED, #audit-r6) must not also appear in
     // `remaining` — else its credits land in BOTH completedCredits and
@@ -313,7 +322,7 @@ function ReverseCalculator({
       remainingCredits,
       status: "possible" as const,
     };
-  }, [allCourses, target]);
+  }, [allCourses, target, preferHigherGradeFlag]);
 
   return (
     <div className="data-card space-y-6 p-6">
@@ -465,6 +474,13 @@ export function GradeCalculatorContent() {
   const gradeQuery = api.plan.getGraduationScore.useQuery(undefined, {
     retry: false,
   });
+  // B/C/G reservists keep the HIGHER exam grade (Ariel 23.7). The local GPA
+  // recompute on this card must use the same rule as the server breakdown it
+  // sits beside, or the two averages diverge for reservists.
+  const profileQuery = api.user.getProfile.useQuery();
+  const preferHigherGradeFlag = prefersHigherGrade(
+    (profileQuery.data?.miluimGroup ?? "NONE") as MiluimGroupKey,
+  );
 
   // Grade breakdown
   const gradeBreakdown: GradeBreakdown = gradeQuery.data ?? {
@@ -538,8 +554,9 @@ export function GradeCalculatorContent() {
           allCourses={allCourses}
           t={t}
           isHe={locale === "he"}
+          preferHigherGradeFlag={preferHigherGradeFlag}
         />
-        <ReverseCalculator allCourses={allCourses} t={t} />
+        <ReverseCalculator allCourses={allCourses} t={t} preferHigherGradeFlag={preferHigherGradeFlag} />
       </div>
 
       {/* Note #25 — distance to honors (approved). Computed aid, year-tagged;
@@ -570,7 +587,7 @@ function HonorsDistanceCard({
     profileQuery.data?.startYear,
     profileQuery.data?.currentYear ?? 1,
   );
-  const d = computeHonorsDistance(allCourses, year);
+  const d = computeHonorsDistance(allCourses, year, profileQuery.data?.miluimGroup);
 
   return (
     <div className="animate-stagger-3 data-card space-y-3 p-6">

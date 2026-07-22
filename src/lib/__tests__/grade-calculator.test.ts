@@ -1,6 +1,7 @@
 import { describe, it, expect } from "vitest";
-import { calculateGrades, roundScore } from "@/lib/grade-calculator";
+import { calculateGrades, canonicalAttempts, roundScore } from "@/lib/grade-calculator";
 import { GRADE_WEIGHTS } from "@/lib/constants";
+import { prefersHigherGrade } from "@/lib/miluim";
 import type { UserCourseWithCourse } from "@/types/degree";
 
 /**
@@ -130,6 +131,73 @@ describe("calculateGrades", () => {
       80 * GRADE_WEIGHTS.SEMINAR_PAPERS +
       100 * GRADE_WEIGHTS.REFERAT;
     expect(full.weightedScore).toBeCloseTo(expected, 5);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// MILUIM: B/C/G reservists sit 2-of-3 exam dates and the HIGHER grade counts
+// automatically (Ariel 23.7; docs/pakam-domain-rules-2026.md; constants.ts
+// examChoice2of3=true for B/C/G, false for A/NONE). The engine must show the
+// SAME rule it promises these students — the higher of two graded sittings,
+// not the last one. NONE / GROUP_A keep the standard last-sitting rule.
+// ---------------------------------------------------------------------------
+describe("canonicalAttempts — miluim higher-grade rule", () => {
+  // A reservist who scored HIGHER on the first sitting (85) than the retake (70).
+  const attempts = (): UserCourseWithCourse[] => [
+    uc({ courseId: "shared", grade: 85, credits: 3, attemptNumber: 1 }),
+    uc({ courseId: "shared", grade: 70, credits: 3, attemptNumber: 2 }),
+  ];
+
+  it("keeps the LAST sitting by default (standard rule, A/NONE)", () => {
+    const rows = canonicalAttempts(attempts());
+    expect(rows).toHaveLength(1);
+    expect(rows[0]!.grade).toBe(70); // last attempt wins
+  });
+
+  it("keeps the HIGHER grade when preferHigherGrade is set (B/C/G)", () => {
+    const rows = canonicalAttempts(attempts(), { preferHigherGrade: true });
+    expect(rows).toHaveLength(1);
+    expect(rows[0]!.grade).toBe(85); // higher of the two graded sittings wins
+  });
+
+  it("still prefers an EARNED attempt over a not-yet-earned one, even with the flag", () => {
+    // A passed course being retaken (planned) must not be demoted to planned.
+    const rows = canonicalAttempts(
+      [
+        uc({ courseId: "shared", grade: 88, credits: 3, attemptNumber: 1, status: "COMPLETED" }),
+        uc({ courseId: "shared", grade: null, credits: 3, attemptNumber: 2, status: "PLANNED" }),
+      ],
+      { preferHigherGrade: true },
+    );
+    expect(rows).toHaveLength(1);
+    expect(rows[0]!.grade).toBe(88);
+    expect(rows[0]!.status).toBe("COMPLETED");
+  });
+
+  it("flows through calculateGrades: reservist's higher grade lifts the average", () => {
+    const courses = attempts();
+    const standard = calculateGrades(courses);
+    const reservist = calculateGrades(courses, { preferHigherGrade: true });
+    expect(standard.courseAverage).toBe(70);
+    expect(reservist.courseAverage).toBe(85);
+    // one course either way — the retake never double-counts its credits
+    expect(standard.totalGradedCourses).toBe(1);
+    expect(reservist.totalGradedCourses).toBe(1);
+  });
+});
+
+describe("prefersHigherGrade — group→rule mapping", () => {
+  it("is false for NONE and GROUP_A (standard last-sitting)", () => {
+    expect(prefersHigherGrade("NONE")).toBe(false);
+    expect(prefersHigherGrade("GROUP_A")).toBe(false);
+    expect(prefersHigherGrade(null)).toBe(false);
+    expect(prefersHigherGrade(undefined)).toBe(false);
+  });
+
+  it("is true for GROUP_B, GROUP_C, GROUP_G (2-of-3, higher counts)", () => {
+    expect(prefersHigherGrade("GROUP_B")).toBe(true);
+    expect(prefersHigherGrade("GROUP_C")).toBe(true);
+    expect(prefersHigherGrade("GROUP_G")).toBe(true);
   });
 });
 

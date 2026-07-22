@@ -17,6 +17,7 @@ import {
 } from "@/lib/grade-sheet";
 import { getWrapTarget, wrapStorageKey } from "@/lib/semester-clock";
 import { calculateGrades } from "@/lib/grade-calculator";
+import { prefersHigherGrade, type MiluimGroupKey } from "@/lib/miluim";
 import type { UserCourseWithCourse } from "@/types/degree";
 import { WhereIsMySheet } from "@/components/record/where-is-my-sheet";
 import { CohortShareNudge } from "@/components/cohort/cohort-share-nudge";
@@ -194,7 +195,9 @@ export function GradeSheetScanner() {
       // (never invented). Fetched AFTER the writes so the numbers are real.
       try {
         const fresh = await utils.plan.getUserPlan.fetch();
-        const calc = calculateGrades((fresh?.courses ?? []) as unknown as UserCourseWithCourse[]);
+        const calc = calculateGrades((fresh?.courses ?? []) as unknown as UserCourseWithCourse[], {
+          preferHigherGrade: prefersHigherGrade((profileQuery.data?.miluimGroup ?? "NONE") as MiluimGroupKey),
+        });
         setScanSummary({ updated: ok, failedGrades, average: calc.courseAverage });
       } catch {
         setScanSummary({ updated: ok, failedGrades, average: null });

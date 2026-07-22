@@ -89,7 +89,18 @@ export function countsTowardAverage(uc: UserCourseWithCourse): boolean {
  * (#audit-r5). Call on an ALREADY-filtered set (e.g. COMPLETED-graded, or
  * countable) so a still-failed earlier attempt outside the set can't win.
  */
-export function canonicalAttempts(rows: UserCourseWithCourse[]): UserCourseWithCourse[] {
+export function canonicalAttempts(
+  rows: UserCourseWithCourse[],
+  opts?: { preferHigherGrade?: boolean },
+): UserCourseWithCourse[] {
+  // MILUIM (Ariel 23.7): reservist groups B/C/G have the right to sit 2 of 3
+  // exam dates with the HIGHER grade kept automatically (docs/pakam-domain-
+  // rules-2026.md Layer B; constants.ts examChoice2of3=true for B/C/G, false
+  // for A/NONE). When preferHigherGrade is set (resolved from the student's
+  // current group), a course's determining attempt is the HIGHER-graded sitting
+  // instead of the last one — so the average the app SHOWS finally matches the
+  // rule the app PROMISES these students. A / NONE keep the standard last-grade.
+  const preferHigher = opts?.preferHigherGrade ?? false;
   const best = new Map<string, UserCourseWithCourse>();
   const isEarned = (uc: UserCourseWithCourse) => uc.status === "COMPLETED" || uc.status === "EXEMPT";
   for (const uc of rows) {
@@ -100,24 +111,35 @@ export function canonicalAttempts(rows: UserCourseWithCourse[]): UserCourseWithC
     }
     // Prefer an EARNED attempt over a not-yet-earned one, so a passed course
     // being retaken to improve isn't demoted from earned to planned (#audit-r6).
-    // Among equally-earned attempts, the highest attemptNumber (the determining
-    // sitting — TAU counts the LAST grade) wins.
-    const better =
-      isEarned(uc) !== isEarned(prev)
-        ? isEarned(uc)
-        : uc.attemptNumber > prev.attemptNumber;
+    let better: boolean;
+    if (isEarned(uc) !== isEarned(prev)) {
+      better = isEarned(uc);
+    } else if (
+      preferHigher &&
+      uc.grade != null &&
+      prev.grade != null &&
+      uc.grade !== prev.grade
+    ) {
+      // B/C/G: keep the HIGHER of two graded sittings.
+      better = uc.grade > prev.grade;
+    } else {
+      // Standard rule: the highest attemptNumber (the LAST sitting) wins.
+      better = uc.attemptNumber > prev.attemptNumber;
+    }
     if (better) best.set(uc.courseId, uc);
   }
   return [...best.values()];
 }
 
 export function calculateGrades(
-  courses: UserCourseWithCourse[]
+  courses: UserCourseWithCourse[],
+  opts?: { preferHigherGrade?: boolean },
 ): GradeBreakdown {
   // ----- Course average (credit-weighted) -----
   // Collapse retakes to the determining attempt first, so a grade-improvement
-  // retake contributes ONE grade (the latest), not both (#audit-r5).
-  const gradedCourses = canonicalAttempts(courses.filter(countsTowardAverage))
+  // retake contributes ONE grade (the latest — or the HIGHER one for B/C/G
+  // reservists, opts.preferHigherGrade), not both (#audit-r5).
+  const gradedCourses = canonicalAttempts(courses.filter(countsTowardAverage), opts)
     .map((uc) => ({
       grade: uc.grade!,
       weight: uc.course.credits,
