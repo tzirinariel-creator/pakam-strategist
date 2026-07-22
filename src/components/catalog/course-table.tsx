@@ -158,7 +158,11 @@ export function CourseTable({ courses, allCourses, focusArea }: CourseTableProps
             : (a.nameEn ?? a.nameHe).localeCompare(b.nameEn ?? b.nameHe, "en");
           break;
         case "discipline":
-          cmp = a.discipline.localeCompare(b.discipline);
+          // Sort by the localized display name the user actually sees, not the
+          // raw Latin enum value (audit 22.7).
+          cmp = isHe
+            ? (DISCIPLINE_CONFIG[a.discipline]?.nameHe ?? a.discipline).localeCompare(DISCIPLINE_CONFIG[b.discipline]?.nameHe ?? b.discipline, "he")
+            : (DISCIPLINE_CONFIG[a.discipline]?.nameEn ?? a.discipline).localeCompare(DISCIPLINE_CONFIG[b.discipline]?.nameEn ?? b.discipline, "en");
           break;
         case "courseType":
           cmp = a.courseType.localeCompare(b.courseType);

@@ -16,9 +16,11 @@ export function FeedbackSection() {
 
   // L3 — the feedback channel is a prefilled mail (no tracking, no extra
   // table); the page context rides along so the report lands actionable.
+  // Encode the WHOLE body (was raw Hebrew/spaces/slashes in the URL → mangled
+  // in many mail clients — audit 22.7).
   const mailtoHref = `mailto:${CONTACT_EMAIL}?subject=${encodeURIComponent(
     t("feedbackSubject"),
-  )}&body=${t("feedbackBody")}${encodeURIComponent(pathname)}`;
+  )}&body=${encodeURIComponent(`${t("feedbackBody")}${pathname}`)}`;
 
   return (
     <SectionCard

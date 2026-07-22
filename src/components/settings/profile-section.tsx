@@ -350,7 +350,7 @@ export function ProfileSection() {
               <p className="text-sm text-foreground/55">
                 {isHe
                   ? `לפי הלוח האקדמי: ${yearName} · ${semName} ${acadNow.labelHe}`
-                  : `By the academic calendar: ${yearName} · ${semName} ${acadNow.labelHe}`}
+                  : `By the academic calendar: ${yearName} · ${semName}`}
               </p>
             );
           })()}
