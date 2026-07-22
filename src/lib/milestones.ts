@@ -57,8 +57,8 @@ export function reachedMilestones(input: MilestoneInput): Milestone[] {
   } else if (share >= 0.25) {
     out.push({
       id: "credits-25",
-      textHe: `רבע מהפוליס כבר בנוי — ${earnedCredits} ש״ס מתוך ${totalCredits}. אבן על אבן, בדיוק כך נבנה תואר.`,
-      textEn: `A quarter of the polis is built — ${earnedCredits} of ${totalCredits} credits. Stone by stone.`,
+      textHe: `רבע מהתואר כבר מאחוריכם — ${earnedCredits} מתוך ${totalCredits} ש״ס. אבן על אבן, בדיוק כך נבנה תואר.`,
+      textEn: `A quarter of the degree behind you — ${earnedCredits} of ${totalCredits} credits. Stone by stone.`,
     });
   }
 
@@ -73,8 +73,8 @@ export function reachedMilestones(input: MilestoneInput): Milestone[] {
   if (gradedCount === 1) {
     out.push({
       id: "first-grade",
-      textHe: "הציון הראשון בתיק. כל מסע נמדד מהצעד הראשון — מכאן המחשבון עובד על אמת, לא על השערות.",
-      textEn: "Your first grade is in. From here the calculator runs on truth, not guesses.",
+      textHe: "הציון הראשון שלכם נכנס לתיק — מעכשיו הממוצע והתחזיות מבוססים על נתון אמיתי, לא על הערכה. מכאן זה רק ימשיך להתמלא.",
+      textEn: "Your first grade is in — from now your average and forecasts are built on a real number, not an estimate. It only fills up from here.",
     });
   }
 

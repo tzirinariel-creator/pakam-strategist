@@ -889,8 +889,8 @@ export function FloatingAssistant() {
                           ? "נעים מאוד, אני הרפרנט — שנה ג׳ בפכ״מ, כבר עברתי את כל מה שמחכה לכם. שואלים אותי הכול בגובה העיניים, ואני עונה לפי הנתונים שלכם, לא מהזיכרון. ואם בא לכם סגנון מכובד יותר — יש למעלה כפתור שמחליף אותי במלך."
                           : "Hey, I'm the Referent — a final-year PPE student who's been through everything ahead of you. Ask me anything, I answer from your data. Prefer a more regal style? The button above swaps me for the King."
                         : isHe
-                          ? "נעים מאוד, אני המלך הפילוסוף. השם בא מאפלטון — ב„מדינה” הוא דמיין מנהיג שמוביל לפי ידע ולא לפי דעה, ותמיד לטובת מי שהוא מוביל. זה בדיוק אני עבורכם: מכיר את התקנון, את הקטלוג ואת הנתונים שלכם, ומכוון למה שטוב לכם — לא לממוצע. ספרו לי שסיימתם קורס או שאתם רוצים להוסיף אחד — ואני גם אבצע. רוצים סגנון של חבר משנה ג׳? הכפתור למעלה מחליף אותי ברפרנט."
-                          : "A pleasure — I'm the Philosopher King, your personal degree advisor. I know the regulations, the catalog and your own data — and when you tell me you finished a course, I act on it. Ask me anything. Prefer a peer's tone? The button above swaps me for the Referent."}
+                          ? "נעים מאוד — אני המלך הפילוסוף, היועץ האישי שלכם לתואר. השם מאפלטון: ב„מדינה” הוא תיאר מנהיג שמוביל לפי ידע ולא לפי דעה, ותמיד לטובת מי שהוא מוביל — וזה בדיוק התפקיד שלי כאן. אני מכיר את התקנון, את הקטלוג ואת הנתונים שלכם, ומכוון למה שנכון לכם, לא לממוצע. שאלו אותי כל דבר — ואם תגידו לי שסיימתם קורס או שבא לכם להוסיף אחד, אני גם אבצע את זה בשבילכם. מעדיפים סגנון של חבר משנה ג׳? הכפתור למעלה מחליף אותי ברפרנט."
+                          : "A pleasure — I'm the Philosopher King, your personal degree advisor. The name is Plato's: in the Republic he pictured a leader who guides by knowledge, not opinion, and always for the good of those they lead — which is exactly my role here. I know the regulations, the catalog and your own data, and I aim for what's right for you, not the average. Ask me anything — and when you tell me you finished a course or want to add one, I'll act on it for you. Prefer a peer's tone? The button above swaps me for the Referent."}
                       <button
                         type="button"
                         onClick={dismissIntro}
@@ -947,10 +947,14 @@ export function FloatingAssistant() {
                             : "bg-accent-brand/10 text-accent-brand",
                         )}
                       >
-                        {m.source === "rules" ? <Database className="size-2.5" /> : <PhilosopherKingIcon className="size-2.5" />}
+                        {m.source === "rules"
+                          ? <Database className="size-2.5" />
+                          : isReferent ? <ReferentIcon className="size-2.5" /> : <PhilosopherKingIcon className="size-2.5" />}
                         {m.source === "rules"
                           ? isHe ? "מהנתונים שלכם" : "From your data"
-                          : isHe ? "תשובת AI" : "AI answer"}
+                          : isReferent
+                            ? isHe ? "תשובת הרפרנט" : "The Referent"
+                            : isHe ? "תשובת המלך" : "The King"}
                       </span>
                     )}
                     {m.imagePreview && (

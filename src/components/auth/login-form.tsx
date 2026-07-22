@@ -121,7 +121,13 @@ export function LoginForm() {
     setError(null);
     setResetMessage(null);
     if (!email) {
-      setError(t("loginFailed"));
+      // Empty-email reset is NOT a login failure — say exactly what to do
+      // instead of the misleading "משהו השתבש בהתחברות" (audit 22.7).
+      setResetMessage(
+        locale === "he"
+          ? "הזינו קודם כתובת אימייל, ואז נשלח לכם קישור לאיפוס."
+          : "Enter your email address first, then we'll send a reset link.",
+      );
       return;
     }
     try {
