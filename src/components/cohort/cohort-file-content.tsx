@@ -46,6 +46,25 @@ export function CohortFileContent() {
   const [electivesOnly, setElectivesOnly] = useState(false);
 
   if (digestQuery.isLoading) return <ThemedLoader />;
+  // Honest error state — a fetch failure must NOT fall through to the
+  // "no wisdom yet / be the first to share" empty state, which would assert
+  // there's no data when we simply couldn't load it (audit 22.7).
+  if (digestQuery.isError) {
+    return (
+      <div className="bg-mesh flex min-h-[60vh] flex-col items-center justify-center gap-3 p-6 text-center">
+        <p className="text-sm text-foreground/70">
+          {isHe ? "לא הצלחנו לטעון את חוכמת-המחזור כרגע." : "We couldn't load cohort wisdom right now."}
+        </p>
+        <button
+          type="button"
+          onClick={() => digestQuery.refetch()}
+          className="rounded-lg bg-accent-brand px-4 py-2 text-sm font-semibold text-accent-brand-fg transition-colors hover:bg-accent-brand-hover"
+        >
+          {isHe ? "נסו שוב" : "Try again"}
+        </button>
+      </div>
+    );
+  }
 
   const digest = digestQuery.data;
   const totals = digest?.totals;

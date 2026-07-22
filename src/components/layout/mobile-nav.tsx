@@ -20,6 +20,7 @@ import {
   Shield,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { api } from "@/lib/trpc/react";
 
 const MOBILE_NAV_ITEMS = [
   { key: "dashboard", href: "/dashboard", icon: LayoutDashboard },
@@ -46,8 +47,17 @@ export function MobileNav() {
 
   const closeMore = useCallback(() => setMoreOpen(false), []);
 
+  // Mirror the desktop sidebar's gate: the מילואים hub shows only for
+  // reservists (audit 22.7 — mobile used to show it to every student while
+  // desktop hid it from non-reservists).
+  const { data: profile } = api.user.getProfile.useQuery();
+  const isReservist = Boolean(
+    profile && (profile.miluimGroup !== "NONE" || profile.miluimCareerService),
+  );
+  const menuItems = MORE_MENU_ITEMS.filter((i) => i.key !== "miluim" || isReservist);
+
   // Check if active page is in the "more" menu
-  const isMoreActive = MORE_MENU_ITEMS.some((item) =>
+  const isMoreActive = menuItems.some((item) =>
     pathname.includes(item.href)
   );
 
@@ -81,7 +91,7 @@ export function MobileNav() {
 
               {/* Items */}
               <div className="grid grid-cols-3 gap-1 p-3">
-                {MORE_MENU_ITEMS.map((item) => {
+                {menuItems.map((item) => {
                   const Icon = item.icon;
                   const isActive = pathname.includes(item.href);
 

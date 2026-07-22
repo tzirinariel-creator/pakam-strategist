@@ -385,8 +385,9 @@ export function CalendarContent() {
             ))}
           </select>
 
-          {/* ICS Export button — names the artifact (.ics) */}
-          {semesterCourses.length > 0 && viewMode !== "exams" && (
+          {/* ICS Export button — names the artifact (.ics). Hidden for SUMMER:
+              there's no teaching .ics range, so the export would just error. */}
+          {semesterCourses.length > 0 && viewMode !== "exams" && parsedSemester?.semester !== "SUMMER" && (
             <button
               type="button"
               onClick={handleExport}

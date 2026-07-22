@@ -6,6 +6,7 @@ import { useLocale } from "next-intl";
 import { toast } from "sonner";
 import { CalendarDays, Maximize2, X } from "lucide-react";
 import { usePlannerStore } from "@/stores/planner-store";
+import { getAcademicNow } from "@/lib/academic-calendar";
 import { api } from "@/lib/trpc/react";
 import { invalidatePlanData } from "@/lib/trpc/invalidate-plan";
 import { cn } from "@/lib/utils";
@@ -52,12 +53,14 @@ export function PlannerLiveTimetable({ courses }: PlannerLiveTimetableProps) {
   // The semester lives in the SHARED planner store (null = follow the
   // profile's current semester) so the bidding alert + worksheet follow the
   // same toggle instead of silently diverging (audit finding).
-  const profileQuery = api.user.getProfile.useQuery();
   const selectedSemester = usePlannerStore((s) => s.selectedSemester);
   const setSelectedSemester = usePlannerStore((s) => s.setSelectedSemester);
-  const profileSemester =
-    profileQuery.data?.currentSemester === "SPRING" ? "SPRING" : "FALL";
-  const semester = selectedSemester ?? profileSemester;
+  // Default the semester from the CALENDAR, not the stale stored
+  // profile.currentSemester — the stored value reproduced the #39 "why is
+  // מבוא-ללוגיקה here" complaint by defaulting to last semester (audit 22.7).
+  // The user's explicit toggle (selectedSemester) still wins.
+  const calendarSemester = getAcademicNow().semester === "SPRING" ? "SPRING" : "FALL";
+  const semester = selectedSemester ?? calendarSemester;
   const setSemester = setSelectedSemester;
 
   // The sidebar timetable is only ~380px wide, so 5 day-columns become
