@@ -171,7 +171,15 @@ export function Form3010Uploader({
                 </thead>
                 <tbody>
                   {[...summary.unmapped]
-                    .sort((a, b) => a.startDate.localeCompare(b.startDate))
+                    // DD/MM/YYYY sorts wrong as a raw string (by day-of-month) —
+                    // key on YYYYMMDD so the periods are truly chronological (#45).
+                    .sort((a, b) => {
+                      const key = (d: string) => {
+                        const [dd, mm, yy] = d.split("/");
+                        return `${yy ?? ""}${mm ?? ""}${dd ?? ""}`;
+                      };
+                      return key(a.startDate).localeCompare(key(b.startDate));
+                    })
                     .map((p) => (
                       <tr key={`${p.startDate}-${p.endDate}`} className="border-t border-border/30 text-foreground/60">
                         <td className="py-1 pe-3"><bdi dir="ltr">{p.startDate}</bdi></td>

@@ -273,7 +273,11 @@ export function WeeklyTimetable({
             <div className="hidden h-3 w-px bg-border sm:block" />
             <span className="flex items-center gap-1 text-red-400">
               <AlertTriangle className="size-3" />
-              {Math.ceil(conflictIds.size / 2)} {t("conflict")}
+              {(() => {
+                const n = Math.ceil(conflictIds.size / 2);
+                // Singular/plural — "1 חפיפות" was ungrammatical (audit 22.7).
+                return `${n} ${isRTL ? (n === 1 ? "חפיפה" : "חפיפות") : n === 1 ? "conflict" : "conflicts"}`;
+              })()}
             </span>
           </>
         )}

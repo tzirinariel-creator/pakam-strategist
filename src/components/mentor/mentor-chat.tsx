@@ -301,6 +301,12 @@ export function MentorChat() {
     sessionId: string
   ) => {
     e.stopPropagation();
+    // A one-tap PERMANENT delete of a chat is inconsistent with the app's
+    // caution around irreversible actions — confirm first (audit 22.7).
+    const ok = typeof window === "undefined" ? true : window.confirm(
+      isRTL ? "למחוק את השיחה? אי-אפשר לשחזר." : "Delete this chat? This can't be undone.",
+    );
+    if (!ok) return;
     deleteSession.mutate({ sessionId });
   };
 
