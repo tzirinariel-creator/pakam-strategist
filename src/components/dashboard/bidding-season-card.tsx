@@ -5,6 +5,7 @@ import { useLocale } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import { getBiddingTarget, isBiddingSeason } from "@/lib/bidding-target";
 import { api } from "@/lib/trpc/react";
+import { daysUntilLabel } from "@/lib/days-until";
 
 /** #15 — seasonal bidding nudge. Window-based (≤45 days to the next teaching
  *  start); never claims an exact bid date (TAU doesn't publish one). */
@@ -27,8 +28,8 @@ export function BiddingSeasonCard() {
         </p>
         <p className="text-xs text-foreground/55">
           {isHe
-            ? `ההוראה נפתחת בעוד ${target.daysUntilStart} ימים, וההרשמה מתקיימת לפני כן. שווה לסגור את התוכנית ולבדוק חפיפות עכשיו.`
-            : `Teaching starts in ${target.daysUntilStart} days and registration happens before. Finalize your plan and check clashes now.`}
+            ? `ההוראה נפתחת ${daysUntilLabel(target.daysUntilStart, true)}, וההרשמה מתקיימת לפני כן. שווה לסגור את התוכנית ולבדוק חפיפות עכשיו.`
+            : `Teaching starts ${daysUntilLabel(target.daysUntilStart, false)} and registration happens before. Finalize your plan and check clashes now.`}
         </p>
       </div>
       <Link

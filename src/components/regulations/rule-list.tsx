@@ -26,20 +26,24 @@ export function RuleList({ results }: { results: RegulationResult[] }) {
   const t = useTranslations("regulations");
   const isHe = useLocale() === "he";
 
-  const { redFlags, byGroup } = useMemo(() => {
-    const flags: RegulationResult[] = [];
+  // Split failing rules into TWO tiers so this band matches the overview card
+  // above (audit 22.7 — they used to disagree: a green "you meet every rule"
+  // headline over a single RED "needs action" band that also held WARNINGs).
+  //   • blockers  = failing ERROR  → red "דורש טיפול"
+  //   • attention = failing WARNING → amber "כדאי לשים לב" (not a blocker)
+  const { blockers, attention, byGroup } = useMemo(() => {
+    const blk: RegulationResult[] = [];
+    const att: RegulationResult[] = [];
     const groups = new Map<RuleGroup, RegulationResult[]>();
     for (const r of results) {
-      if (!r.passed && (r.severity === "ERROR" || r.severity === "WARNING")) {
-        flags.push(r);
-      } else {
+      if (!r.passed && r.severity === "ERROR") blk.push(r);
+      else if (!r.passed && r.severity === "WARNING") att.push(r);
+      else {
         const g = ruleGroup(r.ruleId);
         (groups.get(g) ?? groups.set(g, []).get(g)!).push(r);
       }
     }
-    // Errors (degree-ending) before warnings inside the band.
-    flags.sort((a, b) => (a.severity === "ERROR" ? 0 : 1) - (b.severity === "ERROR" ? 0 : 1));
-    return { redFlags: flags, byGroup: groups };
+    return { blockers: blk, attention: att, byGroup: groups };
   }, [results]);
 
   if (results.length === 0) {
@@ -52,17 +56,17 @@ export function RuleList({ results }: { results: RegulationResult[] }) {
 
   return (
     <div className="flex flex-col gap-6">
-      {/* Red flags — needs action, or a calm all-clear line. */}
-      {redFlags.length > 0 ? (
+      {/* Blockers — degree-ending, RED. */}
+      {blockers.length > 0 && (
         <section className="flex flex-col gap-2.5">
           <div className="flex items-center gap-2">
             <ShieldAlert className="size-5 text-red-400" />
             <h3 className="text-base font-bold text-red-400">{isHe ? "דורש טיפול" : "Needs action"}</h3>
             <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-red-400/10 px-1.5 font-data text-xs font-bold text-red-400">
-              {redFlags.length}
+              {blockers.length}
             </span>
           </div>
-          {redFlags.map((r) => (
+          {blockers.map((r) => (
             <RedFlagCard key={r.ruleId} rule={r} isHe={isHe} />
           ))}
           {/* Close the VERIFY→PLAN loop: most gaps are fixed by placing courses. */}
@@ -74,7 +78,26 @@ export function RuleList({ results }: { results: RegulationResult[] }) {
             <ArrowLeft className="size-3.5 ltr:rotate-180" />
           </Link>
         </section>
-      ) : (
+      )}
+
+      {/* Attention — worth handling but NOT a blocker, AMBER. */}
+      {attention.length > 0 && (
+        <section className="flex flex-col gap-2.5">
+          <div className="flex items-center gap-2">
+            <AlertTriangle className="size-5 text-amber-500" />
+            <h3 className="text-base font-bold text-amber-500">{isHe ? "כדאי לשים לב" : "Worth attention"}</h3>
+            <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-amber-400/10 px-1.5 font-data text-xs font-bold text-amber-500">
+              {attention.length}
+            </span>
+          </div>
+          {attention.map((r) => (
+            <RedFlagCard key={r.ruleId} rule={r} isHe={isHe} />
+          ))}
+        </section>
+      )}
+
+      {/* All clear — only when there are neither blockers nor attention items. */}
+      {blockers.length === 0 && attention.length === 0 && (
         <div className="flex items-center gap-2.5 rounded-xl border border-emerald-400/30 bg-emerald-400/[0.06] px-4 py-3">
           <CheckCircle2 className="size-5 shrink-0 text-emerald-500" />
           <p className="text-sm text-foreground/75">

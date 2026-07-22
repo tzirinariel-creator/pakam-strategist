@@ -21,6 +21,7 @@ export function ruleGroup(ruleId: string): RuleGroup {
     case "PKM-016": // year 1→2 overall-average gate
     case "PKM-017": // year 1→2 PPE-core gate
     case "PKM-023": // second failure in the same course
+    case "PKM-026": // retake advisory (second/final attempt) — a grade/progression rule
       return "grades";
     // English content + level + exemption deadline.
     case "PKM-012":

@@ -535,7 +535,7 @@ export function GradeSheetScanner() {
             className="inline-flex items-center gap-1.5 rounded-lg bg-accent-brand px-3 py-2 text-sm font-semibold text-accent-brand-fg transition-colors hover:bg-accent-brand-hover disabled:opacity-40"
           >
             {applying ? <Loader2 className="size-4 animate-spin" /> : <Check className="size-4" />}
-            {isHe ? `עדכן ${checked.size} ציונים מסומנים` : `Apply ${checked.size} selected`}
+            {isHe ? `עדכנו ${checked.size} ציונים מסומנים` : `Apply ${checked.size} selected`}
           </button>
         </div>
       )}

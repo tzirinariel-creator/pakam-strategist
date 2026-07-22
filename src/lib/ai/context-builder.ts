@@ -21,6 +21,7 @@ import { computeCreditExemption, deriveCurrentGroup, getCurrentAcademicYear } fr
 import { buildExamPeriodBlock } from "@/lib/ai/exam-facts";
 import { getProgramById } from "@/lib/programs/registry";
 import { getAcademicNow, getPlanningAnchor, deriveYearOfStudy } from "@/lib/academic-calendar";
+import { israelCivilDate } from "@/lib/exam-planner";
 
 // Defense-in-depth against the foreign TAU law-school catalog (0910-xxxx) that
 // was co-seeded into the shared Course table and hides under the shared
@@ -344,7 +345,7 @@ export async function buildUserContext(
       seminar: creditResult.breakdown.seminar,
       englishCourseCount: creditResult.breakdown.englishCourseCount,
     },
-    examPeriodBlock: buildExamPeriodBlock(studyTasks),
+    examPeriodBlock: buildExamPeriodBlock(studyTasks, israelCivilDate()),
     academicNowLine: buildAcademicNowLine(),
   };
 }
@@ -352,7 +353,12 @@ export async function buildUserContext(
 /** One honest calendar line for the system prompt — from the calendar module,
  *  never the fossilized profile pair (#39). */
 function buildAcademicNowLine(): string {
-  const a = getAcademicNow();
+  // Anchor to ISRAEL civil time — on Vercel the server runs UTC, so raw
+  // new Date() getters state YESTERDAY's date/weekday during the 00:00–~03:00
+  // Israel window (audit 22.7). israelCivilDate() gives local-midnight of the
+  // Israel civil day, so the weekday/date the King reports match the student's.
+  const now = israelCivilDate();
+  const a = getAcademicNow(now);
   const sem = a.semester === "FALL" ? "סמסטר א׳" : "סמסטר ב׳";
   const phase =
     a.phase === "teaching"
@@ -361,8 +367,8 @@ function buildAcademicNowLine(): string {
         ? "תקופת בחינות"
         : `חופשה (הלימודים חוזרים ב-${a.nextTeachingStart.getDate()}.${a.nextTeachingStart.getMonth() + 1})`;
   // THE date anchor (bug: the LLM answered "18.7.2024" to "מה התאריך היום" —
-  // it had exam dates but no today, so it guessed from training data).
-  const now = new Date();
+  // it had exam dates but no today, so it guessed from training data). `now` is
+  // the Israel-civil day computed above.
   const weekday = ["ראשון", "שני", "שלישי", "רביעי", "חמישי", "שישי", "שבת"][now.getDay()];
   const today = `${now.getDate()}.${now.getMonth() + 1}.${now.getFullYear()}`;
   return `היום: יום ${weekday}, ${today} · ${sem} ${a.labelHe}, שלב: ${phase}`;

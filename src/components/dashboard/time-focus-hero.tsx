@@ -9,6 +9,7 @@ import { CalendarClock, ClipboardCheck, Gavel, CalendarDays, GraduationCap } fro
 import { Link } from "@/i18n/navigation";
 import type { TimeFocus } from "@/lib/time-focus";
 import { cn } from "@/lib/utils";
+import { daysUntilLabel } from "@/lib/days-until";
 
 const META: Record<
   TimeFocus["kind"],
@@ -50,7 +51,7 @@ export function TimeFocusHero({ focus }: { focus: TimeFocus | null }) {
         };
       case "bidding":
         return {
-          title: isHe ? `לקראת המכרז — בעוד ${d} ימים` : `Toward bidding — in ${d} days`,
+          title: isHe ? `לקראת המכרז — ${daysUntilLabel(d, true)}` : `Toward bidding — ${daysUntilLabel(d, false)}`,
           body: isHe
             ? "סגרו את התוכנית לסמסטר הבא ובדקו חפיפות לפני שההרשמה נפתחת."
             : "Finalize next semester's plan and check clashes before registration opens.",

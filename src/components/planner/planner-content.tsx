@@ -22,6 +22,7 @@ import { cn } from "@/lib/utils";
 import { Link } from "@/i18n/navigation";
 import { Bidi } from "@/lib/bidi";
 import { ReviewNudgeHost } from "@/components/catalog/review-nudge";
+import { daysUntilLabel } from "@/lib/days-until";
 
 export function PlannerContent() {
   const t = useTranslations("planner");
@@ -273,8 +274,8 @@ export function PlannerContent() {
                 </h2>
                 <span className="text-xs text-foreground/45">
                   {isHe
-                    ? `הסמסטר נפתח בעוד ${biddingTarget.daysUntilStart} ימים — המכרז מתקיים לפני כן`
-                    : `Semester starts in ${biddingTarget.daysUntilStart} days — bidding happens before`}
+                    ? `הסמסטר נפתח ${daysUntilLabel(biddingTarget.daysUntilStart, true)} — המכרז מתקיים לפני כן`
+                    : `Semester starts ${daysUntilLabel(biddingTarget.daysUntilStart, false)} — bidding happens before`}
                 </span>
               </div>
               {biddingCourseCount > 0 ? (

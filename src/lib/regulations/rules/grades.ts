@@ -11,14 +11,21 @@ export const ruleGraduationScore: RegulationRule = (ctx: RuleContext) => {
   const score = ctx.gradeBreakdown.weightedScore;
 
   if (score === null) {
+    // Not-yet-computable is NORMAL mid-degree progress (the weighted final needs
+    // course-avg AND seminar-paper AND referat — only near graduation). This is
+    // the SAME on-track-but-incomplete state the credit/seminar accumulation
+    // rules model as passing INFO — so it must NOT be a failing WARNING that
+    // lands in the red "דורש טיפול" band and tells an on-track student to "take
+    // action" on something impossible to complete now (audit 22.7 — matches the
+    // codebase's own "a fresh student is never painted red" philosophy).
     return result(
       "PKM-013",
       "Graduation Score",
       "ציון סיום",
-      false,
-      "WARNING",
-      "Graduation score cannot be calculated yet. Complete all course grades, seminar papers, and referat.",
-      "ציון הסיום לא ניתן לחישוב עדיין. השלם את כל ציוני הקורסים, עבודות הסמינריון והרפרט.",
+      true,
+      "INFO",
+      "Your final graduation score is computed once course, seminar-paper, and referat grades are all in — near the end of the degree.",
+      "ציון הסיום המשוקלל מחושב כשכל ציוני הקורסים, עבודות הסמינריון והרפרט קיימים — לקראת סוף התואר. אין כאן מה לעשות עכשיו.",
       { score: null, required: requiredScore }
     );
   }

@@ -6,14 +6,14 @@ import { useLocale, useTranslations } from "next-intl";
 import { useSearchParams } from "next/navigation";
 import { Link, useRouter } from "@/i18n/navigation";
 import { consumeSharedPlanReturn } from "@/lib/plan-share";
-import { getAcademicNow, deriveYearOfStudy, getPlanningAnchor } from "@/lib/academic-calendar";
+import { getAcademicNow, deriveYearOfStudy } from "@/lib/academic-calendar";
 import { getTimeFocus } from "@/lib/time-focus";
 import { TimeFocusHero } from "@/components/dashboard/time-focus-hero";
 import { getWrapTarget } from "@/lib/semester-clock";
 import { isCurrentlyStudying } from "@/lib/semester-clock";
 import { api } from "@/lib/trpc/react";
 import { firstNameOf, normalizeGender } from "@/lib/personal-address";
-import { CREDIT_REQUIREMENTS, resolveEnglishLevel } from "@/lib/constants";
+import { CREDIT_REQUIREMENTS, resolveEnglishLevel, YEAR_CONFIG } from "@/lib/constants";
 import { MilestoneMoment } from "@/components/dashboard/milestone-moment";
 import { usePersonalAddress } from "@/components/personal/use-personal-address";
 import { TipCard } from "@/components/shared/tip-card";
@@ -304,43 +304,15 @@ export function DashboardContent() {
   const hasFocusArea = !!profileQuery.data?.focusArea;
   const hasGrades = gradeBreakdown.totalGradedCourses > 0;
   // Year + semester are DERIVED from the calendar (single source of truth,
-  // #39/#43) — the stored profile pair is only a legacy fallback.
+  // #39/#43) — the stored profile pair is only a legacy fallback. currentYear +
+  // acadNow.semester = the student's CURRENT STANDING, rendered identically in
+  // the header subtitle, Settings, regulations and the King (audit 22.7 — the
+  // header no longer shows a plan-aware anchor as an unlabeled present fact).
   const acadNow = getAcademicNow();
   const currentYear = deriveYearOfStudy(
     profileQuery.data?.startYear,
     profileQuery.data?.currentYear ?? 1,
   );
-  // Plan-aware "active semester" — WITH its matching year. The planning anchor
-  // in July is NEXT year's FALL, so pairing the anchor's semester with TODAY's
-  // study-year showed a continuing student last year's fall ("שנה 2 · סמסטר א׳"
-  // for a student about to start year-3 fall) — the year-at-anchor must ride
-  // along (spirit-audit 14.7; same pattern as semester-planner-page).
-  const anchor = getPlanningAnchor();
-  const anchorYear = deriveYearOfStudy(
-    profileQuery.data?.startYear,
-    profileQuery.data?.currentYear ?? 1,
-    anchor.startYear,
-  );
-  const { activeSemester, activeYear } = (() => {
-    const cs = planQuery.data?.courses ?? [];
-    const has = (y: number, sem: "FALL" | "SPRING") =>
-      cs.some((c) => c.plannedYear === y && c.plannedSemester === sem);
-    // Prefer the PLANNING ANCHOR pair (the semester the student is working on,
-    // at ITS year) — same rule /calendar uses, so the surfaces never disagree.
-    // EXCEPT a graduating student (unclamped anchor-year > 3): their "next
-    // fall" doesn't exist, and the clamped pair is last year's fall.
-    const rawAnchorYear =
-      profileQuery.data?.startYear != null ? anchor.startYear - profileQuery.data.startYear + 1 : null;
-    const anchorIsReal = rawAnchorYear == null || rawAnchorYear <= 3;
-    if (anchorIsReal && has(anchorYear, anchor.semester)) return { activeSemester: anchor.semester, activeYear: anchorYear };
-    const calSem: "FALL" | "SPRING" = acadNow.semester === "FALL" ? "FALL" : "SPRING";
-    if (has(currentYear, calSem)) return { activeSemester: calSem, activeYear: currentYear };
-    if (has(currentYear, "FALL")) return { activeSemester: "FALL" as const, activeYear: currentYear };
-    if (has(currentYear, "SPRING")) return { activeSemester: "SPRING" as const, activeYear: currentYear };
-    return anchorIsReal
-      ? { activeSemester: anchor.semester, activeYear: anchorYear }
-      : { activeSemester: acadNow.semester === "FALL" ? ("FALL" as const) : ("SPRING" as const), activeYear: currentYear };
-  })();
 
   // How many planned courses the student is literally sitting in RIGHT NOW —
   // derived from the calendar (#4/#22), never stored. Powers the "בלימוד עכשיו"
@@ -717,10 +689,18 @@ export function DashboardContent() {
         </div>
         {profileQuery.data && (
           <p className="mt-1 text-sm text-foreground/50">
-            {isHe ? "פכ״מ" : "PPE"} · {t("semesterContext", {
-              semester: activeSemester === "FALL" ? (isHe ? "א׳" : "A") : (isHe ? "ב׳" : "B"),
-              year: activeYear,
-            })}
+            {/* IDENTITY line = the student's CURRENT standing, shown IDENTICALLY
+                to Settings / regulations / King (audit 22.7 — the header used to
+                show the plan-aware anchor "שנה 3, סמסטר א׳" as an unlabeled
+                present fact, contradicting Settings' "שנה ב׳" one tap away, and
+                was the only surface using an Arabic digit instead of the Hebrew
+                ordinal). currentYear = deriveYearOfStudy(startYear,…) and
+                acadNow.semester are exactly what profile-section.tsx renders, so
+                every identity surface now agrees. Planning-forward context lives
+                in the "תכננו את הסמסטר הקרוב" CTAs, labeled as planning. */}
+            {isHe ? "פכ״מ" : "PPE"} · {YEAR_CONFIG[currentYear as 1 | 2 | 3]?.[isHe ? "nameHe" : "nameEn"] ?? `${isHe ? "שנה" : "Year"} ${currentYear}`}
+            {" · "}
+            {acadNow.semester === "FALL" ? (isHe ? "סמסטר א׳" : "Semester A") : (isHe ? "סמסטר ב׳" : "Semester B")}
           </p>
         )}
         {/* The degree-progress bar lives in the "My status" hero below — no
@@ -818,7 +798,7 @@ export function DashboardContent() {
       {/* My status — the unified "where am I in the degree" command center */}
       {hasAnyCourses && (
         <div className="animate-stagger-1" data-tour="status">
-          <MyStatusHero credits={credits} grade={gradeBreakdown} isHe={isHe} topGap={topGap} hasFocusArea={hasFocusArea} amiramScore={profileQuery.data?.amiramScore ?? null} declaredEnglishLevel={profileQuery.data?.englishLevel ?? null} currentYear={currentYear} disciplines={disciplineBreakdown} inProgressCount={inProgressCount} />
+          <MyStatusHero credits={credits} grade={gradeBreakdown} isHe={isHe} topGap={topGap} topGapKnown={regulationQuery.isSuccess} hasFocusArea={hasFocusArea} amiramScore={profileQuery.data?.amiramScore ?? null} declaredEnglishLevel={profileQuery.data?.englishLevel ?? null} currentYear={currentYear} disciplines={disciplineBreakdown} inProgressCount={inProgressCount} />
         </div>
       )}
 

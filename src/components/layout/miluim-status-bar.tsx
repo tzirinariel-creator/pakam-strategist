@@ -64,6 +64,15 @@ export function MiluimStatusBar() {
     staleTime: 60_000,
     enabled: !!profileQuery.data,
   });
+  // Binary quota = in-plan isBinary conversions + the manual offset — the SAME
+  // model the /miluim card, the record advisor and the regulation engine use.
+  // The bar previously counted the manual offset alone, undercounting in-app
+  // conversions and disagreeing with those surfaces (audit 22.7).
+  const planQuery = api.plan.getUserPlan.useQuery(undefined, {
+    retry: 1,
+    staleTime: 60_000,
+    enabled: !!profileQuery.data,
+  });
 
   // The quota counters are editable RIGHT HERE — where the decision lives —
   // not only buried in Settings (note #46). Same mutation Settings uses.
@@ -117,7 +126,10 @@ export function MiluimStatusBar() {
 
   // Live quota numbers — exact same path as the credit/binary calculators.
   const creditsUsed = profile.miluimCreditsUsed ?? 0;
-  const binaryUsed = profile.miluimBinaryUsed ?? 0;
+  const binaryFromPlan = (planQuery.data?.courses ?? []).filter(
+    (c) => (c as { isBinary?: boolean }).isBinary,
+  ).length;
+  const binaryUsed = binaryFromPlan + (profile.miluimBinaryUsed ?? 0);
   const creditExemption = computeCreditExemption(group, creditsUsed);
   const creditCap = MILUIM_CONFIG.MAX_CREDIT_EXEMPTIONS_DEGREE;
   // Unit-aware (launch-gate 14.7): B/C count COURSES; G's benefit is

@@ -318,8 +318,8 @@ export function MiluimPageContent() {
               )}
               <p className="mt-1.5 text-[11px] leading-relaxed text-foreground/45">
                 {isHe
-                  ? `לפי המתווה הרשמי (תשפ״ו): קבוצה C מזכה ב-8 ש״ס פטור. חשוב — C בשני סמסטרים של אותה שנה = 8, לא 16; ה-10 הוא תקרת-התואר, שמגיעים אליה רק בשילוב פטור נוסף של עד 2 ש״ס משנה אחרת. מימשתם בפועל: ${creditsUsed} ש״ס — את המימוש מגישים במדור מילואים, ומעדכנים בעורך למטה.`
-                  : `Exemption accrues per YEAR (not per semester) — Group C grants 8 credits/year. Actually redeemed: ${creditsUsed} — redemption is filed at the miluim desk; update it in the editor below.`}
+                  ? `הפטור מצטבר לפי שנה (לא לפי סמסטר), עד תקרת-התואר — הפירוט לפי הקבוצה שלכם מופיע ברשימה למעלה. מימשתם בפועל: ${creditsUsed} ש״ס — את המימוש מגישים במדור מילואים, ומעדכנים בעורך למטה.`
+                  : `Exemption accrues per YEAR (not per semester), up to the degree cap — your group's exact figure is in the list above. Actually redeemed: ${creditsUsed} — redemption is filed at the miluim desk; update it in the editor below.`}
               </p>
             </div>
             <div className="rounded-lg border border-border/50 bg-foreground/[0.02] p-3">
@@ -358,7 +358,9 @@ export function MiluimPageContent() {
               ) : (
                 <>
                   <p className="mt-1 font-mono text-xl font-bold text-foreground/85">
-                    <bdi dir="ltr">{binaryTotal}/{binaryBenefit.degreeCap}</bdi>
+                    {/* Clamp the numerator so it can never read a broken "6/5";
+                        the regulations screen carries the honest over-cap WARNING. */}
+                    <bdi dir="ltr">{Math.min(binaryTotal, binaryBenefit.degreeCap)}/{binaryBenefit.degreeCap}</bdi>
                   </p>
                   <p className="mt-1.5 text-[11px] leading-relaxed text-foreground/45">
                     {isHe ? (

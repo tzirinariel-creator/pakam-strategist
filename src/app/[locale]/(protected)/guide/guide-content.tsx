@@ -62,7 +62,7 @@ export function GuideContent() {
 
       <Section icon={Layers} title={isHe ? "איך התואר בנוי" : "How the degree is built"}>
         <ul className="space-y-1.5">
-          <Li><Bidi text={isHe ? "103 ש״ס חובה" : "103 mandatory credits"} /> {isHe ? "— הליבה של התואר." : "— the core."}</Li>
+          <Li><Bidi text={isHe ? "103 ש״ס חובה" : "103 mandatory credits"} /> {isHe ? "— הליבה של התואר (בקטלוג הנוכחי מופיעים 101; קורס חובה עתידי בן 2 ש״ס טרם פורסם)." : "— the core (the current catalog lists 101; a 2-credit future mandatory course isn't published yet)."}</Li>
           <Li><Bidi text={isHe ? "12 ש״ס סמינרים" : "12 seminar credits"} /> {isHe ? "(3 עבודות + רפרט)." : "(3 papers + a referat)."}</Li>
           <Li><Bidi text={isHe ? "35 ש״ס בחירה" : "35 elective credits"} />.</Li>
           <Li>{isHe ? "תחום מיקוד: " : "Focus area: "}<Bidi text={isHe ? "60 ש״ס" : "60 credits"} /> {isHe ? "בתחום אחד (פילוסופיה / כלכלה / מדע המדינה)." : "in one discipline."}</Li>

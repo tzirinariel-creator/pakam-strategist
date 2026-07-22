@@ -122,10 +122,12 @@ function ScoreDashboard({
   breakdown,
   allCourses,
   t,
+  isHe,
 }: {
   breakdown: GradeBreakdown;
   allCourses: UserCourseWithCourse[];
   t: ReturnType<typeof useTranslations<"grades">>;
+  isHe: boolean;
 }) {
   const score = roundScore(breakdown.weightedScore);
   // Raw (single toFixed(1) at render), NOT roundScore→toFixed(1) — a pre-round to
@@ -187,8 +189,10 @@ function ScoreDashboard({
             <span className="font-mono text-4xl font-bold text-foreground/20">
               --.-
             </span>
-            <span className="text-xs text-foreground/40">
-              {/* score not yet computed */}
+            <span className="max-w-[16rem] text-center text-xs text-foreground/40">
+              {isHe
+                ? "ציון הגמר יחושב כשיהיו לכם ציוני סמינריון ורפרט — לקראת סוף התואר"
+                : "Your final score is computed once seminar & referat grades are in — near the end of the degree"}
             </span>
           </div>
         )}
@@ -481,7 +485,28 @@ export function GradeCalculatorContent() {
     return <ThemedLoader />;
   }
 
-  // Empty state
+  // Fetch error → an HONEST error card, never the "you have no courses" empty
+  // state. Masquerading a failure as EmptyState would tell a student with a full
+  // record they're empty — a false status (audit 22.7). Only show EmptyState
+  // once the query has actually SUCCEEDED and returned zero courses.
+  if (planQuery.isError || gradeQuery.isError) {
+    return (
+      <div className="bg-mesh flex min-h-[60vh] flex-col items-center justify-center gap-3 p-6 text-center">
+        <p className="text-sm text-foreground/70">
+          {locale === "he" ? "לא הצלחנו לטעון את הנתונים כרגע." : "We couldn't load your data right now."}
+        </p>
+        <button
+          type="button"
+          onClick={() => { planQuery.refetch(); gradeQuery.refetch(); }}
+          className="rounded-lg bg-accent-brand px-4 py-2 text-sm font-semibold text-accent-brand-fg transition-colors hover:bg-accent-brand-hover"
+        >
+          {locale === "he" ? "נסו שוב" : "Try again"}
+        </button>
+      </div>
+    );
+  }
+
+  // Empty state (only reachable after a SUCCESSFUL fetch returning zero courses)
   if (allCourses.length === 0) {
     return <EmptyState t={t} locale={locale} />;
   }
@@ -512,6 +537,7 @@ export function GradeCalculatorContent() {
           breakdown={gradeBreakdown}
           allCourses={allCourses}
           t={t}
+          isHe={locale === "he"}
         />
         <ReverseCalculator allCourses={allCourses} t={t} />
       </div>

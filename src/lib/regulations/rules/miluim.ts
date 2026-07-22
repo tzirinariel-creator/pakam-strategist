@@ -17,7 +17,15 @@ import { result } from "./_result";
 
 export const ruleMiluimBinaryCap: RegulationRule = (ctx: RuleContext) => {
   const group = (ctx.miluimGroup ?? "NONE") as MiluimGroupKey;
-  const used = Math.max(0, ctx.miluimBinaryUsed ?? 0);
+  // The USED count is the SAME designed model the /miluim card and the record
+  // binary-advisor use: courses marked isBinary in the plan PLUS the manual
+  // "converted outside the app" offset. The engine previously used the manual
+  // offset ALONE, undercounting in-app conversions and disagreeing with those
+  // surfaces (audit 22.7). One formula everywhere.
+  const binaryFromPlan = ctx.userCourses.filter(
+    (uc) => (uc as { isBinary?: boolean }).isBinary,
+  ).length;
+  const used = Math.max(0, binaryFromPlan + (ctx.miluimBinaryUsed ?? 0));
   // Source of truth = binaryBenefitOf (what the King and the record advisor use),
   // so this rule can't disagree with the rest of the app (data-audit 22.7):
   //   • NONE / no benefit → binary conversion isn't part of this student's

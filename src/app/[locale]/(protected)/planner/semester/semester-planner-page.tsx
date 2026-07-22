@@ -261,8 +261,11 @@ export function SemesterPlannerPage() {
                     style={{ width: `${goalBucket.target > 0 ? Math.min((goalBucket.current / goalBucket.target) * 100, 100) : 0}%` }}
                   />
                 </div>
-                <span className="font-mono text-xs tabular-nums text-foreground/70" dir="ltr">
-                  {goalBucket.current}/{goalBucket.target} {goalBucket.unit}
+                {/* RTL: isolate ONLY the numeric ratio in <bdi>; the Hebrew unit
+                    (ש״ס/קורסים) and ✓ stay in natural RTL flow (was dir="ltr" on
+                    the whole span, flipping the Hebrew unit — audit 22.7). */}
+                <span className="font-mono text-xs tabular-nums text-foreground/70">
+                  <bdi dir="ltr">{goalBucket.current}/{goalBucket.target}</bdi> {goalBucket.unit}
                   {goalBucket.met && <span className="text-emerald-500"> ✓</span>}
                 </span>
               </div>

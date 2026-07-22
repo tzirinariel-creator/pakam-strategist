@@ -222,7 +222,7 @@ export function PlannerLiveTimetable({ courses }: PlannerLiveTimetableProps) {
 
       <p className="text-[11px] text-foreground/45">
         {isHe
-          ? `${yearLabel} · מתעדכן כשאתה מזיז קורסים בלוח`
+          ? `${yearLabel} · מתעדכן כשמזיזים קורסים בלוח`
           : `${yearLabel} · updates as you move courses on the board`}
       </p>
 
@@ -235,7 +235,7 @@ export function PlannerLiveTimetable({ courses }: PlannerLiveTimetableProps) {
           <CalendarDays className="size-7 text-foreground/15" />
           <p className="text-xs text-foreground/40">
             {isHe
-              ? "אין קורסים בסמסטר הזה — הוסף או גרור קורסים ללוח."
+              ? "אין קורסים בסמסטר הזה — הוסיפו או גררו קורסים ללוח."
               : "No courses this semester — add or drag courses on the board."}
           </p>
         </div>

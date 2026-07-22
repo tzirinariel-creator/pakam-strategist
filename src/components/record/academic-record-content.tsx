@@ -429,7 +429,7 @@ export function AcademicRecordContent() {
                     {yearLabel} — {semLabel}
                   </span>
                   <span className="text-xs text-foreground/40">
-                    {group.courses.length} {t("course")} · {groupCredits} {t("credits")}
+                    {group.courses.length} {isHe ? (group.courses.length === 1 ? "קורס" : "קורסים") : (group.courses.length === 1 ? "course" : "courses")} · {groupCredits} {t("credits")}
                   </span>
                 </div>
                 <div className="overflow-x-auto">

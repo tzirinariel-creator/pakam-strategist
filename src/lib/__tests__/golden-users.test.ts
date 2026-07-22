@@ -256,7 +256,10 @@ describe("golden G3 — year-2 reservist (group C, 4-credit exemption, 1 binary)
     academicYear: 2,
     currentSemester: "FALL",
     miluimGroup: "GROUP_C",
-    miluimBinaryUsed: 1,
+    // The one binary conversion is the in-plan isBinary course above; the manual
+    // "external" counter is 0 (audit 22.7 — the engine now counts in-plan
+    // conversions + external, so setting BOTH would double-count the same one).
+    miluimBinaryUsed: 0,
     amirantScore: 140, // פטור מאנגלית (≥134) — מילואימניק שסגר אנגלית
   });
 

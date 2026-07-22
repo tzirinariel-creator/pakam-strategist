@@ -200,8 +200,12 @@ export async function seedDemoData(db: Db, userId: string) {
   await db.user.update({
     where: { id: userId },
     data: {
-      displayName: "חשבון הדמו",
-      firstName: null, // inclusive plural copy everywhere — no invented persona
+      displayName: "יובל",
+      // A real first name so the demo greets "היי יובל" (not "היי חשבון") —
+      // showcases the personal address. Gender stays null so all OTHER copy
+      // remains plural/neutral; only the greeting uses the name. Matches
+      // prisma/seed-demo.ts's intent.
+      firstName: "יובל",
       gender: null,
       focusArea: "ECONOMICS",
       currentYear: 2,

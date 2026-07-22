@@ -97,7 +97,7 @@ export function AppearanceSection() {
         <div className="flex items-center justify-between gap-4">
           <div className="min-w-0">
             <label className="text-sm font-medium text-foreground/80">
-              {isHe ? "המלך יציף פער קריטי כשאני פותח אותו" : "Let the King surface one critical gap when I open him"}
+              {isHe ? "המלך יציף פער קריטי כשתפתחו אותו" : "Let the King surface one critical gap when I open him"}
             </label>
             <p className="mt-0.5 text-xs text-foreground/50">
               {isHe ? "אם משהו אצלכם דורש טיפול — המלך יגיד את זה ברגע שתפתחו אותו. הוא אף פעם לא קופץ מעצמו באמצע העבודה." : "When you open the King and he sees something that needs attention — he says so. Only on entry, never mid-flow."}
@@ -107,7 +107,7 @@ export function AppearanceSection() {
             type="button"
             role="switch"
             aria-checked={proactiveOn}
-            aria-label={isHe ? "המלך יציף פער קריטי כשאני פותח אותו" : "Let the King surface one critical gap when I open him"}
+            aria-label={isHe ? "המלך יציף פער קריטי כשתפתחו אותו" : "Let the King surface one critical gap when I open him"}
             onClick={toggleProactive}
             className={cn(
               "relative inline-flex h-6 w-11 shrink-0 items-center rounded-full transition-colors",

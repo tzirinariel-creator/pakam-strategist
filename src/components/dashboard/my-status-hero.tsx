@@ -21,6 +21,7 @@ export function MyStatusHero({
   grade,
   isHe,
   topGap,
+  topGapKnown = true,
   hasFocusArea,
   amiramScore,
   declaredEnglishLevel,
@@ -33,6 +34,10 @@ export function MyStatusHero({
   isHe: boolean;
   /** The single most pressing unmet requirement, if any. */
   topGap?: { nameHe: string; nameEn: string } | null;
+  /** Whether the regulation check has actually resolved. When false (still
+   *  loading or errored), we must NOT claim "no missing requirement" — that
+   *  would be a false all-clear the app hasn't verified (audit 22.7). */
+  topGapKnown?: boolean;
   /** Whether the student has chosen a focus-area discipline. */
   hasFocusArea: boolean;
   /** Amiram/Amirnet English placement score (50–150), or null. */
@@ -114,11 +119,17 @@ export function MyStatusHero({
               {isHe ? topGap.nameHe : topGap.nameEn}
             </span>
           </p>
-        ) : (
+        ) : topGapKnown ? (
           <p className="text-xs text-foreground/45">
             {isHe
               ? "אין כרגע דרישה שחסרה — ממשיכים לצבור ש״ס לפי התוכנית."
               : "No missing requirement right now — keep accumulating credits per your plan."}
+          </p>
+        ) : (
+          // Regulations not resolved yet — never claim an all-clear we haven't
+          // checked. Neutral line instead of a false "no missing requirement".
+          <p className="text-xs text-foreground/40">
+            {isHe ? "בודקים את הדרישות…" : "Checking your requirements…"}
           </p>
         )}
         <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-2">
