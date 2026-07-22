@@ -122,7 +122,10 @@ export const courseKnowledgeRouter = createTRPCRouter({
           median: gradeRevealed ? percentile(graded, 50) : null,
           p25: gradeRevealed ? percentile(graded, 25) : null,
           p75: gradeRevealed ? percentile(graded, 75) : null,
-          binaryShare: points.length ? round1(points.filter((p) => p.isBinary).length / points.length) : null,
+          // Gate on the SAME grade-reveal threshold as the other grade fields —
+          // binaryShare is derived from the grade points and must not leak below
+          // the N≥5 anonymity bar (audit 22.7).
+          binaryShare: gradeRevealed && points.length ? round1(points.filter((p) => p.isBinary).length / points.length) : null,
           cohortSuppressed,
         },
         ratings: {

@@ -476,7 +476,7 @@ export function ExamSchedule() {
         <div className="flex min-h-[160px] flex-col items-center justify-center gap-3 rounded-lg border border-dashed border-border/40 p-6">
           <CheckCircle2 className="size-8 text-emerald-400/70" />
           <p className="text-sm text-foreground/55">
-            {isRTL ? "אין מבחנים קרובים — אתה מעודכן." : "No upcoming exams — you're all caught up."}
+            {isRTL ? "אין מבחנים קרובים — אתם מעודכנים." : "No upcoming exams — you're all caught up."}
           </p>
         </div>
       ) : (

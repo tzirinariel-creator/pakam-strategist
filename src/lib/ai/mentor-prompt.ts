@@ -146,7 +146,9 @@ function formatCourseList(courses: CourseInfo[], includeGrade: boolean): string 
         const label = DIFFICULTY_LABELS[c.difficultyLevel] ?? c.difficultyLevel;
         const parts = [label];
         if (c.averageGrade != null) parts.push(`ממוצע: ${c.averageGrade}`);
-        if (c.failRate != null && c.failRate > 0) parts.push(`כישלון: ${c.failRate}%`);
+        // >= 1 matches the catalog UI's display threshold — the King must not
+        // surface sub-1% fail rates the catalog deliberately hides (audit 22.7).
+        if (c.failRate != null && c.failRate >= 1) parts.push(`כישלון: ${c.failRate}%`);
         diffTag = ` | ${parts.join(", ")}`;
       }
 

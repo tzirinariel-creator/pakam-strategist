@@ -400,7 +400,7 @@
   "catalog": {
     "title": "Course Catalog",
     "subtitle": "All {count} PPE courses — search, filter, and pick",
-    "searchPlaceholder": "Search by course name, code, or instructor...",
+    "searchPlaceholder": "Search by course name or code…",
     "allDisciplines": "All Disciplines",
     "allTypes": "All Course Types",
     "allYears": "All Years",

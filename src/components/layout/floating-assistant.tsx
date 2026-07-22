@@ -55,7 +55,10 @@ export function FloatingAssistant() {
   // every open so a change in Settings applies without a reload. Server-validated.
   const [persona, setPersona] = useState<MentorPersona>("king");
   useEffect(() => {
-    if (!open) return;
+    // Read on MOUNT (not only on open) so a Referent user's FAB shows the
+    // Referent brand from first paint — otherwise they "meet the King" on every
+    // page load until they open it (audit 22.7 / note #48). Re-reads on open too,
+    // so a Settings change still applies live without a reload.
     try {
       setPersona(localStorage.getItem("pk-persona") === "referent" ? "referent" : "king");
     } catch {

@@ -137,7 +137,7 @@ export function LandingPage() {
   const Arrow = isRTL ? ArrowLeft : ArrowRight;
 
   const stats = [
-    { value: "117", label: t("stats.courses") },
+    { value: "110+", label: t("stats.courses") },
     { value: "3", label: t("stats.disciplines") },
     { value: "150", label: t("stats.credits") },
   ];

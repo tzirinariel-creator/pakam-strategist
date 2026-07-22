@@ -400,7 +400,7 @@
   "catalog": {
     "title": "קטלוג הקורסים",
     "subtitle": "כל {count} קורסי פכ״מ — חפשו, סננו ובחרו",
-    "searchPlaceholder": "חיפוש לפי שם קורס, קוד או מרצה...",
+    "searchPlaceholder": "חיפוש לפי שם קורס או קוד…",
     "allDisciplines": "כל התחומים",
     "allTypes": "כל סוגי הקורסים",
     "allYears": "כל השנים",

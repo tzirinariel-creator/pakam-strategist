@@ -4,7 +4,7 @@ import { useTranslations, useLocale } from "next-intl";
 import { CheckCircle, Calendar, Feather, Gauge, Weight, Flame, Pencil, Loader2, Users } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { calculateHonestLoad, type HonestLoadLabel } from "@/lib/workload-calculator";
-import { SEMESTER_CONFIG, YEAR_CONFIG } from "@/lib/constants";
+import { SEMESTER_CONFIG, YEAR_CONFIG, CREDIT_REQUIREMENTS } from "@/lib/constants";
 import type { CourseWithSchedule } from "@/lib/plan-generator";
 
 // P3′ — the summary speaks the HONEST load language (worst real pain), not a
@@ -204,7 +204,7 @@ export function SemesterSummary({
           <div className="flex items-center justify-between text-xs">
             <span className="text-foreground/50">{t("creditsPlannedSoFar")}</span>
             <span className="font-mono font-medium text-foreground/70" dir="ltr">
-              {totalCredits}/150
+              {totalCredits}/{CREDIT_REQUIREMENTS.TOTAL}
             </span>
           </div>
           <div className="h-2 w-full overflow-hidden rounded-full bg-foreground/10">

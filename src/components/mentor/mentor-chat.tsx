@@ -18,6 +18,7 @@ import {
   ChevronLeft,
 } from "lucide-react";
 import { PhilosopherKingIcon } from "@/components/ui/philosopher-king-icon";
+import { ReferentIcon } from "@/components/ui/referent-icon";
 import { toast } from "sonner";
 import { Link } from "@/i18n/navigation";
 import Markdown from "react-markdown";
@@ -48,6 +49,21 @@ export function MentorChat() {
   const [isStreaming, setIsStreaming] = useState(false);
   const [activeSessionId, setActiveSessionId] = useState<string | null>(null);
   const [sidebarOpen, setSidebarOpen] = useState(false);
+
+  // Advisor persona (device-local, Settings → "דמות היועץ"). The full-page chat
+  // replied in the Referent's VOICE but showed the King's FACE everywhere
+  // (note #48 / audit 22.7) — read the choice on mount and brand accordingly.
+  const [persona, setPersona] = useState<"king" | "referent">("king");
+  useEffect(() => {
+    try {
+      setPersona(localStorage.getItem("pk-persona") === "referent" ? "referent" : "king");
+    } catch {
+      /* default king */
+    }
+  }, []);
+  const isReferent = persona === "referent";
+  const PersonaIcon = isReferent ? ReferentIcon : PhilosopherKingIcon;
+  const personaTitle = isReferent ? (isRTL ? "הרפרנט" : "The Referent") : t("title");
 
   // Open the sessions sidebar by default on desktop only — on a phone it would
   // cover the conversation, so it stays collapsed until the user opens it.
@@ -321,9 +337,9 @@ export function MentorChat() {
       <div className="flex h-full items-center justify-center p-8">
         <div className="mx-auto max-w-md text-center">
           <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-muted">
-            <PhilosopherKingIcon className="h-8 w-8 text-muted-foreground" />
+            <PersonaIcon className="h-8 w-8 text-muted-foreground" />
           </div>
-          <h2 className="mb-2 text-xl font-bold">{t("title")}</h2>
+          <h2 className="mb-2 text-xl font-bold">{personaTitle}</h2>
           <p className="mb-6 text-sm text-muted-foreground">
             {t("errorSending")}
           </p>
@@ -361,9 +377,9 @@ export function MentorChat() {
       <div className="flex h-full items-center justify-center p-8">
         <div className="mx-auto max-w-md text-center">
           <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-muted">
-            <PhilosopherKingIcon className="h-8 w-8 text-muted-foreground" />
+            <PersonaIcon className="h-8 w-8 text-muted-foreground" />
           </div>
-          <h2 className="mb-2 text-xl font-bold">{t("title")}</h2>
+          <h2 className="mb-2 text-xl font-bold">{personaTitle}</h2>
           <p className="mb-6 text-sm text-muted-foreground">
             {t("byokExplain")}
           </p>
@@ -480,8 +496,8 @@ export function MentorChat() {
             <SidebarToggleIcon className="h-4 w-4" />
           </Button>
           <div className="flex items-center gap-2">
-            <PhilosopherKingIcon className="h-5 w-5 text-muted-foreground" />
-            <h2 className="font-display text-sm font-semibold">{t("title")}</h2>
+            <PersonaIcon className="h-5 w-5 text-muted-foreground" />
+            <h2 className="font-display text-sm font-semibold">{personaTitle}</h2>
           </div>
         </div>
 
@@ -496,9 +512,9 @@ export function MentorChat() {
               /* Empty state — clean welcome */
               <div className="flex flex-col items-center justify-center py-20">
                 <div className="mb-5 flex h-14 w-14 items-center justify-center rounded-2xl bg-muted">
-                  <PhilosopherKingIcon className="h-7 w-7 text-foreground/50" />
+                  <PersonaIcon className="h-7 w-7 text-foreground/50" />
                 </div>
-                <h3 className="mb-1.5 font-display text-lg font-bold">{t("title")}</h3>
+                <h3 className="mb-1.5 font-display text-lg font-bold">{personaTitle}</h3>
                 <p className="mb-6 max-w-sm text-center text-sm text-muted-foreground leading-relaxed">
                   {t("welcomeDescription")}
                 </p>
@@ -522,7 +538,7 @@ export function MentorChat() {
                   >
                     {msg.role === "assistant" && (
                       <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-muted">
-                        <PhilosopherKingIcon className="h-4 w-4 text-foreground/60" />
+                        <PersonaIcon className="h-4 w-4 text-foreground/60" />
                       </div>
                     )}
                     <div

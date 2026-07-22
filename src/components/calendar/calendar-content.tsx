@@ -508,7 +508,7 @@ export function CalendarContent() {
                         <div key={type} className="flex flex-wrap items-center gap-1.5">
                           <span className="text-[11px] text-foreground/50">
                             {isHe
-                              ? (type === "tutorial" ? "תרגיל" : type === "lab" ? "מעבדה" : type === "lecture" ? "הרצאה" : type)
+                              ? (type === "tutorial" ? "תרגול" : type === "lab" ? "מעבדה" : type === "lecture" ? "הרצאה" : type)
                               : (type.charAt(0).toUpperCase() + type.slice(1))}:
                           </span>
                           {opts.map((o) => (

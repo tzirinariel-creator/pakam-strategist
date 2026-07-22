@@ -61,7 +61,7 @@ export const ruleFailureRate: RegulationRule = (ctx: RuleContext) => {
   // otherwise a failed-then-passed course would register as a 50% failure rate by itself.
   const byCourse = new Map<
     string,
-    { passed: boolean; failed: boolean; failedIds: string[] }
+    { passed: boolean; failed: boolean; attempted: boolean; failedIds: string[] }
   >();
   for (const uc of ctx.userCourses) {
     if (
@@ -74,9 +74,13 @@ export const ruleFailureRate: RegulationRule = (ctx: RuleContext) => {
     const entry = byCourse.get(uc.courseId) ?? {
       passed: false,
       failed: false,
+      attempted: false,
       failedIds: [],
     };
     if (uc.status === "COMPLETED" || uc.status === "EXEMPT") entry.passed = true;
+    // An EXEMPT course was NOT sat — it must not inflate the failure-rate
+    // denominator (audit 22.7). Only COMPLETED/FAILED count as attempts.
+    if (uc.status === "COMPLETED" || uc.status === "FAILED") entry.attempted = true;
     if (uc.status === "FAILED") {
       entry.failed = true;
       entry.failedIds.push(uc.id);
@@ -85,7 +89,7 @@ export const ruleFailureRate: RegulationRule = (ctx: RuleContext) => {
   }
 
   const distinctCourses = [...byCourse.values()];
-  const totalAttempted = distinctCourses.length;
+  const totalAttempted = distinctCourses.filter((c) => c.attempted).length;
   const failedOnly = distinctCourses.filter((c) => c.failed && !c.passed);
   const failedCount = failedOnly.length;
   const failedCourses = failedOnly.flatMap((c) => c.failedIds);
