@@ -325,7 +325,11 @@ export function CourseTable({ courses, allCourses, focusArea }: CourseTableProps
                 }
                 className="inline-flex items-center gap-1 text-foreground/80 font-bold bg-transparent appearance-none cursor-pointer select-none"
               >
-                {isHe ? "ציון ממוצע" : "Avg grade"}
+                {/* Provenance in the LABEL, not just the 10px source token: this
+                    column is the EXTERNAL Arazim historical distribution, not the
+                    app's own cohort data (audit 22.7 — Ariel: "averages that don't
+                    rely on the app's real databases"). */}
+                {isHe ? "ממוצע היסטורי" : "Historical avg"}
                 {sortIcon("averageGrade")}
               </button>
             </TableHead>
