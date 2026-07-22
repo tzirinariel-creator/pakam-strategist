@@ -11,13 +11,17 @@ import {
   FileText,
   ArrowLeft,
   ArrowRight,
+  Check,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { PhilosopherKingIcon } from "@/components/ui/philosopher-king-icon";
+import { PhilosopherKingCharacter } from "@/components/ui/philosopher-king-character";
 import { cn } from "@/lib/utils";
 
 // ─── Feature Card Data ──────────────────────────────────────────────
-// The King has his own dedicated strip above — the grid holds the six tools.
+// The King has his own dedicated dark band above the grid; the grid holds the
+// six concrete tools. Colors are the harmonized discipline hues — never a lone
+// acid accent.
 
 const FEATURES = [
   { key: "planner", icon: GraduationCap, color: "#4A90D9" },
@@ -57,17 +61,26 @@ const PREVIEW_SEMESTERS = [
   },
 ] as const;
 
+// Window chrome traffic-lights — the mac-window motif reused across the page.
+function WindowDots() {
+  return (
+    <div className="flex items-center gap-1.5">
+      <span className="size-2.5 rounded-full bg-[#ff5f57]" />
+      <span className="size-2.5 rounded-full bg-[#febc2e]" />
+      <span className="size-2.5 rounded-full bg-[#28c840]" />
+    </div>
+  );
+}
+
 function PlannerPreview({ isRTL }: { isRTL: boolean }) {
   return (
     <div
       aria-hidden
-      className="w-full overflow-hidden rounded-2xl border border-border bg-card shadow-2xl shadow-black/10"
+      className="w-full overflow-hidden rounded-2xl border border-border bg-card shadow-float"
     >
       {/* Window chrome */}
       <div className="flex items-center gap-1.5 border-b border-border/60 bg-muted/40 px-4 py-3">
-        <span className="size-2.5 rounded-full bg-[#ff5f57]" />
-        <span className="size-2.5 rounded-full bg-[#febc2e]" />
-        <span className="size-2.5 rounded-full bg-[#28c840]" />
+        <WindowDots />
         <div className="mx-auto flex items-center gap-1.5 text-xs text-muted-foreground">
           <GraduationCap className="size-3" />
           <span>{isRTL ? "תכנון התואר" : "Degree planner"}</span>
@@ -78,9 +91,12 @@ function PlannerPreview({ isRTL }: { isRTL: boolean }) {
       <div className="px-4 pt-4">
         <div className="mb-1.5 flex items-baseline justify-between text-[11px]">
           <span className="font-semibold text-foreground">
-            <bdi dir="ltr">33 / 150</bdi> <span className="text-muted-foreground">{isRTL ? "ש״ס" : "credits"}</span>
+            <bdi dir="ltr">33 / 150</bdi>{" "}
+            <span className="text-muted-foreground">{isRTL ? "ש״ס" : "credits"}</span>
           </span>
-          <span className="text-muted-foreground">{isRTL ? "22%" : "22%"}</span>
+          <span className="tabular text-muted-foreground">
+            <bdi dir="ltr">22%</bdi>
+          </span>
         </div>
         <div className="h-1.5 w-full overflow-hidden rounded-full bg-muted">
           <div className="h-full w-[22%] rounded-full bg-foreground" />
@@ -120,8 +136,9 @@ function PlannerPreview({ isRTL }: { isRTL: boolean }) {
           <Scale className="size-3" />
           {isRTL ? "תקנון" : "Regulations"}
         </span>
-        <span className="rounded-full bg-emerald-500/15 px-2 py-0.5 font-medium text-emerald-700 dark:text-emerald-400">
-          {isRTL ? "עומד בתקנון ✓" : "Compliant ✓"}
+        <span className="inline-flex items-center gap-1 rounded-full bg-emerald-500/15 px-2 py-0.5 font-medium text-emerald-700 dark:text-emerald-400">
+          <Check className="size-3" />
+          {isRTL ? "עומד בתקנון" : "Compliant"}
         </span>
       </div>
     </div>
@@ -147,9 +164,11 @@ export function LandingPage() {
       {/* ── Navigation Bar ───────────────────────────────── */}
       <nav className="sticky top-0 z-50 border-b border-border/50 bg-background/80 backdrop-blur-md">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3 sm:px-6 sm:py-4">
-          <div className="flex items-center gap-2">
-            <GraduationCap className="size-6 text-foreground/80 sm:size-7" />
-            <span className="font-bold text-lg text-foreground/80 sm:text-xl">
+          <div className="flex items-center gap-2.5">
+            <span className="flex size-8 items-center justify-center rounded-xl bg-[#312E81] shadow-sm">
+              <PhilosopherKingIcon className="size-5 text-crown-gold-bright" />
+            </span>
+            <span className="font-display text-lg font-bold tracking-tight text-foreground sm:text-xl">
               {t("brand")}
             </span>
           </div>
@@ -171,10 +190,10 @@ export function LandingPage() {
 
       {/* ── Hero Section ─────────────────────────────────── */}
       <section className="relative overflow-hidden px-4 py-14 sm:px-6 md:py-24">
-        {/* Background depth — the King's regal indigo + gold, not a generic
-            SaaS blue glow. Kept faint so the content leads. */}
+        {/* Background depth — the King's regal indigo + gold, kept faint so the
+            content leads. A hairline grid fades toward the top edge. */}
         <div className="bg-mesh pointer-events-none absolute inset-0">
-          <div className="absolute start-1/4 top-0 size-[28rem] rounded-full bg-accent-brand/[0.05] blur-3xl" />
+          <div className="absolute start-1/4 top-0 size-[28rem] rounded-full bg-accent-brand/[0.06] blur-3xl" />
           <div className="absolute end-1/4 bottom-0 size-80 rounded-full bg-crown-gold/[0.05] blur-3xl" />
           <div
             className="absolute inset-0 opacity-[0.025]"
@@ -184,19 +203,21 @@ export function LandingPage() {
               backgroundSize: "44px 44px",
               maskImage:
                 "radial-gradient(ellipse 80% 60% at 50% 0%, black, transparent)",
+              WebkitMaskImage:
+                "radial-gradient(ellipse 80% 60% at 50% 0%, black, transparent)",
             }}
           />
         </div>
 
-        <div className="relative mx-auto grid max-w-6xl items-center gap-12 lg:grid-cols-2 lg:gap-8">
+        <div className="relative mx-auto grid max-w-6xl items-center gap-12 lg:grid-cols-[1.05fr_0.95fr] lg:gap-10">
           {/* Text column */}
-          <div className="text-center lg:text-start">
-            <div className="eyebrow mb-6 inline-flex items-center gap-2 rounded-full border border-border bg-card px-4 py-1.5 text-foreground/70 shadow-sm">
+          <div className="animate-rise text-center lg:text-start">
+            <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-crown-gold/30 bg-card px-4 py-1.5 text-sm font-medium text-foreground/75 shadow-sm">
               <PhilosopherKingIcon className="size-4 text-crown-gold" />
               {t("badge")}
             </div>
 
-            <h1 className="mb-6 text-display-l text-foreground">
+            <h1 className="mb-6 text-display-l text-balance text-foreground">
               {t("heroTitle")}
             </h1>
 
@@ -204,7 +225,7 @@ export function LandingPage() {
               {t("heroSubtitle")}
             </p>
 
-            <div className="flex flex-col items-center gap-3 sm:flex-row lg:justify-start sm:justify-center">
+            <div className="flex flex-col items-center gap-3 sm:flex-row sm:justify-center lg:justify-start">
               <Button
                 size="lg"
                 className="w-full bg-foreground px-8 text-background shadow-lg shadow-foreground/20 hover:bg-foreground/90 sm:w-auto"
@@ -220,14 +241,16 @@ export function LandingPage() {
               </Button>
             </div>
 
-            {/* Stat strip — grounding / social proof */}
+            {/* Stat strip — grounding, honest counts (not invented metrics) */}
             <div className="mt-10 flex items-center justify-center gap-6 sm:gap-8 lg:justify-start">
               {stats.map((s, i) => (
                 <div key={s.label} className="flex items-center gap-6 sm:gap-8">
-                  {i > 0 && <div className="h-8 w-px bg-border" />}
+                  {i > 0 && <div className="h-9 w-px bg-border" />}
                   <div className="text-center lg:text-start">
-                    <div className="tabular font-bold text-2xl text-foreground">{s.value}</div>
-                    <div className="text-xs text-muted-foreground">{s.label}</div>
+                    <div className="tabular font-display text-2xl font-bold text-foreground">
+                      <bdi dir="ltr">{s.value}</bdi>
+                    </div>
+                    <div className="mt-0.5 text-xs text-muted-foreground">{s.label}</div>
                   </div>
                 </div>
               ))}
@@ -235,7 +258,11 @@ export function LandingPage() {
           </div>
 
           {/* Product preview column */}
-          <div className="relative mx-auto w-full max-w-md lg:max-w-none">
+          <div className="animate-rise relative mx-auto w-full max-w-md [animation-delay:120ms] lg:max-w-none">
+            {/* Identity badge floating on the mock — ties the King to the product */}
+            <span className="absolute -top-3 z-10 flex size-11 items-center justify-center rounded-2xl bg-[#312E81] shadow-lg ring-1 ring-crown-gold-bright/30 -start-3">
+              <PhilosopherKingIcon className="size-6 text-crown-gold-bright" />
+            </span>
             <PlannerPreview isRTL={isRTL} />
           </div>
         </div>
@@ -246,7 +273,7 @@ export function LandingPage() {
              into one straight Pakamon card. True, visual, human. ── */}
       <section className="border-t border-border/50 px-4 py-16 sm:px-6 sm:py-20">
         <div className="mx-auto max-w-6xl">
-          <h2 className="mx-auto mb-12 max-w-2xl text-center font-display text-2xl font-bold tracking-tight text-foreground md:text-3xl">
+          <h2 className="mx-auto mb-12 max-w-2xl text-balance text-center font-display text-2xl font-bold tracking-tight text-foreground md:text-3xl">
             {t("proofTitle")}
           </h2>
           <div className="flex flex-col items-center gap-8 lg:flex-row lg:justify-center lg:gap-6">
@@ -261,14 +288,20 @@ export function LandingPage() {
                 <div
                   key={chip.title}
                   className={cn(
-                    "w-[calc(50%-0.375rem)] max-w-[220px] rounded-lg border border-dashed border-foreground/25 bg-muted/40 px-3.5 py-3 sm:w-auto",
+                    "w-[calc(50%-0.375rem)] max-w-[220px] rounded-lg border border-dashed border-foreground/25 bg-muted/40 px-3.5 py-3 transition-transform duration-300 hover:rotate-0 sm:w-auto",
                     chip.rotate,
                   )}
                 >
                   <p className="text-sm font-bold text-foreground/75">{chip.title}</p>
+                  {/* No dir="ltr" here: bodies mix Hebrew words with latin/numbers,
+                      and the browser's bidi already lays latin runs LTR. Forcing
+                      dir="ltr" on Hebrew is wrong (and was a bug). font-mono keeps
+                      the "spreadsheet filename" texture on the mono chip. */}
                   <p
-                    className={cn("mt-1 text-xs leading-relaxed text-foreground/50", chip.mono && "font-mono")}
-                    dir={chip.mono ? "ltr" : undefined}
+                    className={cn(
+                      "mt-1 text-xs leading-relaxed text-foreground/55",
+                      chip.mono && "font-mono",
+                    )}
                   >
                     {chip.body}
                   </p>
@@ -276,56 +309,92 @@ export function LandingPage() {
               ))}
             </div>
             {/* The arrow — points from the mess to the answer */}
-            <Arrow className="size-7 shrink-0 rotate-90 text-foreground/30 lg:rotate-0" />
+            <Arrow className="size-7 shrink-0 rotate-90 text-crown-gold lg:rotate-0" />
             {/* The answer — one straight card with the app's window chrome */}
-            <div className="w-full max-w-sm overflow-hidden rounded-2xl border border-border bg-card shadow-xl shadow-black/10">
+            <div className="w-full max-w-sm overflow-hidden rounded-2xl border border-border bg-card shadow-elevated">
               <div className="flex items-center gap-1.5 border-b border-border/60 bg-muted/40 px-4 py-2.5">
-                <span className="size-2.5 rounded-full bg-[#ff5f57]" />
-                <span className="size-2.5 rounded-full bg-[#febc2e]" />
-                <span className="size-2.5 rounded-full bg-[#28c840]" />
+                <WindowDots />
                 <div className="mx-auto flex items-center gap-1.5 text-xs text-muted-foreground">
                   <PhilosopherKingIcon className="size-3 text-crown-gold" />
                   <span>{t("proof.afterTitle")}</span>
                 </div>
               </div>
               <div className="px-5 py-5">
-                <p className="text-sm leading-relaxed text-foreground/75">{t("proof.afterBody")}</p>
+                <p className="text-sm leading-relaxed text-foreground/80">{t("proof.afterBody")}</p>
               </div>
             </div>
           </div>
         </div>
       </section>
 
-      {/* ── The King strip — the ONE dark band on the page. ── */}
+      {/* ── The King strip — the ONE dark band on the page. All text is LIGHT on
+             the dark indigo band; every surface below is pinned to FIXED colors
+             (not theme tokens) so contrast holds identically in light and dark. */}
       <section
-        className="px-4 py-16 sm:px-6 sm:py-20"
-        style={{ backgroundColor: "var(--king-band)" }}
+        className="relative overflow-hidden px-4 py-16 sm:px-6 sm:py-24"
+        style={{
+          backgroundColor: "var(--king-band)",
+          backgroundImage:
+            "radial-gradient(120% 130% at 85% -10%, color-mix(in srgb, #6366F1 32%, transparent), transparent 55%), radial-gradient(90% 90% at 5% 110%, color-mix(in srgb, #c99a3b 18%, transparent), transparent 60%)",
+        }}
       >
-        <div className="mx-auto grid max-w-6xl items-center gap-10 lg:grid-cols-2">
+        {/* faint hairline grid for depth on the band */}
+        <div
+          aria-hidden
+          className="pointer-events-none absolute inset-0 opacity-[0.06]"
+          style={{
+            backgroundImage:
+              "linear-gradient(#fff 1px, transparent 1px), linear-gradient(90deg, #fff 1px, transparent 1px)",
+            backgroundSize: "48px 48px",
+            maskImage: "radial-gradient(ellipse 90% 80% at 50% 0%, black, transparent)",
+            WebkitMaskImage: "radial-gradient(ellipse 90% 80% at 50% 0%, black, transparent)",
+          }}
+        />
+        <div className="relative mx-auto grid max-w-6xl items-center gap-10 lg:grid-cols-2 lg:gap-14">
           <div className="text-center lg:text-start">
-            <h2 className="font-display text-2xl font-bold tracking-tight text-white md:text-3xl">
+            <div className="mx-auto mb-6 flex size-16 items-center justify-center lg:mx-0">
+              <PhilosopherKingCharacter className="size-16 drop-shadow-lg" />
+            </div>
+            <h2 className="font-display text-2xl font-bold tracking-tight text-white text-balance md:text-4xl">
               {t("king.title")}
             </h2>
-            <p className="mx-auto mt-4 max-w-lg text-base leading-relaxed text-white/75 lg:mx-0">
+            <p className="mx-auto mt-5 max-w-lg text-base leading-relaxed text-white/80 lg:mx-0">
               {t("king.subtitle")}
             </p>
           </div>
-          {/* Mock chat — the King's contract voice: answer first, real numbers. */}
-          <div className="mx-auto w-full max-w-md rounded-2xl border border-white/10 bg-white/[0.06] p-4">
-            <div className="flex justify-end">
-              <div className="max-w-[85%] rounded-2xl bg-white/10 px-3.5 py-2.5 text-sm leading-relaxed text-white/90">
-                {t("king.chatQ")}
+
+          {/* Mock chat — the King's contract voice: answer first, real numbers.
+              Window chrome matches the rest of the page; tuned for the dark band. */}
+          <div className="mx-auto w-full max-w-md overflow-hidden rounded-2xl border border-white/15 bg-white/[0.06] shadow-2xl backdrop-blur-sm">
+            <div className="flex items-center gap-1.5 border-b border-white/10 bg-white/[0.04] px-4 py-2.5">
+              <WindowDots />
+              <div className="mx-auto flex items-center gap-1.5 text-xs text-white/70">
+                <PhilosopherKingIcon className="size-3 text-crown-gold-bright" />
+                <span>{t("brand")}</span>
               </div>
             </div>
-            <div className="mt-3 flex items-start gap-2.5">
-              <span className="mt-1 flex size-7 shrink-0 items-center justify-center rounded-lg bg-accent-brand text-crown-gold-bright ring-1 ring-crown-gold-bright/40">
-                <PhilosopherKingIcon className="size-4" />
-              </span>
-              <div className="max-w-[85%] rounded-2xl bg-white px-3.5 py-2.5 text-sm leading-relaxed text-zinc-900">
-                {t("king.chatA")}
+            <div className="p-4">
+              {/* User question */}
+              <div className="flex justify-end">
+                <div className="max-w-[85%] rounded-2xl rounded-ee-md bg-white/12 px-3.5 py-2.5 text-sm leading-relaxed text-white">
+                  {t("king.chatQ")}
+                </div>
               </div>
+              {/* King answer — pinned deep-indigo avatar + gold crown = fixed high
+                  contrast in BOTH themes (the old bug used theme-flipping tokens). */}
+              <div className="mt-3 flex items-start gap-2.5">
+                <span
+                  className="mt-1 flex size-7 shrink-0 items-center justify-center rounded-lg ring-1 ring-crown-gold-bright/40"
+                  style={{ backgroundColor: "#312E81" }}
+                >
+                  <PhilosopherKingIcon className="size-4 text-crown-gold-bright" />
+                </span>
+                <div className="max-w-[85%] rounded-2xl rounded-ss-md bg-white px-3.5 py-2.5 text-sm leading-relaxed text-zinc-900">
+                  {t("king.chatA")}
+                </div>
+              </div>
+              <p className="mt-3 text-center text-xs text-white/60">{t("king.chatCaption")}</p>
             </div>
-            <p className="mt-3 text-center text-xs text-white/50">{t("king.chatCaption")}</p>
           </div>
         </div>
       </section>
@@ -337,7 +406,7 @@ export function LandingPage() {
             <h2 className="mb-3 font-display font-bold text-3xl tracking-tight text-foreground md:text-4xl">
               {t("featuresTitle")}
             </h2>
-            <p className="mx-auto max-w-xl text-muted-foreground">
+            <p className="mx-auto max-w-xl text-balance text-muted-foreground">
               {t("featuresSubtitle")}
             </p>
           </div>
@@ -348,10 +417,7 @@ export function LandingPage() {
               return (
                 <div
                   key={feature.key}
-                  className={cn(
-                    "group rounded-2xl border border-border/60 bg-card p-6 transition-all duration-200",
-                    "hover:-translate-y-0.5 hover:border-border hover:shadow-xl hover:shadow-black/5"
-                  )}
+                  className="group rounded-2xl border border-border/60 bg-card p-6 transition-all duration-200 hover:-translate-y-0.5 hover:border-border hover:shadow-elevated"
                 >
                   <div
                     className="mb-4 flex size-11 items-center justify-center rounded-xl"
@@ -384,7 +450,7 @@ export function LandingPage() {
           <h2 className="mt-3 font-display text-2xl font-bold tracking-tight text-foreground">
             {t("founder.title")}
           </h2>
-          <p className="mt-5 text-base leading-relaxed text-foreground/70">
+          <p className="mt-5 text-base leading-relaxed text-foreground/75">
             {t("founder.body")}
           </p>
           <div className="mt-6 flex flex-wrap items-center justify-center gap-2">
@@ -397,7 +463,7 @@ export function LandingPage() {
               </span>
             ))}
           </div>
-          <p className="mt-5 text-xs text-muted-foreground/70">{t("founder.meta")}</p>
+          <p className="mt-5 text-xs text-muted-foreground/80">{t("founder.meta")}</p>
           <Link
             href="/about"
             className="mt-3 inline-flex items-center gap-1.5 text-sm font-medium text-accent-brand transition-colors hover:underline"
@@ -411,7 +477,7 @@ export function LandingPage() {
       {/* ── Final CTA ─────────────────────────────────────── */}
       <section className="border-t border-border/50 bg-card/30 px-4 py-14 sm:px-6 sm:py-16">
         <div className="mx-auto max-w-2xl text-center">
-          <h2 className="font-display text-2xl font-bold tracking-tight text-foreground">
+          <h2 className="text-balance font-display text-2xl font-bold tracking-tight text-foreground md:text-3xl">
             {t("finalCta.title")}
           </h2>
           <div className="mt-6 flex flex-col items-center justify-center gap-3 sm:flex-row">
@@ -437,7 +503,7 @@ export function LandingPage() {
       <footer className="border-t border-border/50 bg-card/50 px-6 py-8">
         <div className="mx-auto flex max-w-6xl flex-col items-center gap-4 sm:flex-row sm:justify-between">
           <div className="flex items-center gap-2 text-sm text-muted-foreground">
-            <GraduationCap className="size-4 text-foreground/60" />
+            <PhilosopherKingIcon className="size-4 text-crown-gold" />
             <span>{t("footer")}</span>
           </div>
           <div className="flex flex-wrap items-center justify-center gap-4 text-xs text-muted-foreground">
