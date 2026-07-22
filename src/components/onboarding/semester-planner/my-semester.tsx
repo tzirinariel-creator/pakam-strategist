@@ -205,8 +205,8 @@ export function MySemester({
                               onDeleteCustomCourse(course.id);
                             }}
                             className="shrink-0 rounded-full p-0.5 text-foreground/30 opacity-60 transition-all hover:bg-red-400/10 hover:text-red-400 hover:opacity-100 focus-visible:opacity-100 focus-visible:ring-2 focus-visible:ring-accent-brand/50 sm:opacity-0 sm:group-hover:opacity-100 sm:focus-visible:opacity-100"
-                            aria-label={isHe ? "מחק קורס ידני" : "Delete custom course"}
-                            title={isHe ? "מחק קורס ידני" : "Delete custom course"}
+                            aria-label={isHe ? "מחיקת קורס ידני" : "Delete custom course"}
+                            title={isHe ? "מחיקת קורס ידני" : "Delete custom course"}
                           >
                             <Trash2 className="h-3 w-3" />
                           </button>
