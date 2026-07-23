@@ -84,8 +84,8 @@ export function MeetTheKingCard() {
                 are gendered. The female form used to say "היועצת", misgendering
                 the King himself (research 14.7). */}
             {isHe
-              ? `היועץ האישי שלך לתואר. ${pg("שאל", "שאלי", "שאל/י")} אותי כל דבר — או פשוט ${pg("ספר", "ספרי", "ספר/י")} לי מה עשית, ואני אעדכן בשבילך. אני כאן בכל מסך.`
-              : "Your personal degree advisor. Ask me anything — or just tell me what you did and I'll update it for you. I'm on every screen."}
+              ? `היועץ האישי שלך לתואר. ${pg("שאל", "שאלי", "שאל/י")} אותי כל דבר — או פשוט ${pg("ספר", "ספרי", "ספר/י")} לי מה קרה: "סיימתי מיקרו עם 88", "נכשלתי בסטטיסטיקה", "תעביר לי את חקיקה לסמסטר ב׳" — ואני אעדכן בשבילך (תמיד עם אישור). אני כאן בכל מסך.`
+              : `Your personal degree advisor. Ask me anything — or just tell me what happened: "finished micro with 88", "failed statistics", "move legislation to spring" — and I'll update it for you (always with a confirm). I'm on every screen.`}
           </p>
         </div>
       </div>

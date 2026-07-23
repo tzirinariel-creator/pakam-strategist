@@ -201,56 +201,92 @@ export function FloatingAssistant() {
 
   const completeMutation = api.plan.updateCourse.useMutation();
   const addMutation = api.plan.addCourse.useMutation();
+  const removeMutation = api.plan.removeCourse.useMutation();
   const updateEnglishMutation = api.user.updateProfile.useMutation();
 
   /** Confirm an action card — runs the SAME mutation the record/planner use. */
   const runAction = useCallback(
     async (msgIndex: number, action: AssistantAction) => {
       try {
-        if (action.type === "COMPLETE_COURSE") {
-          await completeMutation.mutateAsync({
-            userCourseId: action.userCourseId,
-            status: "COMPLETED",
-            ...(action.grade != null ? { grade: action.grade } : {}),
-          });
-        } else if (action.type === "SET_ENGLISH_LEVEL") {
-          await updateEnglishMutation.mutateAsync({ englishLevel: action.level });
-        } else {
-          await addMutation.mutateAsync({
-            courseId: action.courseId,
-            // Year AT the anchor — pairing the anchor SEMESTER with today's
-            // year filed a continuing student's add into the fall that already
-            // ENDED (launch-gate 14.7).
-            plannedYear: ctx.anchorYear ?? ctx.currentYear,
-            // Stamp the PLANNING ANCHOR (→ FALL in July), not the wall-clock
-            // semester — otherwise a fresh year-1's added course lands in a spurious
-            // 1-SPRING bucket, which is what made the calendar open on ב׳ (QA 13.7).
-            plannedSemester: getPlanningAnchor().semester,
-          });
+        // Each branch runs the SAME tRPC mutation the record/planner use
+        // (ownership + demo guards included) and builds its own honest
+        // confirmation copy. No silent automation — the student already tapped.
+        let successHe = "";
+        let successEn = "";
+        let href = "/planner";
+        let ctaHe = "לתכנון התואר";
+        switch (action.type) {
+          case "COMPLETE_COURSE":
+            await completeMutation.mutateAsync({
+              userCourseId: action.userCourseId,
+              status: "COMPLETED",
+              ...(action.grade != null ? { grade: action.grade } : {}),
+            });
+            successHe = `בוצע! ${action.courseName} סומן כהושלם${action.grade != null ? ` עם ציון ${action.grade}` : ""}. אפשר לערוך תמיד בתיק האקדמי.`;
+            successEn = `Done! ${action.courseName} marked completed${action.grade != null ? ` with grade ${action.grade}` : ""}.`;
+            href = "/record";
+            ctaHe = "לתיק האקדמי";
+            break;
+          case "MARK_FAILED":
+            await completeMutation.mutateAsync({ userCourseId: action.userCourseId, status: "FAILED" });
+            successHe = `סומן: ${action.courseName} — נכשל. אפשר להירשם שוב; הציון הקובע הוא של המועד האחרון.`;
+            successEn = `Marked: ${action.courseName} as failed. You can retake it — the last sitting's grade is what counts.`;
+            href = "/record";
+            ctaHe = "לתיק האקדמי";
+            break;
+          case "DROP_COURSE":
+            await removeMutation.mutateAsync({ userCourseId: action.userCourseId });
+            successHe = `${action.courseName} הוסר מהתוכנית. תמיד אפשר להוסיף אותו שוב מהקטלוג.`;
+            successEn = `${action.courseName} removed from your plan. You can add it back anytime from the catalog.`;
+            href = "/planner";
+            ctaHe = "לתכנון התואר";
+            break;
+          case "MOVE_COURSE":
+            await completeMutation.mutateAsync({
+              userCourseId: action.userCourseId,
+              ...(action.plannedYear != null ? { plannedYear: action.plannedYear } : {}),
+              ...(action.plannedSemester != null ? { plannedSemester: action.plannedSemester } : {}),
+            });
+            successHe = `${action.courseName} הועבר ל${action.targetLabel}. הציצו במתכנן שלא נוצרה חפיפה חדשה.`;
+            successEn = `${action.courseName} moved to ${action.targetLabel}. Check the planner for any new clash.`;
+            href = "/planner";
+            ctaHe = "לתכנון התואר";
+            break;
+          case "SET_ENGLISH_LEVEL":
+            await updateEnglishMutation.mutateAsync({ englishLevel: action.level });
+            successHe = action.level === "EXEMPT"
+              ? "בוצע! רמת-האנגלית עודכנה לפטור — כל הכבוד. בדיקת-המסלול כבר מתחשבת בזה."
+              : "בוצע! רמת-האנגלית עודכנה. בדיקת-המסלול כבר מתחשבת בזה.";
+            successEn = "Done! Your English level was updated — the track check reflects it.";
+            href = "/regulations";
+            ctaHe = "לבדיקת המסלול";
+            break;
+          case "ADD_COURSE":
+            await addMutation.mutateAsync({
+              courseId: action.courseId,
+              // Year AT the anchor — pairing the anchor SEMESTER with today's
+              // year filed a continuing student's add into the fall that already
+              // ENDED (launch-gate 14.7).
+              plannedYear: ctx.anchorYear ?? ctx.currentYear,
+              // Stamp the PLANNING ANCHOR (→ FALL in July), not the wall-clock
+              // semester — otherwise a fresh year-1's added course lands in a spurious
+              // 1-SPRING bucket, which is what made the calendar open on ב׳ (QA 13.7).
+              plannedSemester: getPlanningAnchor().semester,
+            });
+            successHe = `בוצע! ${action.courseName} נוסף לתוכנית לסמסטר הנוכחי — גררו אותו במתכנן אם מתאים לכם סמסטר אחר.`;
+            successEn = `Done! ${action.courseName} added to the current semester — drag it in the planner if another fits better.`;
+            href = "/planner";
+            ctaHe = "לתכנון התואר";
+            break;
         }
         invalidatePlanData(trpcUtils);
         setMessages((m) =>
           m.map((msg, i) => (i === msgIndex ? { ...msg, actionResolved: true } : msg)).concat({
             role: "assistant",
             source: "rules",
-            content:
-              action.type === "COMPLETE_COURSE"
-                ? isHe
-                  ? `בוצע! ${action.courseName} סומן כהושלם${action.grade != null ? ` עם ציון ${action.grade}` : ""}. אפשר לערוך תמיד בתיק האקדמי.`
-                  : `Done! ${action.courseName} marked completed${action.grade != null ? ` with grade ${action.grade}` : ""}.`
-                : action.type === "SET_ENGLISH_LEVEL"
-                  ? isHe
-                    ? action.level === "EXEMPT"
-                      ? "בוצע! רמת-האנגלית עודכנה לפטור — כל הכבוד. בדיקת-המסלול כבר מתחשבת בזה."
-                      : `בוצע! רמת-האנגלית עודכנה. בדיקת-המסלול כבר מתחשבת בזה.`
-                    : "Done! Your English level was updated — the track check reflects it."
-                  : isHe
-                    ? `בוצע! ${action.courseName} נוסף לתוכנית לסמסטר הנוכחי — גררו אותו במתכנן אם מתאים לכם סמסטר אחר.`
-                    : `Done! ${action.courseName} added to the current semester — drag it in the planner if another fits better.`,
-            href: action.type === "COMPLETE_COURSE" ? "/record" : action.type === "SET_ENGLISH_LEVEL" ? "/regulations" : "/planner",
-            cta: isHe
-              ? action.type === "COMPLETE_COURSE" ? "לתיק האקדמי" : action.type === "SET_ENGLISH_LEVEL" ? "לבדיקת המסלול" : "לתכנון התואר"
-              : "Open",
+            content: isHe ? successHe : successEn,
+            href,
+            cta: isHe ? ctaHe : "Open",
           }),
         );
       } catch (e) {
@@ -268,7 +304,7 @@ export function FloatingAssistant() {
     // ctx.anchorYear (the quick-add plannedYear) MUST be a dep — else an add
     // fired right after the anchor year changes files into the stale year
     // (research 14.7; anchorYear was added to ctx but not to these deps).
-    [completeMutation, addMutation, updateEnglishMutation, ctx.currentYear, ctx.anchorYear, isHe, trpcUtils],
+    [completeMutation, addMutation, removeMutation, updateEnglishMutation, ctx.currentYear, ctx.anchorYear, isHe, trpcUtils],
   );
 
   // ── Proactive suggestion (note #10, restrained per note #12) ──
@@ -675,24 +711,41 @@ export function FloatingAssistant() {
       // nothing executes until the student clicks אישור.
       const detected = detectActions(question, planLite, catalogLite);
       if (detected.length > 0) {
+        const proposalContent = (action: AssistantAction): string => {
+          switch (action.type) {
+            case "COMPLETE_COURSE":
+              return isHe
+                ? `מעדכן שסיימתם את ${action.courseName}${action.grade != null ? ` עם ציון ${action.grade}` : ""} — לאשר?`
+                : `Mark ${action.courseName} as completed${action.grade != null ? ` with grade ${action.grade}` : ""}?`;
+            case "MARK_FAILED":
+              return isHe
+                ? `לסמן את ${action.courseName} כנכשל? (תמיד אפשר להירשם שוב — הציון הקובע הוא של המועד האחרון.)`
+                : `Mark ${action.courseName} as failed? (You can always retake it.)`;
+            case "DROP_COURSE":
+              return isHe
+                ? `להוריד את ${action.courseName} מהתוכנית? אפשר להוסיף אותו שוב בכל רגע.`
+                : `Remove ${action.courseName} from your plan? You can add it back anytime.`;
+            case "MOVE_COURSE":
+              return isHe
+                ? `להעביר את ${action.courseName} ל${action.targetLabel}?`
+                : `Move ${action.courseName} to ${action.targetLabel}?`;
+            case "SET_ENGLISH_LEVEL":
+              return isHe
+                ? action.level === "EXEMPT"
+                  ? `סיימתם את קורס ${action.levelNameHe} — זה אומר שהגעתם לפטור באנגלית! לעדכן את הרמה לפטור?`
+                  : `סיימתם את קורס ${action.levelNameHe} — מעדכן את רמת-האנגלית שלכם בהתאם?`
+                : `You finished the ${action.levelNameHe} course — update your English level accordingly?`;
+            case "ADD_COURSE":
+              return isHe
+                ? `מוסיף את ${action.courseName} לתוכנית שלכם (הסמסטר הנוכחי) — לאשר?`
+                : `Add ${action.courseName} to your plan (current semester)?`;
+          }
+        };
         const proposals = detected.map((action) => ({
           role: "assistant" as const,
           source: "rules" as const,
           action,
-          content:
-            action.type === "COMPLETE_COURSE"
-              ? isHe
-                ? `מעדכן שסיימתם את ${action.courseName}${action.grade != null ? ` עם ציון ${action.grade}` : ""} — לאשר?`
-                : `Mark ${action.courseName} as completed${action.grade != null ? ` with grade ${action.grade}` : ""}?`
-              : action.type === "SET_ENGLISH_LEVEL"
-                ? isHe
-                  ? action.level === "EXEMPT"
-                    ? `סיימתם את קורס ${action.levelNameHe} — זה אומר שהגעתם לפטור באנגלית! לעדכן את הרמה לפטור?`
-                    : `סיימתם את קורס ${action.levelNameHe} — מעדכן את רמת-האנגלית שלכם בהתאם?`
-                  : `You finished the ${action.levelNameHe} course — update your English level accordingly?`
-                : isHe
-                  ? `מוסיף את ${action.courseName} לתוכנית שלכם (הסמסטר הנוכחי) — לאשר?`
-                  : `Add ${action.courseName} to your plan (current semester)?`,
+          content: proposalContent(action),
         }));
         setMessages((m) => [...m, ...proposals]);
         return;
@@ -994,11 +1047,11 @@ export function FloatingAssistant() {
                       <div className="mt-2 flex gap-2">
                         <button
                           type="button"
-                          disabled={completeMutation.isPending || addMutation.isPending}
+                          disabled={completeMutation.isPending || addMutation.isPending || removeMutation.isPending}
                           onClick={() => void runAction(i, m.action!)}
                           className="rounded-lg bg-foreground px-3 py-1.5 text-xs font-semibold text-background transition-colors hover:bg-foreground/90 disabled:opacity-50"
                         >
-                          {completeMutation.isPending || addMutation.isPending
+                          {completeMutation.isPending || addMutation.isPending || removeMutation.isPending
                             ? (isHe ? "מבצע…" : "Working…")
                             : (isHe ? "אישור — בצע" : "Confirm")}
                         </button>

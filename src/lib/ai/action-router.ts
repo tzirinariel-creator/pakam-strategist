@@ -41,6 +41,23 @@ export type AssistantAction =
       type: "SET_ENGLISH_LEVEL";
       level: "EXEMPT" | "ADVANCED_B" | "ADVANCED_A";
       levelNameHe: string;
+    }
+  /** "תוריד את מיקרו מהתוכנית" → remove the PLANNED row (never a completed
+   *  course — that's a record edit, a different, heavier action). */
+  | { type: "DROP_COURSE"; userCourseId: string; courseName: string }
+  /** "נכשלתי במיקרו" → mark the row FAILED. Kept distinct from COMPLETE so the
+   *  "לא עברתי" negation can never be misread as a pass (would be a lie). */
+  | { type: "MARK_FAILED"; userCourseId: string; courseName: string }
+  /** "תעביר את מיקרו לסמסטר ב׳ / לשנה ג׳" → move the row. Only fires with an
+   *  ABSOLUTE target (semester א/ב/קיץ and/or year 1–4); relative targets like
+   *  "הסמסטר הבא" need current-semester context we don't have here → skipped. */
+  | {
+      type: "MOVE_COURSE";
+      userCourseId: string;
+      courseName: string;
+      plannedYear?: number;
+      plannedSemester?: "FALL" | "SPRING" | "SUMMER";
+      targetLabel: string;
     };
 
 // Same normalization family as degree-qa: niqqud, punctuation, final letters.
@@ -64,6 +81,47 @@ const COMPLETE_INTENT = /(סיימתי|סגרתי|עברתי|קיבלתי בקו
 // NOTE: matched against NORMALIZED text — final letters are already folded
 // (ף→פ, ם→מ …), so the patterns are written in folded form on purpose.
 const ADD_INTENT = /(תוסיפ|הוסיפי|הוספ|תרשמו אותי|תרשומ אותי|אני רוצה לקחת|רוצה להוסיפ|בא לי לקחת|אעשה|אקח|מתכננ לקחת|add course|sign me up|i want to take|planning to take)/;
+// Destructive-ish verbs. Each still renders a CONFIRM card — nothing here runs.
+const DROP_INTENT = /(תוריד|תורידי|הורד|תסיר|תסירי|הסר|תמחק|תמחקי|מחק|תוציא|הוצא|לבטל את|drop|remove|delete)/;
+// FAIL must be tested BEFORE complete: COMPLETE_INTENT contains "עברתי", which
+// also appears inside "לא עברתי" — so a failure sentence would otherwise be
+// misread as a pass. NEGATED_PASS below re-guards the complete branch too.
+const FAIL_INTENT = /(נכשלתי|נפלתי ב|לא עברתי|רפתי|failed|flunked|didnt pass|did not pass)/;
+const MOVE_INTENT = /(תעביר|תעבירי|העבר|תזיז|תזיזי|הזז|move|reschedule|push .* to)/;
+// A pass sentence that is actually a NEGATION — "לא עברתי", "לא סיימתי".
+const NEGATED_PASS = /(לא עברתי|לא סיימתי|לא סגרתי|didnt pass|did not pass|didnt finish)/;
+
+/** Parse an ABSOLUTE move target (semester and/or year) from the sentence.
+ *  Relative targets ("הסמסטר הבא") return nothing for both — the caller then
+ *  proposes no move (we can't resolve "next" without the current semester). */
+function parseMoveTarget(normText: string): {
+  plannedSemester?: "FALL" | "SPRING" | "SUMMER";
+  plannedYear?: number;
+  label: string;
+} {
+  let plannedSemester: "FALL" | "SPRING" | "SUMMER" | undefined;
+  let plannedYear: number | undefined;
+  const labelParts: string[] = [];
+  // Semester: "סמסטר א/ראשון/fall" · "סמסטר ב/שני/spring" · "קיץ/summer".
+  if (/(סמסטר א|סמסטר ראשונ|semester a|fall)/.test(normText)) {
+    plannedSemester = "FALL";
+    labelParts.push("סמסטר א׳");
+  } else if (/(סמסטר ב|סמסטר שני|semester b|spring)/.test(normText)) {
+    plannedSemester = "SPRING";
+    labelParts.push("סמסטר ב׳");
+  } else if (/(קיצ|summer)/.test(normText)) {
+    plannedSemester = "SUMMER";
+    labelParts.push("סמסטר קיץ");
+  }
+  // Year: "שנה א/ב/ג/ד" or "שנה 1-4" or "year 1-4".
+  const yearWord = normText.match(/שנה ([אבגד1234])/) ?? normText.match(/year ([1234])/);
+  if (yearWord) {
+    const map: Record<string, number> = { א: 1, ב: 2, ג: 3, ד: 4, "1": 1, "2": 2, "3": 3, "4": 4 };
+    plannedYear = map[yearWord[1]!];
+    if (plannedYear) labelParts.push(`שנה ${["", "א׳", "ב׳", "ג׳", "ד׳"][plannedYear]}`);
+  }
+  return { plannedSemester, plannedYear, label: labelParts.join(", ") };
+}
 
 /** Cheap pre-check so the caller only fetches the catalog when relevant. */
 export function hasAddIntent(text: string): boolean {
@@ -162,7 +220,20 @@ export function detectActions(
   const norm = normalize(text);
   const actions: AssistantAction[] = [];
 
-  if (COMPLETE_INTENT.test(norm)) {
+  // A row the student can still act on (not already earned/failed).
+  const activeRows = plan.filter(
+    (c) => c.status === "IN_PROGRESS" || c.status === "PLANNED",
+  );
+
+  // FAIL first — its "לא עברתי" would otherwise trip COMPLETE_INTENT's "עברתי".
+  if (FAIL_INTENT.test(norm)) {
+    const hit = bestMatch(norm, activeRows, (c) => c.nameHe);
+    if (hit) {
+      actions.push({ type: "MARK_FAILED", userCourseId: hit.userCourseId, courseName: hit.nameHe });
+    }
+  }
+
+  if (COMPLETE_INTENT.test(norm) && !NEGATED_PASS.test(norm) && !actions.some((a) => a.type === "MARK_FAILED")) {
     // Only rows that can BECOME completed — never re-complete a done course.
     const candidates = plan.filter(
       (c) => c.status === "IN_PROGRESS" || c.status === "PLANNED",
@@ -193,6 +264,34 @@ export function detectActions(
         actions.push({ type: "SET_ENGLISH_LEVEL", level: "EXEMPT", levelNameHe: "מתקדמים ב׳" });
       } else if (/מתקדמימ א|advanced a/.test(norm)) {
         actions.push({ type: "SET_ENGLISH_LEVEL", level: "ADVANCED_B", levelNameHe: "מתקדמים א׳" });
+      }
+    }
+  }
+
+  // DROP — remove a PLANNED/IN_PROGRESS row from the plan. Not for completed
+  // courses (that's an academic-record edit, deliberately not one-tap here).
+  if (DROP_INTENT.test(norm) && !actions.length) {
+    const hit = bestMatch(norm, activeRows, (c) => c.nameHe);
+    if (hit) {
+      actions.push({ type: "DROP_COURSE", userCourseId: hit.userCourseId, courseName: hit.nameHe });
+    }
+  }
+
+  // MOVE — reschedule a row to an ABSOLUTE target (semester/year). No target
+  // parsed (or only "next semester") → propose nothing; the King asks instead.
+  if (MOVE_INTENT.test(norm) && !actions.length) {
+    const target = parseMoveTarget(norm);
+    if (target.plannedSemester || target.plannedYear) {
+      const hit = bestMatch(norm, activeRows, (c) => c.nameHe);
+      if (hit) {
+        actions.push({
+          type: "MOVE_COURSE",
+          userCourseId: hit.userCourseId,
+          courseName: hit.nameHe,
+          ...(target.plannedYear ? { plannedYear: target.plannedYear } : {}),
+          ...(target.plannedSemester ? { plannedSemester: target.plannedSemester } : {}),
+          targetLabel: target.label,
+        });
       }
     }
   }

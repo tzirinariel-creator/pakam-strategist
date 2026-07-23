@@ -142,3 +142,54 @@ describe("detectActions — 12.7 real-message regressions", () => {
     expect(actions.some((a) => a.type === "SET_ENGLISH_LEVEL" && a.level === "ADVANCED_B")).toBe(true);
   });
 });
+
+describe("detectAction — MARK_FAILED (and the negation trap)", () => {
+  it("נכשלתי במיקרו → MARK_FAILED on the right row", () => {
+    const a = detectActions("נכשלתי במיקרו כלכלה", PLAN, [])[0] ?? null;
+    expect(a).toEqual({ type: "MARK_FAILED", userCourseId: "uc-1", courseName: "מיקרו כלכלה א' + תרגיל" });
+  });
+
+  it("'לא עברתי את מיקרו' is a FAILURE, never a COMPLETE (the עברתי trap)", () => {
+    const actions = detectActions("לא עברתי את מיקרו כלכלה", PLAN, []);
+    expect(actions.some((a) => a.type === "MARK_FAILED")).toBe(true);
+    expect(actions.some((a) => a.type === "COMPLETE_COURSE")).toBe(false);
+  });
+
+  it("a plain pass ('עברתי את מיקרו') is still a COMPLETE, not a fail", () => {
+    const actions = detectActions("עברתי את מיקרו כלכלה", PLAN, []);
+    expect(actions.some((a) => a.type === "COMPLETE_COURSE")).toBe(true);
+    expect(actions.some((a) => a.type === "MARK_FAILED")).toBe(false);
+  });
+});
+
+describe("detectAction — DROP_COURSE", () => {
+  it("תוריד את חקיקה מהתוכנית → DROP the PLANNED row", () => {
+    const a = detectActions("תוריד לי את חקיקה ורגולציה מהתוכנית", PLAN, [])[0] ?? null;
+    expect(a).toEqual({ type: "DROP_COURSE", userCourseId: "uc-4", courseName: "חקיקה ורגולציה" });
+  });
+
+  it("never drops an already-COMPLETED course (that's a record edit)", () => {
+    const actions = detectActions("תמחק את מבוא לפילוסופיה חדשה", PLAN, []);
+    expect(actions.some((a) => a.type === "DROP_COURSE")).toBe(false);
+  });
+});
+
+describe("detectAction — MOVE_COURSE", () => {
+  it("תעביר את חקיקה לסמסטר ב׳ → MOVE with plannedSemester SPRING", () => {
+    const a = detectActions("תעביר את חקיקה ורגולציה לסמסטר ב׳", PLAN, [])[0] ?? null;
+    expect(a?.type).toBe("MOVE_COURSE");
+    expect((a as { plannedSemester?: string }).plannedSemester).toBe("SPRING");
+    expect((a as { userCourseId: string }).userCourseId).toBe("uc-4");
+  });
+
+  it("תעביר את חקיקה לשנה ג׳ → MOVE with plannedYear 3", () => {
+    const a = detectActions("תעביר את חקיקה ורגולציה לשנה ג׳", PLAN, [])[0] ?? null;
+    expect(a?.type).toBe("MOVE_COURSE");
+    expect((a as { plannedYear?: number }).plannedYear).toBe(3);
+  });
+
+  it("a move with NO absolute target ('לסמסטר הבא') proposes nothing", () => {
+    const actions = detectActions("תעביר את חקיקה ורגולציה לסמסטר הבא", PLAN, []);
+    expect(actions.some((a) => a.type === "MOVE_COURSE")).toBe(false);
+  });
+});
