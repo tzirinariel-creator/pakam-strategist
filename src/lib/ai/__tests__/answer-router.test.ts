@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { routeQuestion, isReasoningQuestion } from "@/lib/ai/answer-router";
+import { routeQuestion, isReasoningQuestion, mentionsCourseCode } from "@/lib/ai/answer-router";
 import type { QAContext } from "@/lib/degree-qa";
 
 function ctx(over: Partial<QAContext> = {}): QAContext {
@@ -85,5 +85,38 @@ describe("isFollowUpQuestion (#30)", () => {
   it("does NOT flag a fresh standalone question", () => {
     expect(isFollowUpQuestion("כמה ש״ס נשארו לי לתואר?")).toBe(false);
     expect(isFollowUpQuestion("מה הממוצע שלי?")).toBe(false);
+  });
+});
+
+// Regression for a real, reproduced bug from the 24.7 live-QA session: asking
+// about a SPECIFIC catalog course by code ("ספר לי על 0618-1012 — כמה הוא
+// קשה ומה הממוצע וכישלון בו?") got silently hijacked by the bare "ממוצע"
+// personal-GPA handler (degree-qa.ts's length-weighted scorer has no signal
+// for "whose average" — a lone 5-char keyword still wins when nothing else
+// scores higher) and answered "you have no grades yet" — a wrong answer to a
+// question that was never about the student's own grades, and the question
+// never reached the LLM at all. mentionsCourseCode() + routeQuestion now
+// force escalation whenever a Yedion course code appears, regardless of what
+// degree-qa's keyword scorer thinks it matched.
+describe("mentionsCourseCode + routeQuestion — course-code escalation (24.7 live-QA finding)", () => {
+  it("detects a Yedion course code in free text", () => {
+    expect(mentionsCourseCode("ספר לי על הקורס מבוא ללוגיקה (0618-1012)")).toBe(true);
+    expect(mentionsCourseCode("כמה ש״ס נשארו לי?")).toBe(false);
+  });
+
+  it("escalates to the LLM even though the bare 'ממוצע' handler scores > 0, reproducing the exact live bug report", () => {
+    const q = "ספר לי על הקורס מבוא ללוגיקה (0618-1012) - כמה הוא קשה ומה הממוצע וכישלון בו?";
+    const d = routeQuestion(q, ctx());
+    // The keyword scorer still "matches" (this is exactly the false-positive) —
+    // but shouldEscalate must be true and the reason must name the course code,
+    // so the caller never shows the wrong canned GPA answer as the final word.
+    expect(d.shouldEscalate).toBe(true);
+    expect(d.reason).toBe("course-code");
+  });
+
+  it("does not force escalation for an ordinary personal-average question with no course code", () => {
+    const d = routeQuestion("מה הממוצע שלי?", ctx());
+    expect(d.reason).toBe("none");
+    expect(d.shouldEscalate).toBe(false);
   });
 });

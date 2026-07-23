@@ -573,7 +573,7 @@
   },
   "record": {
     "title": "התיק האקדמי שלי",
-    "subtitle": "העבר שלכם: כל קורס שהשלמתם, הציונים והסריקות. כאן מזינים ומעדכנים — והמחשבון כבר משתמש בזה.",
+    "subtitle": "העבר שלכם: כל קורס שהשלמתם, הציונים והסריקות. כאן מזינים ומעדכנים — ותחזית-הסיום כבר משתמשת בזה.",
     "loading": "טוען את התיק האקדמי…",
     "summaryCompletedCredits": "ש״ס שהושלמו",
     "summaryWeightedAvg": "ממוצע משוקלל לפי נקודות — לא ציון הגמר הרשמי",
@@ -743,7 +743,7 @@
     "syncCalendarICS": "הורידו קובץ יומן (.ics)",
     "syncCalendarICSHint": "יש לייבא את קובץ ה-.ics ל-Google או Apple Calendar.",
     "syncCalendarEmpty": "אין עדיין מערכת שעות לייצא",
-    "meetMentor": "שאלו את המנטור",
+    "meetMentor": "שאלו את המלך הפילוסוף",
     "back": "חזרה",
     "next": "הבא",
     "step": "שלב",
@@ -968,7 +968,7 @@
   },
   "examSchedule": {
     "title": "בחינות וציונים",
-    "subtitle": "לוח בחינות ומחשבון ציון גמר",
+    "subtitle": "לוח בחינות ותחזית ציון גמר",
     "tabSchedule": "לוח בחינות",
     "tabGrades": "תחזית ציון סיום",
     "totalExams": "סה״כ בחינות",
@@ -986,7 +986,7 @@
     "exportICS": "ייצוא ליומן",
     "exportSuccess": "קובץ היומן נוצר",
     "tabTimeline": "ציר זמן",
-    "openGradeCalculator": "פתחו את מחשבון הציונים"
+    "openGradeCalculator": "פתחו את תחזית ציון הסיום"
   },
   "roi": {
     "title": "ניתוח ביצועים",

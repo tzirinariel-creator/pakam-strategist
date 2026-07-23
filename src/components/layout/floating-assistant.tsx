@@ -786,12 +786,35 @@ export function FloatingAssistant() {
         // When the router ALSO has a verified deterministic answer, hand it to
         // the LLM as an authoritative base — so the King expands on the exact
         // numbers instead of re-deriving (and possibly contradicting) them.
+        // EXCEPT when escalation happened because the question names a specific
+        // catalog course (reason "course-code"): the keyword scorer's "match" in
+        // that case is exactly the false positive being escalated away from
+        // (24.7 live-QA — a course-code question scored onto the bare "ממוצע"
+        // personal-GPA handler), so handing its text over as a "verified" hint
+        // would just reintroduce the wrong answer through the back door.
         void streamLLM(
           question,
           planHash,
           isFirst,
-          decision.matched ? decision.deterministic.text : undefined,
+          decision.matched && decision.reason !== "course-code" ? decision.deterministic.text : undefined,
         );
+      } else if (decision.reason === "course-code") {
+        // No AI key at all: we can't answer a specific-course question honestly
+        // (the rules engine only knows the student's OWN data), and showing the
+        // mismatched deterministic text here would be the same false positive.
+        setMessages((m) => [
+          ...m,
+          {
+            role: "assistant",
+            content: isHe
+              ? "אין לי דרך לענות על שאלה על קורס ספציפי בלי מפתח AI מחובר — אפשר להוסיף מפתח חינמי בהגדרות, או לחפש את הקורס בקטלוג."
+              : "I can't answer a question about a specific course without a connected AI key — add a free one in settings, or look the course up in the catalog.",
+            source: "rules",
+            href: "/catalog",
+            cta: isHe ? "לקטלוג הקורסים" : "Course catalog",
+            needsKey: true,
+          },
+        ]);
       } else {
         setMessages((m) => [
           ...m,

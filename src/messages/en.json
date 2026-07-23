@@ -573,7 +573,7 @@
   },
   "record": {
     "title": "My Academic Record",
-    "subtitle": "Your past: every completed course, grade and scan. Enter and update here — the calculator picks it up.",
+    "subtitle": "Your past: every completed course, grade and scan. Enter and update here — the forecast picks it up.",
     "loading": "Loading your academic record…",
     "summaryCompletedCredits": "Completed credits",
     "summaryWeightedAvg": "Credit-weighted average — not the official graduation score",
@@ -743,7 +743,7 @@
     "syncCalendarICS": "Download calendar file (.ics)",
     "syncCalendarICSHint": "Import the .ics file into Google or Apple Calendar.",
     "syncCalendarEmpty": "No schedule to export yet",
-    "meetMentor": "Ask the Mentor",
+    "meetMentor": "Ask the Philosopher King",
     "back": "Back",
     "next": "Next",
     "step": "Step",
@@ -887,7 +887,7 @@
   },
   "examSchedule": {
     "title": "Exams & Grades",
-    "subtitle": "Exam schedule and graduation score calculator",
+    "subtitle": "Exam schedule and graduation score forecast",
     "tabSchedule": "Exam Schedule",
     "tabGrades": "Grade Forecast",
     "totalExams": "Total Exams",
@@ -905,7 +905,7 @@
     "exportICS": "Export to Calendar",
     "exportSuccess": "Calendar file created",
     "tabTimeline": "Timeline",
-    "openGradeCalculator": "Open the grade calculator"
+    "openGradeCalculator": "Open the grade forecast"
   },
   "roi": {
     "title": "Performance Analytics",

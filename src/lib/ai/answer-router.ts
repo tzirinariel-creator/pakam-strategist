@@ -29,7 +29,7 @@ export interface RoutedDecision {
    */
   shouldEscalate: boolean;
   /** Why we escalated (for telemetry / a source badge). */
-  reason: "no-match" | "reasoning" | "follow-up" | "none";
+  reason: "no-match" | "reasoning" | "follow-up" | "course-code" | "none";
 }
 
 // Markers of an open-ended question that benefits from LLM reasoning rather
@@ -131,6 +131,24 @@ export function isReasoningQuestion(question: string): boolean {
   return NORMALIZED_MARKERS.some((m) => q.includes(m));
 }
 
+// Yedion course-code shape: "0618-1012". Live-QA (24.7) found that naming a
+// SPECIFIC course this way ("ספר לי על 0618-1012 — כמה הוא קשה") still got
+// hijacked by the generic personal-stat handlers below (bare "ממוצע"/"ציון" —
+// degree-qa.ts has no per-catalog-course knowledge, only the student's OWN
+// data, so it can never correctly answer a "tell me about course X" question;
+// it just happens to score > 0 on the wrong handler and answers something
+// else entirely, silently, with no escalation). An explicit course code is an
+// unambiguous, cheap-to-detect signal that the question is catalog-scoped —
+// route it to the LLM (which sees the real per-course data when the course is
+// in the student's own lists, and is now instructed to say so honestly when
+// it isn't) instead of trusting the keyword scorer.
+const COURSE_CODE_PATTERN = /\b\d{4}-\d{4}\b/;
+
+/** Does the question name a specific catalog course by its Yedion code? */
+export function mentionsCourseCode(question: string): boolean {
+  return COURSE_CODE_PATTERN.test(question);
+}
+
 /**
  * Decide how to answer a question. Always computes the deterministic answer;
  * flags escalation when the rules don't match or the question wants judgment.
@@ -147,15 +165,22 @@ export function routeQuestion(
   // canned paragraph; it escalates to the LLM (which has the history). The
   // deterministic answer remains the graceful no-key fallback.
   const followUp = Boolean(opts?.hasHistory) && isFollowUpQuestion(question);
+  // A named course code is catalog-scoped, not personal-stat-scoped — never
+  // let the generic "ממוצע"/"ציון"/"בחירה" handlers silently answer for it
+  // (24.7 live-QA finding). Checked LAST so it doesn't override a genuine
+  // per-course match from degree-qa's own course-scoped handlers above.
+  const courseCode = mentionsCourseCode(question);
 
-  const shouldEscalate = !matched || reasoning || followUp;
+  const shouldEscalate = !matched || reasoning || followUp || courseCode;
   const reason: RoutedDecision["reason"] = !matched
     ? "no-match"
     : followUp
       ? "follow-up"
       : reasoning
         ? "reasoning"
-        : "none";
+        : courseCode
+          ? "course-code"
+          : "none";
 
   return { deterministic, matched, shouldEscalate, reason };
 }
