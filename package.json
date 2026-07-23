@@ -22,7 +22,8 @@
     "test:watch": "vitest",
     "sync": "tsx scripts/sync-local.ts",
     "sync:all": "tsx scripts/sync-local.ts --all",
-    "backup": "bash scripts/backup-db.sh"
+    "backup": "bash scripts/backup-db.sh",
+    "reset:test": "tsx scripts/reset-test-user.ts"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.78.0",
