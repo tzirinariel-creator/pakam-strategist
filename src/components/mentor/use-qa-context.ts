@@ -14,6 +14,7 @@ import {
 } from "@/lib/miluim";
 import type { QAContext } from "@/lib/degree-qa";
 import { buildRecommendations, type Recommendation } from "@/lib/recommendations-engine";
+import { arazimView } from "@/lib/arazim/visibility";
 
 /**
  * Builds the deterministic-QA context from the student's own tRPC data, shared
@@ -95,27 +96,33 @@ export function useDegreeQAContext(
     // (schema.prisma:185). It's "moderate", NOT "medium" — the old "medium" key
     // scored every moderate course 0, letting an easy course outrank it.
     const DIFF_RANK: Record<string, number> = { very_hard: 4, hard: 3, moderate: 2, easy: 1 };
+    // Arazim gate: the "hardest remaining course" ranking is built ENTIRELY from
+    // the external Arazim difficulty/average/fail signal. With Arazim off
+    // ("בלי ארזים כרגע") arazimView returns nulls, so no course qualifies and
+    // hardestRemaining is null — degree-qa then gives its honest "I don't have
+    // difficulty data" answer instead of inventing a hardest course.
     const hardestRemaining =
       planCourses
+        .map((uc) => ({ uc, av: arazimView(uc.course) }))
         .filter(
-          (uc) =>
+          ({ uc, av }) =>
             uc.status !== "COMPLETED" &&
             uc.status !== "FAILED" &&
-            (uc.course.difficultyLevel != null || uc.course.averageGrade != null || uc.course.failRate != null),
+            (av.difficultyLevel != null || av.averageGrade != null || av.failRate != null),
         )
-        .map((uc) => ({
+        .map(({ uc, av }) => ({
           nameHe: uc.course.nameHe,
           nameEn: uc.course.nameEn ?? uc.course.nameHe,
-          difficultyLevel: uc.course.difficultyLevel ?? null,
-          averageGrade: uc.course.averageGrade ?? null,
-          failRate: uc.course.failRate ?? null,
+          difficultyLevel: av.difficultyLevel,
+          averageGrade: av.averageGrade,
+          failRate: av.failRate,
           _score:
             // failRate is a 0-100 percentage (schema.prisma:184) — do NOT ×100,
             // or it (≤10000) swamps the difficulty tier (≤4000) and the ranking
             // is driven by fail-rate noise instead of the difficulty label first.
-            (DIFF_RANK[uc.course.difficultyLevel ?? ""] ?? 0) * 1000 +
-            (uc.course.failRate ?? 0) +
-            (uc.course.averageGrade != null ? (100 - uc.course.averageGrade) : 0),
+            (DIFF_RANK[av.difficultyLevel ?? ""] ?? 0) * 1000 +
+            (av.failRate ?? 0) +
+            (av.averageGrade != null ? (100 - av.averageGrade) : 0),
         }))
         .sort((a, b) => b._score - a._score)[0] ?? null;
 

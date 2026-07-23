@@ -18,6 +18,7 @@ import { greetNameForLocale } from "@/lib/personal-address";
 import { calculateGrades } from "@/lib/grade-calculator";
 import { runRegulationEngine } from "@/lib/regulations/rule-engine";
 import { computeCreditExemption, deriveCurrentGroup, getCurrentAcademicYear, prefersHigherGrade, type MiluimGroupKey } from "@/lib/miluim";
+import { arazimView } from "@/lib/arazim/visibility";
 import { buildExamPeriodBlock } from "@/lib/ai/exam-facts";
 import { getProgramById } from "@/lib/programs/registry";
 import { getAcademicNow, getPlanningAnchor, deriveYearOfStudy } from "@/lib/academic-calendar";
@@ -134,9 +135,17 @@ function mapToCourseInfo(
     discipline: uc.disciplineOverride ?? uc.course.discipline,
     credits: uc.course.credits,
     ...(includeGrade && { grade: uc.grade }),
-    averageGrade: uc.course.averageGrade,
-    difficultyLevel: uc.course.difficultyLevel,
-    failRate: uc.course.failRate,
+    // Arazim gate: the King never cites external historical averages/difficulty
+    // when Arazim is off ("בלי ארזים כרגע"). arazimView returns nulls, so these
+    // facts are simply omitted from the prompt (mentor-prompt gates on non-null).
+    ...(() => {
+      const av = arazimView(uc.course);
+      return {
+        averageGrade: av.averageGrade,
+        difficultyLevel: av.difficultyLevel,
+        failRate: av.failRate,
+      };
+    })(),
   };
 }
 
@@ -303,16 +312,20 @@ export async function buildUserContext(
       const prereqs = course.prerequisites ?? [];
       return prereqs.every((code) => completedCodes.has(code));
     })
-    .map((course) => ({
-      code: course.code,
-      nameHe: course.nameHe,
-      discipline: course.discipline,
-      credits: course.credits,
-      averageGrade: course.averageGrade,
-      difficultyLevel: course.difficultyLevel,
-      failRate: course.failRate,
-      isMandatory: course.courseType === "MANDATORY" || course.isMandatory === true,
-    }));
+    .map((course) => {
+      // Arazim gate — omit external averages/difficulty for the King when off.
+      const av = arazimView(course);
+      return {
+        code: course.code,
+        nameHe: course.nameHe,
+        discipline: course.discipline,
+        credits: course.credits,
+        averageGrade: av.averageGrade,
+        difficultyLevel: av.difficultyLevel,
+        failRate: av.failRate,
+        isMandatory: course.courseType === "MANDATORY" || course.isMandatory === true,
+      };
+    });
 
   return {
     // The mentor prompt is Hebrew, so guard the greeting name by script: a

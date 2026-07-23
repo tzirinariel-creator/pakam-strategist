@@ -1,4 +1,11 @@
-import { describe, it, expect } from "vitest";
+import { describe, it, expect, vi } from "vitest";
+// The difficulty signal is gated behind ARAZIM_ENABLED (owner: "בלי ארזים כרגע").
+// These tests verify the difficulty LOGIC itself, so they exercise the
+// Arazim-ENABLED path; a separate test below locks the gated-OFF behavior.
+vi.mock("@/lib/arazim/visibility", async (orig) => ({
+  ...(await orig<typeof import("@/lib/arazim/visibility")>()),
+  ARAZIM_ENABLED: true,
+}));
 import { generateExamPlan, analyzeExamPeriod, classifyDifficulty, confidenceMultiplier, explainBudget, israelCivilDate, type ExamInput } from "@/lib/exam-planner";
 
 const NOW = new Date("2026-06-01T00:00:00Z");

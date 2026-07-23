@@ -8,7 +8,7 @@
 
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
-import { fetchGrades, enrichCoursesWithGrades } from "@/lib/arazim";
+import { fetchGrades, enrichCoursesWithGrades, ARAZIM_ENABLED } from "@/lib/arazim";
 
 // grades.json is ~11 MB — give plenty of time to fetch + process
 export const maxDuration = 60;
@@ -20,6 +20,13 @@ export async function GET(request: Request) {
   const cronSecret = process.env.CRON_SECRET?.trim();
   if (!cronSecret || authHeader !== `Bearer ${cronSecret}`) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  // Arazim is off (owner decision "בלי ארזים כרגע"). Don't fetch or write new
+  // external grade data while the feature is hidden — flipping ARAZIM_ENABLED
+  // back on re-enables the sync with no other change.
+  if (!ARAZIM_ENABLED) {
+    return NextResponse.json({ ok: true, source: "arazim", skipped: "disabled" });
   }
 
   // Create sync log (distinguish from IMS sync with a marker in diffJson)

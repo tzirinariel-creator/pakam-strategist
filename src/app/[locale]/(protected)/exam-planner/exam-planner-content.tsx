@@ -27,6 +27,7 @@ import {
   type ExamInput,
   type ExamPlanResult,
 } from "@/lib/exam-planner";
+import { arazimView } from "@/lib/arazim/visibility";
 import { StudySkyline } from "@/components/exam-planner/study-skyline";
 import { WeeklyGrid } from "@/components/exam-planner/weekly-grid";
 import dynamic from "next/dynamic";
@@ -527,16 +528,20 @@ export function ExamPlannerContent() {
                   // engine uses (incl. the "light" credits scaling), so the line
                   // never disagrees with the plan.
                   const effCredits = prepStyle === "light" ? Math.max(1, Math.round(c.credits * 0.75)) : c.credits;
+                  // Arazim gate: with Arazim off the historical signal is hidden,
+                  // so the budget falls to a uniform "medium" and the label is the
+                  // honest "no history" one (never "לפי נתוני ארזים").
+                  const av = arazimView(c);
                   const exp = explainBudget({
                     credits: effCredits,
-                    averageGrade: c.averageGrade,
-                    failRate: c.failRate,
+                    averageGrade: av.averageGrade,
+                    failRate: av.failRate,
                     confidence: confidence[c.code],
                     hoursOverride: hoursOverride[c.code],
                   });
                   // Only claim the Arazim source when there IS data behind the
                   // classification; unknown course → an honest default label.
-                  const hasSignal = c.averageGrade != null || c.failRate != null;
+                  const hasSignal = av.averageGrade != null || av.failRate != null;
                   const diffHe = hasSignal
                     ? `קורס ${exp.difficulty === "high" ? "קשה" : exp.difficulty === "low" ? "קל" : "בינוני"} לפי נתוני ארזים`
                     : "אין נתוני עבר — הנחנו בינוני";

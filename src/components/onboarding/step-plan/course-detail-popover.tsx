@@ -11,6 +11,7 @@ import {
 import { DISCIPLINE_CONFIG, FILTERABLE_DISCIPLINE_IDS } from "@/lib/constants";
 import { Clock, Calendar, BookOpen, Lock, Users, X, Pencil } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { arazimView } from "@/lib/arazim/visibility";
 import type { CourseWithSchedule } from "@/lib/plan-generator";
 
 const DAY_LABELS_HE: Record<string, string> = {
@@ -42,6 +43,8 @@ export function CourseDetailPopover({ course, children, onDisciplineOverride }: 
   const cfg = DISCIPLINE_CONFIG[course.discipline];
   const dayLabels = isHe ? DAY_LABELS_HE : DAY_LABELS_EN;
   const [showDisciplineSelect, setShowDisciplineSelect] = useState(false);
+  // Arazim gate: hide the external past-grade difficulty row when Arazim is off.
+  const av = arazimView(course);
 
   return (
     <Popover>
@@ -87,31 +90,31 @@ export function CourseDetailPopover({ course, children, onDisciplineOverride }: 
 
         {/* Real difficulty data (from past Arazim grades) — helps a student
             decide whether an elective is a smart pick (gal-3 #19). */}
-        {(course.difficultyLevel || course.averageGrade != null) && (
+        {(av.difficultyLevel || av.averageGrade != null) && (
           <div className="flex flex-wrap items-center gap-x-2.5 gap-y-1 rounded-lg bg-foreground/[0.03] px-2.5 py-2 text-[11px]">
-            {course.difficultyLevel &&
+            {av.difficultyLevel &&
               (() => {
                 const meta = {
                   easy: { he: "קל", en: "Easy", cls: "text-emerald-500" },
                   moderate: { he: "בינוני", en: "Moderate", cls: "text-foreground/60" },
                   hard: { he: "קשה", en: "Hard", cls: "text-amber-500" },
                   very_hard: { he: "קשה מאוד", en: "Very hard", cls: "text-red-500" },
-                }[course.difficultyLevel];
+                }[av.difficultyLevel as "easy" | "moderate" | "hard" | "very_hard"];
                 return meta ? (
                   <span className={cn("font-semibold", meta.cls)}>{isHe ? meta.he : meta.en}</span>
                 ) : null;
               })()}
             {/* Golden rule (Q1): never dir="ltr" around a Hebrew word — bdi on
                 the NUMBER only (this flipped to "81.07 ממוצע" in the popover). */}
-            {course.averageGrade != null && (
+            {av.averageGrade != null && (
               <span className="text-foreground/55">
                 {isHe ? "ממוצע " : "avg "}
-                <bdi dir="ltr">{course.averageGrade}</bdi>
+                <bdi dir="ltr">{av.averageGrade}</bdi>
               </span>
             )}
-            {course.failRate != null && course.failRate >= 1 && (
+            {av.failRate != null && av.failRate >= 1 && (
               <span className="text-foreground/55">
-                <bdi dir="ltr">{Math.round(course.failRate)}%</bdi> {isHe ? "נכשלים" : "fail"}
+                <bdi dir="ltr">{Math.round(av.failRate)}%</bdi> {isHe ? "נכשלים" : "fail"}
               </span>
             )}
             <span className="text-foreground/30">{isHe ? "· מנתוני עבר" : "· from past data"}</span>

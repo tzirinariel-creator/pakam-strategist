@@ -25,6 +25,7 @@ import { calculateHonestLoad, type HonestLoadLabel } from "@/lib/workload-calcul
 import { findDenseDay } from "@/lib/schedule-density";
 import { Bidi } from "@/lib/bidi";
 import { CREDIT_REQUIREMENTS, DISCIPLINE_CONFIG } from "@/lib/constants";
+import { ARAZIM_ENABLED } from "@/lib/arazim/visibility";
 import type { CourseWithSchedule, ScheduleConflict } from "@/lib/plan-generator";
 
 // ─── Constants ────────────────────────────────────────────────────────
@@ -327,18 +328,30 @@ export function InsightsBar({
   const isHe = locale === "he";
   const [showConflictDetails, setShowConflictDetails] = useState(false);
 
+  // Arazim gate: difficulty comes ONLY from Arazim. With it off ("בלי ארזים
+  // כרגע") null out difficultyLevel so every difficulty-based insight (hard-count
+  // warnings, "balanced semester", hard-course names) goes silent instead of
+  // leaning on a hidden signal. Reversible via ARAZIM_ENABLED.
+  const difficultyGatedCourses = useMemo(
+    () =>
+      ARAZIM_ENABLED
+        ? selectedCourses
+        : selectedCourses.map((c) => ({ ...c, difficultyLevel: null })),
+    [selectedCourses],
+  );
+
   // Course-mix facts (P3′) — the simple, verifiable counts the tips and
   // insights need. The old 0-100 magic score is gone; these are just counts.
   const mix = useMemo(() => {
-    const hardCourseCount = selectedCourses.filter(
+    const hardCourseCount = difficultyGatedCourses.filter(
       (c) => c.difficultyLevel === "hard" || c.difficultyLevel === "very_hard"
     ).length;
     return {
-      hasSeminar: selectedCourses.some((c) => c.courseType === "SEMINAR"),
-      disciplineSpread: new Set(selectedCourses.map((c) => c.discipline)).size,
+      hasSeminar: difficultyGatedCourses.some((c) => c.courseType === "SEMINAR"),
+      disciplineSpread: new Set(difficultyGatedCourses.map((c) => c.discipline)).size,
       hardCourseCount,
     };
-  }, [selectedCourses]);
+  }, [difficultyGatedCourses]);
 
   // Honest 3-number load (#2) — real facts, no prediction:
   //   contact hours (from the grid) · ש״ס · tightest gap between exam dates.
@@ -385,14 +398,14 @@ export function InsightsBar({
   // Contextual workload explanation
   const workloadTip = useMemo(() => {
     return generateWorkloadExplanation(
-      selectedCourses,
+      difficultyGatedCourses,
       semesterCredits,
       mix.hasSeminar,
       mix.disciplineSpread,
       mix.hardCourseCount,
       isHe,
     );
-  }, [selectedCourses, semesterCredits, mix, isHe]);
+  }, [difficultyGatedCourses, semesterCredits, mix, isHe]);
 
   // ─── Extra insights data ──────────────────────────────────────────
 
@@ -451,14 +464,14 @@ export function InsightsBar({
   // ─── Smart schedule insights (replaces heatmap grid) ─────────────
   const scheduleInsights = useMemo(() => {
     return generateScheduleInsights(
-      selectedCourses,
+      difficultyGatedCourses,
       weekHeatmap,
       earlyMorningCount,
       mix.disciplineSpread,
       mix.hardCourseCount,
       isHe,
     );
-  }, [selectedCourses, weekHeatmap, earlyMorningCount, mix.disciplineSpread, mix.hardCourseCount, isHe]);
+  }, [difficultyGatedCourses, weekHeatmap, earlyMorningCount, mix.disciplineSpread, mix.hardCourseCount, isHe]);
 
   return (
     <div className="w-full space-y-2">

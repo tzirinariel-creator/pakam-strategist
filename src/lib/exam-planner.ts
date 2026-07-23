@@ -6,6 +6,10 @@
 // credits × difficulty, and surfaces conflicts + a Moed-B relief suggestion.
 // No LLM. Pure + testable; the UI/server fill ExamInput from real data.
 
+// Import the leaf visibility module directly (not the barrel) so this pure lib
+// never pulls in the Arazim network fetcher.
+import { ARAZIM_ENABLED } from "./arazim/visibility";
+
 export interface ExamInput {
   courseCode: string;
   courseName: string;
@@ -161,6 +165,11 @@ export function israelCivilDate(now: Date = new Date()): Date {
 
 /** Classify difficulty from the course's historical grade signal. */
 export function classifyDifficulty(averageGrade?: number | null, failRate?: number | null): Difficulty {
+  // Arazim is the ONLY source of these historical grade/fail signals. With it
+  // off ("בלי ארזים כרגע") there is no difficulty signal at all, so every course
+  // budgets at the neutral "medium" rate — the exam-planner already surfaces
+  // this honestly ("אין נתוני עבר — הנחנו בינוני"). Reversible via ARAZIM_ENABLED.
+  if (!ARAZIM_ENABLED) return "medium";
   // failRate is a PERCENTAGE 0-100 (Course.failRate — schema.prisma:184, and the
   // UI passes c.failRate straight in). The bar is 20% fail, NOT 0.2 — the old
   // 0.2 fired at a 0.2% fail rate, tagging almost every course "high" and

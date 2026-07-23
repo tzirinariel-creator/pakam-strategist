@@ -16,6 +16,7 @@ import { DisciplineBadge } from "./discipline-badge";
 import { CourseDetailModal } from "./course-detail-modal";
 import { AskKingButton } from "@/components/ui/ask-king-button";
 import { CohortCourseChip } from "@/components/cohort/cohort-course-chip";
+import { ARAZIM_ENABLED, arazimView } from "@/lib/arazim/visibility";
 import { cn } from "@/lib/utils";
 import type { Course } from "@/types/degree";
 import type { Discipline } from "@/types/enums";
@@ -127,9 +128,19 @@ export function CourseTable({ courses, allCourses, focusArea }: CourseTableProps
   // (#17/#24 — "electives organized by focus area"). Toggleable.
   const [focusFirst, setFocusFirst] = useState(true);
 
+  // Arazim gate: null out the external historical grade/fail/difficulty fields
+  // when Arazim is off (owner decision "בלי ארזים כרגע"). Every downstream read
+  // in this table — sort, the grade column, the difficulty pill, the "ארזים"
+  // source token — already treats these as optional, so hiding them here removes
+  // the whole surface in one place. Reversible via ARAZIM_ENABLED.
+  const gatedCourses = useMemo(
+    () => courses.map((c) => ({ ...c, ...arazimView(c) })),
+    [courses],
+  );
+
   // ---- Sorting logic ----
   const sortedCourses = useMemo(() => {
-    const sorted = [...courses].sort((a, b) => {
+    const sorted = [...gatedCourses].sort((a, b) => {
       // Focus-area courses first (when enabled) — the primary ordering, so the
       // student's discipline surfaces above the chosen column sort.
       if (focusFirst && focusArea) {
@@ -184,7 +195,7 @@ export function CourseTable({ courses, allCourses, focusArea }: CourseTableProps
       return sortDirection === "asc" ? cmp : -cmp;
     });
     return sorted;
-  }, [courses, sortField, sortDirection, locale, focusFirst, focusArea]);
+  }, [gatedCourses, sortField, sortDirection, locale, focusFirst, focusArea]);
 
   function handleSort(field: SortField) {
     if (sortField === field) {
@@ -309,30 +320,37 @@ export function CourseTable({ courses, allCourses, focusArea }: CourseTableProps
               </button>
             </TableHead>
 
-            {/* Average grade + difficulty (#19). The header carries an honest
-                "where from" tooltip — this is an estimate, not an official grade. */}
-            <TableHead
-              className="select-none text-center"
-              aria-sort={sortField === "averageGrade" ? (sortDirection === "asc" ? "ascending" : "descending") : "none"}
-            >
-              <button
-                type="button"
-                onClick={() => handleSort("averageGrade")}
-                title={
-                  isHe
-                    ? "נתוני פרויקט ארזים — סטטיסטיקות ציונים אמיתיות משנים קודמות, לא ציון רשמי של האוניברסיטה"
-                    : "Arazim Project data — real grade statistics from past years, not an official university grade"
-                }
-                className="inline-flex items-center gap-1 text-foreground/80 font-bold bg-transparent appearance-none cursor-pointer select-none"
+            {/* Grade/difficulty column. With Arazim ON it's the external
+                historical distribution (sortable, with an honest provenance
+                tooltip). With Arazim OFF ("בלי ארזים כרגע") this column carries
+                ONLY the app's own community/cohort chip — so it's relabeled and
+                the (now dead) grade sort is dropped. */}
+            {ARAZIM_ENABLED ? (
+              <TableHead
+                className="select-none text-center"
+                aria-sort={sortField === "averageGrade" ? (sortDirection === "asc" ? "ascending" : "descending") : "none"}
               >
-                {/* Provenance in the LABEL, not just the 10px source token: this
-                    column is the EXTERNAL Arazim historical distribution, not the
-                    app's own cohort data (audit 22.7 — Ariel: "averages that don't
-                    rely on the app's real databases"). */}
-                {isHe ? "ממוצע היסטורי" : "Historical avg"}
-                {sortIcon("averageGrade")}
-              </button>
-            </TableHead>
+                <button
+                  type="button"
+                  onClick={() => handleSort("averageGrade")}
+                  title={
+                    isHe
+                      ? "נתוני פרויקט ארזים — סטטיסטיקות ציונים אמיתיות משנים קודמות, לא ציון רשמי של האוניברסיטה"
+                      : "Arazim Project data — real grade statistics from past years, not an official university grade"
+                  }
+                  className="inline-flex items-center gap-1 text-foreground/80 font-bold bg-transparent appearance-none cursor-pointer select-none"
+                >
+                  {isHe ? "ממוצע היסטורי" : "Historical avg"}
+                  {sortIcon("averageGrade")}
+                </button>
+              </TableHead>
+            ) : (
+              <TableHead className="select-none text-center">
+                <span className="text-foreground/80 font-bold">
+                  {isHe ? "נתוני מחזור" : "Cohort"}
+                </span>
+              </TableHead>
+            )}
 
             {/* Year - hidden on mobile */}
             <TableHead

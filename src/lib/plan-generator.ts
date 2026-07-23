@@ -13,6 +13,18 @@
 import type { Course } from "@prisma/client";
 import type { ProgramDefinition } from "@/lib/programs/types";
 import { getActiveProgram } from "@/lib/programs/registry";
+import { ARAZIM_ENABLED } from "@/lib/arazim/visibility";
+
+/** Effective course difficulty — null when Arazim is off ("בלי ארזים כרגע"),
+ *  since Arazim is the only source of the difficulty signal. With it off the
+ *  balancer sees every course as neutral (no hard/easy differentiation). */
+function effectiveDifficulty(course: { difficultyLevel: string | null }): string | null {
+  return ARAZIM_ENABLED ? course.difficultyLevel : null;
+}
+function isHardDifficulty(course: { difficultyLevel: string | null }): boolean {
+  const dl = effectiveDifficulty(course);
+  return dl === "hard" || dl === "very_hard";
+}
 
 // -----------------------------------------------------------------------
 // Types
@@ -347,7 +359,7 @@ function fillElectives(
     if (semCredits + course.credits > MAX_CREDITS_PER_SEMESTER) continue;
 
     // Difficulty guard: avoid placing hard electives in semesters already heavy with hard courses
-    const isHard = course.difficultyLevel === "hard" || course.difficultyLevel === "very_hard";
+    const isHard = isHardDifficulty(course);
     if (isHard) {
       const hardCount = countHardCourses(year, semester, planned, courseMap);
       if (hardCount >= 2) continue; // skip — this semester already has 2+ hard courses
@@ -370,7 +382,7 @@ function fillElectives(
 /** Numeric difficulty for sorting/balancing. Higher = harder. */
 function difficultyScore(course: CourseWithSchedule): number {
   const scores: Record<string, number> = { easy: 0, moderate: 1, hard: 2, very_hard: 3 };
-  return scores[course.difficultyLevel ?? ""] ?? 1; // default to "moderate" if unknown
+  return scores[effectiveDifficulty(course) ?? ""] ?? 1; // default to "moderate" if unknown
 }
 
 /** Count hard/very_hard courses in a specific semester slot. */
@@ -385,8 +397,7 @@ function countHardCourses(
     .reduce((count, pc) => {
       const c = courseMap.get(pc.courseId);
       if (!c) return count;
-      const dl = c.difficultyLevel;
-      return count + (dl === "hard" || dl === "very_hard" ? 1 : 0);
+      return count + (isHardDifficulty(c) ? 1 : 0);
     }, 0);
 }
 
@@ -414,7 +425,7 @@ function pickSemesterForCourse(
     .filter((pc) => pc.plannedYear === year && pc.plannedSemester === "SPRING")
     .reduce((sum, pc) => sum + (courseMap.get(pc.courseId)?.credits ?? 0), 0);
 
-  const isHardCourse = course.difficultyLevel === "hard" || course.difficultyLevel === "very_hard";
+  const isHardCourse = isHardDifficulty(course);
 
   if (isHardCourse) {
     // For hard courses: prefer the semester with fewer hard courses

@@ -11,7 +11,7 @@ import { parseSyllabusHtml } from "@/lib/scraper/parser";
 import { computeDiff, type CourseWithSchedule } from "@/lib/scraper/differ";
 import { applyDiff } from "@/lib/scraper/applier";
 import type { ScrapeResult, ScrapedCourse, CourseDiff } from "@/lib/scraper/types";
-import { fetchGrades, enrichCoursesWithGrades } from "@/lib/arazim";
+import { fetchGrades, enrichCoursesWithGrades, ARAZIM_ENABLED } from "@/lib/arazim";
 import { discoverNewCourses } from "@/lib/scraper/discoverer";
 
 // =========================================
@@ -410,6 +410,22 @@ export const adminRouter = createTRPCRouter({
    * grade/difficulty data. No proxy needed — Arazim is a free JSON API.
    */
   runArazimSync: adminProcedure.mutation(async ({ ctx }) => {
+    // Arazim is off (owner decision "בלי ארזים כרגע"). Don't write new external
+    // grade data while the feature is hidden — flip ARAZIM_ENABLED to re-enable.
+    // Return the same shape (all zeros) so the admin UI stays type-safe.
+    if (!ARAZIM_ENABLED) {
+      return {
+        source: "arazim",
+        coursesChecked: 0,
+        enriched: 0,
+        updated: 0,
+        unchanged: 0,
+        notFound: 0,
+        noData: 0,
+        errors: 0,
+      };
+    }
+
     const syncLog = await ctx.db.syncLog.create({
       data: { status: "running" },
     });

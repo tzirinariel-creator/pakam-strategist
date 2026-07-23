@@ -18,6 +18,7 @@ import { AskKingButton } from "@/components/ui/ask-king-button";
 import { api } from "@/lib/trpc/react";
 import { TAG_LABELS, isAllowedTag } from "@/lib/course-knowledge-tags";
 import { ContributeReviewSheet } from "./contribute-review-sheet";
+import { arazimView } from "@/lib/arazim/visibility";
 import type { Course } from "@/types/degree";
 import type { Discipline } from "@/types/enums";
 
@@ -64,12 +65,16 @@ export function CourseDetailModal({
 
   const cfg = DISCIPLINE_CONFIG[course.discipline as Discipline];
   const name = isHe ? course.nameHe : (course.nameEn ?? course.nameHe);
-  const diff = course.difficultyLevel ? DIFFICULTY_META[course.difficultyLevel] : null;
-  const fromYear = formatGradeYear(course.gradeDataYear, isHe);
+  // Arazim gate: hide the external historical grade/difficulty block when
+  // Arazim is off ("בלי ארזים כרגע") — the modal then shows its honest
+  // "no historical grade data" line and keeps the community/cohort block below.
+  const av = arazimView(course);
+  const diff = av.difficultyLevel ? DIFFICULTY_META[av.difficultyLevel as keyof typeof DIFFICULTY_META] : null;
+  const fromYear = formatGradeYear(av.gradeDataYear, isHe);
   const dayLabels = isHe ? DAY_LABELS_HE : DAY_LABELS_EN;
   const sessions = course.scheduleSessions ?? [];
   const byCode = (code: string) => courses.find((c) => c.code === code) ?? null;
-  const hasGrade = course.averageGrade != null || course.medianGrade != null || (course.failRate != null && course.failRate >= 1);
+  const hasGrade = av.averageGrade != null || av.medianGrade != null || (av.failRate != null && av.failRate >= 1);
 
   return (
     <Dialog open={!!course} onOpenChange={(o) => !o && onClose()}>
@@ -99,14 +104,14 @@ export function CourseDetailModal({
           {hasGrade ? (
             <div className="rounded-xl border border-border/50 bg-foreground/[0.02] p-3">
               <div className="flex flex-wrap items-baseline gap-x-4 gap-y-1">
-                {course.averageGrade != null && (
-                  <Stat label={isHe ? "ממוצע" : "Average"} value={course.averageGrade.toFixed(1)} />
+                {av.averageGrade != null && (
+                  <Stat label={isHe ? "ממוצע" : "Average"} value={av.averageGrade.toFixed(1)} />
                 )}
-                {course.medianGrade != null && (
-                  <Stat label={isHe ? "חציון" : "Median"} value={course.medianGrade.toFixed(1)} />
+                {av.medianGrade != null && (
+                  <Stat label={isHe ? "חציון" : "Median"} value={av.medianGrade.toFixed(1)} />
                 )}
-                {course.failRate != null && course.failRate >= 1 && (
-                  <Stat label={isHe ? "נכשלים" : "Fail rate"} value={`${Math.round(course.failRate)}%`} />
+                {av.failRate != null && av.failRate >= 1 && (
+                  <Stat label={isHe ? "נכשלים" : "Fail rate"} value={`${Math.round(av.failRate)}%`} />
                 )}
                 {diff && (
                   <div className="flex flex-col">

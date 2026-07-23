@@ -21,6 +21,14 @@ vi.mock("next-intl", () => ({
   useTranslations: () => (k: string) => k,
 }));
 
+// The hard-course insights read difficultyLevel, which is gated behind
+// ARAZIM_ENABLED ("בלי ארזים כרגע"). These tests lock the difficulty-messaging
+// logic, so they run with the Arazim-enabled path.
+vi.mock("@/lib/arazim/visibility", async (orig) => ({
+  ...(await orig<typeof import("@/lib/arazim/visibility")>()),
+  ARAZIM_ENABLED: true,
+}));
+
 import { InsightsBar } from "@/components/onboarding/semester-planner/insights-bar";
 import type { CourseWithSchedule } from "@/lib/plan-generator";
 

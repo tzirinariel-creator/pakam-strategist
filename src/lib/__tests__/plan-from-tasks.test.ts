@@ -1,4 +1,10 @@
-import { describe, it, expect } from "vitest";
+import { describe, it, expect, vi } from "vitest";
+// Difficulty inheritance is gated behind ARAZIM_ENABLED ("בלי ארזים כרגע");
+// this round-trip test exercises the Arazim-enabled path.
+vi.mock("@/lib/arazim/visibility", async (orig) => ({
+  ...(await orig<typeof import("@/lib/arazim/visibility")>()),
+  ARAZIM_ENABLED: true,
+}));
 import { generateExamPlan, analyzeExamPeriod, type ExamInput } from "@/lib/exam-planner";
 import { planFromStudyTasks, survivesRetune, buildPrePlaced, type StudyTaskLike } from "@/lib/plan-from-tasks";
 
