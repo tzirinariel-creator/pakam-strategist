@@ -23,7 +23,8 @@
     "sync": "tsx scripts/sync-local.ts",
     "sync:all": "tsx scripts/sync-local.ts --all",
     "backup": "bash scripts/backup-db.sh",
-    "reset:test": "tsx scripts/reset-test-user.ts"
+    "reset:test": "tsx scripts/reset-test-user.ts",
+    "verify:writepaths": "tsx scripts/verify-writepaths.ts"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.78.0",
