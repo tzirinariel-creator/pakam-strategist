@@ -123,6 +123,10 @@ model User {
   courseReviews   CourseReview[]
   cohortInsights  CohortInsight[]
   sharedPlans     SharedPlanEntry[]
+  // Consent-based named mentoring (owner 23.7): the MENTEE initiates (so sharing
+  // is a deliberate act by the plan owner), the MENTOR accepts to view the plan.
+  mentorLinksAsMentee MentorLink[] @relation("MentorLinkMentee")
+  mentorLinksAsMentor MentorLink[] @relation("MentorLinkMentor")
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -538,6 +542,41 @@ model CohortInsight {
 // The winning-plans gallery (approved 11.7): a registry of the URL-token
 // shared plans, opt-in published to the cohort file. The token IS the plan
 // (no course rows duplicated); viewing rides the existing /shared-plan page.
+// =========================================================================
+// Consent-based named mentoring (owner decision 23.7 — "חונכות בעל-שם,
+// בהסכמה, תוכנית-בלבד").
+// =========================================================================
+// A named link where a MENTEE lets a specific MENTOR view their PLAN (courses +
+// semesters + status) — NEVER their grades. The MENTEE initiates, so the person
+// whose data is shared is always the one who chose to share it (consent by
+// construction). Either party can end it; ending revokes the mentor's access
+// immediately. Read-access is enforced in the router by requiring an ACTIVE row.
+enum MentorLinkStatus {
+  PENDING // mentee invited; awaiting the mentor's accept/decline
+  ACTIVE // mentor accepted → may view the mentee's plan (plan-only)
+  DECLINED // mentor declined the invitation
+  ENDED // either party ended the link → access revoked
+}
+
+model MentorLink {
+  id           String           @id @default(uuid())
+  menteeUserId String // the student whose plan is shared (the initiator)
+  mentorUserId String // the person invited to mentor / view the plan
+  status       MentorLinkStatus @default(PENDING)
+  createdAt    DateTime         @default(now())
+  respondedAt  DateTime? // when the mentor accepted/declined
+  endedAt      DateTime? // when either party ended an active link
+
+  mentee User @relation("MentorLinkMentee", fields: [menteeUserId], references: [id], onDelete: Cascade)
+  mentor User @relation("MentorLinkMentor", fields: [mentorUserId], references: [id], onDelete: Cascade)
+
+  // One link per direction between two people (a re-invite reuses/updates the row).
+  @@unique([menteeUserId, mentorUserId])
+  @@index([mentorUserId, status])
+  @@index([menteeUserId, status])
+  @@map("mentor_links")
+}
+
 model SharedPlanEntry {
   id          String       @id @default(uuid())
   userId      String

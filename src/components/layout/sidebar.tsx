@@ -40,6 +40,7 @@ const NAV_ICONS = {
   mentor: PhilosopherKingIcon,
   guide: Compass,
   cohort: Users2,
+  mentors: Users2,
   adminModeration: ShieldCheck,
   adminSync: RefreshCw,
 } as const;
@@ -75,6 +76,7 @@ const NAV_GROUPS: readonly (readonly { key: keyof typeof NAV_ICONS; href: string
   [
     { key: "catalog", href: "/catalog" },
     { key: "cohort", href: "/cohort" },
+    { key: "mentors", href: "/mentors" },
     { key: "guide", href: "/guide" },
   ],
 ] as const;

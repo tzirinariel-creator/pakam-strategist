@@ -21,7 +21,8 @@
     "guide": "מדריך מתחיל",
     "adminModeration": "מודרציה",
     "adminSync": "סנכרון קטלוג",
-    "cohort": "תיק המחזור"
+    "cohort": "תיק המחזור",
+    "mentors": "חונכות"
   },
   "auth": {
     "login": "התחברות",

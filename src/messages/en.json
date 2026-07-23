@@ -21,7 +21,8 @@
     "guide": "Beginner guide",
     "adminModeration": "Moderation",
     "adminSync": "Catalog sync",
-    "cohort": "Cohort file"
+    "cohort": "Cohort file",
+    "mentors": "Mentoring"
   },
   "auth": {
     "login": "Log In",
