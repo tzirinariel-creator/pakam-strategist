@@ -14,11 +14,38 @@ const USER = { id: "u1", supabaseId: "sb1", email: "t@example.com", startYear: 2
 function makeDb() {
   const insights: Array<Record<string, unknown>> = [];
   const entries: Array<Record<string, unknown>> = [];
+  const insightReports: Array<{ insightId: string; userId: string }> = [];
+  const planReports: Array<{ entryId: string; userId: string }> = [];
   let seq = 0;
+  // Enforce the DB's @@unique per (item, reporter): a repeat report from the
+  // same user throws P2002, exactly like Prisma against the real constraint.
+  const p2002 = () => Object.assign(new Error("Unique constraint failed"), { code: "P2002" });
   return {
     insights,
     entries,
-    user: { findUnique: async () => USER },
+    insightReports,
+    planReports,
+    // Echo the queried supabaseId as the row id, so distinct callers resolve to
+    // distinct ctx.user.id values (distinct reporters).
+    user: { findUnique: async ({ where }: { where: { supabaseId: string } }) => ({ ...USER, id: where.supabaseId, supabaseId: where.supabaseId }) },
+    insightReport: {
+      create: async ({ data }: { data: { insightId: string; userId: string } }) => {
+        if (insightReports.some((r) => r.insightId === data.insightId && r.userId === data.userId)) throw p2002();
+        insightReports.push(data);
+        return data;
+      },
+      count: async ({ where }: { where: { insightId: string } }) =>
+        insightReports.filter((r) => r.insightId === where.insightId).length,
+    },
+    planReport: {
+      create: async ({ data }: { data: { entryId: string; userId: string } }) => {
+        if (planReports.some((r) => r.entryId === data.entryId && r.userId === data.userId)) throw p2002();
+        planReports.push(data);
+        return data;
+      },
+      count: async ({ where }: { where: { entryId: string } }) =>
+        planReports.filter((r) => r.entryId === where.entryId).length,
+    },
     cohortInsight: {
       findMany: async ({ where }: { where: Record<string, unknown> }) =>
         insights.filter((i) =>
@@ -81,12 +108,12 @@ function makeDb() {
   };
 }
 
-function makeCaller(db: ReturnType<typeof makeDb>) {
+function makeCaller(db: ReturnType<typeof makeDb>, supabaseId: string = USER.supabaseId) {
   const createCaller = createCallerFactory(cohortRouter);
   return createCaller({
     db: db as never,
-    userId: USER.supabaseId,
-    session: { user: { id: USER.supabaseId } } as never,
+    userId: supabaseId,
+    session: { user: { id: supabaseId } } as never,
     supabase: {} as never,
     headers: new Headers(),
     loaders: undefined,
@@ -107,23 +134,37 @@ describe("cohort router (stage ב)", () => {
     expect(db.insights[0]!.cohortYear).toBe(2025);
   });
 
-  it("3 reports auto-hide a FOREIGN insight; self-reports are ignored", async () => {
+  it("3 DISTINCT reporters auto-hide a FOREIGN insight; self-reports are ignored", async () => {
     const db = makeDb();
-    const caller = makeCaller(db);
-    // A foreign-authored insight (not USER's).
+    // A foreign-authored insight (not any reporter's).
     const foreign = { id: "00000000-0000-4000-8000-0000000000ff", userId: "someone-else", stage: "EXAMS", text: "x", status: "VISIBLE", reportCount: 0 };
     db.insights.push(foreign);
-    await caller.reportInsight({ id: foreign.id });
-    await caller.reportInsight({ id: foreign.id });
+    await makeCaller(db, "rep-a").reportInsight({ id: foreign.id });
+    await makeCaller(db, "rep-b").reportInsight({ id: foreign.id });
     expect(foreign.status).toBe("VISIBLE");
-    await caller.reportInsight({ id: foreign.id });
+    expect(foreign.reportCount).toBe(2);
+    await makeCaller(db, "rep-c").reportInsight({ id: foreign.id });
     expect(foreign.status).toBe("HIDDEN");
+    expect(foreign.reportCount).toBe(3);
 
     // Self-report never counts.
-    await caller.contributeInsight({ stage: "GENERAL", text: "תובנה משלי כאן לבדיקה" });
+    const owner = makeCaller(db, "self");
+    await owner.contributeInsight({ stage: "GENERAL", text: "תובנה משלי כאן לבדיקה" });
     const mine = db.insights.find((i) => i.stage === "GENERAL")!;
-    await caller.reportInsight({ id: mine.id as string });
+    await owner.reportInsight({ id: mine.id as string });
     expect(mine.reportCount).toBe(0);
+  });
+
+  it("one account cannot mass-hide an insight: repeat reports are deduped (#audit-r1)", async () => {
+    const db = makeDb();
+    const foreign = { id: "00000000-0000-4000-8000-0000000000fe", userId: "someone-else", stage: "EXAMS", text: "x", status: "VISIBLE", reportCount: 0 };
+    db.insights.push(foreign);
+    const abuser = makeCaller(db, "abuser");
+    await abuser.reportInsight({ id: foreign.id });
+    await abuser.reportInsight({ id: foreign.id });
+    await abuser.reportInsight({ id: foreign.id });
+    expect(foreign.reportCount).toBe(1);
+    expect(foreign.status).toBe("VISIBLE");
   });
 
   it("re-saving a HIDDEN insight does NOT un-hide it (no moderation bypass)", async () => {
@@ -153,6 +194,23 @@ describe("cohort router (stage ב)", () => {
     const caller = makeCaller(db);
     await expect(caller.publishPlan({ title: "מסלול שבור", token: "AAAAAAAAAA" })).rejects.toMatchObject({ code: "BAD_REQUEST" });
     expect(db.entries).toHaveLength(0);
+  });
+
+  it("gallery report: 3 distinct reporters hide an entry; one account can't (#audit-r1)", async () => {
+    const db = makeDb();
+    await makeCaller(db, "author").publishPlan({ title: "מסלול לדוגמה", token: TOKEN_A });
+    const entry = db.entries[0]!;
+    // One account spamming reports advances the count only once.
+    const abuser = makeCaller(db, "g-abuser");
+    await abuser.reportGalleryEntry({ id: entry.id as string });
+    await abuser.reportGalleryEntry({ id: entry.id as string });
+    expect(entry.reportCount).toBe(1);
+    expect(entry.status).toBe("VISIBLE");
+    // Two more distinct reporters push it over the threshold.
+    await makeCaller(db, "g-b").reportGalleryEntry({ id: entry.id as string });
+    await makeCaller(db, "g-c").reportGalleryEntry({ id: entry.id as string });
+    expect(entry.reportCount).toBe(3);
+    expect(entry.status).toBe("HIDDEN");
   });
 
   it("listInsights only returns VISIBLE rows", async () => {

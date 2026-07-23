@@ -19,20 +19,42 @@ import { Users2 } from "lucide-react";
 import { api } from "@/lib/trpc/react";
 import { cn } from "@/lib/utils";
 
+// The shared shape between getForCourse's `ratings` and one entry of the
+// batched getForCourses map — everything this chip needs to render.
+export type CohortChipRatings = {
+  workloadAvg: number | null;
+  recommendShare: number | null;
+  contributorBucket: "EMPTY" | "SEEDING" | "REVEALED" | undefined;
+  seedingContributors: number | null;
+  seedingRemaining: number | null;
+};
+
 export function CohortCourseChip({
   courseCode,
   isHe,
   className,
+  batched,
+  prefetched,
 }: {
   courseCode: string;
   isHe: boolean;
   className?: string;
+  /** Set when a caller batches this chip's data for many courses at once
+   *  (e.g. the catalog table via getForCourses) — permanently disables this
+   *  chip's own per-row query, so it never races the batch (audit 24.7: was
+   *  ~1 tRPC call per catalog row, ~400 findMany per catalog load). Keep this
+   *  a stable flag, NOT derived from whether `prefetched` has data yet — it
+   *  must not flip true→false while the batch is still loading. */
+  batched?: boolean;
+  /** The pre-fetched aggregate for this course, once the batch resolves.
+   *  undefined while loading (renders nothing, same as the own-query path). */
+  prefetched?: CohortChipRatings;
 }) {
   const { data } = api.courseKnowledge.getForCourse.useQuery(
     { courseCode },
-    { retry: false, staleTime: 5 * 60_000, refetchOnMount: false },
+    { retry: false, staleTime: 5 * 60_000, refetchOnMount: false, enabled: !batched },
   );
-  const r = data?.ratings;
+  const r = batched ? prefetched : data?.ratings;
   const bucket = r?.contributorBucket; // EMPTY | SEEDING | REVEALED (undefined while loading/errored)
 
   // REVEALED — the aggregate cohort verdict (k-anonymous). Render as soon as

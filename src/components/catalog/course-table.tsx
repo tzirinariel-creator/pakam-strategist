@@ -17,6 +17,7 @@ import { CourseDetailModal } from "./course-detail-modal";
 import { AskKingButton } from "@/components/ui/ask-king-button";
 import { CohortCourseChip } from "@/components/cohort/cohort-course-chip";
 import { ARAZIM_ENABLED, arazimView } from "@/lib/arazim/visibility";
+import { api } from "@/lib/trpc/react";
 import { cn } from "@/lib/utils";
 import type { Course } from "@/types/degree";
 import type { Discipline } from "@/types/enums";
@@ -137,6 +138,19 @@ export function CourseTable({ courses, allCourses, focusArea }: CourseTableProps
     () => courses.map((c) => ({ ...c, ...arazimView(c) })),
     [courses],
   );
+
+  // One batched cohort-aggregate fetch for the whole visible table (audit
+  // 24.7 fast-follow) instead of one CohortCourseChip query per row. Sorted +
+  // deduped so the query key stays stable across re-sorts of the same set.
+  const cohortCourseCodes = useMemo(
+    () => [...new Set(gatedCourses.map((c) => c.code))].sort(),
+    [gatedCourses],
+  );
+  const cohortKnowledgeQuery = api.courseKnowledge.getForCourses.useQuery(
+    { courseCodes: cohortCourseCodes },
+    { staleTime: 5 * 60_000, enabled: cohortCourseCodes.length > 0 },
+  );
+  const cohortKnowledgeByCode = cohortKnowledgeQuery.data;
 
   // ---- Sorting logic ----
   const sortedCourses = useMemo(() => {
@@ -501,14 +515,26 @@ export function CourseTable({ courses, allCourses, focusArea }: CourseTableProps
                         </span>
                       );
                     })()}
-                    <CohortCourseChip courseCode={course.code} isHe={isHe} className="mt-1" />
+                    <CohortCourseChip
+                      courseCode={course.code}
+                      isHe={isHe}
+                      className="mt-1"
+                      batched
+                      prefetched={cohortKnowledgeByCode?.[course.code]}
+                    />
                   </div>
                 ) : (
                   <div className="flex flex-col items-center gap-0.5">
                     <span className="text-xs text-muted-foreground/40" title={isHe ? "אין נתון" : "No data"}>
                       —
                     </span>
-                    <CohortCourseChip courseCode={course.code} isHe={isHe} className="mt-1" />
+                    <CohortCourseChip
+                      courseCode={course.code}
+                      isHe={isHe}
+                      className="mt-1"
+                      batched
+                      prefetched={cohortKnowledgeByCode?.[course.code]}
+                    />
                   </div>
                 )}
               </TableCell>

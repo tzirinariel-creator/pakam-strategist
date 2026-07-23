@@ -532,11 +532,29 @@ model CohortInsight {
   reportCount Int          @default(0)
   createdAt   DateTime     @default(now())
 
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user    User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  reports InsightReport[]
 
   @@unique([userId, stage])
   @@index([stage, status])
   @@map("cohort_insights")
+}
+
+// One row per (insight, reporter) — the same idempotent-report pattern as
+// ReviewReport (#audit-r1). The @@unique makes a repeat report from the same
+// user a no-op, so no lone actor can drive an insight to HIDDEN on their own.
+// CohortInsight.reportCount is kept in sync as the DISTINCT-reporter count.
+model InsightReport {
+  id        String   @id @default(uuid())
+  insightId String
+  userId    String
+  createdAt DateTime @default(now())
+
+  insight CohortInsight @relation(fields: [insightId], references: [id], onDelete: Cascade)
+
+  @@unique([insightId, userId])
+  @@index([insightId])
+  @@map("insight_reports")
 }
 
 // The winning-plans gallery (approved 11.7): a registry of the URL-token
@@ -587,8 +605,25 @@ model SharedPlanEntry {
   reportCount Int          @default(0)
   createdAt   DateTime     @default(now())
 
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user    User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  reports PlanReport[]
 
   @@index([status, createdAt])
   @@map("shared_plan_entries")
+}
+
+// One row per (gallery entry, reporter) — mirrors InsightReport / ReviewReport
+// (#audit-r1). Idempotent per reporter so a single account can't force a
+// published plan to HIDDEN. SharedPlanEntry.reportCount tracks distinct reporters.
+model PlanReport {
+  id        String   @id @default(uuid())
+  entryId   String
+  userId    String
+  createdAt DateTime @default(now())
+
+  entry SharedPlanEntry @relation(fields: [entryId], references: [id], onDelete: Cascade)
+
+  @@unique([entryId, userId])
+  @@index([entryId])
+  @@map("plan_reports")
 }

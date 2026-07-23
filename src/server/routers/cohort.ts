@@ -79,8 +79,8 @@ export const cohortRouter = createTRPCRouter({
   reportInsight: protectedProcedure
     .input(z.object({ id: z.string().uuid() }))
     .mutation(async ({ ctx, input }) => {
-      // Rate-limit reports per user so one account can't mass-hide the wall
-      // (audit HIGH — no per-reporter dedup table exists, so cap the abuse).
+      // Rate-limit reports per user as a coarse abuse cap; the real brake is the
+      // per-reporter InsightReport dedup below (moderated exactly like reviews).
       if (!checkRateLimit(`cohort-report:${ctx.user.id}`, { maxRequests: 8, windowSeconds: 3600 }).allowed) {
         throw new TRPCError({ code: "TOO_MANY_REQUESTS", message: "Too many reports — try later." });
       }
@@ -88,12 +88,21 @@ export const cohortRouter = createTRPCRouter({
       if (!row) throw new TRPCError({ code: "NOT_FOUND" });
       // Can't report your own — and re-reporting the same hidden row is a no-op.
       if (row.userId === ctx.user.id || row.status === "HIDDEN") return { ok: true };
-      const reportCount = row.reportCount + 1;
+      // Record this reporter once; a repeat report from the same user hits the
+      // unique constraint and is a no-op (doesn't advance the count) — so no
+      // single account can drive an insight to HIDDEN on its own (#audit-r1).
+      try {
+        await ctx.db.insightReport.create({ data: { insightId: row.id, userId: ctx.user.id } });
+      } catch (e) {
+        if ((e as { code?: string })?.code === "P2002") return { ok: true }; // already reported
+        throw e;
+      }
+      const reporters = await ctx.db.insightReport.count({ where: { insightId: row.id } });
       await ctx.db.cohortInsight.update({
-        where: { id: input.id },
+        where: { id: row.id },
         data: {
-          reportCount,
-          status: reportCount >= HIDE_THRESHOLD ? "HIDDEN" : row.status,
+          reportCount: reporters,
+          status: reporters >= HIDE_THRESHOLD ? "HIDDEN" : row.status,
         },
       });
       return { ok: true };
@@ -163,12 +172,19 @@ export const cohortRouter = createTRPCRouter({
       const row = await ctx.db.sharedPlanEntry.findUnique({ where: { id: input.id } });
       if (!row) throw new TRPCError({ code: "NOT_FOUND" });
       if (row.userId === ctx.user.id || row.status === "HIDDEN") return { ok: true };
-      const reportCount = row.reportCount + 1;
+      // Per-reporter dedup — one bump per user, like reviews/insights (#audit-r1).
+      try {
+        await ctx.db.planReport.create({ data: { entryId: row.id, userId: ctx.user.id } });
+      } catch (e) {
+        if ((e as { code?: string })?.code === "P2002") return { ok: true }; // already reported
+        throw e;
+      }
+      const reporters = await ctx.db.planReport.count({ where: { entryId: row.id } });
       await ctx.db.sharedPlanEntry.update({
-        where: { id: input.id },
+        where: { id: row.id },
         data: {
-          reportCount,
-          status: reportCount >= HIDE_THRESHOLD ? "HIDDEN" : row.status,
+          reportCount: reporters,
+          status: reporters >= HIDE_THRESHOLD ? "HIDDEN" : row.status,
         },
       });
       return { ok: true };

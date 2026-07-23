@@ -141,10 +141,30 @@ describe("courseKnowledge.getForCourses (S3)", () => {
     const createCaller = createCallerFactory(courseKnowledgeRouter);
     const caller = createCaller({ db: db as never, userId: USER.supabaseId, session: { user: { id: USER.supabaseId } } as never, supabase: {} as never, headers: new Headers(), loaders: undefined });
     const r = await caller.getForCourses({ courseCodes: ["A", "B", "C"] });
-    expect(r["A"]).toEqual({ n: 3, revealed: true, recommendShare: 1 });
+    expect(r["A"]).toEqual({
+      n: 3,
+      revealed: true,
+      recommendShare: 1,
+      workloadAvg: 3,
+      contributorBucket: "REVEALED",
+      seedingContributors: null,
+      seedingRemaining: null,
+    });
     expect(r["B"]!.revealed).toBe(false);
     expect(r["B"]!.recommendShare).toBeNull();
-    expect(r["C"]).toEqual({ n: 0, revealed: false, recommendShare: null }); // no data — honest empty
+    // B: 2 raters — below the reveal bar but enough to seed (chip's SEEDING state).
+    expect(r["B"]!.contributorBucket).toBe("SEEDING");
+    expect(r["B"]!.seedingContributors).toBe(2);
+    expect(r["B"]!.seedingRemaining).toBe(1);
+    expect(r["C"]).toEqual({
+      n: 0,
+      revealed: false,
+      recommendShare: null,
+      workloadAvg: null,
+      contributorBucket: "EMPTY",
+      seedingContributors: null,
+      seedingRemaining: null,
+    }); // no data — honest empty
   });
 });
 

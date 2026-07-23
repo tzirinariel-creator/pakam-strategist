@@ -647,6 +647,10 @@ export const adminRouter = createTRPCRouter({
         await ctx.db.cohortInsight.delete({ where: { id: input.id } });
         return { deleted: true };
       }
+      // Wipe the report slate like approveReview — otherwise the old reporters
+      // stay "already reported" (unique constraint) and can never re-flag it,
+      // while reportCount would jump back up from stale rows on the next report.
+      await ctx.db.insightReport.deleteMany({ where: { insightId: input.id } });
       return ctx.db.cohortInsight.update({ where: { id: input.id }, data: { status: "VISIBLE", reportCount: 0 } });
     }),
 
@@ -659,6 +663,7 @@ export const adminRouter = createTRPCRouter({
         await ctx.db.sharedPlanEntry.delete({ where: { id: input.id } });
         return { deleted: true };
       }
+      await ctx.db.planReport.deleteMany({ where: { entryId: input.id } });
       return ctx.db.sharedPlanEntry.update({ where: { id: input.id }, data: { status: "VISIBLE", reportCount: 0 } });
     }),
 

@@ -287,6 +287,12 @@ export const courseKnowledgeRouter = createTRPCRouter({
     return { courses: courseDigests, tips, totals };
   }),
 
+  /** Batched aggregate for the catalog table (audit 24.7 fast-follow): the
+   *  table used to render one CohortCourseChip per row, each firing its own
+   *  getForCourse query — ~100-200 tRPC calls / ~400 findMany on one catalog
+   *  load. One round-trip here, keyed by code, covers every field the chip
+   *  needs (including the SEEDING bucket) so the per-row query can go away.
+   *  Same k-anonymity thresholds as getForCourse — nothing leaks below them. */
   getForCourses: publicProcedure
     .input(z.object({ courseCodes: z.array(z.string().min(1).max(30)).min(1).max(200) }))
     .query(async ({ ctx, input }) => {
@@ -300,13 +306,26 @@ export const courseKnowledgeRouter = createTRPCRouter({
         list.push(r);
         byCode.set(r.courseCode, list);
       }
-      const out: Record<string, { n: number; revealed: boolean; recommendShare: number | null }> = {};
+      const avg = (xs: number[]) => (xs.length ? xs.reduce((a, b) => a + b, 0) / xs.length : null);
+      const out: Record<
+        string,
+        {
+          n: number;
+          revealed: boolean;
+          recommendShare: number | null;
+          workloadAvg: number | null;
+          contributorBucket: "EMPTY" | "SEEDING" | "REVEALED";
+          seedingContributors: number | null;
+          seedingRemaining: number | null;
+        }
+      > = {};
       for (const code of input.courseCodes) {
         const rows = (byCode.get(code) ?? []).filter(
           (r) => r.workload != null || r.difficulty != null || r.verdict != null,
         );
         const verdicts = rows.map((r) => r.verdict).filter((v) => v != null);
         const revealed = rows.length >= RATING_MIN_N;
+        const workloadVals = rows.map((r) => r.workload).filter((x): x is number => x != null);
         out[code] = {
           n: rows.length,
           revealed,
@@ -314,6 +333,10 @@ export const courseKnowledgeRouter = createTRPCRouter({
             revealed && verdicts.length >= RATING_MIN_N
               ? round1(verdicts.filter((v) => v === "RECOMMEND").length / verdicts.length)
               : null,
+          workloadAvg: revealed && workloadVals.length >= RATING_MIN_N ? round1(avg(workloadVals) as number) : null,
+          contributorBucket: revealed ? "REVEALED" : rows.length >= 2 ? "SEEDING" : "EMPTY",
+          seedingContributors: !revealed && rows.length >= 2 ? rows.length : null,
+          seedingRemaining: !revealed && rows.length >= 2 ? RATING_MIN_N - rows.length : null,
         };
       }
       return out;
