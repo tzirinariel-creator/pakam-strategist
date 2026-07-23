@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { LogOut, Loader2, Trash2 } from "lucide-react";
+import { LogOut, Loader2, Trash2, KeyRound, Check } from "lucide-react";
 import { useTranslations, useLocale } from "next-intl";
 import { toast } from "sonner";
 import { api } from "@/lib/trpc/react";
@@ -9,6 +9,7 @@ import { useRouter } from "@/i18n/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 import { SectionCard } from "./section-card";
 
 // ---------------------------------------------------------------
@@ -69,6 +70,12 @@ export function AccountSection() {
           {t("signOut")}
         </Button>
 
+        {/* Set / change password — this is where the "forgot password" recovery
+            link lands (authenticated recovery session), so a student who reset
+            can actually pick a new one; it also lets any email/password user
+            change theirs (launch audit 24.7 — the flow used to dead-end here). */}
+        <SetPasswordBlock />
+
         <p className="mt-2 text-sm text-foreground/50">{t("dangerZone")}</p>
         <div className="flex flex-wrap gap-2">
           {isTestUser && (
@@ -93,6 +100,82 @@ export function AccountSection() {
         <DeleteAccountBlock onDone={handleSignOut} />
       </div>
     </SectionCard>
+  );
+}
+
+function SetPasswordBlock() {
+  const isHe = useLocale() === "he";
+  const [pw, setPw] = useState("");
+  const [confirm, setConfirm] = useState("");
+  const [saving, setSaving] = useState(false);
+  const tooShort = pw.length > 0 && pw.length < 8;
+  const mismatch = confirm.length > 0 && pw !== confirm;
+  const canSave = pw.length >= 8 && pw === confirm && !saving;
+
+  const handleSave = async () => {
+    setSaving(true);
+    try {
+      const supabase = createClient();
+      const { error } = await supabase.auth.updateUser({ password: pw });
+      if (error) throw error;
+      toast.success(isHe ? "הסיסמה עודכנה" : "Password updated");
+      setPw("");
+      setConfirm("");
+    } catch (e) {
+      toast.error((e as { message?: string })?.message ?? (isHe ? "עדכון הסיסמה נכשל — נסו שוב." : "Couldn't update the password — try again."));
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  return (
+    <div className="mt-2 rounded-xl border border-border/60 bg-card/40 p-4">
+      <div className="flex items-center gap-2">
+        <KeyRound className="size-4 text-foreground/60" />
+        <p className="text-sm font-semibold text-foreground/85">
+          {isHe ? "סיסמה" : "Password"}
+        </p>
+      </div>
+      <p className="mt-1 text-xs leading-relaxed text-foreground/55">
+        {isHe
+          ? "כאן קובעים סיסמה חדשה — גם אם הגעתם מקישור ״שכחתי סיסמה״. לפחות 8 תווים."
+          : "Set a new password here — including after a “forgot password” link. At least 8 characters."}
+      </p>
+      <div className="mt-2.5 flex flex-col gap-2 sm:flex-row sm:items-center">
+        <input
+          type="password"
+          value={pw}
+          onChange={(e) => setPw(e.target.value)}
+          placeholder={isHe ? "סיסמה חדשה" : "New password"}
+          aria-label={isHe ? "סיסמה חדשה" : "New password"}
+          autoComplete="new-password"
+          className="w-full rounded-md border border-border bg-card px-3 py-1.5 text-sm focus:border-accent-brand focus:outline-none sm:w-44"
+        />
+        <input
+          type="password"
+          value={confirm}
+          onChange={(e) => setConfirm(e.target.value)}
+          placeholder={isHe ? "אימות סיסמה" : "Confirm password"}
+          aria-label={isHe ? "אימות סיסמה" : "Confirm password"}
+          autoComplete="new-password"
+          className={cn(
+            "w-full rounded-md border bg-card px-3 py-1.5 text-sm focus:outline-none sm:w-44",
+            mismatch ? "border-red-400/60 focus:border-red-400" : "border-border focus:border-accent-brand",
+          )}
+        />
+        <Button onClick={handleSave} disabled={!canSave} className="self-start">
+          {saving ? <Loader2 className="size-4 animate-spin" /> : <Check className="size-4" />}
+          {isHe ? "עדכון" : "Update"}
+        </Button>
+      </div>
+      {(tooShort || mismatch) && (
+        <p className="mt-1.5 text-xs text-red-500">
+          {tooShort
+            ? (isHe ? "הסיסמה קצרה מדי (לפחות 8 תווים)." : "Too short (at least 8 characters).")
+            : (isHe ? "הסיסמאות אינן תואמות." : "Passwords don't match.")}
+        </p>
+      )}
+    </div>
   );
 }
 
