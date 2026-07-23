@@ -37,6 +37,7 @@ import { ThemedLoader } from "@/components/ui/themed-loader";
 import { CohortShareNudge } from "@/components/cohort/cohort-share-nudge";
 import { encodePlan, type SharedCourse } from "@/lib/plan-share";
 import { contributorLevel } from "@/lib/contributor-level";
+import { cohortLabel } from "@/lib/cohort-label";
 
 export function CohortFileContent() {
   const locale = useLocale();
@@ -279,6 +280,7 @@ function InsightsSection({ isHe }: { isHe: boolean }) {
   const utils = api.useUtils();
   const listQuery = api.cohort.listInsights.useQuery();
   const mineQuery = api.cohort.myInsights.useQuery();
+  const profileQuery = api.user.getProfile.useQuery();
   const [stage, setStage] = useState<StageKey>("FIRST_YEAR");
   // null = "no local edit yet, show the saved text"; "" = user cleared it.
   const [draft, setDraft] = useState<string | null>(null);
@@ -358,7 +360,7 @@ function InsightsSection({ isHe }: { isHe: boolean }) {
               <p className="text-sm leading-relaxed text-foreground/80">{r.text}</p>
               <div className="flex items-center justify-between">
                 <span className="text-xs text-foreground/40">
-                  {r.cohortYear ? (isHe ? `מחזור ${r.cohortYear}` : `Class of ${r.cohortYear}`) : isHe ? "מחזור קודם" : "Alum"}
+                  {cohortLabel(r.cohortYear, profileQuery.data?.startYear, isHe)}
                 </span>
                 <button
                   type="button"
@@ -424,6 +426,7 @@ function GallerySection({ isHe }: { isHe: boolean }) {
   const utils = api.useUtils();
   const galleryQuery = api.cohort.listGallery.useQuery();
   const planQuery = api.plan.getUserPlan.useQuery();
+  const profileQuery = api.user.getProfile.useQuery();
   const [title, setTitle] = useState("");
 
   const publish = api.cohort.publishPlan.useMutation({
@@ -474,7 +477,7 @@ function GallerySection({ isHe }: { isHe: boolean }) {
               <div className="min-w-0">
                 <p className="truncate text-sm font-medium text-foreground/80">{e.title}</p>
                 <p className="text-xs text-foreground/40">
-                  {e.cohortYear ? (isHe ? `מחזור ${e.cohortYear}` : `Class of ${e.cohortYear}`) : ""}
+                  {e.cohortYear ? cohortLabel(e.cohortYear, profileQuery.data?.startYear, isHe) : ""}
                 </p>
               </div>
               <div className="flex shrink-0 items-center gap-1.5">
