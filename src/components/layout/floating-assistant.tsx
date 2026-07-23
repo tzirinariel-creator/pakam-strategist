@@ -9,6 +9,7 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { advisorError } from "@/lib/advisor-toast";
+import { daysUntilLabel, nearestUpcomingExam } from "@/lib/days-until";
 import { api } from "@/lib/trpc/react";
 import { cn } from "@/lib/utils";
 import { Link } from "@/i18n/navigation";
@@ -405,6 +406,22 @@ export function FloatingAssistant() {
     const gg = (m: string, f: string, n: string) =>
       gender === "male" ? m : gender === "female" ? f : n;
     const ask = gg("שאל", "שאלי", "שאל/י");
+    // Adaptive lead (#10) — if a REAL exam from the student's OWN plan is close,
+    // the King opens with it: grounded in their calendar (never invented, never
+    // creepy) and immediately actionable. Only within ~14 days, and skipped on
+    // the exam-planner screen itself (they're already looking at it). Uses the
+    // SAME civil-day source as the dashboard countdown, so the numbers agree.
+    const examLead = (() => {
+      if (p.includes("/exam")) return null;
+      const next = nearestUpcomingExam(planForActions.data?.courses ?? []);
+      if (!next || next.days > 14) return null;
+      const name = isHe ? next.nameHe : (next.nameEn ?? next.nameHe);
+      const when = daysUntilLabel(next.days, isHe);
+      return isHe
+        ? `${name} ${when}. רוצה שנפזר את הלמידה נכון עד אז?`
+        : `${name} exam ${when}. Want to map out your studying until then?`;
+    })();
+    if (examLead) return examLead;
     if (!isHe) {
       if (p.includes("/planner")) return "You're planning your semester. Ask me what to take, whether the load makes sense, or how to close a gap.";
       if (p.includes("/catalog")) return "Browsing the catalog. I'll help you pick the right course — difficulty, focus area, or prerequisites.";
@@ -424,7 +441,7 @@ export function FloatingAssistant() {
     if (p.includes("/exam"))
       return `תקופת המבחנים. ${ask} איך לפזר את הלמידה נכון, או מתי מועד ב׳ באמת שווה.`;
     return `${ask} אותי כל שאלה על התואר — התשובות שלי מבוססות על הנתונים האישיים שלך.`;
-  }, [pathname, isHe, gender]);
+  }, [pathname, isHe, gender, planForActions.data]);
 
   // Auto-focus the input ONLY on desktop. On touch (the whole target audience)
   // an auto-focus pops the keyboard the instant the panel opens, hiding the
