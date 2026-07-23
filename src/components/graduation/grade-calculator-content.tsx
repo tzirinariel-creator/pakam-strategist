@@ -456,7 +456,7 @@ function EmptyState({ t, locale }: { t: ReturnType<typeof useTranslations<"grade
 }
 
 // -----------------------------------------------------------------------
-// Main Grade Calculator Content
+// Main Grade Forecast Content
 // -----------------------------------------------------------------------
 
 export function GradeCalculatorContent() {

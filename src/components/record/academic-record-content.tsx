@@ -44,7 +44,7 @@ import { EmptyState } from "@/components/record/empty-state";
 // REMOVE every COMPLETED course, grouped by year·semester, with a running
 // summary (completed credits, weighted average, focus-area progress).
 //
-// Complements the Grade Calculator (graduation/) — that screen owns the
+// Complements the Grade Forecast (graduation/) — that screen owns the
 // weighted graduation-score formula + reverse calculator over the WHOLE plan;
 // this screen owns management of the PAST (COMPLETED) record only. The two
 // cross-link so there's no dead-end.
@@ -345,7 +345,7 @@ export function AcademicRecordContent() {
           </h1>
           <p className="mt-1 text-foreground/50">{t("subtitle")}</p>
         </div>
-        {/* Cross-link to the Grade Calculator */}
+        {/* Cross-link to the Grade Forecast */}
         <Link
           href="/graduation"
           className="inline-flex shrink-0 items-center gap-2 rounded-full border border-border bg-card/60 px-4 py-2 text-sm font-medium text-foreground/70 transition-colors hover:border-foreground/30 hover:text-foreground/90"

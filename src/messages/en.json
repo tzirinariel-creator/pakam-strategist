@@ -14,7 +14,7 @@
     "settings": "Settings",
     "more": "More",
     "close": "Close",
-    "graduation": "Grade Calculator",
+    "graduation": "Grade Forecast",
     "record": "My Academic Record",
     "miluim": "Miluim",
     "examPlanner": "Exam planner",
@@ -526,7 +526,7 @@
     "tasks": "Tasks"
   },
   "grades": {
-    "title": "Grade Calculator",
+    "title": "Grade Forecast",
     "subtitle": "Your future: final-score forecast, GPA and honors targets. Grades themselves are entered in the Record.",
     "courseGrades": "Course Grades",
     "enterGrade": "Enter grade",
@@ -577,7 +577,7 @@
     "loading": "Loading your academic record…",
     "summaryCompletedCredits": "Completed credits",
     "summaryWeightedAvg": "Credit-weighted average — not the official graduation score",
-    "summaryWeightedAvgHint": "For the official graduation score (78% courses · 18% seminars · 4% referat) — open the Grade Calculator",
+    "summaryWeightedAvgHint": "For the official graduation score (78% courses · 18% seminars · 4% referat) — open the Grade Forecast",
     "summaryFocusCredits": "Focus-area credits",
     "summaryTotalProgress": "of {target} credits to graduate",
     "summaryFocusProgress": "of {target} required credits",
@@ -616,7 +616,7 @@
     "emptyDescNoCourses": "You don't have any courses yet. Add your first course in the form below, or build a full plan in onboarding.",
     "emptyAddFirstCourse": "Add your first course",
     "backToOnboarding": "Build a plan in onboarding",
-    "crossLinkGrades": "For weight breakdown and graduation score — open the Grade Calculator",
+    "crossLinkGrades": "For weight breakdown and graduation score — open the Grade Forecast",
     "crossLinkFromGrades": "To manage courses you've already taken — open My Academic Record",
     "notInAvgEnglish": "not in average",
     "notInAvgBinary": "binary — out of average",
@@ -889,7 +889,7 @@
     "title": "Exams & Grades",
     "subtitle": "Exam schedule and graduation score calculator",
     "tabSchedule": "Exam Schedule",
-    "tabGrades": "Grade Calculator",
+    "tabGrades": "Grade Forecast",
     "totalExams": "Total Exams",
     "upcoming": "Upcoming",
     "passed": "Passed",
@@ -958,8 +958,8 @@
         "desc": "A timetable built automatically from your courses, with countdown to exams"
       },
       "grades": {
-        "title": "Grade Calculator",
-        "desc": "Enter grades, see your graduation score update — with the 78% courses, 18% seminars, 4% referat formula"
+        "title": "Grade Forecast",
+        "desc": "A live final-score forecast from the grades in your academic record — with the 78% courses, 18% seminars, 4% referat formula"
       },
       "regulations": {
         "title": "Degree check",
@@ -1170,7 +1170,7 @@
     "weeklyScheduleDesc": "Where you need to be this week",
     "courseCatalog": "Course Catalog",
     "courseCatalogDesc": "All PPE courses in one place",
-    "gradeCalculator": "Grade Calculator",
+    "gradeCalculator": "Grade Forecast",
     "gradeCalculatorDesc": "Graduation score + \"What if\" simulation",
     "errorTitle": "Couldn't load your data",
     "errorDescription": "Probably a temporary issue. Try refreshing — if it keeps happening, let us know",
@@ -1455,6 +1455,7 @@
     "binaryQuota": "Binary courses",
     "binaryQuotaHint": "{left} left · up to {percent}% of hours to keep honors",
     "binaryNone": "Not available for this group",
+    "binaryAdvisorLink": "Which course is worth converting? See the advisor in your academic record",
     "flagAttendance": "Attendance exempt",
     "flagExamChoice": "2-of-3 exam dates",
     "flagExamTime": "+{percent}% exam time",

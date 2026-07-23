@@ -5,7 +5,7 @@ import { useLocale } from "next-intl";
 import { usePathname } from "next/navigation";
 import { usePersonalAddress } from "@/components/personal/use-personal-address";
 import {
-  X, Send, Zap, Loader2, Database, Mic, ImagePlus,
+  X, Send, Zap, Loader2, Database, Mic, ImagePlus, ArrowLeftRight,
 } from "lucide-react";
 import { toast } from "sonner";
 import { advisorError } from "@/lib/advisor-toast";
@@ -905,6 +905,10 @@ export function FloatingAssistant() {
                       : isHe ? "יועץ התואר שלכם · תשובות מהנתונים שלכם" : "Your degree advisor · answers from your data"}
                 </p>
               </div>
+              {/* A generic swap icon, not the other persona's own portrait — showing
+                  a second full character illustration right next to the current
+                  persona's own icon read as "two logos for one character" (24.7
+                  audit). The label/title still name who you'd switch to. */}
               <button
                 type="button"
                 onClick={switchPersona}
@@ -912,11 +916,7 @@ export function FloatingAssistant() {
                 title={isHe ? `העדפת ${otherName}? החליפו` : `Prefer ${otherName}? Switch`}
                 className="shrink-0 rounded-md p-1.5 text-foreground/40 transition-colors hover:bg-foreground/10 hover:text-foreground/70"
               >
-                {isReferent ? (
-                  <PhilosopherKingCharacter className="size-6" />
-                ) : (
-                  <ReferentCharacter className="size-6" />
-                )}
+                <ArrowLeftRight className="size-4" />
               </button>
               <button
                 type="button"

@@ -43,6 +43,33 @@ describe("buildMentorSystemPrompt — grounding (P2 step 4)", () => {
   });
 });
 
+// Regression for the 24.7 King-quality audit: the model fabricated a
+// grade-average/fail-rate stat for a course that wasn't in ANY of its
+// injected lists (completed/current/available) — a hallucination, not an
+// Arazim-gating leak (Arazim's own gate was verified intact). Rule 5 alone
+// didn't stop it, so the prompt now spells out the specific failure mode.
+describe("buildMentorSystemPrompt — course-difficulty fabrication guard (24.7 audit)", () => {
+  const program = getActiveProgram();
+
+  it("explicitly forbids stating a difficulty/grade/fail-rate number for a course absent from the injected lists", () => {
+    const prompt = buildMentorSystemPrompt(ctx(), program);
+    expect(prompt).toContain("קורס שלא מופיע באף אחת מהרשימות למעלה");
+    expect(prompt).toContain("אין לך עליו שום נתון אמיתי");
+  });
+
+  it("tells the model an untagged course has NO difficulty data — never estimate one", () => {
+    const prompt = buildMentorSystemPrompt(ctx(), program);
+    expect(prompt).toContain("אם קורס מסוים מופיע בלי התג הזה");
+    expect(prompt).toContain("לעולם אל תמלא את החסר בהערכה שלך");
+  });
+
+  it("requires course-fit answers to cite the student's OWN focus-area/credit numbers, not a generic catalog description", () => {
+    const prompt = buildMentorSystemPrompt(ctx(), program);
+    expect(prompt).toContain('משתלב לי בתואר');
+    expect(prompt).toContain("לא עומדת בחוזה-התשובה");
+  });
+});
+
 describe("buildDeterministicHintBlock", () => {
   it("carries the hint as a usable factual base for the escalated answer", () => {
     const block = buildDeterministicHintBlock("נשארו לך 54 ש\"ס.");

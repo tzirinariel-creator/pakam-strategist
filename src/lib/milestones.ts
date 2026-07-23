@@ -73,8 +73,11 @@ export function reachedMilestones(input: MilestoneInput): Milestone[] {
   if (gradedCount === 1) {
     out.push({
       id: "first-grade",
-      textHe: "הציון הראשון שלכם נכנס לתיק — מעכשיו הממוצע והתחזיות מבוססים על נתון אמיתי, לא על הערכה. מכאן זה רק ימשיך להתמלא.",
-      textEn: "Your first grade is in — from now your average and forecasts are built on a real number, not an estimate. It only fills up from here.",
+      // "זה" in the old copy dangled between "הממוצע והתחזיות" (plural) and
+      // "התיק" (singular) with no clear referent — reworded so "התיק" is the
+      // explicit subject of the closing clause (24.7 audit: "מה זה אומר בכלל?").
+      textHe: "הציון הראשון שלכם נכנס לתיק — מעכשיו הממוצע והתחזיות מבוססים על נתון אמיתי, לא על הערכה. התיק רק ימשיך להתמלא מכאן.",
+      textEn: "Your first grade is in — from now your average and forecasts are built on a real number, not an estimate. Your record will only keep filling in from here.",
     });
   }
 

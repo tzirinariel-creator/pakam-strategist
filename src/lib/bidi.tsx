@@ -9,10 +9,14 @@ import React from "react";
 // such run in an isolated, force-LTR <bdi> fixes it without touching the source
 // strings. Pure Hebrew text and standalone words are left untouched.
 
-// A run = optional leading sign, then alphanumerics, with internal . , : / - – + %
-// connectors, and an optional trailing % or +. Matches "35+", "21-34", "+10%",
-// "0651-1007", "7.10.23", "2/5", "C", "MA".
-const LTR_RUN = /[+\-]?[A-Za-z0-9]+(?:[.,:/+\-–][A-Za-z0-9]+)*[%+]?/g;
+// A run = optional leading sign, then alphanumerics, with internal . , : / - – — +
+// connectors (each allowed a single surrounding space, so "C — 35" joins into ONE
+// isolate instead of two separate ones with bare, RTL-resolved punctuation
+// between them — that gap was the actual bug, not the em dash alone: two
+// isolates with neutral text between them can still reorder, audit 24.7), and
+// an optional trailing % or +. Matches "35+", "21-34", "+10%", "0651-1007",
+// "7.10.23", "2/5", "C — 35", "C", "MA".
+const LTR_RUN = /[+\-]?[A-Za-z0-9]+(?:[ ]?[.,:/+\-–—][ ]?[A-Za-z0-9]+)*[%+]?/g;
 
 /**
  * Render `text` with every LTR/numeric run wrapped in an isolated, force-LTR

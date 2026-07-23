@@ -254,6 +254,18 @@ export function MiluimStatusBar() {
                   isHe={isHe}
                 />
               </div>
+              {/* Wayfinding to the REAL per-course decision helper (BinaryAdvisor,
+                  already built on /record — this card's stepper only tracks an
+                  abstract count) — staring at "0/5" here gave no hint that tool
+                  exists elsewhere (24.7 audit). */}
+              {binaryCap > 0 && (
+                <Link
+                  href="/record"
+                  className="-mt-2 block text-[11px] text-accent-brand underline-offset-2 hover:underline"
+                >
+                  {t("binaryAdvisorLink")}
+                </Link>
+              )}
 
               {/* Headline benefits as an infographic (icon · value · label) —
                   clearer than a chip-row, and the value/label split fixes the
