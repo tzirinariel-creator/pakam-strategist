@@ -43,10 +43,18 @@ export interface RuleContext {
   /** Student's current semester ("FALL" | "SPRING" | "SUMMER"). */
   currentSemester?: string;
   /**
-   * Current miluim group ("NONE" | "GROUP_A".."GROUP_G"). Optional so existing
-   * callers stay valid; used by the binary-cap rules (PKM-024/025).
+   * DERIVED current-semester miluim group ("NONE" | "GROUP_A".."GROUP_G").
+   * Used by the binary-cap rules (PKM-024/025), where the CURRENT-semester
+   * benefit is what matters.
    */
   miluimGroup?: string | null;
+  /**
+   * RAW stored miluim group — the source EVERY visible GPA surface uses for the
+   * "higher grade counts" rule (prefersHigherGrade). The blocking year-1→2 gate
+   * must use THIS (not the derived group) so its average can never diverge from
+   * the /record and /graduation GPA the student stares at (audit 24.7).
+   */
+  gradeMiluimGroup?: string | null;
   /** Binary (pass/fail) conversions already used across the degree. */
   miluimBinaryUsed?: number;
   /** Credit exemptions (ש"ס) already used across the degree. */

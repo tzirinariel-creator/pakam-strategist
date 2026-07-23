@@ -16,9 +16,10 @@ export function daysUntilLabel(days: number, isHe: boolean): string {
   return `in ${days} days`;
 }
 
-/** A course row carrying the two possible exam sittings + its status. */
+/** A course row carrying the two possible exam sittings + its status/grade. */
 interface ExamCourseLike {
   status: string;
+  grade?: number | null;
   course: {
     nameHe: string;
     nameEn?: string | null;
@@ -28,32 +29,37 @@ interface ExamCourseLike {
 }
 
 /**
- * The nearest FUTURE exam across a plan, in CIVIL days — the single source the
+ * The nearest upcoming exam across a plan, in CIVIL days — the single source the
  * dashboard time-focus, the exam-countdown list, AND the King's greeting all use
  * so they can never show two different countdowns for the same exam (audit 22.7).
- * Both "today" and the exam are normalized to UTC-midnight before the diff
- * (exam dates are stored at UTC-midnight; a raw ms-ceil inflated the count by a
- * day near the time-of-day boundary). COMPLETED/FAILED courses are skipped.
+ *
+ * Two things MUST match the exam-countdown list (schedule.getExamSchedule /
+ * exam-countdown.tsx) or the greeting silently disagrees with it:
+ *   1. Exclusion — only a COMPLETED course WITH a grade is done. A FAILED course
+ *      still has its Moed-B retake ahead (dropping it hid the countdown exactly
+ *      when it's most urgent); a completed-without-grade is still pending.
+ *   2. "Upcoming" is a CIVIL-day test (examUTC >= todayUTC), not a raw-ms one —
+ *      exam dates are stored at UTC-midnight, so on the exam morning a raw
+ *      `t >= nowMs` treated it as PAST while the list showed "היום/Today".
  */
 export function nearestUpcomingExam(
   courses: ExamCourseLike[],
   now: Date = new Date(),
 ): { nameHe: string; nameEn: string | null; days: number } | null {
-  const nowMs = now.getTime();
   const todayUTC = Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate());
-  let best: { nameHe: string; nameEn: string | null; ms: number } | null = null;
+  let best: { nameHe: string; nameEn: string | null; examUTC: number } | null = null;
   for (const uc of courses) {
-    if (uc.status === "COMPLETED" || uc.status === "FAILED") continue;
+    // Done = completed WITH a grade (mirrors schedule.ts's NOT filter).
+    if (uc.status === "COMPLETED" && uc.grade != null) continue;
     for (const d of [uc.course.examDateA, uc.course.examDateB]) {
       if (!d) continue;
-      const t = new Date(d).getTime();
-      if (t >= nowMs && (best == null || t < best.ms)) {
-        best = { nameHe: uc.course.nameHe, nameEn: uc.course.nameEn ?? null, ms: t };
+      const e = new Date(d);
+      const examUTC = Date.UTC(e.getUTCFullYear(), e.getUTCMonth(), e.getUTCDate());
+      if (examUTC >= todayUTC && (best == null || examUTC < best.examUTC)) {
+        best = { nameHe: uc.course.nameHe, nameEn: uc.course.nameEn ?? null, examUTC };
       }
     }
   }
   if (!best) return null;
-  const e = new Date(best.ms);
-  const examUTC = Date.UTC(e.getUTCFullYear(), e.getUTCMonth(), e.getUTCDate());
-  return { nameHe: best.nameHe, nameEn: best.nameEn, days: Math.round((examUTC - todayUTC) / 86_400_000) };
+  return { nameHe: best.nameHe, nameEn: best.nameEn, days: Math.round((best.examUTC - todayUTC) / 86_400_000) };
 }

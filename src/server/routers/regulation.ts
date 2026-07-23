@@ -59,6 +59,10 @@ export const regulationRouter = createTRPCRouter({
           academicYear: deriveYearOfStudy(user.startYear, user.currentYear ?? 1),
           currentSemester: getAcademicNow().semester,
           miluimGroup: currentGroup,
+          // Grade "higher counts" rule uses the RAW stored group (like every
+          // visible GPA surface), NOT the derived current-semester group — so
+          // the blocking gate's average matches /record and /graduation (audit 24.7).
+          gradeMiluimGroup: user.miluimGroup,
           miluimBinaryUsed: user.miluimBinaryUsed,
           miluimCreditsUsed: user.miluimCreditsUsed,
         },

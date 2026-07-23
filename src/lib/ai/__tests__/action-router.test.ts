@@ -155,6 +155,16 @@ describe("detectAction — MARK_FAILED (and the negation trap)", () => {
     expect(actions.some((a) => a.type === "COMPLETE_COURSE")).toBe(false);
   });
 
+  it("'לא נכשלתי במיקרו' is NOT a failure (the mirror negation guard)", () => {
+    const actions = detectActions("לא נכשלתי במיקרו כלכלה", PLAN, []);
+    expect(actions.some((a) => a.type === "MARK_FAILED")).toBe(false);
+  });
+
+  it("'שרפתי את הסמסטר על מיקרו' does NOT fire MARK_FAILED (no bogus רפתי match)", () => {
+    const actions = detectActions("שרפתי את הסמסטר על מיקרו כלכלה", PLAN, []);
+    expect(actions.some((a) => a.type === "MARK_FAILED")).toBe(false);
+  });
+
   it("a plain pass ('עברתי את מיקרו') is still a COMPLETE, not a fail", () => {
     const actions = detectActions("עברתי את מיקרו כלכלה", PLAN, []);
     expect(actions.some((a) => a.type === "COMPLETE_COURSE")).toBe(true);
@@ -191,5 +201,11 @@ describe("detectAction — MOVE_COURSE", () => {
   it("a move with NO absolute target ('לסמסטר הבא') proposes nothing", () => {
     const actions = detectActions("תעביר את חקיקה ורגולציה לסמסטר הבא", PLAN, []);
     expect(actions.some((a) => a.type === "MOVE_COURSE")).toBe(false);
+  });
+
+  it("'סמסטר אביב' does NOT prefix-match to FALL (word-boundary guard)", () => {
+    // We don't parse "אביב" as spring, but the point is it must NOT resolve FALL.
+    const a = detectActions("תעביר את חקיקה ורגולציה לסמסטר אביב", PLAN, [])[0] ?? null;
+    expect(a?.type === "MOVE_COURSE" && (a as { plannedSemester?: string }).plannedSemester === "FALL").toBe(false);
   });
 });

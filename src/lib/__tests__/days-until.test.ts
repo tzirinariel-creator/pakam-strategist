@@ -17,8 +17,9 @@ describe("daysUntilLabel", () => {
 
 describe("nearestUpcomingExam", () => {
   const now = new Date("2026-06-01T09:00:00Z");
-  const course = (nameHe: string, a: string | null, b: string | null, status = "PLANNED") => ({
+  const course = (nameHe: string, a: string | null, b: string | null, status = "PLANNED", grade: number | null = null) => ({
     status,
+    grade,
     course: { nameHe, nameEn: null, examDateA: a, examDateB: b },
   });
 
@@ -45,15 +46,32 @@ describe("nearestUpcomingExam", () => {
     expect(r?.days).toBe(7);
   });
 
-  it("skips COMPLETED / FAILED courses", () => {
+  it("skips only a COMPLETED course WITH a grade (mirrors the exam-countdown list)", () => {
     const r = nearestUpcomingExam(
       [
-        course("עבר", "2026-06-05T00:00:00Z", null, "COMPLETED"),
-        course("נכשל", "2026-06-06T00:00:00Z", null, "FAILED"),
+        course("ציון-נכנס", "2026-06-05T00:00:00Z", null, "COMPLETED", 90), // done → skipped
         course("פעיל", "2026-06-15T00:00:00Z", null, "IN_PROGRESS"),
       ],
       now,
     );
     expect(r?.nameHe).toBe("פעיל");
+  });
+
+  it("KEEPS a FAILED course's upcoming Moed-B retake (still ahead, still urgent)", () => {
+    const r = nearestUpcomingExam(
+      [
+        course("נכשל-חוזר", null, "2026-06-08T00:00:00Z", "FAILED"),
+        course("פעיל", "2026-06-20T00:00:00Z", null, "IN_PROGRESS"),
+      ],
+      now,
+    );
+    expect(r?.nameHe).toBe("נכשל-חוזר");
+    expect(r?.days).toBe(7);
+  });
+
+  it("counts an exam happening TODAY (civil day) as days === 0, not past", () => {
+    const nowMorning = new Date("2026-06-08T09:00:00Z"); // after UTC-midnight of exam day
+    const r = nearestUpcomingExam([course("היום", "2026-06-08T00:00:00Z", null)], nowMorning);
+    expect(r?.days).toBe(0);
   });
 });

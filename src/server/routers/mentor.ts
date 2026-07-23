@@ -35,9 +35,14 @@ export const mentorRouter = createTRPCRouter({
 
       const mentor = await ctx.db.user.findFirst({
         where: { email: { equals: email, mode: "insensitive" } },
-        select: personSelect,
+        select: { id: true },
       });
       if (!mentor) {
+        // The invitee must be a registered user (you can't share a plan with a
+        // non-user) — but do NOT echo any resolved name back: that would turn
+        // invite into an email→real-name lookup oracle for any authenticated
+        // caller. The mentee already knows who they typed; the invitee learns of
+        // it only through their own pendingInvites list.
         throw new TRPCError({
           code: "NOT_FOUND",
           message: "לא נמצא משתמש עם האימייל הזה. ודאו שהוא רשום לפכמון (בעל-שם, לא אנונימי).",
@@ -52,7 +57,7 @@ export const mentorRouter = createTRPCRouter({
         where: { menteeUserId_mentorUserId: { menteeUserId: me.id, mentorUserId: mentor.id } },
       });
       if (existing && (existing.status === "PENDING" || existing.status === "ACTIVE")) {
-        return { status: existing.status, mentorName: personName(mentor) };
+        return { status: existing.status };
       }
       const link = existing
         ? await ctx.db.mentorLink.update({
@@ -62,7 +67,7 @@ export const mentorRouter = createTRPCRouter({
         : await ctx.db.mentorLink.create({
             data: { menteeUserId: me.id, mentorUserId: mentor.id, status: "PENDING" },
           });
-      return { status: link.status, mentorName: personName(mentor) };
+      return { status: link.status };
     }),
 
   /** As MENTOR — invitations awaiting my accept/decline. */

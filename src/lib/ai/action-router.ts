@@ -86,10 +86,16 @@ const DROP_INTENT = /(תוריד|תורידי|הורד|תסיר|תסירי|הס�
 // FAIL must be tested BEFORE complete: COMPLETE_INTENT contains "עברתי", which
 // also appears inside "לא עברתי" — so a failure sentence would otherwise be
 // misread as a pass. NEGATED_PASS below re-guards the complete branch too.
-const FAIL_INTENT = /(נכשלתי|נפלתי ב|לא עברתי|רפתי|failed|flunked|didnt pass|did not pass)/;
+// "רפתי" was removed — it isn't a Hebrew failing verb and substring-matched
+// innocent verbs (שרפתי "I wasted", צרפתי "I attached") → false MARK_FAILED.
+const FAIL_INTENT = /(נכשלתי|נפלתי ב|לא עברתי|failed|flunked|didnt pass|did not pass)/;
 const MOVE_INTENT = /(תעביר|תעבירי|העבר|תזיז|תזיזי|הזז|move|reschedule|push .* to)/;
 // A pass sentence that is actually a NEGATION — "לא עברתי", "לא סיימתי".
 const NEGATED_PASS = /(לא עברתי|לא סיימתי|לא סגרתי|didnt pass|did not pass|didnt finish)/;
+// The MIRROR guard for the fail branch: "לא נכשלתי" / "לא נפלתי" is NOT a
+// failure. Without this, a negated-failure (or "לא נכשלתי אלא עברתי") would
+// propose a destructive MARK_FAILED — the opposite of what the student said.
+const NEGATED_FAIL = /(לא נכשלתי|לא נפלתי|didnt fail|did not fail)/;
 
 /** Parse an ABSOLUTE move target (semester and/or year) from the sentence.
  *  Relative targets ("הסמסטר הבא") return nothing for both — the caller then
@@ -102,19 +108,22 @@ function parseMoveTarget(normText: string): {
   let plannedSemester: "FALL" | "SPRING" | "SUMMER" | undefined;
   let plannedYear: number | undefined;
   const labelParts: string[] = [];
-  // Semester: "סמסטר א/ראשון/fall" · "סמסטר ב/שני/spring" · "קיץ/summer".
-  if (/(סמסטר א|סמסטר ראשונ|semester a|fall)/.test(normText)) {
+  // Semester: "סמסטר א/ראשון/fall" · "סמסטר ב/שני/spring" · "קיץ/summer". The
+  // א/ב tokens require a WORD BOUNDARY after them — otherwise "סמסטר אביב"
+  // (spring) or "סמסטר אחרון" (relative) prefix-matched "סמסטר א" → wrong FALL.
+  if (/(סמסטר א(?=\s|$)|סמסטר ראשונ|semester a|fall)/.test(normText)) {
     plannedSemester = "FALL";
     labelParts.push("סמסטר א׳");
-  } else if (/(סמסטר ב|סמסטר שני|semester b|spring)/.test(normText)) {
+  } else if (/(סמסטר ב(?=\s|$)|סמסטר שני|semester b|spring)/.test(normText)) {
     plannedSemester = "SPRING";
     labelParts.push("סמסטר ב׳");
   } else if (/(קיצ|summer)/.test(normText)) {
     plannedSemester = "SUMMER";
     labelParts.push("סמסטר קיץ");
   }
-  // Year: "שנה א/ב/ג/ד" or "שנה 1-4" or "year 1-4".
-  const yearWord = normText.match(/שנה ([אבגד1234])/) ?? normText.match(/year ([1234])/);
+  // Year: "שנה א/ב/ג/ד" or "שנה 1-4" or "year 1-4". Boundary after the ordinal
+  // so "שנה אחרונה" doesn't capture the "א" of אחרונה as year 1.
+  const yearWord = normText.match(/שנה ([אבגד1234])(?=\s|$)/) ?? normText.match(/year ([1234])(?=\s|$)/);
   if (yearWord) {
     const map: Record<string, number> = { א: 1, ב: 2, ג: 3, ד: 4, "1": 1, "2": 2, "3": 3, "4": 4 };
     plannedYear = map[yearWord[1]!];
@@ -226,7 +235,8 @@ export function detectActions(
   );
 
   // FAIL first — its "לא עברתי" would otherwise trip COMPLETE_INTENT's "עברתי".
-  if (FAIL_INTENT.test(norm)) {
+  // Guarded by NEGATED_FAIL so "לא נכשלתי" is never read as a failure.
+  if (FAIL_INTENT.test(norm) && !NEGATED_FAIL.test(norm)) {
     const hit = bestMatch(norm, activeRows, (c) => c.nameHe);
     if (hit) {
       actions.push({ type: "MARK_FAILED", userCourseId: hit.userCourseId, courseName: hit.nameHe });

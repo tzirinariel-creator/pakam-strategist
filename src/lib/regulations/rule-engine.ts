@@ -58,6 +58,8 @@ export interface RegulationStudentContext {
   currentSemester?: string;
   /** Current miluim group ("NONE" | "GROUP_A".."GROUP_G") — for binary-cap rules. */
   miluimGroup?: string | null;
+  /** RAW stored miluim group — for the grade "higher counts" rule (see RuleContext). */
+  gradeMiluimGroup?: string | null;
   /** Binary (pass/fail) conversions already used across the degree. */
   miluimBinaryUsed?: number;
   /** Credit exemptions (ש״ס) already used across the degree. */
@@ -90,8 +92,12 @@ export function runRegulationEngine(
     miluimExemption,
     programDef
   );
+  // Grade rule uses the RAW stored group (gradeMiluimGroup) so this breakdown
+  // matches the visible /record + /graduation GPA; falls back to miluimGroup for
+  // callers that don't split the two.
+  const gradeGroup = (student?.gradeMiluimGroup ?? student?.miluimGroup ?? "NONE") as MiluimGroupKey;
   const gradeBreakdown = calculateGrades(userCourses, {
-    preferHigherGrade: prefersHigherGrade((student?.miluimGroup ?? "NONE") as MiluimGroupKey),
+    preferHigherGrade: prefersHigherGrade(gradeGroup),
   });
   const seminars = extractSeminars(userCourses);
 
@@ -109,6 +115,7 @@ export function runRegulationEngine(
     academicYear: student?.academicYear,
     currentSemester: student?.currentSemester,
     miluimGroup: student?.miluimGroup ?? null,
+    gradeMiluimGroup: student?.gradeMiluimGroup ?? student?.miluimGroup ?? null,
     miluimBinaryUsed: student?.miluimBinaryUsed,
     miluimCreditsUsed: student?.miluimCreditsUsed,
   };

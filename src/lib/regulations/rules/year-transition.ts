@@ -39,9 +39,12 @@ function year1WeightedAverage(
   // grades in the BLOCKING gate — the exact #audit-r5/r6 fix applied to every
   // other average (grade/credit engines) but missing here until now.
   // The year-1→2 gate must honor the reservist "higher grade counts" rule too —
-  // a B/C/G reservist's higher grade counts toward the 75/80 (Ariel 23.7).
+  // a B/C/G reservist's higher grade counts toward the 75/80 (Ariel 23.7). Use
+  // the RAW group (gradeMiluimGroup), the SAME source the visible /record and
+  // /graduation GPA use — so this BLOCKING gate can never average a different
+  // number than the one the student stares at (audit 24.7).
   const courses = canonicalAttempts(candidates, {
-    preferHigherGrade: prefersHigherGrade((ctx.miluimGroup ?? "NONE") as MiluimGroupKey),
+    preferHigherGrade: prefersHigherGrade((ctx.gradeMiluimGroup ?? ctx.miluimGroup ?? "NONE") as MiluimGroupKey),
   });
   if (courses.length === 0) return { average: null, courseCount: 0 };
 

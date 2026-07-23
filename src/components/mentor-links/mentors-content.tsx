@@ -69,7 +69,7 @@ export function MentorsContent() {
             <input
               type="email"
               inputMode="email"
-              dir="ltr"
+              dir="auto"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder={isHe ? "אימייל של החונך/ת (רשום/ה לפכמון)" : "Mentor's email (a Pakamon user)"}

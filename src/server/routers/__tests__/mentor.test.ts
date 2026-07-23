@@ -115,11 +115,11 @@ describe("mentor router — invite / respond / end guards", () => {
     await expect(caller(db, MENTEE).invite({ mentorEmail: "nobody@example.com" })).rejects.toMatchObject({ code: "NOT_FOUND" });
   });
 
-  it("invite creates a PENDING link for a real mentor", async () => {
+  it("invite creates a PENDING link for a real mentor (and does NOT echo the name — no enumeration oracle)", async () => {
     const db = makeDb({ as: MENTEE, links: [] });
     const r = await caller(db, MENTEE).invite({ mentorEmail: MENTOR.email });
     expect(r.status).toBe("PENDING");
-    expect(r.mentorName).toBe("רון כהן");
+    expect(r).not.toHaveProperty("mentorName");
   });
 
   it("respond: only the invited mentor may accept — the mentee cannot", async () => {
