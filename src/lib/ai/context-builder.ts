@@ -193,8 +193,13 @@ export async function buildUserContext(
   const miluimExemption = computeCreditExemption(currentGroup, user.miluimCreditsUsed ?? 0);
 
   const creditResult = calculateCredits(userCourses, user.focusArea, miluimExemption);
+  // The grade "higher counts" rule uses the RAW stored group — the SAME source
+  // /record, /graduation and getGraduationScore use — NOT the derived
+  // currentGroup (which is only for the credit exemption above). Otherwise a
+  // reservist whose current semester derives a different group would hear the
+  // King quote a GPA that contradicts every other screen (audit 24.7).
   const gradeResult = calculateGrades(userCourses, {
-    preferHigherGrade: prefersHigherGrade(currentGroup as MiluimGroupKey),
+    preferHigherGrade: prefersHigherGrade((user.miluimGroup ?? "NONE") as MiluimGroupKey),
   });
 
   // Standing derived from the calendar anchor, never the fossilized stored

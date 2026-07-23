@@ -63,8 +63,8 @@ export function PersonaPicker({
       Char: ReferentCharacter,
       name: isHe ? "הרפרנט" : "The Referent",
       desc: isHe
-        ? "ענייני, פורמלי וקצר — ישר לשורה התחתונה."
-        : "Matter-of-fact, formal and short — straight to the bottom line.",
+        ? "דוגרי, בגובה העיניים וקצר — ישר לשורה התחתונה, בלי סמכות מלמעלה."
+        : "Straight-talking, eye-level and short — straight to the bottom line, no top-down authority.",
       tag: null,
     },
   ];
