@@ -355,10 +355,13 @@ export function AcademicRecordContent() {
         </Link>
       </div>
 
-      {!isEmpty && gradeQuery.data?.weightedScore != null && (
+      {/* Show the strip whenever there's EITHER a final-score forecast (year 3)
+          OR an honors figure — the honors gap is computable from day one, so a
+          year-2 student at a 96 average must see it, not nothing (launch audit 24.7). */}
+      {!isEmpty && (gradeQuery.data?.weightedScore != null || honors.yearlyAverage != null) && (
         <div className="animate-stagger-2">
           <ForecastStrip
-            weightedScore={gradeQuery.data.weightedScore}
+            weightedScore={gradeQuery.data?.weightedScore ?? null}
             honors={honors}
             t={t}
           />

@@ -244,7 +244,12 @@ export function MiluimStatusBar() {
                       }
                     />
                   }
-                  onChange={binaryCap > 0 ? (next) => updateQuota.mutate({ miluimBinaryUsed: next }) : undefined}
+                  // `used` is the COMBINED total (plan-counted + manual), so the
+                  // stepper's `next` is combined too — but miluimBinaryUsed stores
+                  // ONLY the manual offset. Write next MINUS the plan-counted part
+                  // (clamped ≥0), or a single tap corrupts the field by +binaryFromPlan
+                  // and double-counts the plan courses everywhere (launch audit 24.7).
+                  onChange={binaryCap > 0 ? (next) => updateQuota.mutate({ miluimBinaryUsed: Math.max(0, next - binaryFromPlan) }) : undefined}
                   pending={updateQuota.isPending}
                   isHe={isHe}
                 />

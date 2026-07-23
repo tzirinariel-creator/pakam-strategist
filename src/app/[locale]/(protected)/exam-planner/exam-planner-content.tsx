@@ -28,6 +28,7 @@ import {
   type ExamPlanResult,
 } from "@/lib/exam-planner";
 import { arazimView } from "@/lib/arazim/visibility";
+import { prefersHigherGrade, type MiluimGroupKey } from "@/lib/miluim";
 import { StudySkyline } from "@/components/exam-planner/study-skyline";
 import { WeeklyGrid } from "@/components/exam-planner/weekly-grid";
 import dynamic from "next/dynamic";
@@ -55,6 +56,12 @@ export function ExamPlannerContent() {
 
   const planQuery = api.plan.getUserPlan.useQuery();
   const tasksQuery = api.studyTask.list.useQuery();
+  // B/C/G reservists keep the HIGHER sitting — flips the Moed-B "last grade
+  // counts" caveat in the overload recommendation (launch audit 24.7).
+  const profileQuery = api.user.getProfile.useQuery();
+  const preferHigherGradeFlag = prefersHigherGrade(
+    (profileQuery.data?.miluimGroup ?? "NONE") as MiluimGroupKey,
+  );
 
   const invalidate = () => utils.studyTask.list.invalidate();
 
@@ -192,7 +199,7 @@ export function ExamPlannerContent() {
     });
     return { ...fresh, sessions: [...fresh.sessions, ...locked].sort((a, b) => a.date.getTime() - b.date.getTime()) };
   }, [previewInputs, blockedDays, prepStyle, weekdayHours, tasksQuery.data]);
-  const previewRecs = useMemo(() => (previewInputs.length === 0 ? [] : analyzeExamPeriod(previewPlan, isHe)), [previewInputs, previewPlan, isHe]);
+  const previewRecs = useMemo(() => (previewInputs.length === 0 ? [] : analyzeExamPeriod(previewPlan, isHe, new Date(), preferHigherGradeFlag)), [previewInputs, previewPlan, isHe, preferHigherGradeFlag]);
   const selectedCount = Object.values(selected).filter(Boolean).length;
 
   const handleGenerate = () => {
@@ -259,7 +266,7 @@ export function ExamPlannerContent() {
     }));
 
   const persistedPlan = useMemo<ExamPlanResult>(() => planFromStudyTasks(tasks, codeToName), [tasks, codeToName]);
-  const persistedRecs = useMemo(() => analyzeExamPeriod(persistedPlan, isHe), [persistedPlan, isHe]);
+  const persistedRecs = useMemo(() => analyzeExamPeriod(persistedPlan, isHe, new Date(), preferHigherGradeFlag), [persistedPlan, isHe, preferHigherGradeFlag]);
 
   // #15/#34 — the colored three-sheet Excel (plan table + gantt grid + agenda
   // checklist). Exports the PERSISTED plan — exactly what's on screen,
@@ -582,9 +589,13 @@ export function ExamPlannerContent() {
                         </span>
                       ) : (
                         <span className="text-[10px] text-foreground/40">
+                          {/* Lead with the ACTUAL budgeted total (what the box
+                              shows) so the arithmetic never appears not to add up
+                              — the raw credits×perCredit is rounded/floored into
+                              exp.total (launch audit 24.7). */}
                           {isHe
-                            ? `ההערכה שלנו: ${effCredits} ש״ס × ${exp.perCredit} שע׳ (${diffHe}${exp.multiplier !== 1 ? ` · מוכנות ×${exp.multiplier}` : ""}) — אפשר לשנות`
-                            : `Our estimate: ${effCredits} cr × ${exp.perCredit}h (${diffEn}${exp.multiplier !== 1 ? ` · readiness ×${exp.multiplier}` : ""}) — yours to change`}
+                            ? `ההערכה שלנו: כ-${exp.total} שעות (${effCredits} ש״ס × ${exp.perCredit}, ${diffHe}${exp.multiplier !== 1 ? ` · מוכנות ×${exp.multiplier}` : ""}) — אפשר לשנות`
+                            : `Our estimate: ~${exp.total}h (${effCredits} cr × ${exp.perCredit}, ${diffEn}${exp.multiplier !== 1 ? ` · readiness ×${exp.multiplier}` : ""}) — yours to change`}
                         </span>
                       )}
                     </div>

@@ -296,11 +296,23 @@ export function deriveExemptionEntitlement(
     if (list) list.push(r);
     else byYear.set(r.academicYear, [r]);
   }
+  // Groups A (2 ש״ס, "for NEW students") and G (3 ש״ס, "new students only") are
+  // a ONE-TIME new-student benefit — NOT a per-year exemption like B/C. Summing
+  // them per year over-grants (e.g. a 3-year Group-A reservist would show 6 ש״ס
+  // instead of 2). Count each one-time group ONCE, in its first year (launch
+  // audit 24.7).
+  const ONE_TIME_GROUPS = new Set<MiluimGroupKey>(["GROUP_A", "GROUP_G"]);
+  const oneTimeSeen = new Set<MiluimGroupKey>();
   const perYear = [...byYear.entries()]
     .sort((a, b) => a[0] - b[0])
     .map(([academicYear, yearRows]) => {
       const group = bestGroupOf(yearRows);
-      return { academicYear, group, credits: MILUIM_CONFIG.GROUPS[group].creditExemptionPerYear };
+      let credits = MILUIM_CONFIG.GROUPS[group].creditExemptionPerYear;
+      if (ONE_TIME_GROUPS.has(group)) {
+        if (oneTimeSeen.has(group)) credits = 0;
+        else oneTimeSeen.add(group);
+      }
+      return { academicYear, group, credits };
     })
     .filter((y) => y.credits > 0);
   if (
@@ -309,7 +321,9 @@ export function deriveExemptionEntitlement(
     currentAcademicYear != null &&
     !byYear.has(currentAcademicYear)
   ) {
-    const credits = MILUIM_CONFIG.GROUPS[fallbackGroup]?.creditExemptionPerYear ?? 0;
+    // Don't re-grant a one-time A/G exemption already counted in another year.
+    const oneTimeAlready = ONE_TIME_GROUPS.has(fallbackGroup) && oneTimeSeen.has(fallbackGroup);
+    const credits = oneTimeAlready ? 0 : (MILUIM_CONFIG.GROUPS[fallbackGroup]?.creditExemptionPerYear ?? 0);
     if (credits > 0) {
       perYear.push({ academicYear: currentAcademicYear, group: fallbackGroup, credits });
       perYear.sort((a, b) => a.academicYear - b.academicYear);

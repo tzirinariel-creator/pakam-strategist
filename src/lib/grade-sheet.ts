@@ -166,7 +166,15 @@ export function printedAverageMismatch(
   printedAverage: number | null | undefined,
 ): { computed: number; printed: number } | null {
   if (printedAverage == null) return null;
-  const graded = rows.filter((r) => r.grade != null && !r.inProgress);
+  // TAU's printed weighted average EXCLUDES English (iron rule: אנגלית לא בממוצע).
+  // A graded English course would otherwise drag `computed` past the tolerance and
+  // false-fire the "a grade was misread" banner on a correctly-scanned sheet
+  // (launch audit 24.7). Detect English by name — the extracted row has no
+  // courseType yet. ("לא לשקלול" rows are already stripped upstream.)
+  const isEnglishName = (name: string) => /אנגלית|english/i.test(name);
+  const graded = rows.filter(
+    (r) => r.grade != null && !r.inProgress && !isEnglishName(r.courseName ?? ""),
+  );
   if (graded.length < 3) return null; // too little signal to judge
   let credits = 0;
   let sum = 0;

@@ -619,7 +619,8 @@
     "crossLinkGrades": "לפירוט המשקלים וחישוב ציון הגמר — למחשבון הציונים",
     "crossLinkFromGrades": "לניהול הקורסים שכבר עברתם — לתיק האקדמי שלי",
     "notInAvgEnglish": "לא נספר בממוצע",
-    "notInAvgBinary": "בינארי — מחוץ לממוצע"
+    "notInAvgBinary": "בינארי — מחוץ לממוצע",
+    "forecastYearAvg": "ממוצע שנה {year}"
   },
   "onboarding": {
     "welcomeTitle": "התואר שלכם, מסודר סוף סוף",

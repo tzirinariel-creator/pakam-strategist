@@ -619,7 +619,8 @@
     "crossLinkGrades": "For weight breakdown and graduation score — open the Grade Calculator",
     "crossLinkFromGrades": "To manage courses you've already taken — open My Academic Record",
     "notInAvgEnglish": "not in average",
-    "notInAvgBinary": "binary — out of average"
+    "notInAvgBinary": "binary — out of average",
+    "forecastYearAvg": "Year {year} average"
   },
   "onboarding": {
     "welcomeTitle": "Your degree, finally organized",

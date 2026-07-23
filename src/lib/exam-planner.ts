@@ -385,7 +385,15 @@ export interface ExamRecommendation {
  * Deterministic recommendations over the exam set: what to start, exams too
  * close together, and a Moed-B relief suggestion when the period is overloaded.
  */
-export function analyzeExamPeriod(plan: ExamPlanResult, isHe: boolean, now: Date = new Date()): ExamRecommendation[] {
+export function analyzeExamPeriod(
+  plan: ExamPlanResult,
+  isHe: boolean,
+  now: Date = new Date(),
+  // B/C/G reservists keep the HIGHER of two sittings automatically — for them
+  // Moed B is a safe upgrade, not a risk, so the "last grade counts" caveat is
+  // inverted and must flip (launch audit 24.7).
+  preferHigherGrade = false,
+): ExamRecommendation[] {
   const recs: ExamRecommendation[] = [];
   const exams = plan.exams.slice().sort((a, b) => a.examDate.getTime() - b.examDate.getTime());
   if (exams.length === 0) return recs;
@@ -424,8 +432,8 @@ export function analyzeExamPeriod(plan: ExamPlanResult, isHe: boolean, now: Date
     const candidate = exams.slice().sort((a, b) => b.examDate.getTime() - a.examDate.getTime())[0]!;
     recs.push({
       kind: "deferB",
-      textHe: `העומס גבוה (${totalHours} שעות לימוד ב-${span} ימים). אם צריך — ${candidate.courseName} מועמד טוב לדחייה למועד ב׳. שימו לב: הציון האחרון קובע, לא הגבוה.`,
-      textEn: `High load (${totalHours} study hours in ${span} days). If needed, ${candidate.courseName} is a good candidate to defer to Moed B. Note: the last grade counts, not the higher one.`,
+      textHe: `העומס גבוה (${totalHours} שעות לימוד ב-${span} ימים). אם צריך — ${candidate.courseName} מועמד טוב לדחייה למועד ב׳.${preferHigherGrade ? " ובמילואים שלכם — הציון הגבוה מבין המועדים נשמר, אז מועד ב׳ הוא שדרוג בטוח." : " שימו לב: הציון האחרון קובע, לא הגבוה."}`,
+      textEn: `High load (${totalHours} study hours in ${span} days). If needed, ${candidate.courseName} is a good candidate to defer to Moed B.${preferHigherGrade ? " With your miluim benefit the HIGHER of the two sittings is kept, so Moed B is a safe upgrade." : " Note: the last grade counts, not the higher one."}`,
     });
   }
 

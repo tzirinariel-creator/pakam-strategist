@@ -15,6 +15,7 @@ function course(over: {
   grade?: number | null;
   courseId?: string;
   attemptNumber?: number;
+  isMandatory?: boolean;
 }): UserCourseWithCourse {
   seq += 1;
   const courseId = over.courseId ?? `c-${seq}`;
@@ -35,6 +36,7 @@ function course(over: {
       nameEn: "Course",
       discipline: over.discipline ?? "ECONOMICS",
       courseType: over.courseType ?? "ELECTIVE",
+      isMandatory: over.isMandatory ?? (over.courseType === "MANDATORY"),
       credits: over.credits ?? 3,
     },
   } as unknown as UserCourseWithCourse;
@@ -238,15 +240,26 @@ describe("Credit structure 103/12/35 + seminar bucket (Task 2)", () => {
 });
 
 describe("Fail-twice blocking rule (Task 3)", () => {
-  it("two FAILED attempts of the same course → PKM-023 blocks (ERROR)", () => {
+  it("two FAILED attempts of a MANDATORY course → PKM-023 blocks (ERROR)", () => {
     const courses = [
-      course({ courseId: "X", status: "FAILED", attemptNumber: 1 }),
-      course({ courseId: "X", status: "FAILED", attemptNumber: 2 }),
+      course({ courseId: "X", status: "FAILED", attemptNumber: 1, isMandatory: true }),
+      course({ courseId: "X", status: "FAILED", attemptNumber: 2, isMandatory: true }),
     ];
     const summary = runRegulationEngine(courses, null);
     const failTwice = summary.results.find((r) => r.ruleId === "PKM-023");
     expect(failTwice?.passed).toBe(false);
     expect(failTwice?.severity).toBe("ERROR");
+  });
+
+  it("twice-failed ELECTIVE does NOT block — electives are replaceable (launch audit 24.7)", () => {
+    const courses = [
+      course({ courseId: "E", status: "FAILED", attemptNumber: 1, isMandatory: false }),
+      course({ courseId: "E", status: "FAILED", attemptNumber: 2, isMandatory: false }),
+    ];
+    const summary = runRegulationEngine(courses, null);
+    const failTwice = summary.results.find((r) => r.ruleId === "PKM-023");
+    expect(failTwice?.passed).toBe(true);
+    expect(failTwice?.severity).toBe("INFO");
   });
 
   it("one failure (then retake) does NOT trigger PKM-023", () => {
@@ -261,10 +274,10 @@ describe("Fail-twice blocking rule (Task 3)", () => {
 });
 
 describe("PKM-026 retake advisory — note #30's conversational layers", () => {
-  it("layer 2: a PLANNED retake of a once-failed course → WARNING (second-and-last attempt)", () => {
+  it("layer 2: a PLANNED retake of a once-failed MANDATORY course → WARNING (second-and-last attempt)", () => {
     const courses = [
-      course({ courseId: "Z", status: "FAILED", attemptNumber: 1 }),
-      course({ courseId: "Z", status: "PLANNED", attemptNumber: 2 }),
+      course({ courseId: "Z", status: "FAILED", attemptNumber: 1, isMandatory: true }),
+      course({ courseId: "Z", status: "PLANNED", attemptNumber: 2, isMandatory: true }),
     ];
     const summary = runRegulationEngine(courses, null);
     const r = summary.results.find((x) => x.ruleId === "PKM-026");
@@ -274,8 +287,8 @@ describe("PKM-026 retake advisory — note #30's conversational layers", () => {
     expect(r?.messageHe).toContain("הניסיון האחרון");
   });
 
-  it("layer 1: a failure with NO retake yet → passing INFO with the committee note", () => {
-    const courses = [course({ courseId: "W", status: "FAILED", attemptNumber: 1 })];
+  it("layer 1: a MANDATORY failure with NO retake yet → passing INFO with the committee note", () => {
+    const courses = [course({ courseId: "W", status: "FAILED", attemptNumber: 1, isMandatory: true })];
     const summary = runRegulationEngine(courses, null);
     const r = summary.results.find((x) => x.ruleId === "PKM-026");
     expect(r?.passed).toBe(true);
@@ -396,10 +409,11 @@ describe("PKM-016 year-1→2 BLOCKING gate — English excluded + retakes collap
     expect(r?.passed).toBe(true);
   });
 
-  it("a student ALREADY in year 2+ is never shown a present-tense block for a weak year-1 (audit 22.7)", () => {
+  it("year-2+ → retrospective INFO; still-year-1 → early WARNING, never a present-tense ERROR block (audit 22.7 + launch 24.7)", () => {
     // Year-1 average 68 (below 75). Someone in year 2 has already advanced — the
-    // gate must be non-blocking INFO (retrospective), NOT a false "continuation
-    // blocked" ERROR. A still-year-1 student with the same average IS blocked.
+    // gate is non-blocking INFO (retrospective). A student STILL in year 1 hasn't
+    // finished it, so it's an early WARNING (improvable), NOT a red "continuation
+    // blocked" ERROR on a mid-year student.
     const weak = [course({ grade: 68, credits: 4, courseType: "MANDATORY" })];
     const y2 = runRegulationEngine(weak, "ECONOMICS" as never, 0, undefined, {
       academicYear: 2,
@@ -410,7 +424,7 @@ describe("PKM-016 year-1→2 BLOCKING gate — English excluded + retakes collap
     const y1 = runRegulationEngine(weak, "ECONOMICS" as never, 0, undefined, {
       academicYear: 1,
     } as never).results.find((r) => r.ruleId === "PKM-016");
-    expect(y1?.severity).toBe("ERROR");
+    expect(y1?.severity).toBe("WARNING");
     expect(y1?.passed).toBe(false);
   });
 });

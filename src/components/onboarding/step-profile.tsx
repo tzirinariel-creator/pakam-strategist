@@ -731,13 +731,27 @@ export function StepProfile({ data, onUpdate }: StepProfileProps) {
               placeholder={isHe ? "למשל: 134" : "e.g. 134"}
               className="w-32 rounded-xl border-2 border-border bg-card px-4 py-2.5 text-sm text-foreground placeholder:text-foreground/30 focus:border-foreground/30 focus:outline-none transition-colors"
             />
-            {amirnetStatus && (
+            {/* A declared level (dropdown below) OVERRIDES the score everywhere
+                (#23) — so the score-derived label must not contradict it. When a
+                level is chosen, say so; otherwise show the score placement.
+                (launch audit 24.7) */}
+            {data.englishLevel ? (
+              <span className="text-xs font-medium text-accent-brand">
+                <Bidi
+                  text={
+                    isHe
+                      ? `רמה מוצהרת: ${ENGLISH_CONFIG.LEVELS.find((l) => l.level === data.englishLevel)?.nameHe ?? data.englishLevel} — גוברת על הציון`
+                      : `Declared level: ${ENGLISH_CONFIG.LEVELS.find((l) => l.level === data.englishLevel)?.nameEn ?? data.englishLevel} — overrides the score`
+                  }
+                />
+              </span>
+            ) : amirnetStatus ? (
               <span className={cn("text-xs font-medium", amirnetStatus.color)}>
                 <Bidi text={amirnetStatus.text} />
               </span>
-            )}
+            ) : null}
           </div>
-          {amirnetStatus?.detail && (
+          {!data.englishLevel && amirnetStatus?.detail && (
             <p className={cn("mt-1.5 text-xs", amirnetStatus.color.replace("text-", "text-") + "/70")}>
               <Bidi text={amirnetStatus.detail} />
             </p>

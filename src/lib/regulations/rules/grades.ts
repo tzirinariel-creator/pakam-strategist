@@ -31,21 +31,37 @@ export const ruleGraduationScore: RegulationRule = (ctx: RuleContext) => {
   }
 
   const rounded = Math.round(score * 100) / 100;
-  const passed = rounded >= requiredScore;
+  const meetsScore = rounded >= requiredScore;
+
+  // weightedScore turns non-null the moment there's a course average + ONE
+  // seminar paper + ONE referat — which can happen in year 2, long before the
+  // score is FINAL. A provisional score below 60 must NOT paint a red
+  // degree-ending block; only once the degree is essentially complete (all
+  // credits in) is the score final and a shortfall a real problem (launch audit
+  // 24.7). Until then it's shown as an on-track forecast (INFO).
+  const totalTarget = ctx.programDefinition.creditRequirements.total;
+  const creditsEssentiallyDone =
+    ctx.creditBreakdown.earned + ctx.creditBreakdown.miluimExemption >= totalTarget;
+  const isFinalScore = creditsEssentiallyDone;
+  const compliant = meetsScore || !isFinalScore;
 
   return result(
     "PKM-013",
     "Graduation Score",
     "ציון סיום",
-    passed,
-    passed ? "INFO" : "ERROR",
-    passed
+    compliant,
+    compliant ? "INFO" : "ERROR",
+    meetsScore
       ? `Graduation score is ${rounded}, above the required ${requiredScore}.`
-      : `Graduation score is ${rounded}, below the required ${requiredScore}.`,
-    passed
+      : isFinalScore
+        ? `Graduation score is ${rounded}, below the required ${requiredScore}.`
+        : `Provisional graduation score so far is ${rounded}. It's a forecast — the final score is set once all grades are in.`,
+    meetsScore
       ? `ציון הסיום הוא ${rounded}, מעל הנדרש (${requiredScore}).`
-      : `ציון הסיום הוא ${rounded}, מתחת לנדרש (${requiredScore}).`,
-    { score: rounded, required: requiredScore }
+      : isFinalScore
+        ? `ציון הסיום הוא ${rounded}, מתחת לנדרש (${requiredScore}).`
+        : `ציון הסיום המשוער עד כה הוא ${rounded} — זו תחזית בלבד. הציון הסופי נקבע כשכל הציונים ייכנסו, אין כאן מה לתקן עכשיו.`,
+    { score: rounded, required: requiredScore, isFinal: isFinalScore }
   );
 };
 
@@ -202,7 +218,11 @@ export const ruleFailTwice: RegulationRule = (ctx: RuleContext) => {
   >();
 
   for (const uc of ctx.userCourses) {
-    if (uc.status !== "FAILED") continue;
+    // Domain rules §4 scope this to MANDATORY courses only — a failed elective
+    // is simply replaced by another elective, never a degree-ending block. A
+    // twice-failed elective must not paint the red "cannot continue" blocker
+    // (launch audit 24.7).
+    if (uc.status !== "FAILED" || !uc.course.isMandatory) continue;
     const entry = failuresByCourse.get(uc.courseId) ?? {
       count: 0,
       courseCode: uc.course.code,
@@ -260,6 +280,10 @@ export const ruleRetakeAdvisory: RegulationRule = (ctx: RuleContext) => {
     { failed: number; retakePlanned: boolean; resolved: boolean; courseCode: string; nameHe: string; ids: string[] }
   >();
   for (const uc of ctx.userCourses) {
+    // Same scope as PKM-023: the "last allowed attempt / leaving PPE" warning
+    // only applies to MANDATORY courses — failing an elective again just means
+    // picking a different elective (launch audit 24.7).
+    if (!uc.course.isMandatory) continue;
     const entry = byCourse.get(uc.courseId) ?? {
       failed: 0,
       retakePlanned: false,

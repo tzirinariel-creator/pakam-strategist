@@ -78,9 +78,20 @@ export function ExamGantt({ courses }: ExamGanttProps) {
   // Build exam events
   const events = useMemo<ExamEvent[]>(() => {
     const result: ExamEvent[] = [];
+    // examDateA/B are a SINGLE global field per course, overwritten with the
+    // last-scraped period — so in July a FALL plan carries stale (now-past)
+    // SPRING dates. Drop past dates (same guard as workload-calculator) so the
+    // gantt never paints a past exam as upcoming or raises a false "conflict"
+    // alarm on exams that already happened (launch audit 24.7).
+    const nowMs = Date.now();
+    const futureOrNull = (raw: Date | string | null) => {
+      if (!raw) return null;
+      const d = new Date(raw);
+      return d.getTime() >= nowMs ? d : null;
+    };
     for (const c of courses) {
-      const moedA = c.examDateA ? new Date(c.examDateA) : null;
-      const moedB = c.examDateB ? new Date(c.examDateB) : null;
+      const moedA = futureOrNull(c.examDateA);
+      const moedB = futureOrNull(c.examDateB);
       if (!moedA && !moedB) continue;
       const disc = c.discipline as Discipline;
       const config = DISCIPLINE_CONFIG[disc];

@@ -97,10 +97,15 @@ export function DegreeStatus({
   const earned = credits?.earned ?? 0;
   const planned = credits?.planned ?? 0;
   const exempt = credits?.miluimExemption ?? 0;
-  const effective = credits?.effectiveTotal ?? earned + planned + exempt;
-  const remaining = Math.max(0, target - effective);
+  // "הושלמו" must mean COMPLETED — only earned credits + the miluim exemption
+  // (which IS granted), NEVER planned courses. A student who lays out their whole
+  // degree in the planner must not see "100% מהתואר הושלמו" or a coronation for a
+  // degree with zero courses done. The planned portion lives in the segmented bar
+  // below, honestly separated (launch audit 24.7).
+  const earnedEffective = earned + exempt;
+  const remaining = Math.max(0, target - earnedEffective);
 
-  const degreePct = target > 0 ? Math.min(100, Math.round((effective / target) * 100)) : 0;
+  const degreePct = target > 0 ? Math.min(100, Math.round((earnedEffective / target) * 100)) : 0;
 
   const pct = (n: number) => `${Math.min((n / target) * 100, 100)}%`;
   // Cumulative widths so the segments stack start→end without overlap.
@@ -211,7 +216,7 @@ export function DegreeStatus({
               {/* RTL: number "107 / 150" is LTR-isolated; "ש״ס" stays RTL. */}
               <bdi dir="ltr" className="inline-flex items-baseline gap-1.5">
                 <span className="font-mono text-3xl font-bold tabular-nums text-foreground/85">
-                  <CountUp value={effective} />
+                  <CountUp value={earnedEffective} />
                 </span>
                 <span className="font-mono text-base text-foreground/40">/ {target}</span>
               </bdi>

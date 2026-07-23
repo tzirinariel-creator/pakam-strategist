@@ -73,6 +73,8 @@ import { BinaryAdvisor } from "@/components/record/binary-advisor";
 // -------------------------------------------------------------------
 type PlanCourse = {
   id: string;
+  courseId: string;
+  attemptNumber: number;
   status: string;
   grade: number | null;
   isBinary: boolean;
@@ -90,6 +92,10 @@ function course(o: {
 }): PlanCourse {
   return {
     id: o.id,
+    // canonicalAttempts (now applied in the advisor) groups by courseId — each
+    // fixture course needs a DISTINCT courseId + attemptNumber or they collapse.
+    courseId: o.id,
+    attemptNumber: 1,
     status: o.status ?? "COMPLETED",
     grade: o.grade,
     isBinary: o.isBinary ?? false,

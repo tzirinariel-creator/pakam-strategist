@@ -98,6 +98,12 @@ export function buildCalendarFeed(input: FeedInput): string {
   ];
 
   for (const c of input.courses) {
+    // A course already COMPLETED with a grade is done — its shared catalog
+    // exam date (updated to THIS year's offering) must not push a phantom
+    // "exam tomorrow" reminder to a student who passed it years ago. A FAILED
+    // course keeps its reminder (the retake is still ahead). Same exclusion the
+    // dashboard countdown uses (launch audit 24.7).
+    if (c.status === "COMPLETED" && c.grade != null) continue;
     if (c.examDateA) {
       const d = new Date(c.examDateA);
       if (isFuture(d)) {

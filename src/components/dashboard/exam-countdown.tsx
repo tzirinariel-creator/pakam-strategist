@@ -158,6 +158,14 @@ export function ExamCountdown() {
         <span className="text-foreground/35">
           {isHe ? "מועד א׳ = ראשון · מועד ב׳ = חוזר" : "A = first sitting · B = retake"}
         </span>
+        {/* A5 — the dates come from the Yedion catalog, one per course. Never
+            present a countdown as authoritative without its source: a student
+            must confirm against the official timetable before relying on it. */}
+        <span className="basis-full text-foreground/35">
+          {isHe
+            ? "התאריכים מהידיעון — ודאו מול מערכת-השעות הרשמית לפני שאתם סומכים עליהם."
+            : "Dates are from the Yedion catalog — confirm against the official timetable before relying on them."}
+        </span>
       </div>
 
       {/* Jump to the full exam-period planner */}

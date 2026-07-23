@@ -363,22 +363,27 @@ export function GradeSheetScanner() {
               const decision = decideApplication(r);
               const applicable = decision != null;
               const isEnglish = r.match?.courseType === "ENGLISH";
+              // The whole label toggles the row — an 18px checkbox alone is far
+              // below the 44px touch target for the scanner's core interaction
+              // (launch audit 24.7).
+              const toggleRow = () => {
+                if (!applicable) return;
+                setChecked((s) => {
+                  const n = new Set(s);
+                  if (n.has(i)) n.delete(i);
+                  else n.add(i);
+                  return n;
+                });
+              };
               return (
-                <li key={i} className={cn("flex flex-wrap items-center gap-2 rounded-lg border p-2 text-xs", r.match ? "border-border/50" : "border-dashed border-border/50 opacity-70")}>
+                <li key={i} className={cn("flex min-h-11 flex-wrap items-center gap-2 rounded-lg border p-2 text-xs", r.match ? "border-border/50" : "border-dashed border-border/50 opacity-70")}>
                   <button
                     type="button"
                     role="checkbox"
                     aria-checked={checked.has(i)}
                     aria-label={isHe ? `עדכן ציון ל${r.courseName}` : `Update grade for ${r.courseName}`}
                     disabled={!applicable}
-                    onClick={() =>
-                      setChecked((s) => {
-                        const n = new Set(s);
-                        if (n.has(i)) n.delete(i);
-                        else n.add(i);
-                        return n;
-                      })
-                    }
+                    onClick={toggleRow}
                     className={cn(
                       "flex size-4.5 shrink-0 items-center justify-center rounded border transition-colors disabled:opacity-30",
                       checked.has(i) ? "border-emerald-400 bg-emerald-400 text-white" : "border-foreground/25",
@@ -386,7 +391,11 @@ export function GradeSheetScanner() {
                   >
                     {checked.has(i) && <Check className="size-3" />}
                   </button>
-                  <span className="min-w-0 flex-1 truncate text-foreground/80" dir="auto">
+                  <span
+                    className={cn("min-w-0 flex-1 self-stretch flex items-center truncate text-foreground/80", applicable && "cursor-pointer")}
+                    dir="auto"
+                    onClick={toggleRow}
+                  >
                     {r.courseName}
                     {r.courseCode && <span className="ms-1 text-foreground/40" dir="ltr">{r.courseCode}</span>}
                   </span>

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import {
   Popover,
@@ -45,6 +45,17 @@ export function CourseDetailPopover({ course, children, onDisciplineOverride }: 
   const [showDisciplineSelect, setShowDisciplineSelect] = useState(false);
   // Arazim gate: hide the external past-grade difficulty row when Arazim is off.
   const av = arazimView(course);
+  // examDateA/B are a single global per-course field, overwritten with the last
+  // scraped period — so show a sitting ONLY if it's still in the future, and
+  // stamp the YEAR, so a stale past date can never read as an upcoming exam for
+  // the semester being planned (launch audit 24.7). `now` is seeded once (state
+  // initializer) so no impure clock read happens during render.
+  const [nowMs] = useState(() => Date.now());
+  const { examA, examB } = useMemo(() => {
+    const futureOr = (raw: Date | string | null) =>
+      raw && new Date(raw).getTime() >= nowMs ? new Date(raw) : null;
+    return { examA: futureOr(course.examDateA), examB: futureOr(course.examDateB) };
+  }, [course.examDateA, course.examDateB, nowMs]);
 
   return (
     <Popover>
@@ -218,33 +229,35 @@ export function CourseDetailPopover({ course, children, onDisciplineOverride }: 
           </div>
         )}
 
-        {/* Exam dates */}
-        {(course.examDateA || course.examDateB) && (
+        {/* Exam dates — future sittings only, year-stamped */}
+        {(examA || examB) && (
           <div className="space-y-1">
             <div className="text-[11px] font-medium text-foreground/40 uppercase tracking-wider">
               {t("examDates")}
             </div>
             <div className="flex gap-3 text-xs text-foreground/60">
-              {course.examDateA && (
+              {examA && (
                 <div className="flex items-center gap-1.5">
                   <Calendar className="h-3 w-3 text-red-400/60" />
                   <span>{isHe ? "א׳:" : "A:"}</span>
                   <span className="font-mono text-[10px]">
-                    {new Date(course.examDateA).toLocaleDateString(isHe ? "he-IL" : "en-GB", {
+                    {examA.toLocaleDateString(isHe ? "he-IL" : "en-GB", {
                       day: "2-digit",
                       month: "2-digit",
+                      year: "2-digit",
                     })}
                   </span>
                 </div>
               )}
-              {course.examDateB && (
+              {examB && (
                 <div className="flex items-center gap-1.5">
                   <Calendar className="h-3 w-3 text-amber-400/60" />
                   <span>{isHe ? "ב׳:" : "B:"}</span>
                   <span className="font-mono text-[10px]">
-                    {new Date(course.examDateB).toLocaleDateString(isHe ? "he-IL" : "en-GB", {
+                    {examB.toLocaleDateString(isHe ? "he-IL" : "en-GB", {
                       day: "2-digit",
                       month: "2-digit",
+                      year: "2-digit",
                     })}
                   </span>
                 </div>

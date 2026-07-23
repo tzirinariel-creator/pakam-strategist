@@ -15,7 +15,10 @@ import {
   binaryCapRemaining,
   binaryBenefitOf,
   getCurrentAcademicYear,
+  prefersHigherGrade,
+  type MiluimGroupKey,
 } from "@/lib/miluim";
+import { canonicalAttempts } from "@/lib/grade-calculator";
 import { AskKingButton } from "@/components/ui/ask-king-button";
 import { cn } from "@/lib/utils";
 
@@ -43,18 +46,25 @@ export function BinaryAdvisor() {
 
   const graded = useMemo<GradedCourseLite[]>(
     () =>
-      (planQuery.data?.courses ?? [])
-        .filter((uc) => uc.status === "COMPLETED" && uc.grade != null)
-        .map((uc) => ({
-          userCourseId: uc.id,
-          nameHe: uc.course.nameHe,
-          code: uc.course.code,
-          grade: uc.grade!,
-          credits: uc.course.credits,
-          isBinary: uc.isBinary ?? false,
-          courseType: uc.course.courseType,
-        })),
-    [planQuery.data],
+      // Collapse retakes to ONE determining row per course FIRST — this advisor
+      // renders only for B/C/G reservists, the exact students with extra sittings
+      // (two COMPLETED rows for one course). Without this the baseline average and
+      // every "would raise it to X" double-counted the retake and diverged from
+      // the /record + /graduation GPA (launch audit 24.7). Higher grade counts
+      // (B/C/G), matching every other grade surface.
+      canonicalAttempts(
+        (planQuery.data?.courses ?? []).filter((uc) => uc.status === "COMPLETED" && uc.grade != null),
+        { preferHigherGrade: prefersHigherGrade((profileQuery.data?.miluimGroup ?? "NONE") as MiluimGroupKey) },
+      ).map((uc) => ({
+        userCourseId: uc.id,
+        nameHe: uc.course.nameHe,
+        code: uc.course.code,
+        grade: uc.grade!,
+        credits: uc.course.credits,
+        isBinary: uc.isBinary ?? false,
+        courseType: uc.course.courseType,
+      })),
+    [planQuery.data, profileQuery.data?.miluimGroup],
   );
 
   if (!profile) return null;
