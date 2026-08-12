@@ -6,7 +6,7 @@ import { Shield, X, Check, CalendarClock, Clock, Target, BookOpen, GraduationCap
 import { advisorError } from "@/lib/advisor-toast";
 import { useLocale, useTranslations } from "next-intl";
 import { api } from "@/lib/trpc/react";
-import { getAcademicNow } from "@/lib/academic-calendar";
+import { getAcademicNow, hebrewYearLabel } from "@/lib/academic-calendar";
 import { MILUIM_CONFIG } from "@/lib/constants";
 import { buildBenefitGroups, BENEFITS_HONESTY_NOTE } from "@/lib/miluim-benefits";
 import { QuotaCard } from "@/components/miluim/quota-card";
@@ -18,6 +18,7 @@ import {
   binaryDegreeCap,
   getCurrentAcademicYear,
   honorsBinaryPercent,
+  splitByDegreeStart,
   type MiluimGroupKey,
 } from "@/lib/miluim";
 import { Link } from "@/i18n/navigation";
@@ -93,8 +94,15 @@ export function MiluimStatusBar() {
   const profile = profileQuery.data;
   if (!profile) return null;
 
-  const group = deriveCurrentGroup(
+  // #7/#37 — the same degree window every other miluim surface uses: service
+  // from before the student enrolled is not part of this degree.
+  const degreeSemesters = splitByDegreeStart(
     semestersQuery.data ?? [],
+    profile.startYear,
+  ).degree;
+
+  const group = deriveCurrentGroup(
+    degreeSemesters,
     profile.miluimGroup,
     { academicYear: getCurrentAcademicYear(), semester: getAcademicNow().semester }
   );
@@ -218,83 +226,105 @@ export function MiluimStatusBar() {
             </div>
 
             <div className="flex-1 space-y-5 overflow-y-auto p-5">
-              {/* Quota cards: credit exemption + binary conversions */}
-              <div className="grid grid-cols-2 gap-3">
-                <QuotaCard
-                  icon={GraduationCap}
-                  label={t("creditExemption")}
-                  used={creditsUsed}
-                  cap={creditCap}
-                  hint={<Bidi text={t("creditExemptionHint", { perYear: cfg.creditExemptionPerYear, available: creditExemption })} />}
-                  onChange={(next) => updateQuota.mutate({ miluimCreditsUsed: next })}
-                  pending={updateQuota.isPending}
-                  isHe={isHe}
-                />
-                <QuotaCard
-                  icon={Check}
-                  label={t("binaryQuota")}
-                  used={binaryUsed}
-                  cap={binaryCap}
-                  hint={
-                    <Bidi
-                      text={
-                        binaryCap > 0
-                          ? t("binaryQuotaHint", { left: binaryLeft, percent: honorsBinaryPercent() })
-                          : (binaryCreditHint ?? t("binaryNone"))
-                      }
-                    />
-                  }
-                  // `used` is the COMBINED total (plan-counted + manual), so the
-                  // stepper's `next` is combined too — but miluimBinaryUsed stores
-                  // ONLY the manual offset. Write next MINUS the plan-counted part
-                  // (clamped ≥0), or a single tap corrupts the field by +binaryFromPlan
-                  // and double-counts the plan courses everywhere (launch audit 24.7).
-                  onChange={binaryCap > 0 ? (next) => updateQuota.mutate({ miluimBinaryUsed: Math.max(0, next - binaryFromPlan) }) : undefined}
-                  pending={updateQuota.isPending}
-                  isHe={isHe}
-                />
+              {/* #8 — every number in this window is either PER-SEMESTER (the
+                  group and its benefits) or CUMULATIVE-DEGREE (the quotas).
+                  Nothing said which, so the same panel looked like it was
+                  answering two different questions. Each block now states its
+                  own scope in its heading. */}
+              <div>
+                <h4 className="mb-2 text-xs font-semibold text-foreground/50">
+                  {isHe ? "המכסות שלכם לכל התואר — כמה כבר מימשתם" : "Your whole-degree quotas — how much you've used"}
+                </h4>
+                {/* Quota cards: credit exemption + binary conversions */}
+                <div className="grid grid-cols-2 gap-3">
+                  <QuotaCard
+                    icon={GraduationCap}
+                    label={t("creditExemption")}
+                    used={creditsUsed}
+                    cap={creditCap}
+                    hint={<Bidi text={t("creditExemptionHint", { perYear: cfg.creditExemptionPerYear, available: creditExemption })} />}
+                    onChange={(next) => updateQuota.mutate({ miluimCreditsUsed: next })}
+                    pending={updateQuota.isPending}
+                    isHe={isHe}
+                  />
+                  <QuotaCard
+                    icon={Check}
+                    label={t("binaryQuota")}
+                    used={binaryUsed}
+                    cap={binaryCap}
+                    hint={
+                      <Bidi
+                        text={
+                          binaryCap > 0
+                            ? t("binaryQuotaHint", { left: binaryLeft, percent: honorsBinaryPercent() })
+                            : (binaryCreditHint ?? t("binaryNone"))
+                        }
+                      />
+                    }
+                    // `used` is the COMBINED total (plan-counted + manual), so the
+                    // stepper's `next` is combined too — but miluimBinaryUsed stores
+                    // ONLY the manual offset. Write next MINUS the plan-counted part
+                    // (clamped ≥0), or a single tap corrupts the field by +binaryFromPlan
+                    // and double-counts the plan courses everywhere (launch audit 24.7).
+                    onChange={binaryCap > 0 ? (next) => updateQuota.mutate({ miluimBinaryUsed: Math.max(0, next - binaryFromPlan) }) : undefined}
+                    pending={updateQuota.isPending}
+                    isHe={isHe}
+                  />
+                </div>
+                {/* Wayfinding to the REAL per-course decision helper (BinaryAdvisor,
+                    already built on /record — this card's stepper only tracks an
+                    abstract count) — staring at "0/5" here gave no hint that tool
+                    exists elsewhere (24.7 audit). */}
+                {binaryCap > 0 && (
+                  <Link
+                    href="/record"
+                    className="mt-1.5 block text-[11px] text-accent-brand underline-offset-2 hover:underline"
+                  >
+                    {t("binaryAdvisorLink")}
+                  </Link>
+                )}
               </div>
-              {/* Wayfinding to the REAL per-course decision helper (BinaryAdvisor,
-                  already built on /record — this card's stepper only tracks an
-                  abstract count) — staring at "0/5" here gave no hint that tool
-                  exists elsewhere (24.7 audit). */}
-              {binaryCap > 0 && (
-                <Link
-                  href="/record"
-                  className="-mt-2 block text-[11px] text-accent-brand underline-offset-2 hover:underline"
-                >
-                  {t("binaryAdvisorLink")}
-                </Link>
-              )}
 
               {/* Headline benefits as an infographic (icon · value · label) —
                   clearer than a chip-row, and the value/label split fixes the
                   cramped "+25% זמן בבחינה" reading. */}
-              <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-4">
-                {cfg.examTimeBonus > 0 && (
-                  <InfoStat icon={Clock} value={`+${cfg.examTimeBonus}%`} label={isHe ? "זמן בבחינה" : "Exam time"} />
-                )}
-                {cfg.examChoice2of3 && (
-                  <InfoStat
-                    icon={CalendarClock}
-                    value={isHe ? "2 מתוך 3" : "2 of 3"}
-                    label={isHe ? "מועדי בחינה" : "Exam dates"}
-                    title={isHe ? "אפשר לגשת ל-2 מתוך 3 המועדים — הציון הגבוה קובע, אוטומטית" : "Sit 2 of 3 exam dates — the highest grade counts, automatically"}
-                  />
-                )}
-                {cfg.attendanceExempt && (
-                  <InfoStat icon={BookOpen} value={isHe ? "פטור" : "Exempt"} label={isHe ? "נוכחות" : "Attendance"} />
-                )}
-                {cfg.biddingBonus > 0 && (
-                  <InfoStat icon={Target} value={`+${cfg.biddingBonus}%`} label={isHe ? "בידינג" : "Bidding"} />
-                )}
+              <div>
+                <h4 className="mb-2 text-xs font-semibold text-foreground/50">
+                  {isHe
+                    ? "מה מגיע לכם בסמסטר הזה — לפי הקבוצה הנוכחית"
+                    : "What you get this semester — by your current group"}
+                </h4>
+                <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-4">
+                  {cfg.examTimeBonus > 0 && (
+                    <InfoStat icon={Clock} value={`+${cfg.examTimeBonus}%`} label={isHe ? "זמן בבחינה" : "Exam time"} />
+                  )}
+                  {cfg.examChoice2of3 && (
+                    <InfoStat
+                      icon={CalendarClock}
+                      value={isHe ? "2 מתוך 3" : "2 of 3"}
+                      label={isHe ? "מועדי בחינה" : "Exam dates"}
+                      title={isHe ? "אפשר לגשת ל-2 מתוך 3 המועדים — הציון הגבוה קובע, אוטומטית" : "Sit 2 of 3 exam dates — the highest grade counts, automatically"}
+                    />
+                  )}
+                  {cfg.attendanceExempt && (
+                    <InfoStat icon={BookOpen} value={isHe ? "פטור" : "Exempt"} label={isHe ? "נוכחות" : "Attendance"} />
+                  )}
+                  {cfg.biddingBonus > 0 && (
+                    <InfoStat icon={Target} value={`+${cfg.biddingBonus}%`} label={isHe ? "בידינג" : "Bidding"} />
+                  )}
+                </div>
+                <p className="mt-2 text-[10px] leading-relaxed text-foreground/40">
+                  {isHe
+                    ? "ההטבות האלה נגזרות מהקבוצה של הסמסטר הנוכחי. שירתם יותר או פחות בסמסטר הבא — הקבוצה, ואיתה ההטבות, נקבעות מחדש."
+                    : "These follow this semester's group. Serve more or fewer days next semester and the group — and these benefits — are set again."}
+                </p>
               </div>
 
               {/* Per-semester service timeline (#12/#30) — the group is
                   reassigned EVERY semester, so show the student their own
                   history: days served → derived group, with "now" marked. */}
               <ServiceTimeline
-                semesters={semestersQuery.data ?? []}
+                semesters={degreeSemesters}
                 currentYear={getCurrentAcademicYear()}
                 currentSemester={getAcademicNow().semester}
                 isHe={isHe}
@@ -389,13 +419,13 @@ function ServiceTimeline({
   return (
     <div>
       <h4 className="mb-2 text-xs font-semibold text-foreground/50">
-        {isHe ? "השירות שלי לפי סמסטרים" : "My service by semester"}
+        {isHe ? "השירות שלכם בתואר, סמסטר אחרי סמסטר" : "Your service during the degree, semester by semester"}
       </h4>
       {semesters.length === 0 ? (
         <p className="rounded-xl border border-dashed border-border/60 bg-foreground/[0.02] p-3 text-xs leading-relaxed text-foreground/50">
           {isHe
-            ? "הקבוצה נקבעת מחדש לכל סמסטר לפי ימי השירות בו. עוד לא הוזן שירות לפי סמסטרים — אפשר לעדכן בהגדרות (הכפתור למטה)."
-            : "Your group is re-derived each semester from that semester's service days. No per-semester service entered yet — update it in settings (button below)."}
+            ? "הקבוצה נקבעת מחדש לכל סמסטר לפי ימי השירות בו. עוד לא רשמתם שירות — הכי מהיר להעלות טופס 3010 בעמוד המילואים (הכפתור למטה), ואנחנו נמלא את הסמסטרים."
+            : "Your group is re-derived each semester from that semester's days. No service recorded yet — the quickest way is uploading a Form 3010 on the miluim page (button below) and we'll fill the semesters in."}
         </p>
       ) : (
         <ul className="space-y-1.5">
@@ -411,8 +441,17 @@ function ServiceTimeline({
                   isNow ? "border-foreground/25 bg-foreground/[0.03]" : "border-border/50",
                 )}
               >
-                <span className="font-medium text-foreground/75" dir={isHe ? "rtl" : "ltr"}>
-                  <bdi>{s.academicYear}–{(s.academicYear + 1) % 100}</bdi> · {semLabel(s.semester)}
+                {/* #35/#43 — a bare <bdi> around "2025–26" has dir="auto", and
+                    with no strong character it inherited RTL and read "26–2025".
+                    The Hebrew UI now shows the Hebrew year label (same as the
+                    /miluim table), and the English one an explicitly-LTR range. */}
+                <span className="font-medium text-foreground/75">
+                  {isHe ? (
+                    hebrewYearLabel(s.academicYear)
+                  ) : (
+                    <bdi dir="ltr">{s.academicYear}–{(s.academicYear + 1) % 100}</bdi>
+                  )}{" "}
+                  · {semLabel(s.semester)}
                 </span>
                 {isNow && (
                   <span className="rounded bg-foreground/10 px-1.5 py-px text-[10px] font-semibold text-foreground/70">
@@ -465,9 +504,15 @@ function InfoStat({
       className="flex flex-col items-center gap-1 rounded-xl border border-border/60 bg-foreground/[0.02] p-2.5 text-center"
     >
       <Icon className="size-4 text-foreground/55" />
-      <span className="font-data text-sm font-bold text-foreground/85" dir="auto">
-        {value}
-      </span>
+      {/* #43 — the value used to carry dir="auto" and sit glued to its label,
+          so the block read "+25%זמן בבחינה" / "פטורנוכחות" wherever the text
+          was copied or linearized. <Bidi> isolates the number run properly
+          (never dir on Hebrew), and the explicit space keeps the two words
+          apart in text form. The whitespace node is not a flex item, so the
+          two-line layout is unchanged. */}
+      <span className="font-data text-sm font-bold text-foreground/85">
+        <Bidi text={value} />
+      </span>{" "}
       <span className="text-[10px] leading-tight text-foreground/50">{label}</span>
     </div>
   );

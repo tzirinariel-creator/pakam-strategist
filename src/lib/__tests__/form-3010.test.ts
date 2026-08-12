@@ -86,6 +86,75 @@ describe("summarizeForm3010 — midpoint attribution, printed days only", () => 
   });
 });
 
+// #7/#37 — THE bug Ariel called "פאדיחה רצינית": his real 3010 covers his whole
+// reserve career, and the reader imported every period it could map, producing a
+// "השירות שלכם, סמסטר-סמסטר" table full of תשפ"ד/תשפ"ה semesters he was never a
+// student in. Service that predates enrolment grants no academic benefit, so it
+// must never reach the import suggestions.
+describe("summarizeForm3010 — pre-enrolment service is NEVER imported (#7/#37)", () => {
+  // One period per semester, each verified against the real TAU calendars:
+  // 2023 SPRING (war-year), 2024 FALL, 2025 FALL, 2025 SPRING.
+  const CAREER = {
+    periods: [
+      { startDate: "01/06/2024", endDate: "10/06/2024", days: 10 }, // תשפ"ד ב׳
+      { startDate: "20/11/2024", endDate: "20/12/2024", days: 30 }, // תשפ"ה א׳
+      { startDate: "20/11/2025", endDate: "20/12/2025", days: 25 }, // תשפ"ו א׳
+      { startDate: "06/03/2026", endDate: "21/05/2026", days: 77 }, // תשפ"ו ב׳
+    ],
+    totalDays: null,
+  };
+
+  it("a student who began in תשפ\"ו gets ONLY תשפ\"ו semesters suggested", () => {
+    const summary = summarizeForm3010(CAREER, { startYear: 2025 });
+
+    expect(summary.suggestions.map((s) => `${s.academicYear}-${s.semester}`)).toEqual([
+      "2025-FALL",
+      "2025-SPRING",
+    ]);
+    // The earlier service is neither suggested nor silently dropped.
+    expect(summary.preDegree.map((s) => `${s.academicYear}-${s.semester}`)).toEqual([
+      "2023-SPRING",
+      "2024-FALL",
+    ]);
+    expect(summary.suggestions.some((s) => s.academicYear < 2025)).toBe(false);
+    // Days are still the PRINTED ones — filtering never re-derives a number.
+    expect(summary.suggestions.find((s) => s.semester === "SPRING")?.days).toBe(77);
+    expect(summary.preDegree.reduce((n, s) => n + s.days, 0)).toBe(40);
+    // The form's own total stays the form's total (it describes the paper).
+    expect(summary.totalDays).toBe(10 + 30 + 25 + 77);
+    expect(summary.startYear).toBe(2025);
+  });
+
+  it("a third-year student (started תשפ\"ד) keeps all four semesters — the filter is the DEGREE, not a fixed year", () => {
+    const summary = summarizeForm3010(CAREER, { startYear: 2023 });
+    expect(summary.suggestions).toHaveLength(4);
+    expect(summary.preDegree).toHaveLength(0);
+  });
+
+  it("the first semester of the degree year itself is INSIDE the degree (boundary)", () => {
+    const summary = summarizeForm3010(
+      { periods: [{ startDate: "20/11/2025", endDate: "20/12/2025", days: 25 }], totalDays: null },
+      { startYear: 2025 },
+    );
+    expect(summary.suggestions).toHaveLength(1);
+    expect(summary.preDegree).toHaveLength(0);
+  });
+
+  it("an UNKNOWN start year degrades honestly: nothing is filtered, and it says so", () => {
+    const summary = summarizeForm3010(CAREER);
+    expect(summary.suggestions).toHaveLength(4);
+    expect(summary.preDegree).toHaveLength(0);
+    // null is the flag the UI keys on to warn instead of pretending it filtered.
+    expect(summary.startYear).toBeNull();
+    expect(summarizeForm3010(CAREER, { startYear: null }).startYear).toBeNull();
+  });
+
+  it("pre-enrolment periods never leak into `unmapped` either (that list feeds manual entry)", () => {
+    const summary = summarizeForm3010(CAREER, { startYear: 2025 });
+    expect(summary.unmapped).toHaveLength(0);
+  });
+});
+
 describe("parseForm3010 — near-miss normalization (Ariel's real-form failure)", () => {
   it("accepts 1-digit day/month dates (6/3/2026)", () => {
     const form = parseForm3010('{"periods":[{"startDate":"6/3/2026","endDate":"21/5/2026","days":77}],"totalDays":null}');

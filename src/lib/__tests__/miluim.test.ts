@@ -471,3 +471,55 @@ describe("binaryBenefitOf — each group's own unit (domain doc §Layer-B)", () 
     expect(hasMiluimBinaryBenefit("GROUP_A")).toBe(false);
   });
 });
+
+// ───────────────────────────────────────────────────────────────────
+// #7/#37 — the degree window. Service that predates enrolment is not part of
+// this degree, so it must not reach ANY surface: not the service table, not the
+// timeline, not the entitlement math. One shared gate so they can't drift.
+// ───────────────────────────────────────────────────────────────────
+import { isDegreeAcademicYear, splitByDegreeStart } from "@/lib/miluim";
+
+describe("isDegreeAcademicYear / splitByDegreeStart (#7/#37)", () => {
+  const rows = [
+    { academicYear: 2023, semester: "SPRING", tag: "pre-1" },
+    { academicYear: 2024, semester: "FALL", tag: "pre-2" },
+    { academicYear: 2025, semester: "FALL", tag: "in-1" },
+    { academicYear: 2025, semester: "SPRING", tag: "in-2" },
+  ];
+
+  it("years before the degree start are OUT; the start year itself is IN", () => {
+    expect(isDegreeAcademicYear(2024, 2025)).toBe(false);
+    expect(isDegreeAcademicYear(2025, 2025)).toBe(true); // boundary: first year
+    expect(isDegreeAcademicYear(2026, 2025)).toBe(true);
+  });
+
+  it("an UNKNOWN start year never filters — we don't guess an enrolment date", () => {
+    expect(isDegreeAcademicYear(1999, null)).toBe(true);
+    expect(isDegreeAcademicYear(1999, undefined)).toBe(true);
+    expect(splitByDegreeStart(rows, null).degree).toHaveLength(4);
+    expect(splitByDegreeStart(rows, null).preDegree).toHaveLength(0);
+  });
+
+  it("splits rows into the degree window and the pre-degree remainder", () => {
+    const { degree, preDegree } = splitByDegreeStart(rows, 2025);
+    expect(degree.map((r) => r.tag)).toEqual(["in-1", "in-2"]);
+    expect(preDegree.map((r) => r.tag)).toEqual(["pre-1", "pre-2"]);
+  });
+
+  it("pre-degree service can never inflate the credit-exemption entitlement", () => {
+    const service = [
+      { academicYear: 2023, semester: "SPRING", daysServed: 40, isCombat: false, derivedGroup: "GROUP_C" },
+      { academicYear: 2024, semester: "FALL", daysServed: 40, isCombat: false, derivedGroup: "GROUP_C" },
+      { academicYear: 2025, semester: "FALL", daysServed: 40, isCombat: false, derivedGroup: "GROUP_C" },
+    ];
+    // Unfiltered, three Group-C years accrue past the degree cap and read "10".
+    expect(deriveExemptionEntitlement(service).total).toBe(
+      MILUIM_CONFIG.MAX_CREDIT_EXEMPTIONS_DEGREE,
+    );
+    // Filtered to the degree (started תשפ"ו), only the real year counts.
+    const inDegree = splitByDegreeStart(service, 2025).degree;
+    const filtered = deriveExemptionEntitlement(inDegree);
+    expect(filtered.perYear.map((y) => y.academicYear)).toEqual([2025]);
+    expect(filtered.total).toBe(MILUIM_CONFIG.GROUPS.GROUP_C.creditExemptionPerYear);
+  });
+});

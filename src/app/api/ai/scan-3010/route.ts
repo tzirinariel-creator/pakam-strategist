@@ -22,6 +22,14 @@ const ALLOWED_MIME = new Set(["image/jpeg", "image/png", "image/webp", "image/he
 const scanInputSchema = z.object({
   imageBase64: z.string().min(100).max(5_000_000),
   mimeType: z.string().refine((m) => ALLOWED_MIME.has(m), "Unsupported file type"),
+  /**
+   * The degree-start academic year as the CLIENT knows it (#7/#37). Onboarding
+   * uploads the form before the profile row is written, so the DB anchor is
+   * still null there — without this, the very first import (a brand-new
+   * student's) would be the one that couldn't filter. The stored anchor wins
+   * whenever it exists; this is only the fallback for that window.
+   */
+  startYear: z.number().int().min(2020).max(2030).nullish(),
 });
 
 export async function POST(request: NextRequest) {
@@ -105,7 +113,12 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: errs.unreadable }, { status: 422 });
     }
 
-    return NextResponse.json({ form, summary: summarizeForm3010(form) });
+    // Service from BEFORE the degree started is filtered out here — the form
+    // covers a whole reserve career, the degree benefits don't (#7/#37). The
+    // stored anchor is authoritative; the client's value only covers onboarding,
+    // where the profile row doesn't exist yet.
+    const startYear = user.startYear ?? parsed.data.startYear ?? null;
+    return NextResponse.json({ form, summary: summarizeForm3010(form, { startYear }) });
   } catch (e) {
     const status = (e as { status?: number })?.status;
     if (status === 429) return NextResponse.json({ error: errs.rateLimit }, { status: 429 });

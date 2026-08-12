@@ -92,8 +92,21 @@ export function Sidebar() {
   const { data: profile } = api.user.getProfile.useQuery();
   const isAdmin = profile?.role === "admin";
   // The miluim hub shows only for reservists — everyone else keeps a clean nav.
+  // #6 — but "reservist" was read off the CURRENT-semester group alone, so a
+  // student who served in an earlier semester lost the hub (and with it the
+  // 3010 upload, which is how you TELL the app about service in the first
+  // place). Any recorded miluim semester counts. Same query key the status bar
+  // already fetches, so no extra request.
+  const { data: miluimSemesters } = api.user.listMiluimSemesters.useQuery(undefined, {
+    retry: 1,
+    staleTime: 60_000,
+    enabled: !!profile,
+  });
   const isReservist = Boolean(
-    profile && (profile.miluimGroup !== "NONE" || profile.miluimCareerService),
+    profile &&
+      (profile.miluimGroup !== "NONE" ||
+        profile.miluimCareerService ||
+        (miluimSemesters?.length ?? 0) > 0),
   );
 
   const isRTL = locale === "he";

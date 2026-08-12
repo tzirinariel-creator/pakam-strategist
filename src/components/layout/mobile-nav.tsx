@@ -51,8 +51,21 @@ export function MobileNav() {
   // reservists (audit 22.7 — mobile used to show it to every student while
   // desktop hid it from non-reservists).
   const { data: profile } = api.user.getProfile.useQuery();
+  // #6 — the profile group only describes the CURRENT semester, so a student
+  // who served last semester (or only ever recorded it as a per-semester row)
+  // lost the hub — and with it the 3010 upload, the one place that would have
+  // told the app about their service. Any recorded semester counts too. Same
+  // query key the status bar already uses, so this costs no extra request.
+  const { data: miluimSemesters } = api.user.listMiluimSemesters.useQuery(undefined, {
+    retry: 1,
+    staleTime: 60_000,
+    enabled: !!profile,
+  });
   const isReservist = Boolean(
-    profile && (profile.miluimGroup !== "NONE" || profile.miluimCareerService),
+    profile &&
+      (profile.miluimGroup !== "NONE" ||
+        profile.miluimCareerService ||
+        (miluimSemesters?.length ?? 0) > 0),
   );
   const menuItems = MORE_MENU_ITEMS.filter((i) => i.key !== "miluim" || isReservist);
 

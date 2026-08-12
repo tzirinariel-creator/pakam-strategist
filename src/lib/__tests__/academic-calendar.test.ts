@@ -5,6 +5,7 @@ import {
   deriveYearOfStudy,
   hebrewYearLabel,
   getTeachingRange,
+  describeAcademicNow,
 } from "@/lib/academic-calendar";
 
 const at = (y: number, m: number, d: number) => new Date(y, m - 1, d, 12, 0, 0);
@@ -90,6 +91,75 @@ describe("getAcademicNow — attribution + phase (dates verified vs tau.ac.il/ca
   it("exposes the summer window (google-sync fallback needs it)", () => {
     const a = getAcademicNow(at(2026, 7, 7));
     expect(a.summer?.start.getMonth()).toBe(6); // July
+  });
+});
+
+// #5/#39 — the onboarding used to print a phase GUESS ("באמצע תקופת הלימודים")
+// and the exam planner said nothing at all, so the app read as date-blind.
+// Every sentence below must name a REAL published date and never imply one that
+// isn't published.
+describe("describeAcademicNow — the app proves it knows what day it is", () => {
+  it("mid-teaching names the semester, the year AND the day teaching ends", () => {
+    const s = describeAcademicNow(at(2026, 5, 10)); // תשפ"ו spring teaching
+    expect(s.phase).toBe("teaching");
+    expect(s.semesterHe).toBe("סמסטר ב׳");
+    expect(s.yearLabelHe).toBe("תשפ״ו");
+    expect(s.he).toContain("10.7.26"); // the real teachingEnd, not a guess
+    expect(s.he).toContain("סמסטר ב׳");
+    expect(s.he).not.toContain("באמצע"); // the old hand-wave is gone
+    expect(s.teachingDaysLeft).toBe(62);
+  });
+
+  it("the last teaching day says exactly that, not 'N days left'", () => {
+    const s = describeAcademicNow(at(2026, 7, 10));
+    expect(s.teachingDaysLeft).toBe(1);
+    expect(s.he).toContain("יום הלימודים האחרון");
+  });
+
+  it("13.8.26 — Ariel's report: INSIDE the exam period, and the copy says so", () => {
+    const s = describeAcademicNow(at(2026, 8, 13));
+    expect(s.phase).toBe("exams");
+    expect(s.he).toContain("תקופת המבחנים");
+    expect(s.he).toContain("סמסטר ב׳");
+    expect(s.he).toContain("10.7.26"); // teaching ended
+    expect(s.he).toContain("12.7.26"); // exams began
+  });
+
+  it("an UNPUBLISHED exam-period end is stated as unpublished — never invented", () => {
+    const spring = describeAcademicNow(at(2026, 8, 13)); // examEnd === null
+    expect(spring.examEndPublished).toBe(false);
+    expect(spring.he).toContain("טרם פורסם");
+
+    const fall = describeAcademicNow(at(2026, 2, 10)); // תשפ"ו fall, examEnd 13.3.26
+    expect(fall.examEndPublished).toBe(true);
+    expect(fall.he).toContain("13.3.26");
+    expect(fall.he).not.toContain("טרם פורסם");
+  });
+
+  it("between semesters it points at the next teaching start (a published date)", () => {
+    const s = describeAcademicNow(at(2026, 3, 20)); // after תשפ"ו fall exams
+    expect(s.phase).toBe("break");
+    expect(s.he).toContain("בין הסמסטרים");
+    expect(s.he).toContain("12.4.26");
+  });
+
+  it("summer break names next year's fall, with its own Hebrew year label", () => {
+    const s = describeAcademicNow(at(2026, 9, 25));
+    expect(s.he).toContain("חופשת הקיץ");
+    expect(s.he).toContain("סמסטר א׳ של תשפ״ז");
+    expect(s.he).toContain("18.10.26");
+  });
+
+  it("outside every verified calendar it refuses to describe the year at all", () => {
+    const s = describeAcademicNow(at(2027, 12, 1));
+    expect(s.isStale).toBe(true);
+    expect(s.he).toContain("לא נציג ניחוש");
+    expect(s.he).not.toMatch(/\d+\.\d+\.\d+/); // no date claimed
+  });
+
+  it("English mirrors Hebrew phase-for-phase", () => {
+    expect(describeAcademicNow(at(2026, 8, 13)).en).toContain("exam period");
+    expect(describeAcademicNow(at(2026, 5, 10)).en).toContain("Spring 2025/26");
   });
 });
 

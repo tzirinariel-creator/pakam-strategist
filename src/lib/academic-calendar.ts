@@ -166,6 +166,124 @@ export function getAcademicNow(now: Date = new Date()): AcademicNow {
   };
 }
 
+// =========================================================================
+// describeAcademicNow (#5/#39) — ONE precise sentence about where the calendar
+// actually is right now, built only from published dates. The onboarding used
+// to render a rough phase guess ("אנחנו עכשיו בסמסטר ב׳ — באמצע תקופת
+// הלימודים"), and the exam planner said nothing at all, so the app read as if
+// it had no idea what day it is. Every branch below names a REAL date from the
+// table above; nothing is estimated, and an unpublished exam-period end says so
+// instead of implying one.
+// =========================================================================
+
+export interface AcademicStatus {
+  phase: AcademicPhase;
+  /** "סמסטר א׳" / "סמסטר ב׳" of the semester `now` belongs to. */
+  semesterHe: string;
+  semesterEn: string;
+  /** "תשפ״ו" / "2025/26". */
+  yearLabelHe: string;
+  yearLabelEn: string;
+  /** Remaining teaching days incl. today (teaching phase only), else null. */
+  teachingDaysLeft: number | null;
+  /** False when the semester's exam-period END is not published by TAU. */
+  examEndPublished: boolean;
+  /** True when `now` sits outside every verified calendar — say nothing else. */
+  isStale: boolean;
+  he: string;
+  en: string;
+}
+
+const semesterHeLabel = (s: TeachingSemester) => (s === "FALL" ? "סמסטר א׳" : "סמסטר ב׳");
+const semesterEnLabel = (s: TeachingSemester) => (s === "FALL" ? "Fall" : "Spring");
+const enYearLabel = (startYear: number) => `${startYear}/${String((startYear + 1) % 100).padStart(2, "0")}`;
+
+/** dd.M.yy — the app's date shorthand. Render inside Hebrew via <Bidi>. */
+function shortDate(x: Date): string {
+  return `${x.getDate()}.${x.getMonth() + 1}.${String(x.getFullYear()).slice(-2)}`;
+}
+
+export function describeAcademicNow(now: Date = new Date()): AcademicStatus {
+  const a = getAcademicNow(now);
+  const semesterHe = semesterHeLabel(a.semester);
+  const semesterEn = semesterEnLabel(a.semester);
+  const yearLabelHe = hebrewYearLabel(a.startYear);
+  const yearLabelEn = enYearLabel(a.startYear);
+  const examEndPublished = a.dates.examEnd !== null;
+
+  const base = {
+    phase: a.phase,
+    semesterHe,
+    semesterEn,
+    yearLabelHe,
+    yearLabelEn,
+    examEndPublished,
+    isStale: a.isStale,
+  };
+
+  // Outside every verified calendar — the one case where we say nothing.
+  if (a.isStale) {
+    return {
+      ...base,
+      teachingDaysLeft: null,
+      he: "אין לנו לוח שנה אקדמי מאומת לתאריך הזה, ולכן לא נציג ניחוש של המצב בשנה.",
+      en: "We have no verified academic calendar for this date, so we won't guess where the year stands.",
+    };
+  }
+
+  if (a.phase === "teaching") {
+    const daysLeft = Math.max(
+      1,
+      Math.ceil((endOfDay(a.dates.teachingEnd).getTime() - now.getTime()) / DAY_MS),
+    );
+    return {
+      ...base,
+      teachingDaysLeft: daysLeft,
+      he:
+        daysLeft === 1
+          ? `אנחנו ביום הלימודים האחרון של ${semesterHe} ${yearLabelHe} (${shortDate(a.dates.teachingEnd)}).`
+          : `אנחנו בתוך ${semesterHe} של ${yearLabelHe} — נשארו ${daysLeft} ימים עד סוף הלימודים (${shortDate(a.dates.teachingEnd)}).`,
+      en:
+        daysLeft === 1
+          ? `Today is the last teaching day of ${semesterEn} ${yearLabelEn} (${shortDate(a.dates.teachingEnd)}).`
+          : `We're inside ${semesterEn} ${yearLabelEn} — ${daysLeft} days left of teaching (ends ${shortDate(a.dates.teachingEnd)}).`,
+    };
+  }
+
+  if (a.phase === "exams") {
+    const tail = examEndPublished
+      ? ` תקופת הבחינות מסתיימת ב-${shortDate(a.dates.examEnd!)}.`
+      : " תאריך הסיום של תקופת הבחינות טרם פורסם.";
+    const tailEn = examEndPublished
+      ? ` The exam period ends ${shortDate(a.dates.examEnd!)}.`
+      : " The end of the exam period hasn't been published.";
+    return {
+      ...base,
+      teachingDaysLeft: null,
+      he:
+        `אנחנו בתוך תקופת המבחנים של ${semesterHe} ${yearLabelHe} — הלימודים הסתיימו ב-${shortDate(a.dates.teachingEnd)}` +
+        `, והמבחנים החלו ב-${shortDate(a.dates.examStart)}.${tail}`,
+      en:
+        `We're inside the exam period of ${semesterEn} ${yearLabelEn} — teaching ended ${shortDate(a.dates.teachingEnd)}` +
+        ` and exams began ${shortDate(a.dates.examStart)}.${tailEn}`,
+    };
+  }
+
+  // break — name the NEXT teaching semester, which is a published date.
+  const nextSemester: TeachingSemester = a.semester === "FALL" ? "SPRING" : "FALL";
+  const nextStartYear = a.semester === "FALL" ? a.startYear : a.startYear + 1;
+  const nextHe = `${semesterHeLabel(nextSemester)} של ${hebrewYearLabel(nextStartYear)}`;
+  const nextEn = `${semesterEnLabel(nextSemester)} ${enYearLabel(nextStartYear)}`;
+  const gapHe = a.semester === "SPRING" ? "אנחנו בחופשת הקיץ" : "אנחנו בחופשה שבין הסמסטרים";
+  const gapEn = a.semester === "SPRING" ? "We're in the summer break" : "We're in the between-semesters break";
+  return {
+    ...base,
+    teachingDaysLeft: null,
+    he: `${gapHe} — ${nextHe} מתחיל ב-${shortDate(a.nextTeachingStart)}.`,
+    en: `${gapEn} — ${nextEn} starts ${shortDate(a.nextTeachingStart)}.`,
+  };
+}
+
 /** Where PLANNING should open (#39): the current semester while it still
  *  teaches, otherwise the next teaching semester. Never SUMMER. */
 export function getPlanningAnchor(now: Date = new Date()): { startYear: number; semester: TeachingSemester } {

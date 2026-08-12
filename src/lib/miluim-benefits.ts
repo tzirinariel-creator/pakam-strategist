@@ -75,7 +75,7 @@ export function buildBenefitGroups(group: MiluimGroupKey, cfg: GroupCfg): Benefi
   }
   if (cfg.binaryGradeDegreeCap > 0) {
     degree.push({
-      he: `קורסים בעובר/לא־עובר (בינארי) — עד ${cfg.binaryGradeDegreeCap} בתואר. פכמון סופר כמה ניצלת, מוציא אותם מהממוצע אוטומטית, ומתריע כשמתקרבים למכסה. את ההמרה עצמה מבצעים מול האוניברסיטה.`,
+      he: `קורסים בעובר/לא־עובר (בינארי) — עד ${cfg.binaryGradeDegreeCap} בתואר. פכמון סופר כמה מהן ניצלתם, מוציא אותן מהממוצע אוטומטית, ומתריע כשמתקרבים למכסה. את ההמרה עצמה מבצעים מול האוניברסיטה.`,
       en: `Pass/fail (binary) courses — up to ${cfg.binaryGradeDegreeCap} across the degree. Pakamon counts how many you've used, keeps them out of your GPA automatically, and warns as you near the cap. The conversion itself is done through the university.`,
       auto: true,
     });
@@ -91,7 +91,7 @@ export function buildBenefitGroups(group: MiluimGroupKey, cfg: GroupCfg): Benefi
   const exams: BenefitItem[] = [];
   if (cfg.examChoice2of3) {
     exams.push({
-      he: "בחירת 2 מתוך 3 מועדי בחינה, והציון הגבוה נקבע. מתבצע מול המזכירות או מדור הבחינות — פכמון לא מחשב זאת עבורך.",
+      he: "בחירת 2 מתוך 3 מועדי בחינה, והציון הגבוה נקבע. מתבצע מול המזכירות או מדור הבחינות — פכמון לא מבצע את זה בשבילכם.",
       en: "Sit 2 of 3 exam dates, with the higher grade counting. Arranged through the secretariat or exams office — Pakamon doesn't compute this for you.",
     });
   }

@@ -28,17 +28,25 @@ interface MiluimRow {
   derivedGroup?: string;
 }
 
-type UserRow = { id: string; email: string; supabaseId: string } | null;
+type UserRow =
+  | { id: string; email: string; supabaseId: string; startYear?: number | null }
+  | null;
 
 function makeDb(
-  opts: { userRow?: UserRow; miluim?: MiluimRow[] } = {},
+  opts: { userRow?: UserRow; miluim?: MiluimRow[]; startYear?: number | null } = {},
 ) {
   // `userRow === undefined` → the normal, existing user. Pass `userRow: null`
   // to simulate the guard case (the app-user row is gone).
   const userRow: UserRow =
     "userRow" in opts
       ? opts.userRow!
-      : { id: USER.id, email: USER.email, supabaseId: USER.supabaseId };
+      : {
+          id: USER.id,
+          email: USER.email,
+          supabaseId: USER.supabaseId,
+          // The degree-start anchor the miluim guard reads (#7/#37).
+          startYear: opts.startYear ?? null,
+        };
   const updateCalls: Array<{ where: unknown; data: Record<string, unknown> }> = [];
   const miluim: MiluimRow[] = opts.miluim ?? [];
   let seq = 0;
@@ -211,5 +219,39 @@ describe("userRouter miluim per-semester guards", () => {
     expect(mine!.academicYear).toBe(2025);
     expect(mine!.semester).toBe("FALL");
     expect(foreign.daysServed).toBe(40); // untouched
+  });
+});
+
+// #7/#37 — the 3010 importer is not the only door into MiluimSemester (the
+// manual add-form and the undo path write too), so the degree window is enforced
+// on the SERVER. A row for a semester before the student enrolled is refused.
+describe("userRouter.upsertMiluimSemester — pre-enrolment semesters are refused (#7/#37)", () => {
+  it("rejects a semester earlier than the degree start, and writes nothing", async () => {
+    const db = makeDb({ startYear: 2025 }); // began תשפ"ו
+    const caller = makeCaller(db);
+
+    await expect(
+      caller.upsertMiluimSemester({ academicYear: 2024, semester: "SPRING", daysServed: 40 }),
+    ).rejects.toMatchObject({ code: "BAD_REQUEST" });
+    expect(db.miluim).toHaveLength(0);
+  });
+
+  it("accepts the degree-start year itself (boundary) and later years", async () => {
+    const db = makeDb({ startYear: 2025 });
+    const caller = makeCaller(db);
+
+    await caller.upsertMiluimSemester({ academicYear: 2025, semester: "FALL", daysServed: 40 });
+    await caller.upsertMiluimSemester({ academicYear: 2026, semester: "SPRING", daysServed: 10 });
+    expect(db.miluim.map((r) => r.academicYear).sort()).toEqual([2025, 2026]);
+    // The group is still derived server-side from the days (unchanged path).
+    expect(db.miluim.find((r) => r.academicYear === 2025)!.derivedGroup).toBe("GROUP_C");
+  });
+
+  it("an unknown start year never blocks a write — we don't guess an enrolment date", async () => {
+    const db = makeDb(); // startYear: null
+    const caller = makeCaller(db);
+
+    await caller.upsertMiluimSemester({ academicYear: 2023, semester: "SPRING", daysServed: 40 });
+    expect(db.miluim).toHaveLength(1);
   });
 });

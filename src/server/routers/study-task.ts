@@ -208,7 +208,17 @@ export const studyTaskRouter = createTRPCRouter({
     .input(
       z.object({
         exams: z
-          .array(z.object({ courseCode: z.string().max(40), moed: z.enum(["A", "B"]) }))
+          .array(
+            z.object({
+              courseCode: z.string().max(40),
+              moed: z.enum(["A", "B"]),
+              // #39 — the student's OWN date for a course the catalog has no
+              // sitting for (the תשפ״ז timetable isn't published yet). Used
+              // ONLY where the catalog is blank; a published date always wins,
+              // so this can never overwrite a real one.
+              examDate: z.coerce.date().optional(),
+            }),
+          )
           .min(1)
           .max(20),
         unavailable: z.array(z.string()).max(60).optional(),
@@ -240,6 +250,10 @@ export const studyTaskRouter = createTRPCRouter({
 
       const codes = Array.from(new Set(input.exams.map((e) => e.courseCode)));
       const moedByCode = new Map(input.exams.map((e) => [e.courseCode, e.moed]));
+      // Student-supplied dates, kept apart from catalog dates on purpose (#39).
+      const manualDateByCode = new Map(
+        input.exams.flatMap((e) => (e.examDate ? [[e.courseCode, e.examDate] as const] : [])),
+      );
 
       const userCourses = await ctx.db.userCourse.findMany({
         where: { userId: user.id, course: { code: { in: codes } } },
@@ -254,7 +268,12 @@ export const studyTaskRouter = createTRPCRouter({
         if (seen.has(code)) continue;
         const moed = moedByCode.get(code);
         if (!moed) continue;
-        const examDate = moed === "B" ? uc.course.examDateB : uc.course.examDateA;
+        // A PUBLISHED sitting always wins; the student's own date only fills a
+        // course the catalog has no date for at all (#39) — it can never
+        // override, shift, or invent over real university data.
+        const published = moed === "B" ? uc.course.examDateB : uc.course.examDateA;
+        const examDate =
+          published ?? (uc.course.examDateA || uc.course.examDateB ? null : manualDateByCode.get(code) ?? null);
         if (!examDate) continue;
         seen.add(code);
         // Mirror the client preview's "light" scaling (×0.75, min 1) so the saved

@@ -11,7 +11,7 @@ import { MILUIM_CONFIG, AMIRNET_CONFIG, ENGLISH_CONFIG, DISCIPLINE_CONFIG, FOCUS
 import { deriveGroupFromDays, type MiluimGroupKey } from "@/lib/miluim";
 import { Form3010Uploader } from "@/components/settings/form-3010-uploader";
 import { api } from "@/lib/trpc/react";
-import { getAcademicNow, getPlanningAnchor } from "@/lib/academic-calendar";
+import { describeAcademicNow, getAcademicNow, getPlanningAnchor, hebrewYearLabel } from "@/lib/academic-calendar";
 import { getCurrentAcademicYear } from "@/lib/miluim";
 import type { OnboardingData } from "./onboarding-wizard";
 
@@ -51,13 +51,15 @@ export function StepProfile({ data, onUpdate }: StepProfileProps) {
   });
   const nowSem = getAcademicNow().semester === "SPRING" ? "SPRING" : "FALL";
   const nowYear = getCurrentAcademicYear();
+  // #7/#37 — the degree-start anchor as onboarding knows it, BEFORE the profile
+  // row exists: exactly the formula user.updateProfile applies to the declared
+  // year. Lets the 3010 reader drop pre-enrolment service on the very first
+  // upload instead of importing a whole reserve career.
+  const onboardingStartYear = getPlanningAnchor().startYear - (data.year - 1);
 
   // #7 — derive the semester once and write it into the wizard state; the UI
   // states the fact instead of asking. SUMMER folds onto SPRING (no teaching).
   const acadNow = getAcademicNow();
-  // The academic-calendar semester describes where the YEAR is right now — it
-  // drives the status line below (accurate for everyone, regardless of year).
-  const calendarSemester: "FALL" | "SPRING" = acadNow.semester === "SPRING" ? "SPRING" : "FALL";
   // The student's PLANNING semester. A first-year's first semester is the FALL
   // intake regardless of where the calendar sits now — so a fresh year-1
   // registration in the spring/summer window (e.g. July) still skips the history
@@ -70,28 +72,39 @@ export function StepProfile({ data, onUpdate }: StepProfileProps) {
   // Year 2+ → the PLANNING ANCHOR (the upcoming teaching semester), NOT the raw
   // calendar semester — in July that's the FALL that's about to start, not the
   // SPRING that just ended, so a returning student isn't seated on a dead
-  // semester (QA 13.7). calendarSemester stays only for the descriptive status
-  // line below.
+  // semester (QA 13.7).
   const derivedSemester: "FALL" | "SPRING" = data.year <= 1 ? "FALL" : getPlanningAnchor().semester;
   useEffect(() => {
     if (data.semester !== derivedSemester) onUpdate({ semester: derivedSemester });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [derivedSemester]);
-  const semLabelHe = calendarSemester === "FALL" ? "סמסטר א׳" : "סמסטר ב׳";
-  const acadStatusLine =
-    acadNow.phase === "teaching"
-      ? `אנחנו עכשיו ב${semLabelHe} — באמצע תקופת הלימודים.`
-      : acadNow.phase === "exams"
-        ? `${semLabelHe} הסתיים — אנחנו בתקופת המבחנים שלו.`
-        : `${semLabelHe} הסתיים — אנחנו בחופשת הסמסטר.`;
+  // #5 — the status line is no longer a phase GUESS ("באמצע תקופת הלימודים"),
+  // which was wrong on day 1 of a semester and said nothing about today. It now
+  // comes verbatim from THE academic calendar and names the real published date
+  // it is standing on. Same source the exam planner uses, so the two screens can
+  // never tell the student two different stories about the same day.
+  const acadStatus = describeAcademicNow();
+  const acadStatusLine = isHe ? acadStatus.he : acadStatus.en;
+  // The semester the wizard is ACTUALLY about to plan — named outright, so the
+  // student can see that "where we are now" and "what we'll build" are two
+  // different things and that the app got both right (#5).
+  const plannedSemesterHe = derivedSemester === "FALL" ? "סמסטר א׳" : "סמסטר ב׳";
+  const plannedSemesterEn = derivedSemester === "FALL" ? "Fall" : "Spring";
+  const plannedYearLabelHe = hebrewYearLabel(getPlanningAnchor().startYear);
+  const plannedYearLabelEn = `${getPlanningAnchor().startYear}/${String((getPlanningAnchor().startYear + 1) % 100).padStart(2, "0")}`;
   // A first-year student skips the history step (nothing to mark), so the
   // "we'll mark what you've already done" copy would be misleading for them.
-  const acadNextLine =
-    data.year <= 1
-      ? "נבנה יחד את מערכת הלימודים של הסמסטר הראשון שלכם."
+  const acadNextLine = isHe
+    ? data.year <= 1
+      ? `נבנה יחד את מערכת הלימודים של ${plannedSemesterHe} ${plannedYearLabelHe} — הסמסטר הראשון שלכם.`
       : acadNow.phase === "teaching"
-        ? "נסמן יחד מה כבר עברתם, ונבנה את המערכת של הסמסטר הזה."
-        : "נסמן יחד מה כבר עברתם (כולל הסמסטר שנגמר), ואז אפשר יהיה לתכנן קדימה.";
+        ? `נסמן יחד מה כבר עברתם, ונבנה את המערכת של ${plannedSemesterHe} ${plannedYearLabelHe}.`
+        : `נסמן יחד מה כבר עברתם (כולל הסמסטר שנגמר), ואז נבנה את המערכת של ${plannedSemesterHe} ${plannedYearLabelHe}.`
+    : data.year <= 1
+      ? `We'll build your timetable for ${plannedSemesterEn} ${plannedYearLabelEn} — your first semester.`
+      : acadNow.phase === "teaching"
+        ? `We'll mark what you've already done, then build your ${plannedSemesterEn} ${plannedYearLabelEn} timetable.`
+        : `We'll mark what you've already done (including the semester that just ended), then build your ${plannedSemesterEn} ${plannedYearLabelEn} timetable.`;
   const [showMiluimDetails, setShowMiluimDetails] = useState(hasGroup);
   // Common-path question state.
   const [served, setServed] = useState<boolean | null>(hasGroup ? true : null);
@@ -280,13 +293,15 @@ export function StepProfile({ data, onUpdate }: StepProfileProps) {
         </div>
 
         {/* #7 (12.7) — the current semester is derived from the calendar,
-            not asked. The user just sees WHERE we are and what happens next. */}
+            not asked. The user just sees WHERE we are and what happens next.
+            #5: the decorative pin emoji is gone (product copy carries none), and
+            both lines now carry REAL dates, so the numbers ride inside <Bidi>. */}
         <div className="animate-stagger-3 rounded-xl border border-border bg-foreground/[0.03] px-4 py-3">
           <p className="text-sm text-foreground/75">
-            📍 {acadStatusLine}
+            <Bidi text={acadStatusLine} />
           </p>
           <p className="mt-1 text-xs text-foreground/45">
-            {acadNextLine}
+            <Bidi text={acadNextLine} />
           </p>
         </div>
 
@@ -363,6 +378,45 @@ export function StepProfile({ data, onUpdate }: StepProfileProps) {
           {showMiluimDetails && (
             <div className="mt-3 space-y-3 animate-in fade-in slide-in-from-top-1 duration-200">
 
+              {/* #6 — the 3010 upload used to sit BEHIND "did you serve this
+                  semester?", which is backwards: you upload the form so the app
+                  can learn what you served, and the form covers past semesters
+                  too. It's now the first thing in the section, available before
+                  any question is answered. */}
+              <Form3010Uploader
+                isHe={isHe}
+                existing={(semesters3010.data ?? []).map((r) => ({
+                  academicYear: r.academicYear,
+                  semester: r.semester,
+                  daysServed: r.daysServed,
+                }))}
+                pending={upsert3010.isPending}
+                // The profile row isn't written yet during onboarding, so the
+                // degree-start anchor is derived here from the declared year —
+                // the same formula updateProfile uses (#7/#37).
+                startYear={onboardingStartYear}
+                onApply={(academicYear, semester, appliedDays) => {
+                  upsert3010.mutate({ academicYear, semester, daysServed: appliedDays, isCombat });
+                  const appliedGroup = deriveGroup(appliedDays, isCombat);
+                  // 18:19 fix: reflect the STRONGEST uploaded semester in the
+                  // profile group — a C reservist who served in a PAST semester
+                  // used to see "no service" because we only updated for the
+                  // current one. The per-semester rows keep the exact history.
+                  const rank = (g: string) =>
+                    ({ NONE: 0, GROUP_A: 1, GROUP_B: 2, GROUP_C: 3, GROUP_G: 3 })[g] ?? 0;
+                  if (rank(appliedGroup) > rank(data.miluimGroup ?? "NONE")) {
+                    applyDerived(appliedGroup);
+                  }
+                  // Applying ANY semester means they serve — reflect it in the
+                  // answer above instead of leaving the question dangling.
+                  setServed(true);
+                  if (academicYear === nowYear && semester === nowSem) {
+                    setDays(appliedDays);
+                    onUpdate({ miluimDays: appliedDays, miluimCombat: isCombat, miluimCareerService: false });
+                  }
+                }}
+              />
+
               {/* ─── COMMON PATH: one short question block ─── */}
               <div className="rounded-xl border border-foreground/10 bg-foreground/3 p-3 space-y-3">
                 {/* Q1: did you serve this year? */}
@@ -402,35 +456,11 @@ export function StepProfile({ data, onUpdate }: StepProfileProps) {
                 {/* Q2 + Q3: only when served === true */}
                 {served === true && (
                   <div className="space-y-3 animate-in fade-in duration-200">
-                    {/* #2 — the smart path: upload Form 3010, we split the days
-                        into semesters (past ones included) and you just confirm. */}
-                    <Form3010Uploader
-                      isHe={true}
-                      existing={(semesters3010.data ?? []).map((r) => ({
-                        academicYear: r.academicYear,
-                        semester: r.semester,
-                        daysServed: r.daysServed,
-                      }))}
-                      pending={upsert3010.isPending}
-                      onApply={(academicYear, semester, appliedDays) => {
-                        upsert3010.mutate({ academicYear, semester, daysServed: appliedDays, isCombat });
-                        const appliedGroup = deriveGroup(appliedDays, isCombat);
-                        // 18:19 fix: reflect the STRONGEST uploaded semester in the
-                        // profile group — a C reservist who served in a PAST semester
-                        // used to see "no service" because we only updated for the
-                        // current one. The per-semester rows keep the exact history.
-                        const rank = (g: string) =>
-                          ({ NONE: 0, GROUP_A: 1, GROUP_B: 2, GROUP_C: 3, GROUP_G: 3 })[g] ?? 0;
-                        if (rank(appliedGroup) > rank(data.miluimGroup ?? "NONE")) {
-                          applyDerived(appliedGroup);
-                        }
-                        if (academicYear === nowYear && semester === nowSem) {
-                          setDays(appliedDays);
-                          onUpdate({ miluimDays: appliedDays, miluimCombat: isCombat, miluimCareerService: false });
-                        }
-                      }}
-                    />
-                    <details className="rounded-lg border border-border/40 p-3">
+                    {/* The 3010 path now lives ABOVE this question block (#6);
+                        this is the manual fallback for whoever doesn't have the
+                        form on hand. Open by default so answering "yes" leads
+                        straight to the days field. */}
+                    <details className="rounded-lg border border-border/40 p-3" open>
                       <summary className="cursor-pointer text-xs font-medium text-foreground/55">
                         {tm("or3010Manual")}
                       </summary>

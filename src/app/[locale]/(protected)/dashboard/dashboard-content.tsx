@@ -621,8 +621,11 @@ export function DashboardContent() {
             )}
           </div>
           {/* Q4 (note 14): the moment a timetable is saved IS the right moment
-              to sync — offer it right here, only to the not-yet-connected. */}
-          {googleStatus.data && !googleStatus.data.connected && (
+              to sync — offer it right here, only to the not-yet-connected.
+              #40: also gate on `configured` — with Google OAuth off on the
+              server the Settings section renders nothing, so this chip was
+              sending students to a page with no calendar card on it. */}
+          {googleStatus.data?.configured !== false && googleStatus.data && !googleStatus.data.connected && (
             <Link
               href="/settings"
               // Was hidden on mobile (hidden … sm:inline-flex) — but the MAJORITY
@@ -864,8 +867,11 @@ export function DashboardContent() {
           exam board lives at /exam ("all exams" link in "My week"), the calendar
           at /calendar, and study tasks at /exam-planner (all in the sidebar). */}
 
-      {/* Google Calendar banner */}
-      {!googleBannerDismissed && hasPlanData && (
+      {/* Google Calendar banner. #40: gated on `configured` — with Google OAuth
+          off on the server the Settings section renders nothing, so this banner
+          was inviting students to a page with no calendar card on it, which
+          reads exactly like "the app never offered to sync my calendar". */}
+      {!googleBannerDismissed && hasPlanData && googleStatus.data?.configured !== false && (
         <div className="animate-stagger-6">
           <GoogleCalendarBanner
             isConnected={googleStatus.data?.connected ?? false}

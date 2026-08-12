@@ -1,11 +1,16 @@
 import { z } from "zod/v4";
 import { createClient } from "@supabase/supabase-js";
-import { getAcademicNow, getPlanningAnchor, deriveYearOfStudy } from "@/lib/academic-calendar";
+import {
+  getAcademicNow,
+  getPlanningAnchor,
+  deriveYearOfStudy,
+  hebrewYearLabel,
+} from "@/lib/academic-calendar";
 import { TRPCError } from "@trpc/server";
 import { createTRPCRouter, protectedProcedure } from "../trpc/init";
 import { seedDemoData } from "@/lib/demo-data";
 import { getAllDisciplineIds } from "@/lib/programs/registry";
-import { deriveGroupFromDays } from "@/lib/miluim";
+import { deriveGroupFromDays, isDegreeAcademicYear } from "@/lib/miluim";
 import { dedupeHashFor } from "./course-knowledge";
 import { calendarFeedToken } from "@/lib/calendar-feed-token";
 
@@ -174,10 +179,22 @@ export const userRouter = createTRPCRouter({
     .mutation(async ({ ctx, input }) => {
       const user = await ctx.db.user.findUnique({
         where: { supabaseId: ctx.userId },
-        select: { id: true },
+        select: { id: true, startYear: true },
       });
       if (!user) {
         throw new TRPCError({ code: "NOT_FOUND", message: "User not found" });
+      }
+
+      // #7/#37 — a semester BEFORE the degree started can't grant anything, and
+      // storing it produced a service table full of semesters the student never
+      // studied in. Guarded here (not only in the 3010 importer) so the manual
+      // add-form, the undo path and any future caller obey the same rule. An
+      // unknown anchor never blocks: we don't guess an enrolment date.
+      if (!isDegreeAcademicYear(input.academicYear, user.startYear)) {
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: `${hebrewYearLabel(input.academicYear)} קודמת לתחילת התואר שלכם (${hebrewYearLabel(user.startYear!)}), ושירות שקדם לתואר לא מזכה בהטבות. אם שנת הפתיחה לא נכונה — עדכנו אותה בהגדרות ונסו שוב.`,
+        });
       }
 
       // Derive the group server-side from days + combat (authoritative).

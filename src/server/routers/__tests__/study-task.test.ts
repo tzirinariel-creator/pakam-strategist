@@ -167,3 +167,75 @@ describe("studyTask.generateExamPlan — re-tune preserves manual/locked blocks"
     expect(notes.contains).toBe("[locked]");
   });
 });
+
+// ─── #39 — a student's OWN exam date, for a catalog with none ───────────────
+// The תשפ״ז yedion ships without an exam timetable, so a planner that can only
+// read Course.examDateA is a dead end. The student may supply the date — but it
+// must never override, shift, or invent over a PUBLISHED one.
+function makeDatelessDb(courseDates: { examDateA: Date | null; examDateB: Date | null }) {
+  const created: { title: string; startDate: Date; taskType: string }[] = [];
+  return {
+    created,
+    user: { findUnique: async () => USER, upsert: async () => USER },
+    userCourse: {
+      findMany: async () => [
+        {
+          course: {
+            code: "1011-2103",
+            nameHe: "מיקרו",
+            credits: 5,
+            averageGrade: 78,
+            failRate: 0.1,
+            ...courseDates,
+          },
+        },
+      ],
+    },
+    studyTask: { findMany: async () => [] },
+    $transaction: async (fn: (tx: unknown) => Promise<number>) =>
+      fn({
+        studyTask: {
+          deleteMany: async () => ({ count: 0 }),
+          createMany: async ({ data }: { data: typeof created }) => {
+            created.push(...data);
+            return { count: data.length };
+          },
+        },
+      }),
+  };
+}
+
+const IN_30_DAYS = new Date(new Date().getTime() + 30 * 86_400_000);
+const IN_10_DAYS = new Date(new Date().getTime() + 10 * 86_400_000);
+
+describe("studyTask.generateExamPlan — manual exam dates (#39)", () => {
+  it("a course with NO catalog date is planned from the date the student typed", async () => {
+    const db = makeDatelessDb({ examDateA: null, examDateB: null });
+    const caller = makeCaller(db as unknown as ReturnType<typeof makeFakeDb>);
+    const r = await caller.generateExamPlan({
+      exams: [{ courseCode: "1011-2103", moed: "A", examDate: IN_30_DAYS }],
+    });
+    expect(r.created).toBeGreaterThan(0);
+    const examBlock = db.created.find((t) => t.taskType === "exam");
+    expect(examBlock).toBeDefined();
+    expect(new Date(examBlock!.startDate).toDateString()).toBe(IN_30_DAYS.toDateString());
+  });
+
+  it("without a date from either side there is nothing to plan — and we say so, not guess", async () => {
+    const db = makeDatelessDb({ examDateA: null, examDateB: null });
+    const caller = makeCaller(db as unknown as ReturnType<typeof makeFakeDb>);
+    const r = await caller.generateExamPlan({ exams: [{ courseCode: "1011-2103", moed: "A" }] });
+    expect(r).toMatchObject({ created: 0, message: "no exams with dates" });
+    expect(db.created).toHaveLength(0);
+  });
+
+  it("a PUBLISHED date always wins — a student's date can never overwrite the university's", async () => {
+    const db = makeDatelessDb({ examDateA: IN_10_DAYS, examDateB: null });
+    const caller = makeCaller(db as unknown as ReturnType<typeof makeFakeDb>);
+    await caller.generateExamPlan({
+      exams: [{ courseCode: "1011-2103", moed: "A", examDate: IN_30_DAYS }],
+    });
+    const examBlock = db.created.find((t) => t.taskType === "exam")!;
+    expect(new Date(examBlock.startDate).toDateString()).toBe(IN_10_DAYS.toDateString());
+  });
+});

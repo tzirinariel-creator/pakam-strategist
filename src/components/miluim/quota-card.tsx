@@ -37,9 +37,12 @@ export function QuotaCard({
         {label}
       </div>
       <div className="mt-1 flex items-center justify-between gap-2">
-        <div className="flex items-baseline gap-1" dir="ltr">
+        {/* #43 — the counter is a pure number pair, so it stays in ONE
+            explicitly-LTR run: two adjacent spans linearized as "0/ 10"
+            wherever the text was copied or read out. */}
+        <div className="flex items-baseline" dir="ltr">
           <span className="font-mono text-xl font-bold text-foreground/85">{used}</span>
-          <span className="font-mono text-sm text-foreground/40">/ {cap}</span>
+          <span className="font-mono text-sm text-foreground/40">{` / ${cap}`}</span>
         </div>
         {onChange && (
           <div className="flex items-center gap-1" dir="ltr">

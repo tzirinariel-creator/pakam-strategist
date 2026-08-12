@@ -7,13 +7,11 @@ import {
   Lightbulb,
   Plus,
   Check,
-  GraduationCap,
   AlertTriangle,
 } from "lucide-react";
 import { useLocale } from "next-intl";
 import { toast } from "sonner";
 import { advisorError } from "@/lib/advisor-toast";
-import { Link } from "@/i18n/navigation";
 import { api } from "@/lib/trpc/react";
 import { usePersonalAddress } from "@/components/personal/use-personal-address";
 import { ThemedLoader } from "@/components/ui/themed-loader";
@@ -48,6 +46,10 @@ import { Agenda } from "@/components/exam-planner/agenda";
 import { Disclosure } from "@/components/exam-planner/disclosure";
 import { ShareMenu } from "@/components/exam-planner/share-menu";
 import { ExamSeasonWisdom } from "@/components/exam-planner/exam-season-wisdom";
+import { AcademicStatusLine, ExamsEmptyState } from "@/components/exam-planner/exams-empty-state";
+import { classifyExamAvailability } from "@/lib/exam-availability";
+import { deriveYearOfStudy, getPlanningAnchor } from "@/lib/academic-calendar";
+import { CalendarSyncNudge } from "@/components/calendar/calendar-sync-nudge";
 
 export function ExamPlannerContent() {
   const isHe = useLocale() === "he";
@@ -80,22 +82,84 @@ export function ExamPlannerContent() {
   // instead of firing N refetches for N moved tasks.
   const batchUpdateMutation = api.studyTask.update.useMutation();
 
-  // Courses with an UPCOMING exam sitting (past sittings dropped — #13).
+  // #39 — a date the STUDENT typed for a course the catalog has no sitting for
+  // (the תשפ״ז timetable isn't published yet). Per-device, like altAssessment:
+  // it's their own knowledge, never a catalog fact, and it always wins.
+  const [manualDates, setManualDates] = useState<Record<string, string>>(() => {
+    if (typeof window === "undefined") return {};
+    try {
+      return JSON.parse(localStorage.getItem("pk-manual-exam-dates") ?? "{}") as Record<string, string>;
+    } catch {
+      return {};
+    }
+  });
+  const setManualDate = (code: string, value: string) => {
+    setManualDates((prev) => {
+      const next = { ...prev };
+      if (!value) delete next[code];
+      else next[code] = value;
+      try {
+        localStorage.setItem("pk-manual-exam-dates", JSON.stringify(next));
+      } catch { /* storage blocked — session-only */ }
+      return next;
+    });
+    if (!value) setSelected((s) => ({ ...s, [code]: undefined }));
+  };
+  /** "YYYY-MM-DD" → local midnight, or null. Never throws on a partial value. */
+  const parseManual = (v: string | undefined): Date | null => {
+    if (!v) return null;
+    const [y, m, d] = v.split("-").map(Number);
+    if (!y || !m || !d) return null;
+    return new Date(y, m - 1, d);
+  };
+
+  // Every course still ahead of the student — the denominator for the honest
+  // "why is this empty" classification and for the manual-date rows.
+  const plannedCourses = useMemo(() => {
+    const seen = new Set<string>();
+    const out: { code: string; name: string; credits: number; submissionType: string | null; examDateA: Date | null; examDateB: Date | null; averageGrade: number | null; failRate: number | null; status: string; grade: number | null; plannedYear: number; plannedSemester: string }[] = [];
+    for (const uc of planQuery.data?.courses ?? []) {
+      const c = uc.course;
+      if (seen.has(c.code)) continue;
+      seen.add(c.code);
+      out.push({
+        code: c.code,
+        name: c.nameHe,
+        credits: c.credits,
+        submissionType: (c as { submissionType?: string | null }).submissionType ?? null,
+        examDateA: c.examDateA ? new Date(c.examDateA) : null,
+        examDateB: c.examDateB ? new Date(c.examDateB) : null,
+        averageGrade: c.averageGrade,
+        failRate: c.failRate,
+        status: uc.status,
+        grade: uc.grade,
+        plannedYear: uc.plannedYear,
+        plannedSemester: uc.plannedSemester,
+      });
+    }
+    return out;
+  }, [planQuery.data]);
+
+  // WHY the picker is empty, told apart properly (#39): no plan / only papers /
+  // the timetable isn't published / everything already passed.
+  const availability = useMemo(() => classifyExamAvailability(plannedCourses), [plannedCourses]);
+
+  // Courses with an UPCOMING exam sitting (past sittings dropped — #13). A
+  // manually-entered date counts exactly like a published one.
   const examCourses = useMemo(() => {
     const now = new Date();
     now.setHours(0, 0, 0, 0);
     const futureOnly = (d: Date | null): Date | null => (d && d.getTime() >= now.getTime() ? d : null);
-    const out: { code: string; name: string; credits: number; examDateA: Date | null; examDateB: Date | null; averageGrade: number | null; failRate: number | null }[] = [];
-    const seen = new Set<string>();
-    for (const uc of planQuery.data?.courses ?? []) {
-      const c = uc.course;
-      if (seen.has(c.code)) continue;
-      if (uc.status === "COMPLETED" && uc.grade != null) continue;
-      const examDateA = futureOnly(c.examDateA ? new Date(c.examDateA) : null);
-      const examDateB = futureOnly(c.examDateB ? new Date(c.examDateB) : null);
+    const out: { code: string; name: string; credits: number; examDateA: Date | null; examDateB: Date | null; averageGrade: number | null; failRate: number | null; manual: boolean }[] = [];
+    for (const c of plannedCourses) {
+      if (c.status === "COMPLETED" && c.grade != null) continue;
+      const catalogA = futureOnly(c.examDateA);
+      const catalogB = futureOnly(c.examDateB);
+      const manual = !catalogA && !catalogB ? futureOnly(parseManual(manualDates[c.code])) : null;
+      const examDateA = catalogA ?? manual;
+      const examDateB = catalogB;
       if (!examDateA && !examDateB) continue;
-      seen.add(c.code);
-      out.push({ code: c.code, name: c.nameHe, credits: c.credits, examDateA, examDateB, averageGrade: c.averageGrade, failRate: c.failRate });
+      out.push({ code: c.code, name: c.name, credits: c.credits, examDateA, examDateB, averageGrade: c.averageGrade, failRate: c.failRate, manual: manual != null });
     }
     // #37 (12.7) — the picker lists exams in CHRONOLOGICAL order (earliest
     // upcoming sitting first), not catalog order.
@@ -103,9 +167,26 @@ export function ExamPlannerContent() {
       Math.min(c.examDateA?.getTime() ?? Infinity, c.examDateB?.getTime() ?? Infinity);
     out.sort((a, b) => earliest(a) - earliest(b));
     return out;
-  }, [planQuery.data]);
+  }, [plannedCourses, manualDates]);
 
-  const hasAnyPlannedCourses = (planQuery.data?.courses?.length ?? 0) > 0;
+  // Courses the student could still put a date on: no published sitting at all.
+  // Scoped to the semester they're actually planning (the anchor + their derived
+  // year of study), so a full 3-year plan doesn't dump 25 date inputs on screen.
+  // If that scope comes back empty the whole set is offered — better a long list
+  // than a screen with no way forward.
+  const datelessCourses = useMemo(() => {
+    const all = plannedCourses.filter(
+      (c) => !(c.status === "COMPLETED" && c.grade != null) && !c.examDateA && !c.examDateB,
+    );
+    const anchor = getPlanningAnchor();
+    const year = deriveYearOfStudy(
+      profileQuery.data?.startYear,
+      profileQuery.data?.currentYear ?? 1,
+      anchor.startYear,
+    );
+    const scoped = all.filter((c) => c.plannedYear === year && c.plannedSemester === anchor.semester);
+    return scoped.length > 0 ? scoped : all;
+  }, [plannedCourses, profileQuery.data]);
 
   const [selected, setSelected] = useState<Record<string, Moed | undefined>>({});
   // Phase 3 — per-course self-reported readiness (1-5). Ephemeral like
@@ -203,7 +284,15 @@ export function ExamPlannerContent() {
   const selectedCount = Object.values(selected).filter(Boolean).length;
 
   const handleGenerate = () => {
-    const exams = examCourses.filter((c) => selected[c.code]).map((c) => ({ courseCode: c.code, moed: selected[c.code] as Moed }));
+    const exams = examCourses
+      .filter((c) => selected[c.code])
+      .map((c) => ({
+        courseCode: c.code,
+        moed: selected[c.code] as Moed,
+        // #39 — when the catalog has no sitting, the student's own date travels
+        // with the request; the server uses it only where the catalog is blank.
+        ...(c.manual && c.examDateA ? { examDate: c.examDateA } : {}),
+      }));
     if (exams.length === 0) {
       toast.error(isHe ? "בחרו לפחות מבחן אחד" : "Pick at least one exam");
       return;
@@ -428,6 +517,34 @@ export function ExamPlannerContent() {
 
   const hasPlan = tasks.length > 0;
 
+  // #39 — the manual-date rows. Every course the catalog has no sitting for gets
+  // a real input, so "the timetable isn't published" is a next step, not a wall.
+  const manualDateRows =
+    datelessCourses.length === 0 ? null : (
+      <div className="space-y-1.5 rounded-lg border border-border/50 p-2.5">
+        <p className="text-[11px] font-semibold text-foreground/60">
+          {isHe ? "קורסים ללא תאריך בקטלוג — הזינו תאריך משלכם:" : "Courses with no catalog date — enter your own:"}
+        </p>
+        {datelessCourses.map((c) => (
+          <div key={c.code} className="flex flex-wrap items-center gap-2">
+            <span className="min-w-0 flex-1 truncate text-xs text-foreground/75">{c.name}</span>
+            <input
+              type="date"
+              value={manualDates[c.code] ?? ""}
+              aria-label={isHe ? `תאריך המבחן ב${c.name}` : `Exam date for ${c.name}`}
+              onChange={(e) => setManualDate(c.code, e.target.value)}
+              className="rounded-md border border-border/60 bg-card px-2 py-1 text-xs text-foreground/80 focus:border-accent-brand focus:outline-none"
+            />
+          </div>
+        ))}
+        <p className="text-[10px] leading-relaxed text-foreground/40">
+          {isHe
+            ? "התאריך נשמר במכשיר הזה ומסומן כ״תאריך שהזנתם״ — הוא לא מוצג לאף אחד אחר, וכשהאוניברסיטה תפרסם לוח רשמי הוא יגבר עליו."
+            : "Saved on this device and labelled as yours — nobody else sees it, and an official published date takes over once it exists."}
+        </p>
+      </div>
+    );
+
   // ── Shared sub-renders ────────────────────────────────────────────────
   const pickExamsPanel = (
     <div className="data-card p-5">
@@ -437,23 +554,17 @@ export function ExamPlannerContent() {
         {selectedCount > 0 && <span className="ms-auto text-xs text-foreground/50">{selectedCount} {isHe ? "נבחרו" : "selected"}</span>}
       </div>
       {examCourses.length === 0 ? (
-        !hasAnyPlannedCourses ? (
-          <div className="flex flex-col items-start gap-2">
-            <p className="text-sm text-foreground/60">
-              {isHe ? "עוד אין לכם תכנית לימודים. בנו תכנית קודם — ואז נמשוך משם את תאריכי המבחנים." : "You don't have a study plan yet. Build one first — exam dates come from there."}
-            </p>
-            <Link href="/planner" className="inline-flex items-center gap-1.5 rounded-lg bg-accent-brand px-3 py-2 text-sm font-semibold text-accent-brand-fg transition-colors hover:bg-accent-brand-hover">
-              <GraduationCap className="size-4" />
-              {isHe ? "לבניית התכנית" : "Build my plan"}
-            </Link>
-          </div>
-        ) : (
-          <p className="text-sm text-foreground/50">
-            {isHe ? "אין מבחנים קרובים בתכנית שלכם. (מבחנים שכבר עברו אינם מוצגים.)" : "No upcoming exams in your plan. (Past sittings are hidden.)"}
-          </p>
-        )
+        <ExamsEmptyState
+          isHe={isHe}
+          reason={availability.reason ?? "no-plan"}
+          plannedCount={availability.plannedCount}
+          manualEntry={manualDateRows}
+        />
       ) : (
         <div className="space-y-2">
+          {/* #39 — the screen states where the calendar is BEFORE it asks
+              anything, so it can never read as if it doesn't know the date. */}
+          <AcademicStatusLine isHe={isHe} />
           {/* E3′ (note 32) — why Moed A is the default, in one honest line. */}
           <p className="text-[11px] leading-relaxed text-foreground/45">
             {isHe
@@ -476,6 +587,12 @@ export function ExamPlannerContent() {
                   {sel && <Check className="size-3.5" />}
                 </button>
                 <span className="min-w-0 flex-1 truncate text-sm text-foreground/80">{c.name}</span>
+                {/* Never let a student's own date pass for a published one. */}
+                {c.manual && (
+                  <span className="rounded-full border border-border/60 px-1.5 py-0.5 text-[10px] text-foreground/50">
+                    {isHe ? "תאריך שהזנתם" : "your date"}
+                  </span>
+                )}
                 <span className="font-mono text-[11px] text-foreground/40">{c.credits} ש״ס</span>
                 <div className="flex overflow-hidden rounded-md border border-border/60 text-xs">
                   {(["A", "B"] as Moed[]).map((m) => {
@@ -636,6 +753,7 @@ export function ExamPlannerContent() {
               </p>
             </div>
           )}
+          {manualDateRows}
           {/* #39 (12.7) — no build button here: building happens at the END of
               the wizard, after the blocked-days + style questions were answered. */}
           <p className="mt-2 text-center text-[11px] text-foreground/40">
@@ -774,6 +892,9 @@ export function ExamPlannerContent() {
             focusDay={focusDay}
           />
           {recsCard(persistedRecs, true)}
+          {/* #40 — the plan is saved and on screen: THE moment calendar sync is
+              actually useful. One time, dismissible, never shown once connected. */}
+          <CalendarSyncNudge show={hasPlan} />
           <Disclosure title={isHe ? "כוונון מחדש / הוסיפו תאריכים וכלים" : "Re-tune / add dates & tools"}>
             <div className="flex flex-col gap-4">
               <MoedPrinciplesCard isHe={isHe} />

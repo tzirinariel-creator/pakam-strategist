@@ -17,12 +17,17 @@ export function Form3010Uploader({
   isHe,
   existing,
   pending,
+  startYear,
   onApply,
   onApplyAll,
 }: {
   isHe: boolean;
   existing: Array<{ academicYear: number; semester: string; daysServed: number }>;
   pending: boolean;
+  /** Degree-start academic year as the CALLER knows it (#7/#37) — onboarding
+   *  has it in wizard state before the profile row exists. The server prefers
+   *  the stored anchor; this only covers that window. */
+  startYear?: number | null;
   onApply: (academicYear: number, semester: "FALL" | "SPRING", days: number) => void;
   /** Batch apply — lets the parent snapshot BEFORE the whole import and offer
    *  ONE undo for all of it (the last irreversible bulk-write, 12.7 #26). */
@@ -45,7 +50,7 @@ export function Form3010Uploader({
       const res = await fetch("/api/ai/scan-3010", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ imageBase64: b64, mimeType: mime }),
+        body: JSON.stringify({ imageBase64: b64, mimeType: mime, startYear: startYear ?? null }),
       });
       const data = (await res.json()) as { summary?: Form3010Summary; error?: string };
       if (!res.ok || !data.summary) {
@@ -93,6 +98,16 @@ export function Form3010Uploader({
 
       {summary && (
         <div className="mt-3 space-y-2">
+          {/* #7/#37 — the form covers a whole reserve career; only the part
+              that overlaps the degree is offered. When we don't know when the
+              degree started we say so instead of quietly importing everything. */}
+          {summary.startYear == null && (
+            <p className="rounded-lg border border-amber-500/25 bg-amber-500/5 px-3 py-2 text-[11px] leading-relaxed text-amber-600">
+              {isHe
+                ? "אנחנו לא יודעים מתי התחלתם את התואר, אז לא סיננו כלום — הרשימה כוללת את כל השירות שבטופס. אשרו רק סמסטרים שבהם כבר למדתם (שירות שקדם לתואר לא מזכה בהטבות), או קבעו שנת פתיחה בהגדרות ונסננו לבד."
+                : "We don't know when your degree started, so nothing was filtered — the list covers every period on the form. Approve only semesters you actually studied in (pre-degree service grants no benefits), or set your start year in settings and we'll filter it for you."}
+            </p>
+          )}
           {summary.suggestions.length > 1 && (
             <button
               type="button"
@@ -116,7 +131,13 @@ export function Form3010Uploader({
           )}
           {summary.suggestions.length === 0 && (
             <p className="text-xs text-foreground/50">
-              {isHe ? "לא נמצאו תקופות בטווח הלוחות המוכרים — אפשר להזין ידנית למטה." : "No periods within the known calendars — enter manually below."}
+              {(summary.preDegree?.length ?? 0) > 0
+                ? isHe
+                  ? "כל השירות שבטופס קדם לתחילת התואר שלכם — אין מה לייבא. הפירוט למטה."
+                  : "All service on the form predates your degree — there's nothing to import. Details below."
+                : isHe
+                  ? "לא נמצאו תקופות בטווח הלוחות המוכרים — אפשר להזין ידנית למטה."
+                  : "No periods within the known calendars — enter manually below."}
             </p>
           )}
           {summary.suggestions.map((s) => {
@@ -152,6 +173,39 @@ export function Form3010Uploader({
               </div>
             );
           })}
+          {(summary.preDegree?.length ?? 0) > 0 && (
+            // #7/#37 — shown, never offered: the student sees that we READ these
+            // rows and deliberately kept them out of the degree.
+            <details className="rounded-lg border border-border/40 bg-foreground/[0.02] p-2.5">
+              <summary className="cursor-pointer text-[11px] font-medium text-foreground/55">
+                <Bidi
+                  text={
+                    isHe
+                      ? `${summary.preDegree.length} סמסטרים בטופס קדמו לתחילת התואר — לא ייובאו`
+                      : `${summary.preDegree.length} semester(s) on the form predate your degree — not imported`
+                  }
+                />
+              </summary>
+              <ul className="mt-2 space-y-1 text-[11px] text-foreground/55">
+                {summary.preDegree.map((s) => (
+                  <li key={`pre-${s.academicYear}-${s.semester}`}>
+                    <Bidi
+                      text={
+                        isHe
+                          ? `${s.labelHe} · ${s.semester === "FALL" ? "סמסטר א׳" : "סמסטר ב׳"} — ${Math.round(s.days)} ימים`
+                          : `${s.academicYear} · ${s.semester === "FALL" ? "Fall" : "Spring"} — ${Math.round(s.days)} days`
+                      }
+                    />
+                  </li>
+                ))}
+              </ul>
+              <p className="mt-1.5 text-[10px] leading-relaxed text-foreground/40">
+                {isHe
+                  ? "הטופס מכסה את כל שירות המילואים שלכם, וההטבות מחושבות רק על התואר. אם שנת הפתיחה של התואר שגויה — תקנו אותה בהגדרות והעלו את הטופס שוב."
+                  : "The form covers your entire reserve service; the benefits only cover the degree. If your degree start year is wrong, fix it in settings and upload the form again."}
+              </p>
+            </details>
+          )}
           {summary.unmapped.length > 0 && (
             // #21 (12.7) — the old one-line dump of 14 periods was unreadable.
             // Collapsed by default; opens to a proper table, oldest first.

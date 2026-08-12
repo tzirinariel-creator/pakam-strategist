@@ -125,9 +125,23 @@ export interface SemesterSuggestion {
 
 export interface Form3010Summary {
   suggestions: SemesterSuggestion[];
+  /**
+   * Semesters that fall BEFORE the student began the degree (#7/#37). The form
+   * lists a whole reserve career; service that predates enrolment grants no
+   * academic benefit, so it is never suggested for import — only listed, so the
+   * student sees we read the row and chose not to touch their degree with it.
+   * Always empty when `startYear` is unknown (we don't guess a start year).
+   */
+  preDegree: SemesterSuggestion[];
   /** Periods outside the known TAU calendars — listed, never auto-assigned. */
   unmapped: { startDate: string; endDate: string; days: number }[];
   totalDays: number;
+  /**
+   * The degree-start anchor the split used (academic-year key, 2025 = תשפ"ו),
+   * or null when the app doesn't know it. null ⇒ NOTHING was filtered and the
+   * UI must say so instead of pretending the list is degree-only.
+   */
+  startYear: number | null;
 }
 
 /**
@@ -135,8 +149,19 @@ export interface Form3010Summary {
  * (splitting a row's printed day-count across semesters would invent a
  * distribution the form doesn't state). Periods before/after the known TAU
  * calendars land in `unmapped` for manual handling.
+ *
+ * `opts.startYear` is the student's degree-start academic year. Semesters
+ * earlier than it go to `preDegree` and are NEVER offered for import: a 3010
+ * covers the student's whole reserve career, and importing service from before
+ * they were a student produced a service table full of semesters they never
+ * studied in (#7/#37). Unknown start year ⇒ no filtering AND an explicit
+ * `startYear: null` so the UI degrades honestly rather than guessing.
  */
-export function summarizeForm3010(form: Form3010): Form3010Summary {
+export function summarizeForm3010(
+  form: Form3010,
+  opts: { startYear?: number | null } = {},
+): Form3010Summary {
+  const startYear = opts.startYear ?? null;
   const byKey = new Map<string, SemesterSuggestion>();
   const unmapped: Form3010Summary["unmapped"] = [];
   let totalDays = 0;
@@ -172,10 +197,16 @@ export function summarizeForm3010(form: Form3010): Form3010Summary {
     }
   }
 
-  const suggestions = [...byKey.values()].sort(
+  const sorted = [...byKey.values()].sort(
     (a, b) => a.academicYear - b.academicYear || (a.semester === "FALL" ? -1 : 1),
   );
-  return { suggestions, unmapped, totalDays };
+  const suggestions: SemesterSuggestion[] = [];
+  const preDegree: SemesterSuggestion[] = [];
+  for (const s of sorted) {
+    if (startYear != null && s.academicYear < startYear) preDegree.push(s);
+    else suggestions.push(s);
+  }
+  return { suggestions, preDegree, unmapped, totalDays, startYear };
 }
 
 /** Vision prompt — read ONLY what the form prints, never invent. Written

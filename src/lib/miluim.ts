@@ -49,6 +49,47 @@ export function getCurrentAcademicYear(now: Date = new Date()): number {
 }
 
 /**
+ * Does this academic year belong to the student's DEGREE? (#7/#37)
+ *
+ * Reserve service that predates enrolment grants no academic benefit: the
+ * groups, the credit exemption and the binary quota are all degree-scoped. A
+ * 3010 form, however, lists a whole reserve career — so without this gate the
+ * app imported (and proudly displayed) semesters the student never studied in.
+ *
+ * `startYear` unknown (null) ⇒ TRUE for everything. We never guess an enrolment
+ * date; the surfaces that filter must say out loud that they couldn't.
+ *
+ * @param academicYear  Academic-year key of the row (2025 = תשפ"ו).
+ * @param startYear     user.startYear — the degree-start anchor.
+ */
+export function isDegreeAcademicYear(
+  academicYear: number,
+  startYear?: number | null,
+): boolean {
+  if (startYear == null) return true;
+  return academicYear >= startYear;
+}
+
+/**
+ * Split per-semester rows into the ones inside the degree and the ones that
+ * predate it. Pure and generic so every surface (the /miluim table, the status
+ * bar timeline, the settings history, the entitlement math) filters IDENTICALLY
+ * — the "one gate, no drift" rule the group resolution already follows.
+ */
+export function splitByDegreeStart<T extends { academicYear: number }>(
+  rows: T[],
+  startYear?: number | null,
+): { degree: T[]; preDegree: T[] } {
+  const degree: T[] = [];
+  const preDegree: T[] = [];
+  for (const r of rows) {
+    if (isDegreeAcademicYear(r.academicYear, startYear)) degree.push(r);
+    else preDegree.push(r);
+  }
+  return { degree, preDegree };
+}
+
+/**
  * Map any semester to the FALL/SPRING bucket that the miluim outline actually
  * uses. SUMMER has no distinct miluim group (the schema accepts it but the
  * editor never creates a SUMMER row), so a student currently flagged SUMMER

@@ -39,3 +39,35 @@ describe("Bidi — em/en dash runs with surrounding spaces (24.7 fix)", () => {
     expect(isolates.length).toBeGreaterThanOrEqual(2);
   });
 });
+
+// #35 — the miluim credit-exemption block. The per-year line used an ARROW
+// ("תשפ״ד: קבוצה C → 8 ש״ס"): the arrow is a bidi-neutral sitting between two
+// separate isolates, so the line reordered on screen — exactly Ariel's
+// "עברית שבורה". The line now uses an em dash, which <Bidi> folds into ONE
+// isolate with the group letter and the number.
+describe("Bidi — the miluim per-year exemption line (#35)", () => {
+  it("keeps 'קבוצה C — 8' in a single isolate", () => {
+    const { container } = render(<Bidi text="תשפ״ד: קבוצה C — 8 ש״ס" />);
+    const isolates = container.querySelectorAll("bdi");
+    expect(isolates).toHaveLength(1);
+    expect(isolates[0]!.textContent).toBe("C — 8");
+    // The Hebrew around it is untouched — no dir on Hebrew text (CLAUDE.md).
+    expect(container.textContent).toBe("תשפ״ד: קבוצה C — 8 ש״ס");
+    expect(container.querySelector('[dir="ltr"]:not(bdi)')).toBeNull();
+  });
+
+  it("the ARROW form is exactly the broken case: two isolates with a bare neutral between them", () => {
+    const { container } = render(<Bidi text="תשפ״ד: קבוצה C → 8 ש״ס" />);
+    // Documents WHY the arrow was replaced — "→" is not a joinable connector.
+    expect(container.querySelectorAll("bdi")).toHaveLength(2);
+  });
+
+  it("isolates the accrued-credits headline ('10 ש״ס נצברו לכם עד היום')", () => {
+    const { container } = render(<Bidi text="10 ש״ס נצברו לכם עד היום" />);
+    const isolates = container.querySelectorAll("bdi");
+    expect(isolates).toHaveLength(1);
+    expect(isolates[0]!.textContent).toBe("10");
+    // The space between the number and the Hebrew survives (the "10ש״ס" bug).
+    expect(container.textContent).toBe("10 ש״ס נצברו לכם עד היום");
+  });
+});

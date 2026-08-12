@@ -8,7 +8,7 @@ import { advisorError } from "@/lib/advisor-toast";
 import { getAcademicNow, hebrewYearLabel } from "@/lib/academic-calendar";
 import { Bidi } from "@/lib/bidi";
 import { MILUIM_CONFIG } from "@/lib/constants";
-import { deriveGroupFromDays, getCurrentAcademicYear } from "@/lib/miluim";
+import { deriveGroupFromDays, getCurrentAcademicYear, splitByDegreeStart } from "@/lib/miluim";
 import { MiluimDayCombatInputs } from "@/components/miluim/miluim-day-combat-inputs";
 import { QuotaCard } from "@/components/miluim/quota-card";
 import { api } from "@/lib/trpc/react";
@@ -60,6 +60,11 @@ export function MiluimSection() {
   const nowSemester = getAcademicNow().semester;
   const editorSemester: "FALL" | "SPRING" = nowSemester === "SPRING" ? "SPRING" : "FALL";
   const academicYear = getCurrentAcademicYear();
+  // #7/#37 — every miluim surface reads the SAME degree window, so a row from
+  // before the student enrolled can't show up in one place and vanish in
+  // another. Unknown startYear ⇒ nothing is filtered (we never guess).
+  const startYear = profileQuery.data?.startYear ?? null;
+  const degreeSemesters = splitByDegreeStart(semestersQuery.data ?? [], startYear).degree;
 
   // Human-readable label of the record being edited (academic year + semester).
   // Derived from academicYear (not hardcoded) so it stays correct across the
@@ -235,6 +240,7 @@ export function MiluimSection() {
           isHe={isHe}
           existing={semestersQuery.data ?? []}
           pending={upsertMutation.isPending}
+          startYear={startYear}
           onApply={(academicYearApply, semesterApply, daysApply) => {
             const prior = snapshotOf(academicYearApply, semesterApply);
             upsertMutation.mutate(
@@ -292,13 +298,18 @@ export function MiluimSection() {
 
         {/* Per-semester service timeline (#12/#3) — so the student sees their
             WHOLE reserve history, not just the one semester being edited. */}
-        {semestersQuery.data && semestersQuery.data.length > 0 && (
+        {degreeSemesters.length > 0 && (
           <div className="border-t border-border pt-5">
-            <h4 className="mb-2 text-sm font-medium text-foreground/70">
-              {isHe ? "היסטוריית השירות שלכם" : "Your service history"}
+            <h4 className="mb-1 text-sm font-medium text-foreground/70">
+              {isHe ? "השירות שלכם מאז תחילת התואר" : "Your service since the degree began"}
             </h4>
+            <p className="mb-2 text-[11px] text-foreground/45">
+              {isHe
+                ? "שורה לכל סמסטר — הקבוצה נקבעת מחדש בכל סמסטר לפי הימים שבו."
+                : "One row per semester — the group is re-derived each semester from that semester's days."}
+            </p>
             <div className="flex flex-col gap-1.5">
-              {[...semestersQuery.data]
+              {[...degreeSemesters]
                 .sort((a, b) =>
                   a.academicYear - b.academicYear ||
                   (a.semester === "FALL" ? -1 : 1)
@@ -309,9 +320,13 @@ export function MiluimSection() {
                     className="flex items-center justify-between rounded-lg bg-foreground/[0.03] px-3 py-2 text-xs"
                   >
                     <span className="text-foreground/70">
-                      {isHe
-                        ? `שנה ${s.academicYear} · ${s.semester === "FALL" ? "סמסטר א׳" : "סמסטר ב׳"}`
-                        : `Year ${s.academicYear} · ${s.semester === "FALL" ? "Fall" : "Spring"}`}
+                      <Bidi
+                        text={
+                          isHe
+                            ? `${hebrewYearLabel(s.academicYear)} · ${s.semester === "FALL" ? "סמסטר א׳" : "סמסטר ב׳"}`
+                            : `${s.academicYear}/${s.academicYear + 1} · ${s.semester === "FALL" ? "Fall" : "Spring"}`
+                        }
+                      />
                     </span>
                     <span className="flex items-center gap-2 text-foreground/60">
                       <span>
