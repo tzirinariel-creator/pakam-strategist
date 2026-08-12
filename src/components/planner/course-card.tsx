@@ -253,6 +253,29 @@ export function CourseCard({ userCourse, disabled, currentYear }: CourseCardProp
               {tPlanner("binaryBadge")}
             </span>
           )}
+          {/* ידיעון תשפ״ז migration (13.8) — a course the student still PLANS
+              that no longer appears in the new ידיעון. 15 such rows existed on
+              real accounts the moment the catalog moved to תשפ״ז, and until now
+              they failed silently: the course simply stopped being offered and
+              nobody was told. A completed course is history and needs no
+              warning — only a forward-looking one does. The wording claims no
+              cause (cancelled / re-coded / unpublished are all possible and we
+              genuinely don't know which). */}
+          {!course.isActive &&
+            userCourse.status !== "COMPLETED" &&
+            userCourse.status !== "FAILED" && (
+              <span
+                className="inline-flex items-center gap-1 rounded-full bg-amber-500/12 px-1.5 py-0.5 text-[10px] font-medium text-amber-700 dark:text-amber-400"
+                title={
+                  isHe
+                    ? "הקורס לא מופיע בידיעון תשפ״ז. ייתכן שבוטל, שקודו שונה, או שטרם פורסם — לא ידוע לנו מה מבין השלושה. כדאי לאמת מול המזכירות."
+                    : "This course is absent from the 2026/27 yedion. It may have been cancelled, re-coded, or simply not published yet — we genuinely don't know which. Worth confirming with the secretariat."
+                }
+              >
+                <AlertTriangle className="size-2.5" />
+                {isHe ? "לא בידיעון תשפ״ז" : "Not in 2026/27"}
+              </span>
+            )}
           {/* 18:19 (#13) — cohort wisdom at the decision moment, right on the
               planned course. Renders only when enough students shared. */}
           {userCourse.status !== "COMPLETED" && (

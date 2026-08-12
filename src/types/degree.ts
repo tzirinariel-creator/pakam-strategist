@@ -32,6 +32,13 @@ export interface Course {
   gradeStdDev: number | null;
   /** "arazim" | "manual" | "estimated" — provenance of the grade stats. */
   gradeDataSource: string | null;
+  /** False once a course stops appearing in the current ידיעון (or for a
+   *  user-typed free-text course that was never in it). Historical records
+   *  still render — UserCourse joins by id regardless — but a course a student
+   *  still PLANS needs a visible "not in this year's ידיעון" warning, which is
+   *  why the flag has to reach the client. Optional: not every Course consumer
+   *  selects it. */
+  isActive?: boolean;
   /** Weekly sessions — present when the course.list query includes them (the
    *  catalog does). Optional because some Course consumers don't select it. */
   scheduleSessions?: {
