@@ -10,6 +10,7 @@ import { SharePlanDialog } from "./share-plan-dialog";
 import { YearBoard } from "./year-board";
 import { AddCourseModal } from "./add-course-modal";
 import { BiddingExplainer } from "./bidding-explainer";
+import { BiddingTimeline } from "./bidding-timeline";
 import { BiddingOverlapAlert } from "./bidding-overlap-alert";
 import { BiddingWorksheet } from "./bidding-worksheet";
 import { PlannerLiveTimetable } from "./planner-live-timetable";
@@ -278,6 +279,10 @@ export function PlannerContent() {
                     : `Semester starts ${daysUntilLabel(biddingTarget.daysUntilStart, false)} — bidding happens before`}
                 </span>
               </div>
+              {/* WHEN comes before HOW: the app used to explain the mechanism
+                  while knowing no dates at all. Shown regardless of whether
+                  courses are planned yet — the deadline is real either way. */}
+              <BiddingTimeline isHe={isHe} />
               {biddingCourseCount > 0 ? (
                 <>
                   <BiddingOverlapAlert
