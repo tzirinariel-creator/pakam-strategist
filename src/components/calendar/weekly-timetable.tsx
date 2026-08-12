@@ -54,8 +54,10 @@ interface WeeklyTimetableProps {
    *  When absent, the timetable stays purely read-only (unchanged path). */
   interactive?: boolean;
   /** Fired when the student taps the "החלף קבוצה" affordance on a course
-   *  block. The caller opens the GroupPickerPopover for this course. */
-  onPickGroup?: (courseCode: string) => void;
+   *  block. The caller opens the GroupPickerPopover for this course, anchored
+   *  to `anchor` — the button that was actually tapped, so the picker lands
+   *  next to it instead of at the middle of a very tall agenda list. */
+  onPickGroup?: (courseCode: string, anchor: HTMLElement) => void;
   /** Course codes that offer a tutorial/lab group CHOICE — only these show
    *  the affordance (a single-group course has nothing to pick). */
   multiGroupCourseCodes?: Set<string>;
@@ -121,6 +123,9 @@ const SESSION_TYPE_KEYS: Record<string, string> = {
   // (live-verify 14.7 — the demo's 0651-3001 showed "· seminar").
   seminar: "seminarSession",
   workshop: "workshopSession",
+  // `project` exists in the real תשפ״ז rows and had no label anywhere — it
+  // rendered as the raw English word inside the Hebrew grid.
+  project: "projectSession",
 };
 
 // ─── Conflict detection ──────────────────────────────────────────────
@@ -358,7 +363,7 @@ export function WeeklyTimetable({
                                 type="button"
                                 onClick={(e) => {
                                   e.stopPropagation();
-                                  onPickGroup(slot.courseCode);
+                                  onPickGroup(slot.courseCode, e.currentTarget);
                                 }}
                                 className="flex min-h-[32px] shrink-0 items-center gap-0.5 rounded-md bg-foreground/5 px-1.5 py-1 text-[11px] font-medium text-foreground/60 transition-colors hover:text-accent-brand"
                                 title={isHe ? "החלף קבוצה" : "Change group"}
@@ -630,7 +635,7 @@ export function WeeklyTimetable({
                         type="button"
                         onClick={(e) => {
                           e.stopPropagation();
-                          onPickGroup!(slot.courseCode);
+                          onPickGroup!(slot.courseCode, e.currentTarget);
                         }}
                         className="absolute top-1 z-20 flex items-center gap-0.5 rounded-md bg-card/95 px-1 py-0.5 text-[10px] font-semibold text-accent-brand shadow-sm ring-1 ring-accent-brand/30 transition-colors hover:bg-accent-brand/10 focus-visible:ring-2 focus-visible:ring-accent-brand/60"
                         style={{ insetInlineEnd: "0.25rem" }}

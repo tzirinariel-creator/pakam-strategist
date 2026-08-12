@@ -4,6 +4,12 @@ import { useMemo } from "react";
 import { useLocale } from "next-intl";
 import { Clock, Users } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { Bidi } from "@/lib/bidi";
+import {
+  formatMeetings,
+  sessionTypeNameFor,
+  toGroupMeetings,
+} from "@/lib/group-options";
 import type { ScheduleSessionLike } from "@/lib/plan-generator";
 
 // ─── Types ───────────────────────────────────────────────────────────
@@ -26,28 +32,6 @@ interface SessionGroupSelectorProps {
 }
 
 // ─── Helpers ─────────────────────────────────────────────────────────
-
-const DAY_NAMES_HE: Record<string, string> = {
-  SUNDAY: "ראשון",
-  MONDAY: "שני",
-  TUESDAY: "שלישי",
-  WEDNESDAY: "רביעי",
-  THURSDAY: "חמישי",
-};
-
-const DAY_NAMES_EN: Record<string, string> = {
-  SUNDAY: "Sun",
-  MONDAY: "Mon",
-  TUESDAY: "Tue",
-  WEDNESDAY: "Wed",
-  THURSDAY: "Thu",
-};
-
-const SESSION_TYPE_LABELS: Record<string, { he: string; en: string }> = {
-  lecture: { he: "הרצאה", en: "Lecture" },
-  tutorial: { he: "תרגול", en: "Tutorial" },
-  lab: { he: "מעבדה", en: "Lab" },
-};
 
 /**
  * Groups schedule sessions by sessionType, then by groupCode.
@@ -88,11 +72,10 @@ function buildSessionGroups(
 
     const groups: SessionGroup[] = [];
     for (const [groupCode, groupSessions] of groupMap) {
-      // Build a human-readable label from the first session
-      const first = groupSessions[0]!;
-      const dayName = isHe ? DAY_NAMES_HE[first.dayOfWeek] : DAY_NAMES_EN[first.dayOfWeek];
-      const room = first.room ? ` | ${first.building ?? ""}${first.room}` : "";
-      const label = `${dayName} ${first.startTime}-${first.endTime}${room}`;
+      // EVERY meeting, not just the first: in the real תשפ״ז catalog half the
+      // groups meet more than once, and a one-meeting label described a
+      // different week than the one the grid actually drew.
+      const label = formatMeetings(toGroupMeetings(groupSessions), isHe);
 
       groups.push({ groupCode, sessionType, sessions: groupSessions, label });
     }
@@ -178,8 +161,7 @@ export function SessionGroupSelector({
           : "Your group choice sets where this course sits on the timetable"}
       </p>
       {Array.from(selectableGroups.entries()).map(([sessionType, groups]) => {
-        const typeLabel = SESSION_TYPE_LABELS[sessionType];
-        const typeName = isHe ? typeLabel?.he ?? sessionType : typeLabel?.en ?? sessionType;
+        const typeName = sessionTypeNameFor(sessionType, isHe);
         const currentSelection = selectedGroups[sessionType] ?? groups[0]?.groupCode;
 
         return (
@@ -209,7 +191,13 @@ export function SessionGroupSelector({
                     )}
                   >
                     <Clock className="h-2.5 w-2.5 shrink-0" />
-                    <span>{group.label}</span>
+                    <span className="font-medium">
+                      {isHe ? "קבוצה " : "Grp "}
+                      <Bidi text={group.groupCode} />
+                    </span>
+                    <span className="text-foreground/50">
+                      <Bidi text={group.label} />
+                    </span>
                     {group.sessions[0]?.lecturerName && (
                       <span className="text-foreground/25">
                         ({group.sessions[0].lecturerName})

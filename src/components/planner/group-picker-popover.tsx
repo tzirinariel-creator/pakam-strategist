@@ -2,7 +2,7 @@
 
 import { useMemo } from "react";
 import { useLocale } from "next-intl";
-import { Clock, Users, AlertTriangle, Check } from "lucide-react";
+import { AlertTriangle, Check, MapPin, Sunrise, Users } from "lucide-react";
 import {
   Popover,
   PopoverContent,
@@ -10,21 +10,26 @@ import {
 } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
 import { Bidi } from "@/lib/bidi";
-import { detectTimeConflicts, type SessionInfo } from "@/lib/conflict-detector";
-import type { ScheduleSessionLike, CourseWithSchedule } from "@/lib/plan-generator";
-import type { DayOfWeek } from "@/types/enums";
+import { type SessionInfo } from "@/lib/conflict-detector";
+import {
+  buildGroupChoices,
+  dayNameFor,
+  describeGroupImpact,
+  formatLocation,
+  resolveSelectedGroup,
+  sessionTypeNameFor,
+  type GroupOption,
+} from "@/lib/group-options";
+import type { CourseWithSchedule } from "@/lib/plan-generator";
 
 // ─── Types ───────────────────────────────────────────────────────────
 
 interface GroupPickerPopoverProps {
-  /** The course whose tutorial/lab group is being chosen. */
+  /** The course whose lecture/tutorial group is being chosen. */
   course: CourseWithSchedule;
   /** courseCode → { sessionType → groupCode } for THIS course. */
   selectedGroups: Record<string, string>;
-  /**
-   * Every session already fixed on the grid for OTHER courses (and this
-   * course's other, non-picked session types). Used to pre-flag clashes.
-   */
+  /** Every session already fixed on the grid for OTHER courses. */
   otherSessions: SessionInfo[];
   /** Reuses the existing selectedGroups persistence signature. */
   onPickGroup: (courseCode: string, sessionType: string, groupCode: string) => void;
@@ -34,81 +39,110 @@ interface GroupPickerPopoverProps {
   children: React.ReactNode;
 }
 
-interface GroupOption {
-  groupCode: string;
-  sessions: ScheduleSessionLike[];
-  label: string;
-  lecturer?: string | null;
-  clashes: boolean;
-}
+// ─── One group row ───────────────────────────────────────────────────
 
-// ─── Constants ───────────────────────────────────────────────────────
+function GroupRow({
+  option,
+  isSelected,
+  isHe,
+  onPick,
+}: {
+  option: GroupOption;
+  isSelected: boolean;
+  isHe: boolean;
+  onPick: () => void;
+}) {
+  const hasClash = option.clashes.length > 0;
+  const impact = describeGroupImpact(option, isHe);
 
-const DAY_NAMES_HE: Record<string, string> = {
-  SUNDAY: "ראשון",
-  MONDAY: "שני",
-  TUESDAY: "שלישי",
-  WEDNESDAY: "רביעי",
-  THURSDAY: "חמישי",
-  FRIDAY: "שישי",
-};
+  return (
+    <button
+      type="button"
+      onClick={onPick}
+      aria-pressed={isSelected}
+      className={cn(
+        "flex w-full flex-col gap-1 rounded-lg border px-2.5 py-2 text-start transition-colors",
+        isSelected
+          ? "border-accent-brand/45 bg-accent-brand/[0.08]"
+          : hasClash
+            ? "border-red-400/35 bg-red-400/[0.05] hover:bg-red-400/[0.08]"
+            : "border-border/50 bg-foreground/[0.02] hover:bg-foreground/[0.06]",
+      )}
+    >
+      {/* Line 1 — identity + verdict */}
+      <span className="flex items-center gap-1.5">
+        {isSelected ? (
+          <Check className="size-3 shrink-0 text-accent-brand" />
+        ) : hasClash ? (
+          <AlertTriangle className="size-3 shrink-0 text-red-400" />
+        ) : (
+          <span className="size-3 shrink-0" aria-hidden />
+        )}
+        <span
+          className={cn(
+            "text-[11px] font-semibold",
+            isSelected ? "text-accent-brand" : "text-foreground/80",
+          )}
+        >
+          {isHe ? "קבוצה " : "Group "}
+          <Bidi text={option.groupCode} />
+        </span>
+        <span className="flex-1" />
+        {hasClash ? (
+          <span className="shrink-0 rounded bg-red-400/12 px-1.5 py-0.5 text-[10px] font-semibold text-red-400">
+            {isHe ? "חופפת" : "clashes"}
+          </span>
+        ) : (
+          <span className="shrink-0 rounded bg-emerald-400/12 px-1.5 py-0.5 text-[10px] font-semibold text-emerald-500">
+            {isHe ? "פנויה" : "free"}
+          </span>
+        )}
+      </span>
 
-const DAY_NAMES_EN: Record<string, string> = {
-  SUNDAY: "Sun",
-  MONDAY: "Mon",
-  TUESDAY: "Tue",
-  WEDNESDAY: "Wed",
-  THURSDAY: "Thu",
-  FRIDAY: "Fri",
-};
+      {/* Line 2..n — EVERY meeting: day, hours, room. Half the groups in the
+          תשפ״ז catalog meet more than once; showing only the first was wrong. */}
+      <span className="flex flex-col gap-0.5 ps-[18px]">
+        {option.meetings.map((m, i) => (
+          <span
+            key={`${m.dayOfWeek}-${m.startTime}-${i}`}
+            className="flex flex-wrap items-center gap-x-1.5 text-[11px] text-foreground/65"
+          >
+            <span className="font-medium">{dayNameFor(m.dayOfWeek, isHe)}</span>
+            <Bidi text={`${m.startTime}–${m.endTime}`} />
+            {formatLocation(m) && (
+              <span className="flex items-center gap-0.5 text-foreground/40">
+                <MapPin className="size-2.5 shrink-0" />
+                <Bidi text={formatLocation(m)} />
+              </span>
+            )}
+          </span>
+        ))}
+      </span>
 
-const SESSION_TYPE_LABELS: Record<string, { he: string; en: string }> = {
-  lecture: { he: "הרצאה", en: "Lecture" },
-  tutorial: { he: "תרגול", en: "Tutorial" },
-  lab: { he: "מעבדה", en: "Lab" },
-};
+      {/* Line n+1 — lecturers */}
+      {option.lecturers.length > 0 && (
+        <span className="truncate ps-[18px] text-[10px] text-foreground/40">
+          {option.lecturers.join(" · ")}
+        </span>
+      )}
 
-// ─── Helpers ─────────────────────────────────────────────────────────
-
-/**
- * Group a course's sessions by sessionType→groupCode, keeping only the
- * sessionTypes that actually offer a CHOICE (>1 group). "ALL" (shared)
- * sessions are ignored — they run regardless of the pick. This mirrors the
- * sidebar SessionGroupSelector so the two stay in sync.
- */
-function buildSelectableTypes(
-  sessions: ScheduleSessionLike[],
-): Map<string, Map<string, ScheduleSessionLike[]>> {
-  const byType = new Map<string, Map<string, ScheduleSessionLike[]>>();
-  for (const s of sessions) {
-    const gc = s.groupCode ?? "A";
-    if (gc === "ALL") continue;
-    if (!byType.has(s.sessionType)) byType.set(s.sessionType, new Map());
-    const typeMap = byType.get(s.sessionType)!;
-    if (!typeMap.has(gc)) typeMap.set(gc, []);
-    typeMap.get(gc)!.push(s);
-  }
-  // Drop types with a single group — nothing to pick.
-  for (const [type, groupMap] of byType) {
-    if (groupMap.size <= 1) byType.delete(type);
-  }
-  return byType;
-}
-
-function toSessionInfo(
-  courseCode: string,
-  courseName: string,
-  sessions: ScheduleSessionLike[],
-): SessionInfo[] {
-  return sessions.map((s, i) => ({
-    id: `${courseCode}-${s.sessionType}-${s.groupCode ?? "A"}-${i}`,
-    courseCode,
-    courseName,
-    dayOfWeek: s.dayOfWeek as DayOfWeek,
-    startTime: s.startTime,
-    endTime: s.endTime,
-    sessionType: s.sessionType,
-  }));
+      {/* Line n+2 — what this pick does to the week. The sentence comes from
+          describeGroupImpact (tested), never composed here. Facts only. */}
+      <span
+        className={cn(
+          "flex items-center gap-1 ps-[18px] text-[10px] leading-snug",
+          impact.tone === "clash"
+            ? "text-red-400/90"
+            : impact.tone === "newDay"
+              ? "text-amber-500/90"
+              : "text-foreground/35",
+        )}
+      >
+        {impact.tone === "newDay" && <Sunrise className="size-2.5 shrink-0" />}
+        <Bidi text={impact.text} />
+      </span>
+    </button>
+  );
 }
 
 // ─── Component ───────────────────────────────────────────────────────
@@ -125,124 +159,83 @@ export function GroupPickerPopover({
   const isHe = locale === "he";
   const courseName = isHe ? course.nameHe : (course.nameEn ?? course.nameHe);
 
-  const selectableTypes = useMemo(() => {
-    const sessions = (course.scheduleSessions ?? []).filter(
-      (s) => !currentSemester || !s.semester || s.semester === currentSemester,
-    );
-    return buildSelectableTypes(sessions);
-  }, [course.scheduleSessions, currentSemester]);
-
-  // For each selectable type, build the options with a pre-computed clash flag.
-  const optionsByType = useMemo(() => {
-    const out = new Map<string, GroupOption[]>();
-    for (const [sessionType, groupMap] of selectableTypes) {
-      const options: GroupOption[] = [];
-      for (const [groupCode, groupSessions] of groupMap) {
-        const first = groupSessions[0]!;
-        const dayName = isHe
-          ? DAY_NAMES_HE[first.dayOfWeek] ?? first.dayOfWeek
-          : DAY_NAMES_EN[first.dayOfWeek] ?? first.dayOfWeek;
-        // Wrap the time range in a bidi isolate so it never reverses in RTL.
-        const label = `${dayName} ⁦${first.startTime}–${first.endTime}⁩`;
-
-        // A group CLASHES if any of its sessions overlaps a session already
-        // fixed on the grid (other courses + this course's other types).
-        const groupInfo = toSessionInfo(course.code, courseName, groupSessions);
-        const clashes = detectTimeConflicts(otherSessions, groupInfo).length > 0;
-
-        options.push({
-          groupCode,
-          sessions: groupSessions,
-          label,
-          lecturer: first.lecturerName,
-          clashes,
-        });
-      }
-      options.sort((a, b) => a.groupCode.localeCompare(b.groupCode));
-      out.set(sessionType, options);
-    }
-    return out;
-  }, [selectableTypes, otherSessions, course.code, courseName, isHe]);
+  const choices = useMemo(
+    () =>
+      buildGroupChoices({
+        sessions: course.scheduleSessions ?? [],
+        courseName,
+        otherSessions,
+        semester: currentSemester,
+        selectedGroups,
+      }),
+    [course.scheduleSessions, courseName, otherSessions, currentSemester, selectedGroups],
+  );
 
   // No multi-group session types — render the trigger inert (no popover).
-  if (optionsByType.size === 0) return <>{children}</>;
+  if (choices.length === 0) return <>{children}</>;
 
   return (
     <Popover>
       <PopoverTrigger asChild>{children}</PopoverTrigger>
       <PopoverContent
         align="center"
-        className="w-64 space-y-3 p-3"
+        collisionPadding={12}
+        // A course with two multi-group session types can list ten options.
+        // Radix reports the room it actually has after collision handling —
+        // cap to it and scroll, so the picker is never cut off by the fold.
+        className="w-[20rem] max-w-[92vw] space-y-3 overflow-y-auto p-3"
+        style={{ maxHeight: "var(--radix-popover-content-available-height)" }}
         dir={isHe ? "rtl" : "ltr"}
       >
         <div className="flex items-center gap-1.5">
-          <Users className="h-3.5 w-3.5 shrink-0 text-foreground/40" />
+          <Users className="size-3.5 shrink-0 text-foreground/40" />
           <p className="truncate text-xs font-semibold text-foreground/80">
             {courseName}
           </p>
         </div>
 
-        {Array.from(optionsByType.entries()).map(([sessionType, options]) => {
-          const typeLabel = SESSION_TYPE_LABELS[sessionType];
-          const typeName = isHe
-            ? typeLabel?.he ?? sessionType
-            : typeLabel?.en ?? sessionType;
-          const current = selectedGroups[sessionType] ?? options[0]?.groupCode;
+        {choices.map((choice) => {
+          const typeName = sessionTypeNameFor(choice.sessionType, isHe);
+          const current = resolveSelectedGroup(choice, selectedGroups);
 
           return (
-            <div key={sessionType} className="space-y-1.5">
-              <p className="text-[11px] font-medium text-foreground/50">
-                {isHe ? `בחרו קבוצת ${typeName}` : `Choose ${typeName} group`}
-              </p>
-              <div className="flex flex-col gap-1">
-                {options.map((opt) => {
-                  const isSelected = opt.groupCode === current;
-                  return (
-                    <button
-                      key={opt.groupCode}
-                      type="button"
-                      onClick={() =>
-                        onPickGroup(course.code, sessionType, opt.groupCode)
-                      }
-                      aria-pressed={isSelected}
-                      className={cn(
-                        "flex min-h-[44px] items-center gap-2 rounded-lg border px-2.5 py-1.5 text-start text-[11px] transition-all",
-                        isSelected
-                          ? "border-accent-brand/40 bg-accent-brand/[0.08] text-accent-brand"
-                          : opt.clashes
-                            ? "border-red-400/40 bg-red-400/[0.06] text-foreground/60"
-                            : "border-transparent bg-foreground/[0.04] text-foreground/55 hover:bg-foreground/[0.07]",
-                      )}
-                    >
-                      {isSelected ? (
-                        <Check className="h-3 w-3 shrink-0" />
-                      ) : opt.clashes ? (
-                        <AlertTriangle className="h-3 w-3 shrink-0 text-red-400" />
-                      ) : (
-                        <Clock className="h-3 w-3 shrink-0 text-foreground/30" />
-                      )}
-                      <span className="flex-1 truncate">
-                        <span className="font-medium">
-                          {isHe ? "קבוצה " : "Grp "}
-                          <Bidi text={opt.groupCode} />
-                        </span>
-                        {" · "}
-                        <Bidi text={opt.label} />
-                        {opt.lecturer && (
-                          <span className="text-foreground/30">
-                            {" · "}
-                            {opt.lecturer}
-                          </span>
-                        )}
-                      </span>
-                      {opt.clashes && !isSelected && (
-                        <span className="shrink-0 text-[10px] font-medium text-red-400">
-                          {isHe ? "חפיפה" : "clash"}
-                        </span>
-                      )}
-                    </button>
-                  );
-                })}
+            <div key={choice.sessionType} className="space-y-1.5">
+              {/* "4 מתוך 6 בלי חפיפה" — in bidding week the first question is
+                  what's still possible, not what exists. */}
+              <div className="flex items-baseline justify-between gap-2">
+                <p className="text-[11px] font-medium text-foreground/55">
+                  {isHe ? `בחרו קבוצת ${typeName}` : `Choose a ${typeName} group`}
+                </p>
+                <p
+                  className={cn(
+                    "shrink-0 text-[10px] font-medium",
+                    choice.freeCount === 0 ? "text-red-400" : "text-foreground/45",
+                  )}
+                >
+                  {isHe ? (
+                    <>
+                      <Bidi text={`${choice.freeCount}/${choice.options.length}`} /> בלי חפיפה
+                    </>
+                  ) : (
+                    <>
+                      <Bidi text={`${choice.freeCount}/${choice.options.length}`} /> clash-free
+                    </>
+                  )}
+                </p>
+              </div>
+
+              <div className="flex flex-col gap-1.5">
+                {choice.options.map((opt) => (
+                  <GroupRow
+                    key={opt.groupCode}
+                    option={opt}
+                    isSelected={opt.groupCode === current}
+                    isHe={isHe}
+                    onPick={() =>
+                      onPickGroup(course.code, choice.sessionType, opt.groupCode)
+                    }
+                  />
+                ))}
               </div>
             </div>
           );
@@ -250,8 +243,8 @@ export function GroupPickerPopover({
 
         <p className="text-[10px] leading-tight text-foreground/35">
           {isHe
-            ? "קבוצה מסומנת באדום חופפת לשיעור אחר שכבר בחרתם"
-            : "A red group clashes with another session you already picked"}
+            ? "הקבוצות הפנויות מוצגות ראשונות. החפיפות נבדקות מול כל מה שכבר יש לכם בסמסטר הזה."
+            : "Clash-free groups are listed first. Clashes are checked against everything already in this semester."}
         </p>
       </PopoverContent>
     </Popover>

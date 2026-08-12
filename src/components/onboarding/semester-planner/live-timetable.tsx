@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState, useRef, useLayoutEffect } from "react";
+import { useMemo, useState, useRef, useCallback, useLayoutEffect } from "react";
 import { useTranslations, useLocale } from "next-intl";
 import { CalendarX2 } from "lucide-react";
 import { WeeklyTimetable, type ScheduleSessionData } from "@/components/calendar/weekly-timetable";
@@ -104,13 +104,35 @@ export function LiveTimetable({
   // courseCode; the GroupPickerPopover is keyed by both, so every tap remounts a
   // fresh instance whose hidden trigger auto-clicks open — even re-tapping the
   // same course after an outside-click close. Only meaningful when `interactive`.
-  const [picker, setPicker] = useState<{ courseCode: string; nonce: number } | null>(null);
+  // `top`/`left` place the hidden trigger over the button that was actually
+  // tapped: anchoring at the wrapper's centre put the picker hundreds of pixels
+  // below the fold in the tall agenda variant.
+  const [picker, setPicker] = useState<{
+    courseCode: string;
+    nonce: number;
+    top: number;
+    left: number;
+  } | null>(null);
   const pickerCourseCode = picker?.courseCode ?? null;
   // Hidden trigger for the currently-mounted picker; clicked on mount to open.
   const pickerTriggerRef = useRef<HTMLButtonElement>(null);
+  const wrapperRef = useRef<HTMLDivElement>(null);
   useLayoutEffect(() => {
     if (picker) pickerTriggerRef.current?.click();
   }, [picker]);
+
+  // Centre of `anchor`, expressed in the (position: relative) wrapper's own
+  // coordinates. Falls back to the wrapper's middle if either box is missing.
+  const anchorPoint = useCallback((anchor: HTMLElement | undefined) => {
+    const wrapper = wrapperRef.current;
+    if (!wrapper || !anchor) return null;
+    const w = wrapper.getBoundingClientRect();
+    const a = anchor.getBoundingClientRect();
+    return {
+      top: a.top - w.top + a.height / 2,
+      left: a.left - w.left + a.width / 2,
+    };
+  }, []);
 
   const { sessions, coursesWithoutSchedule } = useMemo(() => {
     const result: ScheduleSessionData[] = [];
@@ -138,9 +160,13 @@ export function LiveTimetable({
         courseGroupSelections
       );
 
-      for (const session of filteredSessions) {
+      for (const [i, session] of filteredSessions.entries()) {
         result.push({
-          id: `${course.id}-${session.dayOfWeek}-${session.startTime}-${session.groupCode ?? ""}`,
+          // sessionType + index: a lecture and a tutorial of the same course
+          // can start at the same hour on the same day under the same group
+          // code, and the old key collided ("two children with the same key",
+          // console 13.8) — React then dropped one of the two blocks.
+          id: `${course.id}-${session.dayOfWeek}-${session.startTime}-${session.sessionType}-${session.groupCode ?? ""}-${i}`,
           courseCode: course.code,
           dayOfWeek: session.dayOfWeek as DayOfWeek,
           startTime: session.startTime,
@@ -217,7 +243,7 @@ export function LiveTimetable({
     for (const sess of semesterSessions) {
       if ((sess.groupCode ?? "") !== firstGroupByType.get(sess.sessionType ?? "")) continue;
       out.push({
-        id: `${coursePreview.id}-${sess.dayOfWeek}-${sess.startTime}-${sess.groupCode ?? ""}-hoverpreview`,
+        id: `${coursePreview.id}-${sess.dayOfWeek}-${sess.startTime}-${sess.sessionType}-${sess.groupCode ?? ""}-hoverpreview`,
         courseCode: coursePreview.code,
         dayOfWeek: sess.dayOfWeek as DayOfWeek,
         startTime: sess.startTime,
@@ -291,7 +317,7 @@ export function LiveTimetable({
   const pickingEnabled = !!interactive && !!onSelectSessionGroup;
 
   return (
-    <div className={pickingEnabled ? "relative space-y-2" : "space-y-2"}>
+    <div ref={wrapperRef} className={pickingEnabled ? "relative space-y-2" : "space-y-2"}>
       {/* P1′ (note 2) — one-time discoverability hint: the on-grid group swap
           exists but nobody found it. Shown above the grid on the first editor
           visit when at least one course offers a choice; a click on the hint
@@ -305,8 +331,14 @@ export function LiveTimetable({
         multiGroupCourseCodes={pickingEnabled ? multiGroupCourseCodes : undefined}
         onPickGroup={
           pickingEnabled
-            ? (courseCode) => {
-                setPicker((prev) => ({ courseCode, nonce: (prev?.nonce ?? 0) + 1 }));
+            ? (courseCode, anchor) => {
+                const point = anchorPoint(anchor);
+                setPicker((prev) => ({
+                  courseCode,
+                  nonce: (prev?.nonce ?? 0) + 1,
+                  top: point?.top ?? 0,
+                  left: point?.left ?? 0,
+                }));
                 // First real interaction retires the P1′ hint permanently.
                 try {
                   localStorage.setItem("pk-grid-pick-hint", "done");
@@ -339,7 +371,8 @@ export function LiveTimetable({
             type="button"
             aria-hidden="true"
             tabIndex={-1}
-            className="pointer-events-none absolute start-1/2 top-1/2 size-0 -translate-x-1/2 -translate-y-1/2 opacity-0"
+            className="pointer-events-none absolute size-0 opacity-0"
+            style={{ top: `${picker!.top}px`, left: `${picker!.left}px` }}
           />
         </GroupPickerPopover>
       )}

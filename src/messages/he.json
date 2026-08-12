@@ -509,6 +509,7 @@
     "lab": "מעבדה",
     "seminarSession": "סמינר",
     "workshopSession": "סדנה",
+    "projectSession": "פרויקט",
     "syncToGoogle": "סנכרנו ל-Google Calendar",
     "syncSuccess": "מעולה — המערכת שלכם עכשיו ב-Google Calendar",
     "syncFailed": "הסנכרון נכשל — נסו שוב",

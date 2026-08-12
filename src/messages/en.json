@@ -509,6 +509,7 @@
     "lab": "Lab",
     "seminarSession": "Seminar",
     "workshopSession": "Workshop",
+    "projectSession": "Project",
     "syncToGoogle": "Sync to Google Calendar",
     "syncSuccess": "Schedule synced to Google Calendar",
     "syncFailed": "Sync failed — please try again",
