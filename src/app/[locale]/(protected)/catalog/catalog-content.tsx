@@ -148,8 +148,8 @@ export function CatalogContent() {
         <div className="flex flex-col gap-1 text-xs text-foreground/65">
           <p>
             {isHe
-              ? "עובדות הקורס (שם, ש״ס, שעות, דרישות קדם) — מידיעון אוניברסיטת תל אביב, תשפ״ו"
-              : "Course facts (name, credits, hours, prerequisites) — from the Tel Aviv University Yedion, 2025/26"}
+              ? "עובדות הקורס (שם, ש״ס, שעות, דרישות קדם) — מידיעון אוניברסיטת תל אביב, תשפ״ז"
+              : "Course facts (name, credits, hours, prerequisites) — from the Tel Aviv University Yedion, 2026/27"}
             {freshestSync && (
               <>
                 {" · "}

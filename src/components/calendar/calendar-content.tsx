@@ -124,22 +124,6 @@ export function CalendarContent() {
   const activeSemester =
     selectedSemester || currentSemesterKey || (semesterOptions[0]?.key ?? "");
 
-  // Honest "not published yet" note (verify 14.7): when the SELECTED semester
-  // belongs to the NEXT academic year (the July case — planning FALL תשפ"ז),
-  // its hours/rooms come from the CURRENT ידיעון and may shift when the new
-  // one is published. Only fires when the anchor's ידיעון year is actually
-  // newer than the published (current) one — mid-year SPRING planning is
-  // already covered by the current ידיעון and gets no false warning.
-  const yedionCaveat = (() => {
-    if (!calendarProfile) return null;
-    const acadNow = getAcademicNow();
-    const anchor = getPlanningAnchor();
-    if (anchor.startYear <= acadNow.startYear) return null;
-    const anchorYear = deriveYearOfStudy(calendarProfile.startYear, calendarProfile.currentYear ?? 1, anchor.startYear);
-    if (activeSemester !== `${anchorYear}-${anchor.semester}`) return null;
-    return { published: acadNow.startYear, upcoming: anchor.startYear };
-  })();
-
   // Parse active semester into year + semester
   const parsedSemester = useMemo(() => {
     if (!activeSemester) return null;
@@ -160,6 +144,23 @@ export function CalendarContent() {
     { year: parsedSemester?.year ?? 1, semester: parsedSemester?.semester ?? "FALL" },
     { enabled: !!parsedSemester },
   );
+
+  // Honest "not published yet" note. Originally this fired purely on calendar
+  // math (planning next academic year ⇒ assume its ידיעון is unpublished).
+  // That assumption went STALE the moment the תשפ״ז ידיעון was loaded (13.8:
+  // 302 courses + 556 real meetings) — the app kept apologising for data it
+  // actually had (Ariel note #20). It is now DATA-DRIVEN: the caveat appears
+  // only when we genuinely hold no sessions for the selected semester.
+  const yedionCaveat = (() => {
+    if (!calendarProfile || scheduleLoading) return null;
+    if ((scheduleData?.sessions?.length ?? 0) > 0) return null; // we have real hours/rooms
+    const acadNow = getAcademicNow();
+    const anchor = getPlanningAnchor();
+    if (anchor.startYear <= acadNow.startYear) return null;
+    const anchorYear = deriveYearOfStudy(calendarProfile.startYear, calendarProfile.currentYear ?? 1, anchor.startYear);
+    if (activeSemester !== `${anchorYear}-${anchor.semester}`) return null;
+    return { published: acadNow.startYear, upcoming: anchor.startYear };
+  })();
 
   // Courses for the selected semester (for Gantt view + ICS export)
   const semesterCourses = useMemo(() => {
