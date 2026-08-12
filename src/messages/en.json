@@ -60,11 +60,11 @@
     "errUserAlreadyRegistered": "That email is already registered — try logging in instead",
     "errWeakPassword": "Password must be at least 6 characters",
     "errRateLimit": "Too many attempts — wait a minute and try again",
-    "signupWarmLine": "One minute, and we build your degree together.",
+    "signupWarmLine": "Your whole degree in one place — instead of the catalog, a spreadsheet and WhatsApp groups.",
     "loginValueLine": "Your whole PPE degree in one place — no spreadsheets, no guessing.",
     "loginBenefit1": "See exactly what's left, by the real PPE regulations.",
     "loginBenefit2": "Timetable, exam board and average — all worked out for you.",
-    "loginBenefit3": "And the Philosopher King: a personal advisor who knows your data."
+    "loginBenefit3": "The Philosopher King — an advisor that knows your data and answers from it."
   },
   "demo": {
     "banner": "Demo Mode — data shown is for demonstration only"
