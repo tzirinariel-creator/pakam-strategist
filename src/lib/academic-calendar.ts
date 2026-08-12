@@ -58,6 +58,15 @@ export const TAU_CALENDARS: AcademicYearCalendar[] = [
     summer: { start: d(2026, 7, 26), end: d(2026, 9, 18) },
   },
   {
+    // תשפ"ז — VERIFIED 13.8.2026 against the official TAU academic calendar
+    // (tau.ac.il/calendar?tab=1, the תשפ"ז tab). Every date below matched the
+    // university's published calendar exactly, and the 18.10.26 opening is
+    // independently confirmed by the PPE bidding invitation Ariel exported
+    // ("שנת הלימודים תיפתח ביום ראשון, 18.10.26"). SPRING.examEnd stays null
+    // because the university does not publish an end date for it — inventing
+    // one is forbidden. NOTE: the ידיעון itself carries NO calendar dates
+    // (only a link), so this file — not the ידיעון import — is the source of
+    // truth for term dates.
     startYear: 2026,
     labelHe: "תשפ״ז",
     FALL: { teachingStart: d(2026, 10, 18), teachingEnd: d(2027, 1, 18), examStart: d(2027, 1, 20), examEnd: d(2027, 3, 8) },
