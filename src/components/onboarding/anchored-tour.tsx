@@ -5,6 +5,8 @@ import { createPortal } from "react-dom";
 import { ChevronLeft, ChevronRight, X } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 import { cn } from "@/lib/utils";
+import { usePersona } from "@/components/persona/use-persona";
+import { personaLabels, withAdvisorName } from "@/lib/persona";
 
 /**
  * Anchored product tour — a spotlight that points at the REAL UI element it's
@@ -127,8 +129,8 @@ const DASHBOARD_STEPS: Step[] = [
     selector: '[data-tour="recommendations"]',
     titleHe: "מה כדאי עכשיו",
     titleEn: "What to do now",
-    bodyHe: "המלך מציף כאן צעדים אמיתיים מהנתונים שלכם — מועד ב׳, דרישות חסרות ועוד.",
-    bodyEn: "The King surfaces real next steps from your data — Moed B, missing requirements, and more.",
+    bodyHe: "{advisor} מציף כאן צעדים אמיתיים מהנתונים שלכם — מועד ב׳, דרישות חסרות ועוד.",
+    bodyEn: "{advisor} surfaces real next steps from your data — Moed B, missing requirements, and more.",
   },
   {
     selector: '[data-tour="miluim"]',
@@ -204,8 +206,8 @@ const DASHBOARD_STEPS: Step[] = [
     // him) and always present. Without this, a user finishes the whole tour and
     // never learns the King is a chattable person who can add/complete a course.
     selector: '[data-tour="king"]',
-    titleHe: "וזה המלך — היועץ האישי שלכם",
-    titleEn: "And this is the King — your advisor",
+    titleHe: "וזה {advisor} — היועץ האישי שלכם",
+    titleEn: "And this is {advisor} — your advisor",
     bodyHe: 'לחיצה כאן פותחת שיחה. אפשר גם פשוט להגיד לו "סיימתי מיקרו עם 88" או "תוסיף לי סטטיסטיקה" — והוא יעשה את זה בשבילכם. הוא כאן, בכל מסך.',
     bodyEn: 'Tap here to chat. You can even tell him "I finished Micro with 88" or "add Statistics for me" — and he\'ll do it. He\'s here, on every screen.',
   },
@@ -213,8 +215,8 @@ const DASHBOARD_STEPS: Step[] = [
     selector: null,
     titleHe: "זהו, אתם מוכנים",
     titleEn: "You're all set",
-    bodyHe: "תתחילו מהמתכנן או מתכנון המבחנים. בסוף כל סמסטר — סורקים את גיליון-הציונים ב״תיק״ והכול מתעדכן. והמלך עונה על כל שאלה — בכל מסך.",
-    bodyEn: "Start from the planner or exam planner. At each semester's end, scan your grade sheet in \"Record\" and everything updates. The assistant answers any question.",
+    bodyHe: "תתחילו מהמתכנן או מתכנון המבחנים. בסוף כל סמסטר — סורקים את גיליון-הציונים ב״תיק״ והכול מתעדכן. ו{advisor} עונה על כל שאלה — בכל מסך.",
+    bodyEn: "Start from the planner or exam planner. At each semester's end, scan your grade sheet in \"Record\" and everything updates. And {advisor} answers any question — on every screen.",
   },
 ];
 
@@ -242,6 +244,10 @@ export function AnchoredTour({
 }) {
   const STEPS = steps ?? DASHBOARD_STEPS;
   const isHe = useLocale() === "he";
+  // #27 — a Referent user must never be told about "המלך". Steps write the
+  // {advisor} token; the chosen advisor's name is substituted at render.
+  const { persona } = usePersona();
+  const advisorName = personaLabels(persona, isHe).short;
   const [step, setStep] = useState(0);
   const [rect, setRect] = useState<DOMRect | null>(null);
   const [mounted, setMounted] = useState(false);
@@ -376,8 +382,12 @@ export function AnchoredTour({
       >
         <X className="size-4" />
       </button>
-      <h3 className="font-display text-base font-bold text-foreground/90">{isHe ? current.titleHe : current.titleEn}</h3>
-      <p className="mt-1 text-sm leading-relaxed text-foreground/60">{isHe ? current.bodyHe : current.bodyEn}</p>
+      <h3 className="font-display text-base font-bold text-foreground/90">
+        {withAdvisorName(isHe ? current.titleHe : current.titleEn, advisorName)}
+      </h3>
+      <p className="mt-1 text-sm leading-relaxed text-foreground/60">
+        {withAdvisorName(isHe ? current.bodyHe : current.bodyEn, advisorName)}
+      </p>
       <div className="mt-3 flex items-center justify-between gap-2">
         <button
           type="button"
