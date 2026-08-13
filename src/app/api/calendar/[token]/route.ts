@@ -70,7 +70,10 @@ export async function GET(
     headers: {
       "Content-Type": "text/calendar; charset=utf-8",
       "Content-Disposition": 'inline; filename="pakamon.ics"',
-      "Cache-Control": "public, max-age=3600",
+      // PRIVATE: this ICS is one student's personal timetable and exam dates.
+      // "public" invited any shared/CDN cache on the path to store and re-serve
+      // it, keyed only on a URL that never expires.
+      "Cache-Control": "private, max-age=3600",
     },
   });
 }

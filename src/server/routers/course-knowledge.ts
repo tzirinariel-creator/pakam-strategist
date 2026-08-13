@@ -7,6 +7,7 @@ import { ALLOWED_TAGS } from "@/lib/course-knowledge-tags";
 import {
   GRADE_MIN_N,
   RATING_MIN_N,
+  TIP_MIN_N,
   COHORT_LABEL_MIN_N,
   REPORT_HIDE_THRESHOLD,
   countByCohortYear,
@@ -166,8 +167,16 @@ export const courseKnowledgeRouter = createTRPCRouter({
           seedingRemaining:
             !ratingRevealed && ratingRows.length >= 2 ? RATING_MIN_N - ratingRows.length : null,
         },
-        reviews: reviews
-          .filter((r) => r.tip && r.tip.trim().length > 0)
+        // k-anonymity for prose (13.8). This array used to return at N=1 to
+        // anonymous visitors while every sibling field was gated — with ~24
+        // students, a single-reviewer course makes its tip attributable to the
+        // one person known to have taken it. Gated on the count of tip-bearing
+        // reviews specifically, not the row total: four ratings and one tip is
+        // still one identifiable author.
+        reviews: (reviews.filter((r) => r.tip && r.tip.trim().length > 0).length >= TIP_MIN_N
+          ? reviews.filter((r) => r.tip && r.tip.trim().length > 0)
+          : []
+        )
           .slice(0, 5)
           .map((r) => ({
             id: r.id,

@@ -10,7 +10,7 @@
 
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod/v4";
-import { encrypt } from "@/lib/crypto";
+import { encrypt, timingSafeEqualStr } from "@/lib/crypto";
 import { streamGemini } from "@/lib/ai/gemini-client";
 import { buildMentorSystemPrompt, type MentorContext, type MentorPersona } from "@/lib/ai/mentor-prompt";
 import { getProgramById } from "@/lib/programs/registry";
@@ -68,7 +68,7 @@ function demoContext(): MentorContext {
 
 export async function POST(request: NextRequest) {
   const secret = request.headers.get("x-setup-secret");
-  if (!secret || secret !== process.env.SETUP_SECRET) {
+  if (!secret || !process.env.SETUP_SECRET || !timingSafeEqualStr(secret, process.env.SETUP_SECRET)) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 

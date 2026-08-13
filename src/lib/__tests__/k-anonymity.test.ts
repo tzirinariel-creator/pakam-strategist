@@ -2,6 +2,7 @@ import { describe, it, expect } from "vitest";
 import {
   GRADE_MIN_N,
   RATING_MIN_N,
+  TIP_MIN_N,
   COHORT_LABEL_MIN_N,
   REPORT_HIDE_THRESHOLD,
   countByCohortYear,
@@ -93,5 +94,17 @@ describe("safeCohortYear", () => {
   it("honours an explicit stricter bar", () => {
     expect(safeCohortYear(2023, counts, 6)).toBeNull();
     expect(safeCohortYear(2022, counts, 6)).toBe(2022);
+  });
+});
+
+// ── 13.8 audit: free-text tips were the one field with no bar at all ──
+describe("TIP_MIN_N — prose never reveals on a weaker bar than a number", () => {
+  it("is at least the rating bar", () => {
+    // getForCourse returned the `reviews` array at N=1 to anonymous visitors
+    // while ratings needed 3 and grades 5. Phrasing and specifics identify a
+    // person at least as well as a workload score does, so this must never
+    // drop below RATING_MIN_N.
+    expect(TIP_MIN_N).toBeGreaterThanOrEqual(RATING_MIN_N);
+    expect(TIP_MIN_N).toBeGreaterThanOrEqual(2);
   });
 });

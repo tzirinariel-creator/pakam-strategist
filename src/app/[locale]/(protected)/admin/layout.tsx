@@ -16,18 +16,24 @@ export default async function AdminLayout({
   const { locale } = await params;
 
   const supabase = await createServerSupabase();
+  // getUser(), not getSession(): getSession only reads storage and checks the
+  // expiry claim — it never verifies the JWT signature, so a forged cookie
+  // satisfies it. This is an admin gate; it must verify against Supabase Auth.
+  // (Defence in depth either way — the parent (protected)/layout.tsx already
+  // uses getUser and the data comes from adminProcedure — but the codebase's
+  // own rule is getUser for authorization, and this file broke it.)
   const {
-    data: { session },
-  } = await supabase.auth.getSession();
+    data: { user: authUser },
+  } = await supabase.auth.getUser();
 
-  if (!session?.user) {
+  if (!authUser) {
     redirect(`/${locale}/login`);
   }
 
   // Check admin role in DB
   try {
     const user = await prisma.user.findUnique({
-      where: { supabaseId: session.user.id },
+      where: { supabaseId: authUser.id },
       select: { role: true },
     });
 

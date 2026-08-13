@@ -19,6 +19,22 @@ export const GRADE_MIN_N = 5;
 export const RATING_MIN_N = 3;
 
 /**
+ * Free-text tips appear only from this many reviewers.
+ *
+ * Added 13.8 after an audit found `getForCourse` returning the `reviews` array
+ * — the actual prose people write — at N=1, to anonymous unauthenticated
+ * visitors, while every sibling field on the same response was gated. With ~24
+ * students in the programme, a niche course with one reviewer means that tip
+ * belongs to the one person everyone knows took it. The payload carries no
+ * name, but the cohort does the de-anonymising.
+ *
+ * Set equal to RATING_MIN_N rather than lower: prose is at least as
+ * identifying as a number — phrasing, specifics and grievances all point at a
+ * person — so it must never reveal on a weaker bar than a workload score.
+ */
+export const TIP_MIN_N = RATING_MIN_N;
+
+/**
  * A cohort YEAR may be attached to a piece of content only when that cohort
  * has at least this many rows of the same kind. Below it the label stops being
  * context ("מחזור 2023") and starts being a pointer at one identifiable person.

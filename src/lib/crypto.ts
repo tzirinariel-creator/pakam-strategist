@@ -81,3 +81,22 @@ export function maskSecret(value: string): string {
   }
   return value.slice(0, 4) + "•".repeat(value.length - 8) + value.slice(-4);
 }
+
+/**
+ * Constant-time string comparison.
+ *
+ * Extracted 13.8: verifyCalendarFeedToken had its own hand-rolled version
+ * while the ops route compared SETUP_SECRET with `!==`, which returns as soon
+ * as two bytes differ and so leaks the secret's prefix one request at a time.
+ * Impractical to exploit over a network at these rates — but there is no
+ * reason to hand-roll it twice and get it right once.
+ *
+ * Length is compared first and non-constant-time on purpose: the length of a
+ * secret is not the secret, and Node's timingSafeEqual throws on a mismatch.
+ */
+export function timingSafeEqualStr(a: string, b: string): boolean {
+  if (a.length !== b.length) return false;
+  let diff = 0;
+  for (let i = 0; i < a.length; i++) diff |= a.charCodeAt(i) ^ b.charCodeAt(i);
+  return diff === 0;
+}

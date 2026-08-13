@@ -75,11 +75,13 @@ export async function middleware(request: NextRequest) {
       },
     );
 
+    // getUser() verifies the token against Supabase Auth; getSession() only
+    // decodes the cookie and checks its expiry, which a forged cookie passes.
     const {
-      data: { session },
-    } = await supabase.auth.getSession();
+      data: { user: authedUser },
+    } = await supabase.auth.getUser();
 
-    if (!session) {
+    if (!authedUser) {
       // Extract locale from the pathname (e.g., /he/dashboard → he)
       const segments = pathname.split("/").filter(Boolean);
       const locale =
@@ -91,8 +93,18 @@ export async function middleware(request: NextRequest) {
       return NextResponse.redirect(loginUrl);
     }
   } catch {
-    // If auth check fails, allow through (tRPC will catch unauthorized)
-    // This prevents middleware from breaking the entire app
+    // FAIL CLOSED. This used to allow the request through on any error, with
+    // the reasoning that tRPC would catch it — but a protected PAGE is not a
+    // tRPC call, so a Supabase outage (or anything else throwing here) served
+    // protected shells to unauthenticated visitors. Redirecting to login is the
+    // safe failure: the worst case is a logged-in user asked to sign in again
+    // during an outage, instead of a stranger reaching a protected route.
+    const segments = pathname.split("/").filter(Boolean);
+    const locale =
+      segments[0] && routing.locales.includes(segments[0] as "he" | "en")
+        ? segments[0]
+        : "he";
+    return NextResponse.redirect(new URL(`/${locale}/login`, request.url));
   }
 
   return response;

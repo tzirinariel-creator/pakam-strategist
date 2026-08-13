@@ -16,11 +16,16 @@ import { createServerSupabase } from "@/lib/supabase/server";
 export async function GET(request: NextRequest) {
   // Verify user is authenticated via Supabase
   const supabase = await createServerSupabase();
+  // getUser() verifies the token with Supabase Auth. getSession() only decodes
+  // the cookie, and this route is excluded from middleware, so it was the
+  // app's only genuinely unverified auth check. The OAuth callback re-verifies
+  // and matches the state userId, so no token could be written to another
+  // account — but an unauthenticated visitor could still start the flow.
   const {
-    data: { session },
-  } = await supabase.auth.getSession();
+    data: { user: authedUser },
+  } = await supabase.auth.getUser();
 
-  if (!session) {
+  if (!authedUser) {
     const locale = request.cookies.get("NEXT_LOCALE")?.value ?? "he";
     return NextResponse.redirect(new URL(`/${locale}/login`, request.nextUrl.origin));
   }
@@ -50,7 +55,7 @@ export async function GET(request: NextRequest) {
 
   // CSRF protection: random nonce + userId
   const nonce = randomBytes(16).toString("hex");
-  const state = `${nonce}:${session.user.id}`;
+  const state = `${nonce}:${authedUser.id}`;
 
   const authUrl = oauth2Client.generateAuthUrl({
     access_type: "offline",
