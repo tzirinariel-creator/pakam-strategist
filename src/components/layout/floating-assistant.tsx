@@ -45,12 +45,19 @@ import { hashContext, readCachedAnswer, writeCachedAnswer } from "@/lib/ai/answe
  * instantly and for free from the student's own data ("מהנתונים שלך"); an
  * open-ended one escalates to the LLM if a key (personal or shared) is
  * available, and otherwise degrades to the free answer + a gentle nudge —
- * never an error. Never auto-opens and never fires the LLM on its own.
+ * never an error. Never fires the LLM on its own.
+ *
+ * Opens on its own EXACTLY ONCE (#11): a student who has just finished
+ * onboarding gets one introduction, handed off from the end of the dashboard
+ * tour, and never again. The previous blanket "never auto-opens" rule was a
+ * misreading of Ariel's note 50 — which objected to the WORDING of an opening
+ * line, not to its existence — and it silently blocked a feature he asked for
+ * ten times over three months.
  */
 export function FloatingAssistant() {
   const isHe = useLocale() === "he";
   const pathname = usePathname();
-  const { gender, g: pg } = usePersonalAddress();
+  const { gender, greetName, g: pg } = usePersonalAddress();
   const [open, setOpen] = useState(false);
   const [messages, setMessages] = useState<Msg[]>([]);
   // Advisor persona — a device-local choice (Settings → "דמות היועץ"), re-read on
@@ -550,6 +557,47 @@ export function FloatingAssistant() {
     window.addEventListener("pk:ask", onAsk as EventListener);
     return () => window.removeEventListener("pk:ask", onAsk as EventListener);
   }, []);
+
+  // #11 (13.8) — the King introduces himself, ONCE, to a brand-new student.
+  //
+  // Ariel asked for this repeatedly ("ביקשתי את זה כבר 100 פעם ב-10 מקומות
+  // שונים") and it was never built. It was, in fact, forbidden: this file's own
+  // header carried a "never auto-opens" rule, and meet-the-king-card.tsx
+  // restated it as product law. That rule was derived from his note 50 — where
+  // he criticised the WORDING of the opening line as AI-sounding, not the idea
+  // of an opening line. A copy note became a feature ban and nobody noticed.
+  //
+  // The rule was right about one thing, so that part is kept: this is not
+  // Clippy. It fires exactly once, only for a student who just completed
+  // onboarding, only after the dashboard tour has finished (so two overlays
+  // never fight), and it never fires again on any later visit. The King says
+  // hello and then waits — he does not call the LLM, and he asks nothing.
+  useEffect(() => {
+    const onGreet = () => {
+      try {
+        if (localStorage.getItem("pk-king-greeted") === "true") return;
+        localStorage.setItem("pk-king-greeted", "true");
+      } catch {
+        return; // storage blocked — better silent than greeting on every load
+      }
+      const name = greetName ? ` ${greetName}` : "";
+      // Deliberately carries no ש״ס / average / gap figure. The plan has only
+      // just been written, the advisor's own queries may not have refetched
+      // yet, and a greeting is exactly the wrong place to risk a stale number
+      // (#13/#14 is the same failure one screen earlier).
+      const hello = isHe
+        ? `שלום${name}, אני המלך הפילוסוף.\n\nהתוכנית שלך שמורה אצלי — הקורסים, הציונים, המילואים והתקנון. מכאן אפשר פשוט לשאול אותי דברים בשפה רגילה, ואני עונה מהנתונים שלך, לא מהאינטרנט.\n\n${pg(
+            "נסה למשל",
+            "נסי למשל",
+            "אפשר לנסות",
+          )}: "כמה ש״ס נשארו לי?", "מה הכי דחוף עכשיו?", או "תוסיף לי מיקרו ב׳ לסמסטר הבא" — כן, גם לבצע דברים.\n\nאני לא קופץ מעצמי יותר. כשתצטרך אותי, אני כאן למטה.`
+        : `Hello${name}, I'm the Philosopher King.\n\nI have your plan — courses, grades, reserve duty and the regulations. From here you can just ask me things in plain language, and I answer from your data, not from the internet.\n\nTry: "how many credits do I have left?", "what's most urgent right now?", or "add Micro B to next semester" — yes, I can act too.\n\nI won't pop up on my own again. I'll be down here when you need me.`;
+      setMessages([{ role: "assistant", content: hello, source: "rules" }]);
+      setOpen(true);
+    };
+    window.addEventListener("pk:greet", onGreet);
+    return () => window.removeEventListener("pk:greet", onGreet);
+  }, [isHe, greetName, pg]);
 
   const streamLLM = useCallback(
     async (

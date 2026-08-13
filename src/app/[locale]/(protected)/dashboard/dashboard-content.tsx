@@ -217,6 +217,12 @@ export function DashboardContent() {
     setTourOpen(false);
     if (typeof window !== "undefined") {
       localStorage.setItem(TOUR_DONE_KEY, "true");
+      // #11 — hand off to the King. The tour's last step points at his button;
+      // this is the moment he actually says hello, once ever. The listener in
+      // floating-assistant.tsx owns the once-only flag, so firing this on every
+      // tour close is safe — a student who replays the tour is not greeted
+      // again. Deferred a tick so the tour's exit animation finishes first.
+      setTimeout(() => window.dispatchEvent(new CustomEvent("pk:greet")), 400);
     }
   }, []);
 

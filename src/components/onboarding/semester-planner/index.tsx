@@ -30,8 +30,14 @@ import { DegreeInfoCard } from "./degree-info-card";
 import { SemesterSummary } from "./semester-summary";
 import { CustomCourseModal } from "./custom-course-modal";
 import { SemesterIntroCard } from "./semester-intro-card";
+import { AnchoredTour, PLANNER_STEPS } from "../anchored-tour";
 import { ExamGantt } from "./exam-gantt";
 import { getAcademicNow } from "@/lib/academic-calendar";
+
+/** Seen-once flag for the in-place planner tour (#17). Cleared alongside the
+ *  other first-run flags when onboarding completes, so a reset account gets it
+ *  fresh (step-ready.tsx). */
+const PLANNER_TOUR_KEY = "pakamon-planner-tour-done";
 
 // ─── Types ───────────────────────────────────────────────────────────
 
@@ -155,6 +161,34 @@ export function SemesterPlanner({
   // #2 follow-up — the pool bubble currently hovered/focused; its sessions
   // ghost on the live grid so the pick happens ON the schedule.
   const [hoverPreviewId, setHoverPreviewId] = useState<string | null>(null);
+
+  // #17 (13.8) — the planner tour, fired IN PLACE the first time a student
+  // reaches this screen. Ariel: "יש סיור רק אחרי התכנון - אבל בשלב התכנון
+  // אנשים לא מבינים מה הם עושים וזה שלב מורכב." The dashboard tour was gated
+  // on already having a plan, so the hardest screen in the app was the one
+  // screen with no guidance at all. Waits for the course data, because every
+  // step points at an element that only exists once the pool has rendered.
+  const [plannerTourOpen, setPlannerTourOpen] = useState(false);
+  const plannerTourChecked = useRef(false);
+  useEffect(() => {
+    if (plannerTourChecked.current || isLoadingCourses) return;
+    if (typeof window === "undefined") return;
+    plannerTourChecked.current = true;
+    try {
+      if (localStorage.getItem(PLANNER_TOUR_KEY) === "true") return;
+    } catch {
+      return; // storage blocked — never risk a tour that cannot be dismissed
+    }
+    // One frame, so the pool/timetable are laid out before we measure targets.
+    const id = requestAnimationFrame(() => setPlannerTourOpen(true));
+    return () => cancelAnimationFrame(id);
+  }, [isLoadingCourses]);
+  const closePlannerTour = useCallback(() => {
+    setPlannerTourOpen(false);
+    try {
+      localStorage.setItem(PLANNER_TOUR_KEY, "true");
+    } catch { /* storage blocked — it simply shows again next time */ }
+  }, []);
 
   // Undo/redo history for course selections
   const undoStack = useRef<Set<string>[]>([]);
@@ -808,7 +842,7 @@ export function SemesterPlanner({
       </div>
 
       {/* Insights bar */}
-      <div className="animate-stagger-2 w-full max-w-7xl">
+      <div data-tour="planner-insights" className="animate-stagger-2 w-full max-w-7xl">
         <InsightsBar
           selectedCourses={groupFilteredCourses}
           allCourses={mergedCourses}
@@ -832,7 +866,7 @@ export function SemesterPlanner({
             timetable now takes the full row, which always clears 512px. */}
         <div className="flex flex-col gap-4 xl:flex-row xl:items-start">
           {/* Course Pool — browse & add, on the start side */}
-          <div className="w-full rounded-xl border border-border/40 bg-card/20 p-4 xl:w-[38%] xl:max-h-[600px] xl:overflow-hidden xl:flex xl:flex-col">
+          <div data-tour="planner-pool" className="w-full rounded-xl border border-border/40 bg-card/20 p-4 xl:w-[38%] xl:max-h-[600px] xl:overflow-hidden xl:flex xl:flex-col">
             <CoursePool
               allCourses={mergedCourses}
               currentYear={currentYear}
@@ -853,7 +887,7 @@ export function SemesterPlanner({
               moment you pick a course from the pool. */}
           <div className="flex w-full min-w-0 flex-col gap-4 xl:w-[62%]">
             {/* Live schedule of the picked courses. Tab-toggles to exams. */}
-            <div className="rounded-xl border border-border/40 bg-card/20 p-4">
+            <div data-tour="planner-timetable" className="rounded-xl border border-border/40 bg-card/20 p-4">
           {/* Tab header */}
           <div className="mb-3 flex items-center justify-between">
             <div className="flex items-center gap-1 rounded-lg bg-foreground/5 p-0.5">
@@ -931,7 +965,7 @@ export function SemesterPlanner({
             </div>
 
             {/* My Semester — the course list, under the timetable it feeds. */}
-            <div className="rounded-xl border border-border/40 bg-card/20 p-4 lg:max-h-[380px] lg:overflow-y-auto">
+            <div data-tour="planner-groups" className="rounded-xl border border-border/40 bg-card/20 p-4 lg:max-h-[380px] lg:overflow-y-auto">
               <MySemester
                 mandatoryCourses={mandatoryCourses}
                 selectedCourses={selectedElectives}
@@ -970,6 +1004,14 @@ export function SemesterPlanner({
         open={showCustomCourseModal}
         onOpenChange={setShowCustomCourseModal}
         onAdd={handleAddCustomCourse}
+      />
+
+      {/* #17 — the four-step planner tour, on the screen it explains. Suppressed
+          while the custom-course modal is open so two overlays never stack. */}
+      <AnchoredTour
+        open={plannerTourOpen && !showCustomCourseModal && !showDegreeModal}
+        onClose={closePlannerTour}
+        steps={PLANNER_STEPS}
       />
     </div>
   );

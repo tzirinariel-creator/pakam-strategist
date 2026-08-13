@@ -16,7 +16,7 @@ import { cn } from "@/lib/utils";
 
 export const TOUR_DONE_KEY = "pakamon-tour-done";
 
-interface Step {
+export interface Step {
   selector: string | null; // null → centered card
   conditional?: boolean; // skip if its target element isn't on the page (e.g. the miluim bar for a student who never served)
   titleHe: string;
@@ -27,7 +27,50 @@ interface Step {
 
 // Order follows the page top-to-bottom (status → week → recommendations) so the
 // spotlight never jumps; the conditional miluim bar comes near the end.
-const STEPS: Step[] = [
+/**
+ * #17 (13.8) — guidance ON the planner, where it is actually needed.
+ *
+ * Ariel: "יש סיור רק אחרי התכנון - אבל בשלב התכנון אנשים לא מבינים מה הם עושים
+ * וזה שלב מורכב". He is right, and it was backwards: the only tour ran on the
+ * dashboard, gated on the student ALREADY having a plan, so it explained an app
+ * they had finished configuring and said nothing about the one screen they
+ * could not read. These steps run in place, the first time a student reaches
+ * the planner.
+ *
+ * Four steps, not eleven. This fires mid-task, so it has to be over fast.
+ */
+export const PLANNER_STEPS: Step[] = [
+  {
+    selector: '[data-tour="planner-pool"]',
+    titleHe: "כאן בוחרים את הקורסים",
+    titleEn: "Pick your courses here",
+    bodyHe: "קורסי החובה כבר מסומנים. הוסיפו קורסי בחירה בלחיצה — אפשר לחפש לפי שם או מספר.",
+    bodyEn: "Mandatory courses are already ticked. Tap to add electives — search by name or code.",
+  },
+  {
+    selector: '[data-tour="planner-timetable"]',
+    titleHe: "וכאן רואים מיד איך זה יושב בשבוע",
+    titleEn: "And see instantly how the week looks",
+    bodyHe: "כל קורס שתוסיפו מופיע כאן על הלוח באותו רגע — כך רואים חורים ארוכים, ימים עמוסים ויום פנוי.",
+    bodyEn: "Every course you add lands on the grid immediately — so you can see long gaps, heavy days, and a free day.",
+  },
+  {
+    selector: '[data-tour="planner-groups"]',
+    titleHe: "לקורס עם כמה קבוצות — אתם בוחרים",
+    titleEn: "Several groups? You choose",
+    bodyHe: "הרצאה או תרגיל עם כמה קבוצות מקבלים כאן בורר. ריחוף על קבוצה מראה מראש איפה היא תשב בלוח, לפני שבוחרים.",
+    bodyEn: "A lecture or TA session with several groups gets a picker here. Hover one to preview where it would sit before you commit.",
+  },
+  {
+    selector: '[data-tour="planner-insights"]',
+    titleHe: "והמספרים שחשובים",
+    titleEn: "The numbers that matter",
+    bodyHe: "ש״ס בסמסטר, שעות בשבוע, וכמה חפיפות יש לכם. חפיפה מסומנת באדום גם על הלוח — עם שם הקורס שמתנגש.",
+    bodyEn: "Credits, weekly hours, and how many clashes you have. A clash is flagged red on the grid too — naming the course it collides with.",
+  },
+];
+
+const DASHBOARD_STEPS: Step[] = [
   {
     selector: '[data-tour="status"]',
     titleHe: "המצב שלכם, במקום אחד",
@@ -145,7 +188,21 @@ function isRendered(el: HTMLElement): boolean {
   return r.width > 0 && r.height > 0;
 }
 
-export function AnchoredTour({ open, onClose }: { open: boolean; onClose: () => void }) {
+export function AnchoredTour({
+  open,
+  onClose,
+  steps,
+}: {
+  open: boolean;
+  onClose: () => void;
+  /** #17 (13.8) — the tour used to be hard-wired to the dashboard STEPS, so the
+   *  ONE screen a new student cannot read (the planner) had no guidance at all,
+   *  while the tour explained an app they had already finished configuring.
+   *  Passing a step set lets the same spotlight machinery run in-place on the
+   *  planner. Defaults to the dashboard tour. */
+  steps?: Step[];
+}) {
+  const STEPS = steps ?? DASHBOARD_STEPS;
   const isHe = useLocale() === "he";
   const [step, setStep] = useState(0);
   const [rect, setRect] = useState<DOMRect | null>(null);

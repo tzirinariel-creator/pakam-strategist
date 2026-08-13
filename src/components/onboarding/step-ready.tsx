@@ -312,6 +312,8 @@ export function StepReady({ data, plannedSemesters, completedCourses, allCourses
           "pk-met-king-card",
           "pk-met-advisor", // the chat-panel intro (floating-assistant) — missing it skipped the King intro on a reset account
           "pk-persona", // otherwise a browser that once chose the Referent silently hands a brand-new account the Referent instead of the King
+          "pakamon-planner-tour-done", // the in-place planner tour (#17)
+          "pk-king-greeted", // the King's one-time opening message (#11)
         ]) {
           localStorage.removeItem(k);
         }
