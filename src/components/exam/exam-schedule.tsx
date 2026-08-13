@@ -32,12 +32,13 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
-import { DISCIPLINE_CONFIG, SEMESTER_CONFIG, YEAR_CONFIG, CREDIT_REQUIREMENTS } from "@/lib/constants";
+import { SEMESTER_CONFIG, YEAR_CONFIG, CREDIT_REQUIREMENTS } from "@/lib/constants";
+import { courseColor } from "@/lib/course-color";
 import { Bidi } from "@/lib/bidi";
 import { Badge } from "@/components/ui/badge";
 import { StudySkyline } from "@/components/exam-planner/study-skyline";
 import { generateExamPlan, analyzeExamPeriod, type ExamInput } from "@/lib/exam-planner";
-import type { Discipline, Semester } from "@/types/enums";
+import type { Semester } from "@/types/enums";
 
 // ─── Types ───────────────────────────────────────────────────────────
 
@@ -245,14 +246,6 @@ export function ExamSchedule() {
     () => analyzeExamPeriod(timelinePlan, isRTL),
     [timelinePlan, isRTL],
   );
-
-  // Disciplines present among the UPCOMING exams — drives the board legend (#8),
-  // so the colored dots actually mean something to the reader.
-  const legendDisciplines = useMemo(() => {
-    const ids = new Set<string>();
-    for (const g of examGroups) for (const e of g.exams) ids.add(e.discipline);
-    return Array.from(ids);
-  }, [examGroups]);
 
   // ─── Export handlers ─────────────────────────────────────────────
   const hasExams = !!data?.exams && data.exams.length > 0;
@@ -483,18 +476,17 @@ export function ExamSchedule() {
       <div className="flex flex-col gap-4">
         {/* Legend (#8): what the dot color, Moed-B badge and red mean. */}
         <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5 rounded-lg border border-border/40 bg-card/30 px-3 py-2 text-[11px] text-foreground/50">
-          {legendDisciplines.map((id) => {
-            const cfg = DISCIPLINE_CONFIG[id as Discipline];
-            return (
-              <span key={id} className="inline-flex items-center gap-1.5">
-                <span
-                  className="size-2.5 rounded-full"
-                  style={{ backgroundColor: cfg?.color ?? "hsl(var(--muted-foreground))" }}
-                />
-                {(isRTL ? cfg?.nameHe : cfg?.nameEn) ?? id}
-              </span>
-            );
-          })}
+          {/* The dot is the COURSE's colour, not the discipline's — the same
+              one it wears on the weekly grid and the plan board, so the eye
+              can carry a course between screens. The old legend listed the
+              disciplines present; keeping it would now describe a key the
+              dots no longer follow. */}
+          <span className="inline-flex items-center gap-1.5">
+            <span className="size-2.5 rounded-full bg-foreground/25" />
+            {isRTL
+              ? "לכל קורס צבע קבוע — אותו צבע במערכת השעות ובלוח התכנון"
+              : "each course keeps one colour — the same on the timetable and the board"}
+          </span>
           <span className="inline-flex items-center gap-1.5">
             <Badge variant="outline" className="text-[11px]">{t("moedB")}</Badge>
             {isRTL ? "מועד חוזר" : "retake"}
@@ -563,9 +555,9 @@ export function ExamSchedule() {
               {/* Exam entries */}
               <div className="divide-y divide-border/50">
                 {group.exams.map((exam) => {
-                  const disc = exam.discipline as Discipline;
-                  const discConfig = DISCIPLINE_CONFIG[disc];
-                  const color = discConfig?.color ?? "hsl(var(--muted-foreground))";
+                  // ONE colour per course: the same dot this course wears on
+                  // the weekly grid and on its plan card (src/lib/course-color).
+                  const color = courseColor(exam.courseCode);
                   const hasPassed = exam.status === "COMPLETED" && exam.grade !== null && exam.grade >= CREDIT_REQUIREMENTS.PASSING_GRADE;
                   const hasFailed = exam.status === "COMPLETED" && exam.grade !== null && exam.grade < CREDIT_REQUIREMENTS.PASSING_GRADE;
 
@@ -577,7 +569,7 @@ export function ExamSchedule() {
                         isPast && !hasPassed && "opacity-60",
                       )}
                     >
-                      {/* Discipline indicator */}
+                      {/* Course colour — matches the grid block and the card */}
                       <div
                         className="size-2.5 shrink-0 rounded-full"
                         style={{ backgroundColor: color }}

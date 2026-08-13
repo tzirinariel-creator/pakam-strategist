@@ -12,6 +12,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { DISCIPLINE_CONFIG } from "@/lib/constants";
+import { courseColor } from "@/lib/course-color";
 import { Bidi } from "@/lib/bidi";
 import { cn } from "@/lib/utils";
 import { AskKingButton } from "@/components/ui/ask-king-button";
@@ -81,7 +82,7 @@ export function CourseDetailModal({
       <DialogContent className="max-h-[85vh] max-w-lg overflow-y-auto">
         <DialogHeader>
           <div className="flex items-start gap-2.5 pe-6">
-            <span className="mt-1 size-2.5 shrink-0 rounded-full" style={{ backgroundColor: cfg?.color ?? "gray" }} />
+            <span className="mt-1 size-2.5 shrink-0 rounded-full" style={{ backgroundColor: courseColor(course.code) }} />
             <div className="min-w-0">
               <DialogTitle className="text-start text-base font-bold leading-snug">{name}</DialogTitle>
               <div className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-0.5 text-xs text-foreground/50">

@@ -4,14 +4,9 @@ import { useEffect, useMemo, useState } from "react";
 import { useTranslations, useLocale } from "next-intl";
 import { BookOpen, Lock, Plus, Search, Star } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { DISCIPLINE_CONFIG } from "@/lib/constants";
 import { canTakeCourse, type CourseWithSchedule, type GeneratedPlanCourse } from "@/lib/plan-generator";
 import { CourseBubble, type BubbleState } from "./course-bubble";
 import { api } from "@/lib/trpc/react";
-
-// The color = discipline key, shown as a legend so the color-dots on course
-// bubbles are learnable at a glance (gal-3 #13 — "unclear color meaning").
-const LEGEND_DISCIPLINES = ["PHILOSOPHY", "ECONOMICS", "POLITICAL_SCIENCE", "LAW"] as const;
 
 type TabKey = "mandatory" | "elective" | "law" | "seminar";
 
@@ -189,20 +184,17 @@ export function CoursePool({
         {t("poolFrame")}
       </p>
 
-      {/* Color legend — what the discipline dots on each course mean (#13). */}
-      <div className="mb-3 flex flex-wrap items-center gap-x-3 gap-y-1 text-[10px] text-foreground/50">
-        <span className="font-medium text-foreground/40">{isHe ? "צבע = תחום:" : "Color = field:"}</span>
-        {LEGEND_DISCIPLINES.map((d) => {
-          const cfg = DISCIPLINE_CONFIG[d];
-          if (!cfg) return null;
-          return (
-            <span key={d} className="inline-flex items-center gap-1">
-              <span className="size-2 shrink-0 rounded-full" style={{ backgroundColor: cfg.color }} />
-              {isHe ? cfg.nameHe : cfg.nameEn}
-            </span>
-          );
-        })}
-      </div>
+      {/* Colour legend (#13). The dot on a bubble used to be its DISCIPLINE;
+          it is now the COURSE's own colour, so it matches that course's block
+          on the timetable beside this pool and its card on the plan board
+          (src/lib/course-color.ts). The discipline is still named in words on
+          every bubble's badge, so nothing was lost — but a legend claiming the
+          dots are a field key would now be wrong, so it says what is true. */}
+      <p className="mb-3 text-[10px] leading-snug text-foreground/45">
+        {isHe
+          ? "לכל קורס צבע קבוע — אותו צבע כאן, במערכת השעות ובלוח התכנון."
+          : "Each course keeps one colour — the same here, on the timetable and on the board."}
+      </p>
 
       {/* Tabs — split into the two groups a first-year actually needs to tell apart:
           mandatory (pick a time/group) vs elective (choose to add). */}

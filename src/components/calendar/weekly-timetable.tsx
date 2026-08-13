@@ -3,7 +3,7 @@
 import { useMemo, useState, type KeyboardEvent, type MouseEvent } from "react";
 import { useTranslations, useLocale } from "next-intl";
 import { AlertTriangle, MapPin, Repeat, User } from "lucide-react";
-import { DISCIPLINE_CONFIG } from "@/lib/constants";
+import { courseColor } from "@/lib/course-color";
 import { cn } from "@/lib/utils";
 import {
   dedupeMeetings,
@@ -454,8 +454,10 @@ export function WeeklyTimetable({
               ) : (
                 <ul className="divide-y divide-border/50">
                   {daySlots.map((slot) => {
-                    const config = DISCIPLINE_CONFIG[slot.discipline];
-                    const color = config?.color ?? "hsl(var(--muted-foreground))";
+                    // ONE colour per course, keyed on the code — the same value
+                    // the plan card and the grid block use. Was the discipline
+                    // colour, which made the agenda row and the card disagree.
+                    const color = courseColor(slot.courseCode);
                     const partners = conflictPartners.get(slot.courseId) ?? [];
                     const locationText = [slot.building, slot.room].filter(Boolean).join(", ");
                     const canPick =
@@ -533,8 +535,7 @@ export function WeeklyTimetable({
                   })}
                   {/* Ghost rows — the hovered pool course, dashed, before the click (#2) */}
                   {dayPreviews.map((slot) => {
-                    const config = DISCIPLINE_CONFIG[slot.discipline];
-                    const color = config?.color ?? "hsl(var(--muted-foreground))";
+                    const color = courseColor(slot.courseCode);
                     return (
                       <li
                         key={`preview-${slot.courseId}`}
@@ -674,12 +675,11 @@ export function WeeklyTimetable({
               {/* Preview ghost blocks (#2) — dashed, discipline-tinted border,
                   transparent fill, on top of real blocks but click-through. */}
               {previewSlots.map((slot) => {
-                const config = DISCIPLINE_CONFIG[slot.discipline];
                 const colIndex = dayOrder.indexOf(slot.day);
                 if (colIndex === -1) return null;
                 const topPx = Math.round((slot.startHour - hoursStart) * ROW_HEIGHT);
                 const heightPx = Math.round((slot.endHour - slot.startHour) * ROW_HEIGHT);
-                const color = config?.color ?? "hsl(var(--muted-foreground))";
+                const color = courseColor(slot.courseCode);
                 return (
                   <div
                     key={`preview-${slot.courseId}`}
@@ -710,7 +710,6 @@ export function WeeklyTimetable({
                   way TauPlan's does (measured: bg-blue-100 / border-blue-700 at
                   10% / rounded-md / no shadow). */}
               {layoutSlots.map((slot) => {
-                const config = DISCIPLINE_CONFIG[slot.discipline];
                 const colIndex = dayOrder.indexOf(slot.day);
                 if (colIndex === -1) return null;
 
@@ -725,7 +724,7 @@ export function WeeklyTimetable({
                 const slotLeftPct = basePct + subCol * slotWidthPct;
 
                 const hasConflict = conflictIds.has(slot.courseId);
-                const color = config?.color ?? "hsl(var(--muted-foreground))";
+                const color = courseColor(slot.courseCode);
 
                 const locationText = [slot.building, slot.room]
                   .filter(Boolean)
@@ -806,9 +805,14 @@ export function WeeklyTimetable({
                       )}
                     </div>
 
-                    {/* Type + group — TauPlan's second line, plus the group word. */}
+                    {/* Type + group — TauPlan's second line, plus the group word.
+                        `text-foreground/70`, not `text-muted-foreground`:
+                        measured live on the tinted block, muted grey came in at
+                        3.97:1 against the fill (11px normal weight needs 4.5).
+                        The tint is what costs it, so the fix belongs on the
+                        block, not on the token. */}
                     {!isShort && (
-                      <span className="mt-0.5 truncate text-[11px] text-muted-foreground">
+                      <span className="mt-0.5 truncate text-[11px] text-foreground/70">
                         {isNarrow ? typeLabel(slot.sessionType) : typeAndGroup(slot)}
                       </span>
                     )}
@@ -817,12 +821,12 @@ export function WeeklyTimetable({
                     {heightPx >= ROW_HEIGHT * 1.5 && !isNarrow && (
                       <div className="mt-auto flex flex-col gap-0.5">
                         {locationText && (
-                          <span className="flex items-center gap-1 truncate text-[11px] text-muted-foreground">
+                          <span className="flex items-center gap-1 truncate text-[11px] text-foreground/70">
                             <MapPin className="size-2.5 shrink-0 opacity-60" />
                             {locationText}
                           </span>
                         )}
-                        <bdi dir="ltr" className="text-[11px] tabular-nums text-muted-foreground/70">
+                        <bdi dir="ltr" className="text-[11px] tabular-nums text-foreground/65">
                           {formatHourRange(slot.startHour, slot.endHour)}
                         </bdi>
                       </div>
@@ -830,7 +834,7 @@ export function WeeklyTimetable({
 
                     {/* Narrow block: just the start time */}
                     {isNarrow && !isShort && (
-                      <bdi dir="ltr" className="mt-auto text-[11px] tabular-nums text-muted-foreground/60">
+                      <bdi dir="ltr" className="mt-auto text-[11px] tabular-nums text-foreground/65">
                         {slot.startTimeStr}
                       </bdi>
                     )}
@@ -848,8 +852,7 @@ export function WeeklyTimetable({
               {detailSlot && (() => {
                 const colIndex = dayOrder.indexOf(detailSlot.day);
                 if (colIndex === -1) return null;
-                const config = DISCIPLINE_CONFIG[detailSlot.discipline];
-                const color = config?.color ?? "hsl(var(--muted-foreground))";
+                const color = courseColor(detailSlot.courseCode);
                 const topPx = Math.round((detailSlot.startHour - hoursStart) * ROW_HEIGHT);
                 const bottomPx = Math.round((detailSlot.endHour - hoursStart) * ROW_HEIGHT);
                 // Grow away from the nearer edge — the grid box clips overflow.

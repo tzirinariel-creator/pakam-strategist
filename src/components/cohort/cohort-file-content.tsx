@@ -32,7 +32,7 @@ import { Link } from "@/i18n/navigation";
 import { api } from "@/lib/trpc/react";
 import { cn } from "@/lib/utils";
 import { ReferentCharacter } from "@/components/ui/referent-character";
-import { DISCIPLINE_CONFIG } from "@/lib/constants";
+import { courseColor } from "@/lib/course-color";
 import { ThemedLoader } from "@/components/ui/themed-loader";
 import { CohortShareNudge } from "@/components/cohort/cohort-share-nudge";
 import { encodePlan, type SharedCourse } from "@/lib/plan-share";
@@ -151,17 +151,14 @@ export function CohortFileContent() {
                 </thead>
                 <tbody className="divide-y divide-border/40">
                   {visibleCourses.map((c) => {
-                    const cfg = c.discipline ? DISCIPLINE_CONFIG[c.discipline] : null;
                     return (
                       <tr key={c.courseCode}>
                         <td className="px-4 py-2.5">
                           <div className="flex items-center gap-2">
-                            {cfg && (
-                              <span
-                                className="inline-block size-2 shrink-0 rounded-full"
-                                style={{ backgroundColor: cfg.color }}
-                              />
-                            )}
+                            <span
+                              className="inline-block size-2 shrink-0 rounded-full"
+                              style={{ backgroundColor: courseColor(c.courseCode) }}
+                            />
                             <span className="font-medium text-foreground/85">
                               {isHe ? c.nameHe : (c.nameEn ?? c.nameHe)}
                             </span>

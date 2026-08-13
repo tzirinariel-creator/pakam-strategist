@@ -20,7 +20,8 @@ import { useTranslations, useLocale } from "next-intl";
 import { toast } from "sonner";
 import { DisciplineBadge } from "@/components/catalog/discipline-badge";
 import { maybeNudgeCourseReview } from "@/components/catalog/review-nudge";
-import { DISCIPLINE_CONFIG, CREDIT_REQUIREMENTS, SEMESTER_CONFIG, YEAR_CONFIG } from "@/lib/constants";
+import { CREDIT_REQUIREMENTS, SEMESTER_CONFIG, YEAR_CONFIG } from "@/lib/constants";
+import { courseColor, courseSurface } from "@/lib/course-color";
 import { passBarFor } from "@/lib/constants";
 import { isCurrentlyStudying } from "@/lib/semester-clock";
 import { api } from "@/lib/trpc/react";
@@ -74,7 +75,6 @@ export function CourseCard({ userCourse, disabled, currentYear }: CourseCardProp
   const isHe = locale === "he";
   const { course } = userCourse;
   const courseName = isHe ? course.nameHe : (course.nameEn ?? course.nameHe);
-  const config = DISCIPLINE_CONFIG[course.discipline];
   // A PLANNED course of the current semester shows as "בלימוד" (present) —
   // derived, non-destructive; the stored status is untouched (#4/#22).
   const studyingNow =
@@ -149,12 +149,15 @@ export function CourseCard({ userCourse, disabled, currentYear }: CourseCardProp
     disabled: disabled ?? confirmRemove,
   });
 
-  const disciplineColor = config?.color ?? "hsl(var(--muted-foreground))";
+  // ONE colour per course. Keyed on the course CODE, never the discipline —
+  // `disciplineOverride` can re-file a course, which used to repaint this card
+  // while the grid block (built from course.discipline) kept the old hue.
+  const cardColor = courseColor(course.code);
 
   const style = {
     ...(confirmRemove
       ? {}
-      : { backgroundColor: `color-mix(in oklch, var(--card) 92%, ${disciplineColor})` }),
+      : { backgroundColor: courseSurface(course.code, 8) }),
     ...(transform
       ? {
           transform: CSS.Translate.toString(transform),
@@ -199,10 +202,13 @@ export function CourseCard({ userCourse, disabled, currentYear }: CourseCardProp
         confirmRemove && "border-red-400/50 bg-red-500/5",
       )}
     >
-      {/* Discipline color strip (start side = right in RTL) */}
+      {/* The course's colour strip (start side = right in RTL). Same value as
+          its block on the weekly grid, so the eye can match card→grid without
+          reading either label. The discipline is still stated in words by the
+          DisciplineBadge below. */}
       <div
         className="absolute inset-y-0 start-0 w-1 rounded-s-lg"
-        style={{ backgroundColor: config?.color ?? "hsl(var(--muted-foreground))" }}
+        style={{ backgroundColor: cardColor }}
       />
 
       {/* Grip handle — THE drag activator (SEC3). The card used to be one big
@@ -681,20 +687,17 @@ export function CourseCardOverlay({
   const isHe = locale === "he";
   const { course } = userCourse;
   const courseName = isHe ? course.nameHe : (course.nameEn ?? course.nameHe);
-  const config = DISCIPLINE_CONFIG[course.discipline];
-  const disciplineColor = config?.color ?? "hsl(var(--muted-foreground))";
-
   return (
     <div
       className={cn(
         "relative flex items-center gap-2 rounded-lg border border-foreground/60 p-2.5 shadow-xl shadow-foreground/20 ring-2 ring-foreground/40",
         "cursor-grabbing",
       )}
-      style={{ backgroundColor: `color-mix(in oklch, var(--card) 92%, ${disciplineColor})` }}
+      style={{ backgroundColor: courseSurface(course.code, 8) }}
     >
       <div
         className="absolute inset-y-0 start-0 w-1 rounded-s-lg"
-        style={{ backgroundColor: disciplineColor }}
+        style={{ backgroundColor: courseColor(course.code) }}
       />
 
       <GripVertical className="size-4 shrink-0 text-foreground/80 ms-1" />

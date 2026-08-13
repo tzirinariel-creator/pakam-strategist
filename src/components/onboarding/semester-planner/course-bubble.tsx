@@ -4,7 +4,7 @@ import { useMemo } from "react";
 import { useLocale } from "next-intl";
 import { Lock, Check, AlertTriangle, Star, Info, GitBranch } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { DISCIPLINE_CONFIG } from "@/lib/constants";
+import { courseColor } from "@/lib/course-color";
 import { CourseDetailPopover } from "../step-plan/course-detail-popover";
 import type { CourseWithSchedule } from "@/lib/plan-generator";
 
@@ -51,7 +51,6 @@ export function CourseBubble({
 }: CourseBubbleProps) {
   const locale = useLocale();
   const isHe = locale === "he";
-  const cfg = DISCIPLINE_CONFIG[course.discipline as keyof typeof DISCIPLINE_CONFIG];
 
   const isClickable = state === "default" || state === "selected";
 
@@ -98,10 +97,12 @@ export function CourseBubble({
             "border-foreground/30 bg-foreground/5 cursor-default"
         )}
       >
-        {/* Discipline color dot */}
+        {/* The course's own colour — the SAME dot it gets on the grid, the
+            plan card and the exam strip. Was the discipline colour, so a pool
+            bubble and its block on the live timetable disagreed. */}
         <div
           className="h-2.5 w-2.5 shrink-0 rounded-full"
-          style={{ backgroundColor: cfg?.color ?? "gray" }}
+          style={{ backgroundColor: courseColor(course.code) }}
         />
 
         {/* Course name */}

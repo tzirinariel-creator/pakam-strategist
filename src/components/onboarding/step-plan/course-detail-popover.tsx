@@ -9,6 +9,7 @@ import {
   PopoverClose,
 } from "@/components/ui/popover";
 import { DISCIPLINE_CONFIG, FILTERABLE_DISCIPLINE_IDS } from "@/lib/constants";
+import { courseColor } from "@/lib/course-color";
 import { Clock, Calendar, BookOpen, Lock, Users, X, Pencil } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { arazimView } from "@/lib/arazim/visibility";
@@ -71,7 +72,7 @@ export function CourseDetailPopover({ course, children, onDisciplineOverride }: 
           <div className="flex items-center gap-2 pe-6">
             <div
               className="h-2.5 w-2.5 rounded-full shrink-0"
-              style={{ backgroundColor: cfg?.color ?? "gray" }}
+              style={{ backgroundColor: courseColor(course.code) }}
             />
             <span className="text-sm font-semibold text-foreground/90 leading-tight">
               {isHe ? course.nameHe : (course.nameEn ?? course.nameHe)}

@@ -31,6 +31,30 @@
   --ring: oklch(0.708 0 0);
   --radius: 0.75rem;
 
+  /* ── One colour per course (light) ──────────────────────────────────
+     Consumed ONLY through src/lib/course-color.ts, which hashes the course
+     code to an index in 0..11. Keep the count in sync with
+     COURSE_COLOR_COUNT there — a test asserts it.
+
+     Light band = Tailwind-600 weights. Every value clears 3:1 against the
+     white card (#FFFFFF), so the dot and the block hairline are visible
+     rather than pastel-on-white. The .dark block below re-declares the same
+     twelve at Tailwind-400 weights, which clear 3:1 against #16161C.
+     Ordered so neighbouring indices are far apart in hue — two courses that
+     happen to hash next to each other never look like the same course. */
+  --course-color-0: #2563EB;  /* blue */
+  --course-color-1: #D97706;  /* amber */
+  --course-color-2: #059669;  /* emerald */
+  --course-color-3: #C026D3;  /* fuchsia */
+  --course-color-4: #0891B2;  /* cyan */
+  --course-color-5: #E11D48;  /* rose */
+  --course-color-6: #7C3AED;  /* violet */
+  --course-color-7: #65A30D;  /* lime */
+  --course-color-8: #EA580C;  /* orange */
+  --course-color-9: #0D9488;  /* teal */
+  --course-color-10: #4F46E5; /* indigo */
+  --course-color-11: #DB2777; /* pink */
+
   /* iOS safe-area insets (only non-zero when viewport-fit=cover). Used by the
      mobile nav, the shell's bottom padding, and the FAB so nothing hides behind
      the iPhone home indicator (#20). Fallback 0px on every other device. */
@@ -617,6 +641,23 @@ h4, h5, h6 {
   --sidebar-accent-foreground: #ECECEE;
   --sidebar-border: rgba(255, 255, 255, 0.09);
   --sidebar-ring: #8B8BEA;
+
+  /* ── One colour per course (dark) ───────────────────────────────────
+     Same twelve hues, Tailwind-400 weights. The light band would drop to
+     roughly 1.5:1 on the #16161C card; these clear 3:1, so a course keeps a
+     legible identity in both themes without any JS theme detection. */
+  --course-color-0: #60A5FA;
+  --course-color-1: #FBBF24;
+  --course-color-2: #34D399;
+  --course-color-3: #E879F9;
+  --course-color-4: #22D3EE;
+  --course-color-5: #FB7185;
+  --course-color-6: #A78BFA;
+  --course-color-7: #A3E635;
+  --course-color-8: #FB923C;
+  --course-color-9: #2DD4BF;
+  --course-color-10: #818CF8;
+  --course-color-11: #F472B6;
 }
 
 /* Deeper shadows for dark surfaces + a lit top-edge on raised planes */

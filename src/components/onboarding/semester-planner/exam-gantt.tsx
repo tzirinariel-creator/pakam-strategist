@@ -3,7 +3,7 @@
 import { useMemo, useState, useRef, useEffect } from "react";
 import { useLocale } from "next-intl";
 import { AlertTriangle, ZoomIn, ZoomOut } from "lucide-react";
-import { DISCIPLINE_CONFIG } from "@/lib/constants";
+import { courseColor } from "@/lib/course-color";
 import { cn } from "@/lib/utils";
 import type { CourseWithSchedule } from "@/lib/plan-generator";
 import type { Discipline } from "@/types/enums";
@@ -94,14 +94,17 @@ export function ExamGantt({ courses }: ExamGanttProps) {
       const moedB = futureOrNull(c.examDateB);
       if (!moedA && !moedB) continue;
       const disc = c.discipline as Discipline;
-      const config = DISCIPLINE_CONFIG[disc];
       result.push({
         courseId: c.id,
         courseName: isHe ? c.nameHe : (c.nameEn ?? c.nameHe),
         courseCode: c.code,
         discipline: disc,
         credits: c.credits,
-        color: config?.color ?? "#8B949E",
+        // The course's own colour, matching its block on the weekly grid and
+        // its card on the board. A CSS variable, so it follows the theme —
+        // hence the color-mix() calls below where hex+alpha used to be
+        // concatenated (a var cannot take an "…25" alpha suffix).
+        color: courseColor(c.code),
         moedA,
         moedB,
       });
@@ -399,7 +402,9 @@ export function ExamGantt({ courses }: ExamGanttProps) {
                         )}
                         style={{
                           width: `${dayWidth}px`,
-                          ...(isBetween ? { backgroundColor: `${event.color}06` } : {}),
+                          ...(isBetween
+                            ? { backgroundColor: `color-mix(in srgb, ${event.color} 3%, transparent)` }
+                            : {}),
                         }}
                       >
                         {/* Moed A cell */}
@@ -410,7 +415,7 @@ export function ExamGantt({ courses }: ExamGanttProps) {
                               hasConflict ? "ring-1 ring-red-500/60" : "",
                             )}
                             style={{
-                              backgroundColor: `${event.color}25`,
+                              backgroundColor: `color-mix(in srgb, ${event.color} 15%, transparent)`,
                               color: event.color,
                               borderBottom: `2px solid ${event.color}`,
                             }}
@@ -428,9 +433,9 @@ export function ExamGantt({ courses }: ExamGanttProps) {
                           <div
                             className="absolute inset-1 flex items-center justify-center rounded-md text-[10px] font-medium cursor-default border border-dashed"
                             style={{
-                              backgroundColor: `${event.color}10`,
-                              color: `${event.color}99`,
-                              borderColor: `${event.color}40`,
+                              backgroundColor: `color-mix(in srgb, ${event.color} 6%, transparent)`,
+                              color: `color-mix(in srgb, ${event.color} 60%, transparent)`,
+                              borderColor: `color-mix(in srgb, ${event.color} 25%, transparent)`,
                             }}
                             title={`${event.courseName} — ${isHe ? "מועד ב׳" : "Moed B"}: ${formatDateFull(event.moedB!, locale)}`}
                           >
