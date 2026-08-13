@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useLayoutEffect, useState } from "react";
+import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { ChevronLeft, ChevronRight, X } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
@@ -13,6 +13,38 @@ import { cn } from "@/lib/utils";
  * it (via a big spread box-shadow), and floats a tooltip beside it. Steps whose
  * target is missing fall back to a centered card.
  */
+
+/**
+ * Vertical placement of the tour card — pure, so it can be tested (#16).
+ *
+ * The bug it replaces: the card was positioned with `bottom: vh - rect.top + …`
+ * whenever it sat ABOVE its target, with no viewport clamp. For a TALL target
+ * whose top is near the top of the screen (the very first dashboard step),
+ * placeBelow is false because the target's bottom is far down, while rect.top
+ * is small — so `bottom` resolved to nearly the full viewport height and the
+ * card was pushed off the top edge. Ariel saw its footer and none of its text.
+ *
+ * Prefer whichever side genuinely fits, then force the result back inside the
+ * viewport. The card can end up overlapping its target on a cramped screen —
+ * that is strictly better than being invisible.
+ */
+export function computeTipTop(o: {
+  rectTop: number;
+  rectBottom: number;
+  tipH: number;
+  vh: number;
+  pad: number;
+  margin?: number;
+}): number {
+  const margin = o.margin ?? 12;
+  const below = o.rectBottom + o.pad + 8;
+  const above = o.rectTop - o.pad - 8 - o.tipH;
+  const fitsBelow = below + o.tipH + margin <= o.vh;
+  const fitsAbove = above >= margin;
+  const preferred = fitsBelow ? below : fitsAbove ? above : below;
+  // Math.max LAST so a card taller than the viewport still starts on-screen.
+  return Math.max(margin, Math.min(preferred, o.vh - o.tipH - margin));
+}
 
 export const TOUR_DONE_KEY = "pakamon-tour-done";
 
@@ -296,21 +328,39 @@ export function AnchoredTour({
     ? Math.max(12, Math.min(rect.left, vw - tipWidth - 12))
     : 0;
 
+  // #16 (13.8) — "תסתכל בסיור איך חלון ההסבר למעלה ולא נוח לראות מה כתוב".
+  //
+  // The card was positioned with `bottom: vh - rect.top + …` whenever it went
+  // ABOVE its target, and nothing clamped it to the viewport. For a TALL target
+  // whose top sits near the top of the screen — "המצב שלי", the very first step
+  // — placeBelow is false because the target's bottom is far down, while
+  // rect.top is small, so `bottom` resolves to nearly the full viewport height
+  // and the card is pushed off the top edge. Ariel saw its footer and none of
+  // its text.
+  //
+  // Now the vertical position is computed as a single clamped `top`. The card's
+  // real height is measured (it varies with the length of each step's copy), we
+  // prefer whichever side genuinely fits, and the result is always forced back
+  // inside the viewport — so it can be badly placed, but never invisible.
+  const tipRef = useRef<HTMLDivElement | null>(null);
+  const [tipH, setTipH] = useState(180);
+  useLayoutEffect(() => {
+    const h = tipRef.current?.getBoundingClientRect().height;
+    if (h && Math.abs(h - tipH) > 1) setTipH(h);
+  });
+
+  const tipTop = rect
+    ? computeTipTop({ rectTop: rect.top, rectBottom: rect.bottom, tipH, vh, pad: PAD })
+    : undefined;
+
   const tooltip = (
     <div
+      ref={tipRef}
       className={cn(
-        "fixed z-[101] w-[min(92vw,360px)] rounded-2xl border border-border bg-card p-4 shadow-xl",
+        "fixed z-[101] max-h-[calc(100dvh-24px)] w-[min(92vw,360px)] overflow-y-auto rounded-2xl border border-border bg-card p-4 shadow-xl",
         !rect && "start-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 rtl:translate-x-1/2"
       )}
-      style={
-        rect
-          ? {
-              left: tipLeft,
-              top: placeBelow ? rect.bottom + PAD + 8 : undefined,
-              bottom: placeBelow ? undefined : vh - rect.top + PAD + 8,
-            }
-          : undefined
-      }
+      style={rect ? { left: tipLeft, top: tipTop } : undefined}
     >
       <button
         type="button"
