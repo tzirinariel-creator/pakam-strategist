@@ -97,14 +97,28 @@ export function PersonaPicker({
                   : "border-border bg-card hover:border-foreground/25",
               )}
             >
+              {/* #15 — the "ברירת מחדל" chip was a third flex child sitting next
+                  to a 44px character and a name that cannot shrink. In the
+                  COMPACT (onboarding) variant the grid is `grid-cols-2` at EVERY
+                  width, so on a 375px phone each card is ~160px wide while the
+                  three children need ~227px. The chip carried neither `shrink-0`
+                  nor `whitespace-nowrap`, so flexbox squeezed IT (the only
+                  shrinkable child) and its text wrapped — a one-line pill became
+                  a tall multi-line blob jammed against the character. That is the
+                  "broken position". Fix: the name and the chip share a `min-w-0`
+                  track that is allowed to WRAP, and the chip itself never wraps —
+                  so when the row runs out of room the chip drops to its own line
+                  at the inline-end instead of deforming. */}
               <div className="flex w-full items-center gap-2.5">
                 <Char className="size-11 shrink-0 drop-shadow-sm" />
-                <span className="text-sm font-bold text-foreground/85">{name}</span>
-                {tag && (
-                  <span className="ms-auto rounded-full bg-foreground/[0.06] px-2 py-0.5 text-[10px] text-foreground/50">
-                    {tag}
-                  </span>
-                )}
+                <div className="flex min-w-0 flex-1 flex-wrap items-center gap-x-2 gap-y-1">
+                  <span className="min-w-0 text-sm font-bold text-foreground/85">{name}</span>
+                  {tag && (
+                    <span className="ms-auto shrink-0 whitespace-nowrap rounded-full bg-foreground/[0.06] px-2 py-0.5 text-[10px] text-foreground/50">
+                      {tag}
+                    </span>
+                  )}
+                </div>
               </div>
               <p className="text-xs leading-relaxed text-foreground/55">{desc}</p>
             </button>

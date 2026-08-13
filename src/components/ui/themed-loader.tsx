@@ -10,6 +10,14 @@ interface ThemedLoaderProps {
    * `inline`: sits UNDER an existing PageHeader — vertical padding, no min-height.
    */
   variant?: "page" | "inline";
+  /**
+   * #2 — what is ACTUALLY being waited on, in the user's words. Every loader in
+   * the app is the same object; only this sentence changes. Omit for the
+   * generic "the King is arranging your data" line.
+   */
+  label?: string;
+  /** Optional second line — the honest detail (e.g. "already saved, just fetching"). */
+  sublabel?: string;
   className?: string;
 }
 
@@ -20,7 +28,12 @@ interface ThemedLoaderProps {
  * even with the label covered (design line, test 5). Indigo, never gold — gold
  * belongs to the King alone; a system loader isn't the King.
  */
-export function ThemedLoader({ variant = "page", className }: ThemedLoaderProps) {
+export function ThemedLoader({
+  variant = "page",
+  label,
+  sublabel,
+  className,
+}: ThemedLoaderProps) {
   const isHe = useLocale() === "he";
 
   return (
@@ -41,9 +54,12 @@ export function ThemedLoader({ variant = "page", className }: ThemedLoaderProps)
           <PhilosopherKingCharacter className="size-20" />
         </div>
       </div>
-      <p className="text-sm text-foreground/55">
-        {isHe ? "המלך מסדר לכם את הנתונים…" : "The King is arranging your data…"}
-      </p>
+      <div className="flex flex-col items-center gap-1">
+        <p className="text-sm text-foreground/55">
+          {label ?? (isHe ? "המלך מסדר לכם את הנתונים…" : "The King is arranging your data…")}
+        </p>
+        {sublabel && <p className="text-xs text-foreground/40">{sublabel}</p>}
+      </div>
     </div>
   );
 }

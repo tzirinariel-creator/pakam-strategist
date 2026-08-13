@@ -362,6 +362,14 @@ export function DashboardContent() {
     courseAverage: gradeBreakdown.courseAverage,
     englishCourseCount: credits?.englishCourseCount ?? 0,
     amiramScore: profileQuery.data?.amiramScore ?? null,
+    // #9 — the DECLARED level has to travel with the score, or the iron rule
+    // (englishLevel beats amiram via resolveEnglishLevel) silently stops
+    // applying on the single most-seen screen in the app. Omitting it meant a
+    // student who scored 133 but has since finished מתקדמים ב׳ — i.e. is now
+    // exempt — was still told on their home page that they owe a level course
+    // and that studies stop at the end of year 1. The engine already resolves
+    // correctly; it was never handed the level.
+    englishLevel: profileQuery.data?.englishLevel ?? null,
     hasFocusArea,
     currentYear,
     miluimGroup: profileQuery.data?.miluimGroup ?? "NONE",

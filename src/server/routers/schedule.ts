@@ -1,6 +1,6 @@
 import { z } from "zod/v4";
 import { TRPCError } from "@trpc/server";
-import { createTRPCRouter, protectedProcedure } from "../trpc/init";
+import { createTRPCRouter, protectedProcedure, createRequestLoaders } from "../trpc/init";
 import {
   getDecryptedTokens,
   withTokenRefresh,
@@ -32,15 +32,20 @@ export const scheduleRouter = createTRPCRouter({
         return { sessions: [] };
       }
 
-      // Get user's courses for this semester
-      const userCourses = await ctx.db.userCourse.findMany({
-        where: {
-          userId: user.id,
-          plannedYear: input.year,
-          plannedSemester: input.semester,
-        },
-        include: { course: true },
-      });
+      // PERF (#31) — reuse the request-scoped full fetch and filter in memory
+      // instead of a second identical `userCourse.findMany(include: course)`.
+      // `invalidatePlanData` invalidates this query alongside getUserPlan /
+      // getCredits / getGraduationScore / checkCompliance, and react-query
+      // refetches them in ONE batched HTTP request = ONE tRPC context = ONE
+      // loader. Before this, that single request ran the same join THREE times
+      // (loader + here + getExamSchedule). The loader fetches ALL of the user's
+      // courses; this semester's rows are a strict subset, so the result is
+      // identical — same rows, same `include: { course: true }` shape.
+      const loaders = ctx.loaders ?? createRequestLoaders(ctx.db);
+      const allUserCourses = await loaders.userCoursesWithCourse(user.id);
+      const userCourses = allUserCourses.filter(
+        (uc) => uc.plannedYear === input.year && uc.plannedSemester === input.semester,
+      );
 
       if (userCourses.length === 0) {
         return { sessions: [], courses: userCourses };
@@ -123,22 +128,18 @@ export const scheduleRouter = createTRPCRouter({
       // Build filter based on optional year/semester. Exclude courses the
       // student already finished WITH a grade — a graded course doesn't need its
       // exam on the upcoming board anymore (reported #33/#8).
-      const whereClause: Record<string, unknown> = {
-        userId: user.id,
-        NOT: { AND: [{ status: "COMPLETED" }, { grade: { not: null } }] },
-      };
-      if (input?.year) whereClause.plannedYear = input.year;
-      if (input?.semester) whereClause.plannedSemester = input.semester;
-
-      const userCourses = await ctx.db.userCourse.findMany({
-        where: whereClause,
-        include: {
-          course: true,
-        },
-        orderBy: [
-          { plannedYear: "asc" },
-          { plannedSemester: "asc" },
-        ],
+      // PERF (#31) — same request-scoped reuse as getScheduleForSemester above.
+      // The loader already returns every row for the user, ordered by
+      // plannedYear then plannedSemester, so filtering here reproduces the old
+      // query exactly (the NOT clause = "not (COMPLETED and graded)") without a
+      // third identical join in the invalidation batch.
+      const loaders = ctx.loaders ?? createRequestLoaders(ctx.db);
+      const allUserCourses = await loaders.userCoursesWithCourse(user.id);
+      const userCourses = allUserCourses.filter((uc) => {
+        if (uc.status === "COMPLETED" && uc.grade !== null) return false;
+        if (input?.year && uc.plannedYear !== input.year) return false;
+        if (input?.semester && uc.plannedSemester !== input.semester) return false;
+        return true;
       });
 
       // Build exam entries — only courses that have exam dates

@@ -228,3 +228,48 @@ describe("buildRecommendations", () => {
     expect(recs[0]?.severity).toBe("critical");
   });
 });
+
+// ── #9 — the declared English level must beat the Amiram score ──────────
+// Ariel: "אם קיבלתי 133 באמירנט אבל כבר סיימתי קורס מתקדמים ב׳?" — 133 places
+// him at מתקדמים ב׳ BY SCORE, but finishing that course makes him exempt. The
+// engine resolves this correctly; the dashboard simply never passed
+// `englishLevel` alongside `amiramScore`, so the iron rule stopped applying on
+// the most-seen screen in the app and he was still told he owes a level course.
+describe("English: the declared level overrides the Amiram score (#9)", () => {
+  it("drops the deadline warning once the student declares they're exempt", () => {
+    const byScoreOnly = buildRecommendations(input({ currentYear: 1, amiramScore: 133 }));
+    expect(byScoreOnly.some((r) => r.id === "amiram-deadline")).toBe(true);
+
+    // Same score, but the student has declared the level they actually reached.
+    const declared = buildRecommendations(
+      input({ currentYear: 1, amiramScore: 133, englishLevel: "EXEMPT" }),
+    );
+    expect(declared.some((r) => r.id === "amiram-deadline")).toBe(false);
+    // ...and we don't then nag them to add a score they already have.
+    expect(declared.some((r) => r.id === "amiram-missing")).toBe(false);
+  });
+
+  it("uses a declared level when there is no score at all, and says so", () => {
+    const recs = buildRecommendations(
+      input({ currentYear: 1, amiramScore: null, englishLevel: "ADVANCED_B" }),
+    );
+    const rec = recs.find((r) => r.id === "amiram-deadline");
+    expect(rec).toBeDefined();
+    // Never attribute the conclusion to a score that was never entered.
+    expect(rec?.bodyHe).toContain("לפי הרמה שנקלטה מהגיליון");
+    expect(rec?.titleHe).not.toContain("אמירנט");
+  });
+
+  it("still asks for a score when neither the level nor the score is known", () => {
+    const recs = buildRecommendations(input({ currentYear: 1, amiramScore: null }));
+    expect(recs.some((r) => r.id === "amiram-missing")).toBe(true);
+  });
+
+  it("a declared lower level beats a score that would have exempted them", () => {
+    // The sheet is the university's own placement — it wins in BOTH directions.
+    const recs = buildRecommendations(
+      input({ currentYear: 1, amiramScore: 140, englishLevel: "ADVANCED_A" }),
+    );
+    expect(recs.find((r) => r.id === "amiram-deadline")?.bodyHe).toContain("מתקדמים א׳");
+  });
+});

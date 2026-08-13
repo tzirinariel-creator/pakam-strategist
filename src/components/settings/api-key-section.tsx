@@ -138,7 +138,7 @@ export function ApiKeySection() {
             <Button
               onClick={() => saveMutation.mutate({ apiKey: keyInput })}
               disabled={!keyInput.trim() || saveMutation.isPending}
-              className="self-start bg-foreground text-background hover:bg-foreground/90"
+              className="self-start"
             >
               {saveMutation.isPending ? (
                 <Loader2 className="size-4 animate-spin" />

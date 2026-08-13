@@ -199,7 +199,9 @@ export function LoginForm() {
           type="button"
           onClick={handleGoogleLogin}
           disabled={googleLoading}
-          className="w-full gap-3 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700 font-medium transition-all h-12 text-base"
+          /* #10 — same fix as the signup form: surface tokens, not raw greys.
+             The two auth screens must not drift apart. */
+          className="w-full gap-3 h-12 text-base font-medium bg-card text-foreground border border-border hover:bg-card-hover"
         >
           {googleLoading ? (
             <Loader2 className="size-5 animate-spin" />

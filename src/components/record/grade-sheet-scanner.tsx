@@ -11,6 +11,8 @@ import { getEnglishLevelInfo, type EnglishLevel } from "@/lib/constants";
 import {
   matchExtractedToCourses,
   decideApplication,
+  decideAddition,
+  placeScannedRow,
   passBarFor,
   type MatchedRow,
   type UserCourseLite,
@@ -40,6 +42,8 @@ export function GradeSheetScanner() {
   const [avgMismatch, setAvgMismatch] = useState<{ computed: number; printed: number } | null>(null);
   const [scanSummary, setScanSummary] = useState<{
     updated: number;
+    /** #28 — electives the sheet had that weren't in the plan, now recorded. */
+    added: number;
     failedGrades: number;
     average: number | null;
   } | null>(null);
@@ -125,8 +129,22 @@ export function GradeSheetScanner() {
       // Pre-check ONLY high-confidence, unambiguous matches (still requires a
       // grade — passText/EXEMPT rows are applicable but never auto-checked, so
       // a "עובר" is a deliberate tick). A fuzzy/ambiguous match stays unchecked.
+      //
+      // #28 — a graded row that matched NOTHING is an elective the student took
+      // outside the seeded plan. It overwrites nothing, so it is pre-checked on
+      // exactly the same terms as a safe update: only a clean PASS, never an
+      // uncertain read and never a failure (a FAILED elective is a deliberate
+      // tick, not something we record on the student's behalf).
       setChecked(
-        new Set(matched.map((r, i) => (r.autoApplySafe && !r.uncertain ? i : -1)).filter((i) => i >= 0)),
+        new Set(
+          matched
+            .map((r, i) => {
+              if (r.uncertain) return -1;
+              if (r.autoApplySafe) return i;
+              return decideAddition(r)?.status === "COMPLETED" ? i : -1;
+            })
+            .filter((i) => i >= 0),
+        ),
       );
     } catch {
       advisorError(isHe ? "הסריקה לא הצליחה — נסו שוב. הציונים שלכם לא נגעו." : "The scan didn't work — try again. Your grades are untouched.");
@@ -140,22 +158,47 @@ export function GradeSheetScanner() {
     if (!rows) return;
     setApplying(true);
     let ok = 0;
+    let added = 0; // #28 — electives that weren't in the plan, now recorded
     let failed = 0;
     let failedGrades = 0; // rows written as FAILED — surfaced honestly (#30)
     let englishApplied = 0;
     for (const i of checked) {
       const r = rows[i];
-      const decision = r ? decideApplication(r) : null;
-      if (!r?.match || !decision) continue;
+      if (!r) continue;
+      const decision = decideApplication(r);
+      // #28 — an unmatched graded row is an ADDITION, not a no-op. Before this,
+      // the loop `continue`d on `!r.match` and every elective on the sheet was
+      // silently dropped from the bulk apply.
+      const addition = decision ? null : decideAddition(r);
+      if (!decision && !addition) continue;
       try {
-        await updateMutation.mutateAsync({
-          userCourseId: r.match.userCourseId,
-          grade: decision.grade,
-          status: decision.status,
-        });
-        ok++;
-        if (decision.status === "FAILED") failedGrades++;
-        if (r.match.courseType === "ENGLISH") englishApplied++;
+        if (decision && r.match) {
+          await updateMutation.mutateAsync({
+            userCourseId: r.match.userCourseId,
+            grade: decision.grade,
+            status: decision.status,
+          });
+          ok++;
+          if (decision.status === "FAILED") failedGrades++;
+          if (r.match.courseType === "ENGLISH") englishApplied++;
+        } else if (addition) {
+          const place = placeScannedRow(
+            r.semester,
+            profileQuery.data?.startYear ?? null,
+            profileQuery.data?.currentYear ?? null,
+          );
+          await addScannedMutation.mutateAsync({
+            courseCode: addition.courseCode,
+            courseName: addition.courseName,
+            credits: addition.credits,
+            grade: addition.grade,
+            status: addition.status,
+            plannedYear: place.plannedYear,
+            plannedSemester: place.plannedSemester,
+          });
+          added++;
+          if (addition.status === "FAILED") failedGrades++;
+        }
       } catch (e) {
         failed++;
         if (failed === 1) {
@@ -164,9 +207,17 @@ export function GradeSheetScanner() {
       }
     }
     setApplying(false);
-    if (ok > 0) {
+    if (ok > 0 || added > 0) {
       // Honest summary (#30): name what happened, not just a count.
       const parts: string[] = [];
+      if (added > 0) {
+        // #28 — say it out loud: these weren't in the plan and are now on record.
+        parts.push(
+          isHe
+            ? `${added} קורסים שלא היו בתוכנית נוספו לתיק`
+            : `${added} courses that weren't in the plan were added to your record`,
+        );
+      }
       if (failedGrades > 0) {
         parts.push(isHe ? `${failedGrades} נרשמו כנכשלים` : `${failedGrades} recorded as failed`);
       }
@@ -174,7 +225,7 @@ export function GradeSheetScanner() {
         parts.push(isHe ? "ציוני אנגלית אינם נספרים בממוצע" : "English grades don't count toward the average");
       }
       toast.success(
-        isHe ? `עודכנו ${ok} קורסים מהגיליון` : `Updated ${ok} courses from the sheet`,
+        isHe ? `נקלטו ${ok + added} קורסים מהגיליון` : `${ok + added} courses taken from the sheet`,
         parts.length ? { description: parts.join(" · ") } : undefined,
       );
       // Close the end-of-semester rite for this semester once grades are in.
@@ -198,9 +249,9 @@ export function GradeSheetScanner() {
         const calc = calculateGrades((fresh?.courses ?? []) as unknown as UserCourseWithCourse[], {
           preferHigherGrade: prefersHigherGrade((profileQuery.data?.miluimGroup ?? "NONE") as MiluimGroupKey),
         });
-        setScanSummary({ updated: ok, failedGrades, average: calc.courseAverage });
+        setScanSummary({ updated: ok, added, failedGrades, average: calc.courseAverage });
       } catch {
-        setScanSummary({ updated: ok, failedGrades, average: null });
+        setScanSummary({ updated: ok, added, failedGrades, average: null });
       }
     }
   };
@@ -237,7 +288,6 @@ export function GradeSheetScanner() {
               ? "מעלים את 'אישור קורסים וציונים' מהאזור האישי של ת״א — ואנחנו ממלאים ציונים, קורסים בלימוד ורמת-אנגלית. שום דבר לא נשמר בלי אישור שלכם."
               : "Upload your 'Record of study' from the TAU personal area — we fill in grades, in-progress courses and English level. Nothing is saved without your approval."}
           </p>
-          <div className="mt-1"><WhereIsMySheet /></div>
         </div>
         <input
           ref={fileRef}
@@ -260,14 +310,33 @@ export function GradeSheetScanner() {
         </button>
       </div>
 
+      {/* #30 — the "where do I get the sheet?" guide sits OUTSIDE the header's
+          flex row. Inside it, the text column is `min-w-0 flex-1` and measures
+          only 121px at 375px (the icon and the upload button take the rest), so
+          a three-step guide wrapped into a 215px-tall ribbon. Out here it gets
+          the card's full width, which is the whole point of a guide you are
+          meant to follow while looking for the file. */}
+      <div className="mt-2"><WhereIsMySheet /></div>
+
       {/* Review table — the student approves each row explicitly */}
       {scanSummary && !rows && (
         <div className="space-y-2 rounded-xl border border-emerald-500/30 bg-emerald-500/5 p-4">
           <p className="flex items-center gap-2 text-sm font-bold text-foreground/85">
             <Check className="size-4 text-emerald-500" />
-            {isHe ? `הגיליון נקלט — עודכנו ${scanSummary.updated} קורסים` : `Sheet applied — ${scanSummary.updated} courses updated`}
+            {isHe
+              ? `הגיליון נקלט — ${scanSummary.updated + scanSummary.added} קורסים`
+              : `Sheet applied — ${scanSummary.updated + scanSummary.added} courses`}
           </p>
           <div className="space-y-1 text-xs leading-relaxed text-foreground/70">
+            {scanSummary.added > 0 && (
+              // #28 — electives the plan never had. Named explicitly, because
+              // "לא בתוכנית" used to mean "quietly not imported".
+              <p>
+                {isHe
+                  ? `${scanSummary.updated} קורסים מהתוכנית עודכנו, ו-${scanSummary.added} קורסים שלא היו בתוכנית (בחירה כללית) נוספו לתיק עם הציון מהגיליון.`
+                  : `${scanSummary.updated} planned courses updated, and ${scanSummary.added} courses that weren't in the plan were added with the sheet's grade.`}
+              </p>
+            )}
             {scanSummary.average != null && (
               <p>
                 {isHe
@@ -306,7 +375,7 @@ export function GradeSheetScanner() {
         <div className="mt-4 space-y-2">
           <div className="flex items-center justify-between">
             <p className="text-xs font-bold text-foreground/70">
-              {isHe ? `נמצאו ${rows.length} שורות — סמנו מה לעדכן:` : `Found ${rows.length} rows — pick what to apply:`}
+              {isHe ? `נמצאו ${rows.length} שורות — סמנו מה לשמור:` : `Found ${rows.length} rows — pick what to save:`}
             </p>
             <button type="button" onClick={() => { setRows(null); setScannedEnglish(null); }} aria-label={isHe ? "סגור" : "Close"} className="rounded-md p-1 text-foreground/30 hover:text-foreground/60">
               <X className="size-4" />
@@ -361,7 +430,10 @@ export function GradeSheetScanner() {
           <ul className="space-y-1.5">
             {rows.map((r, i) => {
               const decision = decideApplication(r);
-              const applicable = decision != null;
+              // #28 — an unmatched graded row is applicable too: it gets ADDED.
+              // It is no longer a dead row with a separate button nobody pressed.
+              const addition = decision ? null : decideAddition(r);
+              const applicable = decision != null || addition != null;
               const isEnglish = r.match?.courseType === "ENGLISH";
               // The whole label toggles the row — an 18px checkbox alone is far
               // below the 44px touch target for the scanner's core interaction
@@ -376,7 +448,7 @@ export function GradeSheetScanner() {
                 });
               };
               return (
-                <li key={i} className={cn("flex min-h-11 flex-wrap items-center gap-2 rounded-lg border p-2 text-xs", r.match ? "border-border/50" : "border-dashed border-border/50 opacity-70")}>
+                <li key={i} className={cn("flex min-h-11 flex-wrap items-center gap-2 rounded-lg border p-2 text-xs", r.match || addition ? "border-border/50" : "border-dashed border-border/50 opacity-70")}>
                   <button
                     type="button"
                     role="checkbox"
@@ -466,52 +538,27 @@ export function GradeSheetScanner() {
                         {isHe ? `ודאו: ${r.match.nameHe}?` : `Verify: ${r.match.nameHe}?`}
                       </span>
                     )
-                  ) : r.grade != null || r.passText ? (
-                    // #10 (12.7) — a graded course that isn't in the plan (a
-                    // general elective like דוגרי) can be ADDED right here.
-                    <button
-                      type="button"
-                      disabled={addScannedMutation.isPending}
-                      onClick={() => {
-                        const sem = r.semester?.endsWith("/2") ? "SPRING" : "FALL";
-                        // The sheet's semester header is "2025/1" (academic year /
-                        // sitting). Derive the study-year from the student's own
-                        // start year — hardcoding 1 misfiled every added elective
-                        // under שנה א׳ (evening-wave verify). Fallback: their
-                        // current year, never a blind 1.
-                        const sheetYear = Number(r.semester?.split("/")[0]);
-                        const startYear = profileQuery.data?.startYear ?? null;
-                        const plannedYear =
-                          Number.isFinite(sheetYear) && startYear
-                            ? Math.min(3, Math.max(1, sheetYear - startYear + 1))
-                            : (profileQuery.data?.currentYear ?? 1);
-                        addScannedMutation.mutate(
-                          {
-                            courseCode: r.courseCode,
-                            courseName: r.courseName,
-                            credits: r.credits,
-                            grade: r.grade,
-                            plannedYear,
-                            plannedSemester: sem,
-                          },
-                          {
-                            onSuccess: (res) => {
-                              toast.success(
-                                isHe
-                                  ? `${res.courseName} נוסף לתיק עם הציון מהגיליון`
-                                  : `${res.courseName} added to your record with the sheet's grade`,
-                              );
-                              invalidatePlanData(utils);
-                              setRows((prev) => prev?.filter((_, j) => j !== i) ?? prev);
-                            },
-                            onError: (e) => toast.error(e.message || (isHe ? "ההוספה נכשלה" : "Add failed")),
-                          },
-                        );
-                      }}
-                      className="flex items-center gap-1 rounded bg-accent-brand/10 px-2 py-0.5 text-[10px] font-bold text-accent-brand transition-colors hover:bg-accent-brand/20 disabled:opacity-50"
-                    >
-                      + {isHe ? "לא בתוכנית — הוסיפו לתיק" : "Not in plan — add to record"}
-                    </button>
+                  ) : addition ? (
+                    // #28 — a graded course that isn't in the plan (a general
+                    // elective like דוגרי, משבר האקלים וקיימות, a Python course).
+                    // This used to be a separate "+ הוסיפו לתיק" button that the
+                    // bulk apply ignored, so pressing "עדכנו" left every elective
+                    // behind. It is now a normal, tickable row like any other —
+                    // the badge DECLARES what will be written before it happens.
+                    addition.status === "FAILED" ? (
+                      <span className="flex items-center gap-1 rounded bg-amber-500/10 px-1.5 py-px text-[10px] font-semibold text-amber-600">
+                        <AlertTriangle className="size-2.5" />
+                        {isHe ? "לא בתוכנית — יתווסף לתיק כנכשל" : "Not in plan — will be added as failed"}
+                      </span>
+                    ) : addition.status === "EXEMPT" ? (
+                      <span className="rounded bg-accent-brand/10 px-1.5 py-px text-[10px] font-semibold text-accent-brand">
+                        {isHe ? "לא בתוכנית — יתווסף לתיק כפטור" : "Not in plan — will be added as exempt"}
+                      </span>
+                    ) : (
+                      <span className="rounded bg-accent-brand/10 px-1.5 py-px text-[10px] font-semibold text-accent-brand">
+                        {isHe ? "לא בתוכנית — יתווסף לתיק עם הציון" : "Not in plan — will be added with the grade"}
+                      </span>
+                    )
                   ) : r.match ? (
                     // #5 (12.7, sub-fix 5) — the course IS matched in the plan
                     // but the sheet row came back with no grade/pass-text.
@@ -558,7 +605,7 @@ export function GradeSheetScanner() {
             className="inline-flex items-center gap-1.5 rounded-lg bg-accent-brand px-3 py-2 text-sm font-semibold text-accent-brand-fg transition-colors hover:bg-accent-brand-hover disabled:opacity-40"
           >
             {applying ? <Loader2 className="size-4 animate-spin" /> : <Check className="size-4" />}
-            {isHe ? `עדכנו ${checked.size} ציונים מסומנים` : `Apply ${checked.size} selected`}
+            {isHe ? `שמרו ${checked.size} שורות מסומנות` : `Save ${checked.size} selected`}
           </button>
         </div>
       )}

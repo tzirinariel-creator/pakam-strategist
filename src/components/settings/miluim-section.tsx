@@ -223,7 +223,7 @@ export function MiluimSection() {
         <Button
           onClick={handleSave}
           disabled={upsertMutation.isPending}
-          className="self-start bg-foreground text-background hover:bg-foreground/90"
+          className="self-start"
         >
           {upsertMutation.isPending ? (
             <Loader2 className="size-4 animate-spin" />

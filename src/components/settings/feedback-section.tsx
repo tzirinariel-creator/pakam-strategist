@@ -1,6 +1,6 @@
 "use client";
 
-import { MessageSquare, Smartphone, Mail } from "lucide-react";
+import { MessageSquare, Mail } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { CONTACT_EMAIL } from "@/lib/constants";
 import { usePathname } from "@/i18n/navigation";
@@ -40,17 +40,14 @@ export function FeedbackSection() {
           <p className="mt-2 text-xs text-foreground/50">{t("feedbackHint")}</p>
         </div>
 
-        {/* L1 — install hint: the app is a PWA; surface the two magic paths */}
-        <div className="rounded-lg border border-border/50 bg-foreground/[0.03] p-4">
-          <p className="mb-2 flex items-center gap-2 text-sm font-semibold text-foreground/80">
-            <Smartphone className="size-4" />
-            {t("installTitle")}
-          </p>
-          <ul className="space-y-1 text-xs leading-relaxed text-foreground/60">
-            <li>{t("installIos")}</li>
-            <li>{t("installAndroid")}</li>
-          </ul>
-        </div>
+        {/* #45 — the install hint used to live HERE, inside the "send us
+            feedback" card: a static two-line list shown to every visitor
+            regardless of device, including desktop users who cannot install and
+            people already running the installed app. It is now its own section
+            (InstallAppSection) that asks what the device can actually do, shows
+            a real install button when one is possible, and renders nothing when
+            there is no install path. The `installIos` / `installAndroid`
+            strings are reused there. */}
       </div>
     </SectionCard>
   );

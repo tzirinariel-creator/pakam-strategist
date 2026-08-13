@@ -363,7 +363,7 @@ export function ProfileSection() {
         <Button
           onClick={handleSaveProfile}
           disabled={updateMutation.isPending}
-          className="self-start bg-foreground text-background hover:bg-foreground/90"
+          className="self-start"
         >
           {updateMutation.isPending ? (
             <Loader2 className="size-4 animate-spin" />

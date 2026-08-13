@@ -273,7 +273,14 @@ export function SignupForm() {
           type="button"
           onClick={handleGoogleSignup}
           disabled={googleLoading}
-          className="w-full gap-3 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700 font-medium transition-all h-12 text-base"
+          /* #10 — this was raw Tailwind greys (bg-white / gray-800 / gray-300),
+             a palette the app does not own: `gray-800` (#1F2937) is BLUE-tinted
+             next to our neutral #16161C card, and `gray-600` borders are 4× the
+             weight of ours. It is also the single biggest block of colour on the
+             screen — which is exactly why the signup read as "קשוח ואפור".
+             Surface tokens instead: it now sits on the app's own card, in both
+             themes, and Google's mark stays the only colour in it. */
+          className="w-full gap-3 h-12 text-base font-medium bg-card text-foreground border border-border hover:bg-card-hover"
         >
           {googleLoading ? (
             <Loader2 className="size-5 animate-spin" />
@@ -299,13 +306,18 @@ export function SignupForm() {
 
         {/* Email/Password — Secondary (collapsible) */}
         {!showEmailForm ? (
-          <button
+          /* #10 — was bare grey centred text. On a screen whose only other
+             element is a neutral button, "grey text pretending to be a button"
+             is most of why it felt cold. It is a real affordance, so it looks
+             like one — the same outline Button the rest of the app uses. */
+          <Button
             type="button"
+            variant="outline"
             onClick={() => setShowEmailForm(true)}
-            className="w-full text-center text-sm text-muted-foreground hover:text-foreground transition-colors py-2"
+            className="w-full h-11"
           >
             {t("signupWithEmail")}
-          </button>
+          </Button>
         ) : (
           <form onSubmit={handleEmailSubmit} className="space-y-4 animate-in fade-in slide-in-from-top-2 duration-300">
             {/* No name field here (#13): signup stays email+password only. The
@@ -348,15 +360,11 @@ export function SignupForm() {
               />
             </div>
 
-            {/* Submit — the primary CTA is indigo (design §1). */}
-            <Button
-              type="submit"
-              disabled={loading}
-              className={cn(
-                "w-full bg-accent-brand text-accent-brand-fg hover:bg-accent-brand-hover",
-                "font-medium transition-all",
-              )}
-            >
+            {/* Submit — the primary CTA is indigo. It used to say so by hand,
+                because <Button>'s default was near-black ink; #32 moved that
+                rule into the component, so the override is gone and this button
+                and every other primary action share ONE source of truth. */}
+            <Button type="submit" disabled={loading} className="w-full h-11 font-medium">
               {loading ? (
                 <Loader2 className="size-4 animate-spin" />
               ) : (

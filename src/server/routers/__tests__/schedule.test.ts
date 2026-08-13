@@ -7,7 +7,7 @@
 // Google-sync procedures are intentionally NOT touched.
 
 import { describe, it, expect } from "vitest";
-import { createCallerFactory } from "@/server/trpc/init";
+import { createCallerFactory, createRequestLoaders } from "@/server/trpc/init";
 import { scheduleRouter } from "@/server/routers/schedule";
 
 const USER = { id: "user-1", supabaseId: "sb-1", email: "t@example.com" };
@@ -157,15 +157,23 @@ function makeExamDb() {
       course: course({ code: "0000-9999", examDateA: null, examDateB: null }),
     },
   ];
+  let findManyCalls = 0;
   return {
     recorded,
+    get findManyCalls() {
+      return findManyCalls;
+    },
     user: { findUnique: async () => USER },
     userCourse: {
       findMany: async ({ where }: { where: ExamWhere }) => {
+        findManyCalls += 1;
         recorded.where = where;
         return courses.filter((uc) => matchesExamWhere(uc, where));
       },
     },
+    // getScheduleForSemester reaches for sessions after resolving the courses;
+    // an empty list is enough for the shared-loader count assertion.
+    scheduleSession: { findMany: async () => [] },
   };
 }
 
@@ -187,10 +195,40 @@ describe("scheduleRouter.getExamSchedule — pure read", () => {
     const { exams } = await makeCaller(db).getExamSchedule({});
 
     expect(exams.some((e) => e.courseCode === "1071-1013")).toBe(false);
-    // The exclusion lives entirely in the where-clause the router builds.
-    expect(db.recorded.where?.NOT).toEqual({
-      AND: [{ status: "COMPLETED" }, { grade: { not: null } }],
+    // PERF (#31): the exclusion used to live in a bespoke where-clause, which
+    // forced getExamSchedule to run its OWN `userCourse.findMany(include:
+    // course)` — a third copy of the same join inside every invalidatePlanData
+    // batch. It now reads the request-scoped loader (all rows for the user) and
+    // drops graded-COMPLETED rows in memory. Assert the SHAPE that makes the
+    // sharing possible: one unfiltered per-user fetch, no NOT clause.
+    expect(db.recorded.where).toEqual({ userId: USER.id });
+    expect(db.recorded.where?.NOT).toBeUndefined();
+  });
+
+  it("PERF #31 — getExamSchedule + getScheduleForSemester share ONE userCourse fetch", async () => {
+    // The real cost of a grade save is the invalidation fan-out: react-query
+    // refetches every invalidated query in ONE batched HTTP request, which is
+    // ONE tRPC context and therefore ONE set of loaders. Before this change the
+    // two schedule procedures each ran their own identical
+    // `userCourse.findMany(include: course)` on top of the loader's, so a
+    // single batch hit that join three times. With a shared loader the two
+    // procedures together issue exactly one.
+    const db = makeExamDb();
+    const loaders = createRequestLoaders(db as never);
+    const createCaller = createCallerFactory(scheduleRouter);
+    const caller = createCaller({
+      db: db as never,
+      userId: USER.supabaseId,
+      session: { user: { id: USER.supabaseId } } as never,
+      supabase: {} as never,
+      headers: new Headers(),
+      loaders,
     });
+
+    await caller.getExamSchedule({});
+    await caller.getScheduleForSemester({ year: 2, semester: "SPRING" });
+
+    expect(db.findManyCalls).toBe(1);
   });
 
   it("drops courses with no exam date and sorts a null examDateA last", async () => {

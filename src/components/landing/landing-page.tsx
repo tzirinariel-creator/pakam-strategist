@@ -179,7 +179,6 @@ export function LandingPage() {
             </Button>
             <Button
               size="sm"
-              className="bg-foreground text-background hover:bg-foreground/90"
               asChild
             >
               <Link href="/signup">{t("signup")}</Link>

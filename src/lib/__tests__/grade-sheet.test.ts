@@ -466,3 +466,71 @@ describe("cleanCourseName — neighbouring sheet columns never become the name (
     expect(rows?.[0]?.courseName).toBe("אנגלית מתקדמים");
   });
 });
+
+// ── #28 — electives must not be silently skipped on import ──────────────
+// Mandatory courses are seeded into every plan at onboarding, so a scanned
+// mandatory row always has a `match`. An elective the student chose themselves
+// (דוגרי, משבר האקלים וקיימות, a Python course) has no UserCourse, so `match`
+// is null — and the bulk apply used to skip exactly those rows. These tests
+// lock in that an unmatched graded row is a real, declarable ADDITION.
+import { decideAddition, placeScannedRow } from "@/lib/grade-sheet";
+
+const mkUnmatched = (over: Partial<MatchedRow>): MatchedRow =>
+  mkMatched({ match: null, matchKind: "none", ...over });
+
+describe("decideAddition (#28) — an unmatched row is an addition, not a no-op", () => {
+  it("records Ariel's real electives instead of dropping them", () => {
+    const dugri = mkUnmatched({ courseCode: "1031-4015", courseName: "דוגרי", grade: 92, credits: 2 });
+    expect(decideAddition(dugri)).toEqual({
+      courseCode: "1031-4015", courseName: "דוגרי", credits: 2, grade: 92, status: "COMPLETED",
+    });
+    const climate = mkUnmatched({ courseCode: "1880-0901", courseName: "משבר האקלים וקיימות", grade: 88, credits: 4 });
+    expect(decideAddition(climate)?.status).toBe("COMPLETED");
+  });
+
+  it("never invents a completion: a failing elective is added as FAILED", () => {
+    expect(decideAddition(mkUnmatched({ grade: 59 }))?.status).toBe("FAILED");
+    expect(decideAddition(mkUnmatched({ grade: 60 }))?.status).toBe("COMPLETED");
+  });
+
+  it("uses the 70 bar for an English row, which has no courseType off-catalog", () => {
+    expect(decideAddition(mkUnmatched({ courseName: "אנגלית מתקדמים ב", grade: 65 }))?.status).toBe("FAILED");
+    expect(decideAddition(mkUnmatched({ courseName: "אנגלית מתקדמים ב", grade: 70 }))?.status).toBe("COMPLETED");
+  });
+
+  it("maps the sheet's binary pass marks honestly", () => {
+    expect(decideAddition(mkUnmatched({ passText: "עובר" }))?.status).toBe("COMPLETED");
+    expect(decideAddition(mkUnmatched({ passText: "פטור" }))?.status).toBe("EXEMPT");
+    expect(decideAddition(mkUnmatched({ passText: "נכשל" }))?.status).toBe("FAILED");
+  });
+
+  it("is null when there is nothing to record, or when the row already matched", () => {
+    expect(decideAddition(mkUnmatched({ grade: null, passText: null, inProgress: true }))).toBeNull();
+    expect(decideAddition(mkUnmatched({ grade: null, passText: null }))).toBeNull();
+    // A matched row is an UPDATE — decideApplication owns it, so we don't
+    // double-write it as a new course.
+    expect(decideAddition(mkMatched({ grade: 90 }))).toBeNull();
+  });
+});
+
+describe("placeScannedRow (#28) — where an added elective lands", () => {
+  it("derives the study year from the student's own start year", () => {
+    expect(placeScannedRow("2025/1", 2024, null)).toEqual({ plannedYear: 2, plannedSemester: "FALL" });
+    expect(placeScannedRow("2024/2", 2024, null)).toEqual({ plannedYear: 1, plannedSemester: "SPRING" });
+  });
+
+  it("maps the summer sitting to SUMMER, not FALL", () => {
+    expect(placeScannedRow("2025/3", 2024, null).plannedSemester).toBe("SUMMER");
+  });
+
+  it("clamps into the 1-3 range the plan knows", () => {
+    expect(placeScannedRow("2030/1", 2024, null).plannedYear).toBe(3);
+    expect(placeScannedRow("2020/1", 2024, null).plannedYear).toBe(1);
+  });
+
+  it("falls back to the student's current year, never a blind 1", () => {
+    expect(placeScannedRow(null, null, 3).plannedYear).toBe(3);
+    expect(placeScannedRow("2025/1", null, 2).plannedYear).toBe(2);
+    expect(placeScannedRow(null, null, null).plannedYear).toBe(1);
+  });
+});

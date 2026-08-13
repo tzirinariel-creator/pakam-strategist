@@ -9,6 +9,7 @@ import { CohortWisdomSection } from "./cohort-wisdom-section";
 import { PersonaSection } from "./persona-section";
 import { GoogleCalendarSection } from "./google-calendar-section";
 import { AppearanceSection } from "./appearance-section";
+import { InstallAppSection } from "./install-app-section";
 import { FeedbackSection } from "./feedback-section";
 import { AccountSection } from "./account-section";
 
@@ -41,6 +42,8 @@ export function SettingsContent() {
         <PersonaSection />
         <GoogleCalendarSection />
         <AppearanceSection />
+        {/* #45 — renders nothing unless this device can actually install. */}
+        <InstallAppSection />
         <FeedbackSection />
         <AccountSection />
       </div>

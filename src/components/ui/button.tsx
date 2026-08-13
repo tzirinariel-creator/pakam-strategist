@@ -9,7 +9,20 @@ const buttonVariants = cva(
   {
     variants: {
       variant: {
-        default: "bg-primary text-primary-foreground shadow-[var(--shadow-xs)] hover:bg-primary/90 hover:shadow-[var(--shadow-card)] hover:-translate-y-px",
+        // THE primary action = the brand indigo (--accent-brand), in every
+        // theme. #32: `default` used to be `bg-primary` — near-black ink —
+        // while 130+ hand-rolled CTAs across the app were already indigo. That
+        // is exactly the "פעם סגול פעם שחור" Ariel reported: the SAME role
+        // (primary action) wore two different colours depending on whether the
+        // author reached for <Button> or wrote the classes by hand. One role,
+        // one colour. Measured 5.4:1 on white / 6.5:1 on the dark canvas.
+        // Calm by default: colour change + press-scale only, no hover lift or
+        // shadow escalation — the timetable's flat, single-hairline language.
+        default:
+          "bg-accent-brand text-accent-brand-fg hover:bg-accent-brand-hover",
+        // Neutral ink — for the rare action that must NOT claim brand primacy
+        // (e.g. a confirm inside an already-indigo surface). Was `default`.
+        ink: "bg-primary text-primary-foreground shadow-[var(--shadow-xs)] hover:bg-primary/90",
         destructive:
           "bg-destructive text-white hover:bg-destructive/90 focus-visible:ring-destructive/20 dark:focus-visible:ring-destructive/40 dark:bg-destructive/60",
         outline:

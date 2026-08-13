@@ -53,7 +53,14 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#5B5BD6",
+  // #45 — was a single indigo value for both schemes. themeColor paints the
+  // browser/OS chrome around the app, so a dark-mode user installing to the
+  // home screen got an indigo bar sitting on top of a #0B0B0F app. Each scheme
+  // now reports the surface the user is actually looking at.
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: "#FCFCFD" },
+    { media: "(prefers-color-scheme: dark)", color: "#0B0B0F" },
+  ],
   // Extend the app under the iOS notch/home-bar so we can pad content back out
   // with the --safe-* insets — without this, env(safe-area-inset-*) is always 0
   // and the bottom nav sits under the home indicator (#20).

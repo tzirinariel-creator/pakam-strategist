@@ -417,6 +417,79 @@ export function decideApplication(row: MatchedRow): ApplyDecision | null {
 export { passBarFor } from "@/lib/constants";
 
 /**
+ * #28 — what would be written for a row that matched NOTHING in the plan.
+ *
+ * Mandatory courses are seeded into every plan at onboarding, so a scanned
+ * mandatory row always finds a `match` and rides the bulk apply. An ELECTIVE
+ * the student picked themselves (דוגרי, משבר האקלים וקיימות, a Python course…)
+ * has no UserCourse yet, so `match` is null and `decideApplication` returns
+ * null — which used to make the row un-checkable and invisible to "apply
+ * selected". The student pressed apply, saw "עודכנו N קורסים", and their
+ * electives were simply never recorded. That is the data-loss shape of #28.
+ *
+ * This decides the row's honest outcome as an ADDITION, so the scanner can put
+ * it through the same checkbox + bulk apply as every other row. Returns null
+ * for a row that is already matched (that's an update, not an addition) or has
+ * nothing to record yet (*** in-progress, or no grade and no pass mark).
+ */
+export type ScannedAddition = {
+  courseCode: string | null;
+  courseName: string;
+  credits: number | null;
+  grade: number | null;
+  status: "COMPLETED" | "FAILED" | "EXEMPT";
+};
+
+export function decideAddition(row: MatchedRow): ScannedAddition | null {
+  if (row.match) return null; // matched → an update, handled by decideApplication
+  const base = {
+    courseCode: row.courseCode ?? null,
+    courseName: row.courseName,
+    credits: row.credits ?? null,
+  };
+  if (row.grade != null) {
+    // The row is off-catalog, so there is no courseType to consult. English is
+    // the only type whose bar differs (70, not 60) — detect it by name, the
+    // same way printedAverageMismatch does, so a 65 in an English elective is
+    // never recorded as a silent COMPLETED.
+    const bar = /אנגלית|english/i.test(row.courseName)
+      ? ENGLISH_CONFIG.COURSE_PASSING_GRADE
+      : CREDIT_REQUIREMENTS.PASSING_GRADE;
+    return { ...base, grade: row.grade, status: row.grade >= bar ? "COMPLETED" : "FAILED" };
+  }
+  if (row.passText) {
+    if (row.passText.includes("פטור")) return { ...base, grade: null, status: "EXEMPT" };
+    if (row.passText.includes("נכשל")) return { ...base, grade: null, status: "FAILED" };
+    return { ...base, grade: null, status: "COMPLETED" }; // "עובר"
+  }
+  return null; // *** in-progress — nothing to record yet
+}
+
+/**
+ * #28 — where an added row lands in the plan. The sheet's header is an ACADEMIC
+ * year + sitting ("2025/1"), not a study year, so the study year comes from the
+ * student's own start year. Sitting 3 is the summer sitting — mapping it to
+ * FALL (as the old inline code did) filed every summer elective in the wrong
+ * semester. Falls back to the student's current year, never a blind 1.
+ */
+export function placeScannedRow(
+  sheetSemester: string | null | undefined,
+  startYear: number | null | undefined,
+  currentYear: number | null | undefined,
+): { plannedYear: number; plannedSemester: "FALL" | "SPRING" | "SUMMER" } {
+  const [yearPart, sitting] = (sheetSemester ?? "").split("/");
+  const sheetYear = Number(yearPart);
+  const plannedYear =
+    Number.isFinite(sheetYear) && sheetYear > 0 && startYear
+      ? Math.min(3, Math.max(1, sheetYear - startYear + 1))
+      : Math.min(3, Math.max(1, currentYear ?? 1));
+  return {
+    plannedYear,
+    plannedSemester: sitting === "2" ? "SPRING" : sitting === "3" ? "SUMMER" : "FALL",
+  };
+}
+
+/**
  * "2025/1" → { plannedYear, plannedSemester }. Ranks the sheet's OWN semester
  * headers chronologically — the earliest year block = year 1 — so placement
  * never depends on guessing which calendar year maps to which study year.

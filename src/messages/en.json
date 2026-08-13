@@ -14,7 +14,7 @@
     "settings": "Settings",
     "more": "More",
     "close": "Close",
-    "graduation": "Grade Forecast",
+    "graduation": "Final Grade Calculator",
     "record": "My Academic Record",
     "miluim": "Miluim",
     "examPlanner": "Exam planner",
@@ -527,8 +527,8 @@
     "tasks": "Tasks"
   },
   "grades": {
-    "title": "Grade Forecast",
-    "subtitle": "Your future: final-score forecast, GPA and honors targets. Grades themselves are entered in the Record.",
+    "title": "Final Grade Calculator",
+    "subtitle": "Your final grade is not a simple average — it is 78% courses, 18% seminars and 4% referat. See how it is built, and work out the average you need in the courses left. Grades themselves are entered in your academic record.",
     "courseGrades": "Course Grades",
     "enterGrade": "Enter grade",
     "noGrade": "No grade",
@@ -574,11 +574,11 @@
   },
   "record": {
     "title": "My Academic Record",
-    "subtitle": "Your past: every completed course, grade and scan. Enter and update here — the forecast picks it up.",
+    "subtitle": "Your past: every completed course, grade and scan. Enter and update here — the final grade calculator picks it up.",
     "loading": "Loading your academic record…",
     "summaryCompletedCredits": "Completed credits",
     "summaryWeightedAvg": "Credit-weighted average — not the official graduation score",
-    "summaryWeightedAvgHint": "For the official graduation score (78% courses · 18% seminars · 4% referat) — open the Grade Forecast",
+    "summaryWeightedAvgHint": "For the official graduation score (78% courses · 18% seminars · 4% referat) — open the final grade calculator",
     "summaryFocusCredits": "Focus-area credits",
     "summaryTotalProgress": "of {target} credits to graduate",
     "summaryFocusProgress": "of {target} required credits",
@@ -617,7 +617,7 @@
     "emptyDescNoCourses": "You don't have any courses yet. Add your first course in the form below, or build a full plan in onboarding.",
     "emptyAddFirstCourse": "Add your first course",
     "backToOnboarding": "Build a plan in onboarding",
-    "crossLinkGrades": "For weight breakdown and graduation score — open the Grade Forecast",
+    "crossLinkGrades": "For weight breakdown and graduation score — open the final grade calculator",
     "crossLinkFromGrades": "To manage courses you've already taken — open My Academic Record",
     "notInAvgEnglish": "not in the degree average",
     "notInAvgBinary": "binary — not in the degree average",
@@ -888,9 +888,9 @@
   },
   "examSchedule": {
     "title": "Exams & Grades",
-    "subtitle": "Exam schedule and graduation score forecast",
+    "subtitle": "Exam schedule and final grade calculator",
     "tabSchedule": "Exam Schedule",
-    "tabGrades": "Grade Forecast",
+    "tabGrades": "Final Grade",
     "totalExams": "Total Exams",
     "upcoming": "Upcoming",
     "passed": "Passed",
@@ -906,7 +906,7 @@
     "exportICS": "Export to Calendar",
     "exportSuccess": "Calendar file created",
     "tabTimeline": "Timeline",
-    "openGradeCalculator": "Open the grade forecast"
+    "openGradeCalculator": "Open the final grade calculator"
   },
   "roi": {
     "title": "Performance Analytics",
@@ -959,8 +959,8 @@
         "desc": "A timetable built automatically from your courses, with countdown to exams"
       },
       "grades": {
-        "title": "Grade Forecast",
-        "desc": "A live final-score forecast from the grades in your academic record — with the 78% courses, 18% seminars, 4% referat formula"
+        "title": "Final Grade Calculator",
+        "desc": "Your final grade is not a simple average — 78% courses, 18% seminars, 4% referat. It updates live from the grades in your academic record"
       },
       "regulations": {
         "title": "Degree check",
@@ -1147,8 +1147,8 @@
     "creditsLeft": "{count} credits left",
     "almostThere": "Almost there",
     "loading": "One sec, setting up your degree…",
-    "settingUpPlan": "Setting up your plan…",
-    "settingUpPlanDesc": "Just a moment, syncing your courses",
+    "settingUpPlan": "Loading your plan…",
+    "settingUpPlanDesc": "Your plan is already saved — we're just fetching it",
     "creditTracking": "Credit Tracking",
     "totalCredits": "Total Credits",
     "focusArea": "Focus Area ({target} cr.)",
@@ -1171,12 +1171,13 @@
     "weeklyScheduleDesc": "Where you need to be this week",
     "courseCatalog": "Course Catalog",
     "courseCatalogDesc": "All PPE courses in one place",
-    "gradeCalculator": "Grade Forecast",
+    "gradeCalculator": "Final Grade Calculator",
     "gradeCalculatorDesc": "Graduation score + \"What if\" simulation",
     "errorTitle": "Couldn't load your data",
     "errorDescription": "Probably a temporary issue. Try refreshing — if it keeps happening, let us know",
     "retry": "Try Again",
-    "syncProgress": "Syncing courses… attempt {current} of {max}",
+    "planLoadSlow": "This is taking longer than usual",
+    "planLoadSlowDesc": "Your plan is saved and nothing was lost — this screen just couldn't fetch it. Try again, or continue to your home page.",
     "continueAnyway": "Continue to Home",
     "welcomeTitle": "All set",
     "welcomeSubtitle": "Your plan is saved — here's how things look",

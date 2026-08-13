@@ -384,8 +384,11 @@ export const planRouter = createTRPCRouter({
   /** #10 (12.7 test session) — a scanned row that matched nothing in the
    *  plan (e.g. a general-elective like "דוגרי" taken outside the PPE list)
    *  can be ADDED straight from the scanner: catalog hit by code/name when
-   *  possible, otherwise a minimal custom Course row, then a COMPLETED
-   *  userCourse with the scanned grade. Explicit per-row action, never bulk. */
+   *  possible, otherwise a minimal custom Course row, then a userCourse with
+   *  the scanned grade. #28 — `status` is now passed in from the row's DECLARED
+   *  outcome (decideAddition) instead of being hardcoded COMPLETED, so a failed
+   *  or exempt elective is recorded honestly. Defaults to COMPLETED for
+   *  existing callers. Still one explicit, student-approved row at a time. */
   addScannedCourse: protectedProcedure
     .input(
       z.object({
@@ -395,6 +398,7 @@ export const planRouter = createTRPCRouter({
         grade: z.number().min(0).max(100).nullable(),
         plannedYear: z.number().int().min(1).max(4),
         plannedSemester: z.enum(["FALL", "SPRING", "SUMMER"]),
+        status: z.enum(["COMPLETED", "FAILED", "EXEMPT"]).default("COMPLETED"),
       })
     )
     .mutation(async ({ ctx, input }) => {
@@ -447,14 +451,14 @@ export const planRouter = createTRPCRouter({
       if (existing) {
         await ctx.db.userCourse.update({
           where: { id: existing.id },
-          data: { status: "COMPLETED", grade: input.grade },
+          data: { status: input.status, grade: input.grade },
         });
       } else {
         await ctx.db.userCourse.create({
           data: {
             userId: user.id,
             courseId: course.id,
-            status: "COMPLETED",
+            status: input.status,
             grade: input.grade,
             plannedYear: input.plannedYear,
             plannedSemester: input.plannedSemester,

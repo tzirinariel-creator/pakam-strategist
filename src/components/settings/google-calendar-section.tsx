@@ -369,7 +369,7 @@ export function GoogleCalendarSection() {
           ) : (
             <Button
               onClick={handleConnect}
-              className="self-start bg-foreground text-background hover:bg-foreground/90"
+              className="self-start"
             >
               <Link2 className="size-4" />
               {t("googleConnect")}
