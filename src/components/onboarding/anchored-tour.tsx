@@ -318,6 +318,20 @@ export function AnchoredTour({
     setStep(Math.max(0, i));
   };
 
+  // These MUST sit above the `if (!open) return null` below. Placing them with
+  // the placement math (after the guard) meant React ran 5 hooks while the tour
+  // was closed and 7 once it opened — error #310, "rendered more hooks than
+  // during the previous render", which crashed the whole planner the instant
+  // the tour tried to appear. Hooks run unconditionally; only the RENDER is
+  // conditional.
+  const tipRef = useRef<HTMLDivElement | null>(null);
+  const [tipH, setTipH] = useState(180);
+  useLayoutEffect(() => {
+    if (!open) return;
+    const h = tipRef.current?.getBoundingClientRect().height;
+    if (h && Math.abs(h - tipH) > 1) setTipH(h);
+  });
+
   if (!open || !mounted) return null;
 
   const NextChevron = isHe ? ChevronLeft : ChevronRight;
@@ -354,13 +368,6 @@ export function AnchoredTour({
   // real height is measured (it varies with the length of each step's copy), we
   // prefer whichever side genuinely fits, and the result is always forced back
   // inside the viewport — so it can be badly placed, but never invisible.
-  const tipRef = useRef<HTMLDivElement | null>(null);
-  const [tipH, setTipH] = useState(180);
-  useLayoutEffect(() => {
-    const h = tipRef.current?.getBoundingClientRect().height;
-    if (h && Math.abs(h - tipH) > 1) setTipH(h);
-  });
-
   const tipTop = rect
     ? computeTipTop({ rectTop: rect.top, rectBottom: rect.bottom, tipH, vh, pad: PAD })
     : undefined;
