@@ -552,7 +552,13 @@ const HANDLERS: Handler[] = [
   // a broken field, not as an answer. A missing number is itself information:
   // say plainly that nothing is recorded yet, and hand over the next step.
   {
-    keys: ["מעבר שנה", "לעבור שנה", "תנאי מעבר", "תנאי המעבר", "מעבר לשנה", "לשנה הבאה", "advance a year", "year transition"],
+    // "לשנה הבאה" was a key here and it was too generic: the matcher is
+    // length-weighted, so "מתי נפתח מקצה הבידינג הראשון לשנה הבאה?" scored
+    // this handler ABOVE the bidding one (9 chars vs 6) and answered with the
+    // 75/80 year-transition rule — making the תשפ״ז bidding dates unreachable
+    // by the most natural way to ask for them (live QA, 13.8). The remaining
+    // keys all name the transition explicitly.
+    keys: ["מעבר שנה", "לעבור שנה", "תנאי מעבר", "תנאי המעבר", "מעבר לשנה", "advance a year", "year transition"],
     answer: (c) => {
       const overall = GRADE_REQUIREMENTS.YEAR_TRANSITION_OVERALL_GPA;
       const ppe = GRADE_REQUIREMENTS.YEAR_TRANSITION_PPE_GPA;
@@ -628,7 +634,7 @@ const HANDLERS: Handler[] = [
       ({
         text: he(
           c,
-          `בידינג = מכרז: המציע הגבוה זוכה (לא כל-הקודם-זוכה). 2 מקצים, הנקודות מתאפסות בכל מקצה, מינ׳ 5 לקורס, והרצאה+תרגיל ביחד. המלכודת: רישום לקורס שחופף בזמן מבטל את הקודם! ${gm(c, "ראה", "ראי", "ראו")} את המסביר המלא במתכנן.`,
+          `בידינג = מכרז: המציע הגבוה זוכה (לא כל-הקודם-זוכה). 2 מקצים, הנקודות מתאפסות בכל מקצה, מינ׳ 5 לקורס, והרצאה+תרגיל ביחד. חפיפת שעות בתוך אותו מקצה נפתרת לפי הניקוד הגבוה (הקורס השני מפסיד והנקודות עוברות הלאה); רק במקצה השני קורס חופף מבטל שיבוץ שכבר קיבלתם במקצה הראשון. ${gm(c, "ראה", "ראי", "ראו")} את המסביר המלא במתכנן.`,
           "Bidding is an auction: highest bidder wins (not first-come). 2 rounds, points reset each round, min 5 per course, lecture+tutorial together. The trap: registering for a time-overlapping course cancels the earlier one! See the full explainer in the planner."
         ),
         href: "/planner",

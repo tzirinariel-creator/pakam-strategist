@@ -42,7 +42,7 @@ export function BiddingExplainer({ isHe }: { isHe: boolean }) {
           {/* Even while collapsed, name the #1 trap so it isn't missed. */}
           <p className="text-xs text-foreground/50">
             {isHe
-              ? "מכרז ב-2 מקצים · המלכודת: הבקשה האחרונה מנצחת"
+              ? "מכרז ב-2 מקצים · חפיפות נפתרות לפי הניקוד"
               : "A 2-round auction · the trap: last request wins"}
           </p>
         </div>
@@ -128,7 +128,7 @@ function OverlapTrap({ isHe }: { isHe: boolean }) {
       <div className="mb-2 flex items-start gap-2">
         <AlertTriangle className="mt-0.5 size-4 shrink-0 text-amber-500" />
         <p className="text-xs font-bold text-foreground/80">
-          {isHe ? "המלכודת הגדולה: הבקשה האחרונה מנצחת" : "The big trap: last request wins"}
+          {isHe ? "חפיפת שעות — מה באמת קורה" : "Time clashes — what actually happens"}
         </p>
       </div>
 

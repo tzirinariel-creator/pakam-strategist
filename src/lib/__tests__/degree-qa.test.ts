@@ -378,3 +378,34 @@ describe("social talk (#22)", () => {
     expect(a.text).toContain("thanks for asking");
   });
 });
+
+// Live QA (13.8) — two real defects found by asking the app real questions.
+describe("bidding intent + the corrected overlap rule", () => {
+  const c = ctx({});
+
+  it("routes 'מתי נפתח מקצה הבידינג הראשון לשנה הבאה?' to BIDDING, not year-transition", () => {
+    // "לשנה הבאה" used to be a year-transition key. The matcher is
+    // length-weighted, so it out-scored "בידינג" (9 chars vs 6) and answered
+    // with the 75/80 rule — the תשפ״ז bidding dates were unreachable by the
+    // most natural phrasing.
+    const a = answerDegreeQuestion("מתי נפתח מקצה הבידינג הראשון לשנה הבאה?", c);
+    expect(a.text).not.toContain("75");
+    expect(a.text).toMatch(/מכרז|בידינג/);
+  });
+
+  it("still routes a genuine year-transition question correctly", () => {
+    const a = answerDegreeQuestion("מה תנאי מעבר שנה?", c);
+    expect(a.text).toContain("75");
+  });
+
+  it("never states the round-2 displacement rule as if it applied within a round", () => {
+    // The official תשפ״ז guidelines say two DIFFERENT things and the app had
+    // collapsed them into one wrong absolute: within a round the HIGHER BID
+    // wins ("השיבוץ ייעשה על פי הקורס בעל מספר הנקודות הגבוה יותר"); only in
+    // round 2 does an overlapping course cancel a round-1 placement. A student
+    // could have mis-registered on the strength of the old sentence.
+    const a = answerDegreeQuestion("איך עובד הבידינג?", c);
+    expect(a.text).not.toContain("מבטל את הקודם");
+    expect(a.text).toMatch(/ניקוד הגבוה|הניקוד הגבוה/);
+  });
+});

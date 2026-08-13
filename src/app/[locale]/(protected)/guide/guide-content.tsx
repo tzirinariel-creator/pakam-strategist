@@ -112,7 +112,7 @@ export function GuideContent() {
       <Section icon={Gavel} title={isHe ? "בידינג (מכרז)" : "Bidding"}>
         <p>
           {isHe
-            ? "רישום לקורסים הוא מכרז: המציע הגבוה זוכה (לא כל-הקודם-זוכה). המלכודת הגדולה — רישום לקורס שחופף בזמן מבטל את הקודם. יש מסביר מלא במתכנן."
+            ? "רישום לקורסים הוא מכרז: המציע הגבוה זוכה (לא כל-הקודם-זוכה). בחפיפת שעות באותו מקצה זוכה הקורס עם הניקוד הגבוה; רק במקצה השני קורס חופף מבטל שיבוץ מהמקצה הראשון. יש מסביר מלא במתכנן."
             : "Course registration is an auction: highest bidder wins. The big trap — a time-overlapping course cancels the earlier one. Full explainer in the planner."}
         </p>
       </Section>
