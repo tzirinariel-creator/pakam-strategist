@@ -353,7 +353,20 @@ export function OnboardingWizard() {
 
   return (
     <div className="bg-mesh -m-2 min-h-full w-auto sm:-m-4 md:-m-6">
-    <div className="relative mx-auto flex min-h-[80vh] w-full max-w-4xl flex-col px-4 py-8 md:px-8">
+    {/* The planner step needs REAL width. Every other step is prose + a few
+        controls and reads better narrow, but the timetable is a container-query
+        component: WeeklyTimetable only renders its weekly GRID once its own box
+        clears 512px, and falls back to a day-by-day agenda list below that.
+        Under the old blanket max-w-4xl (896px) the timetable column resolved to
+        ~472px on every desktop — 40px short — so the grid was never once shown
+        to a desktop user, while a NARROWER window would have shown it. Ariel
+        saw the list for months and reported it three times. */}
+    <div
+      className={cn(
+        "relative mx-auto flex min-h-[80vh] w-full flex-col px-4 py-8 md:px-8",
+        step === STEP_PLANNER ? "max-w-7xl" : "max-w-4xl",
+      )}
+    >
       {/* #21/#36 — the flow rail. Present on every step after the welcome, so a
           new user always knows which of the numbered steps they are on, what
           the step is called, and what still lies ahead. */}
@@ -379,7 +392,11 @@ export function OnboardingWizard() {
                         : "text-foreground/30",
                   )}
                 >
-                  <bdi dir="ltr">{i + 1}.</bdi> {locale === "he" ? s.he : s.en}
+                  {/* The period must stay OUTSIDE the isolate. Inside it, the
+                      isolate renders "1." as one LTR box placed at the RTL line
+                      start, so the dot ends up on the far right and the label
+                      reads ". 1 נקודת הפתיחה". Only the digit is isolated. */}
+                  <bdi dir="ltr">{i + 1}</bdi>. {locale === "he" ? s.he : s.en}
                 </span>
               </span>
             );

@@ -311,6 +311,7 @@ export function StepReady({ data, plannedSemesters, completedCourses, allCourses
           "pakamon-google-banner-dismissed",
           "pk-met-king-card",
           "pk-met-advisor", // the chat-panel intro (floating-assistant) — missing it skipped the King intro on a reset account
+          "pk-persona", // otherwise a browser that once chose the Referent silently hands a brand-new account the Referent instead of the King
         ]) {
           localStorage.removeItem(k);
         }
@@ -366,7 +367,11 @@ export function StepReady({ data, plannedSemesters, completedCourses, allCourses
       setSavingTooLong(false);
       return;
     }
-    const timer = setTimeout(() => setSavingTooLong(true), 6000);
+    // 6s was short enough that a normal prod-DB save routinely tripped it, so a
+    // healthy save showed "saving…", "taking longer", and an escape hatch all at
+    // once — three messages that contradict each other. This is a stuck-save
+    // rescue, not a progress hint; it should be rare.
+    const timer = setTimeout(() => setSavingTooLong(true), 20000);
     return () => clearTimeout(timer);
   }, [isSaving]);
 

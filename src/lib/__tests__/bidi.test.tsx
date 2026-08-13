@@ -102,8 +102,14 @@ describe("Bidi — numeric ranges inside Hebrew (text sweep 13.8)", () => {
     const isolates = container.querySelectorAll("bdi");
     expect(isolates).toHaveLength(1);
     expect(isolates[0]!.textContent).toBe("1");
-    // The period is a bare neutral after the isolate — which is exactly why
-    // step-welcome.tsx wraps "{i + 1}." in its own <bdi dir="ltr"> instead.
+    // The period MUST stay outside the isolate. An earlier version of this test
+    // claimed the opposite and blessed `<bdi dir="ltr">{i + 1}.</bdi>` — that
+    // markup renders ". 1 label" in a real RTL context, because the isolate
+    // becomes one LTR box placed at the line start with the dot on its right
+    // edge. jsdom has no bidi layout, so textContent can never catch it; the
+    // regression guard is the assertion below, which pins the DOM shape that
+    // browser geometry proved correct.
     expect(container.textContent).toBe("1. ספרו מי אתם");
+    expect(isolates[0]!.textContent).not.toContain(".");
   });
 });

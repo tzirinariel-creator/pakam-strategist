@@ -15,6 +15,7 @@
 
 import { CREDIT_REQUIREMENTS, GRADE_REQUIREMENTS, resolveEnglishLevel } from "@/lib/constants";
 import { hasMiluimBinaryBenefit, type MiluimGroupKey } from "@/lib/miluim";
+import { countPassedEnglishLevelCourses, resolveEnglishStanding } from "@/lib/english-standing";
 
 // -------------------------------------------------------------------
 // Types
@@ -221,7 +222,13 @@ export function buildRecommendations(
   if (input.currentYear <= 1) {
     const resolvedLvl = resolveEnglishLevel(input.englishLevel, input.amiramScore);
     const lvlDeclared = resolveEnglishLevel(input.englishLevel, null) != null;
-    if (!resolvedLvl) {
+    // #6/#18 (13.8) — credit the level courses the student already PASSED before
+    // telling them to take one. Ariel holds a passing grade in אנגלית מתקדמים ב׳
+    // and was still being told to "take a level course or retake Amiram", and
+    // still being asked for an Amiram score his sheet had answered.
+    const standing = resolveEnglishStanding(resolvedLvl, input.courses);
+    const passedLevelCourses = countPassedEnglishLevelCourses(input.courses);
+    if (!resolvedLvl && passedLevelCourses === 0) {
       recs.push({
         id: "amiram-missing",
         severity: "info",
@@ -235,17 +242,24 @@ export function buildRecommendations(
         ctaEn: "Open settings",
         priority: 1.5,
       });
-    } else {
+    } else if (resolvedLvl) {
       const lvl = resolvedLvl;
-      if (lvl && !lvl.isExempt) {
+      const remaining = standing?.levelCoursesRemaining ?? lvl.levelCourses;
+      // Fire only when level courses are genuinely still outstanding. Exempt by
+      // placement, or the level track already finished by passing the courses —
+      // either way there is nothing to recommend, so say nothing.
+      if (!lvl.isExempt && remaining > 0) {
+        const passedNote = passedLevelCourses > 0
+          ? ` (${passedLevelCourses} כבר עברתם — נספרו)`
+          : "";
         recs.push({
           id: "amiram-deadline",
           severity: "warning",
           icon: "languages",
           titleHe: `אנגלית: ${lvl.nameHe}${lvlDeclared ? "" : ` (אמירנט ${input.amiramScore})`}`,
           titleEn: `English: ${lvl.nameEn}${lvlDeclared ? "" : ` (Amiram ${input.amiramScore})`}`,
-          bodyHe: `${lvlDeclared ? "לפי הרמה שנקלטה מהגיליון" : `לפי הציון שהזנתם (${input.amiramScore})`} אתם ב${lvl.nameHe} — חסרים ${lvl.levelCourses} קורסי-רמה. לפי התקנון (נכון לתשפ״ו) צריך להגיע לפטור (134+) עד סוף שנה א׳. האופציות: קורס-רמה או מבחן אמירנט חוזר. אם כבר הגעתם לפטור — עדכנו את הרמה בהגדרות.`,
-          bodyEn: `${lvlDeclared ? "Per the level from your grade sheet" : `Per the score you entered (${input.amiramScore})`} you're at ${lvl.nameEn} — ${lvl.levelCourses} level course(s) to go. Regulations (as of 2025-26) require exemption (134+) by end of Year 1. Take a level course or retake Amiram. Already exempt? Update your level in settings.`,
+          bodyHe: `${lvlDeclared ? "לפי הרמה שנקלטה מהגיליון" : `לפי הציון שהזנתם (${input.amiramScore})`} אתם ב${lvl.nameHe} — חסרים ${remaining} קורסי-רמה${passedNote}. לפי התקנון (נכון לתשפ״ו) צריך להגיע לפטור (134+) עד סוף שנה א׳. האופציות: קורס-רמה או מבחן אמירנט חוזר.`,
+          bodyEn: `${lvlDeclared ? "Per the level from your grade sheet" : `Per the score you entered (${input.amiramScore})`} you're at ${lvl.nameEn} — ${remaining} level course(s) to go. Regulations (as of 2025-26) require exemption (134+) by end of Year 1. Take a level course or retake Amiram.`,
           href: "/catalog",
           ctaHe: "לקורסי אנגלית",
           ctaEn: "English courses",

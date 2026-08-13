@@ -786,7 +786,7 @@
     "saveFailedTitle": "Couldn't save",
     "saveFailedDesc": "Probably a connection issue. Refresh and try again.",
     "retryButton": "Try again",
-    "continueWithoutSaving": "Continue without saving",
+    "continueWithoutSaving": "Continue — we'll finish saving in the background",
     "planCoursesCount": "courses in plan",
     "planYearsSpan": "years",
     "quickProfile": "Tell us about yourself",

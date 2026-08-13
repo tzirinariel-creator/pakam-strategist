@@ -284,12 +284,25 @@ export const userRouter = createTRPCRouter({
   ensureExists: protectedProcedure
     .input(
       z.object({
-        email: z.email(),
+        // Accepted for wire compatibility with older clients and IGNORED. The
+        // email column is an identity: mentor.invite resolves an invitee by it,
+        // and the demo read-only guard keys on it. Taking it from client input
+        // let any signed-in student claim an unregistered address — including
+        // one a classmate was about to send a mentor invite to — and receive
+        // that invite. It now always comes from the verified Supabase session.
+        email: z.email().optional(),
         displayName: z.string().optional(),
         avatarUrl: z.string().url().optional(),
       })
     )
     .mutation(async ({ ctx, input }) => {
+      const verifiedEmail = ctx.session.user.email;
+      if (!verifiedEmail) {
+        throw new TRPCError({
+          code: "UNAUTHORIZED",
+          message: "Session has no verified email address.",
+        });
+      }
       const safeSelect = {
         id: true,
         supabaseId: true,
@@ -315,13 +328,13 @@ export const userRouter = createTRPCRouter({
       const user = await ctx.db.user.upsert({
         where: { supabaseId: ctx.userId },
         update: {
-          email: input.email,
+          email: verifiedEmail,
           displayName: input.displayName ?? undefined,
           avatarUrl: input.avatarUrl ?? undefined,
         },
         create: {
           supabaseId: ctx.userId,
-          email: input.email,
+          email: verifiedEmail,
           displayName: input.displayName ?? null,
           avatarUrl: input.avatarUrl ?? null,
         },

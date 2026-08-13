@@ -238,12 +238,13 @@ export function StepWelcome({ onNext, selectedProgram, onProgramSelect }: StepWe
             {i > 0 && (
               <span className="text-foreground/15 text-xs">·</span>
             )}
-            {/* #3 — "1." is a number followed by a bidi-neutral period: inside
-                the RTL paragraph it resolved to the paragraph direction and
-                rendered as ".1 ספרו מי אתם". The isolate keeps the ordinal
-                intact. */}
+            {/* #3 — isolate the DIGIT ONLY. Putting the period inside the
+                isolate makes "1." a single LTR box at the RTL line start, so
+                the dot renders on the far right and it reads ".1 ספרו מי אתם"
+                — the very bug this was meant to fix. Verified by measuring
+                per-character getBoundingClientRect in an RTL context. */}
             <span className="rounded-full bg-foreground/5 px-3 py-1 text-xs text-foreground/40">
-              <bdi dir="ltr">{i + 1}.</bdi> {step}
+              <bdi dir="ltr">{i + 1}</bdi>. {step}
             </span>
           </span>
         ))}

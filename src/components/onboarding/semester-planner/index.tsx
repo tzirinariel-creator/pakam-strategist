@@ -657,8 +657,12 @@ export function SemesterPlanner({
 
   if (showSummary) {
     return (
-      <div className="flex w-full flex-col items-start justify-center gap-5 lg:flex-row">
-        <div className="w-full lg:max-w-md">
+      /* Same container-query trap as the edit view, and worse here: the summary
+         card took a fixed 448px, leaving the timetable ~364px — so the screen
+         that asks "approve this semester?" showed a list instead of the week
+         being approved. Split at xl, and proportionally rather than fixed. */
+      <div className="flex w-full flex-col items-start justify-center gap-5 xl:flex-row">
+        <div className="w-full xl:w-[38%]">
         <SemesterSummary
           year={currentYear}
           semester={currentSemester}
@@ -677,7 +681,7 @@ export function SemesterPlanner({
         {/* #17 (12.7) — "לא באמת ראיתי את התכנון": the real weekly grid, right
             next to the approve button. Read-only here; edits go through the
             "הצגה ועריכה" link. */}
-        <div className="w-full min-w-0 lg:flex-1">
+        <div className="w-full min-w-0 xl:flex-1">
           <LiveTimetable
             courses={groupFilteredCourses}
             currentSemester={currentSemester}
@@ -820,9 +824,15 @@ export function SemesterPlanner({
           instantly instead of being buried at the bottom (gal-3 #19; the
           Coursicle-style list↔timetable pairing). */}
       <div className="animate-stagger-3 w-full max-w-7xl">
-        <div className="flex flex-col gap-4 lg:flex-row lg:items-start">
+        {/* Split at xl, not lg. WeeklyTimetable is a container-query component:
+            below 512px of its OWN box it degrades to a day-by-day agenda list.
+            At the lg breakpoint (1024px viewport) minus the 256px sidebar, a 62%
+            column resolves to ~392px — under the threshold — so the side-by-side
+            layout was silently trading the grid away for a list. Below xl the
+            timetable now takes the full row, which always clears 512px. */}
+        <div className="flex flex-col gap-4 xl:flex-row xl:items-start">
           {/* Course Pool — browse & add, on the start side */}
-          <div className="w-full rounded-xl border border-border/40 bg-card/20 p-4 lg:w-[38%] lg:max-h-[600px] lg:overflow-hidden lg:flex lg:flex-col">
+          <div className="w-full rounded-xl border border-border/40 bg-card/20 p-4 xl:w-[38%] xl:max-h-[600px] xl:overflow-hidden xl:flex xl:flex-col">
             <CoursePool
               allCourses={mergedCourses}
               currentYear={currentYear}
@@ -841,7 +851,7 @@ export function SemesterPlanner({
           {/* Right column: the LIVE TIMETABLE first — the plan IS a schedule,
               not a list (#20) — with the course list under it. Both update the
               moment you pick a course from the pool. */}
-          <div className="flex w-full flex-col gap-4 lg:w-[62%]">
+          <div className="flex w-full min-w-0 flex-col gap-4 xl:w-[62%]">
             {/* Live schedule of the picked courses. Tab-toggles to exams. */}
             <div className="rounded-xl border border-border/40 bg-card/20 p-4">
           {/* Tab header */}
