@@ -1,3488 +1,3488 @@
 [
- {
-  "code": "0651-1001",
-  "name": "קריאה מודרכת א'",
-  "credits": 2.0,
-  "year": 1,
-  "section": "קורסי חובה מתכנית פכ\"מ",
-  "courseType": "MANDATORY",
-  "discipline": "PPE_CORE",
-  "semesters": [
-   "FALL"
-  ]
- },
- {
-  "code": "0651-1002",
-  "name": "קריאה מודרכת ב'",
-  "credits": 2.0,
-  "year": 1,
-  "section": "קורסי חובה מתכנית פכ\"מ",
-  "courseType": "MANDATORY",
-  "discipline": "PPE_CORE",
-  "semesters": [
-   "SPRING"
-  ]
- },
- {
-  "code": "0651-1003",
-  "name": "פילוסופיה של מדעי החברה",
-  "credits": 4.0,
-  "year": 1,
-  "section": "קורסי חובה מתכנית פכ\"מ",
-  "courseType": "MANDATORY",
-  "discipline": "PPE_CORE",
-  "semesters": [
-   "SPRING"
-  ]
- },
- {
-  "code": "0651-1005",
-  "name": "סטטיסטיקה לפכ\"מ",
-  "credits": 5.0,
-  "year": 1,
-  "section": "קורסי חובה מתכנית פכ\"מ",
-  "courseType": "MANDATORY",
-  "discipline": "PPE_CORE",
-  "semesters": [
-   "SPRING"
-  ]
- },
- {
-  "code": "0651-1007",
-  "name": "מתמטיקה לפכ\"מ",
-  "credits": 5.0,
-  "year": 1,
-  "section": "קורסי חובה מתכנית פכ\"מ",
-  "courseType": "MANDATORY",
-  "discipline": "PPE_CORE",
-  "semesters": [
-   "FALL"
-  ]
- },
- {
-  "code": "0651-1019",
-  "name": "תרגיל צמוד למבוא לפילוסופיה פוליטית - פכ\"מ",
-  "credits": 2.0,
-  "year": 1,
-  "section": "קורסי חובה מתכנית פכ\"מ",
-  "courseType": "MANDATORY",
-  "discipline": "PPE_CORE",
-  "semesters": [
-   "FALL"
-  ]
- },
- {
-  "code": "0618-1018",
-  "name": "מבוא לפילוסופיה של המוסר",
-  "credits": 2.0,
-  "year": 1,
-  "section": "קורסי חובה מפילוסופיה",
-  "courseType": "MANDATORY",
-  "discipline": "PHILOSOPHY",
-  "semesters": [
-   "FALL"
-  ]
- },
- {
-  "code": "0618-1012",
-  "name": "מבוא ללוגיקה",
-  "credits": 4.0,
-  "year": 1,
-  "section": "קורסי חובה מפילוסופיה",
-  "courseType": "MANDATORY",
-  "discipline": "PHILOSOPHY",
-  "semesters": [
-   "FALL"
-  ]
- },
- {
-  "code": "0618-1019",
-  "name": "מבוא לפילוסופיה פוליטית",
-  "credits": 2.0,
-  "year": 1,
-  "section": "קורסי חובה מפילוסופיה",
-  "courseType": "MANDATORY",
-  "discipline": "PHILOSOPHY",
-  "semesters": [
-   "FALL"
-  ]
- },
- {
-  "code": "0618-1037",
-  "name": "מבוא לתורת ההכרה ומטאפיזיקה",
-  "credits": 2.0,
-  "year": 1,
-  "section": "קורסי חובה מפילוסופיה",
-  "courseType": "MANDATORY",
-  "discipline": "PHILOSOPHY",
-  "semesters": [
-   "SPRING"
-  ]
- },
- {
-  "code": "0618-1032",
-  "name": "מבוא לפילוסופיה חדשה",
-  "credits": 2.0,
-  "year": 1,
-  "section": "קורסי חובה מפילוסופיה",
-  "courseType": "MANDATORY",
-  "discipline": "PHILOSOPHY",
-  "semesters": [
-   "SPRING"
-  ]
- },
- {
-  "code": "1011-2103",
-  "name": "מיקרו כלכלה א' - קבלת החלטות כלכליות",
-  "credits": 5.0,
-  "year": 1,
-  "section": "קורסי חובה מביה\"ס לכלכלה",
-  "courseType": "MANDATORY",
-  "discipline": "ECONOMICS",
-  "semesters": [
-   "SPRING"
-  ]
- },
- {
-  "code": "1031-1002",
-  "name": "פוליטיקה ומשטר בישראל",
-  "credits": 4.0,
-  "year": 1,
-  "section": "קורסי חובה מהחוג למדע המדינה",
-  "courseType": "MANDATORY",
-  "discipline": "POLITICAL_SCIENCE",
-  "semesters": [
-   "FALL"
-  ]
- },
- {
-  "code": "1031-1100",
-  "name": "כתיבה ומחקר במדע המדינה",
-  "credits": 4.0,
-  "year": 1,
-  "section": "קורסי חובה מהחוג למדע המדינה",
-  "courseType": "MANDATORY",
-  "discipline": "POLITICAL_SCIENCE",
-  "semesters": [
-   "FALL"
-  ]
- },
- {
-  "code": "1031-2108",
-  "name": "אסטרטגיה בעידן המודרני",
-  "credits": 3.0,
-  "year": 1,
-  "section": "קורסי חובה מהחוג למדע המדינה",
-  "courseType": "MANDATORY",
-  "discipline": "POLITICAL_SCIENCE",
-  "semesters": [
-   "SPRING"
-  ]
- },
- {
-  "code": "1411-9107",
-  "name": "חקיקה ורגולציה",
-  "credits": 4.0,
-  "year": 1,
-  "section": "קורסי חובה מהחוג למדע המדינה",
-  "courseType": "MANDATORY",
-  "discipline": "POLITICAL_SCIENCE",
-  "semesters": [
-   "SPRING"
-  ]
- },
- {
-  "code": "0616-1017",
-  "name": "שפינוזה ומנדלסון - קריאות בהגות יהודית מודרנית",
-  "credits": 2.0,
-  "year": 1,
-  "section": "קורסי בחירה בפילסופיה",
-  "courseType": "ELECTIVE",
-  "discipline": "GENERAL",
-  "semesters": [
-   "FALL"
-  ]
- },
- {
-  "code": "0616-1215",
-  "name": "קריאה במורה הנבוכים לרמב\"ם",
-  "credits": 2.0,
-  "year": 1,
-  "section": "קורסי בחירה בפילסופיה",
-  "courseType": "ELECTIVE",
-  "discipline": "GENERAL",
-  "semesters": [
-   "SPRING"
-  ]
- },
- {
-  "code": "0616-3227",
-  "name": "אתיקה בעידן הדיגיטלי",
-  "credits": 2.0,
-  "year": 1,
-  "section": "קורסי בחירה בפילסופיה",
-  "courseType": "ELECTIVE",
-  "discipline": "GENERAL",
-  "semesters": [
-   "FALL"
-  ]
- },
- {
-  "code": "0616-3228",
-  "name": "סקס, סמים, אימהות ויהודים - קריאה בכתבים של זיגמונד (שלמה) פרויד",
-  "credits": 2.0,
-  "year": 1,
-  "section": "קורסי בחירה בפילסופיה",
-  "courseType": "ELECTIVE",
-  "discipline": "GENERAL",
-  "semesters": [
-   "SPRING"
-  ]
- },
- {
-  "code": "0616-6037",
-  "name": "",
-  "credits": 4.0,
-  "year": 1,
-  "section": "קורסי בחירה בפילסופיה",
-  "courseType": "ELECTIVE",
-  "discipline": "GENERAL",
-  "semesters": [
-   "FALL"
-  ]
- },
- {
-  "code": "0616-6043",
-  "name": "ארתור שפונהאואר והשפעתו על התרבות העברית במפנה המאה",
-  "credits": 2.0,
-  "year": 1,
-  "section": "קורסי בחירה בפילסופיה",
-  "courseType": "ELECTIVE",
-  "discipline": "GENERAL",
-  "semesters": [
-   "SPRING"
-  ]
- },
- {
-  "code": "0618-1015",
-  "name": "מבוא לפילוסופיה של השפה",
-  "credits": 2.0,
-  "year": 1,
-  "section": "קורסי בחירה בפילסופיה",
-  "courseType": "ELECTIVE",
-  "discipline": "GENERAL",
-  "semesters": [
-   "SPRING"
-  ]
- },
- {
-  "code": "0618-1016",
-  "name": "מבוא לפילוסופיה של הדת",
-  "credits": 2.0,
-  "year": 1,
-  "section": "קורסי בחירה בפילסופיה",
-  "courseType": "ELECTIVE",
-  "discipline": "GENERAL",
-  "semesters": [
-   "SPRING"
-  ]
- },
- {
-  "code": "0618-1030",
-  "name": "מבוא לפילוסופיה יוונית",
-  "credits": 2.0,
-  "year": 1,
-  "section": "קורסי בחירה בפילסופיה",
-  "courseType": "ELECTIVE",
-  "discipline": "GENERAL",
-  "semesters": [
-   "FALL"
-  ]
- },
- {
-  "code": "0618-1042",
-  "name": "מבוא לפילוסופיה הודית",
-  "credits": 2.0,
-  "year": 1,
-  "section": "קורסי בחירה בפילסופיה",
-  "courseType": "ELECTIVE",
-  "discipline": "GENERAL",
-  "semesters": [
-   "SPRING"
-  ]
- },
- {
-  "code": "0618-1043",
-  "name": "מבוא לפילוסופיה סינית",
-  "credits": 2.0,
-  "year": 1,
-  "section": "קורסי בחירה בפילסופיה",
-  "courseType": "ELECTIVE",
-  "discipline": "GENERAL",
-  "semesters": [
-   "SPRING"
-  ]
- },
- {
-  "code": "0618-1068",
-  "name": "מיומנויות יסוד: קריאה מודרכת דקארט",
-  "credits": 2.0,
-  "year": 1,
-  "section": "קורסי בחירה בפילסופיה",
-  "courseType": "ELECTIVE",
-  "discipline": "GENERAL",
-  "semesters": [
-   "SPRING"
-  ]
- },
- {
-  "code": "1011-2500",
-  "name": "חשבונאות לכלכלנים",
-  "credits": 2.0,
-  "year": 1,
-  "section": "קורסי בחירה מביה\"ס לכלכלה",
-  "courseType": "ELECTIVE",
-  "discipline": "ECONOMICS",
-  "semesters": [
-   "SPRING"
-  ]
- },
- {
-  "code": "1031-0906",
-  "name": "תורת המוסר והמדינה",
-  "credits": 3.0,
-  "year": 1,
-  "section": "קורסי בחירה מדע המדינה",
-  "courseType": "ELECTIVE",
-  "discipline": "POLITICAL_SCIENCE",
-  "semesters": [
-   "SPRING"
-  ]
- },
- {
-  "code": "1031-0922",
-  "name": "טכנולוגיה, חברה, מדינה",
-  "credits": 3.0,
-  "year": 1,
-  "section": "קורסי בחירה מדע המדינה",
-  "courseType": "ELECTIVE",
-  "discipline": "POLITICAL_SCIENCE",
-  "semesters": [
-   "SPRING"
-  ]
- },
- {
-  "code": "1031-0939",
-  "name": "דמוקרטיה ובינה מלאכותית: אתגרים, הזדמנויות ורגולציה",
-  "credits": 3.0,
-  "year": 1,
-  "section": "קורסי בחירה מדע המדינה",
-  "courseType": "ELECTIVE",
-  "discipline": "POLITICAL_SCIENCE",
-  "semesters": [
-   "SPRING"
-  ]
- },
- {
-  "code": "1031-0976",
-  "name": "משפט ממשל ושינוי חברתי - תיאוריה",
-  "credits": 2.0,
-  "year": 1,
-  "section": "קורסי בחירה מדע המדינה",
-  "courseType": "ELECTIVE",
-  "discipline": "POLITICAL_SCIENCE",
-  "semesters": [
-   "FALL"
-  ]
- },
- {
-  "code": "1031-1800",
-  "name": "מנהל ציבורי ומדיניות ציבורית",
-  "credits": 3.0,
-  "year": 1,
-  "section": "קורסי בחירה מדע המדינה",
-  "courseType": "ELECTIVE",
-  "discipline": "POLITICAL_SCIENCE",
-  "semesters": [
-   "SPRING"
-  ]
- },
- {
-  "code": "1031-3793",
-  "name": "תיאוריות של אינטגרציה",
-  "credits": 3.0,
-  "year": 1,
-  "section": "קורסי בחירה מדע המדינה",
-  "courseType": "ELECTIVE",
-  "discipline": "POLITICAL_SCIENCE",
-  "semesters": [
-   "SPRING"
-  ]
- },
- {
-  "code": "1031-3821",
-  "name": "אירופה במשבר",
-  "credits": 3.0,
-  "year": 1,
-  "section": "קורסי בחירה מדע המדינה",
-  "courseType": "ELECTIVE",
-  "discipline": "POLITICAL_SCIENCE",
-  "semesters": [
-   "SPRING"
-  ]
- },
- {
-  "code": "1031-3922",
-  "name": "טרור ומוסר ציבורי",
-  "credits": 3.0,
-  "year": 1,
-  "section": "קורסי בחירה מדע המדינה",
-  "courseType": "ELECTIVE",
-  "discipline": "POLITICAL_SCIENCE",
-  "semesters": [
-   "FALL"
-  ]
- },
- {
-  "code": "1031-3996",
-  "name": "בין שוק למדינה: שירותים ציבוריים בישראל ובעולם",
-  "credits": 3.0,
-  "year": 1,
-  "section": "קורסי בחירה מדע המדינה",
-  "courseType": "ELECTIVE",
-  "discipline": "POLITICAL_SCIENCE",
-  "semesters": [
-   "FALL"
-  ]
- },
- {
-  "code": "1221-4326",
-  "name": "",
-  "credits": 2.0,
-  "year": 1,
-  "section": "קורסי בחירה ניהול",
-  "courseType": "ELECTIVE",
-  "discipline": "GENERAL",
-  "semesters": [
-   "SPRING"
-  ]
- },
- {
-  "code": "0910-1000",
-  "name": "דיני איכות הסביבה",
-  "credits": 2.0,
-  "year": 1,
-  "section": "קורסי בחירה לימודי סביבה",
-  "courseType": "ELECTIVE",
-  "discipline": "GENERAL",
-  "semesters": [
-   "SPRING"
-  ]
- },
- {
-  "code": "0910-2021",
-  "name": "מבוא לחשיבה סביבתית",
-  "credits": 2.0,
-  "year": 1,
-  "section": "קורסי בחירה לימודי סביבה",
-  "courseType": "ELECTIVE",
-  "discipline": "GENERAL",
-  "semesters": []
- },
- {
-  "code": "0910-2030",
-  "name": "Introduction to Sustainability Science",
-  "credits": 3.0,
-  "year": 1,
-  "section": "קורסי בחירה לימודי סביבה",
-  "courseType": "ELECTIVE",
-  "discipline": "GENERAL",
-  "semesters": [
-   "SPRING"
-  ]
- },
- {
-  "code": "0910-4002",
-  "name": "מבוא לקיימות עירונית",
-  "credits": 2.0,
-  "year": 1,
-  "section": "קורסי בחירה לימודי סביבה",
-  "courseType": "ELECTIVE",
-  "discipline": "GENERAL",
-  "semesters": [
-   "FALL"
-  ]
- },
- {
-  "code": "0687-2616",
-  "name": "הלוטוס והחרב: אלימות ומלחמה בבודהיזם היפני",
-  "credits": 2.0,
-  "year": 1,
-  "section": "קורסי בחירה מזרח אסיה",
-  "courseType": "ELECTIVE",
-  "discipline": "GENERAL",
-  "semesters": [
-   "SPRING"
-  ]
- },
- {
-  "code": "0687-2623",
-  "name": "קלאסיקה מכוננת, כלי חדש: האם Ai יכול להבין את קונפוציוס?",
-  "credits": 2.0,
-  "year": 1,
-  "section": "קורסי בחירה מזרח אסיה",
-  "courseType": "ELECTIVE",
-  "discipline": "GENERAL",
-  "semesters": [
-   "SPRING"
-  ]
- },
- {
-  "code": "0662-1011",
-  "name": "מבוא למחשבה הומאניסטית",
-  "credits": 2.0,
-  "year": 1,
-  "section": "קורסי בחירה התכנית הרב תחומית מדעי הרוח",
-  "courseType": "ELECTIVE",
-  "discipline": "GENERAL",
-  "semesters": [
-   "FALL"
-  ]
- },
- {
-  "code": "0662-2252",
-  "name": "אתגרים לחוזה החברתי בעידן הניאו-ליברלי והדיגיטלי",
-  "credits": 2.0,
-  "year": 1,
-  "section": "קורסי בחירה התכנית הרב תחומית מדעי הרוח",
-  "courseType": "ELECTIVE",
-  "discipline": "GENERAL",
-  "semesters": [
-   "FALL"
-  ]
- },
- {
-  "code": "0662-2645",
-  "name": "שפת הפעולה: גלגולי מושג הפעולה בפסיכואנליזה ובראי הפילוסופיה",
-  "credits": 2.0,
-  "year": 1,
-  "section": "קורסי בחירה התכנית הרב תחומית מדעי הרוח",
-  "courseType": "ELECTIVE",
-  "discipline": "GENERAL",
-  "semesters": [
-   "SPRING"
-  ]
- },
- {
-  "code": "1662-1108",
-  "name": "A Political History of the Economy",
-  "credits": 4.0,
-  "year": 1,
-  "section": "קורסי בחירה התכנית הרב תחומית מדעי הרוח",
-  "courseType": "ELECTIVE",
-  "discipline": "GENERAL",
-  "semesters": [
-   "FALL"
-  ]
- },
- {
-  "code": "1662-1118",
-  "name": "From Pythagoras to Google: Social Histories of Knowledge",
-  "credits": 4.0,
-  "year": 1,
-  "section": "קורסי בחירה התכנית הרב תחומית מדעי הרוח",
-  "courseType": "ELECTIVE",
-  "discipline": "GENERAL",
-  "semesters": [
-   "FALL"
-  ]
- },
- {
-  "code": "1662-1153",
-  "name": "Sustainable Growth Strategies for the Modern Business",
-  "credits": 2.0,
-  "year": 1,
-  "section": "קורסי בחירה התכנית הרב תחומית מדעי הרוח",
-  "courseType": "ELECTIVE",
-  "discipline": "GENERAL",
-  "semesters": [
-   "SPRING"
-  ]
- },
- {
-  "code": "1662-1206",
-  "name": "Listening to God: the Concept of Revelation in Modern Jewish Thought",
-  "credits": 2.0,
-  "year": 1,
-  "section": "קורסי בחירה התכנית הרב תחומית מדעי הרוח",
-  "courseType": "ELECTIVE",
-  "discipline": "GENERAL",
-  "semesters": [
-   "FALL"
-  ]
- },
- {
-  "code": "1662-1216",
-  "name": "Jewish and Islamic Philosophy: Crosscurrents and Intersections",
-  "credits": 2.0,
-  "year": 1,
-  "section": "קורסי בחירה התכנית הרב תחומית מדעי הרוח",
-  "courseType": "ELECTIVE",
-  "discipline": "GENERAL",
-  "semesters": [
-   "SPRING"
-  ]
- },
- {
-  "code": "1662-1300",
-  "name": "Introduction to Modern Jewish Thought",
-  "credits": 4.0,
-  "year": 1,
-  "section": "קורסי בחירה התכנית הרב תחומית מדעי הרוח",
-  "courseType": "ELECTIVE",
-  "discipline": "GENERAL",
-  "semesters": [
-   "SPRING"
-  ]
- },
- {
-  "code": "0621-1974",
-  "name": "וצדק לכל? ארה\"ב במאות ה-19 וה-20",
-  "credits": 4.0,
-  "year": 1,
-  "section": "קורסי בחירה החוג להיסטוריה כללית",
-  "courseType": "ELECTIVE",
-  "discipline": "GENERAL",
-  "semesters": [
-   "SPRING"
-  ]
- },
- {
-  "code": "0608-1010",
-  "name": "מבוא לתיאוריה קווירית",
-  "credits": 2.0,
-  "year": 1,
-  "section": "קורסי בחירה נוספים",
-  "courseType": "ELECTIVE",
-  "discipline": "GENERAL",
-  "semesters": [
-   "SPRING"
-  ]
- },
- {
-  "code": "0609-1013",
-  "name": "מהי יהדות? מבוא למחשבת ישראל לדורותיה",
-  "credits": 2.0,
-  "year": 1,
-  "section": "קורסי בחירה נוספים",
-  "courseType": "ELECTIVE",
-  "discipline": "GENERAL",
-  "semesters": []
- },
- {
-  "code": "0609-1020",
-  "name": "מהי גזענות? היסטוריה, תאוריה ומאבק",
-  "credits": 2.0,
-  "year": 1,
-  "section": "קורסי בחירה נוספים",
-  "courseType": "ELECTIVE",
-  "discipline": "GENERAL",
-  "semesters": []
- },
- {
-  "code": "0609-1212",
-  "name": "קורס חירום : מהי דמוקרטיה ?",
-  "credits": 2.0,
-  "year": 1,
-  "section": "קורסי בחירה נוספים",
-  "courseType": "ELECTIVE",
-  "discipline": "GENERAL",
-  "semesters": [
-   "SPRING"
-  ]
- },
- {
-  "code": "0609-1229",
-  "name": "המלחמה: בתנ\"ך ובמחשבת ישראל",
-  "credits": 2.0,
-  "year": 1,
-  "section": "קורסי בחירה נוספים",
-  "courseType": "ELECTIVE",
-  "discipline": "GENERAL",
-  "semesters": [
-   "FALL"
-  ]
- },
- {
-  "code": "0609-1303",
-  "name": "אלוהים מחפש משמעות: חקר הדת, מושג האל ותפיסת האדם במדעי הרוח והחברה",
-  "credits": 2.0,
-  "year": 1,
-  "section": "קורסי בחירה נוספים",
-  "courseType": "ELECTIVE",
-  "discipline": "GENERAL",
-  "semesters": [
-   "FALL"
-  ]
- },
- {
-  "code": "0622-2332",
-  "name": "רעיונות נודדים ועולמות שזורים: היסטוריה אינטלקטואלית של המזה\"ת במאה ה-20",
-  "credits": 4.0,
-  "year": 1,
-  "section": "קורסי בחירה נוספים",
-  "courseType": "ELECTIVE",
-  "discipline": "GENERAL",
-  "semesters": [
-   "SPRING"
-  ]
- },
- {
-  "code": "1880-0901",
-  "name": "משבר האקלים וקיימות: מבט רב תחומי",
-  "credits": 2.0,
-  "year": 1,
-  "section": "קורסי בחירה נוספים",
-  "courseType": "ELECTIVE",
-  "discipline": "GENERAL",
-  "semesters": []
- },
- {
-  "code": "1882-0301",
-  "name": "צעדים ראשונים במדעי המחשב ותכנות בפייתון",
-  "credits": 2.0,
-  "year": 1,
-  "section": "קורסי בחירה נוספים",
-  "courseType": "ELECTIVE",
-  "discipline": "GENERAL",
-  "semesters": []
- },
- {
-  "code": "1882-1002",
-  "name": "פוליטיקה אנושית: מוות, חופש וחיפוש משמעות",
-  "credits": 2.0,
-  "year": 1,
-  "section": "קורסי בחירה נוספים",
-  "courseType": "ELECTIVE",
-  "discipline": "GENERAL",
-  "semesters": []
- },
- {
-  "code": "0651-1010",
-  "name": "קורס אינטגרטיבי לפכ\"מ: כלכלה פוליטית בינלאומית",
-  "credits": 3.0,
-  "year": 2,
-  "section": "קורסי חובה פכ\"מ",
-  "courseType": "MANDATORY",
-  "discipline": "PPE_CORE",
-  "semesters": [
-   "SPRING"
-  ]
- },
- {
-  "code": "0618-2200",
-  "name": "מבוא לפילוסופיה של המאה התשע-עשרה",
-  "credits": 2.0,
-  "year": 2,
-  "section": "קורסי חובה פילוסופיה",
-  "courseType": "MANDATORY",
-  "discipline": "PHILOSOPHY",
-  "semesters": [
-   "FALL"
-  ]
- },
- {
-  "code": "0618-2601",
-  "name": "פילוסופיה של המוסר - שיעור המשך",
-  "credits": 2.0,
-  "year": 2,
-  "section": "קורסי חובה פילוסופיה",
-  "courseType": "MANDATORY",
-  "discipline": "PHILOSOPHY",
-  "semesters": [
-   "SPRING"
-  ]
- },
- {
-  "code": "0618-2103",
-  "name": "שיעור יסוד: הגורגיאס של אפלטון",
-  "credits": 2.0,
-  "year": 2,
-  "section": "קורסי יסוד החוג לפילוסופיה",
-  "courseType": "ELECTIVE",
-  "discipline": "PHILOSOPHY",
-  "semesters": [
-   "FALL"
-  ]
- },
- {
-  "code": "0618-2104",
-  "name": "שיעור יסוד: פילוסופיה בהיסטוריה",
-  "credits": 2.0,
-  "year": 2,
-  "section": "קורסי יסוד החוג לפילוסופיה",
-  "courseType": "ELECTIVE",
-  "discipline": "PHILOSOPHY",
-  "semesters": [
-   "FALL"
-  ]
- },
- {
-  "code": "0618-2243",
-  "name": "שיעור יסוד: פילוסופיה של הטכנולוגיה",
-  "credits": 2.0,
-  "year": 2,
-  "section": "קורסי יסוד החוג לפילוסופיה",
-  "courseType": "ELECTIVE",
-  "discipline": "PHILOSOPHY",
-  "semesters": [
-   "FALL"
-  ]
- },
- {
-  "code": "0618-2264",
-  "name": "שיעור יסוד: סוגיות בפילוסופיה של המתמטיקה",
-  "credits": 2.0,
-  "year": 2,
-  "section": "קורסי יסוד החוג לפילוסופיה",
-  "courseType": "ELECTIVE",
-  "discipline": "PHILOSOPHY",
-  "semesters": [
-   "SPRING"
-  ]
- },
- {
-  "code": "0618-2458",
-  "name": "שיעור יסוד: ניהיליזם",
-  "credits": 2.0,
-  "year": 2,
-  "section": "קורסי יסוד החוג לפילוסופיה",
-  "courseType": "ELECTIVE",
-  "discipline": "PHILOSOPHY",
-  "semesters": [
-   "SPRING"
-  ]
- },
- {
-  "code": "0618-2459",
-  "name": "Elementary Course: the Ethics of War",
-  "credits": 2.0,
-  "year": 2,
-  "section": "קורסי יסוד החוג לפילוסופיה",
-  "courseType": "ELECTIVE",
-  "discipline": "PHILOSOPHY",
-  "semesters": [
-   "SPRING"
-  ]
- },
- {
-  "code": "0618-2531",
-  "name": "שיעור יסוד: חכמת הזיקנה - מקיקרו עד סימון דה בובואר",
-  "credits": 2.0,
-  "year": 2,
-  "section": "קורסי יסוד החוג לפילוסופיה",
-  "courseType": "ELECTIVE",
-  "discipline": "PHILOSOPHY",
-  "semesters": [
-   "FALL"
-  ]
- },
- {
-  "code": "0618-2595",
-  "name": "Elementary Course: Hegel's Philosophy of Right",
-  "credits": 2.0,
-  "year": 2,
-  "section": "קורסי יסוד החוג לפילוסופיה",
-  "courseType": "ELECTIVE",
-  "discipline": "PHILOSOPHY",
-  "semesters": [
-   "FALL"
-  ]
- },
- {
-  "code": "0618-2811",
-  "name": "שיעור יסוד: הרמן כהן ומרטין בובר - קריאה בפילוסופיה יהודית מודרנית",
-  "credits": 2.0,
-  "year": 2,
-  "section": "קורסי יסוד החוג לפילוסופיה",
-  "courseType": "ELECTIVE",
-  "discipline": "PHILOSOPHY",
-  "semesters": [
-   "SPRING"
-  ]
- },
- {
-  "code": "0618-2813",
-  "name": "שיעור יסוד: רמב\"ם פינת יהודה הלוי: תור הזהב של הפילוסופיה היהודית",
-  "credits": 2.0,
-  "year": 2,
-  "section": "קורסי יסוד החוג לפילוסופיה",
-  "courseType": "ELECTIVE",
-  "discipline": "PHILOSOPHY",
-  "semesters": [
-   "FALL"
-  ]
- },
- {
-  "code": "0618-8013",
-  "name": "שיעור יסוד: סולידריות",
-  "credits": 2.0,
-  "year": 2,
-  "section": "קורסי יסוד החוג לפילוסופיה",
-  "courseType": "ELECTIVE",
-  "discipline": "PHILOSOPHY",
-  "semesters": [
-   "FALL"
-  ]
- },
- {
-  "code": "0618-8015",
-  "name": "שיעור יסוד: פילוסופית הדת של קירקגור",
-  "credits": 2.0,
-  "year": 2,
-  "section": "קורסי יסוד החוג לפילוסופיה",
-  "courseType": "ELECTIVE",
-  "discipline": "PHILOSOPHY",
-  "semesters": [
-   "FALL"
-  ]
- },
- {
-  "code": "0618-8016",
-  "name": "שיעור יסוד: פילוסופיה סטואית",
-  "credits": 2.0,
-  "year": 2,
-  "section": "קורסי יסוד החוג לפילוסופיה",
-  "courseType": "ELECTIVE",
-  "discipline": "PHILOSOPHY",
-  "semesters": [
-   "SPRING"
-  ]
- },
- {
-  "code": "0618-5235",
-  "name": "שיעור קריאה: קונפוציוס - \"מאמרות\"",
-  "credits": 2.0,
-  "year": 2,
-  "section": "קורסי קריאה החוג לפילוסופיה",
-  "courseType": "ELECTIVE",
-  "discipline": "PHILOSOPHY",
-  "semesters": [
-   "SPRING"
-  ]
- },
- {
-  "code": "0618-5260",
-  "name": "שיעור קריאה: אוגוסטינוס - \"וידויים\"",
-  "credits": 2.0,
-  "year": 2,
-  "section": "קורסי קריאה החוג לפילוסופיה",
-  "courseType": "ELECTIVE",
-  "discipline": "PHILOSOPHY",
-  "semesters": [
-   "FALL"
-  ]
- },
- {
-  "code": "0618-5263",
-  "name": "שיעור קריאה: חנה ארנדט - \"המצב האנושי\"",
-  "credits": 2.0,
-  "year": 2,
-  "section": "קורסי קריאה החוג לפילוסופיה",
-  "courseType": "ELECTIVE",
-  "discipline": "PHILOSOPHY",
-  "semesters": [
-   "FALL"
-  ]
- },
- {
-  "code": "0618-5269",
-  "name": "שיעור קריאה: פרידריך וילהלם שלינג - ''חקירות פילוסופיות על מהות חירות האדם\"",
-  "credits": 2.0,
-  "year": 2,
-  "section": "קורסי קריאה החוג לפילוסופיה",
-  "courseType": "ELECTIVE",
-  "discipline": "PHILOSOPHY",
-  "semesters": [
-   "SPRING"
-  ]
- },
- {
-  "code": "0618-5270",
-  "name": "שיעור קריאה: אדמונד הוסרל - \"אידיאות 1\"",
-  "credits": 2.0,
-  "year": 2,
-  "section": "קורסי קריאה החוג לפילוסופיה",
-  "courseType": "ELECTIVE",
-  "discipline": "PHILOSOPHY",
-  "semesters": [
-   "FALL"
-  ]
- },
- {
-  "code": "0618-5271",
-  "name": "שיעור קריאה: אנרי ברגסון - \"הצחוק\"",
-  "credits": 2.0,
-  "year": 2,
-  "section": "קורסי קריאה החוג לפילוסופיה",
-  "courseType": "ELECTIVE",
-  "discipline": "PHILOSOPHY",
-  "semesters": [
-   "SPRING"
-  ]
- },
- {
-  "code": "0618-5272",
-  "name": "שיעור קריאה: מרטין היידגר -\"סוף הפילוסופיה ומשימת החשיבה\"",
-  "credits": 2.0,
-  "year": 2,
-  "section": "קורסי קריאה החוג לפילוסופיה",
-  "courseType": "ELECTIVE",
-  "discipline": "PHILOSOPHY",
-  "semesters": [
-   "FALL"
-  ]
- },
- {
-  "code": "0618-5273",
-  "name": "שיעור קריאה: אדמונד הוסרל - \"הגיונות קרטזיאניים\"",
-  "credits": 2.0,
-  "year": 2,
-  "section": "קורסי קריאה החוג לפילוסופיה",
-  "courseType": "ELECTIVE",
-  "discipline": "PHILOSOPHY",
-  "semesters": [
-   "FALL"
-  ]
- },
- {
-  "code": "0618-5274",
-  "name": "שיעור קריאה: אן קונווי - \"עקרונות הפילוסופיה העתיקה והמודרנית\"",
-  "credits": 2.0,
-  "year": 2,
-  "section": "קורסי קריאה החוג לפילוסופיה",
-  "courseType": "ELECTIVE",
-  "discipline": "PHILOSOPHY",
-  "semesters": [
-   "SPRING"
-  ]
- },
- {
-  "code": "0618-5275",
-  "name": "שיעור קריאה: ניקולו מקיאוולי - \"הנסיך\" הפוליטיקה בין פילוסופיה, מדע וספרות",
-  "credits": 2.0,
-  "year": 2,
-  "section": "קורסי קריאה החוג לפילוסופיה",
-  "courseType": "ELECTIVE",
-  "discipline": "PHILOSOPHY",
-  "semesters": [
-   "SPRING"
-  ]
- },
- {
-  "code": "1011-2101",
-  "name": "מאקרו כלכלה: צמיחה כלכלית, מחזורי עסקים, משברים ומדיניות",
-  "credits": 6.0,
-  "year": 2,
-  "section": "קורסי חובה מכלכלה",
-  "courseType": "MANDATORY",
-  "discipline": "ECONOMICS",
-  "semesters": [
-   "FALL"
-  ]
- },
- {
-  "code": "1011-2106",
-  "name": "מבוא לאקונומטריקה",
-  "credits": 6.0,
-  "year": 2,
-  "section": "קורסי חובה מכלכלה",
-  "courseType": "MANDATORY",
-  "discipline": "ECONOMICS",
-  "semesters": [
-   "FALL"
-  ]
- },
- {
-  "code": "1011-2109",
-  "name": "מיקרו כלכלה ב' - כלכלת רווחה והשוק התחרותי",
-  "credits": 5.0,
-  "year": 2,
-  "section": "קורסי חובה מכלכלה",
-  "courseType": "MANDATORY",
-  "discipline": "ECONOMICS",
-  "semesters": [
-   "FALL"
-  ]
- },
- {
-  "code": "1031-1108",
-  "name": "פוליטיקה השוואתית",
-  "credits": 4.0,
-  "year": 2,
-  "section": "קורסי חובה ממדע המדינה",
-  "courseType": "MANDATORY",
-  "discipline": "POLITICAL_SCIENCE",
-  "semesters": [
-   "FALL",
-   "SPRING"
-  ]
- },
- {
-  "code": "1411-9102",
-  "name": "משפט חוקתי",
-  "credits": 4.0,
-  "year": 2,
-  "section": "קורסי יסוד משפטים",
-  "courseType": "LAW_FOUNDATION",
-  "discipline": "LAW",
-  "semesters": [
-   "FALL"
-  ]
- },
- {
-  "code": "1411-9103",
-  "name": "משפט ישראלי",
-  "credits": 4.0,
-  "year": 2,
-  "section": "קורסי יסוד משפטים",
-  "courseType": "LAW_FOUNDATION",
-  "discipline": "LAW",
-  "semesters": [
-   "SPRING"
-  ]
- },
- {
-  "code": "1411-9104",
-  "name": "דיני נזיקין",
-  "credits": 4.0,
-  "year": 2,
-  "section": "קורסי יסוד משפטים",
-  "courseType": "LAW_FOUNDATION",
-  "discipline": "LAW",
-  "semesters": [
-   "FALL",
-   "SPRING"
-  ]
- },
- {
-  "code": "1411-9109",
-  "name": "1411-9111",
-  "credits": 4.0,
-  "year": 2,
-  "section": "קורסי יסוד משפטים",
-  "courseType": "LAW_FOUNDATION",
-  "discipline": "LAW",
-  "semesters": []
- },
- {
-  "code": "1411-9111",
-  "name": "תיאוריה משפטית",
-  "credits": 4.0,
-  "year": 2,
-  "section": "קורסי יסוד משפטים",
-  "courseType": "LAW_FOUNDATION",
-  "discipline": "LAW",
-  "semesters": [
-   "SPRING"
-  ]
- },
- {
-  "code": "1411-9221",
-  "name": "דיני קניין",
-  "credits": 4.0,
-  "year": 2,
-  "section": "קורסי יסוד משפטים",
-  "courseType": "LAW_FOUNDATION",
-  "discipline": "LAW",
-  "semesters": [
-   "FALL",
-   "SPRING"
-  ]
- },
- {
-  "code": "1411-9223",
-  "name": "משפט בינלאומי פומבי",
-  "credits": 4.0,
-  "year": 2,
-  "section": "קורסי יסוד משפטים",
-  "courseType": "LAW_FOUNDATION",
-  "discipline": "LAW",
-  "semesters": [
-   "FALL",
-   "SPRING"
-  ]
- },
- {
-  "code": "1411-9224",
-  "name": "משפט מנהלי",
-  "credits": 4.0,
-  "year": 2,
-  "section": "קורסי יסוד משפטים",
-  "courseType": "LAW_FOUNDATION",
-  "discipline": "LAW",
-  "semesters": [
-   "FALL",
-   "SPRING"
-  ]
- },
- {
-  "code": "1411-9225",
-  "name": "דיני עבודה",
-  "credits": 4.0,
-  "year": 2,
-  "section": "קורסי יסוד משפטים",
-  "courseType": "LAW_FOUNDATION",
-  "discipline": "LAW",
-  "semesters": [
-   "SPRING"
-  ]
- },
- {
-  "code": "0651-3011",
-  "name": "לאומיות ורב-תרבותיות: תיאוריה מדינית וחוקתית השוואתית (בדגש על ישראל)",
-  "credits": 4.0,
-  "year": 2,
-  "section": "סמינרים תכנית פכ\"מ",
-  "courseType": "SEMINAR",
-  "discipline": "PPE_CORE",
-  "semesters": [
-   "SPRING"
-  ]
- },
- {
-  "code": "0616-3521",
-  "name": "פילוסופיה ושואה",
-  "credits": 2.0,
-  "year": 2,
-  "section": "סמינר בתחום המיקוד בו תוגש עבודה סמינריונית",
-  "courseType": "SEMINAR",
-  "discipline": "GENERAL",
-  "semesters": [
-   "SPRING"
-  ]
- },
- {
-  "code": "0616-4017",
-  "name": "",
-  "credits": 4.0,
-  "year": 2,
-  "section": "סמינר 2 ש\"ס",
-  "courseType": "SEMINAR",
-  "discipline": "GENERAL",
-  "semesters": [
-   "FALL"
-  ]
- },
- {
-  "code": "0618-3015",
-  "name": "ברוך שפינוזה: מאמר תיאלוגי מדיני",
-  "credits": 4.0,
-  "year": 2,
-  "section": "סמינר 4 ש\"ס",
-  "courseType": "SEMINAR",
-  "discipline": "GENERAL",
-  "semesters": [
-   "FALL"
-  ]
- },
- {
-  "code": "0618-3896",
-  "name": "זהות אישית",
-  "credits": 4.0,
-  "year": 2,
-  "section": "סמינר 4 ש\"ס",
-  "courseType": "SEMINAR",
-  "discipline": "GENERAL",
-  "semesters": [
-   "SPRING"
-  ]
- },
- {
-  "code": "0618-3917",
-  "name": "תודעה-עולם-ואחרים: ברנדום מקדאוול",
-  "credits": 4.0,
-  "year": 2,
-  "section": "סמינר 4 ש\"ס",
-  "courseType": "SEMINAR",
-  "discipline": "GENERAL",
-  "semesters": [
-   "FALL"
-  ]
- },
- {
-  "code": "0618-3919",
-  "name": "Genealogy",
-  "credits": 4.0,
-  "year": 2,
-  "section": "סמינר 4 ש\"ס",
-  "courseType": "SEMINAR",
-  "discipline": "GENERAL",
-  "semesters": [
-   "FALL"
-  ]
- },
- {
-  "code": "0618-3924",
-  "name": "מחשבה כחיים: עיונים בהגות קאנט, היגל, ברגסון ו-ווייטהד",
-  "credits": 4.0,
-  "year": 2,
-  "section": "סמינר 4 ש\"ס",
-  "courseType": "SEMINAR",
-  "discipline": "GENERAL",
-  "semesters": [
-   "FALL"
-  ]
- },
- {
-  "code": "0618-3925",
-  "name": "Schopenhauer and Nietzsche",
-  "credits": 4.0,
-  "year": 2,
-  "section": "סמינר 4 ש\"ס",
-  "courseType": "SEMINAR",
-  "discipline": "GENERAL",
-  "semesters": [
-   "SPRING"
-  ]
- },
- {
-  "code": "0618-3927",
-  "name": "אלוהים: תפקידו במטפיזיקה של אריסטו",
-  "credits": 4.0,
-  "year": 2,
-  "section": "סמינר 4 ש\"ס",
-  "courseType": "SEMINAR",
-  "discipline": "GENERAL",
-  "semesters": [
-   "SPRING"
-  ]
- },
- {
-  "code": "1031-0917",
-  "name": "Middle East Politics",
-  "credits": 4.0,
-  "year": 2,
-  "section": "סמינר בתחום המיקוד בו תוגש עבודה סמינריונית",
-  "courseType": "SEMINAR",
-  "discipline": "GENERAL",
-  "semesters": [
-   "FALL"
-  ]
- },
- {
-  "code": "1031-0925",
-  "name": "Democracy, Autocracy and Regime Change",
-  "credits": 4.0,
-  "year": 2,
-  "section": "סמינר 4 ש\"ס",
-  "courseType": "SEMINAR",
-  "discipline": "GENERAL",
-  "semesters": [
-   "SPRING"
-  ]
- },
- {
-  "code": "1031-0930",
-  "name": "יחסי צבא-מדינה דמוקרטיים",
-  "credits": 4.0,
-  "year": 2,
-  "section": "סמינר 4 ש\"ס",
-  "courseType": "SEMINAR",
-  "discipline": "GENERAL",
-  "semesters": [
-   "FALL"
-  ]
- },
- {
-  "code": "1031-3854",
-  "name": "דילמות במלחמות מודרניות",
-  "credits": 3.0,
-  "year": 2,
-  "section": "סמינר 4 ש\"ס",
-  "courseType": "SEMINAR",
-  "discipline": "GENERAL",
-  "semesters": [
-   "SPRING"
-  ]
- },
- {
-  "code": "1031-3970",
-  "name": "השאלה אודות הטכנולוגיה בסרטים של קריסטופר נולן",
-  "credits": 4.0,
-  "year": 2,
-  "section": "סמינר 3 ש\"ס",
-  "courseType": "SEMINAR",
-  "discipline": "GENERAL",
-  "semesters": [
-   "SPRING"
-  ]
- },
- {
-  "code": "1031-3989",
-  "name": "Improving Governance Through Experiments",
-  "credits": 4.0,
-  "year": 2,
-  "section": "סמינר 4 ש\"ס",
-  "courseType": "SEMINAR",
-  "discipline": "GENERAL",
-  "semesters": [
-   "FALL"
-  ]
- },
- {
-  "code": "0651-1012",
-  "name": "תולדות המחשבה הכלכלית בעת החדשה לפכ\"מ",
-  "credits": 2.0,
-  "year": 2,
-  "section": "קורסי בחירה מתכנית פכ\"מ",
-  "courseType": "ELECTIVE",
-  "discipline": "PPE_CORE",
-  "semesters": [
-   "FALL"
-  ]
- },
- {
-  "code": "0651-1014",
-  "name": "",
-  "credits": 3.0,
-  "year": 2,
-  "section": "קורסי בחירה מתכנית פכ\"מ",
-  "courseType": "ELECTIVE",
-  "discipline": "PPE_CORE",
-  "semesters": [
-   "FALL"
-  ]
- },
- {
-  "code": "0618-1059",
-  "name": "מבוא לאסתטיקה ולפילוסופיה של האמנות",
-  "credits": 2.0,
-  "year": 2,
-  "section": "קורסי בחירה בפילוסופיה",
-  "courseType": "ELECTIVE",
-  "discipline": "PHILOSOPHY",
-  "semesters": [
-   "FALL"
-  ]
- },
- {
-  "code": "0618-2030",
-  "name": "פילוסופיה יוונית - שיעור המשך",
-  "credits": 2.0,
-  "year": 2,
-  "section": "קורסי בחירה בפילוסופיה",
-  "courseType": "ELECTIVE",
-  "discipline": "PHILOSOPHY",
-  "semesters": [
-   "FALL"
-  ]
- },
- {
-  "code": "0618-2032",
-  "name": "פילוסופיה חדשה - שיעור המשך",
-  "credits": 2.0,
-  "year": 2,
-  "section": "קורסי בחירה בפילוסופיה",
-  "courseType": "ELECTIVE",
-  "discipline": "PHILOSOPHY",
-  "semesters": [
-   "FALL"
-  ]
- },
- {
-  "code": "0618-2202",
-  "name": "פילוסופיה של המאה ה-19 - שיעור המשך",
-  "credits": 2.0,
-  "year": 2,
-  "section": "קורסי בחירה בפילוסופיה",
-  "courseType": "ELECTIVE",
-  "discipline": "PHILOSOPHY",
-  "semesters": [
-   "SPRING"
-  ]
- },
- {
-  "code": "0618-2209",
-  "name": "פילוסופיה של הדת - שיעור המשך",
-  "credits": 2.0,
-  "year": 2,
-  "section": "קורסי בחירה בפילוסופיה",
-  "courseType": "ELECTIVE",
-  "discipline": "PHILOSOPHY",
-  "semesters": [
-   "SPRING"
-  ]
- },
- {
-  "code": "0618-2223",
-  "name": "פילוסופיה הודית - שיעור המשך",
-  "credits": 2.0,
-  "year": 2,
-  "section": "קורסי בחירה בפילוסופיה",
-  "courseType": "ELECTIVE",
-  "discipline": "PHILOSOPHY",
-  "semesters": [
-   "SPRING"
-  ]
- },
- {
-  "code": "0618-2225",
-  "name": "פילוסופיה סינית - שיעור המשך",
-  "credits": 2.0,
-  "year": 2,
-  "section": "קורסי בחירה בפילוסופיה",
-  "courseType": "ELECTIVE",
-  "discipline": "PHILOSOPHY",
-  "semesters": [
-   "SPRING"
-  ]
- },
- {
-  "code": "0618-2350",
-  "name": "תורת ההכרה ומטאפיזיקה - שיעור המשך",
-  "credits": 2.0,
-  "year": 2,
-  "section": "קורסי בחירה בפילוסופיה",
-  "courseType": "ELECTIVE",
-  "discipline": "PHILOSOPHY",
-  "semesters": [
-   "FALL"
-  ]
- },
- {
-  "code": "0618-2400",
-  "name": "אסתטיקה ופילוסופיה של האמנות - שיעור המשך",
-  "credits": 2.0,
-  "year": 2,
-  "section": "קורסי בחירה בפילוסופיה",
-  "courseType": "ELECTIVE",
-  "discipline": "PHILOSOPHY",
-  "semesters": [
-   "FALL"
-  ]
- },
- {
-  "code": "0618-7458",
-  "name": "לוגיקה - שיעור המשך",
-  "credits": 4.0,
-  "year": 2,
-  "section": "קורסי בחירה בפילוסופיה",
-  "courseType": "ELECTIVE",
-  "discipline": "PHILOSOPHY",
-  "semesters": []
- },
- {
-  "code": "0618-7585",
-  "name": "פילוסופיה פוליטית - שיעור המשך",
-  "credits": 2.0,
-  "year": 2,
-  "section": "קורסי בחירה בפילוסופיה",
-  "courseType": "ELECTIVE",
-  "discipline": "PHILOSOPHY",
-  "semesters": []
- },
- {
-  "code": "1011-2116",
-  "name": "אקונומטריקה יישומית",
-  "credits": 4.0,
-  "year": 2,
-  "section": "קורסי בחירה מביה\"ס לכלכלה",
-  "courseType": "ELECTIVE",
-  "discipline": "ECONOMICS",
-  "semesters": [
-   "SPRING"
-  ]
- },
- {
-  "code": "1011-3166",
-  "name": "תיאוריה כלכלית בעידן הכלכלה ההתנהגותית",
-  "credits": 2.0,
-  "year": 2,
-  "section": "קורסי בחירה מביה\"ס לכלכלה",
-  "courseType": "ELECTIVE",
-  "discipline": "ECONOMICS",
-  "semesters": [
-   "SPRING"
-  ]
- },
- {
-  "code": "1011-3369",
-  "name": "צמיחה כלכלית: תיאוריה, ממצאים ומדיניות",
-  "credits": 2.0,
-  "year": 2,
-  "section": "קורסי בחירה מביה\"ס לכלכלה",
-  "courseType": "ELECTIVE",
-  "discipline": "ECONOMICS",
-  "semesters": [
-   "SPRING"
-  ]
- },
- {
-  "code": "1011-3371",
-  "name": "Topics in Macroeconomics",
-  "credits": 3.0,
-  "year": 2,
-  "section": "קורסי בחירה מביה\"ס לכלכלה",
-  "courseType": "ELECTIVE",
-  "discipline": "ECONOMICS",
-  "semesters": [
-   "SPRING"
-  ]
- },
- {
-  "code": "1011-3484",
-  "name": "צדק חלוקתי",
-  "credits": 2.0,
-  "year": 2,
-  "section": "קורסי בחירה מביה\"ס לכלכלה",
-  "courseType": "ELECTIVE",
-  "discipline": "ECONOMICS",
-  "semesters": []
- },
- {
-  "code": "1011-3505",
-  "name": "תולדות המחשבה הכלכלית: נושאים ומחלוקות בהתפתחות התיאוריה הכלכלית.",
-  "credits": 2.0,
-  "year": 2,
-  "section": "קורסי בחירה מביה\"ס לכלכלה",
-  "courseType": "ELECTIVE",
-  "discipline": "ECONOMICS",
-  "semesters": [
-   "SPRING"
-  ]
- },
- {
-  "code": "1011-4605",
-  "name": "שיטות מתמטיות בכלכלה",
-  "credits": 5.0,
-  "year": 2,
-  "section": "קורסי בחירה מביה\"ס לכלכלה",
-  "courseType": "ELECTIVE",
-  "discipline": "ECONOMICS",
-  "semesters": []
- },
- {
-  "code": "1031-0903",
-  "name": "תורת המוסר והמדינה",
-  "credits": 2.0,
-  "year": 2,
-  "section": "קורסי בחירה החוג למדע המדינה",
-  "courseType": "ELECTIVE",
-  "discipline": "POLITICAL_SCIENCE",
-  "semesters": [
-   "SPRING"
-  ]
- },
- {
-  "code": "1031-0907",
-  "name": "מנהיגות ותהליכי דמוקרטיזציה",
-  "credits": 3.0,
-  "year": 2,
-  "section": "קורסי בחירה החוג למדע המדינה",
-  "courseType": "ELECTIVE",
-  "discipline": "POLITICAL_SCIENCE",
-  "semesters": [
-   "FALL"
-  ]
- },
- {
-  "code": "1031-0910",
-  "name": "לאומיות, זהות ופופוליזים",
-  "credits": 3.0,
-  "year": 2,
-  "section": "קורסי בחירה החוג למדע המדינה",
-  "courseType": "ELECTIVE",
-  "discipline": "POLITICAL_SCIENCE",
-  "semesters": [
-   "SPRING"
-  ]
- },
- {
-  "code": "1031-0915",
-  "name": "יחסי ישראל-ארה\"ב על רקע עיצוב מדיניות החוץ האמריקנית",
-  "credits": 2.0,
-  "year": 2,
-  "section": "קורסי בחירה החוג למדע המדינה",
-  "courseType": "ELECTIVE",
-  "discipline": "POLITICAL_SCIENCE",
-  "semesters": [
-   "FALL"
-  ]
- },
- {
-  "code": "1031-0926",
-  "name": "Middle East Politics",
-  "credits": 3.0,
-  "year": 2,
-  "section": "קורסי בחירה החוג למדע המדינה",
-  "courseType": "ELECTIVE",
-  "discipline": "POLITICAL_SCIENCE",
-  "semesters": [
-   "FALL"
-  ]
- },
- {
-  "code": "1031-0927",
-  "name": "States, State Building, and State Capacity",
-  "credits": 3.0,
-  "year": 2,
-  "section": "קורסי בחירה החוג למדע המדינה",
-  "courseType": "ELECTIVE",
-  "discipline": "POLITICAL_SCIENCE",
-  "semesters": [
-   "SPRING"
-  ]
- },
- {
-  "code": "1031-0928",
-  "name": "Democracy, Autocracy and Regime Change",
-  "credits": 3.0,
-  "year": 2,
-  "section": "קורסי בחירה החוג למדע המדינה",
-  "courseType": "ELECTIVE",
-  "discipline": "POLITICAL_SCIENCE",
-  "semesters": [
-   "SPRING"
-  ]
- },
- {
-  "code": "1031-0932",
-  "name": "יחסי ישראל-ארה\"ב על רקע עיצוב מדיניות החוץ האמריקנית",
-  "credits": 3.0,
-  "year": 2,
-  "section": "קורסי בחירה החוג למדע המדינה",
-  "courseType": "ELECTIVE",
-  "discipline": "POLITICAL_SCIENCE",
-  "semesters": [
-   "FALL"
-  ]
- },
- {
-  "code": "1031-0936",
-  "name": "סובייקטיביות בעידן הנאוליברלי העכשווי: בין פילוסופיה, פוליטיקה וביקורת התרבות",
-  "credits": 2.0,
-  "year": 2,
-  "section": "קורסי בחירה החוג למדע המדינה",
-  "courseType": "ELECTIVE",
-  "discipline": "POLITICAL_SCIENCE",
-  "semesters": [
-   "FALL"
-  ]
- },
- {
-  "code": "1031-0937",
-  "name": "תקשורת פוליטית ומנהיגות בעידן הגלובליזציה",
-  "credits": 2.0,
-  "year": 2,
-  "section": "קורסי בחירה החוג למדע המדינה",
-  "courseType": "ELECTIVE",
-  "discipline": "POLITICAL_SCIENCE",
-  "semesters": [
-   "SPRING"
-  ]
- },
- {
-  "code": "1031-0938",
-  "name": "סובייקטיביות בעידן הנאוליברלי העכשווי: בין פילוסופיה, פוליטיקה וביקורת התרבות",
-  "credits": 3.0,
-  "year": 2,
-  "section": "קורסי בחירה החוג למדע המדינה",
-  "courseType": "ELECTIVE",
-  "discipline": "POLITICAL_SCIENCE",
-  "semesters": [
-   "FALL"
-  ]
- },
- {
-  "code": "1031-0989",
-  "name": "Improving Governance Through Experiments",
-  "credits": 3.0,
-  "year": 2,
-  "section": "קורסי בחירה החוג למדע המדינה",
-  "courseType": "ELECTIVE",
-  "discipline": "POLITICAL_SCIENCE",
-  "semesters": [
-   "FALL",
-   "SPRING"
-  ]
- },
- {
-  "code": "1031-3102",
-  "name": "מדיניות ומדינאות מעשית",
-  "credits": 4.0,
-  "year": 2,
-  "section": "קורסי בחירה החוג למדע המדינה",
-  "courseType": "ELECTIVE",
-  "discipline": "POLITICAL_SCIENCE",
-  "semesters": []
- },
- {
-  "code": "1031-3890",
-  "name": "לאומיות וסכסוכים אתניים",
-  "credits": 2.0,
-  "year": 2,
-  "section": "קורסי בחירה החוג למדע המדינה",
-  "courseType": "ELECTIVE",
-  "discipline": "POLITICAL_SCIENCE",
-  "semesters": []
- },
- {
-  "code": "1031-3918",
-  "name": "הפוליטיקה של הכסף ושל משטרים מוניטריים בינלאומיים",
-  "credits": 2.0,
-  "year": 2,
-  "section": "קורסי בחירה החוג למדע המדינה",
-  "courseType": "ELECTIVE",
-  "discipline": "POLITICAL_SCIENCE",
-  "semesters": []
- },
- {
-  "code": "1031-3939",
-  "name": "סוגיות בביטחון הלאומי של ישראל",
-  "credits": 2.0,
-  "year": 2,
-  "section": "קורסי בחירה החוג למדע המדינה",
-  "courseType": "ELECTIVE",
-  "discipline": "POLITICAL_SCIENCE",
-  "semesters": []
- },
- {
-  "code": "1031-3964",
-  "name": "תקשורת פוליטית ומנהיגות בעידן הגלובליזציה",
-  "credits": 3.0,
-  "year": 2,
-  "section": "קורסי בחירה החוג למדע המדינה",
-  "courseType": "ELECTIVE",
-  "discipline": "POLITICAL_SCIENCE",
-  "semesters": []
- },
- {
-  "code": "1031-3982",
-  "name": "Power and Prosperity: The Political Economy of Development",
-  "credits": 3.0,
-  "year": 2,
-  "section": "קורסי בחירה החוג למדע המדינה",
-  "courseType": "ELECTIVE",
-  "discipline": "POLITICAL_SCIENCE",
-  "semesters": [
-   "FALL",
-   "SPRING"
-  ]
- },
- {
-  "code": "1031-3993",
-  "name": "תאוריות של התנהגות פוליטית",
-  "credits": 3.0,
-  "year": 2,
-  "section": "קורסי בחירה החוג למדע המדינה",
-  "courseType": "ELECTIVE",
-  "discipline": "POLITICAL_SCIENCE",
-  "semesters": []
- },
- {
-  "code": "1031-3994",
-  "name": "סוגיות מתקדמות בפוליטיקה הישראלית",
-  "credits": 3.0,
-  "year": 2,
-  "section": "קורסי בחירה החוג למדע המדינה",
-  "courseType": "ELECTIVE",
-  "discipline": "POLITICAL_SCIENCE",
-  "semesters": []
- },
- {
-  "code": "1031-4546",
-  "name": "רטוריקה",
-  "credits": 3.0,
-  "year": 2,
-  "section": "קורסי בחירה החוג למדע המדינה",
-  "courseType": "ELECTIVE",
-  "discipline": "POLITICAL_SCIENCE",
-  "semesters": []
- },
- {
-  "code": "1411-6604",
-  "name": "Derivatives, Risk and Financial Crises",
-  "credits": 2.0,
-  "year": 2,
-  "section": "קורסי בחירה במשפטים אינם נחשבים כחלק מחטיבת משפטים",
-  "courseType": "ELECTIVE",
-  "discipline": "LAW",
-  "semesters": []
- },
- {
-  "code": "1411-7557",
-  "name": "מבוא למשפט רומי",
-  "credits": 2.0,
-  "year": 2,
-  "section": "קורסי בחירה במשפטים אינם נחשבים כחלק מחטיבת משפטים",
-  "courseType": "ELECTIVE",
-  "discipline": "LAW",
-  "semesters": [
-   "FALL"
-  ]
- },
- {
-  "code": "1411-7664",
-  "name": "משפט ופילוסופיה בספרות ובסרטים",
-  "credits": 2.0,
-  "year": 2,
-  "section": "קורסי בחירה במשפטים אינם נחשבים כחלק מחטיבת משפטים",
-  "courseType": "ELECTIVE",
-  "discipline": "LAW",
-  "semesters": [
-   "FALL"
-  ]
- },
- {
-  "code": "1411-7678",
-  "name": "",
-  "credits": 4.0,
-  "year": 2,
-  "section": "קורסי בחירה במשפטים אינם נחשבים כחלק מחטיבת משפטים",
-  "courseType": "ELECTIVE",
-  "discipline": "LAW",
-  "semesters": [
-   "FALL"
-  ]
- },
- {
-  "code": "1411-7841",
-  "name": "משפט, עירוניות ותרבות",
-  "credits": 2.0,
-  "year": 2,
-  "section": "קורסי בחירה במשפטים אינם נחשבים כחלק מחטיבת משפטים",
-  "courseType": "ELECTIVE",
-  "discipline": "LAW",
-  "semesters": [
-   "FALL"
-  ]
- },
- {
-  "code": "1411-9105",
-  "name": "פוליטיקה, כלכלה, חברה",
-  "credits": 2.0,
-  "year": 2,
-  "section": "קורסי בחירה במשפטים אינם נחשבים כחלק מחטיבת משפטים",
-  "courseType": "ELECTIVE",
-  "discipline": "LAW",
-  "semesters": [
-   "FALL"
-  ]
- },
- {
-  "code": "1411-9108",
-  "name": "מבוא למשפט עברי",
-  "credits": 2.0,
-  "year": 2,
-  "section": "קורסי בחירה במשפטים אינם נחשבים כחלק מחטיבת משפטים",
-  "courseType": "ELECTIVE",
-  "discipline": "LAW",
-  "semesters": [
-   "FALL"
-  ]
- },
- {
-  "code": "1411-9110",
-  "name": "פרוצדורה",
-  "credits": 4.0,
-  "year": 2,
-  "section": "קורסי בחירה במשפטים אינם נחשבים כחלק מחטיבת משפטים",
-  "courseType": "ELECTIVE",
-  "discipline": "LAW",
-  "semesters": [
-   "SPRING"
-  ]
- },
- {
-  "code": "1411-9112",
-  "name": "מבוא למשפט עברי מורחב",
-  "credits": 4.0,
-  "year": 2,
-  "section": "קורסי בחירה במשפטים אינם נחשבים כחלק מחטיבת משפטים",
-  "courseType": "ELECTIVE",
-  "discipline": "LAW",
-  "semesters": [
-   "FALL"
-  ]
- },
- {
-  "code": "1411-9113",
-  "name": "מבוא למשפט מוסלמי",
-  "credits": 2.0,
-  "year": 2,
-  "section": "קורסי בחירה במשפטים אינם נחשבים כחלק מחטיבת משפטים",
-  "courseType": "ELECTIVE",
-  "discipline": "LAW",
-  "semesters": [
-   "FALL"
-  ]
- },
- {
-  "code": "1411-9222",
-  "name": "דיני תאגידים",
-  "credits": 4.0,
-  "year": 2,
-  "section": "קורסי בחירה במשפטים אינם נחשבים כחלק מחטיבת משפטים",
-  "courseType": "ELECTIVE",
-  "discipline": "LAW",
-  "semesters": [
-   "FALL",
-   "SPRING"
-  ]
- },
- {
-  "code": "1411-9226",
-  "name": "דיני רווחה",
-  "credits": 4.0,
-  "year": 2,
-  "section": "קורסי בחירה במשפטים אינם נחשבים כחלק מחטיבת משפטים",
-  "courseType": "ELECTIVE",
-  "discipline": "LAW",
-  "semesters": [
-   "SPRING"
-  ]
- },
- {
-  "code": "1411-9241",
-  "name": "משפט ופילוסופיה",
-  "credits": 2.0,
-  "year": 2,
-  "section": "קורסי בחירה במשפטים אינם נחשבים כחלק מחטיבת משפטים",
-  "courseType": "ELECTIVE",
-  "discipline": "LAW",
-  "semesters": [
-   "SPRING"
-  ]
- },
- {
-  "code": "1411-9242",
-  "name": "משפט, חברה ותרבות",
-  "credits": 2.0,
-  "year": 2,
-  "section": "קורסי בחירה במשפטים אינם נחשבים כחלק מחטיבת משפטים",
-  "courseType": "ELECTIVE",
-  "discipline": "LAW",
-  "semesters": [
-   "SPRING"
-  ]
- },
- {
-  "code": "1411-9244",
-  "name": "מגדר ומשפט",
-  "credits": 2.0,
-  "year": 2,
-  "section": "קורסי בחירה במשפטים אינם נחשבים כחלק מחטיבת משפטים",
-  "courseType": "ELECTIVE",
-  "discipline": "LAW",
-  "semesters": [
-   "FALL"
-  ]
- },
- {
-  "code": "1411-9245",
-  "name": "משפט והיסטוריה",
-  "credits": 2.0,
-  "year": 2,
-  "section": "קורסי בחירה במשפטים אינם נחשבים כחלק מחטיבת משפטים",
-  "courseType": "ELECTIVE",
-  "discipline": "LAW",
-  "semesters": [
-   "SPRING"
-  ]
- },
- {
-  "code": "1411-9305",
-  "name": "הגבלים עסקיים",
-  "credits": 4.0,
-  "year": 2,
-  "section": "קורסי בחירה במשפטים אינם נחשבים כחלק מחטיבת משפטים",
-  "courseType": "ELECTIVE",
-  "discipline": "LAW",
-  "semesters": []
- },
- {
-  "code": "1411-9306",
-  "name": "המקצוע המשפטי - תיאוריה, פרקטיקה ואתיקה",
-  "credits": 4.0,
-  "year": 2,
-  "section": "קורסי בחירה במשפטים אינם נחשבים כחלק מחטיבת משפטים",
-  "courseType": "ELECTIVE",
-  "discipline": "LAW",
-  "semesters": []
- },
- {
-  "code": "1411-9312",
-  "name": "משפט השלטון המקומי",
-  "credits": 4.0,
-  "year": 2,
-  "section": "קורסי בחירה במשפטים אינם נחשבים כחלק מחטיבת משפטים",
-  "courseType": "ELECTIVE",
-  "discipline": "LAW",
-  "semesters": []
- },
- {
-  "code": "1411-9314",
-  "name": "דיני סביבה",
-  "credits": 4.0,
-  "year": 2,
-  "section": "קורסי בחירה במשפטים אינם נחשבים כחלק מחטיבת משפטים",
-  "courseType": "ELECTIVE",
-  "discipline": "LAW",
-  "semesters": []
- },
- {
-  "code": "1411-9335",
-  "name": "מימון חברות",
-  "credits": 4.0,
-  "year": 2,
-  "section": "קורסי בחירה במשפטים אינם נחשבים כחלק מחטיבת משפטים",
-  "courseType": "ELECTIVE",
-  "discipline": "LAW",
-  "semesters": []
- },
- {
-  "code": "0659-2119",
-  "name": "היסטוריה של הפיזיקה החדשה",
-  "credits": 2.0,
-  "year": 2,
-  "section": "קורסי בחירה מכון כהן להיסטוריה ופילוסופיה של המדעים והרעיונות",
-  "courseType": "ELECTIVE",
-  "discipline": "PHILOSOPHY",
-  "semesters": [
-   "SPRING"
-  ]
- },
- {
-  "code": "0659-2578",
-  "name": "אל היש ומעבר לו. פרקים בפילוסופיה של ימי הביניים",
-  "credits": 2.0,
-  "year": 2,
-  "section": "קורסי בחירה מכון כהן להיסטוריה ופילוסופיה של המדעים והרעיונות",
-  "courseType": "ELECTIVE",
-  "discipline": "PHILOSOPHY",
-  "semesters": [
-   "FALL"
-  ]
- },
- {
-  "code": "0659-3056",
-  "name": "מבוא לתיאוריה ביקורתית",
-  "credits": 2.0,
-  "year": 2,
-  "section": "קורסי בחירה מכון כהן להיסטוריה ופילוסופיה של המדעים והרעיונות",
-  "courseType": "ELECTIVE",
-  "discipline": "PHILOSOPHY",
-  "semesters": [
-   "SPRING"
-  ]
- },
- {
-  "code": "0659-4613",
-  "name": "פילוסופיה של המדע למתקדמים ב'",
-  "credits": 2.0,
-  "year": 2,
-  "section": "קורסי בחירה מכון כהן להיסטוריה ופילוסופיה של המדעים והרעיונות",
-  "courseType": "ELECTIVE",
-  "discipline": "PHILOSOPHY",
-  "semesters": [
-   "SPRING"
-  ]
- },
- {
-  "code": "0659-6126",
-  "name": "היסטוריה אינטלקטואלית א'",
-  "credits": 2.0,
-  "year": 2,
-  "section": "קורסי בחירה מכון כהן להיסטוריה ופילוסופיה של המדעים והרעיונות",
-  "courseType": "ELECTIVE",
-  "discipline": "PHILOSOPHY",
-  "semesters": [
-   "FALL"
-  ]
- },
- {
-  "code": "0697-1115",
-  "name": "מבוא למדעי הדתות: דתות העולם ולימודים בין-דתיים",
-  "credits": 2.0,
-  "year": 2,
-  "section": "קורסי בחירה מדעי הדתות",
-  "courseType": "ELECTIVE",
-  "discipline": "GENERAL",
-  "semesters": [
-   "FALL"
-  ]
- },
- {
-  "code": "0687-2622",
-  "name": "מיסטיקה, פוליטיקה וג'ינים: סופיות בהודו",
-  "credits": 2.0,
-  "year": 2,
-  "section": "קורסי בחירה מזרח אסיה",
-  "courseType": "ELECTIVE",
-  "discipline": "GENERAL",
-  "semesters": [
-   "SPRING"
-  ]
- },
- {
-  "code": "0662-1043",
-  "name": "האני: מאני חושב פילוסופי לאני מרגיש פסיכואנליטי",
-  "credits": 2.0,
-  "year": 2,
-  "section": "קורסי בחירה התכנית הרב תחומית במדעי הרוח",
-  "courseType": "ELECTIVE",
-  "discipline": "GENERAL",
-  "semesters": [
-   "FALL"
-  ]
- },
- {
-  "code": "0662-2074",
-  "name": "יסודות בניתוח רטורי",
-  "credits": 2.0,
-  "year": 2,
-  "section": "קורסי בחירה התכנית הרב תחומית במדעי הרוח",
-  "courseType": "ELECTIVE",
-  "discipline": "GENERAL",
-  "semesters": [
-   "FALL"
-  ]
- },
- {
-  "code": "0662-2620",
-  "name": "הבניית דימוי של אישי ציבור בתקשורת- צרפת, ארצות הברית וישראל",
-  "credits": 2.0,
-  "year": 2,
-  "section": "קורסי בחירה התכנית הרב תחומית במדעי הרוח",
-  "courseType": "ELECTIVE",
-  "discipline": "GENERAL",
-  "semesters": [
-   "FALL"
-  ]
- },
- {
-  "code": "0662-2623",
-  "name": "לנצל את הלב כדי לנצח את המוח: תפקידו של הרגש באומנות השכנוע",
-  "credits": 2.0,
-  "year": 2,
-  "section": "קורסי בחירה התכנית הרב תחומית במדעי הרוח",
-  "courseType": "ELECTIVE",
-  "discipline": "GENERAL",
-  "semesters": [
-   "SPRING"
-  ]
- },
- {
-  "code": "0662-2670",
-  "name": "פסיכואנליזה של אהבה וזוגיות: מפרויד ועד ימינו",
-  "credits": 2.0,
-  "year": 2,
-  "section": "קורסי בחירה התכנית הרב תחומית במדעי הרוח",
-  "courseType": "ELECTIVE",
-  "discipline": "GENERAL",
-  "semesters": [
-   "FALL"
-  ]
- },
- {
-  "code": "0662-3229",
-  "name": "סוגיות עכשוויות בכלכלה - פרט, חברה וסביבה",
-  "credits": 2.0,
-  "year": 2,
-  "section": "קורסי בחירה התכנית הרב תחומית במדעי הרוח",
-  "courseType": "ELECTIVE",
-  "discipline": "GENERAL",
-  "semesters": [
-   "FALL"
-  ]
- },
- {
-  "code": "0662-5005",
-  "name": "תפישת הביטחון הישראלית במבחן הזמן",
-  "credits": 2.0,
-  "year": 2,
-  "section": "קורסי בחירה התכנית הרב תחומית במדעי הרוח",
-  "courseType": "ELECTIVE",
-  "discipline": "GENERAL",
-  "semesters": [
-   "SPRING"
-  ]
- },
- {
-  "code": "0662-5008",
-  "name": "מבוא לחשיבה אסטרטגית - המקרה הישראלי",
-  "credits": 2.0,
-  "year": 2,
-  "section": "קורסי בחירה התכנית הרב תחומית במדעי הרוח",
-  "courseType": "ELECTIVE",
-  "discipline": "GENERAL",
-  "semesters": [
-   "SPRING"
-  ]
- },
- {
-  "code": "1662-1129",
-  "name": "What are the Humanities?",
-  "credits": 4.0,
-  "year": 2,
-  "section": "קורסי בחירה התכנית הרב תחומית במדעי הרוח",
-  "courseType": "ELECTIVE",
-  "discipline": "GENERAL",
-  "semesters": [
-   "FALL"
-  ]
- },
- {
-  "code": "1662-1163",
-  "name": "Modernity: Origin, Vision, and Crises",
-  "credits": 4.0,
-  "year": 2,
-  "section": "קורסי בחירה התכנית הרב תחומית במדעי הרוח",
-  "courseType": "ELECTIVE",
-  "discipline": "GENERAL",
-  "semesters": [
-   "SPRING"
-  ]
- },
- {
-  "code": "1662-1400",
-  "name": "Introduction to Greek Philosophy",
-  "credits": 2.0,
-  "year": 2,
-  "section": "קורסי בחירה התכנית הרב תחומית במדעי הרוח",
-  "courseType": "ELECTIVE",
-  "discipline": "GENERAL",
-  "semesters": []
- },
- {
-  "code": "1662-2233",
-  "name": "Nationalism, Memory and Commemoration in the Modern Middle East",
-  "credits": 2.0,
-  "year": 2,
-  "section": "קורסי בחירה התכנית הרב תחומית במדעי הרוח",
-  "courseType": "ELECTIVE",
-  "discipline": "GENERAL",
-  "semesters": []
- },
- {
-  "code": "0677-1501",
-  "name": "המערכת הביטחונית ביישוב, 1947-1907",
-  "credits": 2.0,
-  "year": 2,
-  "section": "קורסי בחירה החוג להיסטוריה של עם ישראל",
-  "courseType": "ELECTIVE",
-  "discipline": "GENERAL",
-  "semesters": [
-   "FALL"
-  ]
- },
- {
-  "code": "0677-1503",
-  "name": "המלחמה בתרבות האנושית",
-  "credits": 2.0,
-  "year": 2,
-  "section": "קורסי בחירה החוג להיסטוריה של עם ישראל",
-  "courseType": "ELECTIVE",
-  "discipline": "GENERAL",
-  "semesters": [
-   "FALL"
-  ]
- },
- {
-  "code": "0621-1922",
-  "name": "המאה התשע עשרה באירופה: פרספקטיבות מההיסטוריה הכללית והיהודית",
-  "credits": 2.0,
-  "year": 2,
-  "section": "קורסי בחירה החוג להיסטוריה כללית",
-  "courseType": "ELECTIVE",
-  "discipline": "GENERAL",
-  "semesters": [
-   "SPRING"
-  ]
- },
- {
-  "code": "0622-1001",
-  "name": "מבוא לתולדות המזה\"ת בעת החדישה",
-  "credits": 2.0,
-  "year": 2,
-  "section": "קורסי בחירה החוג להיסטוריה של המזה\"ת ואפריקה",
-  "courseType": "ELECTIVE",
-  "discipline": "GENERAL",
-  "semesters": [
-   "FALL"
-  ]
- },
- {
-  "code": "0622-1002",
-  "name": "תולדות העמים המוסלמים, 600 -1500",
-  "credits": 2.0,
-  "year": 2,
-  "section": "קורסי בחירה החוג להיסטוריה של המזה\"ת ואפריקה",
-  "courseType": "ELECTIVE",
-  "discipline": "GENERAL",
-  "semesters": [
-   "FALL"
-  ]
- },
- {
-  "code": "0608-1110",
-  "name": "מבוא לפילוסופיה פמיניסטית: מחשבות נשים",
-  "credits": 2.0,
-  "year": 2,
-  "section": "קורסי בחירה החוג ללימודי מגדר",
-  "courseType": "ELECTIVE",
-  "discipline": "GENERAL",
-  "semesters": [
-   "FALL"
-  ]
- },
- {
-  "code": "0608-1177",
-  "name": "כסף מסובב את העולם - אי שוויון מגדרי בעולם קפיטליסטי",
-  "credits": 2.0,
-  "year": 2,
-  "section": "קורסי בחירה החוג ללימודי מגדר",
-  "courseType": "ELECTIVE",
-  "discipline": "GENERAL",
-  "semesters": [
-   "SPRING"
-  ]
- },
- {
-  "code": "1082-6425",
-  "name": "מבוא למדיניות תכנון ועיצוב עירוני",
-  "credits": 2.0,
-  "year": 2,
-  "section": "קורסי בחירה החוג למדיניות ציבורית",
-  "courseType": "ELECTIVE",
-  "discipline": "POLITICAL_SCIENCE",
-  "semesters": [
-   "FALL"
-  ]
- },
- {
-  "code": "1082-6426",
-  "name": "היבטים משפטיים של תכנון ובנייה",
-  "credits": 2.0,
-  "year": 2,
-  "section": "קורסי בחירה החוג למדיניות ציבורית",
-  "courseType": "ELECTIVE",
-  "discipline": "POLITICAL_SCIENCE",
-  "semesters": [
-   "FALL"
-  ]
- },
- {
-  "code": "1082-6449",
-  "name": "כלכלת ישראל",
-  "credits": 3.0,
-  "year": 2,
-  "section": "קורסי בחירה החוג למדיניות ציבורית",
-  "courseType": "ELECTIVE",
-  "discipline": "POLITICAL_SCIENCE",
-  "semesters": [
-   "FALL"
-  ]
- },
- {
-  "code": "1221-3301",
-  "name": "יסודות המימון -תואר I",
-  "credits": 6.0,
-  "year": 2,
-  "section": "קורסי בחירה הפקולטה לניהול",
-  "courseType": "ELECTIVE",
-  "discipline": "GENERAL",
-  "semesters": [
-   "FALL",
-   "SPRING"
-  ]
- },
- {
-  "code": "1221-4301",
-  "name": "יסודות השיווק",
-  "credits": 4.0,
-  "year": 2,
-  "section": "קורסי בחירה הפקולטה לניהול",
-  "courseType": "ELECTIVE",
-  "discipline": "GENERAL",
-  "semesters": [
-   "FALL",
-   "SPRING"
-  ]
- },
- {
-  "code": "1221-4563",
-  "name": "פרויקט Growth",
-  "credits": 4.0,
-  "year": 2,
-  "section": "קורסי בחירה הפקולטה לניהול",
-  "courseType": "ELECTIVE",
-  "discipline": "GENERAL",
-  "semesters": [
-   "SPRING"
-  ]
- },
- {
-  "code": "0672-1542",
-  "name": "המסע הארוך מצדק לחוק: מקורותיו והתעצבותו של החוק הרומי",
-  "credits": 2.0,
-  "year": 2,
-  "section": "קורסי בחירה נוספים",
-  "courseType": "ELECTIVE",
-  "discipline": "GENERAL",
-  "semesters": [
-   "FALL"
-  ]
- },
- {
-  "code": "0697-1002",
-  "name": "מבוא למדעי הדתות: אנתרופולוגיה וסוציולוגיה של הדת",
-  "credits": 2.0,
-  "year": 2,
-  "section": "קורסי בחירה נוספים",
-  "courseType": "ELECTIVE",
-  "discipline": "GENERAL",
-  "semesters": [
-   "SPRING"
-  ]
- },
- {
-  "code": "0697-1010",
-  "name": "מבוא למדעי הדתות: פילוסופיה ופסיכולוגיה של הדת",
-  "credits": 2.0,
-  "year": 2,
-  "section": "קורסי בחירה נוספים",
-  "courseType": "ELECTIVE",
-  "discipline": "GENERAL",
-  "semesters": [
-   "FALL"
-  ]
- },
- {
-  "code": "1041-1107",
-  "name": "ריבוד ואי שוויון",
-  "credits": 3.0,
-  "year": 2,
-  "section": "קורסי בחירה נוספים",
-  "courseType": "ELECTIVE",
-  "discipline": "GENERAL",
-  "semesters": [
-   "FALL"
-  ]
- },
- {
-  "code": "1041-2611",
-  "name": "מגדר וחברה",
-  "credits": 3.0,
-  "year": 2,
-  "section": "קורסי בחירה נוספים",
-  "courseType": "ELECTIVE",
-  "discipline": "GENERAL",
-  "semesters": [
-   "FALL"
-  ]
- },
- {
-  "code": "1886-1812",
-  "name": "מבוא למדעי הנתונים 1",
-  "credits": 3.0,
-  "year": 2,
-  "section": "קורסי בחירה נוספים",
-  "courseType": "ELECTIVE",
-  "discipline": "GENERAL",
-  "semesters": []
- },
- {
-  "code": "1886-1813",
-  "name": "מבוא למדעי הנתונים 2",
-  "credits": 3.0,
-  "year": 2,
-  "section": "קורסי בחירה נוספים",
-  "courseType": "ELECTIVE",
-  "discipline": "GENERAL",
-  "semesters": []
- },
- {
-  "code": "0651-2030",
-  "name": "התכנית לכלכלת חברה וסביבה",
-  "credits": 4.0,
-  "year": 2,
-  "section": "קורסי בחירה נוספים",
-  "courseType": "ELECTIVE",
-  "discipline": "GENERAL",
-  "semesters": [
-   "FALL"
-  ]
- },
- {
-  "code": "0651-3001",
-  "name": "סמינר פכ\"מ",
-  "credits": 4.0,
-  "year": 3,
-  "section": "סמינר פכ\"מ (חובה)",
-  "courseType": "SEMINAR",
-  "discipline": "PPE_CORE",
-  "semesters": [
-   "FALL"
-  ]
- },
- {
-  "code": "0651-3007",
-  "name": "סמינר פכ\"מ: התמחות מעשית",
-  "credits": 4.0,
-  "year": 3,
-  "section": "סמינר 4 ש\"ס",
-  "courseType": "SEMINAR",
-  "discipline": "GENERAL",
-  "semesters": [
-   "FALL"
-  ]
- },
- {
-  "code": "1011-2104",
-  "name": "מיקרו כלכלה ג' - כוח שוק, כלכלת אינפורמציה ותורת המשחקים",
-  "credits": 5.0,
-  "year": 3,
-  "section": "קורסי חובה מביה\"ס לכלכלה",
-  "courseType": "MANDATORY",
-  "discipline": "ECONOMICS",
-  "semesters": [
-   "FALL",
-   "SPRING"
-  ]
- },
- {
-  "code": "1221-4325",
-  "name": "כלכלה התנהגותית לניהול",
-  "credits": 2.0,
-  "year": 3,
-  "section": "קורסי חובה מביה\"ס לכלכלה",
-  "courseType": "MANDATORY",
-  "discipline": "ECONOMICS",
-  "semesters": [
-   "FALL",
-   "SPRING"
-  ]
- },
- {
-  "code": "0618-3926",
-  "name": "נומוס ופיסיס: צדק אנושי וצדק טבעי בפילוסופיה העתיקה",
-  "credits": 4.0,
-  "year": 3,
-  "section": "סמינר 4 ש\"ס",
-  "courseType": "SEMINAR",
-  "discipline": "GENERAL",
-  "semesters": [
-   "SPRING"
-  ]
- },
- {
-  "code": "0618-3928",
-  "name": "ולטר בנימין: פנטזיה, זכרון וחלום",
-  "credits": 4.0,
-  "year": 3,
-  "section": "סמינר 4 ש\"ס",
-  "courseType": "SEMINAR",
-  "discipline": "GENERAL",
-  "semesters": [
-   "SPRING"
-  ]
- },
- {
-  "code": "0659-1994",
-  "name": "",
-  "credits": 4.0,
-  "year": 3,
-  "section": "סמינר 4 ש\"ס",
-  "courseType": "SEMINAR",
-  "discipline": "GENERAL",
-  "semesters": [
-   "SPRING"
-  ]
- },
- {
-  "code": "0659-2146",
-  "name": "",
-  "credits": 4.0,
-  "year": 3,
-  "section": "סמינר 4 ש\"ס",
-  "courseType": "SEMINAR",
-  "discipline": "GENERAL",
-  "semesters": [
-   "SPRING"
-  ]
- },
- {
-  "code": "0659-2217",
-  "name": "",
-  "credits": 4.0,
-  "year": 3,
-  "section": "סמינר 4 ש\"ס",
-  "courseType": "SEMINAR",
-  "discipline": "GENERAL",
-  "semesters": []
- },
- {
-  "code": "0659-2465",
-  "name": "",
-  "credits": 4.0,
-  "year": 3,
-  "section": "סמינר 4 ש\"ס",
-  "courseType": "SEMINAR",
-  "discipline": "GENERAL",
-  "semesters": []
- },
- {
-  "code": "0659-2502",
-  "name": "פילוסופיה של בינה מלאכותית",
-  "credits": 4.0,
-  "year": 3,
-  "section": "סמינר 4 ש\"ס",
-  "courseType": "SEMINAR",
-  "discipline": "GENERAL",
-  "semesters": []
- },
- {
-  "code": "0659-2628",
-  "name": "",
-  "credits": 2.0,
-  "year": 3,
-  "section": "סמינר 4 ש\"ס",
-  "courseType": "SEMINAR",
-  "discipline": "GENERAL",
-  "semesters": []
- },
- {
-  "code": "0659-2649",
-  "name": "",
-  "credits": 4.0,
-  "year": 3,
-  "section": "סמינר 2 ש\"ס",
-  "courseType": "SEMINAR",
-  "discipline": "GENERAL",
-  "semesters": []
- },
- {
-  "code": "0659-2650",
-  "name": "ספקנות, חשיבה ביקורתית ואתאיזם בהגות האסלאמית הקלאסית",
-  "credits": 4.0,
-  "year": 3,
-  "section": "סמינר 4 ש\"ס",
-  "courseType": "SEMINAR",
-  "discipline": "GENERAL",
-  "semesters": []
- },
- {
-  "code": "0659-2651",
-  "name": "",
-  "credits": 4.0,
-  "year": 3,
-  "section": "סמינר 4 ש\"ס",
-  "courseType": "SEMINAR",
-  "discipline": "GENERAL",
-  "semesters": []
- },
- {
-  "code": "0659-2652",
-  "name": "",
-  "credits": 4.0,
-  "year": 3,
-  "section": "סמינר 4 ש\"ס",
-  "courseType": "SEMINAR",
-  "discipline": "GENERAL",
-  "semesters": []
- },
- {
-  "code": "0659-2653",
-  "name": "כיצד מחלוקות בבלשנות, פסיכולוגיה, ואבולוציה הביאו להתקפות העכשוויות על המדע",
-  "credits": 4.0,
-  "year": 3,
-  "section": "סמינר 4 ש\"ס",
-  "courseType": "SEMINAR",
-  "discipline": "GENERAL",
-  "semesters": []
- },
- {
-  "code": "0659-2654",
-  "name": "",
-  "credits": 4.0,
-  "year": 3,
-  "section": "סמינר 4 ש\"ס",
-  "courseType": "SEMINAR",
-  "discipline": "GENERAL",
-  "semesters": []
- },
- {
-  "code": "0659-2655",
-  "name": "",
-  "credits": 4.0,
-  "year": 3,
-  "section": "סמינר 4 ש\"ס",
-  "courseType": "SEMINAR",
-  "discipline": "GENERAL",
-  "semesters": []
- },
- {
-  "code": "1011-3563",
-  "name": "סמינר בכלכלה יישומית: סיכונים והתנהגות פרטים",
-  "credits": 4.0,
-  "year": 3,
-  "section": "סמינר 4 ש\"ס",
-  "courseType": "SEMINAR",
-  "discipline": "GENERAL",
-  "semesters": []
- },
- {
-  "code": "1011-3564",
-  "name": "סמינר בנושאים בכלכלת עבודה וחינוך",
-  "credits": 4.0,
-  "year": 3,
-  "section": "סמינר 4 ש\"ס",
-  "courseType": "SEMINAR",
-  "discipline": "GENERAL",
-  "semesters": []
- },
- {
-  "code": "1011-3565",
-  "name": "סמינר מדיניות ציבורית בשוק העבודה",
-  "credits": 4.0,
-  "year": 3,
-  "section": "סמינר 4 ש\"ס",
-  "courseType": "SEMINAR",
-  "discipline": "GENERAL",
-  "semesters": []
- },
- {
-  "code": "1011-3573",
-  "name": "פריקונומיקס: סמינר בכלכלה פופולרית",
-  "credits": 4.0,
-  "year": 3,
-  "section": "סמינר 4 ש\"ס",
-  "courseType": "SEMINAR",
-  "discipline": "GENERAL",
-  "semesters": []
- },
- {
-  "code": "1011-3575",
-  "name": "סמינר בכלכלה ניסויית",
-  "credits": 4.0,
-  "year": 3,
-  "section": "סמינר 4 ש\"ס",
-  "courseType": "SEMINAR",
-  "discipline": "GENERAL",
-  "semesters": []
- },
- {
-  "code": "1011-3578",
-  "name": "סמינר באי שוויון כלכלי",
-  "credits": 4.0,
-  "year": 3,
-  "section": "סמינר 4 ש\"ס",
-  "courseType": "SEMINAR",
-  "discipline": "GENERAL",
-  "semesters": []
- },
- {
-  "code": "1011-3583",
-  "name": "סמינר בכלכלה עירונית",
-  "credits": 4.0,
-  "year": 3,
-  "section": "סמינר 4 ש\"ס",
-  "courseType": "SEMINAR",
-  "discipline": "GENERAL",
-  "semesters": []
- },
- {
-  "code": "1011-3584",
-  "name": "סמינר בכלכלת חינוך, עבודה, וסביבה בישראל",
-  "credits": 4.0,
-  "year": 3,
-  "section": "סמינר 4 ש\"ס",
-  "courseType": "SEMINAR",
-  "discipline": "GENERAL",
-  "semesters": []
- },
- {
-  "code": "1011-3587",
-  "name": "סמינר בתיאוריה מיקרו כלכלית",
-  "credits": 4.0,
-  "year": 3,
-  "section": "סמינר 4 ש\"ס",
-  "courseType": "SEMINAR",
-  "discipline": "GENERAL",
-  "semesters": []
- },
- {
-  "code": "1011-3588",
-  "name": "מאקרו כלכלה: פירמות, עובדים, משברים וצמיחה",
-  "credits": 4.0,
-  "year": 3,
-  "section": "סמינר 4 ש\"ס",
-  "courseType": "SEMINAR",
-  "discipline": "GENERAL",
-  "semesters": []
- },
- {
-  "code": "1011-3589",
-  "name": "סמינר בכלכלת אינפורמציה ותורת המשחקים",
-  "credits": 4.0,
-  "year": 3,
-  "section": "סמינר 4 ש\"ס",
-  "courseType": "SEMINAR",
-  "discipline": "GENERAL",
-  "semesters": []
- },
- {
-  "code": "1011-3590",
-  "name": "סמינר במודלים של מידע באינטראקציות אסטרטגיות",
-  "credits": 4.0,
-  "year": 3,
-  "section": "סמינר 4 ש\"ס",
-  "courseType": "SEMINAR",
-  "discipline": "GENERAL",
-  "semesters": []
- },
- {
-  "code": "1031-0921",
-  "name": "אתיקה ופוליטיקה של בינה מלאכותית במנהל הציבורי",
-  "credits": 4.0,
-  "year": 3,
-  "section": "סמינר 4 ש\"ס",
-  "courseType": "SEMINAR",
-  "discipline": "GENERAL",
-  "semesters": [
-   "SPRING"
-  ]
- },
- {
-  "code": "1031-0931",
-  "name": "מדוע סכסוכים מתחילים ואיך הם נגמרים?",
-  "credits": 4.0,
-  "year": 3,
-  "section": "סמינר 4 ש\"ס",
-  "courseType": "SEMINAR",
-  "discipline": "GENERAL",
-  "semesters": [
-   "SPRING"
-  ]
- },
- {
-  "code": "1031-0934",
-  "name": "כיצד להסביר את האנטישמיות",
-  "credits": 4.0,
-  "year": 3,
-  "section": "סמינר 4 ש\"ס",
-  "courseType": "SEMINAR",
-  "discipline": "GENERAL",
-  "semesters": [
-   "SPRING"
-  ]
- },
- {
-  "code": "1031-0940",
-  "name": "הזהות החוקתית של מדינת ישראל",
-  "credits": 4.0,
-  "year": 3,
-  "section": "סמינר 4 ש\"ס",
-  "courseType": "SEMINAR",
-  "discipline": "GENERAL",
-  "semesters": [
-   "SPRING"
-  ]
- },
- {
-  "code": "1031-3965",
-  "name": "אתגרים חברתיים ומדיניות",
-  "credits": 4.0,
-  "year": 3,
-  "section": "סמינר 3 ש\"ס",
-  "courseType": "SEMINAR",
-  "discipline": "GENERAL",
-  "semesters": [
-   "SPRING"
-  ]
- },
- {
-  "code": "1031-3974",
-  "name": "מבוא לפסיכולוגיה פוליטית",
-  "credits": 4.0,
-  "year": 3,
-  "section": "סמינר 4 ש\"ס",
-  "courseType": "SEMINAR",
-  "discipline": "GENERAL",
-  "semesters": [
-   "SPRING"
-  ]
- },
- {
-  "code": "1031-3975",
-  "name": "מאימפריה למשטר צבאי: פרקים במחשבה פוליטית על השתלטות",
-  "credits": 4.0,
-  "year": 3,
-  "section": "סמינר 4 ש\"ס",
-  "courseType": "SEMINAR",
-  "discipline": "GENERAL",
-  "semesters": [
-   "SPRING"
-  ]
- },
- {
-  "code": "1031-3983",
-  "name": "מומחים לפוליטיקה",
-  "credits": 4.0,
-  "year": 3,
-  "section": "סמינר 4 ש\"ס",
-  "courseType": "SEMINAR",
-  "discipline": "GENERAL",
-  "semesters": []
- },
- {
-  "code": "1031-4018",
-  "name": "הרעיון של האוניברסיטה הלאומית",
-  "credits": 3.0,
-  "year": 3,
-  "section": "סמינר 4 ש\"ס",
-  "courseType": "SEMINAR",
-  "discipline": "GENERAL",
-  "semesters": []
- },
- {
-  "code": "1031-4659",
-  "name": "מדע, טכנולוגיה ורפואה בראי מדע-המדינה",
-  "credits": 3.0,
-  "year": 3,
-  "section": "סמינר 3 ש\"ס",
-  "courseType": "SEMINAR",
-  "discipline": "GENERAL",
-  "semesters": []
- },
- {
-  "code": "1031-4707",
-  "name": "התחדשות הסדר הגלובלי",
-  "credits": 3.0,
-  "year": 3,
-  "section": "סמינר 3 ש\"ס",
-  "courseType": "SEMINAR",
-  "discipline": "GENERAL",
-  "semesters": []
- },
- {
-  "code": "0618-2401",
-  "name": "פילוסופיה של השפה - שיעור המשך",
-  "credits": 2.0,
-  "year": 3,
-  "section": "קורסי בחירה החוג לפילסופיה",
-  "courseType": "ELECTIVE",
-  "discipline": "GENERAL",
-  "semesters": []
- },
- {
-  "code": "0618-2808",
-  "name": "Elementary Course: Moral Progress",
-  "credits": 2.0,
-  "year": 3,
-  "section": "קורסי בחירה החוג לפילסופיה",
-  "courseType": "ELECTIVE",
-  "discipline": "GENERAL",
-  "semesters": [
-   "SPRING"
-  ]
- },
- {
-  "code": "0618-7175",
-  "name": "מבוא עכשווי לפילוסופיה של הנפש",
-  "credits": 2.0,
-  "year": 3,
-  "section": "קורסי בחירה החוג לפילסופיה",
-  "courseType": "ELECTIVE",
-  "discipline": "GENERAL",
-  "semesters": []
- },
- {
-  "code": "1011-3168",
-  "name": "כלכלה ניסויית",
-  "credits": 2.0,
-  "year": 3,
-  "section": "קורסי בחירה מביה\"ס לכלכלה",
-  "courseType": "ELECTIVE",
-  "discipline": "ECONOMICS",
-  "semesters": [
-   "FALL"
-  ]
- },
- {
-  "code": "1011-3169",
-  "name": "כלכלת ישראל-רפורמות מבניות במשק הישראלי בשלושת העשורים האחרונים",
-  "credits": 2.0,
-  "year": 3,
-  "section": "קורסי בחירה מביה\"ס לכלכלה",
-  "courseType": "ELECTIVE",
-  "discipline": "ECONOMICS",
-  "semesters": [
-   "FALL"
-  ]
- },
- {
-  "code": "1011-3259",
-  "name": "כלכלה כתיאוריה חברתית: ביקורת הכלכלה המדינית",
-  "credits": 3.0,
-  "year": 3,
-  "section": "קורסי בחירה מביה\"ס לכלכלה",
-  "courseType": "ELECTIVE",
-  "discipline": "ECONOMICS",
-  "semesters": [
-   "FALL"
-  ]
- },
- {
-  "code": "1011-3305",
-  "name": "כלכלה, רווחה ומה שביניהן",
-  "credits": 3.0,
-  "year": 3,
-  "section": "קורסי בחירה מביה\"ס לכלכלה",
-  "courseType": "ELECTIVE",
-  "discipline": "ECONOMICS",
-  "semesters": []
- },
- {
-  "code": "1011-3310",
-  "name": "International Economics",
-  "credits": 2.0,
-  "year": 3,
-  "section": "קורסי בחירה מביה\"ס לכלכלה",
-  "courseType": "ELECTIVE",
-  "discipline": "ECONOMICS",
-  "semesters": [
-   "FALL"
-  ]
- },
- {
-  "code": "1011-3359",
-  "name": "Industrial Organization",
-  "credits": 2.0,
-  "year": 3,
-  "section": "קורסי בחירה מביה\"ס לכלכלה",
-  "courseType": "ELECTIVE",
-  "discipline": "ECONOMICS",
-  "semesters": [
-   "SPRING"
-  ]
- },
- {
-  "code": "1011-3370",
-  "name": "כלכלת סייבר",
-  "credits": 1.0,
-  "year": 3,
-  "section": "קורסי בחירה מביה\"ס לכלכלה",
-  "courseType": "ELECTIVE",
-  "discipline": "ECONOMICS",
-  "semesters": []
- },
- {
-  "code": "1011-3450",
-  "name": "Development Economics",
-  "credits": 3.0,
-  "year": 3,
-  "section": "קורסי בחירה מביה\"ס לכלכלה",
-  "courseType": "ELECTIVE",
-  "discipline": "ECONOMICS",
-  "semesters": []
- },
- {
-  "code": "1011-3456",
-  "name": "נושאים בכלכלת אינפורמציה",
-  "credits": 3.0,
-  "year": 3,
-  "section": "קורסי בחירה מביה\"ס לכלכלה",
-  "courseType": "ELECTIVE",
-  "discipline": "ECONOMICS",
-  "semesters": []
- },
- {
-  "code": "1011-3509",
-  "name": "Options and Financial Markets",
-  "credits": 2.0,
-  "year": 3,
-  "section": "קורסי בחירה מביה\"ס לכלכלה",
-  "courseType": "ELECTIVE",
-  "discipline": "ECONOMICS",
-  "semesters": []
- },
- {
-  "code": "1031-0914",
-  "name": "סוגרים חשבון: בנקים, אזרחים ופוליטיקה",
-  "credits": 3.0,
-  "year": 3,
-  "section": "קורסי בחירה החוג למדע המדינה",
-  "courseType": "ELECTIVE",
-  "discipline": "POLITICAL_SCIENCE",
-  "semesters": [
-   "SPRING"
-  ]
- },
- {
-  "code": "1031-0918",
-  "name": "ביטחון אונתולוגי וישראל: בית, זהות והחיפוש אחר ודאות",
-  "credits": 3.0,
-  "year": 3,
-  "section": "קורסי בחירה החוג למדע המדינה",
-  "courseType": "ELECTIVE",
-  "discipline": "POLITICAL_SCIENCE",
-  "semesters": [
-   "SPRING"
-  ]
- },
- {
-  "code": "1031-0920",
-  "name": "דמוקרטיה ובינה מלאכותית: אתגרים, הזדמנויות ורגולציה",
-  "credits": 2.0,
-  "year": 3,
-  "section": "קורסי בחירה החוג למדע המדינה",
-  "courseType": "ELECTIVE",
-  "discipline": "POLITICAL_SCIENCE",
-  "semesters": [
-   "SPRING"
-  ]
- },
- {
-  "code": "1031-0941",
-  "name": "הזהות החוקתית של מדינת ישראל",
-  "credits": 3.0,
-  "year": 3,
-  "section": "סמינר 4 ש\"ס",
-  "courseType": "SEMINAR",
-  "discipline": "GENERAL",
-  "semesters": []
- },
- {
-  "code": "1031-3951",
-  "name": "אסטרטגיית ההרתעה ביחב\"ל: מהמלחמה הקרה ועד המלחמה בטרור",
-  "credits": 4.0,
-  "year": 3,
-  "section": "סמינר 4 ש\"ס",
-  "courseType": "SEMINAR",
-  "discipline": "GENERAL",
-  "semesters": []
- },
- {
-  "code": "1031-4110",
-  "name": "המערכת הבינלאומית בהתהוותה",
-  "credits": 3.0,
-  "year": 3,
-  "section": "סמינר 4 ש\"ס",
-  "courseType": "SEMINAR",
-  "discipline": "GENERAL",
-  "semesters": []
- },
- {
-  "code": "1031-4112",
-  "name": "תקשורת פוליטית",
-  "credits": 3.0,
-  "year": 3,
-  "section": "סמינר 4 ש\"ס",
-  "courseType": "SEMINAR",
-  "discipline": "GENERAL",
-  "semesters": []
- },
- {
-  "code": "1031-4481",
-  "name": "סוגיות אקטואליות בפילוסופיה פוליטית",
-  "credits": 3.0,
-  "year": 3,
-  "section": "סמינר 4 ש\"ס",
-  "courseType": "SEMINAR",
-  "discipline": "GENERAL",
-  "semesters": []
- },
- {
-  "code": "1031-4483",
-  "name": "מושג הריבונות בפילוסופיה פוליטית",
-  "credits": 3.0,
-  "year": 3,
-  "section": "סמינר 4 ש\"ס",
-  "courseType": "SEMINAR",
-  "discipline": "GENERAL",
-  "semesters": []
- },
- {
-  "code": "1031-4486",
-  "name": "מנהיגות, דמוקרטיה ופוליטיקה בעידן התקשורת הגלובאלית",
-  "credits": 3.0,
-  "year": 3,
-  "section": "סמינר 4 ש\"ס",
-  "courseType": "SEMINAR",
-  "discipline": "GENERAL",
-  "semesters": []
- },
- {
-  "code": "1031-4487",
-  "name": "דמוקרטיות בנות זמננו: בין יציבות למשבר",
-  "credits": 3.0,
-  "year": 3,
-  "section": "סמינר 4 ש\"ס",
-  "courseType": "SEMINAR",
-  "discipline": "GENERAL",
-  "semesters": []
- },
- {
-  "code": "0616-1022",
-  "name": "מבוא להגות יהודית בעת החדשה א' - ממנדלסון למחשבת הציונות",
-  "credits": 2.0,
-  "year": 3,
-  "section": "קורסי בחירה החוג לפילוסופיה יהודית",
-  "courseType": "ELECTIVE",
-  "discipline": "PHILOSOPHY",
-  "semesters": [
-   "FALL"
-  ]
- },
- {
-  "code": "0616-1023",
-  "name": "מבוא להגות היהודית בעת החדשה ב' - יהדות מודרנית, השואה ומדינת ישראל",
-  "credits": 2.0,
-  "year": 3,
-  "section": "קורסי בחירה החוג לפילוסופיה יהודית",
-  "courseType": "ELECTIVE",
-  "discipline": "PHILOSOPHY",
-  "semesters": [
-   "SPRING"
-  ]
- },
- {
-  "code": "0659-2611",
-  "name": "היסטוריה אינטלקטואלית ב': התפתחות הידע במערב",
-  "credits": 2.0,
-  "year": 3,
-  "section": "קורסי בחירה מכון כהן להיסטוריה ופילוסופיה של המדעים והרעיונות",
-  "courseType": "ELECTIVE",
-  "discipline": "PHILOSOPHY",
-  "semesters": [
-   "SPRING"
-  ]
- },
- {
-  "code": "0659-5155",
-  "name": "שאלות יסוד בהיסטוריה של מדעי החברה",
-  "credits": 2.0,
-  "year": 3,
-  "section": "קורסי בחירה מכון כהן להיסטוריה ופילוסופיה של המדעים והרעיונות",
-  "courseType": "ELECTIVE",
-  "discipline": "PHILOSOPHY",
-  "semesters": [
-   "FALL"
-  ]
- },
- {
-  "code": "1662-1124",
-  "name": "Queer Theory",
-  "credits": 2.0,
-  "year": 3,
-  "section": "קורסי בחירה התכנית הרב תחומית מדעי הרוח",
-  "courseType": "ELECTIVE",
-  "discipline": "GENERAL",
-  "semesters": []
- },
- {
-  "code": "1662-1158",
-  "name": "Digital Capitalism: From Surveillance Capitalism to Technofeudalism",
-  "credits": 4.0,
-  "year": 3,
-  "section": "קורסי בחירה התכנית הרב תחומית מדעי הרוח",
-  "courseType": "ELECTIVE",
-  "discipline": "GENERAL",
-  "semesters": []
- },
- {
-  "code": "1082-4189",
-  "name": "",
-  "credits": 3.0,
-  "year": 3,
-  "section": "קורסי בחירה החוג למדיניות ציבורית",
-  "courseType": "ELECTIVE",
-  "discipline": "POLITICAL_SCIENCE",
-  "semesters": [
-   "SPRING"
-  ]
- },
- {
-  "code": "1082-4280",
-  "name": "מורה נבוכים למנהל הציבורי בישראל",
-  "credits": 3.0,
-  "year": 3,
-  "section": "סמינר 3 ש\"ס",
-  "courseType": "SEMINAR",
-  "discipline": "GENERAL",
-  "semesters": [
-   "SPRING"
-  ]
- },
- {
-  "code": "1082-6424",
-  "name": "",
-  "credits": 3.0,
-  "year": 3,
-  "section": "סמינר 3 ש\"ס",
-  "courseType": "SEMINAR",
-  "discipline": "GENERAL",
-  "semesters": [
-   "FALL"
-  ]
- },
- {
-  "code": "1082-6453",
-  "name": "מימדים חברתיים של מהפכת האנרגיה המתחדשת",
-  "credits": 3.0,
-  "year": 3,
-  "section": "סמינר 3 ש\"ס",
-  "courseType": "SEMINAR",
-  "discipline": "GENERAL",
-  "semesters": [
-   "FALL"
-  ]
- },
- {
-  "code": "1082-6454",
-  "name": "",
-  "credits": 3.0,
-  "year": 3,
-  "section": "סמינר 3 ש\"ס",
-  "courseType": "SEMINAR",
-  "discipline": "GENERAL",
-  "semesters": [
-   "FALL"
-  ]
- },
- {
-  "code": "0626-1687",
-  "name": "תחנות יסוד בהיסטוריה של ארצות הברית, 1492-1861",
-  "credits": 4.0,
-  "year": 3,
-  "section": "קורסי בחירה נוספים",
-  "courseType": "ELECTIVE",
-  "discipline": "GENERAL",
-  "semesters": [
-   "FALL"
-  ]
- },
- {
-  "code": "1041-1108",
-  "name": "תיאוריות סוציולוגיות: מהתקופה הקלאסית ועד זמננו",
-  "credits": 4.0,
-  "year": 3,
-  "section": "קורסי בחירה נוספים",
-  "courseType": "ELECTIVE",
-  "discipline": "GENERAL",
-  "semesters": []
- },
- {
-  "code": "1880-0301",
-  "name": "אשנב למדעי המחשב",
-  "credits": 2.0,
-  "year": 3,
-  "section": "קורסי בחירה נוספים",
-  "courseType": "ELECTIVE",
-  "discipline": "GENERAL",
-  "semesters": []
- }
+  {
+    "code": "0651-1001",
+    "name": "קריאה מודרכת א'",
+    "credits": 2,
+    "year": 1,
+    "section": "קורסי חובה מתכנית פכ\"מ",
+    "courseType": "MANDATORY",
+    "discipline": "PPE_CORE",
+    "semesters": [
+      "FALL"
+    ]
+  },
+  {
+    "code": "0651-1002",
+    "name": "קריאה מודרכת ב'",
+    "credits": 2,
+    "year": 1,
+    "section": "קורסי חובה מתכנית פכ\"מ",
+    "courseType": "MANDATORY",
+    "discipline": "PPE_CORE",
+    "semesters": [
+      "SPRING"
+    ]
+  },
+  {
+    "code": "0651-1003",
+    "name": "פילוסופיה של מדעי החברה",
+    "credits": 4,
+    "year": 1,
+    "section": "קורסי חובה מתכנית פכ\"מ",
+    "courseType": "MANDATORY",
+    "discipline": "PPE_CORE",
+    "semesters": [
+      "SPRING"
+    ]
+  },
+  {
+    "code": "0651-1005",
+    "name": "סטטיסטיקה לפכ\"מ",
+    "credits": 5,
+    "year": 1,
+    "section": "קורסי חובה מתכנית פכ\"מ",
+    "courseType": "MANDATORY",
+    "discipline": "PPE_CORE",
+    "semesters": [
+      "SPRING"
+    ]
+  },
+  {
+    "code": "0651-1007",
+    "name": "מתמטיקה לפכ\"מ",
+    "credits": 5,
+    "year": 1,
+    "section": "קורסי חובה מתכנית פכ\"מ",
+    "courseType": "MANDATORY",
+    "discipline": "PPE_CORE",
+    "semesters": [
+      "FALL"
+    ]
+  },
+  {
+    "code": "0651-1019",
+    "name": "תרגיל צמוד למבוא לפילוסופיה פוליטית - פכ\"מ",
+    "credits": 2,
+    "year": 1,
+    "section": "קורסי חובה מתכנית פכ\"מ",
+    "courseType": "MANDATORY",
+    "discipline": "PPE_CORE",
+    "semesters": [
+      "FALL"
+    ]
+  },
+  {
+    "code": "0618-1018",
+    "name": "מבוא לפילוסופיה של המוסר",
+    "credits": 2,
+    "year": 1,
+    "section": "קורסי חובה מפילוסופיה",
+    "courseType": "MANDATORY",
+    "discipline": "PHILOSOPHY",
+    "semesters": [
+      "FALL"
+    ]
+  },
+  {
+    "code": "0618-1012",
+    "name": "מבוא ללוגיקה",
+    "credits": 4,
+    "year": 1,
+    "section": "קורסי חובה מפילוסופיה",
+    "courseType": "MANDATORY",
+    "discipline": "PHILOSOPHY",
+    "semesters": [
+      "FALL"
+    ]
+  },
+  {
+    "code": "0618-1019",
+    "name": "מבוא לפילוסופיה פוליטית",
+    "credits": 2,
+    "year": 1,
+    "section": "קורסי חובה מפילוסופיה",
+    "courseType": "MANDATORY",
+    "discipline": "PHILOSOPHY",
+    "semesters": [
+      "FALL"
+    ]
+  },
+  {
+    "code": "0618-1037",
+    "name": "מבוא לתורת ההכרה ומטאפיזיקה",
+    "credits": 2,
+    "year": 1,
+    "section": "קורסי חובה מפילוסופיה",
+    "courseType": "MANDATORY",
+    "discipline": "PHILOSOPHY",
+    "semesters": [
+      "SPRING"
+    ]
+  },
+  {
+    "code": "0618-1032",
+    "name": "מבוא לפילוסופיה חדשה",
+    "credits": 2,
+    "year": 1,
+    "section": "קורסי חובה מפילוסופיה",
+    "courseType": "MANDATORY",
+    "discipline": "PHILOSOPHY",
+    "semesters": [
+      "SPRING"
+    ]
+  },
+  {
+    "code": "1011-2103",
+    "name": "מיקרו כלכלה א' - קבלת החלטות כלכליות",
+    "credits": 5,
+    "year": 1,
+    "section": "קורסי חובה מביה\"ס לכלכלה",
+    "courseType": "MANDATORY",
+    "discipline": "ECONOMICS",
+    "semesters": [
+      "SPRING"
+    ]
+  },
+  {
+    "code": "1031-1002",
+    "name": "פוליטיקה ומשטר בישראל",
+    "credits": 4,
+    "year": 1,
+    "section": "קורסי חובה מהחוג למדע המדינה",
+    "courseType": "MANDATORY",
+    "discipline": "POLITICAL_SCIENCE",
+    "semesters": [
+      "FALL"
+    ]
+  },
+  {
+    "code": "1031-1100",
+    "name": "כתיבה ומחקר במדע המדינה",
+    "credits": 4,
+    "year": 1,
+    "section": "קורסי חובה מהחוג למדע המדינה",
+    "courseType": "MANDATORY",
+    "discipline": "POLITICAL_SCIENCE",
+    "semesters": [
+      "FALL"
+    ]
+  },
+  {
+    "code": "1031-2108",
+    "name": "אסטרטגיה בעידן המודרני",
+    "credits": 3,
+    "year": 1,
+    "section": "קורסי חובה מהחוג למדע המדינה",
+    "courseType": "MANDATORY",
+    "discipline": "POLITICAL_SCIENCE",
+    "semesters": [
+      "SPRING"
+    ]
+  },
+  {
+    "code": "1411-9107",
+    "name": "חקיקה ורגולציה",
+    "credits": 4,
+    "year": 1,
+    "section": "קורסי חובה מהחוג למדע המדינה",
+    "courseType": "MANDATORY",
+    "discipline": "POLITICAL_SCIENCE",
+    "semesters": [
+      "SPRING"
+    ]
+  },
+  {
+    "code": "0616-1017",
+    "name": "שפינוזה ומנדלסון - קריאות בהגות יהודית מודרנית",
+    "credits": 2,
+    "year": 1,
+    "section": "קורסי בחירה בפילסופיה",
+    "courseType": "ELECTIVE",
+    "discipline": "PHILOSOPHY",
+    "semesters": [
+      "FALL"
+    ]
+  },
+  {
+    "code": "0616-1215",
+    "name": "קריאה במורה הנבוכים לרמב\"ם",
+    "credits": 2,
+    "year": 1,
+    "section": "קורסי בחירה בפילסופיה",
+    "courseType": "ELECTIVE",
+    "discipline": "PHILOSOPHY",
+    "semesters": [
+      "SPRING"
+    ]
+  },
+  {
+    "code": "0616-3227",
+    "name": "אתיקה בעידן הדיגיטלי",
+    "credits": 2,
+    "year": 1,
+    "section": "קורסי בחירה בפילסופיה",
+    "courseType": "ELECTIVE",
+    "discipline": "PHILOSOPHY",
+    "semesters": [
+      "FALL"
+    ]
+  },
+  {
+    "code": "0616-3228",
+    "name": "סקס, סמים, אימהות ויהודים - קריאה בכתבים של זיגמונד (שלמה) פרויד",
+    "credits": 2,
+    "year": 1,
+    "section": "קורסי בחירה בפילסופיה",
+    "courseType": "ELECTIVE",
+    "discipline": "PHILOSOPHY",
+    "semesters": [
+      "SPRING"
+    ]
+  },
+  {
+    "code": "0616-6037",
+    "name": "",
+    "credits": 4,
+    "year": 1,
+    "section": "קורסי בחירה בפילסופיה",
+    "courseType": "ELECTIVE",
+    "discipline": "PHILOSOPHY",
+    "semesters": [
+      "FALL"
+    ]
+  },
+  {
+    "code": "0616-6043",
+    "name": "ארתור שפונהאואר והשפעתו על התרבות העברית במפנה המאה",
+    "credits": 2,
+    "year": 1,
+    "section": "קורסי בחירה בפילסופיה",
+    "courseType": "ELECTIVE",
+    "discipline": "PHILOSOPHY",
+    "semesters": [
+      "SPRING"
+    ]
+  },
+  {
+    "code": "0618-1015",
+    "name": "מבוא לפילוסופיה של השפה",
+    "credits": 2,
+    "year": 1,
+    "section": "קורסי בחירה בפילסופיה",
+    "courseType": "ELECTIVE",
+    "discipline": "PHILOSOPHY",
+    "semesters": [
+      "SPRING"
+    ]
+  },
+  {
+    "code": "0618-1016",
+    "name": "מבוא לפילוסופיה של הדת",
+    "credits": 2,
+    "year": 1,
+    "section": "קורסי בחירה בפילסופיה",
+    "courseType": "ELECTIVE",
+    "discipline": "PHILOSOPHY",
+    "semesters": [
+      "SPRING"
+    ]
+  },
+  {
+    "code": "0618-1030",
+    "name": "מבוא לפילוסופיה יוונית",
+    "credits": 2,
+    "year": 1,
+    "section": "קורסי בחירה בפילסופיה",
+    "courseType": "ELECTIVE",
+    "discipline": "PHILOSOPHY",
+    "semesters": [
+      "FALL"
+    ]
+  },
+  {
+    "code": "0618-1042",
+    "name": "מבוא לפילוסופיה הודית",
+    "credits": 2,
+    "year": 1,
+    "section": "קורסי בחירה בפילסופיה",
+    "courseType": "ELECTIVE",
+    "discipline": "PHILOSOPHY",
+    "semesters": [
+      "SPRING"
+    ]
+  },
+  {
+    "code": "0618-1043",
+    "name": "מבוא לפילוסופיה סינית",
+    "credits": 2,
+    "year": 1,
+    "section": "קורסי בחירה בפילסופיה",
+    "courseType": "ELECTIVE",
+    "discipline": "PHILOSOPHY",
+    "semesters": [
+      "SPRING"
+    ]
+  },
+  {
+    "code": "0618-1068",
+    "name": "מיומנויות יסוד: קריאה מודרכת דקארט",
+    "credits": 2,
+    "year": 1,
+    "section": "קורסי בחירה בפילסופיה",
+    "courseType": "ELECTIVE",
+    "discipline": "PHILOSOPHY",
+    "semesters": [
+      "SPRING"
+    ]
+  },
+  {
+    "code": "1011-2500",
+    "name": "חשבונאות לכלכלנים",
+    "credits": 2,
+    "year": 1,
+    "section": "קורסי בחירה מביה\"ס לכלכלה",
+    "courseType": "ELECTIVE",
+    "discipline": "ECONOMICS",
+    "semesters": [
+      "SPRING"
+    ]
+  },
+  {
+    "code": "1031-0906",
+    "name": "תורת המוסר והמדינה",
+    "credits": 3,
+    "year": 1,
+    "section": "קורסי בחירה מדע המדינה",
+    "courseType": "ELECTIVE",
+    "discipline": "POLITICAL_SCIENCE",
+    "semesters": [
+      "SPRING"
+    ]
+  },
+  {
+    "code": "1031-0922",
+    "name": "טכנולוגיה, חברה, מדינה",
+    "credits": 3,
+    "year": 1,
+    "section": "קורסי בחירה מדע המדינה",
+    "courseType": "ELECTIVE",
+    "discipline": "POLITICAL_SCIENCE",
+    "semesters": [
+      "SPRING"
+    ]
+  },
+  {
+    "code": "1031-0939",
+    "name": "דמוקרטיה ובינה מלאכותית: אתגרים, הזדמנויות ורגולציה",
+    "credits": 3,
+    "year": 1,
+    "section": "קורסי בחירה מדע המדינה",
+    "courseType": "ELECTIVE",
+    "discipline": "POLITICAL_SCIENCE",
+    "semesters": [
+      "SPRING"
+    ]
+  },
+  {
+    "code": "1031-0976",
+    "name": "משפט ממשל ושינוי חברתי - תיאוריה",
+    "credits": 2,
+    "year": 1,
+    "section": "קורסי בחירה מדע המדינה",
+    "courseType": "ELECTIVE",
+    "discipline": "POLITICAL_SCIENCE",
+    "semesters": [
+      "FALL"
+    ]
+  },
+  {
+    "code": "1031-1800",
+    "name": "מנהל ציבורי ומדיניות ציבורית",
+    "credits": 3,
+    "year": 1,
+    "section": "קורסי בחירה מדע המדינה",
+    "courseType": "ELECTIVE",
+    "discipline": "POLITICAL_SCIENCE",
+    "semesters": [
+      "SPRING"
+    ]
+  },
+  {
+    "code": "1031-3793",
+    "name": "תיאוריות של אינטגרציה",
+    "credits": 3,
+    "year": 1,
+    "section": "קורסי בחירה מדע המדינה",
+    "courseType": "ELECTIVE",
+    "discipline": "POLITICAL_SCIENCE",
+    "semesters": [
+      "SPRING"
+    ]
+  },
+  {
+    "code": "1031-3821",
+    "name": "אירופה במשבר",
+    "credits": 3,
+    "year": 1,
+    "section": "קורסי בחירה מדע המדינה",
+    "courseType": "ELECTIVE",
+    "discipline": "POLITICAL_SCIENCE",
+    "semesters": [
+      "SPRING"
+    ]
+  },
+  {
+    "code": "1031-3922",
+    "name": "טרור ומוסר ציבורי",
+    "credits": 3,
+    "year": 1,
+    "section": "קורסי בחירה מדע המדינה",
+    "courseType": "ELECTIVE",
+    "discipline": "POLITICAL_SCIENCE",
+    "semesters": [
+      "FALL"
+    ]
+  },
+  {
+    "code": "1031-3996",
+    "name": "בין שוק למדינה: שירותים ציבוריים בישראל ובעולם",
+    "credits": 3,
+    "year": 1,
+    "section": "קורסי בחירה מדע המדינה",
+    "courseType": "ELECTIVE",
+    "discipline": "POLITICAL_SCIENCE",
+    "semesters": [
+      "FALL"
+    ]
+  },
+  {
+    "code": "1221-4326",
+    "name": "",
+    "credits": 2,
+    "year": 1,
+    "section": "קורסי בחירה ניהול",
+    "courseType": "ELECTIVE",
+    "discipline": "GENERAL",
+    "semesters": [
+      "SPRING"
+    ]
+  },
+  {
+    "code": "0910-1000",
+    "name": "דיני איכות הסביבה",
+    "credits": 2,
+    "year": 1,
+    "section": "קורסי בחירה לימודי סביבה",
+    "courseType": "ELECTIVE",
+    "discipline": "GENERAL",
+    "semesters": [
+      "SPRING"
+    ]
+  },
+  {
+    "code": "0910-2021",
+    "name": "מבוא לחשיבה סביבתית",
+    "credits": 2,
+    "year": 1,
+    "section": "קורסי בחירה לימודי סביבה",
+    "courseType": "ELECTIVE",
+    "discipline": "GENERAL",
+    "semesters": []
+  },
+  {
+    "code": "0910-2030",
+    "name": "Introduction to Sustainability Science",
+    "credits": 3,
+    "year": 1,
+    "section": "קורסי בחירה לימודי סביבה",
+    "courseType": "ELECTIVE",
+    "discipline": "GENERAL",
+    "semesters": [
+      "SPRING"
+    ]
+  },
+  {
+    "code": "0910-4002",
+    "name": "מבוא לקיימות עירונית",
+    "credits": 2,
+    "year": 1,
+    "section": "קורסי בחירה לימודי סביבה",
+    "courseType": "ELECTIVE",
+    "discipline": "GENERAL",
+    "semesters": [
+      "FALL"
+    ]
+  },
+  {
+    "code": "0687-2616",
+    "name": "הלוטוס והחרב: אלימות ומלחמה בבודהיזם היפני",
+    "credits": 2,
+    "year": 1,
+    "section": "קורסי בחירה מזרח אסיה",
+    "courseType": "ELECTIVE",
+    "discipline": "GENERAL",
+    "semesters": [
+      "SPRING"
+    ]
+  },
+  {
+    "code": "0687-2623",
+    "name": "קלאסיקה מכוננת, כלי חדש: האם Ai יכול להבין את קונפוציוס?",
+    "credits": 2,
+    "year": 1,
+    "section": "קורסי בחירה מזרח אסיה",
+    "courseType": "ELECTIVE",
+    "discipline": "GENERAL",
+    "semesters": [
+      "SPRING"
+    ]
+  },
+  {
+    "code": "0662-1011",
+    "name": "מבוא למחשבה הומאניסטית",
+    "credits": 2,
+    "year": 1,
+    "section": "קורסי בחירה התכנית הרב תחומית מדעי הרוח",
+    "courseType": "ELECTIVE",
+    "discipline": "GENERAL",
+    "semesters": [
+      "FALL"
+    ]
+  },
+  {
+    "code": "0662-2252",
+    "name": "אתגרים לחוזה החברתי בעידן הניאו-ליברלי והדיגיטלי",
+    "credits": 2,
+    "year": 1,
+    "section": "קורסי בחירה התכנית הרב תחומית מדעי הרוח",
+    "courseType": "ELECTIVE",
+    "discipline": "GENERAL",
+    "semesters": [
+      "FALL"
+    ]
+  },
+  {
+    "code": "0662-2645",
+    "name": "שפת הפעולה: גלגולי מושג הפעולה בפסיכואנליזה ובראי הפילוסופיה",
+    "credits": 2,
+    "year": 1,
+    "section": "קורסי בחירה התכנית הרב תחומית מדעי הרוח",
+    "courseType": "ELECTIVE",
+    "discipline": "GENERAL",
+    "semesters": [
+      "SPRING"
+    ]
+  },
+  {
+    "code": "1662-1108",
+    "name": "A Political History of the Economy",
+    "credits": 4,
+    "year": 1,
+    "section": "קורסי בחירה התכנית הרב תחומית מדעי הרוח",
+    "courseType": "ELECTIVE",
+    "discipline": "GENERAL",
+    "semesters": [
+      "FALL"
+    ]
+  },
+  {
+    "code": "1662-1118",
+    "name": "From Pythagoras to Google: Social Histories of Knowledge",
+    "credits": 4,
+    "year": 1,
+    "section": "קורסי בחירה התכנית הרב תחומית מדעי הרוח",
+    "courseType": "ELECTIVE",
+    "discipline": "GENERAL",
+    "semesters": [
+      "FALL"
+    ]
+  },
+  {
+    "code": "1662-1153",
+    "name": "Sustainable Growth Strategies for the Modern Business",
+    "credits": 2,
+    "year": 1,
+    "section": "קורסי בחירה התכנית הרב תחומית מדעי הרוח",
+    "courseType": "ELECTIVE",
+    "discipline": "GENERAL",
+    "semesters": [
+      "SPRING"
+    ]
+  },
+  {
+    "code": "1662-1206",
+    "name": "Listening to God: the Concept of Revelation in Modern Jewish Thought",
+    "credits": 2,
+    "year": 1,
+    "section": "קורסי בחירה התכנית הרב תחומית מדעי הרוח",
+    "courseType": "ELECTIVE",
+    "discipline": "GENERAL",
+    "semesters": [
+      "FALL"
+    ]
+  },
+  {
+    "code": "1662-1216",
+    "name": "Jewish and Islamic Philosophy: Crosscurrents and Intersections",
+    "credits": 2,
+    "year": 1,
+    "section": "קורסי בחירה התכנית הרב תחומית מדעי הרוח",
+    "courseType": "ELECTIVE",
+    "discipline": "GENERAL",
+    "semesters": [
+      "SPRING"
+    ]
+  },
+  {
+    "code": "1662-1300",
+    "name": "Introduction to Modern Jewish Thought",
+    "credits": 4,
+    "year": 1,
+    "section": "קורסי בחירה התכנית הרב תחומית מדעי הרוח",
+    "courseType": "ELECTIVE",
+    "discipline": "GENERAL",
+    "semesters": [
+      "SPRING"
+    ]
+  },
+  {
+    "code": "0621-1974",
+    "name": "וצדק לכל? ארה\"ב במאות ה-19 וה-20",
+    "credits": 4,
+    "year": 1,
+    "section": "קורסי בחירה החוג להיסטוריה כללית",
+    "courseType": "ELECTIVE",
+    "discipline": "GENERAL",
+    "semesters": [
+      "SPRING"
+    ]
+  },
+  {
+    "code": "0608-1010",
+    "name": "מבוא לתיאוריה קווירית",
+    "credits": 2,
+    "year": 1,
+    "section": "קורסי בחירה נוספים",
+    "courseType": "ELECTIVE",
+    "discipline": "GENERAL",
+    "semesters": [
+      "SPRING"
+    ]
+  },
+  {
+    "code": "0609-1013",
+    "name": "מהי יהדות? מבוא למחשבת ישראל לדורותיה",
+    "credits": 2,
+    "year": 1,
+    "section": "קורסי בחירה נוספים",
+    "courseType": "ELECTIVE",
+    "discipline": "GENERAL",
+    "semesters": []
+  },
+  {
+    "code": "0609-1020",
+    "name": "מהי גזענות? היסטוריה, תאוריה ומאבק",
+    "credits": 2,
+    "year": 1,
+    "section": "קורסי בחירה נוספים",
+    "courseType": "ELECTIVE",
+    "discipline": "GENERAL",
+    "semesters": []
+  },
+  {
+    "code": "0609-1212",
+    "name": "קורס חירום : מהי דמוקרטיה ?",
+    "credits": 2,
+    "year": 1,
+    "section": "קורסי בחירה נוספים",
+    "courseType": "ELECTIVE",
+    "discipline": "GENERAL",
+    "semesters": [
+      "SPRING"
+    ]
+  },
+  {
+    "code": "0609-1229",
+    "name": "המלחמה: בתנ\"ך ובמחשבת ישראל",
+    "credits": 2,
+    "year": 1,
+    "section": "קורסי בחירה נוספים",
+    "courseType": "ELECTIVE",
+    "discipline": "GENERAL",
+    "semesters": [
+      "FALL"
+    ]
+  },
+  {
+    "code": "0609-1303",
+    "name": "אלוהים מחפש משמעות: חקר הדת, מושג האל ותפיסת האדם במדעי הרוח והחברה",
+    "credits": 2,
+    "year": 1,
+    "section": "קורסי בחירה נוספים",
+    "courseType": "ELECTIVE",
+    "discipline": "GENERAL",
+    "semesters": [
+      "FALL"
+    ]
+  },
+  {
+    "code": "0622-2332",
+    "name": "רעיונות נודדים ועולמות שזורים: היסטוריה אינטלקטואלית של המזה\"ת במאה ה-20",
+    "credits": 4,
+    "year": 1,
+    "section": "קורסי בחירה נוספים",
+    "courseType": "ELECTIVE",
+    "discipline": "GENERAL",
+    "semesters": [
+      "SPRING"
+    ]
+  },
+  {
+    "code": "1880-0901",
+    "name": "משבר האקלים וקיימות: מבט רב תחומי",
+    "credits": 2,
+    "year": 1,
+    "section": "קורסי בחירה נוספים",
+    "courseType": "ELECTIVE",
+    "discipline": "GENERAL",
+    "semesters": []
+  },
+  {
+    "code": "1882-0301",
+    "name": "צעדים ראשונים במדעי המחשב ותכנות בפייתון",
+    "credits": 2,
+    "year": 1,
+    "section": "קורסי בחירה נוספים",
+    "courseType": "ELECTIVE",
+    "discipline": "GENERAL",
+    "semesters": []
+  },
+  {
+    "code": "1882-1002",
+    "name": "פוליטיקה אנושית: מוות, חופש וחיפוש משמעות",
+    "credits": 2,
+    "year": 1,
+    "section": "קורסי בחירה נוספים",
+    "courseType": "ELECTIVE",
+    "discipline": "GENERAL",
+    "semesters": []
+  },
+  {
+    "code": "0651-1010",
+    "name": "קורס אינטגרטיבי לפכ\"מ: כלכלה פוליטית בינלאומית",
+    "credits": 3,
+    "year": 2,
+    "section": "קורסי חובה פכ\"מ",
+    "courseType": "MANDATORY",
+    "discipline": "PPE_CORE",
+    "semesters": [
+      "SPRING"
+    ]
+  },
+  {
+    "code": "0618-2200",
+    "name": "מבוא לפילוסופיה של המאה התשע-עשרה",
+    "credits": 2,
+    "year": 2,
+    "section": "קורסי חובה פילוסופיה",
+    "courseType": "MANDATORY",
+    "discipline": "PHILOSOPHY",
+    "semesters": [
+      "FALL"
+    ]
+  },
+  {
+    "code": "0618-2601",
+    "name": "פילוסופיה של המוסר - שיעור המשך",
+    "credits": 2,
+    "year": 2,
+    "section": "קורסי חובה פילוסופיה",
+    "courseType": "MANDATORY",
+    "discipline": "PHILOSOPHY",
+    "semesters": [
+      "SPRING"
+    ]
+  },
+  {
+    "code": "0618-2103",
+    "name": "שיעור יסוד: הגורגיאס של אפלטון",
+    "credits": 2,
+    "year": 2,
+    "section": "קורסי יסוד החוג לפילוסופיה",
+    "courseType": "ELECTIVE",
+    "discipline": "PHILOSOPHY",
+    "semesters": [
+      "FALL"
+    ]
+  },
+  {
+    "code": "0618-2104",
+    "name": "שיעור יסוד: פילוסופיה בהיסטוריה",
+    "credits": 2,
+    "year": 2,
+    "section": "קורסי יסוד החוג לפילוסופיה",
+    "courseType": "ELECTIVE",
+    "discipline": "PHILOSOPHY",
+    "semesters": [
+      "FALL"
+    ]
+  },
+  {
+    "code": "0618-2243",
+    "name": "שיעור יסוד: פילוסופיה של הטכנולוגיה",
+    "credits": 2,
+    "year": 2,
+    "section": "קורסי יסוד החוג לפילוסופיה",
+    "courseType": "ELECTIVE",
+    "discipline": "PHILOSOPHY",
+    "semesters": [
+      "FALL"
+    ]
+  },
+  {
+    "code": "0618-2264",
+    "name": "שיעור יסוד: סוגיות בפילוסופיה של המתמטיקה",
+    "credits": 2,
+    "year": 2,
+    "section": "קורסי יסוד החוג לפילוסופיה",
+    "courseType": "ELECTIVE",
+    "discipline": "PHILOSOPHY",
+    "semesters": [
+      "SPRING"
+    ]
+  },
+  {
+    "code": "0618-2458",
+    "name": "שיעור יסוד: ניהיליזם",
+    "credits": 2,
+    "year": 2,
+    "section": "קורסי יסוד החוג לפילוסופיה",
+    "courseType": "ELECTIVE",
+    "discipline": "PHILOSOPHY",
+    "semesters": [
+      "SPRING"
+    ]
+  },
+  {
+    "code": "0618-2459",
+    "name": "Elementary Course: the Ethics of War",
+    "credits": 2,
+    "year": 2,
+    "section": "קורסי יסוד החוג לפילוסופיה",
+    "courseType": "ELECTIVE",
+    "discipline": "PHILOSOPHY",
+    "semesters": [
+      "SPRING"
+    ]
+  },
+  {
+    "code": "0618-2531",
+    "name": "שיעור יסוד: חכמת הזיקנה - מקיקרו עד סימון דה בובואר",
+    "credits": 2,
+    "year": 2,
+    "section": "קורסי יסוד החוג לפילוסופיה",
+    "courseType": "ELECTIVE",
+    "discipline": "PHILOSOPHY",
+    "semesters": [
+      "FALL"
+    ]
+  },
+  {
+    "code": "0618-2595",
+    "name": "Elementary Course: Hegel's Philosophy of Right",
+    "credits": 2,
+    "year": 2,
+    "section": "קורסי יסוד החוג לפילוסופיה",
+    "courseType": "ELECTIVE",
+    "discipline": "PHILOSOPHY",
+    "semesters": [
+      "FALL"
+    ]
+  },
+  {
+    "code": "0618-2811",
+    "name": "שיעור יסוד: הרמן כהן ומרטין בובר - קריאה בפילוסופיה יהודית מודרנית",
+    "credits": 2,
+    "year": 2,
+    "section": "קורסי יסוד החוג לפילוסופיה",
+    "courseType": "ELECTIVE",
+    "discipline": "PHILOSOPHY",
+    "semesters": [
+      "SPRING"
+    ]
+  },
+  {
+    "code": "0618-2813",
+    "name": "שיעור יסוד: רמב\"ם פינת יהודה הלוי: תור הזהב של הפילוסופיה היהודית",
+    "credits": 2,
+    "year": 2,
+    "section": "קורסי יסוד החוג לפילוסופיה",
+    "courseType": "ELECTIVE",
+    "discipline": "PHILOSOPHY",
+    "semesters": [
+      "FALL"
+    ]
+  },
+  {
+    "code": "0618-8013",
+    "name": "שיעור יסוד: סולידריות",
+    "credits": 2,
+    "year": 2,
+    "section": "קורסי יסוד החוג לפילוסופיה",
+    "courseType": "ELECTIVE",
+    "discipline": "PHILOSOPHY",
+    "semesters": [
+      "FALL"
+    ]
+  },
+  {
+    "code": "0618-8015",
+    "name": "שיעור יסוד: פילוסופית הדת של קירקגור",
+    "credits": 2,
+    "year": 2,
+    "section": "קורסי יסוד החוג לפילוסופיה",
+    "courseType": "ELECTIVE",
+    "discipline": "PHILOSOPHY",
+    "semesters": [
+      "FALL"
+    ]
+  },
+  {
+    "code": "0618-8016",
+    "name": "שיעור יסוד: פילוסופיה סטואית",
+    "credits": 2,
+    "year": 2,
+    "section": "קורסי יסוד החוג לפילוסופיה",
+    "courseType": "ELECTIVE",
+    "discipline": "PHILOSOPHY",
+    "semesters": [
+      "SPRING"
+    ]
+  },
+  {
+    "code": "0618-5235",
+    "name": "שיעור קריאה: קונפוציוס - \"מאמרות\"",
+    "credits": 2,
+    "year": 2,
+    "section": "קורסי קריאה החוג לפילוסופיה",
+    "courseType": "ELECTIVE",
+    "discipline": "PHILOSOPHY",
+    "semesters": [
+      "SPRING"
+    ]
+  },
+  {
+    "code": "0618-5260",
+    "name": "שיעור קריאה: אוגוסטינוס - \"וידויים\"",
+    "credits": 2,
+    "year": 2,
+    "section": "קורסי קריאה החוג לפילוסופיה",
+    "courseType": "ELECTIVE",
+    "discipline": "PHILOSOPHY",
+    "semesters": [
+      "FALL"
+    ]
+  },
+  {
+    "code": "0618-5263",
+    "name": "שיעור קריאה: חנה ארנדט - \"המצב האנושי\"",
+    "credits": 2,
+    "year": 2,
+    "section": "קורסי קריאה החוג לפילוסופיה",
+    "courseType": "ELECTIVE",
+    "discipline": "PHILOSOPHY",
+    "semesters": [
+      "FALL"
+    ]
+  },
+  {
+    "code": "0618-5269",
+    "name": "שיעור קריאה: פרידריך וילהלם שלינג - ''חקירות פילוסופיות על מהות חירות האדם\"",
+    "credits": 2,
+    "year": 2,
+    "section": "קורסי קריאה החוג לפילוסופיה",
+    "courseType": "ELECTIVE",
+    "discipline": "PHILOSOPHY",
+    "semesters": [
+      "SPRING"
+    ]
+  },
+  {
+    "code": "0618-5270",
+    "name": "שיעור קריאה: אדמונד הוסרל - \"אידיאות 1\"",
+    "credits": 2,
+    "year": 2,
+    "section": "קורסי קריאה החוג לפילוסופיה",
+    "courseType": "ELECTIVE",
+    "discipline": "PHILOSOPHY",
+    "semesters": [
+      "FALL"
+    ]
+  },
+  {
+    "code": "0618-5271",
+    "name": "שיעור קריאה: אנרי ברגסון - \"הצחוק\"",
+    "credits": 2,
+    "year": 2,
+    "section": "קורסי קריאה החוג לפילוסופיה",
+    "courseType": "ELECTIVE",
+    "discipline": "PHILOSOPHY",
+    "semesters": [
+      "SPRING"
+    ]
+  },
+  {
+    "code": "0618-5272",
+    "name": "שיעור קריאה: מרטין היידגר -\"סוף הפילוסופיה ומשימת החשיבה\"",
+    "credits": 2,
+    "year": 2,
+    "section": "קורסי קריאה החוג לפילוסופיה",
+    "courseType": "ELECTIVE",
+    "discipline": "PHILOSOPHY",
+    "semesters": [
+      "FALL"
+    ]
+  },
+  {
+    "code": "0618-5273",
+    "name": "שיעור קריאה: אדמונד הוסרל - \"הגיונות קרטזיאניים\"",
+    "credits": 2,
+    "year": 2,
+    "section": "קורסי קריאה החוג לפילוסופיה",
+    "courseType": "ELECTIVE",
+    "discipline": "PHILOSOPHY",
+    "semesters": [
+      "FALL"
+    ]
+  },
+  {
+    "code": "0618-5274",
+    "name": "שיעור קריאה: אן קונווי - \"עקרונות הפילוסופיה העתיקה והמודרנית\"",
+    "credits": 2,
+    "year": 2,
+    "section": "קורסי קריאה החוג לפילוסופיה",
+    "courseType": "ELECTIVE",
+    "discipline": "PHILOSOPHY",
+    "semesters": [
+      "SPRING"
+    ]
+  },
+  {
+    "code": "0618-5275",
+    "name": "שיעור קריאה: ניקולו מקיאוולי - \"הנסיך\" הפוליטיקה בין פילוסופיה, מדע וספרות",
+    "credits": 2,
+    "year": 2,
+    "section": "קורסי קריאה החוג לפילוסופיה",
+    "courseType": "ELECTIVE",
+    "discipline": "PHILOSOPHY",
+    "semesters": [
+      "SPRING"
+    ]
+  },
+  {
+    "code": "1011-2101",
+    "name": "מאקרו כלכלה: צמיחה כלכלית, מחזורי עסקים, משברים ומדיניות",
+    "credits": 6,
+    "year": 2,
+    "section": "קורסי חובה מכלכלה",
+    "courseType": "MANDATORY",
+    "discipline": "ECONOMICS",
+    "semesters": [
+      "FALL"
+    ]
+  },
+  {
+    "code": "1011-2106",
+    "name": "מבוא לאקונומטריקה",
+    "credits": 6,
+    "year": 2,
+    "section": "קורסי חובה מכלכלה",
+    "courseType": "MANDATORY",
+    "discipline": "ECONOMICS",
+    "semesters": [
+      "FALL"
+    ]
+  },
+  {
+    "code": "1011-2109",
+    "name": "מיקרו כלכלה ב' - כלכלת רווחה והשוק התחרותי",
+    "credits": 5,
+    "year": 2,
+    "section": "קורסי חובה מכלכלה",
+    "courseType": "MANDATORY",
+    "discipline": "ECONOMICS",
+    "semesters": [
+      "FALL"
+    ]
+  },
+  {
+    "code": "1031-1108",
+    "name": "פוליטיקה השוואתית",
+    "credits": 4,
+    "year": 2,
+    "section": "קורסי חובה ממדע המדינה",
+    "courseType": "MANDATORY",
+    "discipline": "POLITICAL_SCIENCE",
+    "semesters": [
+      "FALL",
+      "SPRING"
+    ]
+  },
+  {
+    "code": "1411-9102",
+    "name": "משפט חוקתי",
+    "credits": 4,
+    "year": 2,
+    "section": "קורסי יסוד משפטים",
+    "courseType": "LAW_FOUNDATION",
+    "discipline": "LAW",
+    "semesters": [
+      "FALL"
+    ]
+  },
+  {
+    "code": "1411-9103",
+    "name": "משפט ישראלי",
+    "credits": 4,
+    "year": 2,
+    "section": "קורסי יסוד משפטים",
+    "courseType": "LAW_FOUNDATION",
+    "discipline": "LAW",
+    "semesters": [
+      "SPRING"
+    ]
+  },
+  {
+    "code": "1411-9104",
+    "name": "דיני נזיקין",
+    "credits": 4,
+    "year": 2,
+    "section": "קורסי יסוד משפטים",
+    "courseType": "LAW_FOUNDATION",
+    "discipline": "LAW",
+    "semesters": [
+      "FALL",
+      "SPRING"
+    ]
+  },
+  {
+    "code": "1411-9109",
+    "name": "1411-9111",
+    "credits": 4,
+    "year": 2,
+    "section": "קורסי יסוד משפטים",
+    "courseType": "LAW_FOUNDATION",
+    "discipline": "LAW",
+    "semesters": []
+  },
+  {
+    "code": "1411-9111",
+    "name": "תיאוריה משפטית",
+    "credits": 4,
+    "year": 2,
+    "section": "קורסי יסוד משפטים",
+    "courseType": "LAW_FOUNDATION",
+    "discipline": "LAW",
+    "semesters": [
+      "SPRING"
+    ]
+  },
+  {
+    "code": "1411-9221",
+    "name": "דיני קניין",
+    "credits": 4,
+    "year": 2,
+    "section": "קורסי יסוד משפטים",
+    "courseType": "LAW_FOUNDATION",
+    "discipline": "LAW",
+    "semesters": [
+      "FALL",
+      "SPRING"
+    ]
+  },
+  {
+    "code": "1411-9223",
+    "name": "משפט בינלאומי פומבי",
+    "credits": 4,
+    "year": 2,
+    "section": "קורסי יסוד משפטים",
+    "courseType": "LAW_FOUNDATION",
+    "discipline": "LAW",
+    "semesters": [
+      "FALL",
+      "SPRING"
+    ]
+  },
+  {
+    "code": "1411-9224",
+    "name": "משפט מנהלי",
+    "credits": 4,
+    "year": 2,
+    "section": "קורסי יסוד משפטים",
+    "courseType": "LAW_FOUNDATION",
+    "discipline": "LAW",
+    "semesters": [
+      "FALL",
+      "SPRING"
+    ]
+  },
+  {
+    "code": "1411-9225",
+    "name": "דיני עבודה",
+    "credits": 4,
+    "year": 2,
+    "section": "קורסי יסוד משפטים",
+    "courseType": "LAW_FOUNDATION",
+    "discipline": "LAW",
+    "semesters": [
+      "SPRING"
+    ]
+  },
+  {
+    "code": "0651-3011",
+    "name": "לאומיות ורב-תרבותיות: תיאוריה מדינית וחוקתית השוואתית (בדגש על ישראל)",
+    "credits": 4,
+    "year": 2,
+    "section": "סמינרים תכנית פכ\"מ",
+    "courseType": "SEMINAR",
+    "discipline": "PPE_CORE",
+    "semesters": [
+      "SPRING"
+    ]
+  },
+  {
+    "code": "0616-3521",
+    "name": "פילוסופיה ושואה",
+    "credits": 2,
+    "year": 2,
+    "section": "סמינר בתחום המיקוד בו תוגש עבודה סמינריונית",
+    "courseType": "SEMINAR",
+    "discipline": "GENERAL",
+    "semesters": [
+      "SPRING"
+    ]
+  },
+  {
+    "code": "0616-4017",
+    "name": "",
+    "credits": 4,
+    "year": 2,
+    "section": "סמינר 2 ש\"ס",
+    "courseType": "SEMINAR",
+    "discipline": "GENERAL",
+    "semesters": [
+      "FALL"
+    ]
+  },
+  {
+    "code": "0618-3015",
+    "name": "ברוך שפינוזה: מאמר תיאלוגי מדיני",
+    "credits": 4,
+    "year": 2,
+    "section": "סמינר 4 ש\"ס",
+    "courseType": "SEMINAR",
+    "discipline": "GENERAL",
+    "semesters": [
+      "FALL"
+    ]
+  },
+  {
+    "code": "0618-3896",
+    "name": "זהות אישית",
+    "credits": 4,
+    "year": 2,
+    "section": "סמינר 4 ש\"ס",
+    "courseType": "SEMINAR",
+    "discipline": "GENERAL",
+    "semesters": [
+      "SPRING"
+    ]
+  },
+  {
+    "code": "0618-3917",
+    "name": "תודעה-עולם-ואחרים: ברנדום מקדאוול",
+    "credits": 4,
+    "year": 2,
+    "section": "סמינר 4 ש\"ס",
+    "courseType": "SEMINAR",
+    "discipline": "GENERAL",
+    "semesters": [
+      "FALL"
+    ]
+  },
+  {
+    "code": "0618-3919",
+    "name": "Genealogy",
+    "credits": 4,
+    "year": 2,
+    "section": "סמינר 4 ש\"ס",
+    "courseType": "SEMINAR",
+    "discipline": "GENERAL",
+    "semesters": [
+      "FALL"
+    ]
+  },
+  {
+    "code": "0618-3924",
+    "name": "מחשבה כחיים: עיונים בהגות קאנט, היגל, ברגסון ו-ווייטהד",
+    "credits": 4,
+    "year": 2,
+    "section": "סמינר 4 ש\"ס",
+    "courseType": "SEMINAR",
+    "discipline": "GENERAL",
+    "semesters": [
+      "FALL"
+    ]
+  },
+  {
+    "code": "0618-3925",
+    "name": "Schopenhauer and Nietzsche",
+    "credits": 4,
+    "year": 2,
+    "section": "סמינר 4 ש\"ס",
+    "courseType": "SEMINAR",
+    "discipline": "GENERAL",
+    "semesters": [
+      "SPRING"
+    ]
+  },
+  {
+    "code": "0618-3927",
+    "name": "אלוהים: תפקידו במטפיזיקה של אריסטו",
+    "credits": 4,
+    "year": 2,
+    "section": "סמינר 4 ש\"ס",
+    "courseType": "SEMINAR",
+    "discipline": "GENERAL",
+    "semesters": [
+      "SPRING"
+    ]
+  },
+  {
+    "code": "1031-0917",
+    "name": "Middle East Politics",
+    "credits": 4,
+    "year": 2,
+    "section": "סמינר בתחום המיקוד בו תוגש עבודה סמינריונית",
+    "courseType": "SEMINAR",
+    "discipline": "GENERAL",
+    "semesters": [
+      "FALL"
+    ]
+  },
+  {
+    "code": "1031-0925",
+    "name": "Democracy, Autocracy and Regime Change",
+    "credits": 4,
+    "year": 2,
+    "section": "סמינר 4 ש\"ס",
+    "courseType": "SEMINAR",
+    "discipline": "GENERAL",
+    "semesters": [
+      "SPRING"
+    ]
+  },
+  {
+    "code": "1031-0930",
+    "name": "יחסי צבא-מדינה דמוקרטיים",
+    "credits": 4,
+    "year": 2,
+    "section": "סמינר 4 ש\"ס",
+    "courseType": "SEMINAR",
+    "discipline": "GENERAL",
+    "semesters": [
+      "FALL"
+    ]
+  },
+  {
+    "code": "1031-3854",
+    "name": "דילמות במלחמות מודרניות",
+    "credits": 3,
+    "year": 2,
+    "section": "סמינר 4 ש\"ס",
+    "courseType": "SEMINAR",
+    "discipline": "GENERAL",
+    "semesters": [
+      "SPRING"
+    ]
+  },
+  {
+    "code": "1031-3970",
+    "name": "השאלה אודות הטכנולוגיה בסרטים של קריסטופר נולן",
+    "credits": 4,
+    "year": 2,
+    "section": "סמינר 3 ש\"ס",
+    "courseType": "SEMINAR",
+    "discipline": "GENERAL",
+    "semesters": [
+      "SPRING"
+    ]
+  },
+  {
+    "code": "1031-3989",
+    "name": "Improving Governance Through Experiments",
+    "credits": 4,
+    "year": 2,
+    "section": "סמינר 4 ש\"ס",
+    "courseType": "SEMINAR",
+    "discipline": "GENERAL",
+    "semesters": [
+      "FALL"
+    ]
+  },
+  {
+    "code": "0651-1012",
+    "name": "תולדות המחשבה הכלכלית בעת החדשה לפכ\"מ",
+    "credits": 2,
+    "year": 2,
+    "section": "קורסי בחירה מתכנית פכ\"מ",
+    "courseType": "ELECTIVE",
+    "discipline": "PPE_CORE",
+    "semesters": [
+      "FALL"
+    ]
+  },
+  {
+    "code": "0651-1014",
+    "name": "",
+    "credits": 3,
+    "year": 2,
+    "section": "קורסי בחירה מתכנית פכ\"מ",
+    "courseType": "ELECTIVE",
+    "discipline": "PPE_CORE",
+    "semesters": [
+      "FALL"
+    ]
+  },
+  {
+    "code": "0618-1059",
+    "name": "מבוא לאסתטיקה ולפילוסופיה של האמנות",
+    "credits": 2,
+    "year": 2,
+    "section": "קורסי בחירה בפילוסופיה",
+    "courseType": "ELECTIVE",
+    "discipline": "PHILOSOPHY",
+    "semesters": [
+      "FALL"
+    ]
+  },
+  {
+    "code": "0618-2030",
+    "name": "פילוסופיה יוונית - שיעור המשך",
+    "credits": 2,
+    "year": 2,
+    "section": "קורסי בחירה בפילוסופיה",
+    "courseType": "ELECTIVE",
+    "discipline": "PHILOSOPHY",
+    "semesters": [
+      "FALL"
+    ]
+  },
+  {
+    "code": "0618-2032",
+    "name": "פילוסופיה חדשה - שיעור המשך",
+    "credits": 2,
+    "year": 2,
+    "section": "קורסי בחירה בפילוסופיה",
+    "courseType": "ELECTIVE",
+    "discipline": "PHILOSOPHY",
+    "semesters": [
+      "FALL"
+    ]
+  },
+  {
+    "code": "0618-2202",
+    "name": "פילוסופיה של המאה ה-19 - שיעור המשך",
+    "credits": 2,
+    "year": 2,
+    "section": "קורסי בחירה בפילוסופיה",
+    "courseType": "ELECTIVE",
+    "discipline": "PHILOSOPHY",
+    "semesters": [
+      "SPRING"
+    ]
+  },
+  {
+    "code": "0618-2209",
+    "name": "פילוסופיה של הדת - שיעור המשך",
+    "credits": 2,
+    "year": 2,
+    "section": "קורסי בחירה בפילוסופיה",
+    "courseType": "ELECTIVE",
+    "discipline": "PHILOSOPHY",
+    "semesters": [
+      "SPRING"
+    ]
+  },
+  {
+    "code": "0618-2223",
+    "name": "פילוסופיה הודית - שיעור המשך",
+    "credits": 2,
+    "year": 2,
+    "section": "קורסי בחירה בפילוסופיה",
+    "courseType": "ELECTIVE",
+    "discipline": "PHILOSOPHY",
+    "semesters": [
+      "SPRING"
+    ]
+  },
+  {
+    "code": "0618-2225",
+    "name": "פילוסופיה סינית - שיעור המשך",
+    "credits": 2,
+    "year": 2,
+    "section": "קורסי בחירה בפילוסופיה",
+    "courseType": "ELECTIVE",
+    "discipline": "PHILOSOPHY",
+    "semesters": [
+      "SPRING"
+    ]
+  },
+  {
+    "code": "0618-2350",
+    "name": "תורת ההכרה ומטאפיזיקה - שיעור המשך",
+    "credits": 2,
+    "year": 2,
+    "section": "קורסי בחירה בפילוסופיה",
+    "courseType": "ELECTIVE",
+    "discipline": "PHILOSOPHY",
+    "semesters": [
+      "FALL"
+    ]
+  },
+  {
+    "code": "0618-2400",
+    "name": "אסתטיקה ופילוסופיה של האמנות - שיעור המשך",
+    "credits": 2,
+    "year": 2,
+    "section": "קורסי בחירה בפילוסופיה",
+    "courseType": "ELECTIVE",
+    "discipline": "PHILOSOPHY",
+    "semesters": [
+      "FALL"
+    ]
+  },
+  {
+    "code": "0618-7458",
+    "name": "לוגיקה - שיעור המשך",
+    "credits": 4,
+    "year": 2,
+    "section": "קורסי בחירה בפילוסופיה",
+    "courseType": "ELECTIVE",
+    "discipline": "PHILOSOPHY",
+    "semesters": []
+  },
+  {
+    "code": "0618-7585",
+    "name": "פילוסופיה פוליטית - שיעור המשך",
+    "credits": 2,
+    "year": 2,
+    "section": "קורסי בחירה בפילוסופיה",
+    "courseType": "ELECTIVE",
+    "discipline": "PHILOSOPHY",
+    "semesters": []
+  },
+  {
+    "code": "1011-2116",
+    "name": "אקונומטריקה יישומית",
+    "credits": 4,
+    "year": 2,
+    "section": "קורסי בחירה מביה\"ס לכלכלה",
+    "courseType": "ELECTIVE",
+    "discipline": "ECONOMICS",
+    "semesters": [
+      "SPRING"
+    ]
+  },
+  {
+    "code": "1011-3166",
+    "name": "תיאוריה כלכלית בעידן הכלכלה ההתנהגותית",
+    "credits": 2,
+    "year": 2,
+    "section": "קורסי בחירה מביה\"ס לכלכלה",
+    "courseType": "ELECTIVE",
+    "discipline": "ECONOMICS",
+    "semesters": [
+      "SPRING"
+    ]
+  },
+  {
+    "code": "1011-3369",
+    "name": "צמיחה כלכלית: תיאוריה, ממצאים ומדיניות",
+    "credits": 2,
+    "year": 2,
+    "section": "קורסי בחירה מביה\"ס לכלכלה",
+    "courseType": "ELECTIVE",
+    "discipline": "ECONOMICS",
+    "semesters": [
+      "SPRING"
+    ]
+  },
+  {
+    "code": "1011-3371",
+    "name": "Topics in Macroeconomics",
+    "credits": 3,
+    "year": 2,
+    "section": "קורסי בחירה מביה\"ס לכלכלה",
+    "courseType": "ELECTIVE",
+    "discipline": "ECONOMICS",
+    "semesters": [
+      "SPRING"
+    ]
+  },
+  {
+    "code": "1011-3484",
+    "name": "צדק חלוקתי",
+    "credits": 2,
+    "year": 2,
+    "section": "קורסי בחירה מביה\"ס לכלכלה",
+    "courseType": "ELECTIVE",
+    "discipline": "ECONOMICS",
+    "semesters": []
+  },
+  {
+    "code": "1011-3505",
+    "name": "תולדות המחשבה הכלכלית: נושאים ומחלוקות בהתפתחות התיאוריה הכלכלית.",
+    "credits": 2,
+    "year": 2,
+    "section": "קורסי בחירה מביה\"ס לכלכלה",
+    "courseType": "ELECTIVE",
+    "discipline": "ECONOMICS",
+    "semesters": [
+      "SPRING"
+    ]
+  },
+  {
+    "code": "1011-4605",
+    "name": "שיטות מתמטיות בכלכלה",
+    "credits": 5,
+    "year": 2,
+    "section": "קורסי בחירה מביה\"ס לכלכלה",
+    "courseType": "ELECTIVE",
+    "discipline": "ECONOMICS",
+    "semesters": []
+  },
+  {
+    "code": "1031-0903",
+    "name": "תורת המוסר והמדינה",
+    "credits": 2,
+    "year": 2,
+    "section": "קורסי בחירה החוג למדע המדינה",
+    "courseType": "ELECTIVE",
+    "discipline": "POLITICAL_SCIENCE",
+    "semesters": [
+      "SPRING"
+    ]
+  },
+  {
+    "code": "1031-0907",
+    "name": "מנהיגות ותהליכי דמוקרטיזציה",
+    "credits": 3,
+    "year": 2,
+    "section": "קורסי בחירה החוג למדע המדינה",
+    "courseType": "ELECTIVE",
+    "discipline": "POLITICAL_SCIENCE",
+    "semesters": [
+      "FALL"
+    ]
+  },
+  {
+    "code": "1031-0910",
+    "name": "לאומיות, זהות ופופוליזים",
+    "credits": 3,
+    "year": 2,
+    "section": "קורסי בחירה החוג למדע המדינה",
+    "courseType": "ELECTIVE",
+    "discipline": "POLITICAL_SCIENCE",
+    "semesters": [
+      "SPRING"
+    ]
+  },
+  {
+    "code": "1031-0915",
+    "name": "יחסי ישראל-ארה\"ב על רקע עיצוב מדיניות החוץ האמריקנית",
+    "credits": 2,
+    "year": 2,
+    "section": "קורסי בחירה החוג למדע המדינה",
+    "courseType": "ELECTIVE",
+    "discipline": "POLITICAL_SCIENCE",
+    "semesters": [
+      "FALL"
+    ]
+  },
+  {
+    "code": "1031-0926",
+    "name": "Middle East Politics",
+    "credits": 3,
+    "year": 2,
+    "section": "קורסי בחירה החוג למדע המדינה",
+    "courseType": "ELECTIVE",
+    "discipline": "POLITICAL_SCIENCE",
+    "semesters": [
+      "FALL"
+    ]
+  },
+  {
+    "code": "1031-0927",
+    "name": "States, State Building, and State Capacity",
+    "credits": 3,
+    "year": 2,
+    "section": "קורסי בחירה החוג למדע המדינה",
+    "courseType": "ELECTIVE",
+    "discipline": "POLITICAL_SCIENCE",
+    "semesters": [
+      "SPRING"
+    ]
+  },
+  {
+    "code": "1031-0928",
+    "name": "Democracy, Autocracy and Regime Change",
+    "credits": 3,
+    "year": 2,
+    "section": "קורסי בחירה החוג למדע המדינה",
+    "courseType": "ELECTIVE",
+    "discipline": "POLITICAL_SCIENCE",
+    "semesters": [
+      "SPRING"
+    ]
+  },
+  {
+    "code": "1031-0932",
+    "name": "יחסי ישראל-ארה\"ב על רקע עיצוב מדיניות החוץ האמריקנית",
+    "credits": 3,
+    "year": 2,
+    "section": "קורסי בחירה החוג למדע המדינה",
+    "courseType": "ELECTIVE",
+    "discipline": "POLITICAL_SCIENCE",
+    "semesters": [
+      "FALL"
+    ]
+  },
+  {
+    "code": "1031-0936",
+    "name": "סובייקטיביות בעידן הנאוליברלי העכשווי: בין פילוסופיה, פוליטיקה וביקורת התרבות",
+    "credits": 2,
+    "year": 2,
+    "section": "קורסי בחירה החוג למדע המדינה",
+    "courseType": "ELECTIVE",
+    "discipline": "POLITICAL_SCIENCE",
+    "semesters": [
+      "FALL"
+    ]
+  },
+  {
+    "code": "1031-0937",
+    "name": "תקשורת פוליטית ומנהיגות בעידן הגלובליזציה",
+    "credits": 2,
+    "year": 2,
+    "section": "קורסי בחירה החוג למדע המדינה",
+    "courseType": "ELECTIVE",
+    "discipline": "POLITICAL_SCIENCE",
+    "semesters": [
+      "SPRING"
+    ]
+  },
+  {
+    "code": "1031-0938",
+    "name": "סובייקטיביות בעידן הנאוליברלי העכשווי: בין פילוסופיה, פוליטיקה וביקורת התרבות",
+    "credits": 3,
+    "year": 2,
+    "section": "קורסי בחירה החוג למדע המדינה",
+    "courseType": "ELECTIVE",
+    "discipline": "POLITICAL_SCIENCE",
+    "semesters": [
+      "FALL"
+    ]
+  },
+  {
+    "code": "1031-0989",
+    "name": "Improving Governance Through Experiments",
+    "credits": 3,
+    "year": 2,
+    "section": "קורסי בחירה החוג למדע המדינה",
+    "courseType": "ELECTIVE",
+    "discipline": "POLITICAL_SCIENCE",
+    "semesters": [
+      "FALL",
+      "SPRING"
+    ]
+  },
+  {
+    "code": "1031-3102",
+    "name": "מדיניות ומדינאות מעשית",
+    "credits": 4,
+    "year": 2,
+    "section": "קורסי בחירה החוג למדע המדינה",
+    "courseType": "ELECTIVE",
+    "discipline": "POLITICAL_SCIENCE",
+    "semesters": []
+  },
+  {
+    "code": "1031-3890",
+    "name": "לאומיות וסכסוכים אתניים",
+    "credits": 2,
+    "year": 2,
+    "section": "קורסי בחירה החוג למדע המדינה",
+    "courseType": "ELECTIVE",
+    "discipline": "POLITICAL_SCIENCE",
+    "semesters": []
+  },
+  {
+    "code": "1031-3918",
+    "name": "הפוליטיקה של הכסף ושל משטרים מוניטריים בינלאומיים",
+    "credits": 2,
+    "year": 2,
+    "section": "קורסי בחירה החוג למדע המדינה",
+    "courseType": "ELECTIVE",
+    "discipline": "POLITICAL_SCIENCE",
+    "semesters": []
+  },
+  {
+    "code": "1031-3939",
+    "name": "סוגיות בביטחון הלאומי של ישראל",
+    "credits": 2,
+    "year": 2,
+    "section": "קורסי בחירה החוג למדע המדינה",
+    "courseType": "ELECTIVE",
+    "discipline": "POLITICAL_SCIENCE",
+    "semesters": []
+  },
+  {
+    "code": "1031-3964",
+    "name": "תקשורת פוליטית ומנהיגות בעידן הגלובליזציה",
+    "credits": 3,
+    "year": 2,
+    "section": "קורסי בחירה החוג למדע המדינה",
+    "courseType": "ELECTIVE",
+    "discipline": "POLITICAL_SCIENCE",
+    "semesters": []
+  },
+  {
+    "code": "1031-3982",
+    "name": "Power and Prosperity: The Political Economy of Development",
+    "credits": 3,
+    "year": 2,
+    "section": "קורסי בחירה החוג למדע המדינה",
+    "courseType": "ELECTIVE",
+    "discipline": "POLITICAL_SCIENCE",
+    "semesters": [
+      "FALL",
+      "SPRING"
+    ]
+  },
+  {
+    "code": "1031-3993",
+    "name": "תאוריות של התנהגות פוליטית",
+    "credits": 3,
+    "year": 2,
+    "section": "קורסי בחירה החוג למדע המדינה",
+    "courseType": "ELECTIVE",
+    "discipline": "POLITICAL_SCIENCE",
+    "semesters": []
+  },
+  {
+    "code": "1031-3994",
+    "name": "סוגיות מתקדמות בפוליטיקה הישראלית",
+    "credits": 3,
+    "year": 2,
+    "section": "קורסי בחירה החוג למדע המדינה",
+    "courseType": "ELECTIVE",
+    "discipline": "POLITICAL_SCIENCE",
+    "semesters": []
+  },
+  {
+    "code": "1031-4546",
+    "name": "רטוריקה",
+    "credits": 3,
+    "year": 2,
+    "section": "קורסי בחירה החוג למדע המדינה",
+    "courseType": "ELECTIVE",
+    "discipline": "POLITICAL_SCIENCE",
+    "semesters": []
+  },
+  {
+    "code": "1411-6604",
+    "name": "Derivatives, Risk and Financial Crises",
+    "credits": 2,
+    "year": 2,
+    "section": "קורסי בחירה במשפטים אינם נחשבים כחלק מחטיבת משפטים",
+    "courseType": "ELECTIVE",
+    "discipline": "LAW",
+    "semesters": []
+  },
+  {
+    "code": "1411-7557",
+    "name": "מבוא למשפט רומי",
+    "credits": 2,
+    "year": 2,
+    "section": "קורסי בחירה במשפטים אינם נחשבים כחלק מחטיבת משפטים",
+    "courseType": "ELECTIVE",
+    "discipline": "LAW",
+    "semesters": [
+      "FALL"
+    ]
+  },
+  {
+    "code": "1411-7664",
+    "name": "משפט ופילוסופיה בספרות ובסרטים",
+    "credits": 2,
+    "year": 2,
+    "section": "קורסי בחירה במשפטים אינם נחשבים כחלק מחטיבת משפטים",
+    "courseType": "ELECTIVE",
+    "discipline": "LAW",
+    "semesters": [
+      "FALL"
+    ]
+  },
+  {
+    "code": "1411-7678",
+    "name": "",
+    "credits": 4,
+    "year": 2,
+    "section": "קורסי בחירה במשפטים אינם נחשבים כחלק מחטיבת משפטים",
+    "courseType": "ELECTIVE",
+    "discipline": "LAW",
+    "semesters": [
+      "FALL"
+    ]
+  },
+  {
+    "code": "1411-7841",
+    "name": "משפט, עירוניות ותרבות",
+    "credits": 2,
+    "year": 2,
+    "section": "קורסי בחירה במשפטים אינם נחשבים כחלק מחטיבת משפטים",
+    "courseType": "ELECTIVE",
+    "discipline": "LAW",
+    "semesters": [
+      "FALL"
+    ]
+  },
+  {
+    "code": "1411-9105",
+    "name": "פוליטיקה, כלכלה, חברה",
+    "credits": 2,
+    "year": 2,
+    "section": "קורסי בחירה במשפטים אינם נחשבים כחלק מחטיבת משפטים",
+    "courseType": "ELECTIVE",
+    "discipline": "LAW",
+    "semesters": [
+      "FALL"
+    ]
+  },
+  {
+    "code": "1411-9108",
+    "name": "מבוא למשפט עברי",
+    "credits": 2,
+    "year": 2,
+    "section": "קורסי בחירה במשפטים אינם נחשבים כחלק מחטיבת משפטים",
+    "courseType": "ELECTIVE",
+    "discipline": "LAW",
+    "semesters": [
+      "FALL"
+    ]
+  },
+  {
+    "code": "1411-9110",
+    "name": "פרוצדורה",
+    "credits": 4,
+    "year": 2,
+    "section": "קורסי בחירה במשפטים אינם נחשבים כחלק מחטיבת משפטים",
+    "courseType": "ELECTIVE",
+    "discipline": "LAW",
+    "semesters": [
+      "SPRING"
+    ]
+  },
+  {
+    "code": "1411-9112",
+    "name": "מבוא למשפט עברי מורחב",
+    "credits": 4,
+    "year": 2,
+    "section": "קורסי בחירה במשפטים אינם נחשבים כחלק מחטיבת משפטים",
+    "courseType": "ELECTIVE",
+    "discipline": "LAW",
+    "semesters": [
+      "FALL"
+    ]
+  },
+  {
+    "code": "1411-9113",
+    "name": "מבוא למשפט מוסלמי",
+    "credits": 2,
+    "year": 2,
+    "section": "קורסי בחירה במשפטים אינם נחשבים כחלק מחטיבת משפטים",
+    "courseType": "ELECTIVE",
+    "discipline": "LAW",
+    "semesters": [
+      "FALL"
+    ]
+  },
+  {
+    "code": "1411-9222",
+    "name": "דיני תאגידים",
+    "credits": 4,
+    "year": 2,
+    "section": "קורסי בחירה במשפטים אינם נחשבים כחלק מחטיבת משפטים",
+    "courseType": "ELECTIVE",
+    "discipline": "LAW",
+    "semesters": [
+      "FALL",
+      "SPRING"
+    ]
+  },
+  {
+    "code": "1411-9226",
+    "name": "דיני רווחה",
+    "credits": 4,
+    "year": 2,
+    "section": "קורסי בחירה במשפטים אינם נחשבים כחלק מחטיבת משפטים",
+    "courseType": "ELECTIVE",
+    "discipline": "LAW",
+    "semesters": [
+      "SPRING"
+    ]
+  },
+  {
+    "code": "1411-9241",
+    "name": "משפט ופילוסופיה",
+    "credits": 2,
+    "year": 2,
+    "section": "קורסי בחירה במשפטים אינם נחשבים כחלק מחטיבת משפטים",
+    "courseType": "ELECTIVE",
+    "discipline": "LAW",
+    "semesters": [
+      "SPRING"
+    ]
+  },
+  {
+    "code": "1411-9242",
+    "name": "משפט, חברה ותרבות",
+    "credits": 2,
+    "year": 2,
+    "section": "קורסי בחירה במשפטים אינם נחשבים כחלק מחטיבת משפטים",
+    "courseType": "ELECTIVE",
+    "discipline": "LAW",
+    "semesters": [
+      "SPRING"
+    ]
+  },
+  {
+    "code": "1411-9244",
+    "name": "מגדר ומשפט",
+    "credits": 2,
+    "year": 2,
+    "section": "קורסי בחירה במשפטים אינם נחשבים כחלק מחטיבת משפטים",
+    "courseType": "ELECTIVE",
+    "discipline": "LAW",
+    "semesters": [
+      "FALL"
+    ]
+  },
+  {
+    "code": "1411-9245",
+    "name": "משפט והיסטוריה",
+    "credits": 2,
+    "year": 2,
+    "section": "קורסי בחירה במשפטים אינם נחשבים כחלק מחטיבת משפטים",
+    "courseType": "ELECTIVE",
+    "discipline": "LAW",
+    "semesters": [
+      "SPRING"
+    ]
+  },
+  {
+    "code": "1411-9305",
+    "name": "הגבלים עסקיים",
+    "credits": 4,
+    "year": 2,
+    "section": "קורסי בחירה במשפטים אינם נחשבים כחלק מחטיבת משפטים",
+    "courseType": "ELECTIVE",
+    "discipline": "LAW",
+    "semesters": []
+  },
+  {
+    "code": "1411-9306",
+    "name": "המקצוע המשפטי - תיאוריה, פרקטיקה ואתיקה",
+    "credits": 4,
+    "year": 2,
+    "section": "קורסי בחירה במשפטים אינם נחשבים כחלק מחטיבת משפטים",
+    "courseType": "ELECTIVE",
+    "discipline": "LAW",
+    "semesters": []
+  },
+  {
+    "code": "1411-9312",
+    "name": "משפט השלטון המקומי",
+    "credits": 4,
+    "year": 2,
+    "section": "קורסי בחירה במשפטים אינם נחשבים כחלק מחטיבת משפטים",
+    "courseType": "ELECTIVE",
+    "discipline": "LAW",
+    "semesters": []
+  },
+  {
+    "code": "1411-9314",
+    "name": "דיני סביבה",
+    "credits": 4,
+    "year": 2,
+    "section": "קורסי בחירה במשפטים אינם נחשבים כחלק מחטיבת משפטים",
+    "courseType": "ELECTIVE",
+    "discipline": "LAW",
+    "semesters": []
+  },
+  {
+    "code": "1411-9335",
+    "name": "מימון חברות",
+    "credits": 4,
+    "year": 2,
+    "section": "קורסי בחירה במשפטים אינם נחשבים כחלק מחטיבת משפטים",
+    "courseType": "ELECTIVE",
+    "discipline": "LAW",
+    "semesters": []
+  },
+  {
+    "code": "0659-2119",
+    "name": "היסטוריה של הפיזיקה החדשה",
+    "credits": 2,
+    "year": 2,
+    "section": "קורסי בחירה מכון כהן להיסטוריה ופילוסופיה של המדעים והרעיונות",
+    "courseType": "ELECTIVE",
+    "discipline": "PHILOSOPHY",
+    "semesters": [
+      "SPRING"
+    ]
+  },
+  {
+    "code": "0659-2578",
+    "name": "אל היש ומעבר לו. פרקים בפילוסופיה של ימי הביניים",
+    "credits": 2,
+    "year": 2,
+    "section": "קורסי בחירה מכון כהן להיסטוריה ופילוסופיה של המדעים והרעיונות",
+    "courseType": "ELECTIVE",
+    "discipline": "PHILOSOPHY",
+    "semesters": [
+      "FALL"
+    ]
+  },
+  {
+    "code": "0659-3056",
+    "name": "מבוא לתיאוריה ביקורתית",
+    "credits": 2,
+    "year": 2,
+    "section": "קורסי בחירה מכון כהן להיסטוריה ופילוסופיה של המדעים והרעיונות",
+    "courseType": "ELECTIVE",
+    "discipline": "PHILOSOPHY",
+    "semesters": [
+      "SPRING"
+    ]
+  },
+  {
+    "code": "0659-4613",
+    "name": "פילוסופיה של המדע למתקדמים ב'",
+    "credits": 2,
+    "year": 2,
+    "section": "קורסי בחירה מכון כהן להיסטוריה ופילוסופיה של המדעים והרעיונות",
+    "courseType": "ELECTIVE",
+    "discipline": "PHILOSOPHY",
+    "semesters": [
+      "SPRING"
+    ]
+  },
+  {
+    "code": "0659-6126",
+    "name": "היסטוריה אינטלקטואלית א'",
+    "credits": 2,
+    "year": 2,
+    "section": "קורסי בחירה מכון כהן להיסטוריה ופילוסופיה של המדעים והרעיונות",
+    "courseType": "ELECTIVE",
+    "discipline": "PHILOSOPHY",
+    "semesters": [
+      "FALL"
+    ]
+  },
+  {
+    "code": "0697-1115",
+    "name": "מבוא למדעי הדתות: דתות העולם ולימודים בין-דתיים",
+    "credits": 2,
+    "year": 2,
+    "section": "קורסי בחירה מדעי הדתות",
+    "courseType": "ELECTIVE",
+    "discipline": "GENERAL",
+    "semesters": [
+      "FALL"
+    ]
+  },
+  {
+    "code": "0687-2622",
+    "name": "מיסטיקה, פוליטיקה וג'ינים: סופיות בהודו",
+    "credits": 2,
+    "year": 2,
+    "section": "קורסי בחירה מזרח אסיה",
+    "courseType": "ELECTIVE",
+    "discipline": "GENERAL",
+    "semesters": [
+      "SPRING"
+    ]
+  },
+  {
+    "code": "0662-1043",
+    "name": "האני: מאני חושב פילוסופי לאני מרגיש פסיכואנליטי",
+    "credits": 2,
+    "year": 2,
+    "section": "קורסי בחירה התכנית הרב תחומית במדעי הרוח",
+    "courseType": "ELECTIVE",
+    "discipline": "GENERAL",
+    "semesters": [
+      "FALL"
+    ]
+  },
+  {
+    "code": "0662-2074",
+    "name": "יסודות בניתוח רטורי",
+    "credits": 2,
+    "year": 2,
+    "section": "קורסי בחירה התכנית הרב תחומית במדעי הרוח",
+    "courseType": "ELECTIVE",
+    "discipline": "GENERAL",
+    "semesters": [
+      "FALL"
+    ]
+  },
+  {
+    "code": "0662-2620",
+    "name": "הבניית דימוי של אישי ציבור בתקשורת- צרפת, ארצות הברית וישראל",
+    "credits": 2,
+    "year": 2,
+    "section": "קורסי בחירה התכנית הרב תחומית במדעי הרוח",
+    "courseType": "ELECTIVE",
+    "discipline": "GENERAL",
+    "semesters": [
+      "FALL"
+    ]
+  },
+  {
+    "code": "0662-2623",
+    "name": "לנצל את הלב כדי לנצח את המוח: תפקידו של הרגש באומנות השכנוע",
+    "credits": 2,
+    "year": 2,
+    "section": "קורסי בחירה התכנית הרב תחומית במדעי הרוח",
+    "courseType": "ELECTIVE",
+    "discipline": "GENERAL",
+    "semesters": [
+      "SPRING"
+    ]
+  },
+  {
+    "code": "0662-2670",
+    "name": "פסיכואנליזה של אהבה וזוגיות: מפרויד ועד ימינו",
+    "credits": 2,
+    "year": 2,
+    "section": "קורסי בחירה התכנית הרב תחומית במדעי הרוח",
+    "courseType": "ELECTIVE",
+    "discipline": "GENERAL",
+    "semesters": [
+      "FALL"
+    ]
+  },
+  {
+    "code": "0662-3229",
+    "name": "סוגיות עכשוויות בכלכלה - פרט, חברה וסביבה",
+    "credits": 2,
+    "year": 2,
+    "section": "קורסי בחירה התכנית הרב תחומית במדעי הרוח",
+    "courseType": "ELECTIVE",
+    "discipline": "GENERAL",
+    "semesters": [
+      "FALL"
+    ]
+  },
+  {
+    "code": "0662-5005",
+    "name": "תפישת הביטחון הישראלית במבחן הזמן",
+    "credits": 2,
+    "year": 2,
+    "section": "קורסי בחירה התכנית הרב תחומית במדעי הרוח",
+    "courseType": "ELECTIVE",
+    "discipline": "GENERAL",
+    "semesters": [
+      "SPRING"
+    ]
+  },
+  {
+    "code": "0662-5008",
+    "name": "מבוא לחשיבה אסטרטגית - המקרה הישראלי",
+    "credits": 2,
+    "year": 2,
+    "section": "קורסי בחירה התכנית הרב תחומית במדעי הרוח",
+    "courseType": "ELECTIVE",
+    "discipline": "GENERAL",
+    "semesters": [
+      "SPRING"
+    ]
+  },
+  {
+    "code": "1662-1129",
+    "name": "What are the Humanities?",
+    "credits": 4,
+    "year": 2,
+    "section": "קורסי בחירה התכנית הרב תחומית במדעי הרוח",
+    "courseType": "ELECTIVE",
+    "discipline": "GENERAL",
+    "semesters": [
+      "FALL"
+    ]
+  },
+  {
+    "code": "1662-1163",
+    "name": "Modernity: Origin, Vision, and Crises",
+    "credits": 4,
+    "year": 2,
+    "section": "קורסי בחירה התכנית הרב תחומית במדעי הרוח",
+    "courseType": "ELECTIVE",
+    "discipline": "GENERAL",
+    "semesters": [
+      "SPRING"
+    ]
+  },
+  {
+    "code": "1662-1400",
+    "name": "Introduction to Greek Philosophy",
+    "credits": 2,
+    "year": 2,
+    "section": "קורסי בחירה התכנית הרב תחומית במדעי הרוח",
+    "courseType": "ELECTIVE",
+    "discipline": "GENERAL",
+    "semesters": []
+  },
+  {
+    "code": "1662-2233",
+    "name": "Nationalism, Memory and Commemoration in the Modern Middle East",
+    "credits": 2,
+    "year": 2,
+    "section": "קורסי בחירה התכנית הרב תחומית במדעי הרוח",
+    "courseType": "ELECTIVE",
+    "discipline": "GENERAL",
+    "semesters": []
+  },
+  {
+    "code": "0677-1501",
+    "name": "המערכת הביטחונית ביישוב, 1947-1907",
+    "credits": 2,
+    "year": 2,
+    "section": "קורסי בחירה החוג להיסטוריה של עם ישראל",
+    "courseType": "ELECTIVE",
+    "discipline": "GENERAL",
+    "semesters": [
+      "FALL"
+    ]
+  },
+  {
+    "code": "0677-1503",
+    "name": "המלחמה בתרבות האנושית",
+    "credits": 2,
+    "year": 2,
+    "section": "קורסי בחירה החוג להיסטוריה של עם ישראל",
+    "courseType": "ELECTIVE",
+    "discipline": "GENERAL",
+    "semesters": [
+      "FALL"
+    ]
+  },
+  {
+    "code": "0621-1922",
+    "name": "המאה התשע עשרה באירופה: פרספקטיבות מההיסטוריה הכללית והיהודית",
+    "credits": 2,
+    "year": 2,
+    "section": "קורסי בחירה החוג להיסטוריה כללית",
+    "courseType": "ELECTIVE",
+    "discipline": "GENERAL",
+    "semesters": [
+      "SPRING"
+    ]
+  },
+  {
+    "code": "0622-1001",
+    "name": "מבוא לתולדות המזה\"ת בעת החדישה",
+    "credits": 2,
+    "year": 2,
+    "section": "קורסי בחירה החוג להיסטוריה של המזה\"ת ואפריקה",
+    "courseType": "ELECTIVE",
+    "discipline": "GENERAL",
+    "semesters": [
+      "FALL"
+    ]
+  },
+  {
+    "code": "0622-1002",
+    "name": "תולדות העמים המוסלמים, 600 -1500",
+    "credits": 2,
+    "year": 2,
+    "section": "קורסי בחירה החוג להיסטוריה של המזה\"ת ואפריקה",
+    "courseType": "ELECTIVE",
+    "discipline": "GENERAL",
+    "semesters": [
+      "FALL"
+    ]
+  },
+  {
+    "code": "0608-1110",
+    "name": "מבוא לפילוסופיה פמיניסטית: מחשבות נשים",
+    "credits": 2,
+    "year": 2,
+    "section": "קורסי בחירה החוג ללימודי מגדר",
+    "courseType": "ELECTIVE",
+    "discipline": "GENERAL",
+    "semesters": [
+      "FALL"
+    ]
+  },
+  {
+    "code": "0608-1177",
+    "name": "כסף מסובב את העולם - אי שוויון מגדרי בעולם קפיטליסטי",
+    "credits": 2,
+    "year": 2,
+    "section": "קורסי בחירה החוג ללימודי מגדר",
+    "courseType": "ELECTIVE",
+    "discipline": "GENERAL",
+    "semesters": [
+      "SPRING"
+    ]
+  },
+  {
+    "code": "1082-6425",
+    "name": "מבוא למדיניות תכנון ועיצוב עירוני",
+    "credits": 2,
+    "year": 2,
+    "section": "קורסי בחירה החוג למדיניות ציבורית",
+    "courseType": "ELECTIVE",
+    "discipline": "POLITICAL_SCIENCE",
+    "semesters": [
+      "FALL"
+    ]
+  },
+  {
+    "code": "1082-6426",
+    "name": "היבטים משפטיים של תכנון ובנייה",
+    "credits": 2,
+    "year": 2,
+    "section": "קורסי בחירה החוג למדיניות ציבורית",
+    "courseType": "ELECTIVE",
+    "discipline": "POLITICAL_SCIENCE",
+    "semesters": [
+      "FALL"
+    ]
+  },
+  {
+    "code": "1082-6449",
+    "name": "כלכלת ישראל",
+    "credits": 3,
+    "year": 2,
+    "section": "קורסי בחירה החוג למדיניות ציבורית",
+    "courseType": "ELECTIVE",
+    "discipline": "POLITICAL_SCIENCE",
+    "semesters": [
+      "FALL"
+    ]
+  },
+  {
+    "code": "1221-3301",
+    "name": "יסודות המימון -תואר I",
+    "credits": 6,
+    "year": 2,
+    "section": "קורסי בחירה הפקולטה לניהול",
+    "courseType": "ELECTIVE",
+    "discipline": "GENERAL",
+    "semesters": [
+      "FALL",
+      "SPRING"
+    ]
+  },
+  {
+    "code": "1221-4301",
+    "name": "יסודות השיווק",
+    "credits": 4,
+    "year": 2,
+    "section": "קורסי בחירה הפקולטה לניהול",
+    "courseType": "ELECTIVE",
+    "discipline": "GENERAL",
+    "semesters": [
+      "FALL",
+      "SPRING"
+    ]
+  },
+  {
+    "code": "1221-4563",
+    "name": "פרויקט Growth",
+    "credits": 4,
+    "year": 2,
+    "section": "קורסי בחירה הפקולטה לניהול",
+    "courseType": "ELECTIVE",
+    "discipline": "GENERAL",
+    "semesters": [
+      "SPRING"
+    ]
+  },
+  {
+    "code": "0672-1542",
+    "name": "המסע הארוך מצדק לחוק: מקורותיו והתעצבותו של החוק הרומי",
+    "credits": 2,
+    "year": 2,
+    "section": "קורסי בחירה נוספים",
+    "courseType": "ELECTIVE",
+    "discipline": "GENERAL",
+    "semesters": [
+      "FALL"
+    ]
+  },
+  {
+    "code": "0697-1002",
+    "name": "מבוא למדעי הדתות: אנתרופולוגיה וסוציולוגיה של הדת",
+    "credits": 2,
+    "year": 2,
+    "section": "קורסי בחירה נוספים",
+    "courseType": "ELECTIVE",
+    "discipline": "GENERAL",
+    "semesters": [
+      "SPRING"
+    ]
+  },
+  {
+    "code": "0697-1010",
+    "name": "מבוא למדעי הדתות: פילוסופיה ופסיכולוגיה של הדת",
+    "credits": 2,
+    "year": 2,
+    "section": "קורסי בחירה נוספים",
+    "courseType": "ELECTIVE",
+    "discipline": "GENERAL",
+    "semesters": [
+      "FALL"
+    ]
+  },
+  {
+    "code": "1041-1107",
+    "name": "ריבוד ואי שוויון",
+    "credits": 3,
+    "year": 2,
+    "section": "קורסי בחירה נוספים",
+    "courseType": "ELECTIVE",
+    "discipline": "GENERAL",
+    "semesters": [
+      "FALL"
+    ]
+  },
+  {
+    "code": "1041-2611",
+    "name": "מגדר וחברה",
+    "credits": 3,
+    "year": 2,
+    "section": "קורסי בחירה נוספים",
+    "courseType": "ELECTIVE",
+    "discipline": "GENERAL",
+    "semesters": [
+      "FALL"
+    ]
+  },
+  {
+    "code": "1886-1812",
+    "name": "מבוא למדעי הנתונים 1",
+    "credits": 3,
+    "year": 2,
+    "section": "קורסי בחירה נוספים",
+    "courseType": "ELECTIVE",
+    "discipline": "GENERAL",
+    "semesters": []
+  },
+  {
+    "code": "1886-1813",
+    "name": "מבוא למדעי הנתונים 2",
+    "credits": 3,
+    "year": 2,
+    "section": "קורסי בחירה נוספים",
+    "courseType": "ELECTIVE",
+    "discipline": "GENERAL",
+    "semesters": []
+  },
+  {
+    "code": "0651-2030",
+    "name": "התכנית לכלכלת חברה וסביבה",
+    "credits": 4,
+    "year": 2,
+    "section": "קורסי בחירה נוספים",
+    "courseType": "ELECTIVE",
+    "discipline": "GENERAL",
+    "semesters": [
+      "FALL"
+    ]
+  },
+  {
+    "code": "0651-3001",
+    "name": "סמינר פכ\"מ",
+    "credits": 4,
+    "year": 3,
+    "section": "סמינר פכ\"מ (חובה)",
+    "courseType": "SEMINAR",
+    "discipline": "PPE_CORE",
+    "semesters": [
+      "FALL"
+    ]
+  },
+  {
+    "code": "0651-3007",
+    "name": "סמינר פכ\"מ: התמחות מעשית",
+    "credits": 4,
+    "year": 3,
+    "section": "סמינר 4 ש\"ס",
+    "courseType": "SEMINAR",
+    "discipline": "GENERAL",
+    "semesters": [
+      "FALL"
+    ]
+  },
+  {
+    "code": "1011-2104",
+    "name": "מיקרו כלכלה ג' - כוח שוק, כלכלת אינפורמציה ותורת המשחקים",
+    "credits": 5,
+    "year": 3,
+    "section": "קורסי חובה מביה\"ס לכלכלה",
+    "courseType": "MANDATORY",
+    "discipline": "ECONOMICS",
+    "semesters": [
+      "FALL",
+      "SPRING"
+    ]
+  },
+  {
+    "code": "1221-4325",
+    "name": "כלכלה התנהגותית לניהול",
+    "credits": 2,
+    "year": 3,
+    "section": "קורסי חובה מביה\"ס לכלכלה",
+    "courseType": "MANDATORY",
+    "discipline": "ECONOMICS",
+    "semesters": [
+      "FALL",
+      "SPRING"
+    ]
+  },
+  {
+    "code": "0618-3926",
+    "name": "נומוס ופיסיס: צדק אנושי וצדק טבעי בפילוסופיה העתיקה",
+    "credits": 4,
+    "year": 3,
+    "section": "סמינר 4 ש\"ס",
+    "courseType": "SEMINAR",
+    "discipline": "GENERAL",
+    "semesters": [
+      "SPRING"
+    ]
+  },
+  {
+    "code": "0618-3928",
+    "name": "ולטר בנימין: פנטזיה, זכרון וחלום",
+    "credits": 4,
+    "year": 3,
+    "section": "סמינר 4 ש\"ס",
+    "courseType": "SEMINAR",
+    "discipline": "GENERAL",
+    "semesters": [
+      "SPRING"
+    ]
+  },
+  {
+    "code": "0659-1994",
+    "name": "",
+    "credits": 4,
+    "year": 3,
+    "section": "סמינר 4 ש\"ס",
+    "courseType": "SEMINAR",
+    "discipline": "GENERAL",
+    "semesters": [
+      "SPRING"
+    ]
+  },
+  {
+    "code": "0659-2146",
+    "name": "",
+    "credits": 4,
+    "year": 3,
+    "section": "סמינר 4 ש\"ס",
+    "courseType": "SEMINAR",
+    "discipline": "GENERAL",
+    "semesters": [
+      "SPRING"
+    ]
+  },
+  {
+    "code": "0659-2217",
+    "name": "",
+    "credits": 4,
+    "year": 3,
+    "section": "סמינר 4 ש\"ס",
+    "courseType": "SEMINAR",
+    "discipline": "GENERAL",
+    "semesters": []
+  },
+  {
+    "code": "0659-2465",
+    "name": "",
+    "credits": 4,
+    "year": 3,
+    "section": "סמינר 4 ש\"ס",
+    "courseType": "SEMINAR",
+    "discipline": "GENERAL",
+    "semesters": []
+  },
+  {
+    "code": "0659-2502",
+    "name": "פילוסופיה של בינה מלאכותית",
+    "credits": 4,
+    "year": 3,
+    "section": "סמינר 4 ש\"ס",
+    "courseType": "SEMINAR",
+    "discipline": "GENERAL",
+    "semesters": []
+  },
+  {
+    "code": "0659-2628",
+    "name": "",
+    "credits": 2,
+    "year": 3,
+    "section": "סמינר 4 ש\"ס",
+    "courseType": "SEMINAR",
+    "discipline": "GENERAL",
+    "semesters": []
+  },
+  {
+    "code": "0659-2649",
+    "name": "",
+    "credits": 4,
+    "year": 3,
+    "section": "סמינר 2 ש\"ס",
+    "courseType": "SEMINAR",
+    "discipline": "GENERAL",
+    "semesters": []
+  },
+  {
+    "code": "0659-2650",
+    "name": "ספקנות, חשיבה ביקורתית ואתאיזם בהגות האסלאמית הקלאסית",
+    "credits": 4,
+    "year": 3,
+    "section": "סמינר 4 ש\"ס",
+    "courseType": "SEMINAR",
+    "discipline": "GENERAL",
+    "semesters": []
+  },
+  {
+    "code": "0659-2651",
+    "name": "",
+    "credits": 4,
+    "year": 3,
+    "section": "סמינר 4 ש\"ס",
+    "courseType": "SEMINAR",
+    "discipline": "GENERAL",
+    "semesters": []
+  },
+  {
+    "code": "0659-2652",
+    "name": "",
+    "credits": 4,
+    "year": 3,
+    "section": "סמינר 4 ש\"ס",
+    "courseType": "SEMINAR",
+    "discipline": "GENERAL",
+    "semesters": []
+  },
+  {
+    "code": "0659-2653",
+    "name": "כיצד מחלוקות בבלשנות, פסיכולוגיה, ואבולוציה הביאו להתקפות העכשוויות על המדע",
+    "credits": 4,
+    "year": 3,
+    "section": "סמינר 4 ש\"ס",
+    "courseType": "SEMINAR",
+    "discipline": "GENERAL",
+    "semesters": []
+  },
+  {
+    "code": "0659-2654",
+    "name": "",
+    "credits": 4,
+    "year": 3,
+    "section": "סמינר 4 ש\"ס",
+    "courseType": "SEMINAR",
+    "discipline": "GENERAL",
+    "semesters": []
+  },
+  {
+    "code": "0659-2655",
+    "name": "",
+    "credits": 4,
+    "year": 3,
+    "section": "סמינר 4 ש\"ס",
+    "courseType": "SEMINAR",
+    "discipline": "GENERAL",
+    "semesters": []
+  },
+  {
+    "code": "1011-3563",
+    "name": "סמינר בכלכלה יישומית: סיכונים והתנהגות פרטים",
+    "credits": 4,
+    "year": 3,
+    "section": "סמינר 4 ש\"ס",
+    "courseType": "SEMINAR",
+    "discipline": "GENERAL",
+    "semesters": []
+  },
+  {
+    "code": "1011-3564",
+    "name": "סמינר בנושאים בכלכלת עבודה וחינוך",
+    "credits": 4,
+    "year": 3,
+    "section": "סמינר 4 ש\"ס",
+    "courseType": "SEMINAR",
+    "discipline": "GENERAL",
+    "semesters": []
+  },
+  {
+    "code": "1011-3565",
+    "name": "סמינר מדיניות ציבורית בשוק העבודה",
+    "credits": 4,
+    "year": 3,
+    "section": "סמינר 4 ש\"ס",
+    "courseType": "SEMINAR",
+    "discipline": "GENERAL",
+    "semesters": []
+  },
+  {
+    "code": "1011-3573",
+    "name": "פריקונומיקס: סמינר בכלכלה פופולרית",
+    "credits": 4,
+    "year": 3,
+    "section": "סמינר 4 ש\"ס",
+    "courseType": "SEMINAR",
+    "discipline": "GENERAL",
+    "semesters": []
+  },
+  {
+    "code": "1011-3575",
+    "name": "סמינר בכלכלה ניסויית",
+    "credits": 4,
+    "year": 3,
+    "section": "סמינר 4 ש\"ס",
+    "courseType": "SEMINAR",
+    "discipline": "GENERAL",
+    "semesters": []
+  },
+  {
+    "code": "1011-3578",
+    "name": "סמינר באי שוויון כלכלי",
+    "credits": 4,
+    "year": 3,
+    "section": "סמינר 4 ש\"ס",
+    "courseType": "SEMINAR",
+    "discipline": "GENERAL",
+    "semesters": []
+  },
+  {
+    "code": "1011-3583",
+    "name": "סמינר בכלכלה עירונית",
+    "credits": 4,
+    "year": 3,
+    "section": "סמינר 4 ש\"ס",
+    "courseType": "SEMINAR",
+    "discipline": "GENERAL",
+    "semesters": []
+  },
+  {
+    "code": "1011-3584",
+    "name": "סמינר בכלכלת חינוך, עבודה, וסביבה בישראל",
+    "credits": 4,
+    "year": 3,
+    "section": "סמינר 4 ש\"ס",
+    "courseType": "SEMINAR",
+    "discipline": "GENERAL",
+    "semesters": []
+  },
+  {
+    "code": "1011-3587",
+    "name": "סמינר בתיאוריה מיקרו כלכלית",
+    "credits": 4,
+    "year": 3,
+    "section": "סמינר 4 ש\"ס",
+    "courseType": "SEMINAR",
+    "discipline": "GENERAL",
+    "semesters": []
+  },
+  {
+    "code": "1011-3588",
+    "name": "מאקרו כלכלה: פירמות, עובדים, משברים וצמיחה",
+    "credits": 4,
+    "year": 3,
+    "section": "סמינר 4 ש\"ס",
+    "courseType": "SEMINAR",
+    "discipline": "GENERAL",
+    "semesters": []
+  },
+  {
+    "code": "1011-3589",
+    "name": "סמינר בכלכלת אינפורמציה ותורת המשחקים",
+    "credits": 4,
+    "year": 3,
+    "section": "סמינר 4 ש\"ס",
+    "courseType": "SEMINAR",
+    "discipline": "GENERAL",
+    "semesters": []
+  },
+  {
+    "code": "1011-3590",
+    "name": "סמינר במודלים של מידע באינטראקציות אסטרטגיות",
+    "credits": 4,
+    "year": 3,
+    "section": "סמינר 4 ש\"ס",
+    "courseType": "SEMINAR",
+    "discipline": "GENERAL",
+    "semesters": []
+  },
+  {
+    "code": "1031-0921",
+    "name": "אתיקה ופוליטיקה של בינה מלאכותית במנהל הציבורי",
+    "credits": 4,
+    "year": 3,
+    "section": "סמינר 4 ש\"ס",
+    "courseType": "SEMINAR",
+    "discipline": "GENERAL",
+    "semesters": [
+      "SPRING"
+    ]
+  },
+  {
+    "code": "1031-0931",
+    "name": "מדוע סכסוכים מתחילים ואיך הם נגמרים?",
+    "credits": 4,
+    "year": 3,
+    "section": "סמינר 4 ש\"ס",
+    "courseType": "SEMINAR",
+    "discipline": "GENERAL",
+    "semesters": [
+      "SPRING"
+    ]
+  },
+  {
+    "code": "1031-0934",
+    "name": "כיצד להסביר את האנטישמיות",
+    "credits": 4,
+    "year": 3,
+    "section": "סמינר 4 ש\"ס",
+    "courseType": "SEMINAR",
+    "discipline": "GENERAL",
+    "semesters": [
+      "SPRING"
+    ]
+  },
+  {
+    "code": "1031-0940",
+    "name": "הזהות החוקתית של מדינת ישראל",
+    "credits": 4,
+    "year": 3,
+    "section": "סמינר 4 ש\"ס",
+    "courseType": "SEMINAR",
+    "discipline": "GENERAL",
+    "semesters": [
+      "SPRING"
+    ]
+  },
+  {
+    "code": "1031-3965",
+    "name": "אתגרים חברתיים ומדיניות",
+    "credits": 4,
+    "year": 3,
+    "section": "סמינר 3 ש\"ס",
+    "courseType": "SEMINAR",
+    "discipline": "GENERAL",
+    "semesters": [
+      "SPRING"
+    ]
+  },
+  {
+    "code": "1031-3974",
+    "name": "מבוא לפסיכולוגיה פוליטית",
+    "credits": 4,
+    "year": 3,
+    "section": "סמינר 4 ש\"ס",
+    "courseType": "SEMINAR",
+    "discipline": "GENERAL",
+    "semesters": [
+      "SPRING"
+    ]
+  },
+  {
+    "code": "1031-3975",
+    "name": "מאימפריה למשטר צבאי: פרקים במחשבה פוליטית על השתלטות",
+    "credits": 4,
+    "year": 3,
+    "section": "סמינר 4 ש\"ס",
+    "courseType": "SEMINAR",
+    "discipline": "GENERAL",
+    "semesters": [
+      "SPRING"
+    ]
+  },
+  {
+    "code": "1031-3983",
+    "name": "מומחים לפוליטיקה",
+    "credits": 4,
+    "year": 3,
+    "section": "סמינר 4 ש\"ס",
+    "courseType": "SEMINAR",
+    "discipline": "GENERAL",
+    "semesters": []
+  },
+  {
+    "code": "1031-4018",
+    "name": "הרעיון של האוניברסיטה הלאומית",
+    "credits": 3,
+    "year": 3,
+    "section": "סמינר 4 ש\"ס",
+    "courseType": "SEMINAR",
+    "discipline": "GENERAL",
+    "semesters": []
+  },
+  {
+    "code": "1031-4659",
+    "name": "מדע, טכנולוגיה ורפואה בראי מדע-המדינה",
+    "credits": 3,
+    "year": 3,
+    "section": "סמינר 3 ש\"ס",
+    "courseType": "SEMINAR",
+    "discipline": "GENERAL",
+    "semesters": []
+  },
+  {
+    "code": "1031-4707",
+    "name": "התחדשות הסדר הגלובלי",
+    "credits": 3,
+    "year": 3,
+    "section": "סמינר 3 ש\"ס",
+    "courseType": "SEMINAR",
+    "discipline": "GENERAL",
+    "semesters": []
+  },
+  {
+    "code": "0618-2401",
+    "name": "פילוסופיה של השפה - שיעור המשך",
+    "credits": 2,
+    "year": 3,
+    "section": "קורסי בחירה החוג לפילסופיה",
+    "courseType": "ELECTIVE",
+    "discipline": "PHILOSOPHY",
+    "semesters": []
+  },
+  {
+    "code": "0618-2808",
+    "name": "Elementary Course: Moral Progress",
+    "credits": 2,
+    "year": 3,
+    "section": "קורסי בחירה החוג לפילסופיה",
+    "courseType": "ELECTIVE",
+    "discipline": "PHILOSOPHY",
+    "semesters": [
+      "SPRING"
+    ]
+  },
+  {
+    "code": "0618-7175",
+    "name": "מבוא עכשווי לפילוסופיה של הנפש",
+    "credits": 2,
+    "year": 3,
+    "section": "קורסי בחירה החוג לפילסופיה",
+    "courseType": "ELECTIVE",
+    "discipline": "PHILOSOPHY",
+    "semesters": []
+  },
+  {
+    "code": "1011-3168",
+    "name": "כלכלה ניסויית",
+    "credits": 2,
+    "year": 3,
+    "section": "קורסי בחירה מביה\"ס לכלכלה",
+    "courseType": "ELECTIVE",
+    "discipline": "ECONOMICS",
+    "semesters": [
+      "FALL"
+    ]
+  },
+  {
+    "code": "1011-3169",
+    "name": "כלכלת ישראל-רפורמות מבניות במשק הישראלי בשלושת העשורים האחרונים",
+    "credits": 2,
+    "year": 3,
+    "section": "קורסי בחירה מביה\"ס לכלכלה",
+    "courseType": "ELECTIVE",
+    "discipline": "ECONOMICS",
+    "semesters": [
+      "FALL"
+    ]
+  },
+  {
+    "code": "1011-3259",
+    "name": "כלכלה כתיאוריה חברתית: ביקורת הכלכלה המדינית",
+    "credits": 3,
+    "year": 3,
+    "section": "קורסי בחירה מביה\"ס לכלכלה",
+    "courseType": "ELECTIVE",
+    "discipline": "ECONOMICS",
+    "semesters": [
+      "FALL"
+    ]
+  },
+  {
+    "code": "1011-3305",
+    "name": "כלכלה, רווחה ומה שביניהן",
+    "credits": 3,
+    "year": 3,
+    "section": "קורסי בחירה מביה\"ס לכלכלה",
+    "courseType": "ELECTIVE",
+    "discipline": "ECONOMICS",
+    "semesters": []
+  },
+  {
+    "code": "1011-3310",
+    "name": "International Economics",
+    "credits": 2,
+    "year": 3,
+    "section": "קורסי בחירה מביה\"ס לכלכלה",
+    "courseType": "ELECTIVE",
+    "discipline": "ECONOMICS",
+    "semesters": [
+      "FALL"
+    ]
+  },
+  {
+    "code": "1011-3359",
+    "name": "Industrial Organization",
+    "credits": 2,
+    "year": 3,
+    "section": "קורסי בחירה מביה\"ס לכלכלה",
+    "courseType": "ELECTIVE",
+    "discipline": "ECONOMICS",
+    "semesters": [
+      "SPRING"
+    ]
+  },
+  {
+    "code": "1011-3370",
+    "name": "כלכלת סייבר",
+    "credits": 1,
+    "year": 3,
+    "section": "קורסי בחירה מביה\"ס לכלכלה",
+    "courseType": "ELECTIVE",
+    "discipline": "ECONOMICS",
+    "semesters": []
+  },
+  {
+    "code": "1011-3450",
+    "name": "Development Economics",
+    "credits": 3,
+    "year": 3,
+    "section": "קורסי בחירה מביה\"ס לכלכלה",
+    "courseType": "ELECTIVE",
+    "discipline": "ECONOMICS",
+    "semesters": []
+  },
+  {
+    "code": "1011-3456",
+    "name": "נושאים בכלכלת אינפורמציה",
+    "credits": 3,
+    "year": 3,
+    "section": "קורסי בחירה מביה\"ס לכלכלה",
+    "courseType": "ELECTIVE",
+    "discipline": "ECONOMICS",
+    "semesters": []
+  },
+  {
+    "code": "1011-3509",
+    "name": "Options and Financial Markets",
+    "credits": 2,
+    "year": 3,
+    "section": "קורסי בחירה מביה\"ס לכלכלה",
+    "courseType": "ELECTIVE",
+    "discipline": "ECONOMICS",
+    "semesters": []
+  },
+  {
+    "code": "1031-0914",
+    "name": "סוגרים חשבון: בנקים, אזרחים ופוליטיקה",
+    "credits": 3,
+    "year": 3,
+    "section": "קורסי בחירה החוג למדע המדינה",
+    "courseType": "ELECTIVE",
+    "discipline": "POLITICAL_SCIENCE",
+    "semesters": [
+      "SPRING"
+    ]
+  },
+  {
+    "code": "1031-0918",
+    "name": "ביטחון אונתולוגי וישראל: בית, זהות והחיפוש אחר ודאות",
+    "credits": 3,
+    "year": 3,
+    "section": "קורסי בחירה החוג למדע המדינה",
+    "courseType": "ELECTIVE",
+    "discipline": "POLITICAL_SCIENCE",
+    "semesters": [
+      "SPRING"
+    ]
+  },
+  {
+    "code": "1031-0920",
+    "name": "דמוקרטיה ובינה מלאכותית: אתגרים, הזדמנויות ורגולציה",
+    "credits": 2,
+    "year": 3,
+    "section": "קורסי בחירה החוג למדע המדינה",
+    "courseType": "ELECTIVE",
+    "discipline": "POLITICAL_SCIENCE",
+    "semesters": [
+      "SPRING"
+    ]
+  },
+  {
+    "code": "1031-0941",
+    "name": "הזהות החוקתית של מדינת ישראל",
+    "credits": 3,
+    "year": 3,
+    "section": "סמינר 4 ש\"ס",
+    "courseType": "SEMINAR",
+    "discipline": "GENERAL",
+    "semesters": []
+  },
+  {
+    "code": "1031-3951",
+    "name": "אסטרטגיית ההרתעה ביחב\"ל: מהמלחמה הקרה ועד המלחמה בטרור",
+    "credits": 4,
+    "year": 3,
+    "section": "סמינר 4 ש\"ס",
+    "courseType": "SEMINAR",
+    "discipline": "GENERAL",
+    "semesters": []
+  },
+  {
+    "code": "1031-4110",
+    "name": "המערכת הבינלאומית בהתהוותה",
+    "credits": 3,
+    "year": 3,
+    "section": "סמינר 4 ש\"ס",
+    "courseType": "SEMINAR",
+    "discipline": "GENERAL",
+    "semesters": []
+  },
+  {
+    "code": "1031-4112",
+    "name": "תקשורת פוליטית",
+    "credits": 3,
+    "year": 3,
+    "section": "סמינר 4 ש\"ס",
+    "courseType": "SEMINAR",
+    "discipline": "GENERAL",
+    "semesters": []
+  },
+  {
+    "code": "1031-4481",
+    "name": "סוגיות אקטואליות בפילוסופיה פוליטית",
+    "credits": 3,
+    "year": 3,
+    "section": "סמינר 4 ש\"ס",
+    "courseType": "SEMINAR",
+    "discipline": "GENERAL",
+    "semesters": []
+  },
+  {
+    "code": "1031-4483",
+    "name": "מושג הריבונות בפילוסופיה פוליטית",
+    "credits": 3,
+    "year": 3,
+    "section": "סמינר 4 ש\"ס",
+    "courseType": "SEMINAR",
+    "discipline": "GENERAL",
+    "semesters": []
+  },
+  {
+    "code": "1031-4486",
+    "name": "מנהיגות, דמוקרטיה ופוליטיקה בעידן התקשורת הגלובאלית",
+    "credits": 3,
+    "year": 3,
+    "section": "סמינר 4 ש\"ס",
+    "courseType": "SEMINAR",
+    "discipline": "GENERAL",
+    "semesters": []
+  },
+  {
+    "code": "1031-4487",
+    "name": "דמוקרטיות בנות זמננו: בין יציבות למשבר",
+    "credits": 3,
+    "year": 3,
+    "section": "סמינר 4 ש\"ס",
+    "courseType": "SEMINAR",
+    "discipline": "GENERAL",
+    "semesters": []
+  },
+  {
+    "code": "0616-1022",
+    "name": "מבוא להגות יהודית בעת החדשה א' - ממנדלסון למחשבת הציונות",
+    "credits": 2,
+    "year": 3,
+    "section": "קורסי בחירה החוג לפילוסופיה יהודית",
+    "courseType": "ELECTIVE",
+    "discipline": "PHILOSOPHY",
+    "semesters": [
+      "FALL"
+    ]
+  },
+  {
+    "code": "0616-1023",
+    "name": "מבוא להגות היהודית בעת החדשה ב' - יהדות מודרנית, השואה ומדינת ישראל",
+    "credits": 2,
+    "year": 3,
+    "section": "קורסי בחירה החוג לפילוסופיה יהודית",
+    "courseType": "ELECTIVE",
+    "discipline": "PHILOSOPHY",
+    "semesters": [
+      "SPRING"
+    ]
+  },
+  {
+    "code": "0659-2611",
+    "name": "היסטוריה אינטלקטואלית ב': התפתחות הידע במערב",
+    "credits": 2,
+    "year": 3,
+    "section": "קורסי בחירה מכון כהן להיסטוריה ופילוסופיה של המדעים והרעיונות",
+    "courseType": "ELECTIVE",
+    "discipline": "PHILOSOPHY",
+    "semesters": [
+      "SPRING"
+    ]
+  },
+  {
+    "code": "0659-5155",
+    "name": "שאלות יסוד בהיסטוריה של מדעי החברה",
+    "credits": 2,
+    "year": 3,
+    "section": "קורסי בחירה מכון כהן להיסטוריה ופילוסופיה של המדעים והרעיונות",
+    "courseType": "ELECTIVE",
+    "discipline": "PHILOSOPHY",
+    "semesters": [
+      "FALL"
+    ]
+  },
+  {
+    "code": "1662-1124",
+    "name": "Queer Theory",
+    "credits": 2,
+    "year": 3,
+    "section": "קורסי בחירה התכנית הרב תחומית מדעי הרוח",
+    "courseType": "ELECTIVE",
+    "discipline": "GENERAL",
+    "semesters": []
+  },
+  {
+    "code": "1662-1158",
+    "name": "Digital Capitalism: From Surveillance Capitalism to Technofeudalism",
+    "credits": 4,
+    "year": 3,
+    "section": "קורסי בחירה התכנית הרב תחומית מדעי הרוח",
+    "courseType": "ELECTIVE",
+    "discipline": "GENERAL",
+    "semesters": []
+  },
+  {
+    "code": "1082-4189",
+    "name": "",
+    "credits": 3,
+    "year": 3,
+    "section": "קורסי בחירה החוג למדיניות ציבורית",
+    "courseType": "ELECTIVE",
+    "discipline": "POLITICAL_SCIENCE",
+    "semesters": [
+      "SPRING"
+    ]
+  },
+  {
+    "code": "1082-4280",
+    "name": "מורה נבוכים למנהל הציבורי בישראל",
+    "credits": 3,
+    "year": 3,
+    "section": "סמינר 3 ש\"ס",
+    "courseType": "SEMINAR",
+    "discipline": "GENERAL",
+    "semesters": [
+      "SPRING"
+    ]
+  },
+  {
+    "code": "1082-6424",
+    "name": "",
+    "credits": 3,
+    "year": 3,
+    "section": "סמינר 3 ש\"ס",
+    "courseType": "SEMINAR",
+    "discipline": "GENERAL",
+    "semesters": [
+      "FALL"
+    ]
+  },
+  {
+    "code": "1082-6453",
+    "name": "מימדים חברתיים של מהפכת האנרגיה המתחדשת",
+    "credits": 3,
+    "year": 3,
+    "section": "סמינר 3 ש\"ס",
+    "courseType": "SEMINAR",
+    "discipline": "GENERAL",
+    "semesters": [
+      "FALL"
+    ]
+  },
+  {
+    "code": "1082-6454",
+    "name": "",
+    "credits": 3,
+    "year": 3,
+    "section": "סמינר 3 ש\"ס",
+    "courseType": "SEMINAR",
+    "discipline": "GENERAL",
+    "semesters": [
+      "FALL"
+    ]
+  },
+  {
+    "code": "0626-1687",
+    "name": "תחנות יסוד בהיסטוריה של ארצות הברית, 1492-1861",
+    "credits": 4,
+    "year": 3,
+    "section": "קורסי בחירה נוספים",
+    "courseType": "ELECTIVE",
+    "discipline": "GENERAL",
+    "semesters": [
+      "FALL"
+    ]
+  },
+  {
+    "code": "1041-1108",
+    "name": "תיאוריות סוציולוגיות: מהתקופה הקלאסית ועד זמננו",
+    "credits": 4,
+    "year": 3,
+    "section": "קורסי בחירה נוספים",
+    "courseType": "ELECTIVE",
+    "discipline": "GENERAL",
+    "semesters": []
+  },
+  {
+    "code": "1880-0301",
+    "name": "אשנב למדעי המחשב",
+    "credits": 2,
+    "year": 3,
+    "section": "קורסי בחירה נוספים",
+    "courseType": "ELECTIVE",
+    "discipline": "GENERAL",
+    "semesters": []
+  }
 ]
