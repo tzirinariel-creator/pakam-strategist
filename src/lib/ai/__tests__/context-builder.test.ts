@@ -106,7 +106,10 @@ describe("Q9 — the mentor context equals plan.getCredits for the same rows", (
     const prompt = buildMentorSystemPrompt(ctx, getActiveProgram());
     // earned 13 out of 150, total incl. planned 17, average 90.8:
     expect(prompt).toContain("13 מתוך 150");
-    expect(prompt).toContain(`סה"כ ש״ס (כולל מתוכננות): 17`);
+    // Label corrected 13.8: this field is `effectiveTotal`, which folds in the
+    // miluim exemption as well as planned credits. Calling it "כולל מתוכננות"
+    // hid that, and a group-C student with nothing saved read as "8 ש״ס".
+    expect(prompt).toContain(`סה"כ ש״ס (כולל פטור מילואים ומתוכננות): 17`);
     expect(prompt).toContain((1180 / 13).toFixed(1)); // "90.8"
   });
 
@@ -167,5 +170,47 @@ describe("foreign-course scoping — the King never surfaces a non-PPE course", 
     expect(codes).not.toContain("0910-4601");
     expect(codes).toContain("0910-1000");
     expect(codes).toContain("0618-2000");
+  });
+});
+
+// =========================================================================
+// #13/#14 (13.8) — the empty-DB guard on the SERVER prompt.
+//
+// The advisor is mounted on the protected layout, so it is LIVE while the
+// onboarding wizard runs — and the wizard keeps the student's answers in
+// browser memory until the final save. Every number the prompt carries is then
+// computed over an empty database. Ariel asked "כמה ש״ס נשארו לי?" mid-wizard
+// and was told "150 מתוך 150 … 0 הושלמו"; he said "אבל כבר עשיתי שנה
+// באוניברסיטה" and was told "כרגע יש לכם 8 ש״ס בלבד" — the 8 being his miluim
+// EXEMPTION narrated as earned credit, seconds after he had entered thirteen
+// completed courses.
+// =========================================================================
+describe("empty plan — the prompt must forbid arithmetic over nothing", () => {
+  // A group-C reservist mid-onboarding: nothing saved, but an 8-credit
+  // exemption — the exact shape that produced the "8 ש״ס" sentence.
+  const emptyDb = {
+    userCourse: { findMany: async () => [] },
+    studyTask: { findMany: async () => [] },
+    miluimSemester: { findMany: async () => [] },
+    course: { findMany: async () => [] },
+  } as unknown as Db;
+
+  it("warns the model when the student has no saved courses at all", async () => {
+    const ctx = await buildUserContext(emptyDb, USER);
+    expect(ctx.completedCourses).toHaveLength(0);
+    expect(ctx.currentCourses).toHaveLength(0);
+
+    const prompt = buildMentorSystemPrompt(ctx, getActiveProgram());
+    expect(prompt).toContain("אין עדיין ולו קורס אחד שמור");
+    expect(prompt).toContain("אל תציין ש״ס שנצברו");
+    // General questions must still be answerable — silencing those would be a
+    // worse product than the bug.
+    expect(prompt).toContain("על שאלות כלליות");
+  });
+
+  it("does NOT warn once the student has courses", async () => {
+    const ctx = await buildUserContext(db, USER);
+    const prompt = buildMentorSystemPrompt(ctx, getActiveProgram());
+    expect(prompt).not.toContain("אין עדיין ולו קורס אחד שמור");
   });
 });

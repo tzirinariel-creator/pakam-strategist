@@ -382,9 +382,24 @@ ${personalAddress}
 
   תוכנית: ${program.nameHe} (${program.nameEn}) — ${disciplineNames}
   שנה נוכחית: שנה ${context.currentYear}, ${semesterLabel}
-  תחום מיקוד: ${focusLabel}
+  תחום מיקוד: ${focusLabel}${
+    // #13/#14 (13.8) — the advisor is mounted on the protected layout, so it is
+    // live while the onboarding wizard is still running and the student's
+    // answers are still in browser memory. Every number below is then computed
+    // over an EMPTY database. Worse, totalCredits is `effectiveTotal` =
+    // earned + miluim exemption, so a group-C student with zero saved courses
+    // reads as "8 ש״ס" — which is exactly the sentence Ariel was shown moments
+    // after entering thirteen completed courses. State the absence as a fact
+    // instead of narrating arithmetic over zero.
+    context.completedCourses.length === 0 && context.currentCourses.length === 0
+      ? `
+  ⚠️ אין עדיין ולו קורס אחד שמור לסטודנט הזה — סביר שהוא באמצע ההרשמה והנתונים שלו עוד לא נשמרו.
+  לכן: אל תציין ש״ס שנצברו, ממוצע, פערים או "כמה נשאר" — כל מספר כזה יהיה חישוב על ריק, גם אם הוא מופיע למטה.
+  אמור בפשטות שעוד לא נשמרו נתונים, שסיום ההרשמה ישמור אותם, ושאז תוכל לענות מהנתונים האמיתיים. על שאלות כלליות (תקנון, בידינג, מושגים) ענה כרגיל.`
+      : ""
+  }
   ש״ס שנצברו (הושלמו): ${context.earnedCredits} מתוך ${program.creditRequirements.total} נדרשות
-  סה"כ ש״ס (כולל מתוכננות): ${context.totalCredits}
+  סה"כ ש״ס (כולל פטור מילואים ומתוכננות): ${context.totalCredits}
   ש״ס בתחום המיקוד: ${context.focusAreaCredits} מתוך ${program.creditRequirements.focusAreaMin} נדרשות
   ממוצע קורסים: ${avgLabel}
   ש״ס בסמסטר הנוכחי: ${context.currentSemesterCredits}${

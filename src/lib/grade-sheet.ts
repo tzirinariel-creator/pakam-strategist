@@ -249,8 +249,11 @@ export interface MatchedRow extends ExtractedRow {
    *   the student, never auto-applied (a truncated OCR name like an intro
    *   course can otherwise bind to its advanced variant and overwrite it)
    * - "none"  = no match; student picks manually.
+   * - "manual" = the STUDENT picked this course for the row on the review
+   *   screen (#5, 13.8). The most confident kind there is — a human read the
+   *   sheet and said so — so it is treated exactly like a code match.
    */
-  matchKind: "code" | "name" | "fuzzy" | "none";
+  matchKind: "code" | "name" | "fuzzy" | "none" | "manual";
   /** True when the sheet's grade differs from what's already recorded. */
   changesGrade: boolean;
   /**

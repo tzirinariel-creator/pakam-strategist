@@ -13,6 +13,10 @@ import { CREDIT_REQUIREMENTS, GRADE_REQUIREMENTS, GRADE_WEIGHTS, SEMINAR_REQUIRE
 
 export interface QAContext {
   isHe: boolean;
+  /** No courses saved yet — typically mid-onboarding, where the wizard still
+   *  holds everything in memory. Credit/grade arithmetic is meaningless here
+   *  and must not be recited as if it described the student (#13/#14). */
+  planIsEmpty?: boolean;
   /** Injectable "today" (tests); defaults to new Date() in the date handler. */
   now?: Date;
   // Credits

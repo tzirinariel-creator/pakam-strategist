@@ -29,7 +29,33 @@ export interface RoutedDecision {
    */
   shouldEscalate: boolean;
   /** Why we escalated (for telemetry / a source badge). */
-  reason: "no-match" | "reasoning" | "follow-up" | "course-code" | "social" | "none";
+  reason: "no-match" | "reasoning" | "follow-up" | "course-code" | "social" | "no-data-yet" | "none";
+}
+
+/**
+ * Is this question ABOUT THE STUDENT'S OWN numbers?
+ *
+ * Needed because the advisor is mounted on the protected layout and is
+ * therefore live while the onboarding wizard is still running, with nothing yet
+ * written to the database (#13/#14). In that state a personal-stat question can
+ * only be answered with arithmetic over zero — which is how the King told Ariel
+ * "נשאר לך להשלים 150 מתוך 150" and then "יש לכם 8 ש״ס בלבד" moments apart,
+ * seconds after he had entered thirteen completed courses.
+ *
+ * A GENERAL question ("מה זו המרה בינארית?", "מתי הבידינג?") must still be
+ * answered — it does not depend on his data at all. So this deliberately keys on
+ * FIRST-PERSON possession, not on the topic: the difference between "how many
+ * credits is the degree" and "how many credits do I have left".
+ */
+const PERSONAL_MARKERS = [
+  "שלי", "לי ", "לי?", " לי", "אצלי", "צברתי", "עשיתי", "סיימתי", "נשאר לי",
+  "שלנו", "שלכם", "לנו ", "יש לי", "חסר לי", "חסרים לי", "חסרות לי",
+  "my ", "i have", "i've", "do i", "am i", "me?",
+];
+
+export function isPersonalDataQuestion(question: string): boolean {
+  const q = ` ${question.toLowerCase()} `;
+  return PERSONAL_MARKERS.some((m) => q.includes(m));
 }
 
 // Markers of an open-ended question that benefits from LLM reasoning rather
@@ -174,6 +200,26 @@ export function routeQuestion(
   // warmth is exactly where the persona earns its keep: escalate so a keyed
   // student hears the King/Referent, and keep the fixed line as the fallback.
   const social = socialTalkKind(question) !== null;
+
+  // Nothing saved yet + a question about the student's own numbers = say so.
+  // Checked FIRST and it wins outright: escalating would not help, because the
+  // server builds the LLM's context from the same empty database — that path is
+  // exactly where "יש לכם 8 ש״ס" came from (the miluim exemption, narrated as
+  // earned credit). The only honest answer is that we have not saved anything
+  // yet, so we give that and stop.
+  if (ctx.planIsEmpty && isPersonalDataQuestion(question)) {
+    return {
+      deterministic: {
+        matched: true,
+        text: ctx.isHe
+          ? "עוד לא שמרתי אצלי שום קורס שלכם, אז כל מספר שאתן עכשיו יהיה מספר על ריק — ואני לא עושה את זה. סיימו את ההרשמה (הקורסים שסימנתם נשמרים בסוף), ואז אענה לכם מהנתונים האמיתיים שלכם."
+          : "I haven't saved any of your courses yet, so any number I gave you now would be arithmetic over nothing — and I won't do that. Finish signing up (what you've marked is saved at the end) and I'll answer from your real data.",
+      },
+      matched: true,
+      shouldEscalate: false,
+      reason: "no-data-yet",
+    };
+  }
 
   const shouldEscalate = !matched || reasoning || followUp || courseCode || social;
   const reason: RoutedDecision["reason"] = !matched

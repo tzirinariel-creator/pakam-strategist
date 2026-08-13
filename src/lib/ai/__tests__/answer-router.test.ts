@@ -153,3 +153,52 @@ describe("social talk routing (#22)", () => {
     }
   });
 });
+
+// ── #13/#14 (13.8): the King is live DURING onboarding, reading an empty DB ──
+// Reproduces the exact live report. Ariel asked "כמה ש״ס נשארו לי?" mid-wizard
+// and got "נשאר לך להשלים 150 מתוך 150 … 0 הושלמו"; he replied "אבל כבר עשיתי
+// שנה באוניברסיטה" and got "כרגע יש לכם 8 ש״ס בלבד, כך שחסרות עוד 142" — the 8
+// being his miluim EXEMPTION narrated as earned credit. Two contradictory
+// answers, seconds apart, to a student who had just entered 13 completed
+// courses that the wizard had not saved yet.
+import { isPersonalDataQuestion } from "@/lib/ai/answer-router";
+
+describe("empty-plan guard (#13/#14)", () => {
+  const empty = ctx({ planIsEmpty: true, earned: 0, planned: 0, effectiveTotal: 8, miluimExemption: 8 });
+
+  it("refuses to do arithmetic over nothing, and does NOT escalate", () => {
+    const d = routeQuestion("כמה ש״ס נשארו לי?", empty);
+    expect(d.reason).toBe("no-data-yet");
+    // Escalating is worse, not better: the server builds the LLM's context from
+    // the same empty DB — that path is where the "8 ש״ס" sentence came from.
+    expect(d.shouldEscalate).toBe(false);
+    // The one thing that must never appear: a number presented as his standing.
+    expect(d.deterministic.text).not.toMatch(/\d/);
+  });
+
+  it("covers the follow-up that produced the contradictory second answer", () => {
+    for (const q of ["מה הממוצע שלי?", "כמה קורסים עשיתי?", "מה חסר לי לתואר?", "how many credits do I have?"]) {
+      expect(routeQuestion(q, empty).reason, q).toBe("no-data-yet");
+    }
+  });
+
+  it("still answers GENERAL questions mid-onboarding — they don't need his data", () => {
+    // Silencing these would be a worse product than the bug.
+    for (const q of ["מה זו המרה בינארית?", "מתי הבידינג?"]) {
+      expect(routeQuestion(q, empty).reason, q).not.toBe("no-data-yet");
+    }
+  });
+
+  it("never fires once a plan exists", () => {
+    expect(routeQuestion("כמה ש״ס נשארו לי?", ctx()).reason).toBe("none");
+  });
+});
+
+describe("isPersonalDataQuestion", () => {
+  it("separates 'my numbers' from 'the degree's numbers'", () => {
+    expect(isPersonalDataQuestion("כמה ש״ס נשארו לי?")).toBe(true);
+    expect(isPersonalDataQuestion("מה הממוצע שלי?")).toBe(true);
+    expect(isPersonalDataQuestion("כמה ש״ס יש בתואר?")).toBe(false);
+    expect(isPersonalDataQuestion("מה זו המרה בינארית?")).toBe(false);
+  });
+});

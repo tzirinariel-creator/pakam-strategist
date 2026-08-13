@@ -128,6 +128,16 @@ export function useDegreeQAContext(
 
     return {
       isHe,
+      // #13/#14 (13.8) — the King is mounted on the protected layout, so it is
+      // LIVE while the onboarding wizard is still running. The wizard holds the
+      // student's answers in memory until the final save, so these queries read
+      // an EMPTY database and the King recited arithmetic over nothing: "נשאר
+      // לך להשלים 150 מתוך 150", then seconds later "יש לכם 8 ש״ס" — the 8 being
+      // the miluim exemption counted as if it were earned credit. Two
+      // contradictory answers in one conversation, both wrong, to a student who
+      // had just entered 13 completed courses. Nothing is saved yet is a FACT
+      // the advisor must state, not a number it should compute around.
+      planIsEmpty: planCourses.length === 0,
       effectiveTotal: b?.effectiveTotal ?? 0,
       earned: b?.earned ?? 0,
       planned: b?.planned ?? 0,
