@@ -137,10 +137,15 @@ export function BinaryAdvisor() {
             key={course.userCourseId}
             className="flex flex-wrap items-center gap-2 rounded-lg border border-border/50 p-2.5 text-xs"
           >
+            {/* #33 — the name and the grade used to render glued
+                ("…המוסר89 · 2 ש״ס"): only a CSS margin stood between them, so
+                textContent (and a tight RTL line) ran them together. A real
+                "·" separator now sits in the markup itself. */}
             <span className="min-w-0 flex-1 truncate text-foreground/80">
               {course.nameHe}
-              <span className="ms-1.5 text-foreground/40">
-                <bdi dir="ltr">{course.grade} · {course.credits}</bdi> {isHe ? 'ש״ס' : "cr"}
+              <span className="text-foreground/40">
+                {" · "}
+                <bdi dir="ltr">{course.grade} · {course.credits}</bdi> {isHe ? "ש״ס" : "cr"}
               </span>
             </span>
             <span className="inline-flex items-center gap-1 rounded-md bg-emerald-400/10 px-2 py-1 font-bold text-emerald-600" dir="ltr">

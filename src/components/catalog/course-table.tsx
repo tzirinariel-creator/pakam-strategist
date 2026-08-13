@@ -439,15 +439,18 @@ export function CourseTable({ courses, allCourses, focusArea }: CourseTableProps
                     )}
                     {locale === "he" ? course.nameHe : (course.nameEn ?? course.nameHe)}
                   </button>
+                  {/* The secondary-language name used to sit against the primary
+                      one with only a CSS margin between them, so the two names
+                      ran together in textContent (the #27 family). */}
                   {locale === "he" ? (
                     course.nameEn && (
-                      <span className="ms-2 text-xs text-muted-foreground hidden sm:inline">
-                        ({course.nameEn})
+                      <span className="text-xs text-muted-foreground hidden sm:inline">
+                        {" "}({course.nameEn})
                       </span>
                     )
                   ) : (
-                    <span className="ms-2 text-xs text-muted-foreground hidden sm:inline">
-                      ({course.nameHe})
+                    <span className="text-xs text-muted-foreground hidden sm:inline">
+                      {" "}({course.nameHe})
                     </span>
                   )}
                 </div>

@@ -660,8 +660,10 @@ export function StepProfile({ data, onUpdate }: StepProfileProps) {
                             )}
                           </div>
                           {group.descHe && (
+                            // The group blurbs carry day RANGES ("21–34",
+                            // "14–20") — unisolated they reverse in RTL.
                             <span className="block mt-0.5 text-xs text-foreground/40">
-                              {isHe ? group.descHe : group.descEn}
+                              <Bidi text={isHe ? group.descHe : group.descEn} />
                             </span>
                           )}
                         </button>

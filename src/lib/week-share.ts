@@ -41,10 +41,11 @@ export function buildWeekShareText(
   for (const s of sessions) {
     (byDay.get(s.dayOfWeek) ?? byDay.set(s.dayOfWeek, []).get(s.dayOfWeek)!).push(s);
   }
-  // #42 (12.7) — WhatsApp-native formatting: *bold* day headers, a clean
-  // bullet per class, emoji sparingly. A list someone would actually send.
+  // #42 (12.7) — WhatsApp-native formatting: *bold* day headers and a clean
+  // bullet per class. A list someone would actually send. No emoji — the file
+  // header says so, and the product carries none either.
   const lines: string[] = [
-    isHe ? `📅 *המערכת שלי — ${semesterLabel}*` : `📅 *My timetable — ${semesterLabel}*`,
+    isHe ? `*המערכת שלי — ${semesterLabel}*` : `*My timetable — ${semesterLabel}*`,
   ];
   for (const day of DAY_ORDER) {
     const list = byDay.get(day);
@@ -61,6 +62,6 @@ export function buildWeekShareText(
     }
   }
   lines.push("");
-  lines.push(isHe ? `נבנה עם פכמון 🎓 ${appUrl}` : `Built with Pakamon 🎓 ${appUrl}`);
+  lines.push(isHe ? `נבנה עם פכמון — ${appUrl}` : `Built with Pakamon — ${appUrl}`);
   return lines.join("\n");
 }

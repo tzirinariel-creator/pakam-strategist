@@ -51,6 +51,31 @@ const BIDI_CONTROLS = /[\u061C\u200E\u200F\u202A-\u202E\u2066-\u2069]/g;
 const MODE_TOKEN = `(?:ש[׳'’]?\\+ת[׳'’]?|[׳'’]?ת\\+[׳'’]?ש|שו["״]ת|ת["״]וש|ש[׳'’]|ת[׳'’]|[׳'’]ש|[׳'’]ת)`;
 const MODE_AT_EDGES = new RegExp(`^${MODE_TOKEN}\\s+|\\s+${MODE_TOKEN}$`, "g");
 
+// The "הערות" column sits at the far edge of the same row and carries free
+// text — in practice always "לא לשקלול" (an English course that doesn't count
+// toward the average). When the model glues it onto the name, the review list
+// showed a row literally reading "לא לשקלול" instead of a course (#29). It is
+// an annotation, never part of a course name — strip it at both edges.
+const NOTE_TOKEN = `(?:לא\\s+לשקלול|לשקלול\\s+לא)`;
+const NOTE_AT_EDGES = new RegExp(`^${NOTE_TOKEN}\\s*|\\s*${NOTE_TOKEN}$`, "g");
+
+/**
+ * Strip the sheet's neighbouring COLUMNS (teaching mode, "הערות") off a course
+ * name the model returned. Exported so the behaviour is locked by tests: a
+ * name that is ONLY an annotation must come back unchanged rather than empty,
+ * so the row is still shown and matched (and simply won't match a course).
+ */
+export function cleanCourseName(raw: string): string {
+  const cleaned = raw
+    .replace(NOTE_AT_EDGES, "")
+    .replace(MODE_AT_EDGES, "")
+    .replace(MODE_AT_EDGES, "")
+    .replace(NOTE_AT_EDGES, "")
+    .replace(/\s+/g, " ")
+    .trim();
+  return cleaned || raw;
+}
+
 /** Validate the model's raw text into the full extraction (rows + English
  *  level), or null. Shared by parseExtraction and parseEnglishLevelLabel so a
  *  single scan is parsed once, consistently. */
@@ -81,9 +106,7 @@ export function parseExtraction(text: string): ExtractedRow[] | null {
   if (!data) return null;
   return data.rows.map((r) => ({
     ...r,
-    courseName:
-      r.courseName.replace(MODE_AT_EDGES, "").replace(MODE_AT_EDGES, "").trim() ||
-      r.courseName,
+    courseName: cleanCourseName(r.courseName),
   }));
 }
 

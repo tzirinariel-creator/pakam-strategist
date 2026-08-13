@@ -5,6 +5,7 @@ import { User, Loader2, Check } from "lucide-react";
 import { useTranslations, useLocale } from "next-intl";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
+import { Bidi } from "@/lib/bidi";
 import { getAcademicNow, deriveYearOfStudy, hebrewYearLabel } from "@/lib/academic-calendar";
 import { DISCIPLINE_CONFIG, FOCUS_DISCIPLINE_IDS, YEAR_CONFIG, ENGLISH_CONFIG } from "@/lib/constants";
 import { api } from "@/lib/trpc/react";
@@ -246,8 +247,10 @@ export function ProfileSection() {
           <label htmlFor="settings-amirant" className="text-sm font-medium text-foreground/80">
             {t("amirantScore")}
           </label>
+          {/* The hint carries a numeric range ("50–150"); unisolated it
+              reverses to "150–50" inside the RTL paragraph. */}
           <p className="text-xs text-foreground/40">
-            {t("amirantScoreHint")}
+            <Bidi text={t("amirantScoreHint")} />
           </p>
           <Input
             id="settings-amirant"

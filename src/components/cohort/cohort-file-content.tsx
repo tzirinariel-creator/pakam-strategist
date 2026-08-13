@@ -545,12 +545,11 @@ function LevelChip({ isHe }: { isHe: boolean }) {
   const lvl = contributorLevel(stats.data.total);
   return (
     <div className="animate-stagger-2 data-card flex flex-wrap items-center gap-3 p-4">
-      <span className="text-2xl" aria-hidden>{lvl.emoji}</span>
       <div className="min-w-0 flex-1">
         <p className="text-sm font-semibold text-foreground/80">
           {isHe ? `הדרגה שלכם בתיק: ${lvl.titleHe}` : `Your file rank: ${lvl.titleEn}`}
-          <span className="ms-2 font-normal text-foreground/45">
-            {isHe ? `(${stats.data.total} תרומות)` : `(${stats.data.total} contributions)`}
+          <span className="font-normal text-foreground/45">
+            {isHe ? ` (${stats.data.total} תרומות)` : ` (${stats.data.total} contributions)`}
           </span>
         </p>
         {lvl.nextAt !== null ? (

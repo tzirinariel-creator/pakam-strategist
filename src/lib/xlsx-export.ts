@@ -242,7 +242,7 @@ export async function buildExamPlanWorkbook(
         const sessions = sessByDay.get(k) ?? [];
         const parts: string[] = [];
         for (const ex of exams) {
-          parts.push(isHe ? `📝 ${shortCourseName(ex.name)} — מועד ${ex.moed === "A" ? "א׳" : "ב׳"}` : `📝 ${shortCourseName(ex.name)} — Moed ${ex.moed}`);
+          parts.push(isHe ? `מבחן: ${shortCourseName(ex.name)} — מועד ${ex.moed === "A" ? "א׳" : "ב׳"}` : `Exam: ${shortCourseName(ex.name)} — Moed ${ex.moed}`);
         }
         // 18:19 (#5) — SHORT names (the full nameHe blew up the column) and NO
         // per-session "(2.5 ש׳)" clutter; the day's total hours go on the date
@@ -429,7 +429,7 @@ export async function buildExamPlanWorkbook(
       line.exam ? "" : "☐",
       isNewDay ? fmtDate(line.date) : "",
       isNewDay ? weekdaysFull[line.date.getDay()] ?? "" : "",
-      line.exam ? (isHe ? `🎓 מבחן: ${name}` : `🎓 EXAM: ${name}`) : name,
+      line.exam ? (isHe ? `מבחן: ${name}` : `EXAM: ${name}`) : name,
       line.exam ? "" : line.hours,
     ]);
     const nameCell = row.getCell(4);

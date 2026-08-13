@@ -176,7 +176,7 @@ export function DegreeStatus({
           <PhilosopherKingCharacter className="size-12 shrink-0 pk-float" />
           <div>
             <p className="text-sm font-bold text-foreground/85">
-              {isHe ? "סיימתם את כל הש״ס — כל הכבוד! 👑" : "All credits complete — congratulations! 👑"}
+              {isHe ? "סיימתם את כל הש״ס — כל הכבוד!" : "All credits complete — congratulations!"}
             </p>
             <p className="text-xs text-foreground/55">
               {isHe ? "עברתם את הפוליס אבן-אבן. נשאר רק לסגור פורמלית מול המזכירות." : "You built the polis stone by stone. Just close it formally with the office."}

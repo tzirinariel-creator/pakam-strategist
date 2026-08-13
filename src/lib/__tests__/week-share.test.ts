@@ -21,7 +21,7 @@ describe("buildWeekShareText", () => {
       { semesterLabel: "שנה א׳ · סמסטר ב׳", appUrl: "https://pakamon.app/he", isHe: true },
     );
     const lines = text.split("\n");
-    expect(lines[0]).toBe("📅 *המערכת שלי — שנה א׳ · סמסטר ב׳*");
+    expect(lines[0]).toBe("*המערכת שלי — שנה א׳ · סמסטר ב׳*");
     const sunday = lines.indexOf("*יום א׳*");
     const tuesday = lines.indexOf("*יום ג׳*");
     expect(sunday).toBeGreaterThan(0);
@@ -29,7 +29,7 @@ describe("buildWeekShareText", () => {
     expect(lines[sunday + 1]).toContain("08:00–09:00");
     expect(lines[sunday + 2]).toContain("10:00–12:00");
     expect(text).not.toContain("*יום ב׳*"); // empty day absent
-    expect(lines[lines.length - 1]).toBe("נבנה עם פכמון 🎓 https://pakamon.app/he");
+    expect(lines[lines.length - 1]).toBe("נבנה עם פכמון — https://pakamon.app/he");
   });
 
   it("normalizes sessionType casing (DB casing isn't guaranteed)", () => {
@@ -45,6 +45,6 @@ describe("buildWeekShareText", () => {
     });
     expect(text).toContain("*Monday*");
     expect(text).toContain("Math for PPE");
-    expect(text).toContain("Built with Pakamon 🎓");
+    expect(text).toContain("Built with Pakamon — ");
   });
 });

@@ -154,7 +154,7 @@ function rowValue(label: string): string {
 
 // Hebrew (isHe) summary-row labels used across the summary card.
 const L_PLANNED_CREDITS = "ש״ס בתכנון";
-const L_DONE_CREDITS = "ש״ס שכבר השלמת";
+const L_DONE_CREDITS = "ש״ס שכבר השלמתם";
 const L_COMBINED = "סה״כ לתואר עד כה";
 
 beforeEach(() => {

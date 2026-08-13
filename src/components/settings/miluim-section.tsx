@@ -453,8 +453,8 @@ export function MiluimSection() {
             Everything here is policy that changes yearly — hence the tag. */}
         <details className="rounded-lg border border-border/50 bg-foreground/[0.02] p-4">
           <summary className="cursor-pointer text-sm font-semibold text-foreground/75">
-            {isHe ? "איך מנצלים את הזכויות חכם? המדריך הקצר" : "How to use the benefits wisely — the short playbook"}
-            <span className="ms-2 rounded-full bg-foreground/8 px-2 py-0.5 text-[10px] font-normal text-foreground/50">
+            {isHe ? "איך מנצלים את הזכויות חכם? המדריך הקצר" : "How to use the benefits wisely — the short playbook"}{" "}
+            <span className="rounded-full bg-foreground/8 px-2 py-0.5 text-[10px] font-normal text-foreground/50">
               {isHe ? "נכון לתשפ״ו" : "As of 2025-26"}
             </span>
           </summary>

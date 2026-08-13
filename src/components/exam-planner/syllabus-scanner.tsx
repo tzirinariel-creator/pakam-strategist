@@ -204,7 +204,9 @@ export function SyllabusScanner() {
                   <span className="min-w-0 flex-1 truncate text-foreground/80">
                     {item.title}
                     {item.kind === "exam" && item.moed && (
-                      <span className="ms-1 text-foreground/45">{isHe ? `מועד ${item.moed === "B" ? "ב׳" : "א׳"}` : `Moed ${item.moed}`}</span>
+                      // Real separator in the markup — a CSS margin alone glues
+                      // the moed to the title in textContent (the #27 family).
+                      <span className="text-foreground/45">{isHe ? ` · מועד ${item.moed === "B" ? "ב׳" : "א׳"}` : ` · Moed ${item.moed}`}</span>
                     )}
                   </span>
                   <span className="font-mono tabular-nums text-foreground/60" dir="ltr">

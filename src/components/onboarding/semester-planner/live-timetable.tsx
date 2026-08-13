@@ -174,6 +174,10 @@ export function LiveTimetable({
           room: session.room ?? null,
           building: session.building ?? null,
           sessionType: session.sessionType,
+          // Carried so the grid's detail card can name the group and the
+          // lecturer — the part of the real תשפ״ז ידיעון no competitor holds.
+          groupCode: session.groupCode ?? null,
+          lecturerName: session.lecturerName ?? null,
           course: {
             code: course.code,
             nameHe: course.nameHe,

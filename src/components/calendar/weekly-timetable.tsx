@@ -1,10 +1,20 @@
 "use client";
 
-import { useMemo } from "react";
+import { useMemo, useState, type KeyboardEvent, type MouseEvent } from "react";
 import { useTranslations, useLocale } from "next-intl";
-import { AlertTriangle, MapPin, Clock, Repeat } from "lucide-react";
+import { AlertTriangle, MapPin, Repeat, User } from "lucide-react";
 import { DISCIPLINE_CONFIG } from "@/lib/constants";
 import { cn } from "@/lib/utils";
+import {
+  dedupeMeetings,
+  findConflictPairs,
+  conflictIds as conflictIdsOf,
+  conflictPartners as conflictPartnersOf,
+  describeConflictPair,
+  describeConflictPartner,
+  formatHourRange,
+  type ConflictCandidate,
+} from "@/lib/timetable-conflicts";
 import type { Discipline, DayOfWeek } from "@/types/enums";
 
 // ─── Types ───────────────────────────────────────────────────────────
@@ -18,6 +28,10 @@ export interface ScheduleSessionData {
   room: string | null;
   building: string | null;
   sessionType: string; // "lecture" | "tutorial" | "lab"
+  /** Optional — only the planner/calendar paths carry them. Both feed the
+   *  on-grid detail card, which is the whole point of holding the real ידיעון. */
+  groupCode?: string | null;
+  lecturerName?: string | null;
   course: {
     code: string;
     nameHe: string;
@@ -39,6 +53,8 @@ export interface TimeSlot {
   room: string | null;
   building: string | null;
   sessionType: string;
+  groupCode: string | null;
+  lecturerName: string | null;
   startTimeStr: string;
   endTimeStr: string;
 }
@@ -50,16 +66,16 @@ interface WeeklyTimetableProps {
    *  Desktop-grid only (hover has no mobile equivalent; the agenda skips it). */
   previewSessions?: ScheduleSessionData[];
   /** On-grid group picking (#2). When true, blocks whose courseCode is in
-   *  `multiGroupCourseCodes` get a tap affordance that fires `onPickGroup`.
+   *  `multiGroupCourseCodes` become the tap target that fires `onPickGroup`.
    *  When absent, the timetable stays purely read-only (unchanged path). */
   interactive?: boolean;
-  /** Fired when the student taps the "החלף קבוצה" affordance on a course
-   *  block. The caller opens the GroupPickerPopover for this course, anchored
-   *  to `anchor` — the button that was actually tapped, so the picker lands
-   *  next to it instead of at the middle of a very tall agenda list. */
+  /** Fired when the student taps a swappable course block. The caller opens the
+   *  GroupPickerPopover for this course, anchored to `anchor` — the element that
+   *  was actually tapped, so the picker lands next to it instead of at the
+   *  middle of a very tall agenda list. */
   onPickGroup?: (courseCode: string, anchor: HTMLElement) => void;
-  /** Course codes that offer a tutorial/lab group CHOICE — only these show
-   *  the affordance (a single-group course has nothing to pick). */
+  /** Course codes that offer a tutorial/lab group CHOICE — only these are
+   *  tappable (a single-group course has nothing to pick). */
   multiGroupCourseCodes?: Set<string>;
   /** Editor context (#2): switch agenda→grid already at @lg (~512px) instead
    *  of @2xl, so a 1280px laptop with the sidebar open still sees a SCHEDULE
@@ -80,13 +96,31 @@ const DAY_MAP: Record<DayOfWeek, TimeSlot["day"]> = {
   FRIDAY: 5,
 };
 
-const HOURS_START = 8;
-const HOURS_END = 20;
-const TOTAL_HOURS = HOURS_END - HOURS_START; // 12
-const HOURS = Array.from({ length: TOTAL_HOURS }, (_, i) => i + HOURS_START);
-const ROW_HEIGHT = 64; // px per hour — slightly bigger for readability
-const TIME_COL_WIDTH = 56; // px
-const HEADER_HEIGHT = 44; // px
+// The visible window. It is the FLOOR, not the ceiling: `useHourWindow` widens
+// it when a real meeting falls outside, so an 08:00 lab or a 20:00–22:00 seminar
+// is never silently clipped off the bottom of the box.
+const DEFAULT_HOURS_START = 8;
+const DEFAULT_HOURS_END = 20;
+const MIN_HOUR = 6;
+const MAX_HOUR = 23;
+
+// Density, measured against TauPlan (13.8/2026): their row is 40px and the whole
+// teaching week therefore lands in one 600px card with no scrolling — that, more
+// than any colour, is what makes their grid feel calm. Ours was 64px, so a 12-hour
+// week ran to 768px and always spilled past the fold. 48px is the compromise: the
+// week fits on one screen, and a Hebrew course name still gets two readable lines.
+const ROW_HEIGHT = 48; // px per hour
+const TIME_COL_WIDTH = 48; // px
+const HEADER_HEIGHT = 40; // px
+/** Width of the hover/focus detail card, and the room it may need to grow. */
+const DETAIL_WIDTH = 232; // px
+/** Worst observed card (2-line name + lecturer + room + two clash lines). The
+ *  grid box clips overflow, so the card anchors by its TOP in the upper half of
+ *  the week and by its BOTTOM in the lower half — either way it grows into the
+ *  ~288px of clear space on the other side and is never cut off. */
+const DETAIL_MAX_HEIGHT = 280; // px
+/** More clashes than this in one card and it stops being readable. */
+const DETAIL_MAX_CONFLICT_LINES = 2;
 
 // ─── Helpers ────────────────────────────────────────────────────────
 
@@ -110,6 +144,8 @@ function sessionsToSlots(sessions: ScheduleSessionData[], locale: string): TimeS
     room: s.room,
     building: s.building,
     sessionType: s.sessionType,
+    groupCode: s.groupCode ?? null,
+    lecturerName: s.lecturerName ?? null,
     startTimeStr: s.startTime,
     endTimeStr: s.endTime,
   }));
@@ -127,27 +163,6 @@ const SESSION_TYPE_KEYS: Record<string, string> = {
   // rendered as the raw English word inside the Hebrew grid.
   project: "projectSession",
 };
-
-// ─── Conflict detection ──────────────────────────────────────────────
-
-function detectConflicts(slots: TimeSlot[]): Set<string> {
-  const conflictIds = new Set<string>();
-  for (let i = 0; i < slots.length; i++) {
-    for (let j = i + 1; j < slots.length; j++) {
-      const a = slots[i]!;
-      const b = slots[j]!;
-      if (
-        a.day === b.day &&
-        a.startHour < b.endHour &&
-        b.startHour < a.endHour
-      ) {
-        conflictIds.add(a.courseId);
-        conflictIds.add(b.courseId);
-      }
-    }
-  }
-  return conflictIds;
-}
 
 // ─── Overlap layout ─────────────────────────────────────────────────
 
@@ -211,22 +226,77 @@ export function WeeklyTimetable({
   const isRTL = locale === "he";
   const isHe = locale === "he";
 
+  // Which block's detail card is open (hover on a pointer device, focus on a
+  // keyboard). One at a time; `null` = nothing open.
+  const [detailId, setDetailId] = useState<string | null>(null);
+
   // Keep Sun–Fri (0–5); Saturday (6) is always excluded. Friday is included so its
   // sessions count toward conflicts AND stats and are never silently dropped — the
   // Friday column/section only renders when at least one Friday session exists.
+  // `dedupeMeetings` first: the catalog holds true duplicate rows for a handful
+  // of meetings, and painting them twice both halved the column and made the
+  // meeting "clash with itself" (see the module's note).
   const slots = useMemo(
     () =>
-      sessionsToSlots(sessions, locale).filter((s) => s.day >= 0 && s.day <= 5),
+      sessionsToSlots(dedupeMeetings(sessions), locale).filter(
+        (s) => s.day >= 0 && s.day <= 5,
+      ),
     [sessions, locale]
   );
-  const conflictIds = useMemo(() => detectConflicts(slots), [slots]);
+
+  // Conflicts, from the shared pure module. We no longer stop at "there is a
+  // clash": every clashing block knows WHICH course it clashes with, on what
+  // day, for exactly which minutes — the sentence a student can act on, and the
+  // thing neither TauPlan nor bid-it does at all.
+  const conflictPairs = useMemo(
+    () =>
+      findConflictPairs(
+        slots.map<ConflictCandidate>((s) => ({
+          id: s.courseId,
+          day: s.day,
+          startHour: s.startHour,
+          endHour: s.endHour,
+          courseCode: s.courseCode,
+          courseName: s.courseName,
+        })),
+      ),
+    [slots],
+  );
+  const conflictIds = useMemo(() => conflictIdsOf(conflictPairs), [conflictPairs]);
+  const conflictPartners = useMemo(
+    () => conflictPartnersOf(conflictPairs),
+    [conflictPairs],
+  );
+
   const layoutSlots = useMemo(() => computeOverlapLayout(slots), [slots]);
   // Ghost layer — separate pipeline, never feeds conflicts/stats.
   const previewSlots = useMemo(
     () =>
-      sessionsToSlots(previewSessions ?? [], locale).filter((s) => s.day >= 0 && s.day <= 5),
+      sessionsToSlots(dedupeMeetings(previewSessions ?? []), locale).filter(
+        (s) => s.day >= 0 && s.day <= 5,
+      ),
     [previewSessions, locale]
   );
+
+  // The visible hour window — the 8–20 default, widened only by real meetings
+  // (previews included, or a ghost block would land outside the box).
+  const { hoursStart, hoursEnd } = useMemo(() => {
+    let lo = DEFAULT_HOURS_START;
+    let hi = DEFAULT_HOURS_END;
+    for (const s of [...slots, ...previewSlots]) {
+      if (Number.isFinite(s.startHour)) lo = Math.min(lo, Math.floor(s.startHour));
+      if (Number.isFinite(s.endHour)) hi = Math.max(hi, Math.ceil(s.endHour));
+    }
+    return {
+      hoursStart: Math.max(MIN_HOUR, lo),
+      hoursEnd: Math.min(MAX_HOUR, Math.max(hi, lo + 1)),
+    };
+  }, [slots, previewSlots]);
+  const hours = useMemo(
+    () => Array.from({ length: hoursEnd - hoursStart }, (_, i) => i + hoursStart),
+    [hoursStart, hoursEnd],
+  );
+  const gridHeight = (hoursEnd - hoursStart) * ROW_HEIGHT;
 
   // Current time
   const now = new Date();
@@ -241,56 +311,107 @@ export function WeeklyTimetable({
   const colWidthPct = 100 / dayCount;
 
   const isWeekday = dayOrder.includes(currentDay as TimeSlot["day"]);
-  const isInTimeRange = currentHour >= HOURS_START && currentHour <= HOURS_END;
-
-  const gridHeight = TOTAL_HOURS * ROW_HEIGHT;
+  const isInTimeRange = currentHour >= hoursStart && currentHour <= hoursEnd;
 
   // Stats — derived from the rendered slots so counts match what's shown.
   const totalSessions = slots.length;
   const uniqueCourses = new Set(slots.map((s) => s.courseCode)).size;
   const totalHours = slots.reduce((sum, s) => sum + (s.endHour - s.startHour), 0);
 
+  const dayLabel = (day: number) => {
+    const key = DAY_KEYS[day];
+    return key != null ? t(`days.${key}`) : "";
+  };
+
+  const typeLabel = (sessionType: string) => {
+    const key = SESSION_TYPE_KEYS[sessionType];
+    return key ? t(key) : sessionType;
+  };
+
+  /** "תרגיל · קבוצה 05" — the line TauPlan shows, plus the word for the group. */
+  const typeAndGroup = (slot: TimeSlot) =>
+    slot.groupCode
+      ? `${typeLabel(slot.sessionType)} · ${isHe ? "קבוצה" : "group"} ${slot.groupCode}`
+      : typeLabel(slot.sessionType);
+
+  // The plain sentences behind the clash markers, capped so a badly-built week
+  // doesn't turn the top of the page into a wall of red.
+  const conflictLines = useMemo(
+    () =>
+      conflictPairs.map((p) => ({
+        key: `${p.aId}|${p.bId}`,
+        ...describeConflictPair(p, dayLabel(p.day), isHe),
+      })),
+    // dayLabel/isHe come from the translation hooks; `t` is stable per locale.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [conflictPairs, isHe, locale],
+  );
+  const shownConflictLines = conflictLines.slice(0, 3);
+
+  const detailSlot = useMemo(
+    () => layoutSlots.find((s) => s.courseId === detailId) ?? null,
+    [layoutSlots, detailId],
+  );
+
   return (
     // @container: the agenda↔grid switch below keys off THIS element's width,
     // not the viewport — so the same component shows a readable day-agenda in the
     // narrow planner rail (~380px) and the full grid on a wide calendar page,
     // instead of cramming 5 columns into a sliver (#14/#18).
-    <div className="@container flex flex-col gap-4">
-      {/* Stats bar */}
-      <div className="flex flex-wrap items-center gap-x-4 gap-y-2 rounded-lg border border-border/50 bg-card/50 px-4 py-2.5 text-xs text-muted-foreground">
-        <div className="flex items-center gap-1.5">
-          <Clock className="size-3.5" />
-          <span className="font-medium">{Math.round(totalHours)}</span>
-          <span>{t("hrsPerWeek")}</span>
-        </div>
-        <div className="hidden h-3 w-px bg-border sm:block" />
+    <div className="@container flex flex-col gap-3">
+      {/* Summary line. Was a bordered card with pipe dividers and a red pill —
+          four competing boxes stacked above a grid that already had plenty.
+          TauPlan carries ONE number ("סך השעות: 14") at 70% opacity beside the
+          semester tabs; this is the same restraint, with our extra counts. */}
+      <div className="flex flex-wrap items-center gap-x-2.5 gap-y-1 text-xs text-muted-foreground">
         <span>
-          <span className="font-medium text-foreground/70">{uniqueCourses}</span>{" "}
+          <span className="font-semibold text-foreground/70 tabular-nums">
+            {Math.round(totalHours)}
+          </span>{" "}
+          {t("hrsPerWeek")}
+        </span>
+        <span aria-hidden className="text-border">·</span>
+        <span>
+          <span className="font-semibold text-foreground/70 tabular-nums">{uniqueCourses}</span>{" "}
           {t("coursesCount")}
         </span>
-        <div className="hidden h-3 w-px bg-border sm:block" />
+        <span aria-hidden className="text-border">·</span>
         <span>
-          <span className="font-medium text-foreground/70">{totalSessions}</span>{" "}
+          <span className="font-semibold text-foreground/70 tabular-nums">{totalSessions}</span>{" "}
           {t("sessionsCount")}
         </span>
-        {conflictIds.size > 0 && (
-          <>
-            <div className="hidden h-3 w-px bg-border sm:block" />
-            <span className="flex items-center gap-1 text-red-400">
-              <AlertTriangle className="size-3" />
-              {(() => {
-                const n = Math.ceil(conflictIds.size / 2);
-                // Singular/plural — "1 חפיפות" was ungrammatical (audit 22.7).
-                return `${n} ${isRTL ? (n === 1 ? "חפיפה" : "חפיפות") : n === 1 ? "conflict" : "conflicts"}`;
-              })()}
-            </span>
-          </>
-        )}
       </div>
 
+      {/* Named clashes. The competitors detect none at all (TauPlan silently
+          splits the column in two), and our own old copy was the bare word
+          "חפיפות" — the student saw red and still had to guess which two
+          courses and when. One quiet row, full sentences, no icon per line. */}
+      {conflictLines.length > 0 && (
+        <div className="flex gap-2 rounded-lg border border-red-500/25 bg-red-500/[0.05] px-3 py-2">
+          <AlertTriangle className="mt-px size-3.5 shrink-0 text-red-500/80" />
+          <ul className="min-w-0 flex-1 space-y-0.5 text-[11px] leading-relaxed text-red-700/90 dark:text-red-300/90">
+            {shownConflictLines.map((line) => (
+              <li key={line.key} className="truncate">
+                {line.lead}{" "}
+                <bdi dir="ltr" className="tabular-nums">{line.range}</bdi>
+              </li>
+            ))}
+            {conflictLines.length > shownConflictLines.length && (
+              <li className="text-red-700/60 dark:text-red-300/60">
+                {isHe
+                  ? `ועוד ${conflictLines.length - shownConflictLines.length} חפיפות`
+                  : `and ${conflictLines.length - shownConflictLines.length} more`}
+              </li>
+            )}
+          </ul>
+        </div>
+      )}
+
       {/* Agenda — vertical list grouped by day. Shown when the CONTAINER is
-          narrow (planner rail / phone), hidden once there's room for the grid. */}
-      <div className={cn("flex flex-col gap-3", preferGrid ? "@lg:hidden" : "@2xl:hidden")}>
+          narrow (planner rail / phone), hidden once there's room for the grid.
+          This is the one place we are already ahead of TauPlan, which keeps six
+          56px columns at 375px and clips every course name. */}
+      <div className={cn("flex flex-col gap-2.5", preferGrid ? "@lg:hidden" : "@2xl:hidden")}>
         {dayOrder.map((dayIdx) => {
           const dayKey = DAY_KEYS[dayIdx];
           const isToday = dayIdx === currentDay;
@@ -306,33 +427,39 @@ export function WeeklyTimetable({
           return (
             <div
               key={`agenda-${dayIdx}`}
-              className="overflow-hidden rounded-xl border border-border bg-card shadow-sm"
+              className="overflow-hidden rounded-lg border border-border bg-card"
             >
               <div
                 className={cn(
-                  "flex items-center justify-between border-b border-border px-3 py-2 text-sm font-semibold",
-                  isToday ? "bg-foreground/8 text-foreground" : "bg-muted/30 text-muted-foreground",
+                  "relative flex items-center justify-between border-b border-border bg-muted/40 px-3 py-1.5 text-[13px] font-semibold",
+                  isToday ? "text-foreground" : "text-muted-foreground",
                 )}
               >
                 <span>{dayKey != null ? t(`days.${dayKey}`) : ""}</span>
                 {daySlots.length > 0 && (
-                  <span className="font-mono text-[11px] font-normal text-muted-foreground/70">
+                  <span className="text-[11px] font-normal tabular-nums text-muted-foreground/60">
                     {daySlots.length}
                   </span>
+                )}
+                {isToday && (
+                  <span
+                    aria-hidden
+                    className="absolute inset-x-0 bottom-0 h-0.5 bg-accent-brand/70"
+                  />
                 )}
               </div>
 
               {daySlots.length === 0 && dayPreviews.length === 0 ? (
-                <div className="px-3 py-3 text-xs text-muted-foreground/40">—</div>
+                <div className="px-3 py-2.5 text-xs text-muted-foreground/40">—</div>
               ) : (
-                <ul className="divide-y divide-border/40">
+                <ul className="divide-y divide-border/50">
                   {daySlots.map((slot) => {
                     const config = DISCIPLINE_CONFIG[slot.discipline];
                     const color = config?.color ?? "hsl(var(--muted-foreground))";
-                    const hasConflict = conflictIds.has(slot.courseId);
-                    const sessionTypeKey = SESSION_TYPE_KEYS[slot.sessionType];
-                    const sessionTypeText = sessionTypeKey ? t(sessionTypeKey) : slot.sessionType;
+                    const partners = conflictPartners.get(slot.courseId) ?? [];
                     const locationText = [slot.building, slot.room].filter(Boolean).join(", ");
+                    const canPick =
+                      interactive && !!onPickGroup && (multiGroupCourseCodes?.has(slot.courseCode) ?? false);
 
                     return (
                       <li
@@ -345,27 +472,27 @@ export function WeeklyTimetable({
                           backgroundColor: `color-mix(in srgb, ${color} 7%, var(--card))`,
                         }}
                       >
-                        <span
-                          className="mt-0.5 shrink-0 font-mono text-[11px] leading-tight text-muted-foreground/80"
+                        <bdi
                           dir="ltr"
+                          className="mt-0.5 shrink-0 text-[11px] leading-tight tabular-nums text-muted-foreground/80"
                         >
                           {slot.startTimeStr}
                           <br />
                           {slot.endTimeStr}
-                        </span>
+                        </bdi>
                         <div className="flex min-w-0 flex-1 flex-col">
                           <div className="flex items-center gap-2">
                             <span className="truncate text-sm font-semibold text-foreground/90">
                               {slot.courseName}
                             </span>
-                            {interactive && onPickGroup && (multiGroupCourseCodes?.has(slot.courseCode) ?? false) && (
+                            {canPick && (
                               <button
                                 type="button"
                                 onClick={(e) => {
                                   e.stopPropagation();
-                                  onPickGroup(slot.courseCode, e.currentTarget);
+                                  onPickGroup!(slot.courseCode, e.currentTarget);
                                 }}
-                                className="flex min-h-[32px] shrink-0 items-center gap-0.5 rounded-md bg-foreground/5 px-1.5 py-1 text-[11px] font-medium text-foreground/60 transition-colors hover:text-accent-brand"
+                                className="flex min-h-[32px] shrink-0 items-center gap-1 rounded-md px-1.5 py-1 text-[11px] font-medium text-foreground/55 transition-colors hover:bg-foreground/5 hover:text-accent-brand"
                                 title={isHe ? "החלף קבוצה" : "Change group"}
                                 aria-label={isHe ? "החלף קבוצה" : "Change group"}
                               >
@@ -375,20 +502,31 @@ export function WeeklyTimetable({
                             )}
                           </div>
                           <span className="truncate text-[11px] text-muted-foreground">
-                            {slot.courseCode} · {sessionTypeText}
+                            {slot.courseCode} · {typeAndGroup(slot)}
                           </span>
+                          {slot.lecturerName && (
+                            <span className="mt-0.5 truncate text-[11px] text-muted-foreground">
+                              {slot.lecturerName}
+                            </span>
+                          )}
                           {locationText && (
                             <span className="mt-0.5 flex items-center gap-1 truncate text-[11px] text-muted-foreground">
                               <MapPin className="size-3 shrink-0 opacity-60" />
                               {locationText}
                             </span>
                           )}
-                          {hasConflict && (
-                            <span className="mt-1 flex w-fit items-center gap-1 rounded bg-red-500/10 px-1.5 py-0.5 text-[11px] font-bold text-red-400">
-                              <AlertTriangle className="size-2.5" />
-                              {t("conflict")}
-                            </span>
-                          )}
+                          {partners.map((p) => {
+                            const d = describeConflictPartner(p, dayLabel(p.day), isHe);
+                            return (
+                              <span
+                                key={p.otherId}
+                                className="mt-1 text-[11px] font-medium text-red-600 dark:text-red-400"
+                              >
+                                {d.lead}{" "}
+                                <bdi dir="ltr" className="tabular-nums">{d.range}</bdi>
+                              </span>
+                            );
+                          })}
                         </div>
                       </li>
                     );
@@ -403,11 +541,11 @@ export function WeeklyTimetable({
                         className="flex gap-2.5 border-2 border-dashed px-3 py-2.5 opacity-75"
                         style={{ borderColor: color }}
                       >
-                        <span className="mt-0.5 shrink-0 font-mono text-[11px] leading-tight text-muted-foreground/80" dir="ltr">
+                        <bdi dir="ltr" className="mt-0.5 shrink-0 text-[11px] leading-tight tabular-nums text-muted-foreground/80">
                           {slot.startTimeStr}
                           <br />
                           {slot.endTimeStr}
-                        </span>
+                        </bdi>
                         <div className="flex min-w-0 flex-1 flex-col">
                           <span className="truncate text-sm font-semibold text-foreground/70">
                             {slot.courseName}
@@ -423,13 +561,13 @@ export function WeeklyTimetable({
         })}
       </div>
 
-      {/* Timetable grid — shown once the CONTAINER is wide enough (@2xl) to fit
-          the columns without shrinking them into unreadable slivers. */}
-      <div className={cn("hidden rounded-xl border border-border bg-card shadow-sm", preferGrid ? "@lg:block" : "@2xl:block")}>
+      {/* Timetable grid — shown once the CONTAINER is wide enough to fit the
+          columns without shrinking them into unreadable slivers. */}
+      <div className={cn("hidden overflow-hidden rounded-lg border border-border bg-card", preferGrid ? "@lg:block" : "@2xl:block")}>
         <div className="w-full">
-          {/* Day headers */}
+          {/* Day headers — one soft tint, one weight, no filled "today" block. */}
           <div
-            className="flex border-b border-border bg-muted/30"
+            className="flex border-b border-border bg-muted/40"
             style={{ paddingInlineStart: `${TIME_COL_WIDTH}px` }}
           >
             {dayOrder.map((dayIdx) => {
@@ -439,14 +577,20 @@ export function WeeklyTimetable({
                 <div
                   key={dayIdx}
                   className={cn(
-                    "flex flex-1 items-center justify-center text-sm font-semibold transition-colors",
-                    isToday
-                      ? "bg-foreground/8 text-foreground"
-                      : "text-muted-foreground",
+                    "relative flex flex-1 items-center justify-center text-[13px] font-semibold",
+                    isToday ? "text-foreground" : "text-muted-foreground",
                   )}
                   style={{ height: `${HEADER_HEIGHT}px` }}
                 >
                   {dayKey != null ? t(`days.${dayKey}`) : ""}
+                  {/* "Today" is a 2px rule under the name, not a filled cell —
+                      a tinted column head read as a selected state. */}
+                  {isToday && (
+                    <span
+                      aria-hidden
+                      className="absolute inset-x-2 bottom-0 h-0.5 rounded-full bg-accent-brand/70"
+                    />
+                  )}
                 </div>
               );
             })}
@@ -454,47 +598,44 @@ export function WeeklyTimetable({
 
           {/* Body: time labels + grid + course blocks */}
           <div className="relative flex">
-            {/* Time labels column */}
+            {/* Time labels column — muted, top-aligned against their own hour
+                line, the way TauPlan sets them (measured: slate-400, top of row). */}
             <div
-              className="shrink-0 border-e border-border/60 bg-muted/20"
+              className="shrink-0 border-e border-border bg-muted/20"
               style={{ width: `${TIME_COL_WIDTH}px` }}
             >
-              {HOURS.map((hour) => (
+              {hours.map((hour) => (
                 <div
                   key={hour}
-                  className="flex items-start justify-center border-b border-border/30 pt-1.5 font-mono tabular text-[11px] text-muted-foreground/70"
+                  className="flex items-start justify-center border-b border-border pt-1 text-[11px] font-medium tabular-nums text-muted-foreground/70"
                   style={{ height: `${ROW_HEIGHT}px` }}
                 >
-                  <span dir="ltr">{String(hour).padStart(2, "0")}:00</span>
+                  <bdi dir="ltr">{String(hour).padStart(2, "0")}:00</bdi>
                 </div>
               ))}
             </div>
 
             {/* Grid area */}
             <div className="relative flex-1" style={{ height: `${gridHeight}px` }}>
-              {/* Horizontal hour lines */}
-              {HOURS.map((hour) => (
+              {/* ONE hairline, one weight, everywhere. The old grid drew three
+                  different rules at once — solid hour lines at /30, dashed
+                  half-hour lines at /15 and vertical dividers at /20 — which is
+                  most of why the empty grid read as noisy rather than as a table.
+                  The dashed half-hour rules are gone entirely; the block itself
+                  carries its exact time. */}
+              {hours.map((hour) => (
                 <div
                   key={`line-${hour}`}
-                  className="absolute start-0 end-0 border-b border-border/30"
-                  style={{ top: `${(hour - HOURS_START) * ROW_HEIGHT}px` }}
+                  className="absolute start-0 end-0 border-b border-border"
+                  style={{ top: `${(hour - hoursStart) * ROW_HEIGHT}px` }}
                 />
               ))}
 
-              {/* Half-hour dashed lines */}
-              {HOURS.map((hour) => (
-                <div
-                  key={`half-${hour}`}
-                  className="absolute start-0 end-0 border-b border-dashed border-border/15"
-                  style={{ top: `${(hour - HOURS_START + 0.5) * ROW_HEIGHT}px` }}
-                />
-              ))}
-
-              {/* Vertical day dividers */}
+              {/* Vertical day dividers — same hairline as the hour lines. */}
               {dayOrder.slice(1).map((_, idx) => (
                 <div
                   key={`vline-${idx + 1}`}
-                  className="absolute top-0 bottom-0 border-e border-border/20"
+                  className="absolute top-0 bottom-0 border-e border-border"
                   style={{ insetInlineStart: `${((idx + 1) / dayCount) * 100}%` }}
                 />
               ))}
@@ -514,22 +655,21 @@ export function WeeklyTimetable({
                 );
               })()}
 
-              {/* Current time indicator */}
-              {isWeekday && isInTimeRange && (() => {
-                const topPx = (currentHour - HOURS_START) * ROW_HEIGHT;
-
-                return (
-                  <div
-                    className="pointer-events-none absolute z-30 start-0 end-0"
-                    style={{ top: `${topPx}px` }}
-                  >
-                    <div className="relative flex items-center">
-                      <div className="absolute start-0 size-2.5 rounded-full bg-red-500 shadow-sm shadow-red-500/30" />
-                      <div className="h-[2px] w-full bg-red-500/60" />
-                    </div>
+              {/* Current time indicator. Was a 2px RED line with a red dot — the
+                  same colour the grid uses for a clash, so "it is 14:20" and
+                  "these two courses collide" shouted in one voice. Red is now
+                  reserved for conflicts; the clock speaks in the brand accent. */}
+              {isWeekday && isInTimeRange && (
+                <div
+                  className="pointer-events-none absolute z-30 start-0 end-0"
+                  style={{ top: `${(currentHour - hoursStart) * ROW_HEIGHT}px` }}
+                >
+                  <div className="relative flex items-center">
+                    <div className="absolute start-0 size-1.5 rounded-full bg-accent-brand" />
+                    <div className="h-px w-full bg-accent-brand/50" />
                   </div>
-                );
-              })()}
+                </div>
+              )}
 
               {/* Preview ghost blocks (#2) — dashed, discipline-tinted border,
                   transparent fill, on top of real blocks but click-through. */}
@@ -537,38 +677,44 @@ export function WeeklyTimetable({
                 const config = DISCIPLINE_CONFIG[slot.discipline];
                 const colIndex = dayOrder.indexOf(slot.day);
                 if (colIndex === -1) return null;
-                const topPx = Math.round((slot.startHour - HOURS_START) * ROW_HEIGHT);
+                const topPx = Math.round((slot.startHour - hoursStart) * ROW_HEIGHT);
                 const heightPx = Math.round((slot.endHour - slot.startHour) * ROW_HEIGHT);
                 const color = config?.color ?? "hsl(var(--muted-foreground))";
                 return (
                   <div
                     key={`preview-${slot.courseId}`}
-                    className="pointer-events-none absolute z-20 flex flex-col overflow-hidden rounded-lg border-2 border-dashed p-1.5 opacity-70"
+                    className="pointer-events-none absolute z-20 flex flex-col overflow-hidden rounded-md border border-dashed p-1.5 opacity-80"
                     style={{
                       top: `${topPx + 1}px`,
                       height: `${heightPx - 2}px`,
-                      insetInlineStart: `calc(${(colIndex / dayCount) * 100}% + 2px)`,
-                      width: `calc(${colWidthPct}% - 4px)`,
+                      insetInlineStart: `calc(${(colIndex / dayCount) * 100}% + 1px)`,
+                      width: `calc(${colWidthPct}% - 2px)`,
                       borderColor: color,
                     }}
                   >
                     <span className="truncate text-[11px] font-semibold leading-tight text-foreground/70">
                       {slot.courseName}
                     </span>
-                    <span className="truncate font-mono text-[10px] text-muted-foreground" dir="ltr">
-                      {slot.startTimeStr}-{slot.endTimeStr}
-                    </span>
+                    <bdi dir="ltr" className="truncate text-[11px] tabular-nums text-muted-foreground">
+                      {formatHourRange(slot.startHour, slot.endHour)}
+                    </bdi>
                   </div>
                 );
               })}
 
-              {/* Course blocks */}
+              {/* Course blocks — flat fill, one hairline border in the course's
+                  own hue, 6px radius, nearly flush with the column. No 3px
+                  accent bar, no drop shadow, no brightness jump on hover: those
+                  five effects on every block were the "busy" in "busy and
+                  broken". Colour identity now comes from the fill + border, the
+                  way TauPlan's does (measured: bg-blue-100 / border-blue-700 at
+                  10% / rounded-md / no shadow). */}
               {layoutSlots.map((slot) => {
                 const config = DISCIPLINE_CONFIG[slot.discipline];
                 const colIndex = dayOrder.indexOf(slot.day);
                 if (colIndex === -1) return null;
 
-                const topPx = Math.round((slot.startHour - HOURS_START) * ROW_HEIGHT);
+                const topPx = Math.round((slot.startHour - hoursStart) * ROW_HEIGHT);
                 const heightPx = Math.round((slot.endHour - slot.startHour) * ROW_HEIGHT);
 
                 const slotWidthPct = colWidthPct / slot.totalOverlap;
@@ -581,11 +727,6 @@ export function WeeklyTimetable({
                 const hasConflict = conflictIds.has(slot.courseId);
                 const color = config?.color ?? "hsl(var(--muted-foreground))";
 
-                const sessionTypeKey = SESSION_TYPE_KEYS[slot.sessionType];
-                const sessionTypeText = sessionTypeKey
-                  ? t(sessionTypeKey)
-                  : slot.sessionType;
-
                 const locationText = [slot.building, slot.room]
                   .filter(Boolean)
                   .join(", ");
@@ -597,70 +738,83 @@ export function WeeklyTimetable({
                   !!onPickGroup &&
                   (multiGroupCourseCodes?.has(slot.courseCode) ?? false);
 
+                const openPicker = (anchor: HTMLElement) => {
+                  onPickGroup!(slot.courseCode, anchor);
+                };
+
                 return (
                   <div
                     key={slot.courseId}
                     className={cn(
-                      "group/block absolute z-10 flex flex-col overflow-hidden rounded-lg border-s-[3px] transition-all duration-200",
-                      "hover:z-20 hover:shadow-lg hover:brightness-105",
-                      isNarrow ? "p-1.5" : "p-2",
-                      hasConflict && "ring-2 ring-red-400/60 ring-offset-1 ring-offset-card",
+                      "absolute z-10 flex flex-col overflow-hidden rounded-md border transition-colors",
+                      isNarrow ? "p-1" : "p-1.5",
+                      canPickGroup && "cursor-pointer",
+                      "hover:z-20 focus-visible:z-20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-brand/60",
                     )}
                     style={{
                       top: `${topPx + 1}px`,
                       height: `${heightPx - 2}px`,
-                      insetInlineStart: `calc(${slotLeftPct}% + 2px)`,
-                      width: `calc(${slotWidthPct}% - 4px)`,
-                      borderInlineStartColor: color,
-                      backgroundColor: `color-mix(in srgb, ${color} 12%, var(--card))`,
+                      insetInlineStart: `calc(${slotLeftPct}% + 1px)`,
+                      width: `calc(${slotWidthPct}% - 2px)`,
+                      backgroundColor: `color-mix(in srgb, ${color} 14%, var(--card))`,
+                      // A clash keeps the same calm shape and only changes the
+                      // hairline's colour — no ring, no offset, no halo.
+                      borderColor: hasConflict
+                        ? "rgba(239, 68, 68, 0.7)"
+                        : `color-mix(in srgb, ${color} 40%, transparent)`,
                     }}
-                    title={`${slot.courseName} (${slot.courseCode})\n${slot.startTimeStr} - ${slot.endTimeStr}\n${sessionTypeText}${locationText ? `\n${locationText}` : ""}`}
+                    onMouseEnter={() => setDetailId(slot.courseId)}
+                    onMouseLeave={() => setDetailId((cur) => (cur === slot.courseId ? null : cur))}
+                    onFocus={() => setDetailId(slot.courseId)}
+                    onBlur={() => setDetailId((cur) => (cur === slot.courseId ? null : cur))}
+                    {...(canPickGroup
+                      ? {
+                          role: "button",
+                          tabIndex: 0,
+                          "aria-label": isHe
+                            ? `${slot.courseName} — החליפו קבוצה`
+                            : `${slot.courseName} — swap group`,
+                          onClick: (e: MouseEvent<HTMLDivElement>) =>
+                            openPicker(e.currentTarget),
+                          onKeyDown: (e: KeyboardEvent<HTMLDivElement>) => {
+                            if (e.key === "Enter" || e.key === " ") {
+                              e.preventDefault();
+                              openPicker(e.currentTarget);
+                            }
+                          },
+                        }
+                      : { tabIndex: 0 })}
                   >
-                    {/* Course name */}
-                    <span
-                      className={cn(
-                        "truncate font-semibold leading-tight text-foreground/90",
-                        isNarrow || isShort ? "text-[11px]" : "text-xs",
-                      )}
-                    >
-                      {slot.courseName}
-                    </span>
-
-                    {/* On-grid group-pick affordance (#2, P1′) — tap to swap the
-                        tutorial/lab group. PERMANENTLY visible (hover-only was
-                        exactly why nobody found it — note 2); brightens on
-                        hover/focus. Only for courses that actually offer a choice. */}
-                    {canPickGroup && (
-                      <button
-                        type="button"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          onPickGroup!(slot.courseCode, e.currentTarget);
-                        }}
-                        className="absolute top-1 z-20 flex items-center gap-0.5 rounded-md bg-card/95 px-1 py-0.5 text-[10px] font-semibold text-accent-brand shadow-sm ring-1 ring-accent-brand/30 transition-colors hover:bg-accent-brand/10 focus-visible:ring-2 focus-visible:ring-accent-brand/60"
-                        style={{ insetInlineEnd: "0.25rem" }}
-                        title={isHe ? "החלף קבוצה" : "Change group"}
-                        aria-label={isHe ? "החלף קבוצה" : "Change group"}
-                      >
-                        <Repeat className="size-2.5" />
-                        {!isNarrow && !isShort && (
-                          <span>{isHe ? "החליפו קבוצה" : "Swap group"}</span>
+                    {/* Course name + the swap affordance, INLINE. The old
+                        affordance was a pill floating on top of the block with
+                        its own ring and shadow, permanently visible on every
+                        multi-group course — it covered the name it sat on. */}
+                    <div className="flex items-start gap-1">
+                      <span
+                        className={cn(
+                          "min-w-0 flex-1 truncate font-semibold leading-tight text-foreground/90",
+                          isNarrow || isShort ? "text-[11px]" : "text-xs",
                         )}
-                      </button>
-                    )}
+                      >
+                        {slot.courseName}
+                      </span>
+                      {canPickGroup && (
+                        <Repeat
+                          aria-hidden
+                          className="mt-px size-3 shrink-0 text-foreground/35"
+                        />
+                      )}
+                    </div>
 
-                    {/* Course code + type */}
+                    {/* Type + group — TauPlan's second line, plus the group word. */}
                     {!isShort && (
-                      <span className={cn(
-                        "mt-0.5 truncate text-muted-foreground",
-                        isNarrow ? "text-[11px]" : "text-[11px]",
-                      )}>
-                        {slot.courseCode} · {sessionTypeText}
+                      <span className="mt-0.5 truncate text-[11px] text-muted-foreground">
+                        {isNarrow ? typeLabel(slot.sessionType) : typeAndGroup(slot)}
                       </span>
                     )}
 
                     {/* Bottom row: location + time */}
-                    {heightPx >= ROW_HEIGHT * 1.2 && !isNarrow && (
+                    {heightPx >= ROW_HEIGHT * 1.5 && !isNarrow && (
                       <div className="mt-auto flex flex-col gap-0.5">
                         {locationText && (
                           <span className="flex items-center gap-1 truncate text-[11px] text-muted-foreground">
@@ -668,29 +822,117 @@ export function WeeklyTimetable({
                             {locationText}
                           </span>
                         )}
-                        <div className="flex items-center justify-between">
-                          <span className="font-mono text-[10px] text-muted-foreground/70" dir="ltr">
-                            {slot.startTimeStr}–{slot.endTimeStr}
-                          </span>
-                          {hasConflict && (
-                            <span className="flex items-center gap-0.5 rounded bg-red-500/10 px-1 py-0.5 text-[11px] font-bold text-red-400">
-                              <AlertTriangle className="size-2.5" />
-                              {t("conflict")}
-                            </span>
-                          )}
-                        </div>
+                        <bdi dir="ltr" className="text-[11px] tabular-nums text-muted-foreground/70">
+                          {formatHourRange(slot.startHour, slot.endHour)}
+                        </bdi>
                       </div>
                     )}
 
-                    {/* Narrow block: just time */}
+                    {/* Narrow block: just the start time */}
                     {isNarrow && !isShort && (
-                      <span className="mt-auto font-mono text-[10px] text-muted-foreground/60" dir="ltr">
+                      <bdi dir="ltr" className="mt-auto text-[11px] tabular-nums text-muted-foreground/60">
                         {slot.startTimeStr}
-                      </span>
+                      </bdi>
                     )}
                   </div>
                 );
               })}
+
+              {/* Detail card — hover on a pointer device, focus on a keyboard.
+                  TauPlan shows NOTHING on hover (verified 13.8), and neither
+                  did we beyond a native `title` tooltip that arrives after half
+                  a second, is unstyled and cannot hold the clash sentence. This
+                  is where the real ידיעון pays off: full name, group, lecturer,
+                  room and exact hours, plus what the block collides with.
+                  `pointer-events-none` so it can never swallow a click. */}
+              {detailSlot && (() => {
+                const colIndex = dayOrder.indexOf(detailSlot.day);
+                if (colIndex === -1) return null;
+                const config = DISCIPLINE_CONFIG[detailSlot.discipline];
+                const color = config?.color ?? "hsl(var(--muted-foreground))";
+                const topPx = Math.round((detailSlot.startHour - hoursStart) * ROW_HEIGHT);
+                const bottomPx = Math.round((detailSlot.endHour - hoursStart) * ROW_HEIGHT);
+                // Grow away from the nearer edge — the grid box clips overflow.
+                const vert =
+                  topPx > gridHeight / 2
+                    ? { bottom: `${Math.max(0, gridHeight - bottomPx)}px` }
+                    : { top: `${Math.max(0, Math.min(topPx, gridHeight - DETAIL_MAX_HEIGHT))}px` };
+                const basePct = (colIndex / dayCount) * 100;
+                // Open toward the middle of the grid so the card never runs off
+                // the near edge, whichever half the block sits in.
+                const towardStart = colIndex >= dayCount / 2;
+                const side = towardStart
+                  ? { insetInlineEnd: `calc(${100 - basePct}% + 6px)` }
+                  : { insetInlineStart: `calc(${basePct + colWidthPct}% + 6px)` };
+                const locationText = [detailSlot.building, detailSlot.room]
+                  .filter(Boolean)
+                  .join(", ");
+                const partners = conflictPartners.get(detailSlot.courseId) ?? [];
+
+                return (
+                  <div
+                    role="tooltip"
+                    className="pointer-events-none absolute z-40 flex flex-col gap-1 rounded-lg border border-border bg-card p-2.5 shadow-lg"
+                    style={{ width: `${DETAIL_WIDTH}px`, ...vert, ...side }}
+                  >
+                    <div className="flex items-start gap-1.5">
+                      <span
+                        aria-hidden
+                        className="mt-1 size-2 shrink-0 rounded-full"
+                        style={{ backgroundColor: color }}
+                      />
+                      <span className="text-xs font-semibold leading-snug text-foreground">
+                        {detailSlot.courseName}
+                      </span>
+                    </div>
+                    <span className="text-[11px] text-muted-foreground">
+                      <bdi dir="ltr" className="tabular-nums">{detailSlot.courseCode}</bdi>
+                      {" · "}
+                      {typeAndGroup(detailSlot)}
+                    </span>
+                    <span className="text-[11px] text-foreground/70">
+                      {dayLabel(detailSlot.day)}{" "}
+                      <bdi dir="ltr" className="tabular-nums">
+                        {formatHourRange(detailSlot.startHour, detailSlot.endHour)}
+                      </bdi>
+                    </span>
+                    {detailSlot.lecturerName && (
+                      <span className="flex items-center gap-1 text-[11px] text-muted-foreground">
+                        <User className="size-2.5 shrink-0 opacity-60" />
+                        {detailSlot.lecturerName}
+                      </span>
+                    )}
+                    {locationText && (
+                      <span className="flex items-center gap-1 text-[11px] text-muted-foreground">
+                        <MapPin className="size-2.5 shrink-0 opacity-60" />
+                        {locationText}
+                      </span>
+                    )}
+                    <span className="text-[11px] text-muted-foreground">
+                      <bdi dir="ltr" className="tabular-nums">{detailSlot.credits}</bdi>{" "}
+                      {isHe ? "ש״ס" : "credits"}
+                    </span>
+                    {partners.slice(0, DETAIL_MAX_CONFLICT_LINES).map((p) => {
+                      const d = describeConflictPartner(p, dayLabel(p.day), isHe);
+                      return (
+                        <span
+                          key={p.otherId}
+                          className="mt-0.5 text-[11px] font-medium leading-snug text-red-600 dark:text-red-400"
+                        >
+                          {d.lead}{" "}
+                          <bdi dir="ltr" className="tabular-nums">{d.range}</bdi>
+                        </span>
+                      );
+                    })}
+                    {interactive && (multiGroupCourseCodes?.has(detailSlot.courseCode) ?? false) && (
+                      <span className="mt-0.5 flex items-center gap-1 text-[11px] font-medium text-accent-brand">
+                        <Repeat className="size-2.5 shrink-0" />
+                        {isHe ? "לחצו להחלפת קבוצה" : "Click to swap group"}
+                      </span>
+                    )}
+                  </div>
+                );
+              })()}
             </div>
           </div>
         </div>

@@ -554,7 +554,7 @@ export function StepReady({ data, plannedSemesters, completedCourses, allCourses
                   <>
                     <div className="flex items-center justify-between">
                       <span className="text-sm text-foreground/50">
-                        {isHe ? "ש״ס שכבר השלמת" : "Credits already completed"}
+                        {isHe ? "ש״ס שכבר השלמתם" : "Credits already completed"}
                       </span>
                       <span className="font-mono tabular text-lg font-bold text-emerald-500">
                         {completedCredits}

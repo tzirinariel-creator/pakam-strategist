@@ -423,3 +423,46 @@ describe("printedAverageMismatch (#5)", () => {
     expect(printedAverageMismatch(rows, null)).toBeNull();
   });
 });
+
+// ---------------------------------------------------------------------------
+// #29 — "לא לשקלול" (the sheet's "הערות" column) leaked into the course name,
+// so the review list showed a row that literally read "לא לשקלול". Same defect
+// class as the teaching-mode column, and fixed the same way.
+// ---------------------------------------------------------------------------
+import { cleanCourseName } from "@/lib/grade-sheet";
+
+describe("cleanCourseName — neighbouring sheet columns never become the name (#29)", () => {
+  it("strips a trailing 'לא לשקלול' annotation", () => {
+    expect(cleanCourseName("אנגלית מתקדמים ב׳ לא לשקלול")).toBe("אנגלית מתקדמים ב׳");
+  });
+
+  it("strips a leading 'לא לשקלול' annotation", () => {
+    expect(cleanCourseName("לא לשקלול אנגלית מתקדמים ב׳")).toBe("אנגלית מתקדמים ב׳");
+  });
+
+  it("strips the bidi-mirrored form the PDF sometimes yields", () => {
+    expect(cleanCourseName("אנגלית מתקדמים ב׳ לשקלול לא")).toBe("אנגלית מתקדמים ב׳");
+  });
+
+  it("still strips the teaching-mode token, alone or together with the note", () => {
+    expect(cleanCourseName("מבוא ללוגיקה ש׳")).toBe("מבוא ללוגיקה");
+    expect(cleanCourseName("מבוא ללוגיקה ש׳ לא לשקלול")).toBe("מבוא ללוגיקה");
+  });
+
+  it("returns the raw text when the name is ONLY an annotation (never empty)", () => {
+    // An empty name would fail the schema and silently drop the whole scan;
+    // keeping it means the row is shown, unmatched, for the student to judge.
+    expect(cleanCourseName("לא לשקלול")).toBe("לא לשקלול");
+  });
+
+  it("leaves a real course name untouched", () => {
+    expect(cleanCourseName("מבוא לפילוסופיה של המוסר")).toBe("מבוא לפילוסופיה של המוסר");
+  });
+
+  it("is applied by parseExtraction, not just available", () => {
+    const rows = parseExtraction(
+      '{"rows":[{"courseCode":"0651-1001","courseName":"אנגלית מתקדמים לא לשקלול","grade":null,"credits":null,"passText":null}]}',
+    );
+    expect(rows?.[0]?.courseName).toBe("אנגלית מתקדמים");
+  });
+});

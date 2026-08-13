@@ -215,8 +215,11 @@ const WARNINGS: Tip[] = [
 const MOTIVATION_TIPS: Tip[] = [
   {
     id: "m-1",
-    textEn: "PPE grads work in policy, strategic consulting, diplomacy, law firms, and MBAs. This degree opens doors most can't.",
-    textHe: "בוגרי פכ״מ עובדים בקביעת מדיניות, ייעוץ אסטרטגי, דיפלומטיה, משרדי עו״ד ו-MBA. התואר פותח דלתות שרוב התארים לא.",
+    textEn: "PPE grads work in policy, strategic consulting, diplomacy and law firms — and many go on to an MBA. This degree opens doors that most degrees don't.",
+    // #23 — the Hebrew was broken twice: "עובדים ב… ו-MBA" put a degree in a
+    // list of workplaces, and the last clause was cut off ("שרוב התארים לא"
+    // — לא what?). Same claims, whole sentences.
+    textHe: "בוגרי פכ״מ עובדים בקביעת מדיניות, בייעוץ אסטרטגי, בדיפלומטיה ובמשרדי עורכי דין — ורבים ממשיכים ל-MBA. התואר פותח דלתות שרוב התארים לא פותחים.",
     category: "motivation",
     icon: Briefcase,
   },

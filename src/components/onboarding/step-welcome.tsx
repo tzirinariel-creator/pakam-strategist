@@ -238,8 +238,12 @@ export function StepWelcome({ onNext, selectedProgram, onProgramSelect }: StepWe
             {i > 0 && (
               <span className="text-foreground/15 text-xs">·</span>
             )}
+            {/* #3 — "1." is a number followed by a bidi-neutral period: inside
+                the RTL paragraph it resolved to the paragraph direction and
+                rendered as ".1 ספרו מי אתם". The isolate keeps the ordinal
+                intact. */}
             <span className="rounded-full bg-foreground/5 px-3 py-1 text-xs text-foreground/40">
-              {i + 1}. {step}
+              <bdi dir="ltr">{i + 1}.</bdi> {step}
             </span>
           </span>
         ))}

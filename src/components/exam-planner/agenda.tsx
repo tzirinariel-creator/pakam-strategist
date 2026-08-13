@@ -153,7 +153,9 @@ export function Agenda({
                 )}
                 <Icon className={cn("size-3.5 shrink-0", isExam ? "text-accent-brand" : "text-foreground/40")} />
                 <span className={cn("min-w-0 flex-1 truncate text-sm", t.completed ? "text-foreground/40 line-through" : "text-foreground/80")}>{t.title}</span>
-                {h != null && <span className="shrink-0 font-mono text-[11px] tabular-nums text-foreground/45"><bdi dir="ltr">{h}</bdi>{isHe ? "שע׳" : "h"}</span>}
+                {/* The unit was glued to the number ("3שע׳") — the same defect
+                    class as the miluim "10ש״ס" fix. A real space, always. */}
+                {h != null && <span className="shrink-0 font-mono text-[11px] tabular-nums text-foreground/45"><bdi dir="ltr">{h}</bdi> {isHe ? "שע׳" : "h"}</span>}
                 <span className="shrink-0 rounded-full bg-foreground/[0.06] px-1.5 py-0.5 text-[11px] text-foreground/50">{isHe ? meta.he : meta.en}</span>
                 {!isExam && (
                   <button type="button" onClick={() => onPush(t)} className="shrink-0 rounded-md p-1 text-foreground/30 transition-colors hover:bg-foreground/10 hover:text-foreground/60" title={isHe ? "דחו ביום" : "Push a day"} aria-label={isHe ? "דחו ביום" : "push a day"}>

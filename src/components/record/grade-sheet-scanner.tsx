@@ -391,13 +391,24 @@ export function GradeSheetScanner() {
                   >
                     {checked.has(i) && <Check className="size-3" />}
                   </button>
+                  {/* #27 — course name, code and semester used to render as one
+                      glued run ("מבוא ללוגיקה0618-1012 2025/1"): the name was a
+                      bare text node and the only separation was a CSS margin,
+                      which never reaches textContent (copy/paste, screen
+                      readers) and reads as glued at small sizes. Every part is
+                      now its own element with a REAL "·" separator between. */}
                   <span
-                    className={cn("min-w-0 flex-1 self-stretch flex items-center truncate text-foreground/80", applicable && "cursor-pointer")}
+                    className={cn("min-w-0 flex-1 self-stretch flex items-center gap-1.5 text-foreground/80", applicable && "cursor-pointer")}
                     dir="auto"
                     onClick={toggleRow}
                   >
-                    {r.courseName}
-                    {r.courseCode && <span className="ms-1 text-foreground/40" dir="ltr">{r.courseCode}</span>}
+                    <span className="truncate">{r.courseName}</span>
+                    {r.courseCode && (
+                      <span className="shrink-0 text-foreground/40" dir="ltr">
+                        {"· "}
+                        {r.courseCode}
+                      </span>
+                    )}
                   </span>
                   {r.semester && (
                     <span className="rounded bg-foreground/5 px-1.5 py-px font-data text-[10px] text-foreground/45" dir="ltr">
@@ -533,7 +544,7 @@ export function GradeSheetScanner() {
                   )}
                   {applicable && isEnglish && (
                     <span className="rounded bg-foreground/5 px-1.5 py-px text-[10px] text-foreground/45">
-                      {isHe ? "לא נספר בממוצע" : "not in average"}
+                      {isHe ? "לא נכנס לממוצע התואר" : "not in the degree average"}
                     </span>
                   )}
                 </li>

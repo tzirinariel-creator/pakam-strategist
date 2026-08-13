@@ -71,3 +71,39 @@ describe("Bidi — the miluim per-year exemption line (#35)", () => {
     expect(container.textContent).toBe("10 ש״ס נצברו לכם עד היום");
   });
 });
+
+// Text sweep 13.8: a numeric RANGE inside Hebrew ("(50–150)", "21–34 ימים")
+// reorders to "150–50" unless the whole run is isolated. These strings are now
+// rendered through <Bidi> (settings/profile-section.tsx, onboarding/
+// step-profile.tsx), so lock the folding behaviour they depend on.
+describe("Bidi — numeric ranges inside Hebrew (text sweep 13.8)", () => {
+  it("folds an en-dash range in parentheses into ONE isolate", () => {
+    const { container } = render(
+      <Bidi text="ציון מיון האנגלית (50–150). קובע אילו קורסי אנגלית נדרשים מכם." />
+    );
+    const isolates = container.querySelectorAll("bdi");
+    expect(isolates).toHaveLength(1);
+    expect(isolates[0]!.textContent).toBe("50–150");
+    expect(container.textContent).toBe(
+      "ציון מיון האנגלית (50–150). קובע אילו קורסי אנגלית נדרשים מכם."
+    );
+  });
+
+  it("folds each range of the miluim group blurb separately, never splitting one", () => {
+    const { container } = render(
+      <Bidi text="שירות של 21–34 ימים בסמסטר. נכללים גם: לוחמים עם 14–20 ימים, 35+ ימים בשנה." />
+    );
+    const isolates = [...container.querySelectorAll("bdi")].map((b) => b.textContent);
+    expect(isolates).toEqual(["21–34", "14–20", "35+"]);
+  });
+
+  it("keeps an ordinal like '1.' whole (the numbered onboarding steps)", () => {
+    const { container } = render(<Bidi text="1. ספרו מי אתם" />);
+    const isolates = container.querySelectorAll("bdi");
+    expect(isolates).toHaveLength(1);
+    expect(isolates[0]!.textContent).toBe("1");
+    // The period is a bare neutral after the isolate — which is exactly why
+    // step-welcome.tsx wraps "{i + 1}." in its own <bdi dir="ltr"> instead.
+    expect(container.textContent).toBe("1. ספרו מי אתם");
+  });
+});

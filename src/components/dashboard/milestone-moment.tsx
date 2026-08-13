@@ -12,6 +12,7 @@
 import { useEffect, useState } from "react";
 import { X } from "lucide-react";
 import { PhilosopherKingIcon } from "@/components/ui/philosopher-king-icon";
+import { Bidi } from "@/lib/bidi";
 import { reachedMilestones, type MilestoneInput } from "@/lib/milestones";
 
 const SEEN_KEY = "pk-milestones-seen";
@@ -55,8 +56,10 @@ export function MilestoneMoment(props: MilestoneInput & { isHe: boolean }) {
         <p className="text-xs font-semibold text-accent-brand">
           {isHe ? "רגע של המלך" : "A word from the King"}
         </p>
+        {/* Milestone lines interpolate credit counts ("112 מתוך 150 ש״ס") —
+            isolate the numeric runs the way tip-card already does. */}
         <p className="mt-0.5 text-sm leading-relaxed text-foreground/75">
-          {isHe ? current.textHe : current.textEn}
+          <Bidi text={isHe ? current.textHe : current.textEn} />
         </p>
       </div>
       <button

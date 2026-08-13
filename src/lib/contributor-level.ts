@@ -7,19 +7,20 @@ export interface ContributorLevel {
   level: number;
   titleHe: string;
   titleEn: string;
-  emoji: string;
   /** Contributions needed for the NEXT level, or null at the top. */
   nextAt: number | null;
   /** 0..1 progress toward the next level (1 at the top). */
   progress: number;
 }
 
+// Product copy carries no decorative emoji (the rank badges used to render
+// 👀/🌱/🌿/🌳/👑 next to the title). The rank NAME is the signal.
 const LEVELS = [
-  { at: 0, he: "צפייה מהצד", en: "Observer", emoji: "👀" },
-  { at: 1, he: "ניצן המחזור", en: "Cohort seedling", emoji: "🌱" },
-  { at: 3, he: "תרומה פעילה", en: "Active contributor", emoji: "🌿" },
-  { at: 6, he: "עמוד תווך", en: "Pillar", emoji: "🌳" },
-  { at: 10, he: "אגדת המחזור", en: "Cohort legend", emoji: "👑" },
+  { at: 0, he: "צפייה מהצד", en: "Observer" },
+  { at: 1, he: "ניצן המחזור", en: "Cohort seedling" },
+  { at: 3, he: "תרומה פעילה", en: "Active contributor" },
+  { at: 6, he: "עמוד תווך", en: "Pillar" },
+  { at: 10, he: "אגדת המחזור", en: "Cohort legend" },
 ] as const;
 
 export function contributorLevel(total: number): ContributorLevel {
@@ -36,7 +37,6 @@ export function contributorLevel(total: number): ContributorLevel {
     level: idx,
     titleHe: cur.he,
     titleEn: cur.en,
-    emoji: cur.emoji,
     nextAt: next?.at ?? null,
     progress,
   };

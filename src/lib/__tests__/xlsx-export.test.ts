@@ -97,13 +97,13 @@ describe("weekly calendar grid sheet (#35/#36)", () => {
     // header row = day names
     expect(String(cal.getRow(1).getCell(1).value)).toBe("ראשון");
     expect(String(cal.getRow(1).getCell(7).value)).toBe("שבת");
-    // somewhere in the grid the exam appears as an exam cell (📝 + מועד)
+    // somewhere in the grid the exam appears as an exam cell ("מבחן:" + מועד)
     let foundExam = false;
     let foundStudy = false;
     cal.eachRow((row) => {
       row.eachCell((cell) => {
         const v = String(cell.value ?? "");
-        if (v.includes("📝") && v.includes("מועד")) foundExam = true;
+        if (v.includes("מבחן:") && v.includes("מועד")) foundExam = true;
         // 18:19 (#5) — day totals moved to the date row ("D.M · N ש׳"); study
         // cells carry the short course name, no per-session "(N ש׳)".
         if (/·\s*\d+\s*ש׳/.test(v)) foundStudy = true;
