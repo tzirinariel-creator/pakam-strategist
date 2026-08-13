@@ -70,6 +70,10 @@ interface SemesterPlannerProps {
     plannedSemesters: PlannedSemester[],
     sessionGroupSelections: SessionGroupSelections,
     disciplineOverrides: Record<string, string>,
+    /** Off-catalog courses just registered, with their PERSISTENT ids. The
+     *  public catalog cannot return them (isActive:false), so any caller that
+     *  prices the plan needs them or it undercounts. */
+    registeredCustomCourses?: { id: string; code: string; nameHe: string; credits: number }[],
   ) => void;
   /**
    * Course ids the student already COMPLETED elsewhere (the onboarding history
@@ -641,6 +645,7 @@ export function SemesterPlanner({
       { year: currentYear, semester: currentSemester, courseIds: currentCourseIds },
     ];
     let overrides = { ...disciplineOverrides };
+    let registered: { id: string; code: string; nameHe: string; credits: number }[] = [];
 
     // Only the custom courses actually PLACED in a semester need a row.
     const placedIds = new Set(allSemesters.flatMap((s) => s.courseIds));
@@ -662,6 +667,15 @@ export function SemesterPlanner({
         const swapped = applyResolvedCustomIds(allSemesters, overrides, res.courses);
         allSemesters = swapped.semesters;
         overrides = swapped.disciplineOverrides;
+        // Hand the newly-registered rows back with their PERSISTENT ids. The
+        // caller prices the plan from the public catalog, which by design can
+        // never return these (they are isActive:false), so without this the
+        // onboarding finale silently undercounted the semester by exactly the
+        // credits of the course the student had just added.
+        registered = toRegister.flatMap((c) => {
+          const hit = res.courses.find((r) => r.clientId === c.id);
+          return hit ? [{ id: hit.courseId, code: hit.code, nameHe: c.nameHe, credits: c.credits }] : [];
+        });
       } catch {
         // Registering failed → those courses would be silently dropped by the
         // save. Say so plainly instead (the rest of the plan still saves).
@@ -675,7 +689,7 @@ export function SemesterPlanner({
       }
     }
 
-    onFinish(allSemesters, sessionGroupSelections, overrides);
+    onFinish(allSemesters, sessionGroupSelections, overrides, registered);
   }, [completedSemesters, currentYear, currentSemester, mandatoryIds, selectedCourseIds, onFinish, sessionGroupSelections, customCourses, disciplineOverrides, registerCustom, isHe]);
 
   // ─── Semester picker ──────────────────────────────────────────────

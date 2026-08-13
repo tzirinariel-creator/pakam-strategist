@@ -27,9 +27,14 @@ interface StepReadyProps {
   completedCourses?: CompletedCourse[];
   allCourses: CourseWithSchedule[];
   sessionGroupSelections?: SessionGroupSelections;
+  /** #8 — courseId → discipline the STUDENT declared this course counts toward
+   *  (an off-catalog course approved for their degree, or a re-filed one).
+   *  savePlan deletes+recreates every planned row, so this must travel with the
+   *  save or the declaration is lost the moment it is made. */
+  disciplineOverrides?: Record<string, string>;
 }
 
-export function StepReady({ data, plannedSemesters, completedCourses, allCourses, sessionGroupSelections }: StepReadyProps) {
+export function StepReady({ data, plannedSemesters, completedCourses, allCourses, sessionGroupSelections, disciplineOverrides }: StepReadyProps) {
   const t = useTranslations("onboarding");
   const locale = useLocale();
   const isHe = locale === "he";
@@ -76,6 +81,19 @@ export function StepReady({ data, plannedSemesters, completedCourses, allCourses
           plannedYear: sem.year,
           plannedSemester: sem.semester as "FALL" | "SPRING",
           ...(groups && Object.keys(groups).length > 0 ? { selectedGroups: groups } : {}),
+          // Cast: savePlan's zod input is a z.enum built at runtime from the
+          // active program's discipline ids, so its inferred TS type is a
+          // literal union the client cannot name. The value itself came from a
+          // discipline picker whose options are that same list, and the server
+          // re-validates against the enum — an invalid id is rejected there,
+          // never written.
+          ...(disciplineOverrides?.[courseId]
+            ? {
+                disciplineOverride: disciplineOverrides[courseId] as NonNullable<
+                  Parameters<typeof savePlanMutation.mutateAsync>[0]["courses"][number]["disciplineOverride"]
+                >,
+              }
+            : {}),
         },
       ];
     })

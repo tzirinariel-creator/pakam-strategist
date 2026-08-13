@@ -360,10 +360,40 @@ export function OnboardingWizard() {
   }, [updateData]);
 
   // Called when SemesterPlanner finishes (user clicks "Finish planning")
+  // #8 — the THIRD argument matters. A student who adds an off-catalog course
+  // during onboarding and declares which discipline it counts toward would
+  // otherwise have that declaration dropped on the floor here, and savePlan
+  // deletes+recreates every planned row, so it could never be recovered by a
+  // later edit either. Carried through to StepReady and into the save.
+  const [disciplineOverrides, setDisciplineOverrides] = useState<Record<string, string>>({});
+  // Off-catalog courses the planner just registered. They are deliberately
+  // absent from the public catalog, so StepReady — which prices the plan from
+  // `allCourses` — cannot see them and undercounted the semester by exactly
+  // their credits.
+  const [registeredCustom, setRegisteredCustom] = useState<CourseWithSchedule[]>([]);
   const handlePlanFinish = useCallback(
-    (semesters: PlannedSemester[], selections: SessionGroupSelections) => {
+    (
+      semesters: PlannedSemester[],
+      selections: SessionGroupSelections,
+      overrides: Record<string, string>,
+      registered?: { id: string; code: string; nameHe: string; credits: number }[],
+    ) => {
       setPlannedSemesters(semesters);
       setSessionGroupSelections(selections);
+      setDisciplineOverrides(overrides);
+      setRegisteredCustom(
+        (registered ?? []).map(
+          (c) =>
+            ({
+              id: c.id,
+              code: c.code,
+              nameHe: c.nameHe,
+              nameEn: c.nameHe,
+              credits: c.credits,
+              scheduleSessions: [],
+            }) as unknown as CourseWithSchedule,
+        ),
+      );
       setStep(STEP_READY); // Go to StepReady
     },
     []
@@ -536,8 +566,9 @@ export function OnboardingWizard() {
                 data={data}
                 plannedSemesters={plannedSemesters}
                 completedCourses={Object.values(completedCourses)}
-                allCourses={allCourses}
+                allCourses={[...allCourses, ...registeredCustom]}
                 sessionGroupSelections={sessionGroupSelections}
+                disciplineOverrides={disciplineOverrides}
               />
             )}
           </div>

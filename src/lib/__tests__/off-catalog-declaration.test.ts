@@ -129,9 +129,9 @@ describe("a declared discipline changes the credit calculation (#8)", () => {
 describe("off-catalog helpers", () => {
   it("a course code is derived from the NAME, so re-adding upserts the same row", () => {
     expect(customCourseCode("דוגרי")).toBe("CUSTOM-דוגרי");
-    expect(customCourseCode("  דוגרי  ")).toBe("CUSTOM-דוגרי");
-    // Truncated at 24 chars of the hyphenated name (matches what the server
-    // has always written, so codes minted before this refactor still match).
+    // Truncated at 24 chars of the hyphenated name — bit-identical to what
+    // addScannedCourse has always written, so codes already in the production
+    // DB still match and a re-scan can't spawn a duplicate course.
     expect(customCourseCode("Academic Writing Workshop")).toBe(
       "CUSTOM-Academic-Writing-Worksho",
     );

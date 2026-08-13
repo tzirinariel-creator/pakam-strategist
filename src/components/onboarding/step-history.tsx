@@ -291,7 +291,7 @@ export function StepHistory({
         } else {
           const parts: string[] = [];
           if (graded > 0) parts.push(isHe ? `${graded} עם ציון` : `${graded} with a grade`);
-          if (added > 0) parts.push(isHe ? `${added} קורסים מחוץ לרשימה נוספו` : `${added} courses outside the list added`);
+          if (added > 0) parts.push(isHe ? `${added} קורסים שאינם בקטלוג שלנו נוספו` : `${added} courses not in our catalog added`);
           if (skipped > 0) parts.push(isHe ? `${skipped} נכשלו/פטור — הוסיפו ב"הרשומה" אחרי ההרשמה` : `${skipped} failed/exempt — add them in the record after signup`);
           parts.push(isHe ? "עברו לוודא ולתקן למטה" : "review below");
           toast.success(
@@ -769,7 +769,11 @@ export function StepHistory({
             {Object.values(value).filter((c) => c.customName).length > 0 && (
               <div className="mt-3 space-y-1.5 border-t border-border/40 pt-3">
                 <p className="text-[11px] font-medium text-foreground/45">
-                  {isHe ? "קורסים שהוספתם (מחוץ לרשימה):" : "Courses you added (outside the list):"}
+                  {/* #8 — "מי אמר שדוגרי מחוץ לרשימה? זה מאושר לנו". Not being in OUR
+                      catalog is not the same as not being approved for your degree,
+                      and this label asserted the second while only knowing the
+                      first. It names what we actually know. */}
+                  {isHe ? "קורסים שהוספתם (לא בקטלוג שלנו):" : "Courses you added (not in our catalog):"}
                 </p>
                 {Object.values(value)
                   .filter((c) => c.customName)

@@ -26,9 +26,14 @@
  * re-adding the same course upserts the SAME row instead of piling up
  * duplicates — the server and the client must agree on it, which is why it
  * lives here and not inside either one.
+ *
+ * Derivation kept BIT-IDENTICAL to what plan.addScannedCourse has always
+ * written (no trim, hyphenate whitespace, cut at 24 chars), so every code
+ * already sitting in the production DB still matches. Callers trim the name
+ * themselves before passing it in.
  */
 export function customCourseCode(name: string): string {
-  return `CUSTOM-${name.trim().replace(/\s+/g, "-").slice(0, 24)}`;
+  return `CUSTOM-${name.replace(/\s+/g, "-").slice(0, 24)}`;
 }
 
 /**

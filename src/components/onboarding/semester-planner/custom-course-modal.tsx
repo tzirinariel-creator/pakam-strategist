@@ -102,7 +102,7 @@ export function CustomCourseModal({
       // Name-derived (not `Date.now()`), so it matches the code the server mints
       // for the same course — re-adding it upserts the same row instead of
       // piling up a new one on every add.
-      code: customCourseCode(name),
+      code: customCourseCode(name.trim()),
       universityId: null,
       nameHe: name.trim(),
       nameEn: name.trim(),
