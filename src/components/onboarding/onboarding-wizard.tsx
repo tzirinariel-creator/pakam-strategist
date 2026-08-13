@@ -15,6 +15,7 @@ import {
   type CompletedCourse,
 } from "./step-history";
 import { SemesterPlanner, type PlannedSemester } from "./semester-planner/index";
+import { StepStanding, type StandingResult } from "./step-standing";
 import { StepReady } from "./step-ready";
 import { PlannerErrorBoundary } from "./planner-error-boundary";
 import type { CourseWithSchedule } from "@/lib/plan-generator";
@@ -46,15 +47,29 @@ export interface OnboardingData {
   firstName?: string | null;
   lastName?: string | null;
   gender?: "male" | "female" | null;
+  /**
+   * #13b — the semester was chosen (or derived from a real grade sheet) rather
+   * than assumed. Once true, step-profile stops overwriting it with the
+   * calendar default, so a year-1 student who starts in סמסטר ב׳ (a late
+   * intake, a repeat, a return from miluim) is no longer forced into סמסטר א׳.
+   */
+  semesterExplicit?: boolean;
 }
 
-// Welcome → Profile → History → SemesterPlanner → Ready
+// Welcome → Standing → Profile → History → SemesterPlanner → Ready
+//
+// #11/#26 — STANDING is the new first question ("do you already have
+// credits?"). It exists because the flow used to assume everyone was a fresh
+// year-1 student and marched a third-year through building a year-1 semester-א׳
+// timetable full of courses they'd already passed. A returning student can now
+// hand the app their grade sheet before they type anything.
 // (History is skipped for a fresh year-1-FALL student — see goNext/goBack.)
-const TOTAL_STEPS = 5;
-const STEP_PROFILE = 1;
-const STEP_HISTORY = 2;
-const STEP_PLANNER = 3;
-const STEP_READY = 4;
+const TOTAL_STEPS = 6;
+const STEP_STANDING = 1;
+const STEP_PROFILE = 2;
+const STEP_HISTORY = 3;
+const STEP_PLANNER = 4;
+const STEP_READY = 5;
 
 function getDefaultSemester(year: number): "FALL" | "SPRING" {
   // A first-year student's "starting now" is almost always the fall intake —
@@ -77,6 +92,7 @@ function loadOnboardingState(): {
   sessionGroupSelections?: SessionGroupSelections;
   completedCourses?: Record<string, CompletedCourse>;
   removedCourseCodes?: string[];
+  sheetSeeded?: boolean;
 } | null {
   if (typeof window === "undefined") return null;
   try {
@@ -103,6 +119,13 @@ export function OnboardingWizard() {
   // reconcile effect must never re-seed one of these — otherwise a course they
   // said they didn't take reappears checked and is saved as COMPLETED (#audit-r4).
   const removedCodes = useRef<Set<string>>(new Set());
+  // #26 — TRUE once the history map came from a real grade sheet. From then on
+  // the sheet is the source of truth about what the student passed, so the
+  // "pre-check every past mandatory course" assumption (buildDefaultCompleted,
+  // #18) must stop: adding a course the sheet does NOT show would be inventing
+  // a completion on top of an official document. Kept in state (not a ref) so
+  // the reconcile effect re-runs when it flips.
+  const [sheetSeeded, setSheetSeeded] = useState(false);
 
   // Wrap the history-map setter so a removal (a code that was present and is now
   // gone) is remembered, and a (re)add clears that memory.
@@ -196,6 +219,7 @@ export function OnboardingWizard() {
         if (Object.keys(s.completedCourses).length > 0) historySeeded.current = true;
       }
       if (s.removedCourseCodes) removedCodes.current = new Set(s.removedCourseCodes);
+      if (s.sheetSeeded) setSheetSeeded(true);
     }
     setHydrated(true);
   }, []);
@@ -204,12 +228,12 @@ export function OnboardingWizard() {
     try {
       localStorage.setItem(
         ONBOARDING_STATE_KEY,
-        JSON.stringify({ step, data, plannedSemesters, sessionGroupSelections, completedCourses, removedCourseCodes: [...removedCodes.current] })
+        JSON.stringify({ step, data, plannedSemesters, sessionGroupSelections, completedCourses, removedCourseCodes: [...removedCodes.current], sheetSeeded })
       );
     } catch {
       /* storage full / disabled — non-fatal */
     }
-  }, [hydrated, step, data, plannedSemesters, sessionGroupSelections, completedCourses]);
+  }, [hydrated, step, data, plannedSemesters, sessionGroupSelections, completedCourses, sheetSeeded]);
 
   // Keep the pre-filled history IN SYNC with the year/semester anchor. Whenever
   // it changes, drop any completed course that's no longer in a past semester (a
@@ -226,15 +250,21 @@ export function OnboardingWizard() {
       for (const [code, cc] of Object.entries(prev)) {
         if (pastKeys.has(`${cc.plannedYear}-${cc.plannedSemester}`)) kept[code] = cc;
       }
-      const seed = buildDefaultCompleted(allCourses, data.year, data.semester);
-      for (const [code, cc] of Object.entries(seed)) {
-        // Never re-seed a course the student explicitly un-checked (#audit-r4).
-        if (!kept[code] && !removedCodes.current.has(code)) kept[code] = cc;
+      // #26 — a real grade sheet OUTRANKS the assumption. When the map was
+      // seeded from a scan, we add nothing: the sheet lists what was passed,
+      // and topping it up with "they must have done the year-1 mandatory
+      // courses" would record completions the official document does not show.
+      if (!sheetSeeded) {
+        const seed = buildDefaultCompleted(allCourses, data.year, data.semester);
+        for (const [code, cc] of Object.entries(seed)) {
+          // Never re-seed a course the student explicitly un-checked (#audit-r4).
+          if (!kept[code] && !removedCodes.current.has(code)) kept[code] = cc;
+        }
       }
       return kept;
     });
     historySeeded.current = pastKeys.size > 0;
-  }, [hydrated, data.year, data.semester, allCourses]);
+  }, [hydrated, data.year, data.semester, allCourses, sheetSeeded]);
 
   const goNext = useCallback(() => {
     setStep((prev) => {
@@ -260,6 +290,40 @@ export function OnboardingWizard() {
     });
   }, [hasHistory]);
 
+  // #11/#26 — the answer to "where are you in the degree?". A fresh student is
+  // pinned to year 1 and walks the original path. A returning student who
+  // scanned their sheet arrives here with a real year, a real semester and a
+  // real completed-course map — so the planner they reach is THEIR semester,
+  // not a year-1 timetable of courses they finished two years ago.
+  //
+  // Nothing is persisted here. The seed lands in the review step, where the
+  // student can un-check or correct any row before the single save at the end.
+  const handleStandingDone = useCallback((result: StandingResult) => {
+    if (result.choice === "fresh") {
+      updateData({ year: 1, semester: "FALL", semesterExplicit: false });
+      setSheetSeeded(false);
+      setStep(STEP_PROFILE);
+      return;
+    }
+    if (result.year != null && result.semester != null) {
+      updateData({
+        year: result.year,
+        semester: result.semester,
+        semesterExplicit: true,
+        ...(result.englishLevel ? { englishLevel: result.englishLevel } : {}),
+      });
+    }
+    if (result.completedSeed && Object.keys(result.completedSeed).length > 0) {
+      setCompletedCourses(result.completedSeed);
+      historySeeded.current = true;
+      // Anything the sheet did NOT list is, by the sheet's own account, not
+      // done — so clear stale removals and let the sheet stand on its own.
+      removedCodes.current = new Set();
+      setSheetSeeded(Boolean(result.fromSheet));
+    }
+    setStep(STEP_PROFILE);
+  }, [updateData]);
+
   // Called when SemesterPlanner finishes (user clicks "Finish planning")
   const handlePlanFinish = useCallback(
     (semesters: PlannedSemester[], selections: SessionGroupSelections) => {
@@ -270,10 +334,18 @@ export function OnboardingWizard() {
     []
   );
 
-  // Progress bar shows on the Profile step. Total user-facing steps depends on
-  // whether the history step is present.
-  const showProgressBar = step === STEP_PROFILE;
-  const profileTotalSteps = hasHistory ? 3 : 2;
+  // #21/#36 — the stepped flow Ariel liked, made legible: every step names
+  // itself and shows where it sits in the sequence, so "what screen am I on and
+  // what comes next" is never a guess. The history step is conditional, so the
+  // list is built per-student rather than hard-coded.
+  const flowSteps: { step: number; he: string; en: string }[] = [
+    { step: STEP_STANDING, he: "נקודת הפתיחה", en: "Starting point" },
+    { step: STEP_PROFILE, he: "הפרופיל", en: "Profile" },
+    ...(hasHistory ? [{ step: STEP_HISTORY, he: "מה כבר עשיתם", en: "What you've done" }] : []),
+    { step: STEP_PLANNER, he: "מערכת השעות", en: "Timetable" },
+    { step: STEP_READY, he: "סיום", en: "Done" },
+  ];
+  const flowIndex = flowSteps.findIndex((s) => s.step === step);
   // Profile step has sensible defaults (year/semester) and focus area is
   // genuinely optional — "undecided" (null) is a valid choice the hint
   // actively recommends — so never gate Next on it.
@@ -282,21 +354,58 @@ export function OnboardingWizard() {
   return (
     <div className="bg-mesh -m-2 min-h-full w-auto sm:-m-4 md:-m-6">
     <div className="relative mx-auto flex min-h-[80vh] w-full max-w-4xl flex-col px-4 py-8 md:px-8">
-      {/* Progress bar — only on Profile step */}
-      {showProgressBar && (
+      {/* #21/#36 — the flow rail. Present on every step after the welcome, so a
+          new user always knows which of the numbered steps they are on, what
+          the step is called, and what still lies ahead. */}
+      {flowIndex >= 0 && (
+        <nav
+          aria-label={locale === "he" ? "שלבי ההרשמה" : "Signup steps"}
+          data-testid="onboarding-flow-rail"
+          className="animate-fade-in mb-6 flex flex-wrap items-center justify-center gap-x-2 gap-y-1.5"
+        >
+          {flowSteps.map((s, i) => {
+            const state = i < flowIndex ? "done" : i === flowIndex ? "current" : "todo";
+            return (
+              <span key={s.step} className="flex items-center gap-2">
+                {i > 0 && <span aria-hidden className="text-foreground/15">·</span>}
+                <span
+                  aria-current={state === "current" ? "step" : undefined}
+                  className={cn(
+                    "rounded-full px-3 py-1 text-xs transition-colors",
+                    state === "current"
+                      ? "bg-accent-brand/12 font-semibold text-accent-brand"
+                      : state === "done"
+                        ? "bg-foreground/5 text-foreground/45"
+                        : "text-foreground/30",
+                  )}
+                >
+                  <bdi dir="ltr">{i + 1}.</bdi> {locale === "he" ? s.he : s.en}
+                </span>
+              </span>
+            );
+          })}
+        </nav>
+      )}
+
+      {/* Progress bar. It used to live only on the Profile step and was pinned
+          at "step 1 of N" no matter where you were — an indicator that never
+          moved. It now tracks the real flow position alongside the named rail
+          above (#36). */}
+      {flowIndex >= 0 && (
         <div className="animate-fade-in mb-8">
-          {/* Step counter */}
           <div className="mb-2 flex items-center justify-between text-xs text-foreground/40">
             <span className="tabular">
-              {t("step")} 1 {t("of")} {profileTotalSteps}
+              {t("step")} <bdi dir="ltr">{flowIndex + 1}</bdi> {t("of")}{" "}
+              <bdi dir="ltr">{flowSteps.length}</bdi>
             </span>
-            <span className="tabular">{Math.round((1 / profileTotalSteps) * 100)}%</span>
+            <span className="tabular">
+              <bdi dir="ltr">{Math.round(((flowIndex + 1) / flowSteps.length) * 100)}%</bdi>
+            </span>
           </div>
-          {/* Bar */}
           <div className="h-1.5 w-full overflow-hidden rounded-full bg-foreground/10">
             <div
               className="progress-gradient h-full rounded-full transition-all duration-500 ease-out"
-              style={{ width: `${(1 / profileTotalSteps) * 100}%` }}
+              style={{ width: `${((flowIndex + 1) / flowSteps.length) * 100}%` }}
             />
           </div>
         </div>
@@ -313,7 +422,17 @@ export function OnboardingWizard() {
                 onProgramSelect={(code) => updateData({ program: code })}
               />
             )}
-            {step === STEP_PROFILE && <StepProfile data={data} onUpdate={updateData} />}
+            {step === STEP_STANDING && (
+              <StepStanding
+                allCourses={allCourses}
+                isLoadingCourses={coursesQuery.isLoading}
+                onDone={handleStandingDone}
+                onBack={goBack}
+              />
+            )}
+            {step === STEP_PROFILE && (
+              <StepProfile data={data} onUpdate={updateData} sheetSeeded={sheetSeeded} />
+            )}
             {/* Q11(א): the history + planner steps are unusable without the
                 catalog. When course.list failed (after its retries), say so
                 honestly and offer a retry — never a silent empty screen. */}
@@ -346,6 +465,7 @@ export function OnboardingWizard() {
                     onChange={handleCompletedChange}
                     onNext={goNext}
                     onBack={goBack}
+                    sheetSeeded={sheetSeeded}
                   />
                 )}
                 {step === STEP_PLANNER && (

@@ -18,6 +18,9 @@ import type { OnboardingData } from "./onboarding-wizard";
 interface StepProfileProps {
   data: OnboardingData;
   onUpdate: (updates: Partial<OnboardingData>) => void;
+  /** #26 — the year/semester above were read off a real grade sheet, not
+   *  assumed. Says so, so the student knows what they're confirming. */
+  sheetSeeded?: boolean;
 }
 
 // The miluim group is derived from days served + combat status via the shared
@@ -25,7 +28,7 @@ interface StepProfileProps {
 // (docs/pakam-domain-rules-2026.md §6). Alias kept for local readability.
 const deriveGroup = deriveGroupFromDays;
 
-export function StepProfile({ data, onUpdate }: StepProfileProps) {
+export function StepProfile({ data, onUpdate, sheetSeeded = false }: StepProfileProps) {
   const t = useTranslations("onboarding");
   const tm = useTranslations("onboarding.miluim");
   const locale = useLocale();
@@ -74,10 +77,17 @@ export function StepProfile({ data, onUpdate }: StepProfileProps) {
   // SPRING that just ended, so a returning student isn't seated on a dead
   // semester (QA 13.7).
   const derivedSemester: "FALL" | "SPRING" = data.year <= 1 ? "FALL" : getPlanningAnchor().semester;
+  // #13b — the derived semester is a DEFAULT, not a verdict. Onboarding only
+  // ever asked about a year-1 סמסטר א׳; a student starting (or restarting) in
+  // סמסטר ב׳ had no way to say so and was silently planned into the wrong
+  // semester. Once the semester is explicit — the student picked it below, or
+  // it came off a real grade sheet — this effect stops overriding it.
+  const semesterExplicit = data.semesterExplicit === true;
   useEffect(() => {
+    if (semesterExplicit) return;
     if (data.semester !== derivedSemester) onUpdate({ semester: derivedSemester });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [derivedSemester]);
+  }, [derivedSemester, semesterExplicit]);
   // #5 — the status line is no longer a phase GUESS ("באמצע תקופת הלימודים"),
   // which was wrong on day 1 of a semester and said nothing about today. It now
   // comes verbatim from THE academic calendar and names the real published date
@@ -88,19 +98,26 @@ export function StepProfile({ data, onUpdate }: StepProfileProps) {
   // The semester the wizard is ACTUALLY about to plan — named outright, so the
   // student can see that "where we are now" and "what we'll build" are two
   // different things and that the app got both right (#5).
-  const plannedSemesterHe = derivedSemester === "FALL" ? "סמסטר א׳" : "סמסטר ב׳";
-  const plannedSemesterEn = derivedSemester === "FALL" ? "Fall" : "Spring";
+  // The semester actually in `data` — which is the derived default until the
+  // student overrides it (#13b) — so the sentence never promises a semester
+  // different from the one the planner will build.
+  const activeSemester: "FALL" | "SPRING" = data.semester;
+  const plannedSemesterHe = activeSemester === "FALL" ? "סמסטר א׳" : "סמסטר ב׳";
+  const plannedSemesterEn = activeSemester === "FALL" ? "Fall" : "Spring";
   const plannedYearLabelHe = hebrewYearLabel(getPlanningAnchor().startYear);
   const plannedYearLabelEn = `${getPlanningAnchor().startYear}/${String((getPlanningAnchor().startYear + 1) % 100).padStart(2, "0")}`;
   // A first-year student skips the history step (nothing to mark), so the
   // "we'll mark what you've already done" copy would be misleading for them.
+  // "your first semester" is only true for a year-1 student planning FALL; a
+  // year-1 student who picked סמסטר ב׳ (#13b) is mid-year, not starting.
+  const isFirstSemesterEver = data.year <= 1 && activeSemester === "FALL";
   const acadNextLine = isHe
-    ? data.year <= 1
+    ? isFirstSemesterEver
       ? `נבנה יחד את מערכת הלימודים של ${plannedSemesterHe} ${plannedYearLabelHe} — הסמסטר הראשון שלכם.`
       : acadNow.phase === "teaching"
         ? `נסמן יחד מה כבר עברתם, ונבנה את המערכת של ${plannedSemesterHe} ${plannedYearLabelHe}.`
         : `נסמן יחד מה כבר עברתם (כולל הסמסטר שנגמר), ואז נבנה את המערכת של ${plannedSemesterHe} ${plannedYearLabelHe}.`
-    : data.year <= 1
+    : isFirstSemesterEver
       ? `We'll build your timetable for ${plannedSemesterEn} ${plannedYearLabelEn} — your first semester.`
       : acadNow.phase === "teaching"
         ? `We'll mark what you've already done, then build your ${plannedSemesterEn} ${plannedYearLabelEn} timetable.`
@@ -274,6 +291,15 @@ export function StepProfile({ data, onUpdate }: StepProfileProps) {
           <h3 className="mb-3 text-sm font-medium text-foreground/70">
             {t("yourYear")}
           </h3>
+          {/* #26 — when the year came off a real grade sheet, say where it came
+              from. The student is confirming a reading, not answering blind. */}
+          {sheetSeeded && (
+            <p className="mb-3 text-xs text-foreground/45">
+              {isHe
+                ? "מילאנו את זה מהגיליון שסרקתם. אם זה לא מדויק — פשוט בחרו אחרת."
+                : "We filled this in from the sheet you scanned. If it's off, just pick another."}
+            </p>
+          )}
           <div className="grid grid-cols-3 gap-3">
             {yearOptions.map((option) => (
               <button
@@ -282,6 +308,43 @@ export function StepProfile({ data, onUpdate }: StepProfileProps) {
                 className={cn(
                   "rounded-xl border-2 px-4 py-3 text-sm font-medium transition-all",
                   data.year === option.value
+                    ? "border-foreground bg-foreground/10 text-foreground/80 shadow-sm"
+                    : "border-border bg-card text-foreground/60 hover:border-foreground/30"
+                )}
+              >
+                {option.label}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* #13b — semester selection. It never existed: onboarding derived the
+            semester and pinned a year-1 student to סמסטר א׳, so anyone whose
+            next semester is ב׳ (a late intake, a repeat year, a return from
+            miluim, or simply signing up mid-year) was planned into the wrong
+            one with no way to say so. The derived value stays the default. */}
+        <div className="animate-stagger-2">
+          <h3 className="mb-1 text-sm font-medium text-foreground/70">
+            {t("yourSemester")}
+          </h3>
+          <p className="mb-3 text-xs text-foreground/40">
+            {isHe
+              ? "הסמסטר שנתכנן יחד עכשיו. ברירת המחדל היא הסמסטר הקרוב לפי לוח השנה האקדמי."
+              : "The semester we'll plan together now. The default is the upcoming one on the academic calendar."}
+          </p>
+          <div className="grid grid-cols-2 gap-3">
+            {([
+              { value: "FALL" as const, label: t("semesterA") },
+              { value: "SPRING" as const, label: t("semesterB") },
+            ]).map((option) => (
+              <button
+                key={option.value}
+                type="button"
+                aria-pressed={data.semester === option.value}
+                onClick={() => onUpdate({ semester: option.value, semesterExplicit: true })}
+                className={cn(
+                  "rounded-xl border-2 px-4 py-3 text-sm font-medium transition-all",
+                  data.semester === option.value
                     ? "border-foreground bg-foreground/10 text-foreground/80 shadow-sm"
                     : "border-border bg-card text-foreground/60 hover:border-foreground/30"
                 )}

@@ -159,6 +159,10 @@ export function MobileNav() {
 
         {/* More button */}
         <button
+          // #17/#36 — on a phone every screen beyond the four in the bar lives
+          // behind this button. The tour has to point at it, or the record,
+          // the exam board and the community are simply never discovered.
+          data-tour="nav-more"
           onClick={() => setMoreOpen(!moreOpen)}
           className={cn(
             "flex flex-col items-center gap-0.5 px-4 py-2 text-xs transition-colors min-h-[44px] min-w-[44px] justify-center",

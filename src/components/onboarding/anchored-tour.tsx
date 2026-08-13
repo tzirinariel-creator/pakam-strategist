@@ -57,6 +57,66 @@ const STEPS: Step[] = [
     bodyHe: "אם שירתתם — הפס הזה תמיד מראה את הקבוצה וההטבות שלכם. לחיצה פותחת את כל הפירוט.",
     bodyEn: "If you served, this bar always shows your group + benefits. Tap it for the full list.",
   },
+  // ── #17/#36 — the rest of the app ──────────────────────────────────────
+  // The tour stopped at the home screen, so a new user finished it without
+  // ever learning that the other screens exist or how they connect ("מסך אחרי
+  // מסך משתמש חדש פשוט לא יבין… ולא יבין את המעבר בין מסכים ופיצ׳רים").
+  // These four steps walk the navigation tier by tier and name the LOOP each
+  // tier belongs to, not just the buttons. All are conditional: on a phone the
+  // sidebar isn't rendered, so they're skipped in favour of the mobile step.
+  {
+    selector: '[data-tour="nav-group-0"]',
+    conditional: true,
+    titleHe: "הלולאה המרכזית — איפה אני, מה לתכנן, ומה מותר",
+    titleEn: "The main loop — where I am, what to plan, what's allowed",
+    bodyHe:
+      "שלושת אלה עובדים יחד: המסך הזה מראה איפה אתם עומדים, ״התכנון״ הוא המקום שבונים בו את המערכת והסמסטרים הבאים, ו״התקנון״ בודק שמה שבניתם עומד בכללי התואר.",
+    bodyEn:
+      "These three work together: this screen shows where you stand, \"Planner\" is where you build your timetable and coming semesters, and \"Regulations\" checks that what you built obeys the degree rules.",
+  },
+  {
+    selector: '[data-tour="nav-group-1"]',
+    conditional: true,
+    titleHe: "התיק האקדמי — מה כבר עשיתם, ולאן זה מוביל",
+    titleEn: "Your academic file — what you've done, and where it leads",
+    bodyHe:
+      "ב״תיק״ סורקים את גיליון הציונים בסוף כל סמסטר, והציונים מתעדכנים בכל האפליקציה בבת אחת. ״ציון גמר״ מראה מה הציון הסופי מרכיב ואיפה עוד אפשר לשפר.",
+    bodyEn:
+      "In \"Record\" you scan your grade sheet at each semester's end and the grades update everywhere at once. \"Final score\" shows what the graduation score is made of and where you can still improve it.",
+  },
+  {
+    selector: '[data-tour="nav-group-2"]',
+    conditional: true,
+    titleHe: "הזמן — תקופת מבחנים ולוח שנה",
+    titleEn: "Time — exam season and the calendar",
+    bodyHe:
+      "״תכנון מבחנים״ פורש את מועדי א׳ ו-ב׳ של הסמסטר שלכם ועוזר להחליט; ״לוח שנה״ מסנכרן את השיעורים והמבחנים ליומן שאתם כבר משתמשים בו.",
+    bodyEn:
+      "\"Exam planner\" lays out your semester's Moed A and Moed B sittings and helps you decide; \"Calendar\" syncs your classes and exams to the calendar you already use.",
+  },
+  {
+    selector: '[data-tour="nav-group-3"]',
+    conditional: true,
+    titleHe: "לא לבד — הידע של המחזור",
+    titleEn: "Not alone — your cohort's knowledge",
+    bodyHe:
+      "״קטלוג״ הוא כל הקורסים עם מה שסטודנטים כתבו עליהם; ״מחזור״ מראה מה בני המחזור שלכם לוקחים; ״חונכים״ מחבר לסטודנטים משנים מתקדמות; ״מדריך״ מסביר את התואר מאפס. את מה שתכתבו כאן יקראו אלה שיבואו אחריכם.",
+    bodyEn:
+      "\"Catalog\" is every course with what students wrote about it; \"Cohort\" shows what your year is taking; \"Mentors\" connects you to students further along; \"Guide\" explains the degree from scratch. What you write here is read by whoever comes next.",
+  },
+  {
+    // Phone layout: the sidebar isn't rendered at all, and everything past the
+    // four bottom-bar tabs hides behind "עוד". Without this step a phone user
+    // finishes the tour having seen four screens out of eleven.
+    selector: '[data-tour="nav-more"]',
+    conditional: true,
+    titleHe: "כל השאר נמצא כאן",
+    titleEn: "Everything else lives here",
+    bodyHe:
+      "בטלפון הסרגל התחתון מחזיק את ארבעת המסכים היומיומיים. ״עוד״ פותח את כל היתר — התיק והציונים, תכנון המבחנים, הקטלוג, המחזור והמדריך.",
+    bodyEn:
+      "On a phone the bottom bar holds the four everyday screens. \"More\" opens all the rest — your record and grades, the exam planner, the catalog, your cohort and the guide.",
+  },
   {
     // #13/#14/#26 — the single highest-leverage "meet the King" moment: spotlight
     // the floating FAB, name him, and teach that he's interactive (you can COMMAND
@@ -78,6 +138,12 @@ const STEPS: Step[] = [
 ];
 
 const PAD = 8;
+
+/** Laid out and visible at THIS viewport — not merely present in the DOM. */
+function isRendered(el: HTMLElement): boolean {
+  const r = el.getBoundingClientRect();
+  return r.width > 0 && r.height > 0;
+}
 
 export function AnchoredTour({ open, onClose }: { open: boolean; onClose: () => void }) {
   const isHe = useLocale() === "he";
@@ -104,7 +170,10 @@ export function AnchoredTour({ open, onClose }: { open: boolean; onClose: () => 
       return;
     }
     const el = document.querySelector(current.selector) as HTMLElement | null;
-    if (!el) {
+    // A target that exists but isn't laid out (the desktop sidebar under
+    // `hidden md:block` on a phone) has a 0×0 rect. Spotlighting it would cut a
+    // pinhole in the corner of the screen, so treat it as no target at all.
+    if (!el || !isRendered(el)) {
       setRect(null);
       return;
     }
@@ -126,11 +195,15 @@ export function AnchoredTour({ open, onClose }: { open: boolean; onClose: () => 
     onClose();
   }, [onClose]);
 
-  // A conditional step (e.g. miluim, absent for a non-server) is skipped so the
-  // spotlight never lands on a missing target and shows an irrelevant card.
+  // A conditional step (e.g. miluim for a non-server, or the desktop nav on a
+  // phone) is skipped so the spotlight never lands on a target that isn't there
+  // — or on one that exists in the DOM but is display:none at this viewport.
   const isPresent = (i: number) => {
     const s = STEPS[i]!;
-    return !s.conditional || (!!s.selector && typeof document !== "undefined" && !!document.querySelector(s.selector));
+    if (!s.conditional) return true;
+    if (!s.selector || typeof document === "undefined") return false;
+    const el = document.querySelector(s.selector) as HTMLElement | null;
+    return !!el && isRendered(el);
   };
   const next = () => {
     if (isLast) return close();

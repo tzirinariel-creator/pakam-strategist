@@ -189,6 +189,11 @@ export function Sidebar() {
           {NAV_GROUPS.map((group, i) => (
             <div
               key={i}
+              // #17/#36 — tour anchors. The product tour used to cover the home
+              // tab and nothing else, so a new user never learned that the app
+              // HAS an academic file, an exam board, or a community — let alone
+              // how the screens relate. Each nav tier is now spotlightable.
+              data-tour={`nav-group-${i}`}
               className={cn("space-y-1", i > 0 && "mt-2 border-t border-sidebar-border/60 pt-2")}
             >
               {group.map((item) => renderNavItem(item))}

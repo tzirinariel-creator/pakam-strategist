@@ -24,6 +24,20 @@
 //     university site ("לוח הבחינות והמטלות יפורסם בהמשך"). Inventing them
 //     is forbidden by the project's iron rules.
 //
+//
+// PARSER CORRECTION (13.8, after live verification): the first run of this
+// migration shipped CORRUPTED lecturer/room data — 86 rows had the semester
+// letter ("ב") in the lecturer field, 74 had a person's name sitting in
+// `location` (room lost), and 30 had two lecturers concatenated with no
+// separator ("…ברגמןד\"ר רן אילת"), which rendered as one broken text node on
+// the timetable. Root cause: the extractor guessed teacher/location by walking
+// BACKWARDS a fixed two lines from the day marker, so any row missing one of
+// them shifted every field. yedion_schedule.json has been re-parsed reading
+// FORWARD by column order, with title-aware name splitting (distinctive titles
+// like פרופ׳/ד"ר split anywhere since the source glues them; bare "מר" only at
+// a word boundary — otherwise "איתמר" splits in half). Re-import verified: all
+// three defect classes now zero.
+//
 // Usage:
 //   npx tsx scripts/migrate-yedion-5787.ts            # DRY RUN (default)
 //   npx tsx scripts/migrate-yedion-5787.ts --apply    # write to the DB

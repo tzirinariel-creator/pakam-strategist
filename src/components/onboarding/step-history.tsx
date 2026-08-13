@@ -88,6 +88,10 @@ interface StepHistoryProps {
   onChange: (next: Record<string, CompletedCourse>) => void;
   onNext: () => void;
   onBack: () => void;
+  /** #26 — the map arrived from a scanned grade sheet, not from the default
+   *  "you must have passed the past mandatory courses" pre-fill. Changes what
+   *  this screen CLAIMS: it's a review of a document, not a set of guesses. */
+  sheetSeeded?: boolean;
 }
 
 /**
@@ -159,6 +163,7 @@ export function StepHistory({
   onChange,
   onNext,
   onBack,
+  sheetSeeded = false,
 }: StepHistoryProps) {
   const t = useTranslations("onboarding");
   const locale = useLocale();
@@ -418,16 +423,31 @@ export function StepHistory({
       {/* Header */}
       <div className="animate-stagger-1 text-center">
         <h2 className="font-display text-2xl font-bold text-foreground/90">
-          {t("historyTitle")}
+          {sheetSeeded
+            ? isHe
+              ? "אישור מה שקראנו מהגיליון"
+              : "Confirm what we read from your sheet"
+            : t("historyTitle")}
         </h2>
-        <p className="mt-2 max-w-md text-foreground/50">{t("historyDesc")}</p>
-        {/* Pre-check explainer: mandatory courses of past years are checked by
-            default for a mid-degree student (fixes #18). Make it clear they're
-            editable so an irregular student can correct them. */}
+        <p className="mt-2 max-w-md text-foreground/50">
+          {sheetSeeded
+            ? isHe
+              ? "עדיין לא נשמר כלום. מה שתאשרו כאן הוא מה שייכנס לתואר שלכם."
+              : "Nothing is saved yet. What you confirm here is what goes into your degree."
+            : t("historyDesc")}
+        </p>
+        {/* Two different claims, and they must not be confused. Without a sheet
+            we PRE-CHECKED BY ASSUMPTION (past mandatory courses, #18) and have
+            to say so. With a sheet we checked exactly what the document shows —
+            and nothing beyond it. */}
         <p className="mx-auto mt-2 max-w-md text-xs text-foreground/40">
-          {isHe
-            ? "סימנו לכם מראש את קורסי-החובה של השנים שעברתם. הסירו סימון אם לא עשיתם קורס, והוסיפו ציונים אם בא לכם — הם לא חובה."
-            : "We pre-checked the mandatory courses from the years you've completed. Un-check any you didn't take, and add grades if you like — they're optional."}
+          {sheetSeeded
+            ? isHe
+              ? "סימנו אך ורק את מה שמופיע בגיליון — לא הוספנו אף קורס מעבר לזה. אם הסורק פספס קורס, הוסיפו אותו למטה; אם סימן קורס שלא עשיתם, הסירו את הסימון."
+              : "We checked only what appears on the sheet — nothing was added beyond it. If the scanner missed a course, add it below; if it checked one you didn't take, un-check it."
+            : isHe
+              ? "סימנו לכם מראש את קורסי-החובה של השנים שעברתם. הסירו סימון אם לא עשיתם קורס, והוסיפו ציונים אם בא לכם — הם לא חובה."
+              : "We pre-checked the mandatory courses from the years you've completed. Un-check any you didn't take, and add grades if you like — they're optional."}
         </p>
       </div>
 
