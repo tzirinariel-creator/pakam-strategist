@@ -87,10 +87,16 @@ export function SemesterSummary({
   const honest = calculateHonestLoad(
     courses.map((c) => ({
       credits: c.credits,
+      // sessionType/groupCode are passed so the de-duplication inside
+      // calculateHonestLoad can tell a genuine second meeting from a duplicate
+      // catalog row — without them this card announced "8 שעות שבועיות" over a
+      // timetable rendering 6 for the same courses (#13.8).
       sessions: (c.scheduleSessions ?? []).map((s) => ({
         dayOfWeek: s.dayOfWeek,
         startTime: s.startTime,
         endTime: s.endTime,
+        sessionType: s.sessionType,
+        groupCode: s.groupCode ?? null,
       })),
       examDate: c.examDateA ?? null,
     }))

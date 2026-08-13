@@ -26,6 +26,13 @@ export interface HonestLoadSession {
   dayOfWeek: string;
   startTime: string; // "HH:MM"
   endTime: string; // "HH:MM"
+  /** Both optional, and both only used to tell two meetings apart when
+   *  de-duplicating. A lecture and a tutorial that genuinely sit at the same
+   *  hour are a real clash and must BOTH be counted; two catalog rows for the
+   *  one meeting must not. Omitting them is safe — it just makes the key
+   *  coarser for callers that have no such collisions. */
+  sessionType?: string;
+  groupCode?: string | null;
 }
 
 export interface HonestLoadCourse {
@@ -62,9 +69,23 @@ export function calculateHonestLoad(
 ): HonestLoadResult {
   const credits = courses.reduce((sum, c) => sum + (c.credits || 0), 0);
 
+  // De-duplicate before summing. The catalog holds true duplicate rows for a
+  // handful of meetings (same course, day, hour, type and group under two row
+  // ids), and the weekly grid already collapses them via dedupeMeetings — but
+  // this function summed them raw. The result was the onboarding summary
+  // announcing "8 שעות שבועיות" directly above a timetable showing 6, for the
+  // same week (Ariel, 13.8). A student can only be in one place once, so one
+  // meeting counts once, and the two surfaces now agree by construction.
+  //
+  // Keyed per COURSE, so two different courses meeting at the same hour still
+  // both count — that is a clash, not a duplicate.
   let weeklyHours = 0;
   for (const c of courses) {
+    const seen = new Set<string>();
     for (const s of c.sessions ?? []) {
+      const key = [s.dayOfWeek, s.startTime, s.endTime, s.sessionType ?? "", s.groupCode ?? ""].join("|");
+      if (seen.has(key)) continue;
+      seen.add(key);
       weeklyHours += sessionHours(s);
     }
   }

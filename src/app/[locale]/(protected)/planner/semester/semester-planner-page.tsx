@@ -22,7 +22,7 @@ import { cn } from "@/lib/utils";
 import { resolveGoalBucket } from "@/lib/goal-bucket";
 import { getProgramById } from "@/lib/programs/registry";
 import { getPlanningAnchor, deriveYearOfStudy } from "@/lib/academic-calendar";
-import { isPersistedCourseId } from "@/lib/off-catalog";
+import { buildSavePlanPayload } from "@/lib/plan-save-payload";
 import type { OnboardingData } from "@/components/onboarding/onboarding-wizard";
 import type { SessionGroupSelections } from "@/components/onboarding/semester-planner/live-timetable";
 
@@ -190,39 +190,19 @@ export function SemesterPlannerPage() {
     // a manually added course is a first-class member of the plan (#8).
     const courseCodeById = new Map(plannerCourses.map((c) => [c.id, c.code]));
 
-    // Convert to the format savePlan expects, including selectedGroups.
-    // Custom courses are registered as real Course rows by the planner before we
-    // get here, so a leftover `custom-…` id means that registration FAILED (the
-    // planner already told the student so). savePlan validates every courseId
-    // with z.string().uuid() and rejects the WHOLE save if one is invalid, so
-    // such an id still has to be left out — otherwise a single failure loses
-    // every planned edit (#18).
-    //
-    // The test is "does this id exist in the DB", NOT "is it in the catalog":
-    // a just-registered custom course has a real id that this render's course
-    // list has not seen yet (the plan query refetches only after the save), and
-    // a catalog-membership check would drop the very course we just created.
-    let droppedCustomCourse = false;
-    const courses = plannedSemesters.flatMap((sem) =>
-      sem.courseIds.flatMap((courseId) => {
-        if (!isPersistedCourseId(courseId)) {
-          droppedCustomCourse = true;
-          return [];
-        }
-        const code = courseCodeById.get(courseId);
-        const groups = code ? sessionGroupSelections[code] : undefined;
-        const discipline = disciplineOverrides[courseId];
-        return [{
-          courseId,
-          plannedYear: sem.year,
-          plannedSemester: sem.semester,
-          ...(groups && Object.keys(groups).length > 0 ? { selectedGroups: groups } : {}),
-          // The student's own attribution — a re-filed course, or an
-          // off-catalog course they declared approved for their degree.
-          ...(discipline ? { disciplineOverride: discipline } : {}),
-        }];
-      })
+    // Convert to the format savePlan expects (see buildSavePlanPayload: it drops
+    // ONLY ids that were never registered, which savePlan would reject and which
+    // would take the whole save down with them — #18). Custom courses are
+    // registered as real Course rows by the planner before we get here, so a
+    // leftover `custom-…` id means registration FAILED and the planner has
+    // already said so.
+    const { courses, droppedIds } = buildSavePlanPayload(
+      plannedSemesters,
+      courseCodeById,
+      sessionGroupSelections,
+      disciplineOverrides,
     );
+    const droppedCustomCourse = droppedIds.length > 0;
 
     try {
       // savePlan now replaces only PLANNED/IN_PROGRESS rows; COMPLETED history
