@@ -32,7 +32,10 @@ const MOBILE_NAV_ITEMS = [
 const MORE_MENU_ITEMS = [
   { key: "examPlanner", href: "/exam-planner", icon: CalendarClock },
   { key: "catalog", href: "/catalog", icon: BookOpen },
-  { key: "cohort", href: "/cohort", icon: Users2 },
+  // #41 — the social layer gets ONE door on a phone too. Before this, /cohort
+  // was here and /mentors existed only in the desktop sidebar, so mentoring was
+  // literally unreachable on mobile; השושלת links to both.
+  { key: "lineage", href: "/lineage", icon: Users2 },
   { key: "record", href: "/record", icon: FolderOpen },
   { key: "graduation", href: "/graduation", icon: Calculator },
   { key: "miluim", href: "/miluim", icon: Shield },

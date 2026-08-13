@@ -95,6 +95,9 @@ export function GuideContent() {
           <ToolLi href="/exam-planner" label={isHe ? "תכנון מבחנים" : "Exam planner"} desc={isHe ? "תוכנית-לימוד חכמה אחורה מכל מבחן." : "A smart reverse-planned study schedule."} arrow={Arrow} />
           <ToolLi href="/regulations" label={isHe ? "תקנון" : "Regulations"} desc={isHe ? "הסטטוס שלכם מול כל דרישות התואר." : "Your status against every requirement."} arrow={Arrow} />
           <ToolLi href="/mentor" label={isHe ? "המלך הפילוסוף" : "The Philosopher King"} desc={isHe ? "יועץ התואר — זמין מכל מסך דרך כפתור הכתר, עונה מהנתונים שלכם." : "Your degree advisor — the crown button on any screen; answers from your data."} arrow={Arrow} />
+          {/* #34/#41 — the guide listed every tool except the social layer, so
+              a new student had no way to learn it exists or what the deal is. */}
+          <ToolLi href="/lineage" label={isHe ? "השושלת" : "The Lineage"} desc={isHe ? "מה שהמחזורים שלפניכם יודעים: תיק המחזור האנונימי וחונכות בהסכמה, במקום אחד." : "What earlier cohorts know: the anonymous cohort file and consent-based mentoring, in one place."} arrow={Arrow} />
         </ul>
       </Section>
 

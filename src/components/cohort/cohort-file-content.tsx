@@ -27,6 +27,7 @@ import {
   Flag,
   Send,
   ExternalLink,
+  ChevronLeft,
 } from "lucide-react";
 import { Link } from "@/i18n/navigation";
 import { api } from "@/lib/trpc/react";
@@ -38,12 +39,14 @@ import { CohortShareNudge } from "@/components/cohort/cohort-share-nudge";
 import { encodePlan, type SharedCourse } from "@/lib/plan-share";
 import { contributorLevel } from "@/lib/contributor-level";
 import { cohortLabel } from "@/lib/cohort-label";
+import { LineagePactStrip } from "@/components/lineage/lineage-pact";
 
 export function CohortFileContent() {
   const locale = useLocale();
   const isHe = locale === "he";
   const digestQuery = api.courseKnowledge.getCohortDigest.useQuery();
   // Hooks BEFORE any early return — a conditional hook order crashes React.
+  const profileQuery = api.user.getProfile.useQuery();
   const [electivesOnly, setElectivesOnly] = useState(false);
 
   if (digestQuery.isLoading) return <ThemedLoader />;
@@ -76,18 +79,29 @@ export function CohortFileContent() {
 
   return (
     <div className="bg-mesh space-y-8 p-4 md:p-6">
-      {/* Header — the Referent hosts */}
-      <div className="animate-stagger-1 flex items-start gap-4">
-        <ReferentCharacter className="size-14 shrink-0 drop-shadow-sm" />
-        <div>
-          <h1 className="font-display text-3xl font-bold text-foreground/85">
-            {isHe ? "תיק המחזור" : "The cohort file"}
-          </h1>
-          <p className="mt-1 text-foreground/55">
-            {isHe
-              ? "הרפרנט מארח: מה שהמחזורים שלפניכם למדו בדם — שמור, אנונימי, ועובר הלאה."
-              : "Hosted by the Referent: what the cohorts before you learned the hard way — kept, anonymous, passed on."}
-          </p>
+      {/* Header — the Referent hosts. The file is one half of השושלת (#41), so
+          it says which whole it belongs to instead of floating on its own. */}
+      <div className="animate-stagger-1 space-y-2">
+        <Link
+          href="/lineage"
+          className="inline-flex items-center gap-1 text-xs font-medium text-foreground/45 transition-colors hover:text-foreground/75"
+        >
+          {isHe ? "השושלת" : "The Lineage"}
+          <ChevronLeft className="size-3.5 ltr:rotate-180" />
+        </Link>
+        <div className="flex items-start gap-4">
+          <ReferentCharacter className="size-14 shrink-0 drop-shadow-sm" />
+          <div>
+            <h1 className="font-display text-3xl font-bold text-foreground/85">
+              {isHe ? "תיק המחזור" : "The cohort file"}
+            </h1>
+            <p className="mt-1 text-foreground/55">
+              {isHe
+                ? "הרפרנט מארח: מה שהמחזורים שלפניכם למדו בדם — שמור, אנונימי, ועובר הלאה."
+                : "Hosted by the Referent: what the cohorts before you learned the hard way — kept, anonymous, passed on."}
+            </p>
+            <LineagePactStrip className="mt-2 max-w-2xl" />
+          </div>
         </div>
       </div>
 
@@ -216,7 +230,17 @@ export function CohortFileContent() {
                 {digest!.tips.map((t, i) => (
                   <div key={i} className="data-card space-y-1.5 p-4">
                     <p className="text-sm leading-relaxed text-foreground/80">{t.tip}</p>
-                    <p className="text-xs text-foreground/45">{t.courseName}</p>
+                    <p className="flex flex-wrap items-center gap-x-2 gap-y-0.5 text-xs text-foreground/45">
+                      <span>{t.courseName}</span>
+                      {/* #41 — how far ahead of you the writer was. The server
+                          only sends a year when that cohort is crowded enough
+                          to hide the individual (safeCohortYear). */}
+                      {t.cohortYear != null && (
+                        <span className="text-foreground/35">
+                          {cohortLabel(t.cohortYear, profileQuery.data?.startYear, isHe)}
+                        </span>
+                      )}
+                    </p>
                   </div>
                 ))}
               </div>

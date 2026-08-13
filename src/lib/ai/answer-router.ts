@@ -12,7 +12,7 @@
 // existing /api/chat/stream path; this only makes the routing decision.
 // =========================================================================
 
-import { answerDegreeQuestion, type QAAnswer, type QAContext } from "@/lib/degree-qa";
+import { answerDegreeQuestion, socialTalkKind, type QAAnswer, type QAContext } from "@/lib/degree-qa";
 
 export type AnswerSource = "rules" | "llm";
 
@@ -29,7 +29,7 @@ export interface RoutedDecision {
    */
   shouldEscalate: boolean;
   /** Why we escalated (for telemetry / a source badge). */
-  reason: "no-match" | "reasoning" | "follow-up" | "course-code" | "none";
+  reason: "no-match" | "reasoning" | "follow-up" | "course-code" | "social" | "none";
 }
 
 // Markers of an open-ended question that benefits from LLM reasoning rather
@@ -170,17 +170,23 @@ export function routeQuestion(
   // (24.7 live-QA finding). Checked LAST so it doesn't override a genuine
   // per-course match from degree-qa's own course-scoped handlers above.
   const courseCode = mentionsCourseCode(question);
+  // #22 — "ומה שלומך?" is answerable deterministically (a warm one-liner), but
+  // warmth is exactly where the persona earns its keep: escalate so a keyed
+  // student hears the King/Referent, and keep the fixed line as the fallback.
+  const social = socialTalkKind(question) !== null;
 
-  const shouldEscalate = !matched || reasoning || followUp || courseCode;
+  const shouldEscalate = !matched || reasoning || followUp || courseCode || social;
   const reason: RoutedDecision["reason"] = !matched
     ? "no-match"
     : followUp
       ? "follow-up"
-      : reasoning
-        ? "reasoning"
-        : courseCode
-          ? "course-code"
-          : "none";
+      : social
+        ? "social"
+        : reasoning
+          ? "reasoning"
+          : courseCode
+            ? "course-code"
+            : "none";
 
   return { deterministic, matched, shouldEscalate, reason };
 }

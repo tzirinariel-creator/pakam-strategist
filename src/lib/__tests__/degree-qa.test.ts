@@ -300,3 +300,81 @@ describe("W1 handlers — next exam / semester load / hardest / grade honesty", 
     expect(withSem.text).not.toContain("עדיין אי-אפשר");
   });
 });
+
+// ── #22 (13.8): "הממוצע הכללי שלך כרגע: —" ──
+// An em-dash where a number belongs is a dead end: it reads as a broken field,
+// not as an answer. A missing number is information — say it, and hand over the
+// next step.
+describe("year-transition answer with no grades recorded (#22)", () => {
+  it("never prints a bare em-dash where the average should be", () => {
+    const a = answerDegreeQuestion("מה תנאי מעבר שנה?", ctx({ courseAverage: null }));
+    expect(a.text).not.toContain("כרגע: —");
+    expect(a.text).not.toMatch(/[:：]\s*—\s*\.?$/);
+  });
+
+  it("says plainly that nothing is recorded yet, and offers the next step", () => {
+    const a = answerDegreeQuestion("מה תנאי מעבר שנה?", ctx({ courseAverage: null }));
+    expect(a.text).toContain("עוד לא שמורים ציונים");
+    expect(a.href).toBe("/graduation");
+    expect(a.cta).toBe("למחשבון הציונים");
+  });
+
+  it("still states the rule itself — warmth never costs the requirement", () => {
+    const a = answerDegreeQuestion("מה תנאי מעבר שנה?", ctx({ courseAverage: null }));
+    expect(a.text).toContain("75");
+    expect(a.text).toContain("80");
+  });
+
+  it("with grades, quotes the real average and where it stands", () => {
+    const above = answerDegreeQuestion("מה תנאי מעבר שנה?", ctx({ courseAverage: 84 }));
+    expect(above.text).toContain("84.0");
+    expect(above.text).toContain("מעל הסף הכללי");
+    expect(above.text).not.toMatch(/— [^—]*—/); // no double-dash stutter (live QA 13.8)
+    expect(above.href).toBeUndefined();
+    const below = answerDegreeQuestion("מה תנאי מעבר שנה?", ctx({ courseAverage: 71.25 }));
+    expect(below.text).toContain("71.3");
+    expect(below.text).toContain("מתחת לסף הכללי");
+  });
+
+  it("English keeps the same honesty", () => {
+    const a = answerDegreeQuestion("year transition", ctx({ courseAverage: null, isHe: false }));
+    expect(a.text).toContain("no grades recorded yet");
+    expect(a.text).not.toContain("—.");
+  });
+});
+
+// ── #22 (13.8): a hello is not "לא בטוח שהבנתי" ──
+describe("social talk (#22)", () => {
+  it("answers a greeting warmly instead of listing capabilities", () => {
+    const a = answerDegreeQuestion("ומה שלומך?", ctx({}));
+    expect(a.matched).toBe(true);
+    expect(a.text).toContain("תודה ששאלת");
+    expect(a.text).not.toContain("לא בטוח שהבנתי");
+    // …and it hands the turn straight back to the degree.
+    expect(a.text).toMatch(/הסמסטר הקרוב|הש״ס שנשארו|הציונים/);
+  });
+
+  it("invents no data in the pleasantry", () => {
+    const a = answerDegreeQuestion("בוקר טוב", ctx({ courseAverage: null }));
+    expect(a.text).not.toMatch(/\d/);
+  });
+
+  it("acknowledges thanks distinctly", () => {
+    expect(answerDegreeQuestion("תודה רבה", ctx({})).text).toContain("בשמחה");
+  });
+
+  it("does NOT swallow a real question that opens with a greeting", () => {
+    const a = answerDegreeQuestion("בוקר טוב, כמה ש״ס נשארו לי?", ctx({}));
+    expect(a.text).toContain("54");
+  });
+
+  it("does NOT swallow 'מה קורה אם…'", () => {
+    const a = answerDegreeQuestion("מה קורה אם אני נכשל פעמיים באותו קורס?", ctx({}));
+    expect(a.text).not.toContain("תודה ששאלת");
+  });
+
+  it("English greeting works too", () => {
+    const a = answerDegreeQuestion("how are you", ctx({ isHe: false }));
+    expect(a.text).toContain("thanks for asking");
+  });
+});

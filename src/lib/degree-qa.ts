@@ -547,16 +547,41 @@ const HANDLERS: Handler[] = [
     },
   },
   // ── Year transition ───────────────────────────────────────────────
+  // #22 (13.8): the old answer printed "הממוצע הכללי שלך כרגע: —" when no grades
+  // were recorded. An em-dash where a number belongs is a dead end — it reads as
+  // a broken field, not as an answer. A missing number is itself information:
+  // say plainly that nothing is recorded yet, and hand over the next step.
   {
     keys: ["מעבר שנה", "לעבור שנה", "תנאי מעבר", "תנאי המעבר", "מעבר לשנה", "לשנה הבאה", "advance a year", "year transition"],
-    answer: (c) =>
-      ({
+    answer: (c) => {
+      const overall = GRADE_REQUIREMENTS.YEAR_TRANSITION_OVERALL_GPA;
+      const ppe = GRADE_REQUIREMENTS.YEAR_TRANSITION_PPE_GPA;
+      const ruleHe = `כדי לעבור שנה צריך ממוצע כללי ${overall} לפחות, וממוצע ${ppe} בקורסי הפכ״מ.`;
+      const ruleEn = `To advance a year you need an overall average of at least ${overall}, and ${ppe} in PPE courses.`;
+      if (c.courseAverage === null) {
+        return {
+          text: he(
+            c,
+            `${ruleHe} אצלך עוד לא שמורים ציונים, אז אין לי ממוצע להעמיד מול הסף — ${gm(c, "הזן", "הזני", "הזן/י")} את הציונים שכבר קיבלת ואומר לך בדיוק איפה ${gm(c, "אתה עומד", "את עומדת", "את/ה עומד/ת")}.`,
+            `${ruleEn} You have no grades recorded yet, so there's no average to hold against the bar — add the grades you already have and I'll tell you exactly where you stand.`
+          ),
+          href: "/graduation",
+          cta: he(c, "למחשבון הציונים", "Grade calculator"),
+        };
+      }
+      const avg = c.courseAverage.toFixed(1);
+      const standing =
+        c.courseAverage >= overall
+          ? he(c, `זה מעל הסף הכללי — ${gm(c, "אתה בסדר", "את בסדר", "את/ה בסדר")} מהבחינה הזו.`, "That's above the overall bar — you're fine on that count.")
+          : he(c, "זה מתחת לסף הכללי — שווה לכוון גבוה בקורסים הקרובים.", "That's below the overall bar — worth aiming high in the coming courses.");
+      return {
         text: he(
           c,
-          `כדי לעבור שנה צריך ממוצע כללי ${GRADE_REQUIREMENTS.YEAR_TRANSITION_OVERALL_GPA} לפחות, וממוצע ${GRADE_REQUIREMENTS.YEAR_TRANSITION_PPE_GPA} בקורסי הפכ״מ. הממוצע הכללי שלך כרגע: ${c.courseAverage !== null ? c.courseAverage.toFixed(1) : "—"}.`,
-          `To advance a year you need an overall average of at least ${GRADE_REQUIREMENTS.YEAR_TRANSITION_OVERALL_GPA}, and ${GRADE_REQUIREMENTS.YEAR_TRANSITION_PPE_GPA} in PPE courses. Your current overall: ${c.courseAverage !== null ? c.courseAverage.toFixed(1) : "—"}.`
+          `${ruleHe} הממוצע הכללי שלך כרגע ${avg}. ${standing}`,
+          `${ruleEn} Your overall average is ${avg}. ${standing}`
         ),
-      }),
+      };
+    },
   },
   // ── Focus area ────────────────────────────────────────────────────
   {
@@ -656,6 +681,70 @@ const HANDLERS: Handler[] = [
   },
 ];
 
+// -------------------------------------------------------------------
+// #22 — social talk ("ומה שלומך?")
+// -------------------------------------------------------------------
+// Ariel's transcript: a friendly question got the boundary line ("זה כל מה
+// שרלוונטי כאן"). With an AI key that's a prompt problem (fixed in
+// mentor-prompt); WITHOUT a key the free engine was even colder — it fell to
+// "לא בטוח שהבנתי" + a capabilities list. Warmth must not cost honesty, so
+// this stays a fixed, data-free pleasantry that hands the turn straight back
+// to the degree — and the router still escalates it, so a keyed student hears
+// the persona's own voice instead of this fallback.
+//
+// Matched on the WHOLE normalized question only. That is the guard against the
+// false-positive class that once let a bare keyword hijack a real question:
+// "מה קורה אם אני נכשל בקורס?" is not "מה קורה?".
+
+export type SocialTalkKind = "greeting" | "thanks";
+
+const GREETINGS = new Set([
+  "מה שלומכ", "מה שלומכמ", "מה נשמע", "מה קורה", "מה המצב", "מה חדש",
+  "בוקר טוב", "ערב טוב", "צהריימ טובימ", "לילה טוב", "שבוע טוב", "שלומ", "שלומ לכ",
+  "היי", "הי", "הלו", "אהלנ", "יו",
+  "how are you", "how are you doing", "hows it going", "how is it going",
+  "whats up", "sup", "good morning", "good evening", "good afternoon",
+  "hi", "hello", "hey", "yo",
+]);
+
+const THANKS = new Set([
+  "תודה", "תודה רבה", "תודה לכ", "מעולה", "מגניב", "אהבתי", "כל הכבוד", "יפה", "סבבה",
+  "thanks", "thank you", "thanks a lot", "great", "nice", "awesome", "cool", "love it",
+]);
+
+/**
+ * Is this whole message just social talk? Returns the kind, or null.
+ * Exported so the hybrid router can escalate it to the persona when a key
+ * exists (the same shape as the empathy handler).
+ */
+export function socialTalkKind(question: string): SocialTalkKind | null {
+  // A leading "ו"/"אז" is conversational glue, not content ("ומה שלומך?").
+  const q = normalize(question).replace(/^אז /, "").replace(/^ו(?=[א-ת])/, "");
+  if (!q) return null;
+  if (GREETINGS.has(q)) return "greeting";
+  if (THANKS.has(q)) return "thanks";
+  return null;
+}
+
+function socialAnswer(kind: SocialTalkKind, c: QAContext): QAAnswer {
+  if (kind === "thanks") {
+    return {
+      text: he(
+        c,
+        `בשמחה — בשביל זה אני כאן. ${gm(c, "תגיד", "תגידי", "תגידו")} לי מה הלאה: הסמסטר הקרוב, הש״ס שנשארו, או הציונים?`,
+        "My pleasure — that's what I'm here for. What's next: the coming semester, the credits left, or your grades?"
+      ),
+    };
+  }
+  return {
+    text: he(
+      c,
+      `טוב, תודה ששאלת — ואני כאן ומוכן. מה מעסיק ${gm(c, "אותך", "אותך", "אתכם")} עכשיו: הסמסטר הקרוב, הש״ס שנשארו, או הציונים?`,
+      "Good, thanks for asking — and I'm here and ready. What's on your mind: the coming semester, the credits left, or your grades?"
+    ),
+  };
+}
+
 /** The capabilities shown when no intent matches (and as starter chips). */
 export function suggestedQuestions(isHe: boolean): string[] {
   return isHe
@@ -736,6 +825,14 @@ export function answerDegreeQuestion(question: string, c: QAContext): QAAnswer {
   const q = normalize(question);
   if (!q) {
     return { text: he(c, `${gm(c, "שאל", "שאלי", "שאל/י")} אותי כל דבר על התואר שלך`, "Ask me anything about your degree"), matched: false };
+  }
+  // #22 — a human hello must not fall through to the capabilities wall ("לא
+  // בטוח שהבנתי…"), which is the coldest sentence in the app. Checked BEFORE
+  // the keyword table and only on a whole-question match, so it can never
+  // hijack a real question ("מה קורה אם אני נכשל?" is not a greeting).
+  const social = socialTalkKind(question);
+  if (social) {
+    return { ...socialAnswer(social, c), matched: true };
   }
   let best: Handler | null = null;
   let bestScore = 0;

@@ -10,9 +10,11 @@ import { createTRPCRouter, protectedProcedure } from "../trpc/init";
 import { TRPCError } from "@trpc/server";
 import { checkRateLimit } from "@/lib/rate-limit";
 import { decodePlan } from "@/lib/plan-share";
+import { REPORT_HIDE_THRESHOLD } from "@/lib/k-anonymity";
 
 const INSIGHT_STAGES = ["BIDDING", "EXAMS", "FOCUS", "FIRST_YEAR", "GENERAL"] as const;
-const HIDE_THRESHOLD = 3;
+// Shared with reviews so "3 distinct reporters hide it" is one number, one file.
+const HIDE_THRESHOLD = REPORT_HIDE_THRESHOLD;
 
 export const cohortRouter = createTRPCRouter({
   /** Visible insights, grouped client-side by stage. Anonymous by design. */

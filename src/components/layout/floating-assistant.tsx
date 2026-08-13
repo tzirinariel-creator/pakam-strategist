@@ -18,6 +18,7 @@ import { ReferentIcon } from "@/components/ui/referent-icon";
 import type { MentorPersona } from "@/lib/ai/mentor-prompt";
 import { routeQuestion } from "@/lib/ai/answer-router";
 import { detectActions, type AssistantAction } from "@/lib/ai/action-router";
+import { buildActionExamples, actionVerbsLine } from "@/lib/ai/assistant-examples";
 import { PhilosopherKingCharacter } from "@/components/ui/philosopher-king-character";
 import { ReferentCharacter } from "@/components/ui/referent-character";
 import { invalidatePlanData } from "@/lib/trpc/invalidate-plan";
@@ -197,6 +198,14 @@ export function FloatingAssistant() {
     () =>
       (catalogForActions.data ?? []).map((c) => ({ id: c.id, code: c.code, nameHe: c.nameHe })),
     [catalogForActions.data],
+  );
+
+  // #14 — the teachable "I can DO things" examples, built from the student's own
+  // rows and VERIFIED against the real detector, so a tap never advertises a
+  // confirm card that won't render. Empty plan → no chips, honest fallback line.
+  const actionExamples = useMemo(
+    () => buildActionExamples(planLite, catalogLite, isHe),
+    [planLite, catalogLite, isHe],
   );
 
   const completeMutation = api.plan.updateCourse.useMutation();
@@ -796,7 +805,12 @@ export function FloatingAssistant() {
           question,
           planHash,
           isFirst,
-          decision.matched && decision.reason !== "course-code" ? decision.deterministic.text : undefined,
+          // …and NOT for "social" either (#22): handing the canned pleasantry
+          // over as an authoritative base is how the persona ends up parroting
+          // a fixed line instead of actually being warm in its own voice.
+          decision.matched && decision.reason !== "course-code" && decision.reason !== "social"
+            ? decision.deterministic.text
+            : undefined,
         );
       } else if (decision.reason === "course-code") {
         // No AI key at all: we can't answer a specific-course question honestly
@@ -979,11 +993,11 @@ export function FloatingAssistant() {
                     <div className="rounded-xl border border-border/60 bg-foreground/[0.03] p-3 text-sm leading-relaxed text-foreground/70">
                       {isReferent
                         ? isHe
-                          ? "נעים מאוד, אני הרפרנט — שנה ג׳ בפכ״מ, כבר עברתי את כל מה שמחכה לכם. שואלים אותי הכול בגובה העיניים, ואני עונה לפי הנתונים שלכם, לא מהזיכרון. ואם בא לכם סגנון מכובד יותר — יש למעלה כפתור שמחליף אותי במלך."
-                          : "Hey, I'm the Referent — a final-year PPE student who's been through everything ahead of you. Ask me anything, I answer from your data. Prefer a more regal style? The button above swaps me for the King."
+                          ? "נעים מאוד, אני הרפרנט — שנה ג׳ בפכ״מ, כבר עברתי את כל מה שמחכה לכם. שואלים אותי הכול בגובה העיניים, ואני עונה לפי הנתונים שלכם, לא מהזיכרון. וגם: תגידו לי שסיימתם קורס או שאתם רוצים להוסיף אחד, ואני מקפיץ כרטיס-אישור שמעדכן את התוכנית בפועל. ואם בא לכם סגנון מכובד יותר — יש למעלה כפתור שמחליף אותי במלך."
+                          : "Hey, I'm the Referent — a final-year PPE student who's been through everything ahead of you. Ask me anything, I answer from your data. And tell me you finished a course or want to add one — I'll raise a confirm card that actually updates your plan. Prefer a more regal style? The button above swaps me for the King."
                         : isHe
-                          ? "נעים מאוד — אני המלך הפילוסוף, היועץ האישי שלכם לתואר. השם מאפלטון: ב„מדינה” הוא תיאר מנהיג שמוביל לפי ידע ולא לפי דעה, ותמיד לטובת מי שהוא מוביל — וזה בדיוק התפקיד שלי כאן. אני מכיר את התקנון, את הקטלוג ואת הנתונים שלכם, ומכוון למה שנכון לכם, לא לממוצע. שאלו אותי כל דבר — ואם תגידו לי שסיימתם קורס או שבא לכם להוסיף אחד, אני גם אבצע את זה בשבילכם. מעדיפים סגנון של חבר משנה ג׳? הכפתור למעלה מחליף אותי ברפרנט."
-                          : "A pleasure — I'm the Philosopher King, your personal degree advisor. The name is Plato's: in the Republic he pictured a leader who guides by knowledge, not opinion, and always for the good of those they lead — which is exactly my role here. I know the regulations, the catalog and your own data, and I aim for what's right for you, not the average. Ask me anything — and when you tell me you finished a course or want to add one, I'll act on it for you. Prefer a peer's tone? The button above swaps me for the Referent."}
+                          ? "נעים מאוד — אני המלך הפילוסוף, היועץ האישי שלכם לתואר. השם מאפלטון: ב„מדינה” הוא תיאר מנהיג שמוביל לפי ידע ולא לפי דעה, ותמיד לטובת מי שהוא מוביל — וזה בדיוק התפקיד שלי כאן. אני מכיר את התקנון, את הקטלוג ואת הנתונים שלכם, ומכוון למה שנכון לכם, לא לממוצע. שאלו אותי כל דבר — ואם תספרו לי שסיימתם קורס, שנכשלתם באחד או שבא לכם להוסיף אחד, אני מקפיץ כרטיס-אישור ומבצע ברגע שתאשרו. מעדיפים סגנון של חבר משנה ג׳? הכפתור למעלה מחליף אותי ברפרנט."
+                          : "A pleasure — I'm the Philosopher King, your personal degree advisor. The name is Plato's: in the Republic he pictured a leader who guides by knowledge, not opinion, and always for the good of those they lead — which is exactly my role here. I know the regulations, the catalog and your own data, and I aim for what's right for you, not the average. Ask me anything — and when you tell me you finished a course, failed one, or want to add one, I'll raise a confirm card and do it the moment you approve. Prefer a peer's tone? The button above swaps me for the Referent."}
                       <button
                         type="button"
                         onClick={dismissIntro}
@@ -1005,6 +1019,47 @@ export function FloatingAssistant() {
                         {c}
                       </button>
                     ))}
+                  </div>
+
+                  {/* #14 — teach the capability nobody discovered: the advisor
+                      doesn't only answer, it turns a sentence into a real change
+                      in the plan. These chips PRE-FILL the input instead of
+                      sending, because the example carries a placeholder grade —
+                      the student edits it, so no number is ever filed that they
+                      didn't type. Every chip was verified against the real
+                      detector, so tapping one always ends in a confirm card. */}
+                  <div className="rounded-xl border border-border/50 bg-foreground/[0.02] p-2.5">
+                    <p className="mb-1.5 text-[11px] font-semibold text-foreground/60">
+                      {isHe ? "ואני לא רק עונה — אני גם מבצע" : "And I don't only answer — I act"}
+                    </p>
+                    {actionExamples.length > 0 ? (
+                      <>
+                        <div className="flex flex-wrap gap-1.5">
+                          {actionExamples.map((ex) => (
+                            <button
+                              key={ex.prompt}
+                              type="button"
+                              onClick={() => {
+                                setInput(ex.prompt);
+                                inputRef.current?.focus();
+                              }}
+                              className="rounded-full border border-accent-brand/30 bg-accent-brand/[0.06] px-3 py-1.5 text-xs text-foreground/75 transition-colors hover:border-accent-brand/60 hover:text-foreground"
+                            >
+                              {ex.prompt}
+                            </button>
+                          ))}
+                        </div>
+                        <p className="mt-1.5 text-[11px] leading-relaxed text-foreground/45">
+                          {isHe
+                            ? "לחיצה ממלאת את שורת הכתיבה — ערכו את הפרטים ושלחו. לפני כל שינוי תקבלו כרטיס-אישור, וכלום לא זז בלי לחיצה שלכם."
+                            : "Tapping fills the input — edit the details and send. A confirm card always comes first; nothing moves without your click."}
+                        </p>
+                      </>
+                    ) : (
+                      <p className="text-[11px] leading-relaxed text-foreground/45">
+                        {actionVerbsLine(isHe)}
+                      </p>
+                    )}
                   </div>
                   {/* Quota transparency (note #25): when the student is on the
                       shared free key (no BYOK), say so calmly — with the free way

@@ -4,6 +4,14 @@ import { createHash } from "node:crypto";
 import { createTRPCRouter, publicProcedure, protectedProcedure } from "../trpc/init";
 import { moderateTip } from "@/lib/course-knowledge-moderation";
 import { ALLOWED_TAGS } from "@/lib/course-knowledge-tags";
+import {
+  GRADE_MIN_N,
+  RATING_MIN_N,
+  COHORT_LABEL_MIN_N,
+  REPORT_HIDE_THRESHOLD,
+  countByCohortYear,
+  safeCohortYear,
+} from "@/lib/k-anonymity";
 
 /**
  * Cross-cohort course knowledge (notes #3, #16).
@@ -18,10 +26,10 @@ import { ALLOWED_TAGS } from "@/lib/course-knowledge-tags";
  * aggregate PAST, never a prediction, and never "take this, it's easy".
  */
 
-const GRADE_MIN_N = 5;
-const RATING_MIN_N = 3;
-const REVIEW_HIDE_THRESHOLD = 3;
-const COHORT_LABEL_MIN_N = 5;
+// Thresholds live in ONE place now (src/lib/k-anonymity.ts), pinned by a guard
+// test — they used to be private constants here and in cohort.ts, which made
+// "never weaken k-anonymity" a grep rather than a rule.
+const REVIEW_HIDE_THRESHOLD = REPORT_HIDE_THRESHOLD;
 const TIP_MAX = 400;
 
 export function dedupeHashFor(userId: string, courseCode: string): string {
@@ -106,8 +114,7 @@ export const courseKnowledgeRouter = createTRPCRouter({
         : null;
 
       // Cohort label per review — only when that cohort has enough reviews.
-      const cohortCounts = new Map<number, number>();
-      for (const r of reviews) if (r.cohortYear != null) cohortCounts.set(r.cohortYear, (cohortCounts.get(r.cohortYear) ?? 0) + 1);
+      const cohortCounts = countByCohortYear(reviews);
 
       const cohortsAvailable = [...new Set(allPoints.map((p) => p.cohortYear).filter((y): y is number => y != null))]
         .filter((y) => allPoints.filter((p) => p.cohortYear === y && !p.isBinary && p.grade != null).length >= GRADE_MIN_N)
@@ -168,10 +175,10 @@ export const courseKnowledgeRouter = createTRPCRouter({
             tags: r.tags,
             verdict: r.verdict,
             createdAt: r.createdAt,
-            cohortLabel:
-              r.cohortYear != null && (cohortCounts.get(r.cohortYear) ?? 0) >= COHORT_LABEL_MIN_N
-                ? `מחזור ${r.cohortYear}`
-                : null,
+            cohortLabel: (() => {
+              const y = safeCohortYear(r.cohortYear, cohortCounts, COHORT_LABEL_MIN_N);
+              return y == null ? null : `מחזור ${y}`;
+            })(),
           })),
         cohortsAvailable,
       };
@@ -199,11 +206,15 @@ export const courseKnowledgeRouter = createTRPCRouter({
           tip: true,
           tags: true,
           createdAt: true,
+          // #41 — a tip is far more useful when you know how far ahead of you
+          // the person who wrote it was. Gated below by the SAME bar the course
+          // page already uses (safeCohortYear), so it never labels a lone voice.
+          cohortYear: true,
         },
         orderBy: { createdAt: "desc" },
       }),
       ctx.db.courseGradePoint.findMany({
-        select: { courseCode: true, grade: true, isBinary: true },
+        select: { courseCode: true, grade: true, isBinary: true, cohortYear: true },
       }),
       ctx.db.course.findMany({
         where: { isActive: true },
@@ -264,6 +275,10 @@ export const courseKnowledgeRouter = createTRPCRouter({
       .slice(0, 30);
 
     // The tips wall — freshest non-empty tips, already anonymous, capped.
+    // The cohort year rides along ONLY through safeCohortYear: a year attached
+    // to content from a thin cohort stops being context and starts being a
+    // pointer at one person.
+    const reviewCohortCounts = countByCohortYear(reviews);
     const tips = reviews
       .filter((r) => r.tip && r.tip.trim().length > 0)
       .slice(0, 12)
@@ -272,7 +287,19 @@ export const courseKnowledgeRouter = createTRPCRouter({
         courseName: nameByCode.get(r.courseCode)?.nameHe ?? r.courseCode,
         tip: r.tip as string,
         tags: r.tags,
+        cohortYear: safeCohortYear(r.cohortYear, reviewCohortCounts),
       }));
+
+    // Which cohorts are represented in the file at all — DISTINCT YEARS only,
+    // never per-year counts (a count of 1 would name a person). Feeds the
+    // "generations" strip on /lineage; see src/lib/lineage.ts.
+    const cohortYearsPresent = [
+      ...new Set(
+        [...reviews, ...gradePoints]
+          .map((r) => r.cohortYear)
+          .filter((y): y is number => y != null),
+      ),
+    ].sort((a, b) => a - b);
 
     // "דבר הרפרנט" — data-driven counts only, no LLM, no invention.
     const totals = {
@@ -284,7 +311,7 @@ export const courseKnowledgeRouter = createTRPCRouter({
         : null,
     };
 
-    return { courses: courseDigests, tips, totals };
+    return { courses: courseDigests, tips, totals, cohortYearsPresent };
   }),
 
   /** Batched aggregate for the catalog table (audit 24.7 fast-follow): the

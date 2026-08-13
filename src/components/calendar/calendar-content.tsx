@@ -24,6 +24,7 @@ import { ExamSchedule } from "@/components/exam/exam-schedule";
 import { downloadICSFromSessions } from "@/lib/ics-export";
 import { buildWeekShareText } from "@/lib/week-share";
 import { getAcademicNow, deriveYearOfStudy, getPlanningAnchor , hebrewYearLabel } from "@/lib/academic-calendar";
+import { groupCoursesBySemester } from "@/lib/plan-grouping";
 import type { Semester } from "@/types/enums";
 
 // ─── Types ───────────────────────────────────────────────────────────
@@ -53,12 +54,18 @@ export function CalendarContent() {
     error: planError,
   } = api.plan.getUserPlan.useQuery();
 
+  // PERF (#31) — the server used to ship this grouping as a second copy of
+  // every course row inside the same response. It's a linear pass; we do it
+  // here instead, and getUserPlan got ~50% lighter for every other screen.
+  const semesterMap = useMemo(
+    () => groupCoursesBySemester(planData?.courses),
+    [planData?.courses],
+  );
+
   // Build semester options from plan data
   const semesterOptions = useMemo<SemesterOption[]>(() => {
-    if (!planData?.semesters) return [];
-
     const options: SemesterOption[] = [];
-    const keys = Object.keys(planData.semesters).sort();
+    const keys = Object.keys(semesterMap).sort();
 
     for (const key of keys) {
       const parts = key.split("-");
@@ -88,7 +95,7 @@ export function CalendarContent() {
     }
 
     return options;
-  }, [planData?.semesters, locale]);
+  }, [semesterMap, locale]);
 
   const [selectedSemester, setSelectedSemester] = useState<string>("");
 
@@ -162,11 +169,14 @@ export function CalendarContent() {
     return { published: acadNow.startYear, upcoming: anchor.startYear };
   })();
 
-  // Courses for the selected semester (for Gantt view + ICS export)
+  // Courses for the selected semester (for Gantt view + ICS export).
+  // Reads the LOCAL grouping — getUserPlan no longer ships a `semesters` copy
+  // of every row (the #31 payload fix above); this consumer was left pointing
+  // at the removed field.
   const semesterCourses = useMemo(() => {
-    if (!planData?.semesters || !activeSemester) return [];
-    return planData.semesters[activeSemester] ?? [];
-  }, [planData?.semesters, activeSemester]);
+    if (!activeSemester) return [];
+    return semesterMap[activeSemester] ?? [];
+  }, [semesterMap, activeSemester]);
 
   // #41 (12.7) — a course whose sessionType still has SEVERAL groups (no
   // choice saved) used to paint ALL of them on the grid ("נראה זוועה").

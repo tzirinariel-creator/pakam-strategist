@@ -120,3 +120,36 @@ describe("mentionsCourseCode + routeQuestion — course-code escalation (24.7 li
     expect(d.shouldEscalate).toBe(false);
   });
 });
+
+// ── #22 (13.8): social talk escalates but never hijacks a real question ──
+describe("social talk routing (#22)", () => {
+  const c = ctx();
+  it("routes a bare greeting to the persona, with a warm fallback ready", () => {
+    for (const q of ["ומה שלומך?", "מה שלומך", "בוקר טוב", "מה נשמע?", "how are you"]) {
+      const d = routeQuestion(q, c);
+      expect(d.matched, q).toBe(true);
+      expect(d.shouldEscalate, q).toBe(true);
+      expect(d.reason, q).toBe("social");
+      // The fallback is warm, not the capabilities wall.
+      expect(d.deterministic.text, q).not.toContain("לא בטוח שהבנתי");
+    }
+  });
+
+  it("answers thanks without pretending it was a degree question", () => {
+    const d = routeQuestion("תודה!", c);
+    expect(d.reason).toBe("social");
+    expect(d.deterministic.text).toContain("בשמחה");
+  });
+
+  it("NEVER treats a real question that merely contains a greeting phrase as small talk", () => {
+    // The false-positive class the course-code fix was about, in a new place.
+    for (const q of [
+      "מה קורה אם אני נכשל בקורס?",
+      "מה המצב שלי בש״ס?",
+      "בוקר טוב, כמה ש״ס נשארו לי?",
+      "מה שלומך? ומה הממוצע שלי?",
+    ]) {
+      expect(routeQuestion(q, c).reason, q).not.toBe("social");
+    }
+  });
+});

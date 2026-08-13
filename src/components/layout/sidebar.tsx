@@ -19,6 +19,7 @@ import {
   ShieldCheck,
   RefreshCw,
   Users2,
+  Handshake,
 } from "lucide-react";
 import { PhilosopherKingIcon } from "@/components/ui/philosopher-king-icon";
 import { api } from "@/lib/trpc/react";
@@ -40,7 +41,8 @@ const NAV_ICONS = {
   mentor: PhilosopherKingIcon,
   guide: Compass,
   cohort: Users2,
-  mentors: Users2,
+  mentors: Handshake,
+  lineage: Users2,
   adminModeration: ShieldCheck,
   adminSync: RefreshCw,
 } as const;
@@ -72,17 +74,27 @@ const NAV_GROUPS: readonly (readonly { key: keyof typeof NAV_ICONS; href: string
     { key: "examPlanner", href: "/exam-planner" },
     { key: "calendar", href: "/calendar" },
   ],
-  // Reference / one-read.
+  // Reference / one-read. #41 — תיק המחזור and חונכות used to sit here as two
+  // peers sharing one icon and stating no relationship, which is exactly the
+  // confusion the note describes. They now live behind השושלת, the page that
+  // names the concept, explains the sharing contract and routes to both. Both
+  // routes stay resolvable and are linked from there (and חונכות becomes
+  // reachable on a phone for the first time — it was desktop-sidebar-only).
   [
     { key: "catalog", href: "/catalog" },
-    { key: "cohort", href: "/cohort" },
-    { key: "mentors", href: "/mentors" },
+    { key: "lineage", href: "/lineage" },
     { key: "guide", href: "/guide" },
   ],
 ] as const;
 
 // Pinned to the bottom of the sidebar, separated from the main nav.
 const SETTINGS_ITEM = { key: "settings", href: "/settings" } as const;
+
+// Routes that belong to a nav item but aren't its href — without this the two
+// pages behind השושלת would leave the whole nav with nothing highlighted.
+const EXTRA_ACTIVE_PATHS: Partial<Record<keyof typeof NAV_ICONS, readonly string[]>> = {
+  lineage: ["/cohort", "/mentors"],
+};
 
 export function Sidebar() {
   const t = useTranslations("nav");
@@ -120,7 +132,9 @@ export function Sidebar() {
 
   const renderNavItem = (item: { key: keyof typeof NAV_ICONS; href: string }) => {
     const Icon = NAV_ICONS[item.key];
-    const isActive = pathname.includes(item.href);
+    const isActive =
+      pathname.includes(item.href) ||
+      (EXTRA_ACTIVE_PATHS[item.key] ?? []).some((p) => pathname.includes(p));
 
     return (
       <Tooltip key={item.key}>

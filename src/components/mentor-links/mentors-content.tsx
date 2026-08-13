@@ -2,7 +2,8 @@
 
 import { useMemo, useState } from "react";
 import { useLocale } from "next-intl";
-import { UserPlus, Check, X, Eye, ShieldCheck, Mail, Loader2 } from "lucide-react";
+import { UserPlus, Check, X, Eye, ShieldCheck, Mail, Loader2, ChevronLeft } from "lucide-react";
+import { Link } from "@/i18n/navigation";
 import { api } from "@/lib/trpc/react";
 import { DISCIPLINE_CONFIG, SEMESTER_CONFIG, YEAR_CONFIG } from "@/lib/constants";
 import { advisorError } from "@/lib/advisor-toast";
@@ -43,14 +44,29 @@ export function MentorsContent() {
 
   return (
     <div className="bg-mesh space-y-6 p-4 md:p-6">
-      <header className="animate-stagger-1">
+      {/* Mentoring is the NAMED half of השושלת (#41) — the cohort file is the
+          anonymous half. Saying so here is what stops the split from reading
+          as arbitrary, and gives the page a way back to the concept. */}
+      <header className="animate-stagger-1 space-y-2">
+        <Link
+          href="/lineage"
+          className="inline-flex items-center gap-1 text-xs font-medium text-foreground/45 transition-colors hover:text-foreground/75"
+        >
+          {isHe ? "השושלת" : "The Lineage"}
+          <ChevronLeft className="size-3.5 ltr:rotate-180" />
+        </Link>
         <h1 className="font-display text-3xl font-bold text-foreground/85">
           {isHe ? "חונכות" : "Mentoring"}
         </h1>
-        <p className="mt-1 max-w-2xl text-foreground/55">
+        <p className="max-w-2xl text-foreground/55">
           {isHe
             ? "הזמינו סטודנט/ית שאתם סומכים עליהם לראות את תוכנית-התואר שלכם ולייעץ. הם רואים את הקורסים והסמסטרים בלבד — לעולם לא את הציונים. אתם שולטים: אפשר לנתק בכל רגע."
             : "Invite someone you trust to view your degree plan and advise. They see your courses and semesters only — never your grades. You're in control: end it anytime."}
+        </p>
+        <p className="max-w-2xl text-sm leading-relaxed text-foreground/45">
+          {isHe
+            ? "זה הצד עם השמות. הצד האנונימי — ממוצעים, דירוגים וטיפים בלי לדעת מי כתב — נמצא בתיק המחזור, ושם אף אחד לא מזמין אף אחד."
+            : "This is the named side. The anonymous side — averages, ratings and tips with no idea who wrote them — lives in the cohort file, where nobody invites anybody."}
         </p>
       </header>
 
