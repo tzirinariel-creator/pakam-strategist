@@ -225,7 +225,19 @@ export function AnchoredTour({ open, onClose }: { open: boolean; onClose: () => 
   // Tooltip placement: below the target if there's room, else above; centered
   // when there's no target.
   const vh = typeof window !== "undefined" ? window.innerHeight : 800;
+  const vw = typeof window !== "undefined" ? window.innerWidth : 400;
   const placeBelow = rect ? rect.bottom + 180 < vh : true;
+  // Horizontal placement, in PHYSICAL pixels. It used to be written to
+  // `inset-inline-start` while being computed from `rect.left` — a physical
+  // measurement fed into a logical property. Under RTL that mirrors the value,
+  // so a tooltip for a target on the right edge (the sidebar) was thrown to the
+  // far LEFT of the screen, describing something the user couldn't see next to
+  // it. Physical `left`, clamped into the viewport, is correct in both
+  // directions.
+  const tipWidth = Math.min(vw * 0.92, 360);
+  const tipLeft = rect
+    ? Math.max(12, Math.min(rect.left, vw - tipWidth - 12))
+    : 0;
 
   const tooltip = (
     <div
@@ -236,7 +248,7 @@ export function AnchoredTour({ open, onClose }: { open: boolean; onClose: () => 
       style={
         rect
           ? {
-              insetInlineStart: Math.max(12, Math.min(rect.left, (typeof window !== "undefined" ? window.innerWidth : 400) - 372)),
+              left: tipLeft,
               top: placeBelow ? rect.bottom + PAD + 8 : undefined,
               bottom: placeBelow ? undefined : vh - rect.top + PAD + 8,
             }

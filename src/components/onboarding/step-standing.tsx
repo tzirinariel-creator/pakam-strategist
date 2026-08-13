@@ -375,6 +375,16 @@ export function StepStanding({ allCourses, isLoadingCourses, onDone, onBack }: S
 // something on the sheet or in the catalog. No estimate, no projection.
 // ─────────────────────────────────────────────────────────────────────────
 
+/**
+ * Hebrew doesn't say "1 קורסים". These counts are read out loud in sentences,
+ * so a count of one gets the singular noun and no numeral — otherwise the
+ * summary reads like a machine, which is precisely the broken-Hebrew class of
+ * defect the copy rules exist to stop.
+ */
+function countPhrase(n: number, singular: string, plural: string): string {
+  return n === 1 ? singular : plural;
+}
+
 function StandingSummaryCard({
   summary,
   englishLevel,
@@ -423,8 +433,12 @@ function StandingSummaryCard({
           <div className="min-w-0 flex-1">
             <p className="font-display text-base font-bold text-foreground/90">
               {isHe
-                ? `קראנו ${summary.completed.length} קורסים שהושלמו`
-                : `We read ${summary.completed.length} completed courses`}
+                ? countPhrase(
+                    summary.completed.length,
+                    "קראנו קורס אחד שהושלם",
+                    `קראנו ${summary.completed.length} קורסים שהושלמו`,
+                  )
+                : `We read ${summary.completed.length} completed course${summary.completed.length === 1 ? "" : "s"}`}
             </p>
             <p className="mt-1 text-sm leading-relaxed text-foreground/60">
               <Bidi
@@ -543,8 +557,10 @@ function StandingSummaryCard({
                   <Bidi
                     text={
                       isHe
-                        ? `${summary.inProgress.length} קורסים עדיין בלימוד (מסומנים בגיליון בלי ציון) — לא נרשמים כהושלמו.`
-                        : `${summary.inProgress.length} courses are still in progress (no grade on the sheet) — not recorded as completed.`
+                        ? summary.inProgress.length === 1
+                          ? "קורס אחד עדיין בלימוד — מופיע בגיליון בלי ציון, ולכן לא נרשם כהושלם."
+                          : `${summary.inProgress.length} קורסים עדיין בלימוד — מופיעים בגיליון בלי ציון, ולכן לא נרשמים כהושלמו.`
+                        : `${summary.inProgress.length} still in progress (no grade on the sheet) — not recorded as completed.`
                     }
                   />
                 </span>
@@ -557,8 +573,10 @@ function StandingSummaryCard({
                   <Bidi
                     text={
                       isHe
-                        ? `${summary.failed.length} קורסים לא עברו את סף המעבר — לא נרשמים כהושלמו. אפשר להוסיף אותם אחרי ההרשמה במסך "התיק".`
-                        : `${summary.failed.length} courses didn't reach the pass bar — not recorded as completed. You can add them after signup in the record screen.`
+                        ? summary.failed.length === 1
+                          ? 'קורס אחד לא עבר את סף המעבר — לא נרשם כהושלם. אפשר להוסיף אותו אחרי ההרשמה במסך "התיק".'
+                          : `${summary.failed.length} קורסים לא עברו את סף המעבר — לא נרשמים כהושלמו. אפשר להוסיף אותם אחרי ההרשמה במסך "התיק".`
+                        : `${summary.failed.length} didn't reach the pass bar — not recorded as completed. You can add them after signup in the record screen.`
                     }
                   />
                 </span>
@@ -571,8 +589,10 @@ function StandingSummaryCard({
                   <Bidi
                     text={
                       isHe
-                        ? `${summary.exempt.length} קורסי פטור — לא נספרים בממוצע, ולכן לא נרשמים כאן.`
-                        : `${summary.exempt.length} exempt courses — they don't count toward the average, so they aren't recorded here.`
+                        ? summary.exempt.length === 1
+                          ? "קורס פטור אחד — פטור לא נספר בממוצע, ולכן לא נרשם כאן."
+                          : `${summary.exempt.length} קורסי פטור — פטור לא נספר בממוצע, ולכן הם לא נרשמים כאן.`
+                        : `${summary.exempt.length} exempt — exemptions don't count toward the average, so they aren't recorded here.`
                     }
                   />
                 </span>
@@ -585,8 +605,10 @@ function StandingSummaryCard({
                   <Bidi
                     text={
                       isHe
-                        ? `${summary.offCatalogCompleted} קורסים שאינם ברשימת פכ״מ — שמרנו אותם בשמם מהגיליון.`
-                        : `${summary.offCatalogCompleted} courses outside the PPE list — kept under the name printed on your sheet.`
+                        ? summary.offCatalogCompleted === 1
+                          ? "קורס אחד שאינו ברשימת פכ״מ — שמרנו אותו בשמו מהגיליון."
+                          : `${summary.offCatalogCompleted} קורסים שאינם ברשימת פכ״מ — שמרנו אותם בשמם מהגיליון.`
+                        : `${summary.offCatalogCompleted} outside the PPE list — kept under the name printed on your sheet.`
                     }
                   />
                 </span>
@@ -599,7 +621,9 @@ function StandingSummaryCard({
                   <Bidi
                     text={
                       isHe
-                        ? `${summary.uncertain.length} שורות שקראנו פעמיים וקיבלנו תוצאה שונה. בדקו אותן במסך הבא מול הגיליון שלכם.`
+                        ? summary.uncertain.length === 1
+                          ? "שורה אחת יצאה שונה בין שתי הקריאות שלנו. בדקו אותה במסך הבא מול הגיליון שלכם."
+                          : `${summary.uncertain.length} שורות יצאו שונה בין שתי הקריאות שלנו. בדקו אותן במסך הבא מול הגיליון שלכם.`
                         : `${summary.uncertain.length} rows came out differently on our two reads. Check them against your sheet on the next screen.`
                     }
                   />
@@ -615,7 +639,11 @@ function StandingSummaryCard({
       <details className="rounded-2xl border border-border bg-card/50 p-4">
         <summary className="cursor-pointer list-none text-sm font-semibold text-accent-brand underline-offset-2 hover:underline">
           {isHe
-            ? `להציג את כל ${summary.rows.length} השורות שקראנו`
+            ? countPhrase(
+                summary.rows.length,
+                "להציג את השורה שקראנו",
+                `להציג את כל ${summary.rows.length} השורות שקראנו`,
+              )
             : `Show all ${summary.rows.length} rows we read`}
         </summary>
         <ul className="mt-3 space-y-1.5">
