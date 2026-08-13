@@ -65,6 +65,34 @@ export interface StandingRow {
   plannedSemester: "FALL" | "SPRING" | "SUMMER" | null;
   /** The raw header text off the sheet ("2025/1"), for honest display. */
   sheetSemester: string | null;
+  // ── Kept so a STUDENT edit can re-derive `status` honestly (#5, 13.8) ──
+  /** The catalog course's type when matched — decides the pass bar (ENGLISH
+   *  passes at 70, everything else at 60). Null for an off-catalog row. */
+  courseType: string | null;
+  /** The binary mark printed on the sheet ("עובר"/"פטור"/"נכשל"), or null. */
+  passText: string | null;
+  /** The sheet printed *** for this row — enrolled, not yet graded. */
+  inProgress: boolean;
+  /**
+   * #5 (13.8) — the student said this row is not theirs. It stays VISIBLE (so
+   * the decision is reversible and never looks like the app lost a row) but is
+   * counted nowhere: not in credits, not in placement, not in the seed.
+   */
+  excluded?: boolean;
+  /**
+   * #7 (13.8) — added by the student, not read off the sheet. Never presented
+   * as something the document said. A manual row is a completion the student is
+   * asserting, so it stays COMPLETED even with no grade — exactly what the
+   * history step allowed before this screen absorbed it.
+   */
+  manual?: boolean;
+  /**
+   * #5 (13.8) — the student typed this grade themselves. It OUTRANKS the marks
+   * printed on the sheet (a *** "still in לימוד", an "עובר"/"פטור"), because a
+   * human just read the document and said otherwise. The sheet's own marks are
+   * never overwritten, so clearing the grade puts them straight back.
+   */
+  gradeEdited?: boolean;
 }
 
 export interface StandingPlacement {
@@ -153,17 +181,51 @@ export function yearFromCredits(creditsEarned: number): number {
   return 3;
 }
 
-/** Decide a row's status from what is printed on the sheet — nothing else. */
-function decideStatus(row: ExtractedRow, courseType: string | null): StandingStatus {
+/**
+ * The pass bar for a row. A matched course carries its catalog type, which is
+ * authoritative. An OFF-catalog row has no type at all — and English is the one
+ * bar that differs (70, not 60), so it is detected by name, the same test
+ * `decideAddition` uses in grade-sheet.ts. Without this an English elective
+ * scored 65 was read as a silent COMPLETED here while /record called it FAILED.
+ */
+function standingPassBar(courseType: string | null, name: string): number {
+  if (courseType) return passBarFor(courseType);
+  return passBarFor(/אנגלית|english/i.test(name) ? "ENGLISH" : undefined);
+}
+
+/**
+ * Decide a row's status from what is printed on the sheet — nothing else.
+ * Structural on its input so it can be re-run after a STUDENT edit (#5), not
+ * only on the raw scan.
+ */
+function decideStatus(
+  row: {
+    grade: number | null;
+    passText: string | null | undefined;
+    inProgress: boolean | null | undefined;
+    manual?: boolean;
+    gradeEdited?: boolean;
+    name?: string;
+  },
+  courseType: string | null,
+): StandingStatus {
+  // A grade the STUDENT typed outranks everything the sheet printed for this
+  // row: they just looked at the document and told us it says otherwise.
+  if (row.gradeEdited && row.grade != null) {
+    return row.grade >= standingPassBar(courseType, row.name ?? "") ? "COMPLETED" : "FAILED";
+  }
   if (row.inProgress) return "IN_PROGRESS";
   const passText = row.passText ?? "";
   if (passText.includes("פטור")) return "EXEMPT";
   if (passText.includes("נכשל")) return "FAILED";
   if (row.grade != null) {
-    return row.grade >= passBarFor(courseType ?? undefined) ? "COMPLETED" : "FAILED";
+    return row.grade >= standingPassBar(courseType, row.name ?? "") ? "COMPLETED" : "FAILED";
   }
   // "עובר" with no number is a genuine binary pass.
   if (passText.includes("עובר")) return "COMPLETED";
+  // A course the student added by hand is a completion THEY are asserting; the
+  // grade is optional, as it was in the history step this screen replaced.
+  if (row.manual) return "COMPLETED";
   // No grade, no pass mark, not flagged in-progress: we cannot tell. Say so.
   return "UNREADABLE";
 }
@@ -208,15 +270,19 @@ export function summarizeStanding({
     const row = rows[i]!;
     const course = matches[i] ?? null;
     const placement = row.semester ? (semesterMap.get(row.semester) ?? null) : null;
-    const status = decideStatus(row, course?.courseType ?? null);
+    // The catalog name is authoritative when we matched — it kills the OCR
+    // artefacts (#27/#29) at the source instead of displaying them.
+    const name = course ? course.nameHe : row.courseName;
+    const courseType = course?.courseType ?? null;
     out.push({
       key: course ? course.code : offCatalogKey(row),
-      // The catalog name is authoritative when we matched — it kills the OCR
-      // artefacts (#27/#29) at the source instead of displaying them.
-      name: course ? course.nameHe : row.courseName,
+      name,
       credits: course ? course.credits : (row.credits ?? null),
       grade: row.grade ?? null,
-      status,
+      status: decideStatus(
+        { grade: row.grade ?? null, passText: row.passText, inProgress: row.inProgress, name },
+        courseType,
+      ),
       inCatalog: Boolean(course),
       isMandatory: Boolean(course && (course.courseType === "MANDATORY" || course.isMandatory)),
       discipline: course?.discipline ?? null,
@@ -224,8 +290,32 @@ export function summarizeStanding({
       plannedYear: placement ? placement.plannedYear : null,
       plannedSemester: placement ? placement.plannedSemester : null,
       sheetSemester: row.semester ?? null,
+      courseType,
+      passText: row.passText ?? null,
+      inProgress: Boolean(row.inProgress),
     });
   }
+
+  return aggregateStanding(out, catalog, upcomingSemester, maxYear);
+}
+
+/**
+ * Re-derive the whole standing picture from a row list.
+ *
+ * Split out of summarizeStanding for #5/#7 (13.8): the review screen now lets
+ * the student CORRECT a misread row, exclude one, or add a course the scan
+ * missed. Every count, the placement and the seed must follow that edit, so the
+ * aggregation is a pure function of the current rows and is simply re-run.
+ * Excluded rows stay in `rows` (still rendered, still reversible) and are
+ * counted nowhere else.
+ */
+export function aggregateStanding(
+  rows: StandingRow[],
+  catalog: StandingCatalogCourse[],
+  upcomingSemester: "FALL" | "SPRING",
+  maxYear = 3,
+): StandingSummary {
+  const out = rows.filter((r) => !r.excluded);
 
   const completed = out.filter((r) => r.status === "COMPLETED");
   const failed = out.filter((r) => r.status === "FAILED");
@@ -306,7 +396,9 @@ export function summarizeStanding({
   }
 
   return {
-    rows: out,
+    // The FULL list, excluded rows included — the UI must keep showing a row
+    // the student excluded so the choice is visible and reversible.
+    rows,
     completed,
     failed,
     exempt,
@@ -320,6 +412,134 @@ export function summarizeStanding({
     offCatalogCompleted: completed.filter((r) => !r.inCatalog).length,
     semestersOnSheet: blocks.length,
     placement,
+  };
+}
+
+// =========================================================================
+// #5 + #7 (13.8) — the student edits the scan BEFORE it becomes their degree.
+//
+// The standing screen printed "זה מה שקראנו מהגיליון" and offered no control
+// at all, while a SECOND screen two steps later let them fix things. Ariel hit
+// both halves of that: no way to correct a misread here, and "קצת כפילות"
+// there. The review now happens once, on this screen, so every capability the
+// history step had must exist here — correct a grade, correct ש״ס, re-match a
+// row to the right course, drop a row, add a course the scan missed.
+// =========================================================================
+
+export interface StandingRowEdit {
+  /** 0–100, or null to clear. Out of range is rejected, never clamped. */
+  grade?: number | null;
+  /** 0–20, or null. Only meaningful for an off-catalog row — a catalog course
+   *  takes its ש״ס from the catalog. */
+  credits?: number | null;
+  /** Re-bind the row to a catalog course, or null to keep it off-catalog under
+   *  the name printed on the sheet. */
+  course?: StandingCatalogCourse | null;
+  /** The student says this row isn't theirs (or shouldn't count). */
+  excluded?: boolean;
+}
+
+/**
+ * Apply one student correction to a row and re-derive its status. Returns the
+ * SAME object when the value is out of range, so a caller can tell that nothing
+ * changed and garbage never reaches state.
+ *
+ * `status` is always DERIVED, never typed by hand: an edited grade of 65 in an
+ * English course stays honestly FAILED (the bar is 70), while 65 anywhere else
+ * is COMPLETED.
+ */
+export function reviseStandingRow(row: StandingRow, edit: StandingRowEdit): StandingRow {
+  const next: StandingRow = { ...row };
+
+  if ("excluded" in edit) next.excluded = Boolean(edit.excluded);
+
+  if ("course" in edit) {
+    const c = edit.course ?? null;
+    if (c) {
+      next.key = c.code;
+      next.name = c.nameHe;
+      next.credits = c.credits;
+      next.inCatalog = true;
+      next.isMandatory = Boolean(c.courseType === "MANDATORY" || c.isMandatory);
+      next.discipline = c.discipline ?? null;
+      next.courseType = c.courseType ?? null;
+    } else {
+      next.inCatalog = false;
+      next.isMandatory = false;
+      next.discipline = null;
+      next.courseType = null;
+    }
+    // A human picked the course. Whatever our two reads disagreed about, this
+    // settles it.
+    next.uncertain = false;
+  }
+
+  if ("credits" in edit) {
+    const v = edit.credits;
+    if (v == null) next.credits = null;
+    else if (Number.isFinite(v) && v >= 0 && v <= 20) next.credits = v;
+    else return row;
+  }
+
+  if ("grade" in edit) {
+    const g = edit.grade;
+    if (g == null) next.grade = null;
+    else if (Number.isFinite(g) && g >= 0 && g <= 100) next.grade = g;
+    else return row;
+    // Typing a real grade answers both "still in לימוד (***)" and a binary
+    // "עובר"/"פטור" read — but the sheet's own marks are LEFT ALONE, so
+    // clearing the grade puts them straight back instead of destroying what
+    // the document actually said.
+    next.gradeEdited = g != null;
+    next.uncertain = false;
+  }
+
+  next.status = decideStatus(
+    {
+      grade: next.grade,
+      passText: next.passText,
+      inProgress: next.inProgress,
+      manual: next.manual,
+      gradeEdited: next.gradeEdited,
+      name: next.name,
+    },
+    next.courseType,
+  );
+  return next;
+}
+
+/**
+ * #7 — a course the STUDENT adds by hand because the scan missed it (or they
+ * never had a sheet for it). Flagged `manual` so the UI never claims the
+ * document said so, and marked COMPLETED because that is precisely what the
+ * student is asserting by adding it. Grade stays null until they type one.
+ */
+export function manualStandingRow(
+  course: StandingCatalogCourse | null,
+  fallbackName: string,
+): StandingRow {
+  const name = course ? course.nameHe : fallbackName.trim();
+  return {
+    key: course
+      ? course.code
+      : `CUSTOM-${normalizeName(fallbackName).replace(/\s+/g, "-").slice(0, 24)}`,
+    name,
+    // An off-catalog course the student names has no published ש״ס — 2 is the
+    // same starting value the history step used, and it is editable right here.
+    credits: course ? course.credits : 2,
+    grade: null,
+    status: "COMPLETED",
+    inCatalog: Boolean(course),
+    isMandatory: Boolean(course && (course.courseType === "MANDATORY" || course.isMandatory)),
+    discipline: course?.discipline ?? null,
+    uncertain: false,
+    plannedYear: null,
+    plannedSemester: null,
+    sheetSemester: null,
+    courseType: course?.courseType ?? null,
+    passText: null,
+    inProgress: false,
+    manual: true,
   };
 }
 

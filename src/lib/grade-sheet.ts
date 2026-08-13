@@ -350,6 +350,81 @@ export function matchExtractedToCourses(
   });
 }
 
+// =========================================================================
+// #5 (13.8) — the STUDENT corrects a row before applying.
+//
+// The review screen used to be read-only. It printed "כנראה ציון אחד או יותר
+// נקרא לא נכון — עברו על השורות לפני האישור" and then offered no way to fix
+// one: the only choice was to tick a row you knew was wrong, or drop it. Ariel
+// scanned his real sheet and hit exactly that wall.
+//
+// The edit is applied to the SAME MatchedRow the apply loop reads, and every
+// match-dependent flag is re-derived here — so there is no shadow copy of the
+// student's correction that can be discarded on save.
+// =========================================================================
+
+export interface MatchedRowEdit {
+  /** 0–100, or null to clear. */
+  grade?: number | null;
+  /** 0–20. Only ever persisted for an ADDITION (a row with no match) — a
+   *  matched course takes its credits from the catalog. */
+  credits?: number | null;
+  /** Re-bind the row to a different course of the student's, or null to make it
+   *  an off-plan addition. A course the student picked by hand is the most
+   *  confident match there is, so it becomes matchKind "manual". */
+  match?: UserCourseLite | null;
+}
+
+/**
+ * Apply a student's correction to a scanned row. Returns the SAME object
+ * (reference-equal) when the edit is out of range — garbage never reaches
+ * state, and callers can use the identity check to know nothing changed.
+ */
+export function reviseMatchedRow(row: MatchedRow, edit: MatchedRowEdit): MatchedRow {
+  const next: MatchedRow = { ...row };
+
+  if ("grade" in edit) {
+    const g = edit.grade;
+    if (g == null) {
+      next.grade = null;
+    } else if (Number.isFinite(g) && g >= 0 && g <= 100) {
+      next.grade = g;
+    } else {
+      return row; // out of range — reject, keep what was there
+    }
+    // A human just read the number off the sheet and typed it. The "our two
+    // reads disagreed" flag is answered by that; leaving it up would keep
+    // shouting about a question the student already settled.
+    next.uncertain = false;
+    next.otherGrade = null;
+  }
+
+  if ("credits" in edit) {
+    const c = edit.credits;
+    if (c == null) next.credits = null;
+    else if (Number.isFinite(c) && c >= 0 && c <= 20) next.credits = c;
+    else return row;
+  }
+
+  if ("match" in edit) {
+    next.match = edit.match ?? null;
+    next.matchKind = edit.match ? "manual" : "none";
+    // The student chose; there is nothing left to be ambiguous about.
+    next.ambiguous = false;
+  }
+
+  const changesGrade =
+    next.match != null && next.grade != null && next.match.currentGrade !== next.grade;
+  next.changesGrade = changesGrade;
+  next.overwritesGrade = changesGrade && next.match?.currentGrade != null;
+  next.autoApplySafe =
+    changesGrade &&
+    !next.ambiguous &&
+    !next.overwritesGrade &&
+    (next.matchKind === "code" || next.matchKind === "name" || next.matchKind === "manual");
+  return next;
+}
+
 /**
  * The vision system prompt — read ONLY what is on the sheet, never invent.
  * Written against the REAL TAU "אישור קורסים וציונים" layout (verified on an

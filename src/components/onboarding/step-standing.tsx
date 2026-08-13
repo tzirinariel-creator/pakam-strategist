@@ -2,7 +2,7 @@
 
 import { useCallback, useMemo, useRef, useState } from "react";
 import { useLocale } from "next-intl";
-import { ScanLine, Loader2, GraduationCap, AlertTriangle, Check, PenLine } from "lucide-react";
+import { ScanLine, Loader2, GraduationCap, AlertTriangle, Check, PenLine, Plus, Search } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Bidi } from "@/lib/bidi";
 import { fileToBase64, SCANNER_ACCEPT } from "@/lib/upload";
@@ -11,7 +11,11 @@ import type { ExtractedRow } from "@/lib/grade-sheet";
 import {
   summarizeStanding,
   buildCompletedSeed,
+  aggregateStanding,
+  reviseStandingRow,
+  manualStandingRow,
   type StandingSummary,
+  type StandingRowEdit,
 } from "@/lib/onboarding-standing";
 import { DISCIPLINE_CONFIG, FOCUS_DISCIPLINE_IDS, YEAR_CONFIG, SEMESTER_CONFIG } from "@/lib/constants";
 import { getPlanningAnchor } from "@/lib/academic-calendar";
@@ -139,6 +143,44 @@ export function StepStanding({ allCourses, isLoadingCourses, onDone, onBack }: S
     [allCourses, isHe, upcomingSemester],
   );
 
+  // ── #5/#7 (13.8) — the review is EDITABLE, and it happens here, once ──
+  //
+  // The edit is applied to the summary this screen is holding, and the summary
+  // is then RE-AGGREGATED from its rows. That matters: `confirmScan` below
+  // seeds the whole degree from `summary.completed`, so a correction that lived
+  // in some side state would be displayed and then thrown away on confirm —
+  // which is exactly the bug being fixed.
+  const editRow = useCallback(
+    (index: number, edit: StandingRowEdit) => {
+      setScan((s) => {
+        if (s.kind !== "done") return s;
+        const current = s.summary.rows[index];
+        if (!current) return s;
+        const revised = reviseStandingRow(current, edit);
+        if (revised === current) return s; // out-of-range input — nothing changes
+        const rows = [...s.summary.rows];
+        rows[index] = revised;
+        return { kind: "done", summary: aggregateStanding(rows, allCourses, upcomingSemester) };
+      });
+    },
+    [allCourses, upcomingSemester],
+  );
+
+  /** A course the scan missed entirely — the capability the history step used
+   *  to own. `course` null = a real course outside the PPE catalog. */
+  const addRow = useCallback(
+    (course: CourseWithSchedule | null, name: string) => {
+      setScan((s) => {
+        if (s.kind !== "done") return s;
+        const row = manualStandingRow(course, name);
+        if (s.summary.rows.some((r) => r.key === row.key)) return s; // already listed
+        const rows = [...s.summary.rows, row];
+        return { kind: "done", summary: aggregateStanding(rows, allCourses, upcomingSemester) };
+      });
+    },
+    [allCourses, upcomingSemester],
+  );
+
   const confirmScan = useCallback(
     (summary: StandingSummary) => {
       const placement = summary.placement;
@@ -255,8 +297,8 @@ export function StepStanding({ allCourses, isLoadingCourses, onDone, onBack }: S
         <p className="mx-auto mt-2 max-w-md text-foreground/50">
           {scan.kind === "done"
             ? isHe
-              ? "עברו על הסיכום ואשרו. שום דבר עוד לא נשמר — במסך הבא תוכלו לתקן קורס-קורס."
-              : "Check the summary and confirm. Nothing is saved yet — you can correct it course by course on the next screen."
+              ? "זו הפעם היחידה שתעברו על הגיליון — תקנו כאן כל שורה שנקראה לא נכון, והוסיפו קורס שפספסנו. שום דבר לא נשמר עד סוף ההרשמה."
+              : "This is the one pass over your sheet — fix any row we misread right here, and add a course we missed. Nothing is saved until signup ends."
             : isHe
               ? "אישור קורסים וציונים מהאוניברסיטה — כקובץ PDF או כצילום ברור של הטבלה."
               : "Your official course-and-grades confirmation — as a PDF, or a clear photo of the table."}
@@ -349,6 +391,9 @@ export function StepStanding({ allCourses, isLoadingCourses, onDone, onBack }: S
             summary={scan.summary}
             englishLevel={englishLevel}
             isHe={isHe}
+            allCourses={allCourses}
+            onEditRow={editRow}
+            onAddRow={addRow}
             onConfirm={() => confirmScan(scan.summary)}
             onRedo={() => setScan({ kind: "idle" })}
             onManual={() => onDone({ choice: "returning" })}
@@ -389,6 +434,9 @@ function StandingSummaryCard({
   summary,
   englishLevel,
   isHe,
+  allCourses,
+  onEditRow,
+  onAddRow,
   onConfirm,
   onRedo,
   onManual,
@@ -396,10 +444,28 @@ function StandingSummaryCard({
   summary: StandingSummary;
   englishLevel: string | null;
   isHe: boolean;
+  allCourses: CourseWithSchedule[];
+  onEditRow: (index: number, edit: StandingRowEdit) => void;
+  onAddRow: (course: CourseWithSchedule | null, name: string) => void;
   onConfirm: () => void;
   onRedo: () => void;
   onManual: () => void;
 }) {
+  // One open editor at a time: the course picker lists the whole PPE catalog,
+  // and rendering it inside every row would make a 40-row sheet crawl.
+  const [editingRow, setEditingRow] = useState<number | null>(null);
+  const [search, setSearch] = useState("");
+
+  const searchResults = useMemo(() => {
+    const q = search.trim().toLowerCase();
+    if (q.length < 2) return [];
+    const already = new Set(summary.rows.map((r) => r.key));
+    return allCourses
+      .filter((c) => !already.has(c.code))
+      .filter((c) => `${c.code} ${c.nameHe ?? ""} ${c.nameEn ?? ""}`.toLowerCase().includes(q))
+      .slice(0, 8);
+  }, [search, allCourses, summary.rows]);
+
   const p = summary.placement;
   const yearLabel = p
     ? isHe
@@ -622,9 +688,9 @@ function StandingSummaryCard({
                     text={
                       isHe
                         ? summary.uncertain.length === 1
-                          ? "שורה אחת יצאה שונה בין שתי הקריאות שלנו. בדקו אותה במסך הבא מול הגיליון שלכם."
-                          : `${summary.uncertain.length} שורות יצאו שונה בין שתי הקריאות שלנו. בדקו אותן במסך הבא מול הגיליון שלכם.`
-                        : `${summary.uncertain.length} rows came out differently on our two reads. Check them against your sheet on the next screen.`
+                          ? 'שורה אחת יצאה שונה בין שתי הקריאות שלנו. היא מסומנת "לבדיקה" ברשימה למטה — השוו לגיליון ותקנו שם.'
+                          : `${summary.uncertain.length} שורות יצאו שונה בין שתי הקריאות שלנו. הן מסומנות "לבדיקה" ברשימה למטה — השוו לגיליון ותקנו שם.`
+                        : `${summary.uncertain.length} rows came out differently on our two reads. They're marked "Check" in the list below — compare them with your sheet and fix them there.`
                     }
                   />
                 </span>
@@ -634,68 +700,297 @@ function StandingSummaryCard({
         </div>
       )}
 
-      {/* The courses themselves — the student must be able to SEE what we read
-          before agreeing to it. */}
-      <details className="rounded-2xl border border-border bg-card/50 p-4">
+      {/* The courses themselves. This used to be a collapsed, read-only list
+          with the real review two screens later (#7 — "זאת קצת כפילות"). It is
+          now THE review: open by default, every row correctable in place, and
+          the only pass the student makes over their sheet. */}
+      <details open className="rounded-2xl border border-border bg-card/50 p-4">
         <summary className="cursor-pointer list-none text-sm font-semibold text-accent-brand underline-offset-2 hover:underline">
           {isHe
             ? countPhrase(
                 summary.rows.length,
-                "להציג את השורה שקראנו",
-                `להציג את כל ${summary.rows.length} השורות שקראנו`,
+                "השורה שקראנו — אפשר לתקן",
+                `${summary.rows.length} השורות שקראנו — אפשר לתקן כל אחת`,
               )
-            : `Show all ${summary.rows.length} rows we read`}
+            : `${summary.rows.length} rows we read — every one is editable`}
         </summary>
+        <p className="mt-1.5 text-xs leading-relaxed text-foreground/45">
+          {isHe
+            ? "הסירו סימון משורה שאינה שלכם, תקנו ציון שנקרא לא נכון, ושייכו שורה לקורס הנכון. סף מעבר 60, ובאנגלית 70."
+            : "Un-tick a row that isn't yours, fix a grade we misread, and point a row at the right course. The pass bar is 60, and 70 in English."}
+        </p>
         <ul className="mt-3 space-y-1.5">
-          {summary.rows.map((r, i) => (
-            <li
-              key={`${r.key}-${i}`}
-              className="flex flex-wrap items-center gap-x-2 gap-y-1 rounded-lg border border-border/50 bg-background/40 px-2.5 py-2 text-xs"
-            >
-              <span className="min-w-0 flex-1 truncate font-medium text-foreground/80">{r.name}</span>
-              {r.grade != null && (
-                <bdi dir="ltr" className="font-mono text-foreground/60">
-                  {r.grade}
-                </bdi>
-              )}
-              <span
+          {summary.rows.map((r, i) => {
+            const included = !r.excluded;
+            return (
+              <li
+                key={`${r.key}-${i}`}
                 className={cn(
-                  "rounded-full px-2 py-0.5 text-[11px] font-medium",
-                  r.status === "COMPLETED"
-                    ? "bg-emerald-500/10 text-emerald-500"
-                    : r.status === "FAILED"
-                      ? "bg-amber-500/10 text-amber-500"
-                      : "bg-foreground/8 text-foreground/50",
+                  "flex flex-wrap items-center gap-x-2 gap-y-1 rounded-lg border px-2.5 py-2 text-xs",
+                  included ? "border-border/50 bg-background/40" : "border-dashed border-border/50 bg-background/20 opacity-60",
                 )}
               >
-                {r.status === "COMPLETED"
-                  ? isHe
-                    ? "הושלם"
-                    : "Completed"
-                  : r.status === "FAILED"
-                    ? isHe
-                      ? "לא עבר"
-                      : "Not passed"
-                    : r.status === "EXEMPT"
-                      ? isHe
-                        ? "פטור"
-                        : "Exempt"
-                      : r.status === "IN_PROGRESS"
-                        ? isHe
-                          ? "בלימוד"
-                          : "In progress"
-                        : isHe
-                          ? "לא ברור"
-                          : "Unclear"}
-              </span>
-              {r.uncertain && (
-                <span className="rounded-full bg-amber-500/10 px-2 py-0.5 text-[11px] font-medium text-amber-500">
-                  {isHe ? "לבדיקה" : "Check"}
+                <button
+                  type="button"
+                  role="checkbox"
+                  aria-checked={included}
+                  aria-label={isHe ? `כללו את ${r.name}` : `Include ${r.name}`}
+                  onClick={() => onEditRow(i, { excluded: included })}
+                  className={cn(
+                    "flex size-4.5 shrink-0 items-center justify-center rounded border transition-colors",
+                    included ? "border-emerald-500 bg-emerald-500 text-white" : "border-foreground/25",
+                  )}
+                >
+                  {included && <Check className="size-3" />}
+                </button>
+                <span
+                  className={cn(
+                    "min-w-0 flex-1 truncate font-medium text-foreground/80",
+                    !included && "line-through",
+                  )}
+                >
+                  {r.name}
                 </span>
-              )}
-            </li>
-          ))}
+                {r.grade != null && (
+                  <bdi dir="ltr" className="font-mono text-foreground/60">
+                    {r.grade}
+                  </bdi>
+                )}
+                <span
+                  className={cn(
+                    "rounded-full px-2 py-0.5 text-[11px] font-medium",
+                    r.status === "COMPLETED"
+                      ? "bg-emerald-500/10 text-emerald-500"
+                      : r.status === "FAILED"
+                        ? "bg-amber-500/10 text-amber-500"
+                        : "bg-foreground/8 text-foreground/50",
+                  )}
+                >
+                  {r.status === "COMPLETED"
+                    ? isHe
+                      ? "הושלם"
+                      : "Completed"
+                    : r.status === "FAILED"
+                      ? isHe
+                        ? "לא עבר"
+                        : "Not passed"
+                      : r.status === "EXEMPT"
+                        ? isHe
+                          ? "פטור"
+                          : "Exempt"
+                        : r.status === "IN_PROGRESS"
+                          ? isHe
+                            ? "בלימוד"
+                            : "In progress"
+                          : isHe
+                            ? "לא ברור"
+                            : "Unclear"}
+                </span>
+                {r.uncertain && (
+                  <span className="rounded-full bg-amber-500/10 px-2 py-0.5 text-[11px] font-medium text-amber-500">
+                    {isHe ? "לבדיקה" : "Check"}
+                  </span>
+                )}
+                {r.manual && (
+                  // Never let a course the STUDENT typed look like something we
+                  // read off their official document.
+                  <span className="rounded-full bg-accent-brand/10 px-2 py-0.5 text-[11px] font-medium text-accent-brand">
+                    {isHe ? "הוספתם" : "You added"}
+                  </span>
+                )}
+                <button
+                  type="button"
+                  onClick={() => setEditingRow((cur) => (cur === i ? null : i))}
+                  aria-expanded={editingRow === i}
+                  aria-controls={`standing-edit-${i}`}
+                  className={cn(
+                    "inline-flex shrink-0 items-center gap-1 rounded-md px-1.5 py-1 text-[11px] font-semibold transition-colors",
+                    editingRow === i
+                      ? "bg-accent-brand/15 text-accent-brand"
+                      : "text-foreground/45 hover:bg-foreground/5 hover:text-foreground/70",
+                  )}
+                >
+                  <PenLine className="size-3" />
+                  {isHe ? "תיקון" : "Fix"}
+                </button>
+
+                {editingRow === i && (
+                  <div
+                    id={`standing-edit-${i}`}
+                    className="mt-1 w-full space-y-2 rounded-lg border border-accent-brand/25 bg-accent-brand/[0.04] p-2.5"
+                  >
+                    <div className="flex flex-wrap items-end gap-3">
+                      <div className="flex flex-col gap-1">
+                        {/* No "0–100" in the Hebrew label: a digit-dash-digit
+                            range inside an RTL line renders reversed. The range
+                            is stated below with a Hebrew word between the two
+                            numbers, so their order survives. */}
+                        <label
+                          htmlFor={`standing-grade-${i}`}
+                          className="text-[11px] font-semibold text-foreground/60"
+                        >
+                          {isHe ? "ציון" : "Grade (0-100)"}
+                        </label>
+                        <input
+                          id={`standing-grade-${i}`}
+                          type="number"
+                          inputMode="numeric"
+                          min={0}
+                          max={100}
+                          step={1}
+                          dir="ltr"
+                          value={r.grade ?? ""}
+                          onChange={(e) => {
+                            const raw = e.target.value;
+                            if (raw === "") {
+                              onEditRow(i, { grade: null });
+                              return;
+                            }
+                            const n = Number(raw);
+                            // Out of range is rejected, never clamped — a clamp
+                            // would invent a grade the sheet doesn't show.
+                            if (!Number.isFinite(n)) return;
+                            onEditRow(i, { grade: n });
+                          }}
+                          className="w-20 rounded-md border border-border bg-background px-2 py-1.5 text-center font-mono text-sm text-foreground focus:border-accent-brand focus:outline-none focus:ring-1 focus:ring-accent-brand/40"
+                        />
+                      </div>
+
+                      {/* ש״ס are stored on the row only for a course outside the
+                          PPE catalog — a catalog course takes its ש״ס from the
+                          catalog, so editing them there would change nothing. */}
+                      {!r.inCatalog && (
+                        <div className="flex flex-col gap-1">
+                          <label
+                            htmlFor={`standing-credits-${i}`}
+                            className="text-[11px] font-semibold text-foreground/60"
+                          >
+                            {isHe ? "ש״ס" : "Credits"}
+                          </label>
+                          <input
+                            id={`standing-credits-${i}`}
+                            type="number"
+                            inputMode="decimal"
+                            min={0}
+                            max={20}
+                            step={0.5}
+                            dir="ltr"
+                            value={r.credits ?? ""}
+                            onChange={(e) => {
+                              const raw = e.target.value;
+                              if (raw === "") {
+                                onEditRow(i, { credits: null });
+                                return;
+                              }
+                              const n = Number(raw);
+                              if (!Number.isFinite(n)) return;
+                              onEditRow(i, { credits: n });
+                            }}
+                            className="w-20 rounded-md border border-border bg-background px-2 py-1.5 text-center font-mono text-sm text-foreground focus:border-accent-brand focus:outline-none focus:ring-1 focus:ring-accent-brand/40"
+                          />
+                        </div>
+                      )}
+
+                      <div className="flex min-w-0 flex-1 flex-col gap-1">
+                        <label
+                          htmlFor={`standing-course-${i}`}
+                          className="text-[11px] font-semibold text-foreground/60"
+                        >
+                          {isHe ? "איזה קורס זה באמת" : "Which course this really is"}
+                        </label>
+                        <select
+                          id={`standing-course-${i}`}
+                          value={r.inCatalog ? r.key : ""}
+                          onChange={(e) => {
+                            const code = e.target.value;
+                            onEditRow(i, {
+                              course: code
+                                ? (allCourses.find((c) => c.code === code) ?? null)
+                                : null,
+                            });
+                          }}
+                          className="w-full min-w-40 rounded-md border border-border bg-background px-2 py-1.5 text-xs text-foreground focus:border-accent-brand focus:outline-none focus:ring-1 focus:ring-accent-brand/40"
+                        >
+                          <option value="">
+                            {isHe ? "לא ברשימת פכ״מ — לשמור בשם מהגיליון" : "Outside the PPE list — keep the sheet's name"}
+                          </option>
+                          {allCourses.map((c) => (
+                            <option key={c.code} value={c.code}>
+                              {c.nameHe} · {c.code}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+                    </div>
+                    <p className="text-[11px] leading-relaxed text-foreground/45">
+                      {isHe
+                        ? "ציון תקין הוא 0 עד 100. מה שתתקנו כאן הוא מה שייכנס לתואר שלכם; שורה שאינה שלכם — הסירו את הסימון שלה."
+                        : "A valid grade is 0 to 100. What you fix here is what goes into your degree; a row that isn't yours — just un-tick it."}
+                    </p>
+                  </div>
+                )}
+              </li>
+            );
+          })}
         </ul>
+
+        {/* #7 — "add a course we missed" moved here from the history step, which
+            a scanned student no longer sees. Dropping it would have cost a real
+            capability: a course the scan skipped could never be recorded. */}
+        <div className="mt-3 border-t border-border/40 pt-3">
+          <p className="text-xs font-semibold text-foreground/70">
+            {isHe ? "פספסנו קורס שעשיתם? הוסיפו אותו" : "Did we miss a course you took? Add it"}
+          </p>
+          <div className="relative mt-2">
+            <Search className="pointer-events-none absolute inset-y-0 start-3 my-auto size-4 text-foreground/30" />
+            <input
+              type="text"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              aria-label={isHe ? "חיפוש קורס להוספה" : "Search for a course to add"}
+              placeholder={isHe ? "שם הקורס או מספרו" : "Course name or code"}
+              className="w-full rounded-lg border border-border bg-card py-2 ps-9 pe-3 text-sm text-foreground placeholder:text-foreground/30 focus:border-foreground/30 focus:outline-none"
+            />
+          </div>
+          {searchResults.length > 0 && (
+            <div className="mt-2 max-h-56 space-y-1 overflow-y-auto rounded-lg border border-border bg-card p-1">
+              {searchResults.map((c) => (
+                <button
+                  key={c.code}
+                  type="button"
+                  onClick={() => {
+                    onAddRow(c, c.nameHe);
+                    setSearch("");
+                  }}
+                  className="flex w-full items-center gap-2 rounded-md px-2 py-2 text-start transition-colors hover:bg-foreground/5"
+                >
+                  <Plus className="size-3.5 shrink-0 text-emerald-500" />
+                  <span className="min-w-0 flex-1 truncate text-sm text-foreground/80">
+                    {isHe ? c.nameHe : (c.nameEn ?? c.nameHe)}
+                  </span>
+                  <span className="shrink-0 font-mono text-[11px] text-foreground/40">
+                    <bdi dir="ltr">{c.credits}</bdi> {isHe ? "ש״ס" : "cr."}
+                  </span>
+                </button>
+              ))}
+            </div>
+          )}
+          {search.trim().length >= 2 && searchResults.length === 0 && (
+            <button
+              type="button"
+              onClick={() => {
+                onAddRow(null, search.trim());
+                setSearch("");
+              }}
+              className="mt-2 flex w-full items-center gap-2 rounded-lg border border-dashed border-accent-brand/40 bg-accent-brand/[0.04] px-3 py-2 text-start text-sm font-medium text-accent-brand transition-colors hover:bg-accent-brand/10"
+            >
+              <Plus className="size-4 shrink-0" />
+              {isHe
+                ? `הוסיפו "${search.trim()}" — קורס שאינו ברשימת פכ״מ`
+                : `Add "${search.trim()}" — a course outside the PPE list`}
+            </button>
+          )}
+        </div>
       </details>
 
       <div className="flex flex-col gap-2.5">

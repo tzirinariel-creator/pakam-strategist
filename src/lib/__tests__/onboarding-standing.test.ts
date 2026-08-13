@@ -268,3 +268,177 @@ describe("buildCompletedSeed", () => {
     expect(seed["0651-1001"]).toMatchObject({ plannedYear: 1, plannedSemester: "FALL" });
   });
 });
+
+// =========================================================================
+// #5 + #7 (13.8) — the standing review is EDITABLE, and it is the only pass.
+//
+// The screen printed "זה מה שקראנו מהגיליון" with no control at all, and the
+// real review lived two steps later ("למה יש עוד שלב של מעבר על הגיליון - זאת
+// קצת כפילות"). Now the correction happens here, so the thing that has to be
+// true is: the corrected value is the value that reaches the seed the whole
+// degree is built from. A correction that only changes what is on screen is
+// the bug, not the fix.
+// =========================================================================
+import {
+  aggregateStanding,
+  reviseStandingRow,
+  manualStandingRow,
+} from "@/lib/onboarding-standing";
+
+const revise = (
+  s: ReturnType<typeof summarize>,
+  index: number,
+  edit: Parameters<typeof reviseStandingRow>[1],
+  upcoming: "FALL" | "SPRING" = "FALL",
+) => {
+  const rows = [...s.rows];
+  rows[index] = reviseStandingRow(rows[index]!, edit);
+  return aggregateStanding(rows, CATALOG, upcoming);
+};
+
+describe("reviseStandingRow (#5) — the corrected grade is the saved grade", () => {
+  const scanned = () =>
+    summarize([
+      // The scan misread 86 as 68.
+      row({ courseCode: "0651-1001", courseName: "מבוא לפילוסופיה", grade: 68, semester: "2024/1" }),
+      row({ courseCode: "1011-1001", courseName: "מבוא לכלכלה", grade: 90, semester: "2024/1" }),
+    ]);
+
+  it("carries a corrected grade all the way into the completed seed", () => {
+    const fixed = revise(scanned(), 0, { grade: 86 });
+    const seed = buildCompletedSeed(fixed, fixed.placement!);
+    // THE assertion this whole feature exists for: what the student typed is
+    // what step-ready hands to saveCompletedCourses.
+    expect(seed["0651-1001"]?.grade).toBe(86);
+    expect(fixed.rows[0]!.grade).toBe(86);
+  });
+
+  it("re-derives status, credits and the average-bearing counts after an edit", () => {
+    const before = scanned();
+    expect(before.completed.map((r) => r.key)).toEqual(["0651-1001", "1011-1001"]);
+    // Correct the same row DOWN below the pass bar: it stops being a
+    // completion, and its ש״ס stop counting.
+    const failed = revise(before, 0, { grade: 45 });
+    expect(failed.rows[0]!.status).toBe("FAILED");
+    expect(failed.completed.map((r) => r.key)).toEqual(["1011-1001"]);
+    expect(failed.creditsEarned).toBe(5); // only מבוא לכלכלה
+    expect(Object.keys(buildCompletedSeed(failed, failed.placement!))).toEqual(["1011-1001"]);
+  });
+
+  it("keeps the English bar at 70 after an edit, not 60", () => {
+    const s = summarize([
+      row({ courseCode: "ENG-1", courseName: "אנגלית מתקדמים ב׳", grade: 90, semester: "2024/1" }),
+    ]);
+    expect(revise(s, 0, { grade: 65 }).rows[0]!.status).toBe("FAILED");
+    expect(revise(s, 0, { grade: 70 }).rows[0]!.status).toBe("COMPLETED");
+  });
+
+  it("rejects an out-of-range grade or ש״ס and changes nothing", () => {
+    const r = scanned().rows[0]!;
+    expect(reviseStandingRow(r, { grade: 101 })).toBe(r);
+    expect(reviseStandingRow(r, { grade: -5 })).toBe(r);
+    expect(reviseStandingRow(r, { credits: 25 })).toBe(r);
+  });
+
+  it("a typed grade answers a *** row, and clearing it restores what the sheet said", () => {
+    const s = summarize([
+      row({ courseCode: "1031-1001", courseName: "מבוא למדע המדינה", grade: null, inProgress: true, semester: "2024/1" }),
+    ]);
+    expect(s.rows[0]!.status).toBe("IN_PROGRESS");
+    const graded = reviseStandingRow(s.rows[0]!, { grade: 88 });
+    expect(graded.status).toBe("COMPLETED");
+    // Round-trip: we never destroy what the document actually printed.
+    expect(reviseStandingRow(graded, { grade: null }).status).toBe("IN_PROGRESS");
+  });
+
+  it("re-matching a row to the right course moves its credits and its seed key", () => {
+    const s = summarize([
+      row({ courseName: "קורס שלא זוהה", grade: 88, credits: 2, semester: "2024/1" }),
+    ]);
+    expect(s.rows[0]!.inCatalog).toBe(false);
+    const fixed = revise(s, 0, { course: CATALOG[1]! }); // מבוא לכלכלה, 5 ש״ס
+    expect(fixed.rows[0]!.inCatalog).toBe(true);
+    expect(fixed.creditsEarned).toBe(5);
+    const seed = buildCompletedSeed(fixed, fixed.placement!);
+    expect(Object.keys(seed)).toEqual(["1011-1001"]);
+    expect(seed["1011-1001"]?.customName).toBeUndefined();
+    expect(seed["1011-1001"]?.grade).toBe(88);
+  });
+
+  it("an edited ש״ס on an off-catalog row is the value that gets saved", () => {
+    const s = summarize([
+      row({ courseCode: "9999-1234", courseName: "דוגרי", grade: 92, credits: 2, semester: "2024/1" }),
+    ]);
+    const fixed = revise(s, 0, { credits: 4 });
+    const seed = buildCompletedSeed(fixed, fixed.placement!);
+    expect(seed["9999-1234"]).toMatchObject({ customName: "דוגרי", credits: 4, grade: 92 });
+  });
+});
+
+describe("excluding a row (#5) — visible, reversible, counted nowhere", () => {
+  const scanned = () =>
+    summarize([
+      row({ courseCode: "0651-1001", courseName: "מבוא לפילוסופיה", grade: 88, semester: "2024/1" }),
+      row({ courseCode: "1011-1001", courseName: "מבוא לכלכלה", grade: 90, semester: "2024/1" }),
+    ]);
+
+  it("drops the row from every count and from the seed, but keeps it on screen", () => {
+    const s = revise(scanned(), 1, { excluded: true });
+    // Still rendered — the student must be able to see (and undo) the choice.
+    expect(s.rows).toHaveLength(2);
+    expect(s.rows[1]!.excluded).toBe(true);
+    expect(s.completed.map((r) => r.key)).toEqual(["0651-1001"]);
+    expect(s.creditsEarned).toBe(4);
+    expect(Object.keys(buildCompletedSeed(s, s.placement!))).toEqual(["0651-1001"]);
+  });
+
+  it("is reversible — re-including restores the row everywhere", () => {
+    const off = revise(scanned(), 1, { excluded: true });
+    const back = aggregateStanding(
+      off.rows.map((r, i) => (i === 1 ? reviseStandingRow(r, { excluded: false }) : r)),
+      CATALOG,
+      "FALL",
+    );
+    expect(back.completed).toHaveLength(2);
+    expect(back.creditsEarned).toBe(9);
+  });
+});
+
+describe("manualStandingRow (#7) — a course the scan missed", () => {
+  it("adds a catalog course as a completion the student is asserting", () => {
+    const s = summarize([
+      row({ courseCode: "0651-1001", courseName: "מבוא לפילוסופיה", grade: 88, semester: "2024/1" }),
+    ]);
+    const added = aggregateStanding(
+      [...s.rows, manualStandingRow(CATALOG[2]!, "מבוא למדע המדינה")],
+      CATALOG,
+      "FALL",
+    );
+    const manual = added.rows[1]!;
+    expect(manual.manual).toBe(true);
+    // No grade yet, but a completion all the same — exactly what the history
+    // step allowed before this screen absorbed it.
+    expect(manual.status).toBe("COMPLETED");
+    expect(added.creditsEarned).toBe(8); // 4 + 4
+    const seed = buildCompletedSeed(added, added.placement!);
+    expect(seed["1031-1001"]).toMatchObject({ courseCode: "1031-1001", grade: null });
+  });
+
+  it("adds an off-catalog course under the student's own name, with editable ש״ס", () => {
+    const s = summarize([
+      row({ courseCode: "0651-1001", courseName: "מבוא לפילוסופיה", grade: 88, semester: "2024/1" }),
+    ]);
+    const rows = [...s.rows, manualStandingRow(null, "דוגרי")];
+    rows[1] = reviseStandingRow(rows[1]!, { credits: 4 });
+    rows[1] = reviseStandingRow(rows[1]!, { grade: 92 });
+    const added = aggregateStanding(rows, CATALOG, "FALL");
+    const seed = buildCompletedSeed(added, added.placement!);
+    expect(seed["CUSTOM-דוגרי"]).toMatchObject({ customName: "דוגרי", credits: 4, grade: 92 });
+  });
+
+  it("keeps a manual row COMPLETED when its grade is cleared again", () => {
+    const manual = manualStandingRow(null, "דוגרי");
+    const graded = reviseStandingRow(manual, { grade: 92 });
+    expect(reviseStandingRow(graded, { grade: null }).status).toBe("COMPLETED");
+  });
+});

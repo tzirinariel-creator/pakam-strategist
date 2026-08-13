@@ -28,7 +28,9 @@ import { LiveTimetable, type SessionGroupSelections } from "./live-timetable";
 import { InsightsBar } from "./insights-bar";
 import { DegreeInfoCard } from "./degree-info-card";
 import { SemesterSummary } from "./semester-summary";
-import { CustomCourseModal } from "./custom-course-modal";
+import { CustomCourseModal, type CustomCourseDraft } from "./custom-course-modal";
+import { applyResolvedCustomIds } from "./custom-course-ids";
+import { api } from "@/lib/trpc/react";
 import { SemesterIntroCard } from "./semester-intro-card";
 import { AnchoredTour, PLANNER_STEPS } from "../anchored-tour";
 import { ExamGantt } from "./exam-gantt";
@@ -51,7 +53,24 @@ interface SemesterPlannerProps {
   data: OnboardingData;
   allCourses: CourseWithSchedule[];
   isLoadingCourses: boolean;
-  onFinish: (plannedSemesters: PlannedSemester[], sessionGroupSelections: SessionGroupSelections) => void;
+  /**
+   * Receives the finished plan.
+   *
+   * `plannedSemesters` carries REAL catalog course ids only: a course the
+   * student added by hand is registered with the server first (#8), so its
+   * client-side `custom-…` id has already been swapped for the persistent one
+   * by the time this fires — no caller ever has to drop it again.
+   *
+   * `disciplineOverrides` (courseId → discipline) is the student's own
+   * attribution: a re-filed catalog course, or an off-catalog course they
+   * declared approved for their degree. Callers that persist the plan must
+   * pass it through to savePlan, or the declaration is lost on every re-save.
+   */
+  onFinish: (
+    plannedSemesters: PlannedSemester[],
+    sessionGroupSelections: SessionGroupSelections,
+    disciplineOverrides: Record<string, string>,
+  ) => void;
   /**
    * Course ids the student already COMPLETED elsewhere (the onboarding history
    * step, or a saved academic record). These are excluded from the editable
@@ -72,6 +91,9 @@ interface SemesterPlannerProps {
   /** Existing per-course session-group choices to restore, so re-saving an
    *  edited plan doesn't drop them. Keyed by course code. */
   initialSessionGroupSelections?: SessionGroupSelections;
+  /** Discipline attributions already saved for this plan (courseId →
+   *  discipline), so re-saving doesn't wipe a student's declaration (#8). */
+  initialDisciplineOverrides?: Record<string, string>;
   /** True while the parent is persisting the plan — drives the finish button's
    *  "saving…" state (#18). Omitted in onboarding (finish just advances a step). */
   isSaving?: boolean;
@@ -91,6 +113,7 @@ export function SemesterPlanner({
   externalCompletedCourseIds,
   initialPlannedSemesters,
   initialSessionGroupSelections,
+  initialDisciplineOverrides,
   isSaving = false,
   onDirty,
 }: SemesterPlannerProps) {
@@ -141,7 +164,7 @@ export function SemesterPlanner({
   const [summaryPref, setSummaryPref] = useState<boolean | null>(null);
   const setShowSummary = setSummaryPref;
   const [showDegreeModal, setShowDegreeModal] = useState(true);
-  const [customCourses, setCustomCourses] = useState<CourseWithSchedule[]>([]);
+  const [customCourses, setCustomCourses] = useState<CustomCourseDraft[]>([]);
   const [showCustomCourseModal, setShowCustomCourseModal] = useState(false);
   // Session group selections: courseCode → { sessionType → groupCode }
   const [sessionGroupSelections, setSessionGroupSelections] = useState<SessionGroupSelections>(
@@ -156,8 +179,12 @@ export function SemesterPlanner({
     sessionType: string;
     groupCode: string;
   } | null>(null);
-  // Discipline overrides: courseId → discipline key
-  const [disciplineOverrides, setDisciplineOverrides] = useState<Record<string, string>>({});
+  // Discipline overrides: courseId → discipline key. Seeded from the SAVED plan
+  // so an edit-and-resave can't wipe an attribution the student already made
+  // (#8) — these are now persisted, not a local colouring trick.
+  const [disciplineOverrides, setDisciplineOverrides] = useState<Record<string, string>>(
+    () => ({ ...(initialDisciplineOverrides ?? {}) })
+  );
   // #2 follow-up — the pool bubble currently hovered/focused; its sessions
   // ghost on the live grid so the pick happens ON the schedule.
   const [hoverPreviewId, setHoverPreviewId] = useState<string | null>(null);
@@ -476,11 +503,19 @@ export function SemesterPlanner({
   }, [currentYear, currentSemester, mandatoryIds, selectedCourseIds, markDirty, setShowSummary]);
 
   const handleAddCustomCourse = useCallback(
-    (course: CourseWithSchedule) => {
+    (course: CustomCourseDraft) => {
       markDirty();
       setCustomCourses((prev) => [...prev, course]);
       // Auto-select the custom course
       setSelectedCourseIds((prev) => new Set([...prev, course.id]));
+      // A declaration made in the add-modal is an attribution like any other —
+      // route it through the same map the popover writes to, so it persists.
+      if (course.declaredDiscipline) {
+        setDisciplineOverrides((prev) => ({
+          ...prev,
+          [course.id]: course.declaredDiscipline!,
+        }));
+      }
     },
     [markDirty]
   );
@@ -584,7 +619,14 @@ export function SemesterPlanner({
     [customCourses]
   );
 
-  const handleFinish = useCallback(() => {
+  // #8 — turn the client-only custom courses into real Course rows before the
+  // plan is handed over. Until this existed, every caller had to drop them
+  // (their `custom-…` id isn't a UUID) and tell the student their course
+  // "wasn't saved" — the warning shipped, the feature didn't.
+  const registerCustom = api.plan.addCustomCourses.useMutation();
+  const [isRegistering, setIsRegistering] = useState(false);
+
+  const handleFinish = useCallback(async () => {
     // Include current semester in the result (avoiding duplicates)
     const currentKey = `${currentYear}-${currentSemester}`;
     const currentCourseIds = [
@@ -594,12 +636,47 @@ export function SemesterPlanner({
     const withoutCurrent = completedSemesters.filter(
       (s) => `${s.year}-${s.semester}` !== currentKey
     );
-    const allSemesters: PlannedSemester[] = [
+    let allSemesters: PlannedSemester[] = [
       ...withoutCurrent,
       { year: currentYear, semester: currentSemester, courseIds: currentCourseIds },
     ];
-    onFinish(allSemesters, sessionGroupSelections);
-  }, [completedSemesters, currentYear, currentSemester, mandatoryIds, selectedCourseIds, onFinish, sessionGroupSelections]);
+    let overrides = { ...disciplineOverrides };
+
+    // Only the custom courses actually PLACED in a semester need a row.
+    const placedIds = new Set(allSemesters.flatMap((s) => s.courseIds));
+    const toRegister = customCourses.filter(
+      (c) => c.id.startsWith("custom-") && placedIds.has(c.id)
+    );
+    if (toRegister.length > 0) {
+      try {
+        setIsRegistering(true);
+        const res = await registerCustom.mutateAsync({
+          courses: toRegister.map((c) => ({
+            clientId: c.id,
+            name: c.nameHe,
+            credits: c.credits,
+          })),
+        });
+        // Swap every client id for the persistent one — in the semesters AND in
+        // the attribution map, so the declaration lands on the saved row.
+        const swapped = applyResolvedCustomIds(allSemesters, overrides, res.courses);
+        allSemesters = swapped.semesters;
+        overrides = swapped.disciplineOverrides;
+      } catch {
+        // Registering failed → those courses would be silently dropped by the
+        // save. Say so plainly instead (the rest of the plan still saves).
+        toast.error(
+          isHe
+            ? "לא הצלחנו לשמור את הקורסים שהוספתם ידנית — שאר התוכנית נשמרת. נסו שוב בעוד רגע."
+            : "We couldn't save the courses you added manually — the rest of the plan is being saved. Try again shortly.",
+        );
+      } finally {
+        setIsRegistering(false);
+      }
+    }
+
+    onFinish(allSemesters, sessionGroupSelections, overrides);
+  }, [completedSemesters, currentYear, currentSemester, mandatoryIds, selectedCourseIds, onFinish, sessionGroupSelections, customCourses, disciplineOverrides, registerCustom, isHe]);
 
   // ─── Semester picker ──────────────────────────────────────────────
 
@@ -708,7 +785,7 @@ export function SemesterPlanner({
           onPlanNext={handlePlanNext}
           onFinish={handleFinish}
           onBack={() => setShowSummary(false)}
-          isSaving={isSaving}
+          isSaving={isSaving || isRegistering}
           autoRecommended={summaryPref === null && mandatoryHeavy}
         />
         </div>

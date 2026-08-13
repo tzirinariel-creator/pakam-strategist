@@ -11,6 +11,7 @@ import { downloadICSFromSessions } from "@/lib/ics-export";
 import { useRouter } from "@/i18n/navigation";
 import { DISCIPLINE_CONFIG, FOCUS_DISCIPLINE_IDS, SEMESTER_CONFIG, YEAR_CONFIG } from "@/lib/constants";
 import { getCurrentAcademicYear } from "@/lib/miluim";
+import { isPersistedCourseId } from "@/lib/off-catalog";
 import type { OnboardingData } from "./onboarding-wizard";
 import type { PlannedSemester } from "./semester-planner/index";
 import type { CompletedCourse } from "./step-history";
@@ -51,15 +52,18 @@ export function StepReady({ data, plannedSemesters, completedCourses, allCourses
   // separately as COMPLETED, so exclude them from the planned payload to avoid
   // a duplicate UserCourse for the same course.
   const completedCodes = new Set((completedCourses ?? []).map((c) => c.courseCode));
-  // A client-only "custom course" carries a fake courseId (e.g. `custom-<uuid>`)
-  // that is NOT a real catalog UUID, so it isn't in courseMap. savePlan validates
-  // every courseId with z.string().uuid() and rejects the WHOLE save if any is
-  // invalid — so we MUST drop non-catalog ids here. (Persisting custom courses is
-  // a deferred feature; we just toast the student that it wasn't saved.)
+  // #8 — a course the student added by hand IS saved now: the planner registers
+  // it as a real Course row before handing the plan over, so it arrives here
+  // with a persistent id that is deliberately NOT in the public catalog (hence
+  // not in courseMap). Keeping only catalog ids dropped exactly the courses this
+  // note is about, so the filter now also keeps anything carrying a real course
+  // id. A leftover `custom-…` id means registration failed; savePlan validates
+  // every courseId with z.string().uuid() and rejects the WHOLE save if one is
+  // invalid, so that one still has to be left out (and toasted honestly).
   let droppedCustomCourse = false;
   const flattenedCourses = (plannedSemesters ?? []).flatMap((sem) =>
     sem.courseIds.flatMap((courseId) => {
-      if (!courseMap.has(courseId)) {
+      if (!courseMap.has(courseId) && !isPersistedCourseId(courseId)) {
         droppedCustomCourse = true;
         return [];
       }
@@ -343,9 +347,9 @@ export function StepReady({ data, plannedSemesters, completedCourses, allCourses
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [allCourses.length]);
 
-  // Once the save succeeds, gently tell the student if a manually-added custom
-  // course was left out (it carries no real catalog id, so it can't be saved
-  // yet — and we filtered it out above so it never breaks the whole save).
+  // A manually-added course is saved like any other now (#8). This only fires
+  // when REGISTERING one failed, leaving it without a real id — so it says the
+  // course didn't save this time, not that the feature doesn't exist.
   const didToastCustom = useRef(false);
   useEffect(() => {
     if (hasSaved && droppedCustomCourse && !didToastCustom.current) {

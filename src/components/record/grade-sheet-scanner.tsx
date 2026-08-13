@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { useLocale } from "next-intl";
-import { ScanLine, Loader2, Check, AlertTriangle, X, Languages } from "lucide-react";
+import { ScanLine, Loader2, Check, AlertTriangle, X, Languages, PenLine } from "lucide-react";
 import { toast } from "sonner";
 import { advisorError } from "@/lib/advisor-toast";
 import { api } from "@/lib/trpc/react";
@@ -14,7 +14,9 @@ import {
   decideAddition,
   placeScannedRow,
   passBarFor,
+  reviseMatchedRow,
   type MatchedRow,
+  type MatchedRowEdit,
   type UserCourseLite,
 } from "@/lib/grade-sheet";
 import { getWrapTarget, wrapStorageKey } from "@/lib/semester-clock";
@@ -49,6 +51,10 @@ export function GradeSheetScanner() {
   } | null>(null);
   const [checked, setChecked] = useState<Set<number>>(new Set());
   const [applying, setApplying] = useState(false);
+  // #5 (13.8) — which row's correction panel is open. One at a time: the course
+  // picker lists every course in the student's plan, and rendering ~40 of those
+  // for every one of up to 80 rows would make the review list crawl.
+  const [editing, setEditing] = useState<number | null>(null);
   // #23 — English level the scan read off the sheet (no number). Offered as an
   // explicit, declared change (never written silently) and cleared once applied.
   const [scannedEnglish, setScannedEnglish] = useState<EnglishLevel | null>(null);
@@ -86,6 +92,7 @@ export function GradeSheetScanner() {
   const handleFile = async (file: File) => {
     setScanning(true);
     setRows(null);
+    setEditing(null);
     try {
       const { b64, mime } = await fileToBase64(file);
       // Photos are downscaled in fileToBase64; PDFs pass through, so a heavy PDF
@@ -152,6 +159,35 @@ export function GradeSheetScanner() {
       setScanning(false);
       if (fileRef.current) fileRef.current.value = "";
     }
+  };
+
+  /**
+   * #5 (13.8) — a student correction to one row.
+   *
+   * The edit is written back into `rows` itself, which is the exact array
+   * `applySelected` iterates. There is deliberately NO second "edits" state: a
+   * parallel map of corrections is how an edited grade ends up displayed but
+   * never saved, which is the whole bug being fixed here.
+   */
+  const editRow = (i: number, edit: MatchedRowEdit) => {
+    if (!rows) return;
+    const current = rows[i];
+    if (!current) return;
+    const revised = reviseMatchedRow(current, edit);
+    if (revised === current) return; // out-of-range input — nothing changes
+    const next = [...rows];
+    next[i] = revised;
+    setRows(next);
+    // Keep the tick honest. A row the student just corrected into something
+    // saveable is ticked (they told us what it should say — silently leaving it
+    // out would lose the correction); a row they emptied can't be saved at all.
+    const applicable = decideApplication(revised) != null || decideAddition(revised) != null;
+    setChecked((s) => {
+      const n = new Set(s);
+      if (applicable) n.add(i);
+      else n.delete(i);
+      return n;
+    });
   };
 
   const applySelected = async () => {
@@ -238,6 +274,7 @@ export function GradeSheetScanner() {
         }
       }
       setRows(null);
+      setEditing(null);
       setScannedEnglish(null);
       setAvgMismatch(null);
       invalidatePlanData(utils);
@@ -375,9 +412,11 @@ export function GradeSheetScanner() {
         <div className="mt-4 space-y-2">
           <div className="flex items-center justify-between">
             <p className="text-xs font-bold text-foreground/70">
-              {isHe ? `נמצאו ${rows.length} שורות — סמנו מה לשמור:` : `Found ${rows.length} rows — pick what to save:`}
+              {isHe
+                ? `נמצאו ${rows.length} שורות — סמנו מה לשמור, ותקנו כל שורה שנקראה לא נכון:`
+                : `Found ${rows.length} rows — pick what to save, and fix any row we misread:`}
             </p>
-            <button type="button" onClick={() => { setRows(null); setScannedEnglish(null); }} aria-label={isHe ? "סגור" : "Close"} className="rounded-md p-1 text-foreground/30 hover:text-foreground/60">
+            <button type="button" onClick={() => { setRows(null); setEditing(null); setScannedEnglish(null); }} aria-label={isHe ? "סגירה" : "Close"} className="rounded-md p-1 text-foreground/30 hover:text-foreground/60">
               <X className="size-4" />
             </button>
           </div>
@@ -453,7 +492,7 @@ export function GradeSheetScanner() {
                     type="button"
                     role="checkbox"
                     aria-checked={checked.has(i)}
-                    aria-label={isHe ? `עדכן ציון ל${r.courseName}` : `Update grade for ${r.courseName}`}
+                    aria-label={isHe ? `שמרו את ${r.courseName}` : `Save ${r.courseName}`}
                     disabled={!applicable}
                     onClick={toggleRow}
                     className={cn(
@@ -593,6 +632,135 @@ export function GradeSheetScanner() {
                     <span className="rounded bg-foreground/5 px-1.5 py-px text-[10px] text-foreground/45">
                       {isHe ? "לא נכנס לממוצע התואר" : "not in the degree average"}
                     </span>
+                  )}
+
+                  {/* #5 (13.8) — the correction control. Every row can be fixed
+                      BEFORE anything is written: the grade we read, the ש״ס on
+                      an off-plan course, and which course of yours the row
+                      really belongs to. */}
+                  <button
+                    type="button"
+                    onClick={() => setEditing((cur) => (cur === i ? null : i))}
+                    aria-expanded={editing === i}
+                    aria-controls={`scan-edit-${i}`}
+                    className={cn(
+                      "inline-flex shrink-0 items-center gap-1 rounded-md px-1.5 py-1 text-[10px] font-semibold transition-colors",
+                      editing === i
+                        ? "bg-accent-brand/15 text-accent-brand"
+                        : "text-foreground/45 hover:bg-foreground/5 hover:text-foreground/70",
+                    )}
+                  >
+                    <PenLine className="size-3" />
+                    {isHe ? "תיקון" : "Fix"}
+                  </button>
+
+                  {editing === i && (
+                    <div
+                      id={`scan-edit-${i}`}
+                      className="mt-1 w-full space-y-2 rounded-lg border border-accent-brand/25 bg-accent-brand/[0.04] p-2.5"
+                    >
+                      <div className="flex flex-wrap items-end gap-3">
+                        <div className="flex flex-col gap-1">
+                          {/* No "0–100" in the Hebrew label: a digit-dash-digit
+                              range inside an RTL line renders reversed. The
+                              range is stated below, with a Hebrew word between
+                              the two numbers so their order survives. */}
+                          <label htmlFor={`scan-grade-${i}`} className="text-[10px] font-semibold text-foreground/60">
+                            {isHe ? "ציון" : "Grade (0-100)"}
+                          </label>
+                          <input
+                            id={`scan-grade-${i}`}
+                            type="number"
+                            inputMode="numeric"
+                            min={0}
+                            max={100}
+                            step={1}
+                            dir="ltr"
+                            value={r.grade ?? ""}
+                            onChange={(e) => {
+                              const raw = e.target.value;
+                              if (raw === "") {
+                                editRow(i, { grade: null });
+                                return;
+                              }
+                              const n = Number(raw);
+                              // Out of range is REJECTED, never clamped — a
+                              // clamp would invent a grade the sheet doesn't
+                              // show. reviseMatchedRow enforces this too.
+                              if (!Number.isFinite(n)) return;
+                              editRow(i, { grade: n });
+                            }}
+                            className="w-20 rounded-md border border-border bg-background px-2 py-1.5 text-center font-mono text-sm text-foreground focus:border-accent-brand focus:outline-none focus:ring-1 focus:ring-accent-brand/40"
+                          />
+                        </div>
+
+                        {/* ש״ס are only ever WRITTEN for an off-plan addition —
+                            a course already in the plan takes its ש״ס from the
+                            catalog, so offering to edit them there would be a
+                            control that changes nothing. */}
+                        {!r.match && (
+                          <div className="flex flex-col gap-1">
+                            <label htmlFor={`scan-credits-${i}`} className="text-[10px] font-semibold text-foreground/60">
+                              {isHe ? "ש״ס" : "Credits"}
+                            </label>
+                            <input
+                              id={`scan-credits-${i}`}
+                              type="number"
+                              inputMode="decimal"
+                              min={0}
+                              max={20}
+                              step={0.5}
+                              dir="ltr"
+                              value={r.credits ?? ""}
+                              onChange={(e) => {
+                                const raw = e.target.value;
+                                if (raw === "") {
+                                  editRow(i, { credits: null });
+                                  return;
+                                }
+                                const n = Number(raw);
+                                if (!Number.isFinite(n)) return;
+                                editRow(i, { credits: n });
+                              }}
+                              className="w-20 rounded-md border border-border bg-background px-2 py-1.5 text-center font-mono text-sm text-foreground focus:border-accent-brand focus:outline-none focus:ring-1 focus:ring-accent-brand/40"
+                            />
+                          </div>
+                        )}
+
+                        <div className="flex min-w-0 flex-1 flex-col gap-1">
+                          <label htmlFor={`scan-match-${i}`} className="text-[10px] font-semibold text-foreground/60">
+                            {isHe ? "לאיזה קורס שלכם זה שייך" : "Which of your courses this is"}
+                          </label>
+                          <select
+                            id={`scan-match-${i}`}
+                            value={r.match?.userCourseId ?? ""}
+                            onChange={(e) => {
+                              const id = e.target.value;
+                              editRow(i, {
+                                match: id
+                                  ? (userCourses.find((c) => c.userCourseId === id) ?? null)
+                                  : null,
+                              });
+                            }}
+                            className="w-full min-w-40 rounded-md border border-border bg-background px-2 py-1.5 text-xs text-foreground focus:border-accent-brand focus:outline-none focus:ring-1 focus:ring-accent-brand/40"
+                          >
+                            <option value="">
+                              {isHe ? "לא בתוכנית — יתווסף כקורס חדש" : "Not in the plan — add as a new course"}
+                            </option>
+                            {userCourses.map((c) => (
+                              <option key={c.userCourseId} value={c.userCourseId}>
+                                {c.nameHe} · {c.courseCode}
+                              </option>
+                            ))}
+                          </select>
+                        </div>
+                      </div>
+                      <p className="text-[10px] leading-relaxed text-foreground/45">
+                        {isHe
+                          ? "ציון תקין הוא 0 עד 100. מה שתתקנו כאן הוא מה שיישמר; כדי לוותר על השורה — הסירו את הסימון שלה."
+                          : "A valid grade is 0 to 100. What you fix here is what gets saved; to leave a row out, un-tick it."}
+                      </p>
+                    </div>
                   )}
                 </li>
               );

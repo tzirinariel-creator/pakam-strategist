@@ -56,14 +56,20 @@ export interface OnboardingData {
   semesterExplicit?: boolean;
 }
 
-// Welcome → Standing → Profile → History → SemesterPlanner → Ready
+// Welcome → Standing → Profile → [History] → SemesterPlanner → Ready
 //
 // #11/#26 — STANDING is the new first question ("do you already have
 // credits?"). It exists because the flow used to assume everyone was a fresh
 // year-1 student and marched a third-year through building a year-1 semester-א׳
 // timetable full of courses they'd already passed. A returning student can now
 // hand the app their grade sheet before they type anything.
-// (History is skipped for a fresh year-1-FALL student — see goNext/goBack.)
+//
+// #7 (13.8) — HISTORY is now shown ONLY on the manual path. A student who
+// scanned their sheet reviewed and CORRECTED every row on the standing screen
+// (#5), so walking them through the same rows again two steps later was pure
+// duplication ("למה יש עוד שלב של מעבר על הגיליון - זאת קצת כפילות"). A
+// returning student who has no sheet still needs the step, and a fresh year-1
+// student still skips it — see `showHistoryStep`.
 const TOTAL_STEPS = 6;
 const STEP_STANDING = 1;
 const STEP_PROFILE = 2;
@@ -93,6 +99,7 @@ function loadOnboardingState(): {
   completedCourses?: Record<string, CompletedCourse>;
   removedCourseCodes?: string[];
   sheetSeeded?: boolean;
+  manualHistory?: boolean;
 } | null {
   if (typeof window === "undefined") return null;
   try {
@@ -126,6 +133,12 @@ export function OnboardingWizard() {
   // a completion on top of an official document. Kept in state (not a ref) so
   // the reconcile effect re-runs when it flips.
   const [sheetSeeded, setSheetSeeded] = useState(false);
+  // #7 (13.8) — TRUE only for a returning student who did NOT hand us a sheet.
+  // They are the one group that still needs the separate history step, because
+  // nothing has been read for them yet. Decided by the student's own answer on
+  // the standing step, never inferred from year/semester (see `hasHistory`
+  // below for why that inference was broken).
+  const [manualHistory, setManualHistory] = useState(false);
 
   // Wrap the history-map setter so a removal (a code that was present and is now
   // gone) is remembered, and a (re)add clears that memory.
@@ -173,13 +186,29 @@ export function OnboardingWizard() {
     setData((prev) => ({ ...prev, ...updates }));
   }, []);
 
-  // The history step ("Your history") is shown only for students who arrive
-  // mid-degree — i.e. they have at least one past semester. A fresh
-  // year-1-FALL student has none, so the step is skipped entirely.
-  const hasHistory = useMemo(
+  // Does this student have any semester behind them at all?
+  //
+  // This ALONE used to decide the history step — and it reads data.year /
+  // data.semester, which are still the year-1 defaults while the student is
+  // standing ON the standing step. So the rail rendered 4 items, the student
+  // scanned their sheet, the year jumped to 3, and the rail silently grew to 5
+  // under them (#7). It is now one of two conditions, and the other one is a
+  // decision the student made explicitly.
+  const hasPastSemesters = useMemo(
     () => getPastSemesters(data.year, data.semester).length > 0,
     [data.year, data.semester]
   );
+
+  // The separate history step exists for exactly one student: a returning one
+  // with no sheet. With a sheet, the review already happened (and was editable)
+  // on the standing step; fresh year-1 students have nothing to review.
+  //
+  // Stable where it used to move on its own: a scan can no longer add a step,
+  // because `manualHistory` is false on the sheet path regardless of the year it
+  // reads. The rail can still change on the MANUAL path when the student picks
+  // their year on the profile step — that one is their own edit, on the screen
+  // they are looking at, and it is the honest answer to what they just said.
+  const showHistoryStep = manualHistory && hasPastSemesters;
 
   // Resolve the history step's completed courses (keyed by code) to catalog
   // ids, so the planner can exclude already-done courses from its pool and
@@ -220,6 +249,7 @@ export function OnboardingWizard() {
       }
       if (s.removedCourseCodes) removedCodes.current = new Set(s.removedCourseCodes);
       if (s.sheetSeeded) setSheetSeeded(true);
+      if (s.manualHistory) setManualHistory(true);
     }
     setHydrated(true);
   }, []);
@@ -228,12 +258,12 @@ export function OnboardingWizard() {
     try {
       localStorage.setItem(
         ONBOARDING_STATE_KEY,
-        JSON.stringify({ step, data, plannedSemesters, sessionGroupSelections, completedCourses, removedCourseCodes: [...removedCodes.current], sheetSeeded })
+        JSON.stringify({ step, data, plannedSemesters, sessionGroupSelections, completedCourses, removedCourseCodes: [...removedCodes.current], sheetSeeded, manualHistory })
       );
     } catch {
       /* storage full / disabled — non-fatal */
     }
-  }, [hydrated, step, data, plannedSemesters, sessionGroupSelections, completedCourses, sheetSeeded]);
+  }, [hydrated, step, data, plannedSemesters, sessionGroupSelections, completedCourses, sheetSeeded, manualHistory]);
 
   // Keep the pre-filled history IN SYNC with the year/semester anchor. Whenever
   // it changes, drop any completed course that's no longer in a past semester (a
@@ -268,9 +298,10 @@ export function OnboardingWizard() {
 
   const goNext = useCallback(() => {
     setStep((prev) => {
-      // From Profile: go to History if the student has one, else skip to Planner.
+      // From Profile: go to History only on the manual path — a scanned student
+      // already reviewed and corrected their rows on the standing step (#7).
       if (prev === STEP_PROFILE) {
-        if (hasHistory) {
+        if (showHistoryStep) {
           seedHistory();
           return STEP_HISTORY;
         }
@@ -278,17 +309,17 @@ export function OnboardingWizard() {
       }
       return Math.min(prev + 1, TOTAL_STEPS - 1);
     });
-  }, [hasHistory, seedHistory]);
+  }, [showHistoryStep, seedHistory]);
 
   const goBack = useCallback(() => {
     setStep((prev) => {
       // From Planner: go back to History if it exists, else to Profile.
       if (prev === STEP_PLANNER) {
-        return hasHistory ? STEP_HISTORY : STEP_PROFILE;
+        return showHistoryStep ? STEP_HISTORY : STEP_PROFILE;
       }
       return Math.max(prev - 1, 0);
     });
-  }, [hasHistory]);
+  }, [showHistoryStep]);
 
   // #11/#26 — the answer to "where are you in the degree?". A fresh student is
   // pinned to year 1 and walks the original path. A returning student who
@@ -302,9 +333,13 @@ export function OnboardingWizard() {
     if (result.choice === "fresh") {
       updateData({ year: 1, semester: "FALL", semesterExplicit: false });
       setSheetSeeded(false);
+      setManualHistory(false);
       setStep(STEP_PROFILE);
       return;
     }
+    // #7 — a returning student who did NOT confirm a sheet gets the history
+    // step; one who did has already reviewed (and corrected) every row here.
+    setManualHistory(!result.fromSheet);
     if (result.year != null && result.semester != null) {
       updateData({
         year: result.year,
@@ -341,7 +376,7 @@ export function OnboardingWizard() {
   const flowSteps: { step: number; he: string; en: string }[] = [
     { step: STEP_STANDING, he: "נקודת הפתיחה", en: "Starting point" },
     { step: STEP_PROFILE, he: "הפרופיל", en: "Profile" },
-    ...(hasHistory ? [{ step: STEP_HISTORY, he: "מה כבר עשיתם", en: "What you've done" }] : []),
+    ...(showHistoryStep ? [{ step: STEP_HISTORY, he: "מה כבר עשיתם", en: "What you've done" }] : []),
     { step: STEP_PLANNER, he: "מערכת השעות", en: "Timetable" },
     { step: STEP_READY, he: "סיום", en: "Done" },
   ];

@@ -20,10 +20,11 @@ import { useTranslations, useLocale } from "next-intl";
 import { toast } from "sonner";
 import { DisciplineBadge } from "@/components/catalog/discipline-badge";
 import { maybeNudgeCourseReview } from "@/components/catalog/review-nudge";
-import { CREDIT_REQUIREMENTS, SEMESTER_CONFIG, YEAR_CONFIG } from "@/lib/constants";
+import { ALL_DISCIPLINE_IDS, CREDIT_REQUIREMENTS, DISCIPLINE_CONFIG, SEMESTER_CONFIG, YEAR_CONFIG } from "@/lib/constants";
 import { courseColor, courseSurface } from "@/lib/course-color";
 import { passBarFor } from "@/lib/constants";
 import { isCurrentlyStudying } from "@/lib/semester-clock";
+import { isStudentAddedCourse, isDeclaredApproved } from "@/lib/off-catalog";
 import { api } from "@/lib/trpc/react";
 import { invalidatePlanData } from "@/lib/trpc/invalidate-plan";
 import {
@@ -133,6 +134,21 @@ export function CourseCard({ userCourse, disabled, currentYear }: CourseCardProp
     .flatMap((year) => (["FALL", "SPRING"] as Semester[]).map((semester) => ({ year, semester })))
     .filter((tgt) => !(tgt.year === userCourse.plannedYear && tgt.semester === userCourse.plannedSemester));
 
+  // #8 — the declaration, editable where the course actually lives. Without it
+  // a student who added a course by hand could only declare it at ADD time and
+  // never change their mind (and never at all for a course a scan added).
+  const declareMutation = api.plan.updateCourse.useMutation({
+    onSuccess: (_data, variables) => {
+      invalidatePlanData(utils);
+      toast.success(
+        variables.disciplineOverride == null
+          ? isHe ? "ההצהרה הוסרה" : "Declaration removed"
+          : isHe ? "נרשם. הקורס נספר לפי ההצהרה שלכם" : "Saved. The course now counts per your declaration",
+      );
+    },
+    onError: () => toast.error(tPlanner("statusSaveError")),
+  });
+
   const {
     attributes,
     listeners,
@@ -153,6 +169,11 @@ export function CourseCard({ userCourse, disabled, currentYear }: CourseCardProp
   // `disciplineOverride` can re-file a course, which used to repaint this card
   // while the grid block (built from course.discipline) kept the old hue.
   const cardColor = courseColor(course.code);
+
+  // #8 — a course the student added themselves, and whether they declared it
+  // approved for their degree.
+  const studentAdded = isStudentAddedCourse(course);
+  const declaredApproved = isDeclaredApproved(userCourse);
 
   const style = {
     ...(confirmRemove
@@ -268,6 +289,7 @@ export function CourseCard({ userCourse, disabled, currentYear }: CourseCardProp
               cause (cancelled / re-coded / unpublished are all possible and we
               genuinely don't know which). */}
           {!course.isActive &&
+            !studentAdded &&
             userCourse.status !== "COMPLETED" &&
             userCourse.status !== "FAILED" && (
               <span
@@ -282,6 +304,32 @@ export function CourseCard({ userCourse, disabled, currentYear }: CourseCardProp
                 {isHe ? "לא בידיעון תשפ״ז" : "Not in 2026/27"}
               </span>
             )}
+          {/* #8 — a course the STUDENT added was never in our catalog to begin
+              with; calling it "missing from the ידיעון" would invent a cause.
+              Show what we actually know, plus their own declaration if made. */}
+          {studentAdded && (
+            <span
+              className={cn(
+                "inline-flex items-center rounded-full px-1.5 py-0.5 text-[10px] font-medium",
+                declaredApproved
+                  ? "bg-emerald-500/12 text-emerald-700 dark:text-emerald-400"
+                  : "bg-foreground/8 text-foreground/50",
+              )}
+              title={
+                declaredApproved
+                  ? isHe
+                    ? "אתם הצהרתם שהקורס מאושר לתואר שלכם, והוא נספר לפי התחום שבחרתם. מי שמאשר בפועל היא המזכירות."
+                    : "You declared this course is approved for your degree; it counts toward the discipline you chose. The secretariat is what actually approves it."
+                  : isHe
+                    ? "הוספתם את הקורס בעצמכם — הוא לא בקטלוג שלנו, וזה לא אומר שהוא לא מאושר לכם. אם הוא מאושר לתואר שלכם, הצהירו על כך בתפריט הקורס ונספור אותו בהתאם."
+                    : "You added this course yourself — it isn't in our catalog, which doesn't mean it isn't approved for you. If your degree approved it, declare that from the course menu and we'll count it accordingly."
+              }
+            >
+              {declaredApproved
+                ? isHe ? "מאושר בהצהרתכם" : "Approved — your declaration"
+                : isHe ? "לא בקטלוג שלנו" : "Not in our catalog"}
+            </span>
+          )}
           {/* 18:19 (#13) — cohort wisdom at the decision moment, right on the
               planned course. Renders only when enough students shared. */}
           {userCourse.status !== "COMPLETED" && (
@@ -337,6 +385,47 @@ export function CourseCard({ userCourse, disabled, currentYear }: CourseCardProp
               {isHe ? SEMESTER_CONFIG[tgt.semester].nameHe : SEMESTER_CONFIG[tgt.semester].nameEn}
             </DropdownMenuItem>
           ))}
+          {/* #8 — for a course the student added themselves: declare that it's
+              approved for their degree, and what it counts toward. Only for
+              off-catalog courses; a catalog course needs no such claim. */}
+          {studentAdded && (
+            <>
+              <DropdownMenuSeparator />
+              <DropdownMenuLabel className="text-[11px] font-normal leading-relaxed text-muted-foreground">
+                {isHe
+                  ? "ההצהרה שלכם: הקורס מאושר לתואר, ונחשב ל…"
+                  : "Your declaration: approved for the degree, counts as…"}
+              </DropdownMenuLabel>
+              <DropdownMenuItem
+                onClick={() =>
+                  declareMutation.mutate({ userCourseId: userCourse.id, disciplineOverride: null })
+                }
+              >
+                {isHe ? "לא הצהרנו" : "Not declared"}
+                {!declaredApproved && " ✓"}
+              </DropdownMenuItem>
+              {ALL_DISCIPLINE_IDS.map((id) => {
+                const cfg = DISCIPLINE_CONFIG[id];
+                if (!cfg) return null;
+                return (
+                  <DropdownMenuItem
+                    key={id}
+                    onClick={() =>
+                      declareMutation.mutate({
+                        userCourseId: userCourse.id,
+                        disciplineOverride: id as Parameters<
+                          typeof declareMutation.mutate
+                        >[0]["disciplineOverride"],
+                      })
+                    }
+                  >
+                    {isHe ? cfg.nameHe : cfg.nameEn}
+                    {userCourse.disciplineOverride === id && " ✓"}
+                  </DropdownMenuItem>
+                );
+              })}
+            </>
+          )}
         </DropdownMenuContent>
       </DropdownMenu>
 

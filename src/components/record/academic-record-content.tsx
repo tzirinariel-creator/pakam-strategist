@@ -192,6 +192,33 @@ export function AcademicRecordContent() {
     [updateCourseMutation, isHe]
   );
 
+  // #8 — the student declares that a course outside OUR catalog is approved for
+  // THEIR degree, and says what it counts toward. Persisted on the existing
+  // UserCourse.disciplineOverride, which the credit engine already honors — so
+  // the declaration immediately moves discipline / focus-area credits. Passing
+  // null clears the declaration.
+  const handleDeclare = useCallback(
+    (userCourseId: string, discipline: string | null) => {
+      type UpdateInput = Parameters<typeof updateCourseMutation.mutate>[0];
+      updateCourseMutation.mutate({
+        userCourseId,
+        // The <select> hands back a plain string from ALL_DISCIPLINE_IDS; the
+        // router validates it against the same registry, so narrow it here.
+        disciplineOverride: discipline as UpdateInput["disciplineOverride"],
+      });
+      toast.success(
+        discipline === null
+          ? isHe
+            ? "ההצהרה הוסרה"
+            : "Declaration removed"
+          : isHe
+            ? "נרשם. הקורס נספר לפי ההצהרה שלכם"
+            : "Saved. The course now counts per your declaration",
+      );
+    },
+    [updateCourseMutation, isHe]
+  );
+
   const handleRemove = useCallback(
     (userCourseId: string) => {
       removeCourseMutation.mutate({ userCourseId });
@@ -460,6 +487,7 @@ export function AcademicRecordContent() {
                           locale={locale}
                           isHe={isHe}
                           onSaveGrade={handleSaveGrade}
+                          onDeclare={handleDeclare}
                           onRemove={handleRemove}
                           savedSignal={savedSignals[uc.id] ?? 0}
                           t={t}

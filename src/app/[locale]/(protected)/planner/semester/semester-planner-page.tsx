@@ -22,6 +22,7 @@ import { cn } from "@/lib/utils";
 import { resolveGoalBucket } from "@/lib/goal-bucket";
 import { getProgramById } from "@/lib/programs/registry";
 import { getPlanningAnchor, deriveYearOfStudy } from "@/lib/academic-calendar";
+import { isPersistedCourseId } from "@/lib/off-catalog";
 import type { OnboardingData } from "@/components/onboarding/onboarding-wizard";
 import type { SessionGroupSelections } from "@/components/onboarding/semester-planner/live-timetable";
 
@@ -125,12 +126,43 @@ export function SemesterPlannerPage() {
     }
   }
 
+  // Same for the student's own discipline attributions (#8) — including the
+  // declaration that an off-catalog course is approved for their degree. These
+  // ride along on savePlan now, so they must be restored before an edit or the
+  // re-save would clear them.
+  const initialDisciplineOverrides: Record<string, string> = {};
+  for (const uc of plannedUserCourses) {
+    if (uc.disciplineOverride) {
+      initialDisciplineOverrides[uc.courseId] = uc.disciplineOverride;
+    }
+  }
+
   if (isLoading) {
     return <ThemedLoader />;
   }
 
   const profile = profileQuery.data;
   const allCourses = (coursesQuery.data ?? []) as CourseWithSchedule[];
+
+  // A course the student added themselves is deliberately kept OUT of the
+  // public catalog (isActive:false — course.list never returns it), so the
+  // planner would otherwise not recognise its own saved rows: the board would
+  // show nothing for them and the next save would drop them, DELETING a course
+  // the student had already saved. Feed the student's own off-catalog courses
+  // back into the pool so they behave like any other planned course (#8).
+  const catalogIds = new Set(allCourses.map((c) => c.id));
+  const ownOffCatalogCourses = Array.from(
+    new Map(
+      userCourses
+        .filter((uc) => !catalogIds.has(uc.courseId))
+        .map((uc) => [
+          uc.courseId,
+          // No sessions exist for these — they were never scraped.
+          { ...(uc.course as unknown as CourseWithSchedule), scheduleSessions: [] },
+        ]),
+    ).values(),
+  );
+  const plannerCourses = [...allCourses, ...ownOffCatalogCourses];
 
   // Build OnboardingData from profile. Year + semester come from the PLANNING
   // ANCHOR (#39): the current semester while it still teaches, otherwise the
@@ -148,30 +180,46 @@ export function SemesterPlannerPage() {
     englishLevel: ((profile as Record<string, unknown>)?.englishLevel as string | null) ?? null,
   };
 
-  const handleFinish = async (plannedSemesters: PlannedSemester[], sessionGroupSelections: SessionGroupSelections) => {
-    // Build courseId → code map for looking up session group selections
-    const courseCodeById = new Map(allCourses.map((c) => [c.id, c.code]));
+  const handleFinish = async (
+    plannedSemesters: PlannedSemester[],
+    sessionGroupSelections: SessionGroupSelections,
+    disciplineOverrides: Record<string, string>,
+  ) => {
+    // Build courseId → code map for looking up session group selections. Built
+    // over plannerCourses (catalog + the student's own off-catalog courses), so
+    // a manually added course is a first-class member of the plan (#8).
+    const courseCodeById = new Map(plannerCourses.map((c) => [c.id, c.code]));
 
     // Convert to the format savePlan expects, including selectedGroups.
-    // A client-only custom course carries a fake id ("custom-<uuid>") that isn't
-    // a catalog UUID; savePlan validates every courseId with z.string().uuid()
-    // and rejects the WHOLE save if any is invalid — so we drop non-catalog ids
-    // here (exactly like the onboarding save, step-ready.tsx) instead of losing
-    // every planned edit to a generic "save failed" (#18).
+    // Custom courses are registered as real Course rows by the planner before we
+    // get here, so a leftover `custom-…` id means that registration FAILED (the
+    // planner already told the student so). savePlan validates every courseId
+    // with z.string().uuid() and rejects the WHOLE save if one is invalid, so
+    // such an id still has to be left out — otherwise a single failure loses
+    // every planned edit (#18).
+    //
+    // The test is "does this id exist in the DB", NOT "is it in the catalog":
+    // a just-registered custom course has a real id that this render's course
+    // list has not seen yet (the plan query refetches only after the save), and
+    // a catalog-membership check would drop the very course we just created.
     let droppedCustomCourse = false;
     const courses = plannedSemesters.flatMap((sem) =>
       sem.courseIds.flatMap((courseId) => {
-        if (!courseCodeById.has(courseId)) {
+        if (!isPersistedCourseId(courseId)) {
           droppedCustomCourse = true;
           return [];
         }
         const code = courseCodeById.get(courseId);
         const groups = code ? sessionGroupSelections[code] : undefined;
+        const discipline = disciplineOverrides[courseId];
         return [{
           courseId,
           plannedYear: sem.year,
           plannedSemester: sem.semester,
           ...(groups && Object.keys(groups).length > 0 ? { selectedGroups: groups } : {}),
+          // The student's own attribution — a re-filed course, or an
+          // off-catalog course they declared approved for their degree.
+          ...(discipline ? { disciplineOverride: discipline } : {}),
         }];
       })
     );
@@ -210,9 +258,12 @@ export function SemesterPlannerPage() {
       // banner from ?saved=1 (the transient toast alone was easy to miss in the
       // navigation transition over the slow prod DB — the core of #18).
       if (droppedCustomCourse) {
-        toast(isHe
-          ? "קורס שאינו בקטלוג לא נשמר בתוכנית — אפשר להוסיף אותו בתיק האקדמי אחרי שתסיימו אותו."
-          : "A course outside the catalog wasn't saved to the plan — add it in your record once completed.");
+        // Not a feature gap any more — this only fires when registering the
+        // manually added course actually failed, so say that, not "we don't
+        // support it".
+        toast.error(isHe
+          ? "קורס שהוספתם ידנית לא נשמר הפעם — שאר התוכנית נשמרה. נסו להוסיף אותו שוב."
+          : "A course you added manually didn't save this time — the rest of the plan did. Try adding it again.");
       }
       toast.success(t("planSaved"));
       router.push("/dashboard?saved=1");
@@ -294,12 +345,13 @@ export function SemesterPlannerPage() {
       {/* Semester Planner */}
       <SemesterPlanner
         data={data}
-        allCourses={allCourses}
+        allCourses={plannerCourses}
         isLoadingCourses={coursesQuery.isLoading}
         onFinish={handleFinish}
         externalCompletedCourseIds={externalCompletedCourseIds}
         initialPlannedSemesters={initialPlannedSemesters}
         initialSessionGroupSelections={initialSessionGroupSelections}
+        initialDisciplineOverrides={initialDisciplineOverrides}
         isSaving={savePlan.isPending}
         onDirty={() => setDirty(true)}
       />

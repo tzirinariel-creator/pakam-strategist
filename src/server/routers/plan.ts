@@ -6,6 +6,7 @@ import { calculateGraduationScore } from "@/lib/grade-calculator";
 import { computeCreditExemption, deriveCurrentGroup, getCurrentAcademicYear, prefersHigherGrade, type MiluimGroupKey } from "@/lib/miluim";
 import { getAcademicNow } from "@/lib/academic-calendar";
 import { getAllDisciplineIds } from "@/lib/programs/registry";
+import { customCourseCode } from "@/lib/off-catalog";
 
 // Discipline enum covering ALL registered programs (PPE, Law, etc.)
 const disciplineEnum = z.enum(getAllDisciplineIds());
@@ -302,6 +303,12 @@ export const planRouter = createTRPCRouter({
               .record(z.string().max(30), z.string().max(30))
               .refine((o) => Object.keys(o).length <= 30, "too many groups")
               .optional(), // { "tutorial": "B", "lab": "01" }
+            // Which discipline this course counts toward FOR THIS STUDENT.
+            // savePlan deletes+recreates every PLANNED row, so without carrying
+            // the override through here, every re-save silently wiped it — a
+            // student who re-filed a course (or declared an off-catalog course
+            // approved for their degree, note #8) lost that on the next edit.
+            disciplineOverride: disciplineEnum.nullish(),
           })
         ),
       })
@@ -360,6 +367,7 @@ export const planRouter = createTRPCRouter({
               plannedYear: c.plannedYear,
               plannedSemester: c.plannedSemester,
               selectedGroups: c.selectedGroups ?? undefined,
+              disciplineOverride: c.disciplineOverride ?? null,
               attemptNumber: 1,
             })),
             skipDuplicates: true,
@@ -399,6 +407,11 @@ export const planRouter = createTRPCRouter({
         plannedYear: z.number().int().min(1).max(4),
         plannedSemester: z.enum(["FALL", "SPRING", "SUMMER"]),
         status: z.enum(["COMPLETED", "FAILED", "EXEMPT"]).default("COMPLETED"),
+        // #8 — the student's own declaration: "this course counts toward my
+        // degree, under this discipline". Written to UserCourse.
+        // disciplineOverride (per-student, never onto the shared Course row),
+        // which the credit engine already honors. Omitted = no declaration.
+        discipline: disciplineEnum.nullish(),
       })
     )
     .mutation(async ({ ctx, input }) => {
@@ -419,7 +432,7 @@ export const planRouter = createTRPCRouter({
         const code =
           input.courseCode && input.courseCode.trim().length >= 4
             ? input.courseCode.trim()
-            : `CUSTOM-${input.courseName.replace(/\s+/g, "-").slice(0, 24)}`;
+            : customCourseCode(input.courseName);
         course = await ctx.db.course.upsert({
           where: { code },
           update: {},
@@ -451,7 +464,16 @@ export const planRouter = createTRPCRouter({
       if (existing) {
         await ctx.db.userCourse.update({
           where: { id: existing.id },
-          data: { status: input.status, grade: input.grade },
+          data: {
+            status: input.status,
+            grade: input.grade,
+            // Only touch the declaration when this call actually carries one —
+            // a re-scan that says nothing about the discipline must not erase
+            // a declaration the student already made.
+            ...(input.discipline !== undefined
+              ? { disciplineOverride: input.discipline ?? null }
+              : {}),
+          },
         });
       } else {
         await ctx.db.userCourse.create({
@@ -462,11 +484,86 @@ export const planRouter = createTRPCRouter({
             grade: input.grade,
             plannedYear: input.plannedYear,
             plannedSemester: input.plannedSemester,
+            disciplineOverride: input.discipline ?? null,
             attemptNumber: 1,
           },
         });
       }
       return { ok: true, courseId: course.id, courseName: course.nameHe };
+    }),
+
+  /**
+   * #8 — Register the Course rows for courses the student added by hand in the
+   * planner ("דוגרי" and friends: real courses, approved for their degree, that
+   * were never in OUR catalog).
+   *
+   * The planner works with client-only ids (`custom-<uuid>`), which savePlan
+   * rightly refuses (`z.string().uuid()`) — which is why a manually added course
+   * used to be dropped with a toast instead of saved. This resolves each one to
+   * a REAL courseId (catalog row when the name matches one, else a minimal
+   * student-owned row) so it can go through savePlan like any other course.
+   *
+   * Creates Course rows only — never a UserCourse. The plan itself stays owned
+   * by savePlan's single atomic delete+create, so a course the student REMOVED
+   * from the plan still disappears.
+   */
+  addCustomCourses: protectedProcedure
+    .input(
+      z.object({
+        courses: z
+          .array(
+            z.object({
+              /** The planner's client-side id — echoed back so the caller can
+               *  swap it for the real courseId in its payload. */
+              clientId: z.string().min(1).max(80),
+              name: z.string().min(1).max(120),
+              credits: z.number().min(0).max(20),
+            })
+          )
+          .max(30),
+      })
+    )
+    .mutation(async ({ ctx, input }) => {
+      const user = ctx.user;
+      if (!user) throw new TRPCError({ code: "NOT_FOUND", message: "User not found" });
+
+      const resolved: { clientId: string; courseId: string; code: string }[] = [];
+      for (const c of input.courses) {
+        const name = c.name.trim();
+        if (!name) continue;
+
+        // A student typing the exact name of a catalog course means the catalog
+        // course — link to it instead of shadowing it with a duplicate row.
+        let course = await ctx.db.course.findFirst({ where: { nameHe: name } });
+
+        if (!course) {
+          // Same shape (and the same isActive:false quarantine) as
+          // addScannedCourse: the row backs THIS student's plan without leaking
+          // a free-text name into the shared, public catalog. The discipline
+          // stays GENERAL on the shared row — the student's own attribution
+          // lives per-student on UserCourse.disciplineOverride.
+          course = await ctx.db.course.upsert({
+            where: { code: customCourseCode(name) },
+            update: {},
+            create: {
+              code: customCourseCode(name),
+              nameHe: name,
+              discipline: "GENERAL",
+              courseType: "ELECTIVE",
+              credits: c.credits,
+              yearOffered: [1, 2, 3],
+              prerequisites: [],
+              canCountAs: [],
+              isMandatory: false,
+              isActive: false,
+            },
+          });
+        }
+
+        resolved.push({ clientId: c.clientId, courseId: course.id, code: course.code });
+      }
+
+      return { courses: resolved };
     }),
 
   saveCompletedCourses: protectedProcedure

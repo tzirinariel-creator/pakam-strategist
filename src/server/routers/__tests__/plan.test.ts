@@ -112,11 +112,60 @@ function makeFakeDb() {
       ).length,
   };
 
+  // Course table — only what addCustomCourses touches (findFirst by nameHe +
+  // upsert by the unique `code`). Faithful enough to prove the two things that
+  // matter: a student-typed course gets a REAL id, and re-adding the same name
+  // upserts the SAME row instead of piling up duplicates.
+  interface FakeCourse {
+    id: string;
+    code: string;
+    nameHe: string;
+    discipline: string;
+    courseType: string;
+    credits: number;
+    isActive: boolean;
+  }
+  const courses: FakeCourse[] = [];
+  let courseSeq = 0;
+
+  const course = {
+    findFirst: async ({ where }: { where: { nameHe?: string } }) =>
+      courses.find((c) => (where.nameHe ? c.nameHe === where.nameHe : false)) ?? null,
+
+    findUnique: async ({ where }: { where: { code?: string; id?: string } }) =>
+      courses.find((c) =>
+        where.code != null ? c.code === where.code : c.id === where.id
+      ) ?? null,
+
+    upsert: async ({
+      where,
+      create,
+    }: {
+      where: { code: string };
+      update: Record<string, unknown>;
+      create: Omit<FakeCourse, "id">;
+    }) => {
+      const found = courses.find((c) => c.code === where.code);
+      if (found) return found; // update: {} — an existing row is left alone
+      courseSeq += 1;
+      // Real-looking UUID: savePlan validates courseId with z.string().uuid(),
+      // so a fake id here would hide the very bug this feature fixes.
+      const row: FakeCourse = {
+        ...create,
+        id: `cccccccc-cccc-4ccc-8ccc-${String(courseSeq).padStart(12, "0")}`,
+      };
+      courses.push(row);
+      return row;
+    },
+  };
+
   const db = {
     _userCourses: userCourses,
+    _courses: courses,
     user: {
       findUnique: async () => USER,
     },
+    course,
     userCourse,
     $transaction: async (fn: (tx: unknown) => unknown): Promise<unknown> =>
       fn(db),
@@ -244,6 +293,146 @@ describe("plan.savePlan — preserves COMPLETED history on a plan edit", () => {
     expect(rows[0]!.status).toBe("COMPLETED"); // not flipped to PLANNED
     expect(rows[0]!.grade).toBe(90); // grade intact
     expect(res.savedCount).toBe(0); // the colliding planned row was dropped
+  });
+});
+
+// ───────────────────────────────────────────────────────────────────────────
+// #8 — a course the student added by hand must actually PERSIST.
+//
+// The old behavior: the planner's `custom-<uuid>` id isn't a UUID, savePlan
+// rejects it, so every caller dropped it and toasted "not saved yet". These
+// tests cover the full chain that replaced that: register → real courseId →
+// savePlan → a row that carries the student's declaration.
+// ───────────────────────────────────────────────────────────────────────────
+describe("plan.addCustomCourses — a manually added course becomes a real row (#8)", () => {
+  it("creates a Course row and returns a persistent id keyed by the client id", async () => {
+    const db = makeFakeDb();
+    const caller = makeCaller(db);
+
+    const res = await caller.addCustomCourses({
+      courses: [{ clientId: "custom-abc", name: "דוגרי", credits: 4 }],
+    });
+
+    expect(res.courses).toHaveLength(1);
+    const [row] = res.courses;
+    expect(row!.clientId).toBe("custom-abc");
+    expect(row!.courseId).not.toBe("custom-abc");
+    // Kept OUT of the shared public catalog (course.list filters isActive:true).
+    const created = db._courses.find((c) => c.id === row!.courseId);
+    expect(created?.isActive).toBe(false);
+    expect(created?.nameHe).toBe("דוגרי");
+    expect(created?.credits).toBe(4);
+    // Name-derived code, so the same course re-added resolves to the same row.
+    expect(created?.code).toBe("CUSTOM-דוגרי");
+  });
+
+  it("re-adding the same course resolves to the SAME row (no duplicates)", async () => {
+    const db = makeFakeDb();
+    const caller = makeCaller(db);
+
+    const first = await caller.addCustomCourses({
+      courses: [{ clientId: "custom-1", name: "דוגרי", credits: 4 }],
+    });
+    const second = await caller.addCustomCourses({
+      courses: [{ clientId: "custom-2", name: "דוגרי", credits: 4 }],
+    });
+
+    expect(second.courses[0]!.courseId).toBe(first.courses[0]!.courseId);
+    expect(db._courses).toHaveLength(1);
+  });
+
+  it("an exact catalog name links to the CATALOG course instead of shadowing it", async () => {
+    const db = makeFakeDb();
+    db._courses.push({
+      id: VALID_UUID_1,
+      code: "0618-2033",
+      nameHe: "פילוסופיה של המוסר",
+      discipline: "PHILOSOPHY",
+      courseType: "ELECTIVE",
+      credits: 4,
+      isActive: true,
+    });
+    const caller = makeCaller(db);
+
+    const res = await caller.addCustomCourses({
+      courses: [{ clientId: "custom-x", name: "פילוסופיה של המוסר", credits: 2 }],
+    });
+
+    expect(res.courses[0]!.courseId).toBe(VALID_UUID_1);
+    expect(db._courses).toHaveLength(1); // no shadow row
+  });
+
+  it("end-to-end: the registered id saves into the plan, carrying the declaration", async () => {
+    const db = makeFakeDb();
+    const caller = makeCaller(db);
+
+    // 1. The planner registers the course the student typed in…
+    const registered = await caller.addCustomCourses({
+      courses: [{ clientId: "custom-abc", name: "דוגרי", credits: 4 }],
+    });
+    const courseId = registered.courses[0]!.courseId;
+
+    // 2. …and saves the plan with it, declared as counting toward PHILOSOPHY.
+    const saved = await caller.savePlan({
+      courses: [
+        {
+          courseId,
+          plannedYear: 2,
+          plannedSemester: "FALL",
+          disciplineOverride: "PHILOSOPHY",
+        },
+      ],
+    });
+
+    // It is IN the plan — the old code dropped it here and toasted instead.
+    expect(saved.savedCount).toBe(1);
+    const row = db._userCourses.find((uc) => uc.courseId === courseId);
+    expect(row).toBeTruthy();
+    expect(row!.disciplineOverride).toBe("PHILOSOPHY");
+  });
+});
+
+// ───────────────────────────────────────────────────────────────────────────
+// #8 — savePlan carries the student's discipline attribution.
+//
+// savePlan deletes + recreates every PLANNED row, so an override that isn't in
+// the payload is WIPED on the next edit. That silently erased the declaration
+// "this off-catalog course is approved for my degree, as PHILOSOPHY".
+// ───────────────────────────────────────────────────────────────────────────
+describe("plan.savePlan — persists disciplineOverride (#8)", () => {
+  it("writes the override, and null/absent leaves it clear", async () => {
+    const db = makeFakeDb();
+    const caller = makeCaller(db);
+
+    await caller.savePlan({
+      courses: [
+        { courseId: VALID_UUID_1, plannedYear: 1, plannedSemester: "FALL", disciplineOverride: "ECONOMICS" },
+        { courseId: VALID_UUID_2, plannedYear: 1, plannedSemester: "SPRING" },
+      ],
+    });
+
+    const byCourse = (c: string) => db._userCourses.find((uc) => uc.courseId === c);
+    expect(byCourse(VALID_UUID_1)!.disciplineOverride).toBe("ECONOMICS");
+    expect(byCourse(VALID_UUID_2)!.disciplineOverride).toBeNull();
+  });
+
+  it("survives a re-save that re-sends it (the edit-the-plan round trip)", async () => {
+    const db = makeFakeDb();
+    const caller = makeCaller(db);
+    const withOverride = {
+      courseId: VALID_UUID_1,
+      plannedYear: 1,
+      plannedSemester: "FALL" as const,
+      disciplineOverride: "PHILOSOPHY" as const,
+    };
+
+    await caller.savePlan({ courses: [withOverride] });
+    // Second save = the student edited something else and saved again.
+    await caller.savePlan({ courses: [withOverride] });
+
+    const rows = db._userCourses.filter((uc) => uc.courseId === VALID_UUID_1);
+    expect(rows).toHaveLength(1);
+    expect(rows[0]!.disciplineOverride).toBe("PHILOSOPHY");
   });
 });
 

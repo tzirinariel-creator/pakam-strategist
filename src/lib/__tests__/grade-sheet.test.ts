@@ -534,3 +534,87 @@ describe("placeScannedRow (#28) — where an added elective lands", () => {
     expect(placeScannedRow(null, null, null).plannedYear).toBe(1);
   });
 });
+
+// =========================================================================
+// #5 (13.8) — reviseMatchedRow: the student corrects a scanned row.
+//
+// Ariel scanned his real sheet, was told "כנראה ציון אחד או יותר נקרא לא נכון
+// — עברו על השורות לפני האישור", and the screen offered no control to fix a
+// single one. The correction has to land on the SAME row the apply loop reads,
+// with every match-dependent flag re-derived — anything else is a correction
+// that shows on screen and is thrown away on save.
+// =========================================================================
+import { reviseMatchedRow } from "@/lib/grade-sheet";
+
+describe("reviseMatchedRow (#5) — a corrected row is the row that gets applied", () => {
+  it("a corrected grade is what decideApplication would write", () => {
+    // The scan read 68; the sheet actually says 86.
+    const misread = mkMatched({ grade: 68, changesGrade: true, uncertain: true, otherGrade: 86 });
+    const fixed = reviseMatchedRow(misread, { grade: 86 });
+    expect(fixed.grade).toBe(86);
+    expect(decideApplication(fixed)).toEqual({ grade: 86, status: "COMPLETED" });
+    // A human just read the number off the sheet — the "our two reads
+    // disagreed" flag is answered and must stop shouting.
+    expect(fixed.uncertain).toBe(false);
+    expect(fixed.otherGrade).toBeNull();
+  });
+
+  it("keeps the English pass bar honest after an edit (70, not 60)", () => {
+    const eng = mkMatched({
+      grade: 90,
+      match: { userCourseId: "u", courseCode: "c", nameHe: "אנגלית", currentGrade: null, status: "IN_PROGRESS", courseType: "ENGLISH" },
+    });
+    expect(decideApplication(reviseMatchedRow(eng, { grade: 65 }))?.status).toBe("FAILED");
+    expect(decideApplication(reviseMatchedRow(eng, { grade: 70 }))?.status).toBe("COMPLETED");
+  });
+
+  it("rejects a grade outside 0-100 and changes NOTHING", () => {
+    const row = mkMatched({ grade: 88 });
+    // Reference equality is the contract: the caller uses it to know the edit
+    // was refused, so garbage never reaches component state.
+    expect(reviseMatchedRow(row, { grade: 101 })).toBe(row);
+    expect(reviseMatchedRow(row, { grade: -1 })).toBe(row);
+    expect(reviseMatchedRow(row, { grade: Number.NaN })).toBe(row);
+    expect(reviseMatchedRow(row, { credits: 21 })).toBe(row);
+    expect(row.grade).toBe(88);
+  });
+
+  it("clearing the grade makes the row unapplicable instead of writing a null", () => {
+    const cleared = reviseMatchedRow(mkMatched({ grade: 88 }), { grade: null });
+    expect(cleared.grade).toBeNull();
+    expect(decideApplication(cleared)).toBeNull();
+    expect(decideAddition(cleared)).toBeNull();
+  });
+
+  it("re-matching to another course is treated as the most confident match", () => {
+    const wrong = mkMatched({ grade: 91, ambiguous: true, matchKind: "fuzzy" });
+    const right = reviseMatchedRow(wrong, {
+      match: { userCourseId: "u2", courseCode: "0618-1010", nameHe: "מבוא לפילוסופיה", currentGrade: null, status: "IN_PROGRESS" },
+    });
+    expect(right.matchKind).toBe("manual");
+    expect(right.ambiguous).toBe(false);
+    expect(right.autoApplySafe).toBe(true);
+    // The apply loop writes against the course the STUDENT chose.
+    expect(right.match?.userCourseId).toBe("u2");
+    expect(decideApplication(right)).toEqual({ grade: 91, status: "COMPLETED" });
+  });
+
+  it("un-matching turns an update into an addition, carrying the edited ש״ס", () => {
+    const row = reviseMatchedRow(mkMatched({ courseName: "דוגרי", grade: 92 }), { match: null });
+    const withCredits = reviseMatchedRow(row, { credits: 4 });
+    expect(decideApplication(withCredits)).toBeNull();
+    expect(decideAddition(withCredits)).toEqual({
+      courseCode: "0651-1001", courseName: "דוגרי", credits: 4, grade: 92, status: "COMPLETED",
+    });
+  });
+
+  it("re-derives the overwrite flag against the newly-chosen course", () => {
+    // The student points the row at a course that ALREADY carries a grade —
+    // that is an overwrite, and must stop being pre-selectable.
+    const row = reviseMatchedRow(mkMatched({ grade: 91 }), {
+      match: { userCourseId: "u2", courseCode: "0618-1010", nameHe: "פילו", currentGrade: 80, status: "COMPLETED" },
+    });
+    expect(row.overwritesGrade).toBe(true);
+    expect(row.autoApplySafe).toBe(false);
+  });
+});

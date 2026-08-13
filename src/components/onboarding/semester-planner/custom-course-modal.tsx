@@ -19,14 +19,23 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { DISCIPLINE_CONFIG, ALL_DISCIPLINE_IDS } from "@/lib/constants";
+import { customCourseCode } from "@/lib/off-catalog";
 import type { CourseWithSchedule } from "@/lib/plan-generator";
 
 // ─── Types ─────────────────────────────────────────────────────────
 
+/** A student-added course, plus the DECLARATION they made about it (#8).
+ *  `declaredDiscipline` non-null = "we declare this course is approved for our
+ *  degree, and it counts toward this discipline". null = no declaration — the
+ *  course still sits in the plan as a general elective, exactly as before. */
+export type CustomCourseDraft = CourseWithSchedule & {
+  declaredDiscipline?: string | null;
+};
+
 interface CustomCourseModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onAdd: (course: CourseWithSchedule) => void;
+  onAdd: (course: CustomCourseDraft) => void;
 }
 
 const DISCIPLINE_OPTIONS = ALL_DISCIPLINE_IDS.map((id) => {
@@ -56,6 +65,10 @@ export function CustomCourseModal({
   const [name, setName] = useState("");
   const [credits, setCredits] = useState("2");
   const [discipline, setDiscipline] = useState("GENERAL");
+  // #8 — the student's declaration that this course is approved for their
+  // degree. Off by default: we record what the student tells us, we never
+  // assume it (and we never say it on the university's behalf).
+  const [declared, setDeclared] = useState(false);
   const [day, setDay] = useState("");
   const [startTime, setStartTime] = useState("");
   const [endTime, setEndTime] = useState("");
@@ -64,6 +77,7 @@ export function CustomCourseModal({
     setName("");
     setCredits("2");
     setDiscipline("GENERAL");
+    setDeclared(false);
     setDay("");
     setStartTime("");
     setEndTime("");
@@ -83,13 +97,18 @@ export function CustomCourseModal({
         }]
       : [];
 
-    const customCourse: CourseWithSchedule = {
+    const customCourse: CustomCourseDraft = {
       id: `custom-${crypto.randomUUID()}`,
-      code: `CUSTOM-${Date.now()}`,
+      // Name-derived (not `Date.now()`), so it matches the code the server mints
+      // for the same course — re-adding it upserts the same row instead of
+      // piling up a new one on every add.
+      code: customCourseCode(name),
       universityId: null,
       nameHe: name.trim(),
       nameEn: name.trim(),
-      discipline: discipline as CourseWithSchedule["discipline"],
+      // Local colour/filter attribution only. What actually counts toward the
+      // degree is `declaredDiscipline` below, persisted per-student.
+      discipline: (declared ? discipline : "GENERAL") as CourseWithSchedule["discipline"],
       courseType: "ELECTIVE" as CourseWithSchedule["courseType"],
       credits: creditsNum,
       yearOffered: [1, 2, 3],
@@ -110,18 +129,22 @@ export function CustomCourseModal({
       difficultyLevel: null,
       gradeDataSource: null,
       gradeDataYear: null,
-      isActive: true,
+      // Not in the shared catalog — the same flag the server keeps on a
+      // student-added Course row, so every "outside our catalog" surface reads
+      // it the same way (isOffCatalogCourse).
+      isActive: false,
       lastSyncedAt: null,
       yedionUrl: null,
       createdAt: new Date(),
       updatedAt: new Date(),
       scheduleSessions: sessions,
+      declaredDiscipline: declared ? discipline : null,
     };
 
     onAdd(customCourse);
     reset();
     onOpenChange(false);
-  }, [name, credits, discipline, day, startTime, endTime, onAdd, onOpenChange, reset]);
+  }, [name, credits, discipline, declared, day, startTime, endTime, onAdd, onOpenChange, reset]);
 
   const isValid = name.trim().length > 0;
 
@@ -137,17 +160,6 @@ export function CustomCourseModal({
           </p>
         </DialogHeader>
 
-        {/* Warn before adding an off-catalog course (ז8) — the app can't verify
-            it counts toward the PPE degree, so the student must. */}
-        <div className="mt-1 flex items-start gap-2 rounded-lg border border-amber-400/30 bg-amber-400/[0.06] px-3 py-2 text-xs leading-relaxed text-foreground/70">
-          <AlertTriangle className="mt-0.5 size-3.5 shrink-0 text-amber-500" />
-          <span>
-            {isHe
-              ? "ודאו מול המזכירות או הידיעון שהקורס מאושר לתואר פכ״מ לפני שמוסיפים — קורס שאינו בקטלוג שלנו אנחנו לא יכולים לבדוק בשבילכם."
-              : "Make sure this course is approved for the PPE degree (with the secretariat / catalog) before adding — we can't verify a course that isn't in our catalog."}
-          </span>
-        </div>
-
         <div className="space-y-4 pt-2">
           {/* Course name */}
           <div>
@@ -162,7 +174,7 @@ export function CustomCourseModal({
             />
           </div>
 
-          {/* Credits + Discipline row */}
+          {/* Credits */}
           <div className="grid grid-cols-2 gap-3">
             <div>
               <label className="mb-1 block text-xs text-foreground/50">
@@ -178,11 +190,35 @@ export function CustomCourseModal({
                 className="text-sm font-mono"
               />
             </div>
-            <div>
+          </div>
+
+          {/* #8 — the student's DECLARATION. "לא בקטלוג שלנו" is not "לא מאושר":
+              a course can be perfectly approved for a degree and still have
+              never been in our list (דוגרי). We can't verify it, and we never
+              speak for the מזכירות — so we record what the student tells us,
+              show it as theirs, and count it accordingly. */}
+          <div className="rounded-lg border border-border bg-foreground/[0.02] p-3">
+            <label className="flex cursor-pointer items-start gap-2.5">
+              <input
+                type="checkbox"
+                checked={declared}
+                onChange={(e) => setDeclared(e.target.checked)}
+                className="mt-0.5 size-4 shrink-0 accent-[var(--accent-brand)]"
+              />
+              <span className="text-xs leading-relaxed text-foreground/80">
+                {isHe
+                  ? "הקורס מאושר לתואר שלכם — ואתם מצהירים על כך"
+                  : "This course is approved for your degree — you're declaring it"}
+              </span>
+            </label>
+
+            {/* The discipline is part of the declaration: it's what the course
+                counts toward. Disabled (never silently ignored) until declared. */}
+            <div className="mt-3">
               <label className="mb-1 block text-xs text-foreground/50">
-                {isHe ? "תחום" : "Discipline"}
+                {isHe ? "נחשב לכם לתחום" : "Counts toward"}
               </label>
-              <Select value={discipline} onValueChange={setDiscipline}>
+              <Select value={discipline} onValueChange={setDiscipline} disabled={!declared}>
                 <SelectTrigger className="text-sm">
                   <SelectValue />
                 </SelectTrigger>
@@ -195,6 +231,15 @@ export function CustomCourseModal({
                 </SelectContent>
               </Select>
             </div>
+
+            <p className="mt-2 flex items-start gap-1.5 text-[11px] leading-relaxed text-foreground/45">
+              <AlertTriangle className="mt-0.5 size-3 shrink-0 text-amber-500" />
+              <span>
+                {isHe
+                  ? "מי שמאשר קורס לתואר זו המזכירות/הידיעון, לא אנחנו — קורס שאינו בקטלוג שלנו אנחנו לא יכולים לבדוק. מה שתסמנו כאן נשמר כהצהרה שלכם, ומוצג ככזו."
+                  : "The secretariat (not us) is what makes a course count — we can't verify a course outside our catalog. What you tick here is saved as your own declaration, and shown as one."}
+              </span>
+            </p>
           </div>
 
           {/* Schedule (optional) */}

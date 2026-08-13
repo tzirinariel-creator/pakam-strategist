@@ -3,7 +3,8 @@
 import { useTranslations } from "next-intl";
 import { Star, Languages, Trash2 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { DISCIPLINE_CONFIG } from "@/lib/constants";
+import { DISCIPLINE_CONFIG, ALL_DISCIPLINE_IDS } from "@/lib/constants";
+import { isOffCatalogCourse, isStudentAddedCourse, isDeclaredApproved } from "@/lib/off-catalog";
 import type { UserCourseWithCourse } from "@/types/degree";
 import type { CourseStatus } from "@/types/enums";
 import { GradeInput } from "./grade-input";
@@ -20,6 +21,7 @@ export function CourseRow({
   locale,
   isHe,
   onSaveGrade,
+  onDeclare,
   onRemove,
   savedSignal,
   t,
@@ -29,6 +31,10 @@ export function CourseRow({
   locale: string;
   isHe: boolean;
   onSaveGrade: (id: string, grade: number | null, status: CourseStatus) => void;
+  /** #8 — the student's declaration for a course outside our catalog:
+   *  a discipline = "approved for our degree, counts toward this",
+   *  null = no declaration. */
+  onDeclare: (id: string, discipline: string | null) => void;
   onRemove: (id: string) => void;
   /** Per-course success counter, bumped on a confirmed save. */
   savedSignal: number;
@@ -36,6 +42,12 @@ export function CourseRow({
 }) {
   const { course } = uc;
   const discipline = uc.disciplineOverride ?? course.discipline;
+  // Outside OUR catalog — which says NOTHING about whether the degree approved
+  // it (דוגרי is approved and was never in our list). The only honest thing we
+  // can show is the student's own declaration (#8).
+  const offCatalog = isOffCatalogCourse(course);
+  const studentAdded = isStudentAddedCourse(course);
+  const declared = isDeclaredApproved(uc);
   const isElective = !(course.courseType === "MANDATORY" || course.isMandatory);
   const countsForFocus =
     focusArea != null &&
@@ -90,7 +102,68 @@ export function CourseRow({
                 {t("notInAvgBinary")}
               </span>
             )}
+            {/* #8 — never "מחוץ לרשימה". Either the student declared it, and we
+                say whose declaration it is, or they haven't, and we say only
+                the one thing we actually know: it isn't in OUR catalog. */}
+            {offCatalog && (
+              <span
+                className={cn(
+                  "inline-flex items-center rounded-full px-1.5 py-0.5 text-[11px] font-medium",
+                  declared
+                    ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400"
+                    : "bg-foreground/8 text-foreground/50",
+                )}
+                title={
+                  declared
+                    ? t("declaredApprovedHint")
+                    : studentAdded
+                      ? t("notInCatalogHint")
+                      : t("notInYedionHint")
+                }
+              >
+                {declared
+                  ? t("declaredApprovedBadge")
+                  : studentAdded
+                    ? t("notInCatalogBadge")
+                    : t("notInYedionBadge")}
+              </span>
+            )}
           </div>
+
+          {/* The declaration itself — one control that says both "this counts
+              toward our degree" and "it counts as this". Sits in the always-
+              visible name cell, because the discipline column is hidden on
+              mobile and a declaration you can't reach is no declaration. */}
+          {offCatalog && (
+            <div className="flex flex-wrap items-center gap-1.5 pt-0.5">
+              <label
+                htmlFor={`declare-${uc.id}`}
+                className="text-[11px] text-foreground/45"
+              >
+                {t("declareLabel")}
+              </label>
+              <select
+                id={`declare-${uc.id}`}
+                value={uc.disciplineOverride ?? ""}
+                onChange={(e) => onDeclare(uc.id, e.target.value || null)}
+                title={t("declareHint")}
+                className="rounded-md border border-border bg-card px-1.5 py-0.5 text-[11px] text-foreground/70 focus:border-foreground/30 focus:outline-none"
+              >
+                <option value="">{t("declareNone")}</option>
+                {ALL_DISCIPLINE_IDS.map((id) => {
+                  const cfg = DISCIPLINE_CONFIG[id];
+                  if (!cfg) return null;
+                  return (
+                    <option key={id} value={id}>
+                      {t("declareOption", {
+                        discipline: isHe ? cfg.nameHe : cfg.nameEn,
+                      })}
+                    </option>
+                  );
+                })}
+              </select>
+            </div>
+          )}
         </div>
       </td>
       {/* Discipline */}
