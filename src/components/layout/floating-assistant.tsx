@@ -994,14 +994,36 @@ export function FloatingAssistant() {
                   a second full character illustration right next to the current
                   persona's own icon read as "two logos for one character" (24.7
                   audit). The label/title still name who you'd switch to. */}
+              {/* #16 (13.8) — this used to be a bare icon of the same size,
+                  flush against the close button, with no label and no undo. A
+                  mis-tap silently and permanently changed which advisor you
+                  have; Ariel reported landing on the Referent without ever
+                  choosing it. (Its main cause was a localStorage leak, fixed
+                  separately, but this made it easy to repeat.) Now it carries
+                  its text, is visually separated from Close, and is
+                  undoable from the toast. */}
               <button
                 type="button"
-                onClick={switchPersona}
+                onClick={() => {
+                  const to = otherName;
+                  const back = isReferent ? (isHe ? "המלך" : "the King") : (isHe ? "הרפרנט" : "the Referent");
+                  switchPersona();
+                  toast.success(
+                    isHe ? `עברתם ל${to}` : `Switched to ${to}`,
+                    {
+                      action: {
+                        label: isHe ? `חזרה ל${back}` : `Back to ${back}`,
+                        onClick: () => switchPersona(),
+                      },
+                    },
+                  );
+                }}
                 aria-label={isHe ? `החליפו ל${otherName}` : `Switch to ${otherName}`}
                 title={isHe ? `העדפת ${otherName}? החליפו` : `Prefer ${otherName}? Switch`}
-                className="shrink-0 rounded-md p-1.5 text-foreground/40 transition-colors hover:bg-foreground/10 hover:text-foreground/70"
+                className="me-1 flex shrink-0 items-center gap-1 rounded-md px-2 py-1.5 text-[11px] text-foreground/40 transition-colors hover:bg-foreground/10 hover:text-foreground/70"
               >
-                <ArrowLeftRight className="size-4" />
+                <ArrowLeftRight className="size-3.5" />
+                <span className="hidden sm:inline">{otherName}</span>
               </button>
               <button
                 type="button"
