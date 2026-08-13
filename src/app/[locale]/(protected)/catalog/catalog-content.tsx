@@ -154,7 +154,12 @@ export function CatalogContent() {
               <>
                 {" · "}
                 {isHe ? "עודכן לאחרונה " : "last updated "}
-                <bdi dir="ltr">
+                {/* NOT dir="ltr" (#1, 13.8): a he-IL date is Hebrew TEXT
+                    ("10 ביולי 2026"), not a number. Forcing the run LTR made it
+                    render "10 2026 ביולי" — month and year swapped, which is
+                    exactly what Ariel reported. Plain <bdi> isolates it and
+                    lets each script lay itself out correctly. */}
+                <bdi>
                   {freshestSync.toLocaleDateString(isHe ? "he-IL" : "en-US", {
                     day: "numeric",
                     month: "short",
