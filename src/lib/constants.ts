@@ -743,3 +743,19 @@ export function passBarFor(courseType: string | undefined): number {
     ? ENGLISH_CONFIG.COURSE_PASSING_GRADE
     : CREDIT_REQUIREMENTS.PASSING_GRADE;
 }
+
+// ────────────────────────────────────────────────────────────────────
+// Public catalog size — the ONE place the marketing number lives.
+//
+// The landing page hardcoded "110+" in three separate strings (he.json,
+// en.json, landing-page.tsx). After the תשפ״ז migration the catalog held 302
+// courses and all three still said 110 — a wrong number on the public front
+// page of a product whose entire promise is that it counts correctly, and a
+// direct breach of the "never show a number without a source" rule.
+//
+// It is a constant rather than a live query because the landing page is a
+// static public client component, but it is pinned to its source: the guard
+// test in src/lib/__tests__/catalog-count.test.ts reads the actual תשפ״ז parse
+// and fails if the two ever drift again.
+// ────────────────────────────────────────────────────────────────────
+export const CATALOG_COURSE_COUNT = 302;

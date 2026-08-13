@@ -17,6 +17,7 @@ import { Button } from "@/components/ui/button";
 import { PhilosopherKingIcon } from "@/components/ui/philosopher-king-icon";
 import { PhilosopherKingCharacter } from "@/components/ui/philosopher-king-character";
 import { cn } from "@/lib/utils";
+import { CATALOG_COURSE_COUNT } from "@/lib/constants";
 
 // ─── Feature Card Data ──────────────────────────────────────────────
 // The King has his own dedicated dark band above the grid; the grid holds the
@@ -154,7 +155,9 @@ export function LandingPage() {
   const Arrow = isRTL ? ArrowLeft : ArrowRight;
 
   const stats = [
-    { value: "110+", label: t("stats.courses") },
+    // Pinned to the real תשפ״ז catalog by a guard test — it read "110+" for
+    // months after the migration took the catalog to 302.
+    { value: String(CATALOG_COURSE_COUNT), label: t("stats.courses") },
     { value: "3", label: t("stats.disciplines") },
     { value: "150", label: t("stats.credits") },
   ];
