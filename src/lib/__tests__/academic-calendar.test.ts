@@ -6,6 +6,7 @@ import {
   hebrewYearLabel,
   getTeachingRange,
   describeAcademicNow,
+  TAU_CALENDARS,
 } from "@/lib/academic-calendar";
 
 const at = (y: number, m: number, d: number) => new Date(y, m - 1, d, 12, 0, 0);
@@ -70,7 +71,7 @@ describe("getAcademicNow — attribution + phase (dates verified vs tau.ac.il/ca
   it("late September (past ~6 exam weeks) → honest break, not eternal exams", () => {
     const a = getAcademicNow(at(2026, 9, 25));
     expect(a.phase).toBe("break");
-    expect(a.nextTeachingStart.getTime()).toBe(at(2026, 10, 18).setHours(0, 0, 0, 0));
+    expect(a.nextTeachingStart!.getTime()).toBe(at(2026, 10, 18).setHours(0, 0, 0, 0));
   });
 
   it("17.10.26 — still תשפ\"ו SPRING window; 18.10.26 — תשפ\"ז FALL", () => {
@@ -257,5 +258,51 @@ describe("getTimeFocus", () => {
     const f = getTimeFocus({ ...base, now: new Date(2025, 11, 1) }); // fall teaching
     expect(f?.kind).toBe("teaching");
     expect(f?.href).toBe("/calendar");
+  });
+});
+
+// ── never-invent-a-date (13.8) ──────────────────────────────────────────
+// `nextTeachingStart` used to fall back to
+// `new Date(SPRING.teachingStart.getFullYear() + 1, 9, 15)` once we ran past
+// the last known calendar. For תשפ״ז SPRING that is 15.10.2028 — a year wrong
+// and wholly made up — while `isStale` stayed false, so describeAcademicNow and
+// the dashboard printed it to students as fact, and the King was handed it in
+// its system prompt. Absence is now representable.
+describe("nextTeachingStart is never invented", () => {
+  it("is null past the last known calendar, not a guessed October date", () => {
+    const far = getAcademicNow(new Date(2030, 5, 1));
+    expect(far.nextTeachingStart).toBeNull();
+  });
+
+  it("never names a date outside the published calendars — swept month by month", () => {
+    // The real guarantee. The old fallback produced a mid-October date one year
+    // past the last SPRING, so it could surface as a plausible-looking start in
+    // any month past the calendar's end. Nothing may name 2028+ or the
+    // 15.10 shape, in either the structured field or the prose.
+    const lastKnown = TAU_CALENDARS[TAU_CALENDARS.length - 1]!;
+    for (let y = lastKnown.startYear + 1; y <= lastKnown.startYear + 4; y++) {
+      for (let m = 0; m < 12; m++) {
+        const at = new Date(y, m, 15);
+        const a = getAcademicNow(at);
+        if (a.nextTeachingStart) {
+          // If a date IS given it must come from a real calendar entry.
+          const known = TAU_CALENDARS.some(
+            (c) =>
+              c.FALL.teachingStart.getTime() === a.nextTeachingStart!.getTime() ||
+              c.SPRING.teachingStart.getTime() === a.nextTeachingStart!.getTime(),
+          );
+          expect(known, `${y}-${m + 1} produced an unsourced ${a.nextTeachingStart.toISOString()}`).toBe(true);
+        }
+        const d = describeAcademicNow(at);
+        expect(d.he, `${y}-${m + 1}`).not.toMatch(/15\.10\.20(2[89]|3\d)/);
+      }
+    }
+  });
+
+  it("still reports a real next start while a calendar covers it", () => {
+    // Inside תשפ״ו SPRING, תשפ״ז FALL is known — this must NOT become null.
+    const inSpring = getAcademicNow(new Date(2026, 4, 1));
+    expect(inSpring.semester).toBe("SPRING");
+    expect(inSpring.nextTeachingStart).not.toBeNull();
   });
 });

@@ -68,10 +68,14 @@ export function TodaysClasses({ currentYear, currentSemester }: TodaysClassesPro
 
   // After ALL hooks (hooks order must not depend on the phase):
   if (!teaching) {
-    const returnDate = acadNow.nextTeachingStart.toLocaleDateString(isHe ? "he-IL" : "en-US", {
-      day: "numeric",
-      month: "long",
-    });
+    // null = the next year's calendar isn't in TAU_CALENDARS yet. This used to
+    // receive a fabricated mid-October date and print it as fact.
+    const returnDate = acadNow.nextTeachingStart
+      ? acadNow.nextTeachingStart.toLocaleDateString(isHe ? "he-IL" : "en-US", {
+          day: "numeric",
+          month: "long",
+        })
+      : null;
     return (
       <div className="data-card flex items-center gap-3 p-4 border-emerald-400/20 bg-emerald-400/5">
         <BookOpen className="h-5 w-5 text-emerald-400 shrink-0" />
@@ -80,9 +84,13 @@ export function TodaysClasses({ currentYear, currentSemester }: TodaysClassesPro
             ? isHe
               ? "תקופת בחינות — אין יותר שיעורים הסמסטר"
               : "Exam period — no more classes this semester"
-            : isHe
-              ? `חופשת סמסטר — הלימודים חוזרים ב־${returnDate}`
-              : `Semester break — classes resume on ${returnDate}`}
+            : returnDate
+              ? isHe
+                ? `חופשת סמסטר — הלימודים חוזרים ב־${returnDate}`
+                : `Semester break — classes resume on ${returnDate}`
+              : isHe
+                ? "חופשת סמסטר — מועד חזרת הלימודים טרם פורסם"
+                : "Semester break — the return date hasn't been published yet"}
         </p>
       </div>
     );

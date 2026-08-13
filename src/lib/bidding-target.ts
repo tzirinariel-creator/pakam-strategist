@@ -51,6 +51,9 @@ export function getBiddingTarget(
   if (yearOfStudy > 3) return null;
 
   const teachingStart = acad.nextTeachingStart;
+  // No published start for the next semester → we cannot say how far away it
+  // is, so we say nothing rather than counting down to an invented date.
+  if (!teachingStart) return null;
   const daysUntilStart = Math.max(0, Math.ceil((teachingStart.getTime() - now.getTime()) / DAY_MS));
   return {
     yearOfStudy,

@@ -98,7 +98,17 @@ export interface AcademicNow {
   phase: AcademicPhase;
   dates: SemesterDates;
   /** Start of the NEXT teaching block (this year's SPRING or next year's FALL). */
-  nextTeachingStart: Date;
+  /** When teaching next resumes — or NULL when we genuinely don't know.
+   *
+   *  This used to fall back to `new Date(SPRING.teachingStart.getFullYear() + 1, 9, 15)`
+   *  once we ran past the last known calendar. For תשפ״ז SPRING that produced
+   *  15.10.2028 — a year wrong AND entirely made up — while `isStale` stayed
+   *  false, so `describeAcademicNow` and todays-classes printed it to students
+   *  as fact. That is a direct breach of the never-invent-a-date rule. Absence
+   *  is now representable, and every caller has to say "we don't know yet"
+   *  instead of receiving a fabrication. Fix: add the next year's calendar to
+   *  TAU_CALENDARS. */
+  nextTeachingStart: Date | null;
   /** Summer-session window of the current academic year, when defined. */
   summer: { start: Date; end: Date } | null;
   /** True when `now` falls outside every known calendar — labels stay honest. */
@@ -155,7 +165,7 @@ export function getAcademicNow(now: Date = new Date()): AcademicNow {
         semester: "SPRING",
         phase,
         dates: cal.SPRING,
-        nextTeachingStart: next ? next.FALL.teachingStart : new Date(cal.SPRING.teachingStart.getFullYear() + 1, 9, 15),
+        nextTeachingStart: next ? next.FALL.teachingStart : null,
         summer: cal.summer ?? null,
         isStale: springWindowEnd === null && now > examEndOf(cal.SPRING) && (!cal.summer || now > cal.summer.end),
       };
@@ -169,7 +179,7 @@ export function getAcademicNow(now: Date = new Date()): AcademicNow {
     semester: "SPRING",
     phase: "break",
     dates: last.SPRING,
-    nextTeachingStart: new Date(last.SPRING.teachingStart.getFullYear() + 1, 9, 15),
+    nextTeachingStart: null,
     summer: last.summer ?? null,
     isStale: true,
   };
@@ -288,8 +298,13 @@ export function describeAcademicNow(now: Date = new Date()): AcademicStatus {
   return {
     ...base,
     teachingDaysLeft: null,
-    he: `${gapHe} — ${nextHe} מתחיל ב-${shortDate(a.nextTeachingStart)}.`,
-    en: `${gapEn} — ${nextEn} starts ${shortDate(a.nextTeachingStart)}.`,
+    // No published date for the next semester → say so. Never guess one.
+    he: a.nextTeachingStart
+      ? `${gapHe} — ${nextHe} מתחיל ב-${shortDate(a.nextTeachingStart)}.`
+      : `${gapHe}. מועד פתיחת ${nextHe} טרם פורסם.`,
+    en: a.nextTeachingStart
+      ? `${gapEn} — ${nextEn} starts ${shortDate(a.nextTeachingStart)}.`
+      : `${gapEn}. The start date for ${nextEn} hasn't been published yet.`,
   };
 }
 

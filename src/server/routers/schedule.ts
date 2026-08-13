@@ -10,6 +10,11 @@ import {
   type PushableEvent,
 } from "@/lib/google-calendar";
 import { getAcademicNow, getTeachingRange } from "@/lib/academic-calendar";
+import {
+  filterSessionsByGroups,
+  normalizeSessionType,
+  resolveGroupSelections,
+} from "@/lib/session-groups";
 
 export const scheduleRouter = createTRPCRouter({
   /**
@@ -80,27 +85,82 @@ export const scheduleRouter = createTRPCRouter({
         ],
       });
 
-      // Filter sessions by selected groups:
-      // - If user has no selectedGroups for a course → include all sessions (backward compat)
-      // - If user selected groups → include session if:
-      //   a) its sessionType is not in the selections (e.g. lectures) → include
-      //   b) its sessionType IS in selections and groupCode matches → include
-      //   c) its sessionType IS in selections but groupCode differs → exclude
-      const sessions = allSessions.filter((session) => {
-        const selections = groupSelectionsByCode.get(session.courseCode);
-        if (!selections) return true; // no selections → include all
+      // Filter sessions by group, through the ONE shared rule
+      // (`@/lib/session-groups`) that the planner grid and /calendar also run:
+      // shared "ALL" meetings and single-group types always pass; a type with
+      // several groups keeps the student's saved pick, or — when they never
+      // picked — the first group code alphabetically.
+      //
+      // What changed and why (13.8): this used to return EVERY session of a
+      // course with no saved selection. The planner drew one tutorial group and
+      // the dashboard + calendar then drew all six, stacked — the week a student
+      // approved was not the week they got. /calendar papered over it in the
+      // browser with its own near-copy of the rule; the dashboard didn't, and
+      // showed six "today's classes" for one course. Filtering here means every
+      // consumer of this query agrees by construction.
+      //
+      // A default is NOT a decision, so it is never silently promoted to one:
+      // nothing is written back to selectedGroups, and `defaultedGroups` below
+      // tells the client exactly which types are still showing our fallback so
+      // it can say so and offer the choice.
+      const sessionsByCourse = new Map<string, typeof allSessions>();
+      for (const s of allSessions) {
+        const list = sessionsByCourse.get(s.courseCode);
+        if (list) list.push(s);
+        else sessionsByCourse.set(s.courseCode, [s]);
+      }
 
-        const sessionType = (session.sessionType ?? "").toLowerCase();
-        const selectedGroup = selections[sessionType];
-        if (selectedGroup === undefined) return true; // this type not in selections → include
+      const keptIds = new Set<string>();
+      const defaultedGroups: {
+        courseCode: string;
+        courseNameHe: string;
+        sessionType: string;
+        /** The group we're showing meanwhile. */
+        keptGroup: string;
+        options: {
+          groupCode: string;
+          meetings: { dayOfWeek: string; startTime: string; endTime: string }[];
+        }[];
+      }[] = [];
 
-        // User selected a specific group for this type — match groupCode
-        return session.groupCode === selectedGroup;
-      });
+      for (const [courseCode, rows] of sessionsByCourse) {
+        const selections = groupSelectionsByCode.get(courseCode);
+        for (const kept of filterSessionsByGroups(rows, selections)) {
+          keptIds.add(kept.id);
+        }
+        for (const resolved of resolveGroupSelections(rows, selections)) {
+          if (resolved.chosen) continue;
+          defaultedGroups.push({
+            courseCode,
+            courseNameHe: rows[0]?.course.nameHe ?? courseCode,
+            sessionType: resolved.sessionType,
+            keptGroup: resolved.groupCode,
+            options: resolved.options.map((groupCode) => ({
+              groupCode,
+              meetings: rows
+                .filter(
+                  (r) =>
+                    normalizeSessionType(r.sessionType) === resolved.sessionType &&
+                    (r.groupCode ?? "A") === groupCode,
+                )
+                .map((r) => ({
+                  dayOfWeek: String(r.dayOfWeek),
+                  startTime: r.startTime,
+                  endTime: r.endTime,
+                })),
+            })),
+          });
+        }
+      }
+
+      // Filter the ORIGINAL list so the day/time ordering the query asked for
+      // survives.
+      const sessions = allSessions.filter((s) => keptIds.has(s.id));
 
       return {
         sessions,
         courses: userCourses,
+        defaultedGroups,
       };
     }),
 
@@ -290,15 +350,22 @@ export const scheduleRouter = createTRPCRouter({
         include: { course: true },
       });
 
-      // Filter by selected groups (same logic as getScheduleForSemester)
-      const sessions = allSessions.filter((session) => {
-        const selections = groupSelectionsByCode.get(session.courseCode);
-        if (!selections) return true;
-        const sessionType = (session.sessionType ?? "").toLowerCase();
-        const selectedGroup = selections[sessionType];
-        if (selectedGroup === undefined) return true;
-        return session.groupCode === selectedGroup;
-      });
+      // Filter by group through the SAME shared rule as getScheduleForSemester —
+      // Google Calendar must receive the week the student approved, not all six
+      // tutorial groups of a course they never picked a group for.
+      const byCourse = new Map<string, typeof allSessions>();
+      for (const s of allSessions) {
+        const list = byCourse.get(s.courseCode);
+        if (list) list.push(s);
+        else byCourse.set(s.courseCode, [s]);
+      }
+      const keepIds = new Set<string>();
+      for (const [courseCode, rows] of byCourse) {
+        for (const kept of filterSessionsByGroups(rows, groupSelectionsByCode.get(courseCode))) {
+          keepIds.add(kept.id);
+        }
+      }
+      const sessions = allSessions.filter((s) => keepIds.has(s.id));
 
       // Build pushable events from sessions
       const events: PushableEvent[] = [];
@@ -321,7 +388,13 @@ export const scheduleRouter = createTRPCRouter({
       const semesterDates: Record<string, { start: Date; end: Date }> = {
         FALL: getTeachingRange("FALL"),
         SPRING: getTeachingRange("SPRING"),
-        SUMMER: acadNow.summer ?? { start: acadNow.nextTeachingStart, end: acadNow.nextTeachingStart },
+        // No summer term published and no known next start → an empty range,
+        // which yields no sessions, rather than a range around a guessed date.
+        SUMMER:
+          acadNow.summer ??
+          (acadNow.nextTeachingStart
+            ? { start: acadNow.nextTeachingStart, end: acadNow.nextTeachingStart }
+            : { start: new Date(0), end: new Date(0) }),
       };
 
       const semRange = semesterDates[input.semester];

@@ -385,7 +385,10 @@ function buildAcademicNowLine(): string {
       ? `לימודים (מסתיימים ב-${a.dates.teachingEnd.getDate()}.${a.dates.teachingEnd.getMonth() + 1})`
       : a.phase === "exams"
         ? "תקופת בחינות"
-        : `חופשה (הלימודים חוזרים ב-${a.nextTeachingStart.getDate()}.${a.nextTeachingStart.getMonth() + 1})`;
+        : a.nextTeachingStart
+          ? `חופשה (הלימודים חוזרים ב-${a.nextTeachingStart.getDate()}.${a.nextTeachingStart.getMonth() + 1})`
+          // Never hand the model a date we don't have — it will repeat it as fact.
+          : "חופשה (מועד חזרת הלימודים טרם פורסם)";
   // THE date anchor (bug: the LLM answered "18.7.2024" to "מה התאריך היום" —
   // it had exam dates but no today, so it guessed from training data). `now` is
   // the Israel-civil day computed above.
