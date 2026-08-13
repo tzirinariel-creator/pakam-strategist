@@ -145,3 +145,14 @@ export function isBiddingRelevant(now: Date = new Date()): boolean {
   if (phase.kind === "before") return (phase.daysUntil ?? 999) <= 45;
   return true;
 }
+
+/**
+ * Do the dates in this file still describe the student's own registration
+ * cycle? True until the תשפ״ז changes week closes (29.10.26) — after that the
+ * NEXT cycle's dates are simply unpublished, and "בידינג הסתיים" would be a
+ * lie of omission rather than a fact. Nothing here invents the next cycle;
+ * this flag only lets the UI say "we don't have those dates yet".
+ */
+export function hasCurrentBiddingCycle(now: Date = new Date()): boolean {
+  return now <= BIDDING_MILESTONES_5787.changesWeekEnd;
+}

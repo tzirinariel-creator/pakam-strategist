@@ -23,6 +23,7 @@ import { cn } from "@/lib/utils";
 import { Link } from "@/i18n/navigation";
 import { Bidi } from "@/lib/bidi";
 import { ReviewNudgeHost } from "@/components/catalog/review-nudge";
+import { CalendarSyncNudge } from "@/components/calendar/calendar-sync-nudge";
 import { daysUntilLabel } from "@/lib/days-until";
 
 export function PlannerContent() {
@@ -310,8 +311,13 @@ export function PlannerContent() {
 
         {/* Live timetable — on top on a phone (order-first), sticky alongside
             the board on xl+ (order-none restores the natural side-by-side). */}
-        <div className="order-first animate-stagger-3 xl:order-none xl:sticky xl:top-4 xl:w-[380px] xl:shrink-0">
+        <div className="order-first flex animate-stagger-3 flex-col gap-4 xl:order-none xl:sticky xl:top-4 xl:w-[380px] xl:shrink-0">
           <PlannerLiveTimetable courses={courses} />
+          {/* #40 — the offer belongs beside the artifact it copies. A student
+              looking at their own week here is exactly the person for whom
+              "put this in my calendar" is worth a tap; the same one-tap refusal
+              retires it everywhere (shared dismiss key). */}
+          <CalendarSyncNudge show={courses.length > 0} />
         </div>
       </div>
 

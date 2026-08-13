@@ -19,6 +19,7 @@ import {
   BIDDING_MILESTONES_5787,
   BIDDING_LINKS,
   getBiddingPhase,
+  hasCurrentBiddingCycle,
   type BiddingPhase,
 } from "@/lib/bidding-calendar";
 import { Bidi } from "@/lib/bidi";
@@ -35,7 +36,11 @@ function hhmm(d: Date): string {
 }
 
 /** The one sentence that tells the student what matters today. */
-function headline(phase: BiddingPhase, isHe: boolean): { title: string; body: string; tone: "urgent" | "active" | "calm" } {
+function headline(
+  phase: BiddingPhase,
+  isHe: boolean,
+  cycleStillOurs: boolean,
+): { title: string; body: string; tone: "urgent" | "active" | "calm" } {
   const d = phase.daysUntil ?? 0;
   const inDays = isHe
     ? d === 0 ? "היום" : d === 1 ? "מחר" : `בעוד ${d} ימים`
@@ -75,19 +80,31 @@ function headline(phase: BiddingPhase, isHe: boolean): { title: string; body: st
           : "This is the cancellation window: dropping a course now returns its points to you for the next round.",
       };
     default:
-      return {
-        tone: "calm",
-        title: isHe ? "הרישום בבידינג הסתיים" : "Bidding is over",
-        body: isHe
-          ? "נשארו שינויים מול החוגים בשבוע השינויים, ואפשר לבטל קורסים דרך המידע האישי."
-          : "Changes now go through the departments during the changes week; cancellations via your personal info page.",
-      };
+      // "done" means done for THE CYCLE WE HOLD DATES FOR. Once that cycle's
+      // changes week has closed, "הרישום בבידינג הסתיים" stops being true and
+      // becomes a lie of omission — the next cycle's dates simply aren't
+      // published. Say that instead of inventing them.
+      return cycleStillOurs
+        ? {
+            tone: "calm",
+            title: isHe ? "הרישום בבידינג הסתיים" : "Bidding is over",
+            body: isHe
+              ? "נשארו שינויים מול החוגים בשבוע השינויים, ואפשר לבטל קורסים דרך המידע האישי."
+              : "Changes now go through the departments during the changes week; cancellations via your personal info page.",
+          }
+        : {
+            tone: "calm",
+            title: isHe ? "מועדי המכרז הבא עוד לא פורסמו" : "The next round's dates aren't published",
+            body: isHe
+              ? "התאריכים שאנחנו מחזיקים הם של מכרז תשפ״ז, והוא נסגר. כשהאוניברסיטה תפרסם את המועדים הבאים נציג אותם כאן — אנחנו לא מנחשים תאריך."
+              : "The dates we hold are the 2026/27 round, which has closed. When the university publishes the next ones we'll show them here — we don't guess a date.",
+          };
   }
 }
 
 export function BiddingTimeline({ isHe, now = new Date() }: { isHe: boolean; now?: Date }) {
   const phase = getBiddingPhase(now);
-  const head = headline(phase, isHe);
+  const head = headline(phase, isHe, hasCurrentBiddingCycle(now));
 
   const steps = BIDDING_ROUNDS_5787.map((r) => {
     const done = now >= r.results;

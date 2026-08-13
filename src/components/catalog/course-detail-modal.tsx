@@ -15,7 +15,7 @@ import { DISCIPLINE_CONFIG } from "@/lib/constants";
 import { courseColor } from "@/lib/course-color";
 import { Bidi } from "@/lib/bidi";
 import { cn } from "@/lib/utils";
-import { AskKingButton } from "@/components/ui/ask-king-button";
+import { AskAdvisorButton } from "@/components/ui/ask-advisor-button";
 import { api } from "@/lib/trpc/react";
 import { TAG_LABELS, isAllowedTag } from "@/lib/course-knowledge-tags";
 import { ContributeReviewSheet } from "./contribute-review-sheet";
@@ -218,11 +218,11 @@ export function CourseDetailModal({
           )}
 
           {/* Ask the King about this course */}
-          <AskKingButton
+          <AskAdvisorButton
             promptHe={`ספר לי על "${course.nameHe}" (${course.code}) — כמה הוא קשה, ואיך הוא משתלב לי בתואר?`}
             promptEn={`Tell me about "${course.nameEn ?? course.nameHe}" (${course.code}) — how hard is it, and how does it fit my degree?`}
-            labelHe="שאל את המלך על הקורס הזה"
-            labelEn="Ask the King about this course"
+            labelHe="שאל את {advisor} על הקורס הזה"
+            labelEn="Ask {advisor} about this course"
             className="inline-flex w-fit items-center gap-1.5 rounded-lg bg-accent-brand/10 px-2.5 py-1.5 text-xs font-medium text-accent-brand transition-colors hover:bg-accent-brand/20"
             iconClassName="size-3.5"
           />

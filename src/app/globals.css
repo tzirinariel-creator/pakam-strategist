@@ -766,3 +766,24 @@ h4, h5, h6 {
 @media (prefers-reduced-motion: reduce) {
   .pk-float { animation: none; }
 }
+
+/* ── Advisor persona — zero-flash swap ──────────────────────────────────
+   The chosen advisor is device-local, so a dynamically server-rendered page
+   cannot know it: without this, a student who picked הרפרנט watches the King's
+   name and crown paint first and swap after hydration. The head script in
+   app/layout.tsx stamps data-pk-persona on <html> BEFORE first paint, and
+   <PersonaSwap> renders both branches — CSS shows exactly one, from frame one.
+   display:contents keeps the visible branch transparent to the parent's flex
+   or grid layout; the hidden one is display:none, so it is also skipped by
+   screen readers. Unlayered on purpose (a Tailwind v4 utility must not win
+   over it, and @layer components is forbidden in this project). */
+.pk-persona-king,
+.pk-persona-referent {
+  display: contents;
+}
+[data-pk-persona="referent"] .pk-persona-king {
+  display: none;
+}
+:root:not([data-pk-persona="referent"]) .pk-persona-referent {
+  display: none;
+}

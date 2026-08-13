@@ -46,11 +46,14 @@ const row = (over: Record<string, unknown>) => ({
 
 /** Render, choose the "I already have credits" path, upload, and wait for the
  *  review. Returns the onDone spy so tests can assert on the hand-off. */
-async function review(rows: unknown[]) {
+async function review(rows: unknown[], extra: Record<string, unknown> = {}) {
   h.scanRows = rows;
   vi.stubGlobal(
     "fetch",
-    vi.fn(async () => ({ ok: true, json: async () => ({ rows: h.scanRows, englishLevel: null }) })),
+    vi.fn(async () => ({
+      ok: true,
+      json: async () => ({ rows: h.scanRows, englishLevel: null, ...extra }),
+    })),
   );
   const onDone = vi.fn();
   render(
@@ -207,5 +210,134 @@ describe("StepStanding #7 — the capabilities the history step used to own", ()
     await review([row({ courseCode: "0651-1001", courseName: "מבוא לפילוסופיה", grade: 88 })]);
     expect(screen.queryByText(/במסך הבא תוכלו לתקן קורס-קורס/)).not.toBeInTheDocument();
     expect(screen.getByText(/תקנו כאן כל שורה שנקראה לא נכון/)).toBeInTheDocument();
+  });
+});
+
+// =========================================================================
+// #2a (13.8) — "משום מה הוא לא הצליח לקלוט שעשיתי לוגיקה". A course he passed
+// was shown as "בלימוד", with no grade and no obvious way to say otherwise.
+// =========================================================================
+describe("StepStanding #2a — a course with a grade is never reported as בלימוד", () => {
+  it("shows a row that carries both a grade and the *** flag as completed", async () => {
+    const onDone = await review([
+      row({ courseCode: "0651-1001", courseName: "מבוא לפילוסופיה", grade: 88, inProgress: true }),
+    ]);
+    expect(screen.getByText("הושלם")).toBeInTheDocument();
+    expect(screen.queryByText("בלימוד")).not.toBeInTheDocument();
+    confirm();
+    expect(seedOf(onDone)["0651-1001"]).toMatchObject({ grade: 88 });
+  });
+
+  it("offers the grade the other read saw, and one tap makes it the grade", async () => {
+    // What the merge hands over when one read saw 89 and the other saw an empty
+    // grade cell: nothing asserted, both readings kept.
+    const onDone = await review([
+      row({ courseCode: "0651-1001", courseName: "מבוא לפילוסופיה", grade: null, uncertain: true, otherGrade: 89 }),
+      row({ courseCode: "1011-1001", courseName: "מבוא לכלכלה", grade: 90 }),
+    ]);
+    // Not asserted as a fact about the document…
+    expect(screen.getByText("לא ברור")).toBeInTheDocument();
+    expect(screen.queryByText("בלימוד")).not.toBeInTheDocument();
+    // …and the number we do have is offered, not buried.
+    expect(screen.getByText("באחת הקריאות יצא")).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "זה הציון" }));
+    expect(screen.queryByText("לא ברור")).not.toBeInTheDocument();
+    expect(screen.getAllByText("הושלם")).toHaveLength(2);
+
+    confirm();
+    expect(seedOf(onDone)["0651-1001"]).toMatchObject({ grade: 89 });
+  });
+
+  it("gives an ungraded row a named way in, and the typed grade counts", async () => {
+    const onDone = await review([
+      row({ courseCode: "0651-1001", courseName: "מבוא לפילוסופיה", grade: null, inProgress: true }),
+      row({ courseCode: "1011-1001", courseName: "מבוא לכלכלה", grade: 90 }),
+    ]);
+    expect(screen.getByText("בלימוד")).toBeInTheDocument();
+
+    fireEvent.click(screen.getAllByRole("button", { name: /להזין ציון/ })[0]!);
+    fireEvent.change(gradeInput(0), { target: { value: "88" } });
+
+    confirm();
+    const seed = seedOf(onDone);
+    expect(Object.keys(seed).sort()).toEqual(["0651-1001", "1011-1001"]);
+    expect(seed["0651-1001"]).toMatchObject({ grade: 88 });
+  });
+
+  it("says out loud when the grades read don't add up to the printed average", async () => {
+    await review(
+      [row({ courseCode: "0651-1001", courseName: "מבוא לפילוסופיה", grade: 88 })],
+      { averageMismatch: { computed: 91.2, printed: 94 } },
+    );
+    expect(screen.getByText("יש פער מול הממוצע שמודפס בגיליון")).toBeInTheDocument();
+  });
+
+  it("stays quiet about the average when the scanner found no gap", async () => {
+    await review([row({ courseCode: "0651-1001", courseName: "מבוא לפילוסופיה", grade: 88 })]);
+    expect(screen.queryByText("יש פער מול הממוצע שמודפס בגיליון")).not.toBeInTheDocument();
+  });
+});
+
+// =========================================================================
+// #2b — "עדיף שזה יחולק לסמסטרים בסיכום ביניים הזה".
+// =========================================================================
+describe("StepStanding #2b — the review is split into the sheet's semesters", () => {
+  const scanned = () =>
+    review([
+      row({ courseCode: "1011-1001", courseName: "מבוא לכלכלה", grade: 91, semester: "2025/2" }),
+      row({ courseCode: "0651-1001", courseName: "מבוא לפילוסופיה", grade: 88, semester: "2024/1" }),
+      row({ courseCode: "1031-1001", courseName: "מבוא למדע המדינה", grade: 76, semester: null }),
+    ]);
+
+  it("heads each block with the sheet's own semester, earliest first", async () => {
+    await scanned();
+    const body = document.body.textContent!;
+    expect(screen.getByText("שנה א׳ · סמסטר א׳")).toBeInTheDocument();
+    expect(screen.getByText("שנה ב׳ · סמסטר ב׳")).toBeInTheDocument();
+    // The raw header is shown too — the student can check it against the sheet.
+    expect(screen.getAllByText("2024/1").length).toBeGreaterThan(0);
+    expect(screen.getAllByText("2025/2").length).toBeGreaterThan(0);
+    expect(body.indexOf("שנה א׳ · סמסטר א׳")).toBeLessThan(body.indexOf("שנה ב׳ · סמסטר ב׳"));
+  });
+
+  it("puts a row the sheet didn't date in its own labelled block, last", async () => {
+    await scanned();
+    const body = document.body.textContent!;
+    expect(screen.getByText("סמסטר לא ידוע")).toBeInTheDocument();
+    expect(body.indexOf("שנה ב׳ · סמסטר ב׳")).toBeLessThan(body.indexOf("סמסטר לא ידוע"));
+  });
+
+  it("keeps every per-row control working after the split", async () => {
+    const onDone = await scanned();
+    // The rows are re-ordered on screen; the edit must still land on the row the
+    // student is looking at, not on whatever was at that index in the scan.
+    fireEvent.click(screen.getByRole("checkbox", { name: "כללו את מבוא לפילוסופיה" }));
+    openFix(1); // second row on screen — מבוא לכלכלה (2025/2)
+    fireEvent.change(gradeInput(0), { target: { value: "95" } });
+
+    confirm();
+    const seed = seedOf(onDone);
+    expect(Object.keys(seed).sort()).toEqual(["1011-1001", "1031-1001"]);
+    expect(seed["1011-1001"]).toMatchObject({ grade: 95 });
+  });
+});
+
+// =========================================================================
+// #3 — "הלחצנים למטה נראים מוזר": two bare text links on one line, reading as
+// one broken sentence under the primary action.
+// =========================================================================
+describe("StepStanding #3 — the two escape hatches are real, separated controls", () => {
+  it("offers both as buttons, and the manual one no longer reads as a fragment", async () => {
+    const onDone = await review([row({ courseCode: "0651-1001", courseName: "מבוא לפילוסופיה", grade: 88 })]);
+    expect(screen.getByRole("button", { name: /לסרוק קובץ אחר/ })).toBeInTheDocument();
+    const manual = screen.getByRole("button", { name: /לא מדויק\? נמלא ידנית/ });
+    fireEvent.click(manual);
+    expect(onDone).toHaveBeenCalledWith({ choice: "returning" });
+  });
+
+  it("scanning another file returns to the upload screen, review discarded", async () => {
+    await review([row({ courseCode: "0651-1001", courseName: "מבוא לפילוסופיה", grade: 88 })]);
+    fireEvent.click(screen.getByRole("button", { name: /לסרוק קובץ אחר/ }));
+    expect(screen.getByText("העלו את גיליון הציונים")).toBeInTheDocument();
   });
 });

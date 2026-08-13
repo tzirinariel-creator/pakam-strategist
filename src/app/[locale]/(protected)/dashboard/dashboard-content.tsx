@@ -40,7 +40,7 @@ import { ExamCountdown } from "@/components/dashboard/exam-countdown";
 import { RecommendationsWidget } from "@/components/dashboard/recommendations-widget";
 import { StudyPlannerWidget } from "@/components/dashboard/study-planner-widget";
 import { MyStatusHero, type DisciplineProgress } from "@/components/dashboard/my-status-hero";
-import { MeetTheKingCard } from "@/components/dashboard/meet-the-king-card";
+import { MeetTheAdvisorCard } from "@/components/dashboard/meet-the-advisor-card";
 import { getActiveProgram } from "@/lib/programs/registry";
 import { buildRecommendations } from "@/lib/recommendations-engine";
 import { binaryCapRemaining, binaryBenefitOf, type MiluimGroupKey } from "@/lib/miluim";
@@ -52,6 +52,7 @@ import { QuickActionCard } from "@/components/dashboard/quick-action-card";
 import { GoogleCalendarBanner } from "@/components/dashboard/google-calendar-banner";
 import { WelcomeHomeCard } from "@/components/dashboard/welcome-home-card";
 import { BiddingSeasonCard } from "@/components/dashboard/bidding-season-card";
+import { NextSemesterCard } from "@/components/dashboard/next-semester-card";
 import { CohortWisdomTeaser } from "@/components/dashboard/cohort-wisdom-teaser";
 
 // -----------------------------------------------------------------------
@@ -724,13 +725,13 @@ export function DashboardContent() {
         </div>
       )}
 
-      {/* Meet the King (#13/#14/#26) — introduces the assistant to a first-timer
-          and hands interactive starters (incl. one that teaches he can be
-          COMMANDED). Own dismiss; suppressed during the tour (which now has its
-          own King step) so the two never stack. */}
+      {/* Meet your advisor (#13/#14/#26) — introduces the assistant to a
+          first-timer and hands interactive starters (incl. one that teaches it
+          can be COMMANDED). Follows the chosen persona. Own dismiss; suppressed
+          during the tour (which has its own advisor step) so they never stack. */}
       {tourChecked && !tourOpen && hasPlanData && (fromOnboarding || onboardingFlag || isNewUser) && (
         <div className="animate-stagger-1">
-          <MeetTheKingCard />
+          <MeetTheAdvisorCard />
         </div>
       )}
 
@@ -751,9 +752,26 @@ export function DashboardContent() {
         />
       )}
 
-      {/* #15 (12.7) — seasonal bidding entry. Suppressed when the TimeFocus
-          hero already owns the bidding ask. */}
-      {!tourOpen && !isTransitioning && timeFocus?.kind !== "bidding" && <BiddingSeasonCard />}
+      {/* Registration. 13.8: this used to be gated on `timeFocus?.kind !==
+          "bidding"`, which meant that in the one situation where the app HAS
+          published round dates the home screen showed the least — a one-line
+          hero and nothing else. The card now decides for itself: with real
+          dates it renders the full timeline (which the hero cannot carry),
+          otherwise it defers to the hero and stays quiet. */}
+      {!tourOpen && !isTransitioning && (
+        <BiddingSeasonCard heroOwnsBidding={timeFocus?.kind === "bidding"} />
+      )}
+
+      {/* "מתי זה מזכיר לי לתכנן את הסמסטר הבא?" — the half-planned-year nudge.
+          Calendar-driven, once per target semester, and honest about what we
+          don't know regarding the round's scope. */}
+      {!tourOpen && !isTransitioning && (
+        <NextSemesterCard
+          courses={planQuery.data?.courses ?? []}
+          startYear={profileQuery.data?.startYear}
+          storedYear={profileQuery.data?.currentYear ?? 1}
+        />
+      )}
 
       {/* #24 (12.7) — the cohort file travels with you: the freshest insight
           from the wall, right on the home screen. */}

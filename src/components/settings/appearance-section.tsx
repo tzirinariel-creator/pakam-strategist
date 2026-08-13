@@ -6,6 +6,8 @@ import { useTranslations, useLocale } from "next-intl";
 import { cn } from "@/lib/utils";
 import { useUIStore } from "@/stores/ui-store";
 import { SectionCard } from "./section-card";
+import { usePersona } from "@/components/persona/use-persona";
+import { personaLabels } from "@/lib/persona";
 
 // ---------------------------------------------------------------
 // Appearance Section
@@ -16,10 +18,14 @@ export function AppearanceSection() {
   const locale = useLocale();
   const isHe = locale === "he";
   const { theme, setTheme } = useUIStore();
+  // The setting belongs to whichever advisor the student chose — naming the
+  // King here to a Referent user was one of the incoherent surfaces (13.8).
+  const { persona } = usePersona();
+  const labels = personaLabels(persona, isHe);
 
-  // The King's proactive suggestion (note #12) — a global opt-out kept in
-  // localStorage (pk-proactive-off). ON = the King may surface one critical gap
-  // when you open him; OFF = he stays quiet until asked.
+  // The advisor's proactive suggestion (note #12) — a global opt-out kept in
+  // localStorage (pk-proactive-off). ON = the advisor may surface one critical
+  // gap when you open them; OFF = they stay quiet until asked.
   const [proactiveOn, setProactiveOn] = useState(true);
   useEffect(() => {
     try {
@@ -97,17 +103,17 @@ export function AppearanceSection() {
         <div className="flex items-center justify-between gap-4">
           <div className="min-w-0">
             <label className="text-sm font-medium text-foreground/80">
-              {isHe ? "המלך יציף פער קריטי כשתפתחו אותו" : "Let the King surface one critical gap when I open him"}
+              {isHe ? `${labels.short} יציף פער קריטי כשתפתחו אותו` : `Let ${labels.short} surface one critical gap when I open the panel`}
             </label>
             <p className="mt-0.5 text-xs text-foreground/50">
-              {isHe ? "אם משהו אצלכם דורש טיפול — המלך יגיד את זה ברגע שתפתחו אותו. הוא אף פעם לא קופץ מעצמו באמצע העבודה." : "When you open the King and he sees something that needs attention — he says so. Only on entry, never mid-flow."}
+              {isHe ? `אם משהו אצלכם דורש טיפול — ${labels.short} יגיד את זה ברגע שתפתחו אותו. הוא אף פעם לא קופץ מעצמו באמצע העבודה.` : `When you open ${labels.short} and there is something that needs attention — you hear about it. Only on entry, never mid-flow.`}
             </p>
           </div>
           <button
             type="button"
             role="switch"
             aria-checked={proactiveOn}
-            aria-label={isHe ? "המלך יציף פער קריטי כשתפתחו אותו" : "Let the King surface one critical gap when I open him"}
+            aria-label={isHe ? `${labels.short} יציף פער קריטי כשתפתחו אותו` : `Let ${labels.short} surface one critical gap when I open the panel`}
             onClick={toggleProactive}
             className={cn(
               "relative inline-flex h-6 w-11 shrink-0 items-center rounded-full transition-colors",

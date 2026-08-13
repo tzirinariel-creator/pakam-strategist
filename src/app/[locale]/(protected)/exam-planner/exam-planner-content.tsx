@@ -15,7 +15,7 @@ import { advisorError } from "@/lib/advisor-toast";
 import { api } from "@/lib/trpc/react";
 import { usePersonalAddress } from "@/components/personal/use-personal-address";
 import { ThemedLoader } from "@/components/ui/themed-loader";
-import { AskKingButton } from "@/components/ui/ask-king-button";
+import { AskAdvisorButton } from "@/components/ui/ask-advisor-button";
 import {
   generateExamPlan,
   analyzeExamPeriod,
@@ -50,6 +50,7 @@ import { AcademicStatusLine, ExamsEmptyState } from "@/components/exam-planner/e
 import { classifyExamAvailability } from "@/lib/exam-availability";
 import { deriveYearOfStudy, getPlanningAnchor } from "@/lib/academic-calendar";
 import { CalendarSyncNudge } from "@/components/calendar/calendar-sync-nudge";
+import { XlsxIntro } from "@/components/exam-planner/xlsx-intro";
 
 export function ExamPlannerContent() {
   const isHe = useLocale() === "he";
@@ -806,11 +807,11 @@ export function ExamPlannerContent() {
           <Lightbulb className="size-4 text-accent-brand" />
           <h3 className="text-sm font-bold text-foreground/85">{isHe ? "המלצות" : "Recommendations"}</h3>
           {withKing && (
-            <AskKingButton
+            <AskAdvisorButton
               promptHe="בוא נחשוב יחד על תוכנית המבחנים שלי — תשאל אותי מה שחסר לך, ואז תגיד מה היית משנה."
               promptEn="Let's think through my exam plan together — ask me what you need, then tell me what you'd change."
-              labelHe="לחשוב על זה עם המלך"
-              labelEn="Think it through with the King"
+              labelHe="לחשוב על זה עם {advisor}"
+              labelEn="Think it through with {advisor}"
               className="ms-auto inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 text-[11px] font-medium text-accent-brand transition-colors hover:bg-accent-brand/10 hover:text-accent-brand"
               iconClassName="size-3"
             />
@@ -951,6 +952,11 @@ export function ExamPlannerContent() {
       ) : (
         // ── STATE A — setup: 4-step wizard wrapping the exam-picking panel ──
         <>
+          {/* First visit only (#4, 13.8): the share menu — and with it the
+              coloured three-sheet .xlsx — only exists once a plan does, so a
+              first-timer had no way to learn this screen produces one. Shown
+              once per device, dismissible, never again. */}
+          <XlsxIntro isHe={isHe} />
           <MoedBenefitBanner />
           <ExamSeasonWisdom isHe={isHe} />
           <MoedPrinciplesCard isHe={isHe} />

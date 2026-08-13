@@ -14,8 +14,8 @@ import {
 } from "lucide-react";
 import { Link } from "@/i18n/navigation";
 import { Bidi } from "@/lib/bidi";
-import { PhilosopherKingIcon } from "@/components/ui/philosopher-king-icon";
-import { AskKingButton } from "@/components/ui/ask-king-button";
+import { AskAdvisorButton } from "@/components/ui/ask-advisor-button";
+import { PersonaIcon } from "@/components/persona/use-persona";
 import { cn } from "@/lib/utils";
 import type {
   Recommendation,
@@ -75,7 +75,7 @@ export function RecommendationsWidget({
   return (
     <div className="data-card p-5">
       <div className="mb-4 flex items-center gap-2">
-        <PhilosopherKingIcon className="h-5 w-5 text-accent-brand" />
+        <PersonaIcon className="h-5 w-5 text-accent-brand" />
         <h3 className="font-display text-base font-bold text-foreground/90">
           {isHe ? "מה כדאי עכשיו" : "What to do now"}
         </h3>
@@ -90,9 +90,9 @@ export function RecommendationsWidget({
           const s = SEVERITY_STYLE[rec.severity];
           return (
             <div key={rec.id} className="group relative">
-            {/* Ask the King to expand on this recommendation (P2 step 9) — a
-                sibling of the card link, not nested, so both stay clickable. */}
-            <AskKingButton
+            {/* Ask the advisor to expand on this recommendation (P2 step 9) —
+                a sibling of the card link, not nested, so both stay clickable. */}
+            <AskAdvisorButton
               promptHe={`הסבר לי את ההמלצה "${rec.titleHe}" — למה זה חשוב לי עכשיו ומה כדאי לעשות?`}
               promptEn={`Explain the recommendation "${rec.titleEn}" — why does it matter for me now and what should I do?`}
               className="absolute end-2 top-2 z-10 inline-flex size-7 items-center justify-center rounded-lg bg-accent-brand/10 text-accent-brand transition-all hover:bg-accent-brand/20 sm:opacity-0 sm:group-hover:opacity-100"

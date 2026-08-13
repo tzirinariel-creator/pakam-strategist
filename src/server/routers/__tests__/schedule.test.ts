@@ -9,6 +9,8 @@
 import { describe, it, expect } from "vitest";
 import { createCallerFactory, createRequestLoaders } from "@/server/trpc/init";
 import { scheduleRouter } from "@/server/routers/schedule";
+import { filterSessionsBySelectedGroups } from "@/components/onboarding/semester-planner/session-group-selector";
+import type { ScheduleSessionLike } from "@/lib/plan-generator";
 
 const USER = { id: "user-1", supabaseId: "sb-1", email: "t@example.com" };
 
@@ -275,6 +277,15 @@ function makeSemesterDb() {
       selectedGroups: { tutorial: "t2" }, // only tutorial group t2 for course B
       course: { code: "BBB-222", nameHe: "קורס ב" },
     },
+    {
+      id: "uc-C",
+      userId: USER.id,
+      plannedYear: 1,
+      plannedSemester: "FALL",
+      // The year-1 reality: three tutorial groups and no choice made yet.
+      selectedGroups: null,
+      course: { code: "CCC-333", nameHe: "קורס ג" },
+    },
   ];
   const sessions: FakeSession[] = [
     { id: "s-a1", courseCode: "AAA-111", sessionType: "lecture", groupCode: "L1", semester: "FALL", dayOfWeek: "SUNDAY", startTime: "09:00", course: { code: "AAA-111", nameHe: "קורס א" } },
@@ -283,6 +294,10 @@ function makeSemesterDb() {
     // Mixed case on purpose — the router lowercases sessionType before matching.
     { id: "s-b-t2", courseCode: "BBB-222", sessionType: "TUTORIAL", groupCode: "t2", semester: "FALL", dayOfWeek: "WEDNESDAY", startTime: "12:00", course: { code: "BBB-222", nameHe: "קורס ב" } },
     { id: "s-b-t1", courseCode: "BBB-222", sessionType: "TUTORIAL", groupCode: "t1", semester: "FALL", dayOfWeek: "THURSDAY", startTime: "12:00", course: { code: "BBB-222", nameHe: "קורס ב" } },
+    { id: "s-c-lec", courseCode: "CCC-333", sessionType: "lecture", groupCode: "01", semester: "FALL", dayOfWeek: "SUNDAY", startTime: "12:00", course: { code: "CCC-333", nameHe: "קורס ג" } },
+    { id: "s-c-t01", courseCode: "CCC-333", sessionType: "tutorial", groupCode: "01", semester: "FALL", dayOfWeek: "MONDAY", startTime: "12:00", course: { code: "CCC-333", nameHe: "קורס ג" } },
+    { id: "s-c-t02", courseCode: "CCC-333", sessionType: "tutorial", groupCode: "02", semester: "FALL", dayOfWeek: "MONDAY", startTime: "14:00", course: { code: "CCC-333", nameHe: "קורס ג" } },
+    { id: "s-c-t03", courseCode: "CCC-333", sessionType: "tutorial", groupCode: "03", semester: "FALL", dayOfWeek: "TUESDAY", startTime: "16:00", course: { code: "CCC-333", nameHe: "קורס ג" } },
   ];
   return {
     user: { findUnique: async () => USER },
@@ -292,12 +307,66 @@ function makeSemesterDb() {
 }
 
 describe("scheduleRouter.getScheduleForSemester — selected-group filter", () => {
-  it("includes ALL sessions of a course with no selectedGroups", async () => {
+  it("includes every session of a course whose types each have ONE group", async () => {
     const { sessions } = await makeCaller(makeSemesterDb()).getScheduleForSemester({ year: 1, semester: "FALL" });
     const ids = sessions.map((s) => s.id);
-    // Course A has no selections → both its lecture and tutorial pass.
+    // Course A has no selections, and each of its types offers a single group —
+    // so nothing is a choice and everything it has runs.
     expect(ids).toContain("s-a1");
     expect(ids).toContain("s-a2");
+  });
+
+  it("CHANGED 13.8 — a course with no saved choice no longer returns all six groups", async () => {
+    // This assertion used to be the opposite: "no selectedGroups → include ALL
+    // sessions (backward compat)". That was the bug behind "the week you approve
+    // is not the week you get" — the planner drew ONE tutorial group (its rule:
+    // first group alphabetically) while this query handed the dashboard and
+    // /calendar all of them, stacked on the same hours. /calendar hid the extras
+    // in the browser with its own near-copy of the rule; the dashboard didn't.
+    // The server now runs the SAME shared rule as the planner. Nothing is
+    // written back to selectedGroups — a default is not a decision — and the
+    // response reports which types are still defaulted so the client can say so.
+    const { sessions, defaultedGroups } = await makeCaller(makeSemesterDb()).getScheduleForSemester({
+      year: 1,
+      semester: "FALL",
+    });
+    const ids = sessions.map((s) => s.id);
+    // Course C never chose: it keeps group "01" (alphabetically first) only.
+    expect(ids).toContain("s-c-t01");
+    expect(ids).not.toContain("s-c-t02");
+    expect(ids).not.toContain("s-c-t03");
+    // …and it is reported as OUR default, with every option the picker needs.
+    const defaulted = (defaultedGroups ?? []).find((d) => d.courseCode === "CCC-333");
+    expect(defaulted).toMatchObject({ sessionType: "tutorial", keptGroup: "01" });
+    expect(defaulted?.options.map((o) => o.groupCode)).toEqual(["01", "02", "03"]);
+    expect(defaulted?.options[1]?.meetings[0]).toMatchObject({ startTime: "14:00" });
+    // A course whose group WAS chosen is not in the defaulted list.
+    expect((defaultedGroups ?? []).some((d) => d.courseCode === "BBB-222")).toBe(false);
+  });
+
+  it("F4 — the planner's filter and this query keep exactly the same sessions", async () => {
+    // The one that silently corrupts a student's week: if these two ever
+    // disagree, the grid they approved and the grid they later see are
+    // different weeks. Same rows, same selections, both rules — one answer.
+    const db = makeSemesterDb();
+    const { sessions } = await makeCaller(db).getScheduleForSemester({ year: 1, semester: "FALL" });
+
+    const rows = await db.scheduleSession.findMany();
+    const selectionsByCode: Record<string, Record<string, string>> = {
+      "BBB-222": { tutorial: "t2" },
+    };
+    const plannerIds = new Set<string>();
+    for (const code of ["AAA-111", "BBB-222", "CCC-333"]) {
+      const courseRows = rows.filter((r) => r.courseCode === code);
+      for (const kept of filterSessionsBySelectedGroups(
+        courseRows as unknown as ScheduleSessionLike[],
+        selectionsByCode[code] ?? {},
+      )) {
+        plannerIds.add((kept as unknown as FakeSession).id);
+      }
+    }
+
+    expect(sessions.map((s) => s.id).sort()).toEqual([...plannerIds].sort());
   });
 
   it("includes a sessionType that is NOT among the student's selections", async () => {
@@ -311,7 +380,9 @@ describe("scheduleRouter.getScheduleForSemester — selected-group filter", () =
     const ids = sessions.map((s) => s.id);
     expect(ids).toContain("s-b-t2"); // selected group t2 kept
     expect(ids).not.toContain("s-b-t1"); // non-selected tutorial group dropped
-    // Net result across both courses: everything except the unselected tutorial.
-    expect(ids.sort()).toEqual(["s-a1", "s-a2", "s-b-lec", "s-b-t2"]);
+    // Net result across the three courses: the chosen tutorial for B, and for C
+    // (nothing chosen) the first group alphabetically — the same single group
+    // the planner grid draws.
+    expect(ids.sort()).toEqual(["s-a1", "s-a2", "s-b-lec", "s-b-t2", "s-c-lec", "s-c-t01"]);
   });
 });

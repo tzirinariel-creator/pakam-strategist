@@ -17,7 +17,7 @@
 //
 // The domain math (lib/binary-advisor, lib/miluim) runs FOR REAL so the test
 // drives the component exactly as production does — only the data sources
-// (tRPC), i18n, sonner, the personal-address hook and AskKingButton are mocked.
+// (tRPC), i18n, sonner, the personal-address hook and AskAdvisorButton are mocked.
 // =========================================================================
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import "@testing-library/jest-dom/vitest";
@@ -47,9 +47,9 @@ vi.mock("@/components/personal/use-personal-address", () => ({
   }),
 }));
 
-// AskKingButton is an unrelated CTA (its own tests) — stub to render nothing so
+// AskAdvisorButton is an unrelated CTA (its own tests) — stub to render nothing so
 // its copy (which echoes the top candidate's name) can't leak into assertions.
-vi.mock("@/components/ui/ask-king-button", () => ({ AskKingButton: () => null }));
+vi.mock("@/components/ui/ask-advisor-button", () => ({ AskAdvisorButton: () => null }));
 
 vi.mock("@/lib/trpc/react", () => ({
   api: {

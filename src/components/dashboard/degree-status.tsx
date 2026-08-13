@@ -16,7 +16,7 @@ import { Link } from "@/i18n/navigation";
 import { CREDIT_REQUIREMENTS, resolveEnglishLevel } from "@/lib/constants";
 import { Bidi } from "@/lib/bidi";
 import { CountUp } from "@/components/ui/count-up";
-import { PhilosopherKingCharacter } from "@/components/ui/philosopher-king-character";
+import { PersonaCharacter, usePersona } from "@/components/persona/use-persona";
 import { cn } from "@/lib/utils";
 import type { CreditBreakdown } from "@/types/degree";
 
@@ -69,6 +69,9 @@ export function DegreeStatus({
   const Arrow = isHe ? ArrowLeft : ArrowRight;
   const target = CREDIT_REQUIREMENTS.TOTAL;
   const isHero = variant === "hero";
+  // The coronation below is the advisor personally marking the finish — so it
+  // is the advisor the student chose, in that advisor's own words.
+  const { isReferent } = usePersona();
   // Detail (disciplines + buckets) folds behind an expander so the hero reads
   // as ONE compass line. Year-1 students start expanded (they still need the
   // bucket map to understand the degree); returning students start collapsed.
@@ -169,17 +172,29 @@ export function DegreeStatus({
 
   return (
     <div>
-      {/* 18:19 (#8) — the coronation: when the degree is 100% done, the King
-          himself marks the moment. Gated hard on completion. */}
+      {/* 18:19 (#8) — the coronation: when the degree is 100% done, the advisor
+          personally marks the moment. Gated hard on completion. */}
       {degreePct >= 100 && (
-        <div className="mb-4 flex items-center gap-3 rounded-xl border border-crown-gold-bright/30 bg-accent-brand/[0.05] p-3">
-          <PhilosopherKingCharacter className="size-12 shrink-0 pk-float" />
+        <div
+          className={cn(
+            "mb-4 flex items-center gap-3 rounded-xl border bg-accent-brand/[0.05] p-3",
+            // Gold framing is the King's; the Referent gets his own teal.
+            isReferent ? "border-referent-teal/30" : "border-crown-gold-bright/30",
+          )}
+        >
+          <PersonaCharacter className="size-12 shrink-0 pk-float" />
           <div>
             <p className="text-sm font-bold text-foreground/85">
               {isHe ? "סיימתם את כל הש״ס — כל הכבוד!" : "All credits complete — congratulations!"}
             </p>
             <p className="text-xs text-foreground/55">
-              {isHe ? "עברתם את הפוליס אבן-אבן. נשאר רק לסגור פורמלית מול המזכירות." : "You built the polis stone by stone. Just close it formally with the office."}
+              {isReferent
+                ? isHe
+                  ? "זהו, הש״ס סגורים. נשאר רק החלק הביורוקרטי — לסגור את זה פורמלית מול המזכירות."
+                  : "That's the credits done. All that's left is the bureaucratic part — close it formally with the office."
+                : isHe
+                  ? "עברתם את הפוליס אבן-אבן. נשאר רק לסגור פורמלית מול המזכירות."
+                  : "You built the polis stone by stone. Just close it formally with the office."}
             </p>
           </div>
         </div>

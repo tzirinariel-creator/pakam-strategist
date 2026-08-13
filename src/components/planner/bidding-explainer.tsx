@@ -11,7 +11,7 @@ import {
   RefreshCw,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { AskKingButton } from "@/components/ui/ask-king-button";
+import { AskAdvisorButton } from "@/components/ui/ask-advisor-button";
 
 /**
  * Bidding explainer — the TAU course-registration auction (מכרז), made concrete.
@@ -57,11 +57,11 @@ export function BiddingExplainer({ isHe }: { isHe: boolean }) {
           <OverlapTrap isHe={isHe} />
           <Checklist isHe={isHe} />
 
-          <AskKingButton
+          <AskAdvisorButton
             promptHe="איך כדאי לי לתעדף בקשות בבידינג? מה הטעויות הנפוצות שכדאי להימנע מהן?"
             promptEn="How should I prioritize my bidding requests? What common mistakes should I avoid?"
-            labelHe="שאל את המלך על אסטרטגיית בידינג"
-            labelEn="Ask the King about bidding strategy"
+            labelHe="שאל את {advisor} על אסטרטגיית בידינג"
+            labelEn="Ask {advisor} about bidding strategy"
             className="inline-flex items-center gap-1.5 rounded-lg bg-accent-brand/10 px-2.5 py-1.5 text-xs font-medium text-accent-brand transition-colors hover:bg-accent-brand/20"
             iconClassName="size-3.5"
           />

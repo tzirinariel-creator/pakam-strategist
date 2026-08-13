@@ -19,7 +19,7 @@ import {
   type MiluimGroupKey,
 } from "@/lib/miluim";
 import { canonicalAttempts } from "@/lib/grade-calculator";
-import { AskKingButton } from "@/components/ui/ask-king-button";
+import { AskAdvisorButton } from "@/components/ui/ask-advisor-button";
 import { cn } from "@/lib/utils";
 
 /**
@@ -204,11 +204,11 @@ export function BinaryAdvisor() {
       </p>
 
       <div className="mt-2">
-        <AskKingButton
+        <AskAdvisorButton
           promptHe={`יש לי ${quotaLeft} המרות בינארי. הכי משתלם להמיר את "${top[0]!.course.nameHe}" (ציון ${top[0]!.course.grade}) — הממוצע יעלה ל-${top[0]!.newAverage.toFixed(1)}. מה כדאי לשקול לפני ש${pg("אני מחליט", "אני מחליטה", "מחליטים")}?`}
           promptEn={`I have ${quotaLeft} binary conversions. Converting "${top[0]!.course.nameHe}" (grade ${top[0]!.course.grade}) would raise my average to ${top[0]!.newAverage.toFixed(1)}. What should I weigh before deciding?`}
-          labelHe="שאל את המלך על ההחלטה"
-          labelEn="Ask the King about it"
+          labelHe="שאל את {advisor} על ההחלטה"
+          labelEn="Ask {advisor} about it"
         />
       </div>
     </div>

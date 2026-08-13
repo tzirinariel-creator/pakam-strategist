@@ -1,7 +1,8 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import { useLocale } from "next-intl";
+import { usePersona } from "@/components/persona/use-persona";
+import { personaLabels } from "@/lib/persona";
 import { ExternalLink, ShieldCheck, KeyRound, ClipboardPaste, MousePointerClick } from "lucide-react";
 
 /**
@@ -12,18 +13,13 @@ import { ExternalLink, ShieldCheck, KeyRound, ClipboardPaste, MousePointerClick 
  */
 export function ConnectGeminiGuide() {
   const isHe = useLocale() === "he";
-  // Reflect the chosen advisor persona (device-local, same key the FAB honors)
-  // so the guide names "המלך"/"הרפרנט" instead of a generic advisor (#47).
-  const [persona, setPersona] = useState<"king" | "referent">("king");
-  useEffect(() => {
-    try {
-      setPersona(localStorage.getItem("pk-persona") === "referent" ? "referent" : "king");
-    } catch {
-      /* default king */
-    }
-  }, []);
-  const advisorHe = persona === "referent" ? "הרפרנט" : "המלך";
-  const advisorEn = persona === "referent" ? "the Referent" : "the King";
+  // Reflect the chosen advisor persona (one shared store) so the guide names
+  // "המלך"/"הרפרנט" instead of a generic advisor (#47).
+  // Both step lists are built up-front and one is rendered, so each needs the
+  // name in ITS language — not the current locale's.
+  const { persona } = usePersona();
+  const advisorHe = personaLabels(persona, true).short;
+  const advisorEn = personaLabels(persona, false).short;
 
   const steps = isHe
     ? [
@@ -80,8 +76,8 @@ export function ConnectGeminiGuide() {
           </li>
           <li>
             {isHe
-              ? "המפתח שלכם נשמר אצלנו מוצפן (AES-256), משמש רק לשיחות שלכם, ואפשר להסיר אותו כאן בכל רגע."
-              : "Your key is stored encrypted (AES-256), used only for your own chats, and can be removed here at any moment."}
+              ? "המפתח שלכם נשמר אצלנו מוצפן, משמש רק לשיחות שלכם, ואפשר להסיר אותו כאן בכל רגע."
+              : "Your key is stored encrypted, used only for your own chats, and can be removed here at any moment."}
           </li>
           <li>
             {isHe

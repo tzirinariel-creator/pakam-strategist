@@ -179,8 +179,9 @@ export function CalendarContent() {
   }, [semesterMap, activeSemester]);
 
   // #41 (12.7) — a course whose sessionType still has SEVERAL groups (no
-  // choice saved) used to paint ALL of them on the grid ("נראה זוועה").
-  // Now: detect them, show only the first group, and ask for the choice.
+  // choice saved) used to paint ALL of them on the grid ("נראה זוועה"). The
+  // filtering moved to the server (13.8) so every screen draws the same week;
+  // what stays here is the honest banner and the one-tap choice.
   const utils41 = api.useUtils();
   const updateGroups = api.plan.updateCourse.useMutation({
     onSuccess: () => {
@@ -190,70 +191,40 @@ export function CalendarContent() {
     },
     onError: (e) => advisorError(e.message || (isHe ? "השמירה לא הצליחה — נסו שוב. הבחירה הקודמת נשארה." : "Save failed")),
   });
+  // Which types are still on the app's DEFAULT group, and what the alternatives
+  // are. This used to be re-derived here from the returned sessions with a
+  // near-copy of the planner's rule — a copy that dropped "ALL" meetings and
+  // group-less rows, so the calendar could draw a different week than the
+  // planner. The server now applies the ONE shared rule and reports what it had
+  // to default, so this screen only has to say it out loud.
   const { unchosen, displaySessions } = useMemo(() => {
-    interface SessLite {
-      courseCode: string;
-      sessionType: string | null;
-      groupCode?: string | null;
-      dayOfWeek: number | string;
-      startTime: string;
-      endTime: string;
-      course: { nameHe: string };
-    }
-    const raw = (scheduleData?.sessions ?? []) as unknown as SessLite[];
-    const sessions = raw;
-    const byKey = new Map<string, Set<string>>();
-    for (const sIt of sessions) {
-      const type = (sIt.sessionType ?? "").toLowerCase();
-      const key = `${sIt.courseCode}|${type}`;
-      if (!byKey.has(key)) byKey.set(key, new Set());
-      if (sIt.groupCode) byKey.get(key)!.add(sIt.groupCode);
-    }
-    const multi = new Map<string, string>(); // key → first (kept) group
-    for (const [key, groups] of byKey) {
-      if (groups.size > 1) multi.set(key, [...groups].sort()[0]!);
-    }
-    const display = sessions.filter((sIt) => {
-      const key = `${sIt.courseCode}|${(sIt.sessionType ?? "").toLowerCase()}`;
-      const kept = multi.get(key);
-      return kept === undefined || sIt.groupCode === kept;
-    });
-    // dayOfWeek arrives either as a 1-indexed number OR the string enum
-    // ("SUNDAY"…). Number("SUNDAY") is NaN, so the old code fell through to the
-    // raw uppercase string and the group-picker banner showed "SUNDAY" inside a
-    // Hebrew calendar (live-verify 13.7). Normalize both forms to the 1-indexed
-    // day arrays below (1 = Sunday = א׳).
+    const sessions = scheduleData?.sessions ?? [];
     const DOW_TO_IDX: Record<string, number> = {
       SUNDAY: 1, MONDAY: 2, TUESDAY: 3, WEDNESDAY: 4, THURSDAY: 5, FRIDAY: 6, SATURDAY: 7,
     };
     const dayIdx = (d: number | string): number => {
       if (typeof d === "number") return d;
       const n = Number(d);
-      return Number.isNaN(n) ? (DOW_TO_IDX[d.toUpperCase()] ?? 0) : n;
+      return Number.isNaN(n) ? (DOW_TO_IDX[String(d).toUpperCase()] ?? 0) : n;
     };
-    // one banner entry per course, with its per-type options
     const perCourse = new Map<string, { nameHe: string; types: Map<string, { code: string; label: string }[]> }>();
-    for (const [key] of multi) {
-      const [courseCode, type] = key.split("|") as [string, string];
-      const opts = new Map<string, { code: string; label: string }>();
-      for (const sIt of sessions) {
-        if (sIt.courseCode !== courseCode || (sIt.sessionType ?? "").toLowerCase() !== type || !sIt.groupCode) continue;
-        const dIdx = dayIdx(sIt.dayOfWeek);
-        const dayHe = ["", "א׳", "ב׳", "ג׳", "ד׳", "ה׳", "ו׳", "ש׳"][dIdx] ?? String(sIt.dayOfWeek);
-        const dayEn = ["", "Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"][dIdx] ?? String(sIt.dayOfWeek);
-        const label = `${sIt.groupCode} · ${isHe ? dayHe : dayEn} ${sIt.startTime}-${sIt.endTime}`;
-        if (!opts.has(sIt.groupCode)) opts.set(sIt.groupCode, { code: sIt.groupCode, label });
-      }
-      if (!perCourse.has(courseCode)) {
-        const nameHe = sessions.find((x) => x.courseCode === courseCode)?.course.nameHe ?? courseCode;
-        perCourse.set(courseCode, { nameHe, types: new Map() });
-      }
-      perCourse.get(courseCode)!.types.set(type, [...opts.values()]);
+    for (const entry of scheduleData?.defaultedGroups ?? []) {
+      const opts = entry.options.map((o) => {
+        const first = o.meetings[0];
+        const idx = first ? dayIdx(first.dayOfWeek) : 0;
+        const dayHe = ["", "א׳", "ב׳", "ג׳", "ד׳", "ה׳", "ו׳", "ש׳"][idx] ?? "";
+        const dayEn = ["", "Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"][idx] ?? "";
+        const when = first ? `${isHe ? dayHe : dayEn} ${first.startTime}-${first.endTime}` : "";
+        // Half the groups in the catalog meet more than once — say so instead
+        // of describing the group by its first meeting alone.
+        const more = o.meetings.length > 1 ? ` +${o.meetings.length - 1}` : "";
+        return { code: o.groupCode, label: `${o.groupCode} · ${when}${more}` };
+      });
+      const existing = perCourse.get(entry.courseCode);
+      if (existing) existing.types.set(entry.sessionType, opts);
+      else perCourse.set(entry.courseCode, { nameHe: entry.courseNameHe, types: new Map([[entry.sessionType, opts]]) });
     }
-    return {
-      unchosen: perCourse,
-      displaySessions: display as unknown as NonNullable<typeof scheduleData>["sessions"],
-    };
+    return { unchosen: perCourse, displaySessions: sessions };
   }, [scheduleData, isHe]);
 
   const chooseGroup = (courseCode: string, type: string, groupCode: string) => {
@@ -531,7 +502,12 @@ export function CalendarContent() {
                               onClick={() => chooseGroup(code, type, o.code)}
                               className="rounded-full border border-amber-500/40 bg-card px-2.5 py-1 text-[11px] font-medium text-foreground/70 transition-colors hover:border-amber-500 hover:bg-amber-500/10 disabled:opacity-50"
                             >
-                              <bdi dir="ltr">{o.label}</bdi>
+                              {/* <bdi> WITHOUT dir="ltr": the label is
+                                  "01 · שני 10:00-12:00" — it contains a Hebrew
+                                  day name, and forcing LTR threw that word to
+                                  the end ("01 · 10:00-12:00 שני", measured).
+                                  dir="auto" picks the right base per locale. */}
+                              <bdi>{o.label}</bdi>
                             </button>
                           ))}
                         </div>

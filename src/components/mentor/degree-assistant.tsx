@@ -2,7 +2,7 @@
 
 import { useState, useRef, useEffect } from "react";
 import { Send, ArrowLeft, ArrowRight } from "lucide-react";
-import { PhilosopherKingIcon } from "@/components/ui/philosopher-king-icon";
+import { PersonaIcon } from "@/components/persona/use-persona";
 import { useLocale } from "next-intl";
 import { toast } from "sonner";
 import { api } from "@/lib/trpc/react";
@@ -65,7 +65,7 @@ export function DegreeAssistant() {
     <div className="flex min-h-[70vh] flex-col gap-4 p-4 md:p-6">
       <div className="flex items-center gap-3">
         <div className="flex size-10 items-center justify-center rounded-xl bg-accent-brand-muted text-accent-brand">
-          <PhilosopherKingIcon className="size-5" />
+          <PersonaIcon className="size-5" />
         </div>
         <div>
           <h1 className="font-display text-xl font-bold text-foreground/90">

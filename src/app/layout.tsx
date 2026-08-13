@@ -89,6 +89,18 @@ export default async function RootLayout({
             __html: `(function(){try{var s=JSON.parse(localStorage.getItem("pakam-ui")||"{}");var t=s&&s.state&&s.state.theme;var c=(t==="dark")?"dark":(t==="light")?"light":window.matchMedia("(prefers-color-scheme:dark)").matches?"dark":"light";document.documentElement.className=document.documentElement.className.replace(/\\b(dark|light)\\b/g,"")+" "+c}catch(e){document.documentElement.classList.add("light")}})()`,
           }}
         />
+        {/* Same trick for the ADVISOR PERSONA. The protected layout is dynamic
+            SSR, so the server paints the default (the King) before any React
+            runs — a student who chose the Referent would watch the King's name
+            and face flash on every cold load. This stamps the device-local
+            choice on <html> before first paint; globals.css then shows the
+            right branch of <PersonaSwap> immediately. Keep the key in sync with
+            PERSONA_KEY / PERSONA_ATTR in lib/persona.ts. */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `(function(){try{document.documentElement.setAttribute("data-pk-persona",localStorage.getItem("pk-persona")==="referent"?"referent":"king")}catch(e){document.documentElement.setAttribute("data-pk-persona","king")}})()`,
+          }}
+        />
       </head>
       <body
         className="antialiased min-h-screen bg-background text-foreground"

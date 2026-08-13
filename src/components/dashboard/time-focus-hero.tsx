@@ -8,6 +8,7 @@ import { useLocale } from "next-intl";
 import { CalendarClock, ClipboardCheck, Gavel, CalendarDays, GraduationCap } from "lucide-react";
 import { Link } from "@/i18n/navigation";
 import type { TimeFocus } from "@/lib/time-focus";
+import { Bidi } from "@/lib/bidi";
 import { cn } from "@/lib/utils";
 import { daysUntilLabel } from "@/lib/days-until";
 
@@ -49,7 +50,38 @@ export function TimeFocusHero({ focus }: { focus: TimeFocus | null }) {
             : "Scan your sheet or enter grades — your average and track check update instantly.",
           cta: isHe ? "לעדכון ציונים" : "Update grades",
         };
-      case "bidding":
+      case "bidding": {
+        // With PUBLISHED round dates in hand, name the round and the phase —
+        // "לקראת המכרז בעוד 66 ימים" (days to TEACHING) was both vaguer and
+        // wrong-by-weeks against the real 7.9 opening. Without them, the old
+        // window wording stands: it claims no date.
+        const p = focus.bidding;
+        if (p && p.kind !== "done") {
+          const when = daysUntilLabel(d, isHe);
+          const title =
+            p.kind === "open"
+              ? isHe ? `מקצה ${p.round} פתוח — נסגר ${when}` : `Round ${p.round} is open — closes ${when}`
+              : p.kind === "awaiting-results"
+                ? isHe ? `מקצה ${p.round} נסגר — התוצאות ${when}` : `Round ${p.round} closed — results ${when}`
+                : isHe ? `מקצה ${p.round} נפתח ${when}` : `Round ${p.round} opens ${when}`;
+          const body =
+            p.kind === "open"
+              ? isHe
+                ? "אפשר לשנות העדפות עד הסגירה. מועד ההקלדה לא משנה — כדאי לוודא שאין חפיפות."
+                : "You can change preferences until it closes. Submission time doesn't matter — make sure there are no clashes."
+              : p.kind === "awaiting-results"
+                ? isHe
+                  ? "אין מה להגיש כרגע. כשהתוצאות יפורסמו נראה מה התקבל ומה נשאר פתוח."
+                  : "Nothing to submit right now. When results land, see what got in and what's still open."
+                : p.kind === "between-rounds"
+                  ? isHe
+                    ? "זה חלון הביטולים — ביטול קורס עכשיו מחזיר את הנקודות שלו למקצה הבא."
+                    : "This is the cancellation window — dropping a course now returns its points for the next round."
+                  : isHe
+                    ? "זה זמן ההכנה: סגרו את המערכת ובדקו חפיפות לפני שהמקצה נפתח."
+                    : "This is prep time: lock your timetable and check clashes before the round opens.";
+          return { title, body, cta: isHe ? "לבדיקת חפיפות" : "Check clashes" };
+        }
         return {
           title: isHe ? `לקראת המכרז — ${daysUntilLabel(d, true)}` : `Toward bidding — ${daysUntilLabel(d, false)}`,
           body: isHe
@@ -57,6 +89,7 @@ export function TimeFocusHero({ focus }: { focus: TimeFocus | null }) {
             : "Finalize next semester's plan and check clashes before registration opens.",
           cta: isHe ? "לבדיקת חפיפות" : "Check clashes",
         };
+      }
       case "teaching":
         return {
           title: isHe ? "אנחנו באמצע הסמסטר" : "Mid-semester",
@@ -82,7 +115,12 @@ export function TimeFocusHero({ focus }: { focus: TimeFocus | null }) {
         <Icon className="size-5" />
       </div>
       <div className="min-w-0 flex-1">
-        <p className="text-sm font-bold text-foreground/85">{copy.title}</p>
+        {/* The title now carries round numbers and countdowns inside Hebrew
+            ("מקצה 1 נסגר — התוצאות בעוד 2 ימים"); isolate the LTR runs so the
+            bidi algorithm can't reorder them. */}
+        <p className="text-sm font-bold text-foreground/85">
+          <Bidi text={copy.title} />
+        </p>
         <p className="mt-0.5 text-xs text-foreground/60">{copy.body}</p>
       </div>
       <Link

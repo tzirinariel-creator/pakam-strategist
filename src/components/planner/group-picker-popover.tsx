@@ -2,7 +2,7 @@
 
 import { useMemo } from "react";
 import { useLocale } from "next-intl";
-import { AlertTriangle, Check, MapPin, Sunrise, Users } from "lucide-react";
+import { Users } from "lucide-react";
 import {
   Popover,
   PopoverContent,
@@ -13,13 +13,11 @@ import { Bidi } from "@/lib/bidi";
 import { type SessionInfo } from "@/lib/conflict-detector";
 import {
   buildGroupChoices,
-  dayNameFor,
-  describeGroupImpact,
-  formatLocation,
+  isGroupChosen,
   resolveSelectedGroup,
   sessionTypeNameFor,
-  type GroupOption,
 } from "@/lib/group-options";
+import { GroupRow } from "./group-row";
 import type { CourseWithSchedule } from "@/lib/plan-generator";
 
 // ─── Types ───────────────────────────────────────────────────────────
@@ -37,112 +35,6 @@ interface GroupPickerPopoverProps {
   currentSemester?: "FALL" | "SPRING";
   /** The trigger (e.g. a small "החלף קבוצה" button on a course block). */
   children: React.ReactNode;
-}
-
-// ─── One group row ───────────────────────────────────────────────────
-
-function GroupRow({
-  option,
-  isSelected,
-  isHe,
-  onPick,
-}: {
-  option: GroupOption;
-  isSelected: boolean;
-  isHe: boolean;
-  onPick: () => void;
-}) {
-  const hasClash = option.clashes.length > 0;
-  const impact = describeGroupImpact(option, isHe);
-
-  return (
-    <button
-      type="button"
-      onClick={onPick}
-      aria-pressed={isSelected}
-      className={cn(
-        "flex w-full flex-col gap-1 rounded-lg border px-2.5 py-2 text-start transition-colors",
-        isSelected
-          ? "border-accent-brand/45 bg-accent-brand/[0.08]"
-          : hasClash
-            ? "border-red-400/35 bg-red-400/[0.05] hover:bg-red-400/[0.08]"
-            : "border-border/50 bg-foreground/[0.02] hover:bg-foreground/[0.06]",
-      )}
-    >
-      {/* Line 1 — identity + verdict */}
-      <span className="flex items-center gap-1.5">
-        {isSelected ? (
-          <Check className="size-3 shrink-0 text-accent-brand" />
-        ) : hasClash ? (
-          <AlertTriangle className="size-3 shrink-0 text-red-400" />
-        ) : (
-          <span className="size-3 shrink-0" aria-hidden />
-        )}
-        <span
-          className={cn(
-            "text-[11px] font-semibold",
-            isSelected ? "text-accent-brand" : "text-foreground/80",
-          )}
-        >
-          {isHe ? "קבוצה " : "Group "}
-          <Bidi text={option.groupCode} />
-        </span>
-        <span className="flex-1" />
-        {hasClash ? (
-          <span className="shrink-0 rounded bg-red-400/12 px-1.5 py-0.5 text-[10px] font-semibold text-red-400">
-            {isHe ? "חופפת" : "clashes"}
-          </span>
-        ) : (
-          <span className="shrink-0 rounded bg-emerald-400/12 px-1.5 py-0.5 text-[10px] font-semibold text-emerald-500">
-            {isHe ? "פנויה" : "free"}
-          </span>
-        )}
-      </span>
-
-      {/* Line 2..n — EVERY meeting: day, hours, room. Half the groups in the
-          תשפ״ז catalog meet more than once; showing only the first was wrong. */}
-      <span className="flex flex-col gap-0.5 ps-[18px]">
-        {option.meetings.map((m, i) => (
-          <span
-            key={`${m.dayOfWeek}-${m.startTime}-${i}`}
-            className="flex flex-wrap items-center gap-x-1.5 text-[11px] text-foreground/65"
-          >
-            <span className="font-medium">{dayNameFor(m.dayOfWeek, isHe)}</span>
-            <Bidi text={`${m.startTime}–${m.endTime}`} />
-            {formatLocation(m) && (
-              <span className="flex items-center gap-0.5 text-foreground/40">
-                <MapPin className="size-2.5 shrink-0" />
-                <Bidi text={formatLocation(m)} />
-              </span>
-            )}
-          </span>
-        ))}
-      </span>
-
-      {/* Line n+1 — lecturers */}
-      {option.lecturers.length > 0 && (
-        <span className="truncate ps-[18px] text-[10px] text-foreground/40">
-          {option.lecturers.join(" · ")}
-        </span>
-      )}
-
-      {/* Line n+2 — what this pick does to the week. The sentence comes from
-          describeGroupImpact (tested), never composed here. Facts only. */}
-      <span
-        className={cn(
-          "flex items-center gap-1 ps-[18px] text-[10px] leading-snug",
-          impact.tone === "clash"
-            ? "text-red-400/90"
-            : impact.tone === "newDay"
-              ? "text-amber-500/90"
-              : "text-foreground/35",
-        )}
-      >
-        {impact.tone === "newDay" && <Sunrise className="size-2.5 shrink-0" />}
-        <Bidi text={impact.text} />
-      </span>
-    </button>
-  );
 }
 
 // ─── Component ───────────────────────────────────────────────────────
@@ -197,6 +89,10 @@ export function GroupPickerPopover({
         {choices.map((choice) => {
           const typeName = sessionTypeNameFor(choice.sessionType, isHe);
           const current = resolveSelectedGroup(choice, selectedGroups);
+          // Is what's on the grid a DECISION, or our fallback? The row styling
+          // depends on it, and so does whether this type still counts as
+          // "unchosen" anywhere else in the product.
+          const chosen = isGroupChosen(choice, selectedGroups);
 
           return (
             <div key={choice.sessionType} className="space-y-1.5">
@@ -224,12 +120,21 @@ export function GroupPickerPopover({
                 </p>
               </div>
 
+              {!chosen && (
+                <p className="text-[10px] leading-snug text-amber-700 dark:text-amber-400">
+                  {isHe
+                    ? "עוד לא בחרתם — המערכת מציגה בינתיים את הקבוצה המסומנת בקו מקווקו."
+                    : "You haven't chosen yet — the dashed row is what we're showing meanwhile."}
+                </p>
+              )}
+
               <div className="flex flex-col gap-1.5">
                 {choice.options.map((opt) => (
                   <GroupRow
                     key={opt.groupCode}
                     option={opt}
                     isSelected={opt.groupCode === current}
+                    isDefaulted={!chosen}
                     isHe={isHe}
                     onPick={() =>
                       onPickGroup(course.code, choice.sessionType, opt.groupCode)

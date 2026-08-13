@@ -5,7 +5,7 @@ import { useTranslations, useLocale } from "next-intl";
 import { XCircle, AlertTriangle, CheckCircle2, ChevronDown, ShieldAlert, ArrowLeft } from "lucide-react";
 import { Link } from "@/i18n/navigation";
 import { RuleCard } from "./rule-card";
-import { AskKingButton } from "@/components/ui/ask-king-button";
+import { AskAdvisorButton } from "@/components/ui/ask-advisor-button";
 import { cn } from "@/lib/utils";
 import { ruleGroup, RULE_GROUP_ORDER, RULE_GROUP_META, type RuleGroup } from "@/lib/regulations/rule-categories";
 import type { RegulationResult } from "@/types/regulation";
@@ -135,11 +135,11 @@ function RedFlagCard({ rule, isHe }: { rule: RegulationResult; isHe: boolean }) 
         <div className="min-w-0 flex-1">
           <p className="text-sm font-bold text-foreground/85">{name}</p>
           <p className="mt-0.5 text-xs leading-relaxed text-foreground/65">{msg}</p>
-          <AskKingButton
+          <AskAdvisorButton
             promptHe={`הסבר לי את הדרישה "${name}" — למה אני עדיין לא ${pg("עומד", "עומדת", "עומד/ת")} בה, ומה בדיוק לעשות כדי לסגור אותה?`}
             promptEn={`Explain the requirement "${name}" — why am I not meeting it, and what exactly should I do to close it?`}
-            labelHe="שאל את המלך איך לסגור את זה"
-            labelEn="Ask the King how to close this"
+            labelHe="שאל את {advisor} איך לסגור את זה"
+            labelEn="Ask {advisor} how to close this"
             className="mt-2.5 inline-flex items-center gap-1.5 rounded-lg bg-accent-brand/10 px-2.5 py-1.5 text-xs font-medium text-accent-brand transition-colors hover:bg-accent-brand/20"
             iconClassName="size-3.5"
           />

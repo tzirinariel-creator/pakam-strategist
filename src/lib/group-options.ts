@@ -14,6 +14,7 @@
 // guidelines forbid extrapolating from prior years.
 
 import { detectTimeConflicts, type SessionInfo } from "@/lib/conflict-detector";
+import { savedGroupFor } from "@/lib/session-groups";
 import type { ScheduleSessionLike } from "@/lib/plan-generator";
 import type { DayOfWeek } from "@/types/enums";
 
@@ -413,12 +414,27 @@ export function describeGroupImpact(
   };
 }
 
-/** The group the UI should show as chosen: the saved pick, else the grid's fallback. */
+/** The group the UI should show as current: the saved pick, else the grid's fallback. */
 export function resolveSelectedGroup(
   choice: GroupChoice,
   selectedGroups: Record<string, string> | undefined,
 ): string {
-  const picked = selectedGroups?.[choice.sessionType];
+  const picked = savedGroupFor(selectedGroups, choice.sessionType);
   if (picked && choice.options.some((o) => o.groupCode === picked)) return picked;
   return choice.defaultGroupCode;
+}
+
+/**
+ * TRUE only when the STUDENT picked this type's group; FALSE when what's on the
+ * grid is the app's alphabetical fallback. The picker and the grid both need to
+ * tell the two apart — rendering a default with the same ✓ as a decision is the
+ * confusion this whole surface was reported for ("לא היה לי אינטואיטיבי להבין
+ * איך אני בדיוק בוחר").
+ */
+export function isGroupChosen(
+  choice: GroupChoice,
+  selectedGroups: Record<string, string> | undefined,
+): boolean {
+  const picked = savedGroupFor(selectedGroups, choice.sessionType);
+  return picked !== undefined && choice.options.some((o) => o.groupCode === picked);
 }

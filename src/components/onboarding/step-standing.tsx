@@ -14,6 +14,7 @@ import {
   aggregateStanding,
   reviseStandingRow,
   manualStandingRow,
+  groupRowsBySemester,
   type StandingSummary,
   type StandingRowEdit,
 } from "@/lib/onboarding-standing";
@@ -73,6 +74,11 @@ export function StepStanding({ allCourses, isLoadingCourses, onDone, onBack }: S
   const [mode, setMode] = useState<"ask" | "upload">("ask");
   const [scan, setScan] = useState<ScanState>({ kind: "idle" });
   const [englishLevel, setEnglishLevel] = useState<string | null>(null);
+  /** #5 — the scanner compares the grades it read against the ממוצע משוקלל
+   *  printed on the sheet. The API has always returned that check; this screen
+   *  used to drop it on the floor, so the one signal that a grade went missing
+   *  never reached the student reviewing the scan. */
+  const [averageMismatch, setAverageMismatch] = useState<{ computed: number; printed: number } | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
 
   const upcomingSemester = useMemo(() => getPlanningAnchor().semester, []);
@@ -80,6 +86,7 @@ export function StepStanding({ allCourses, isLoadingCourses, onDone, onBack }: S
   const handleFile = useCallback(
     async (file: File) => {
       setScan({ kind: "scanning" });
+      setAverageMismatch(null);
       try {
         const { b64, mime } = await fileToBase64(file);
         if (b64.length > 5_000_000) {
@@ -97,8 +104,9 @@ export function StepStanding({ allCourses, isLoadingCourses, onDone, onBack }: S
           body: JSON.stringify({ imageBase64: b64, mimeType: mime }),
         });
         const payload = (await res.json()) as {
-          rows?: (ExtractedRow & { uncertain?: boolean })[];
+          rows?: (ExtractedRow & { uncertain?: boolean; otherGrade?: number | null })[];
           englishLevel?: string | null;
+          averageMismatch?: { computed: number; printed: number } | null;
           error?: string;
         };
         if (!res.ok) {
@@ -128,6 +136,7 @@ export function StepStanding({ allCourses, isLoadingCourses, onDone, onBack }: S
           upcomingSemester,
         });
         setEnglishLevel(payload.englishLevel ?? null);
+        setAverageMismatch(payload.averageMismatch ?? null);
         setScan({ kind: "done", summary });
       } catch {
         setScan({
@@ -390,6 +399,7 @@ export function StepStanding({ allCourses, isLoadingCourses, onDone, onBack }: S
           <StandingSummaryCard
             summary={scan.summary}
             englishLevel={englishLevel}
+            averageMismatch={averageMismatch}
             isHe={isHe}
             allCourses={allCourses}
             onEditRow={editRow}
@@ -433,6 +443,7 @@ function countPhrase(n: number, singular: string, plural: string): string {
 function StandingSummaryCard({
   summary,
   englishLevel,
+  averageMismatch,
   isHe,
   allCourses,
   onEditRow,
@@ -443,6 +454,7 @@ function StandingSummaryCard({
 }: {
   summary: StandingSummary;
   englishLevel: string | null;
+  averageMismatch: { computed: number; printed: number } | null;
   isHe: boolean;
   allCourses: CourseWithSchedule[];
   onEditRow: (index: number, edit: StandingRowEdit) => void;
@@ -465,6 +477,11 @@ function StandingSummaryCard({
       .filter((c) => `${c.code} ${c.nameHe ?? ""} ${c.nameEn ?? ""}`.toLowerCase().includes(q))
       .slice(0, 8);
   }, [search, allCourses, summary.rows]);
+
+  // #2b — the sheet is printed in semester blocks, so the review is read in
+  // them too. Every row keeps its index in the flat list, so the per-row
+  // controls (tick, grade, ש״ס, re-match) are untouched by the grouping.
+  const semesterGroups = useMemo(() => groupRowsBySemester(summary.rows), [summary.rows]);
 
   const p = summary.placement;
   const yearLabel = p
@@ -563,6 +580,33 @@ function StandingSummaryCard({
         )}
       </div>
 
+      {/* #5/#2a — the sheet prints its own weighted average. When what we read
+          doesn't add up to it, a grade was misread or missed — which is exactly
+          how a passed course ends up here with no grade. Say it out loud. */}
+      {averageMismatch && (
+        <div className="rounded-2xl border border-amber-500/30 bg-amber-500/[0.06] p-4">
+          <div className="flex items-start gap-2.5">
+            <AlertTriangle className="mt-0.5 size-4 shrink-0 text-amber-500" />
+            <div className="min-w-0">
+              <p className="text-sm font-semibold text-foreground/85">
+                {isHe
+                  ? "יש פער מול הממוצע שמודפס בגיליון"
+                  : "There's a gap against the average printed on your sheet"}
+              </p>
+              <p className="mt-1 text-sm leading-relaxed text-foreground/60">
+                <Bidi
+                  text={
+                    isHe
+                      ? `בגיליון מודפס ממוצע ${averageMismatch.printed}, ומהציונים שקראנו יוצא ${averageMismatch.computed}. סביר שציון אחד נקרא לא נכון, או שקורס שכבר קיבל ציון נקרא כאילו אין לו — עברו על השורות למטה ותקנו את מה שצריך.`
+                      : `Your sheet prints an average of ${averageMismatch.printed}, and the grades we read give ${averageMismatch.computed}. A grade was probably misread, or a graded course was read as if it had none — go over the rows below and fix what needs fixing.`
+                  }
+                />
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Focus-area standing */}
       {focusRows.length > 0 && (
         <div className="rounded-2xl border border-border bg-card/50 p-4">
@@ -598,6 +642,7 @@ function StandingSummaryCard({
           and explicitly NOT written as completed. */}
       {(summary.failed.length > 0 ||
         summary.inProgress.length > 0 ||
+        summary.unclear.length > 0 ||
         summary.exempt.length > 0 ||
         summary.uncertain.length > 0 ||
         englishLevel) && (
@@ -624,9 +669,30 @@ function StandingSummaryCard({
                     text={
                       isHe
                         ? summary.inProgress.length === 1
-                          ? "קורס אחד עדיין בלימוד — מופיע בגיליון בלי ציון, ולכן לא נרשם כהושלם."
-                          : `${summary.inProgress.length} קורסים עדיין בלימוד — מופיעים בגיליון בלי ציון, ולכן לא נרשמים כהושלמו.`
-                        : `${summary.inProgress.length} still in progress (no grade on the sheet) — not recorded as completed.`
+                          ? "קורס אחד מופיע בגיליון בלי ציון (***), ולכן הוא לא נרשם כהושלם. אם כבר קיבלתם בו ציון — הזינו אותו ברשימה למטה והוא ייחשב כהושלם."
+                          : `${summary.inProgress.length} קורסים מופיעים בגיליון בלי ציון (***), ולכן הם לא נרשמים כהושלמו. אם כבר קיבלתם ציון באחד מהם — הזינו אותו ברשימה למטה והוא ייחשב כהושלם.`
+                        : `${summary.inProgress.length} appear on the sheet with no grade (***), so they aren't recorded as completed. If one of them is already graded, enter the grade in the list below and it will count.`
+                    }
+                  />
+                </span>
+              </li>
+            )}
+            {summary.unclear.length > 0 && (
+              // A row we could not read a verdict from is NOT the same as a row
+              // the sheet says is still being studied. Saying "בלימוד" for it
+              // would be asserting something the document never said.
+              <li className="flex items-start gap-2">
+                <AlertTriangle className="mt-0.5 size-3.5 shrink-0 text-amber-500" />
+                <span>
+                  <Bidi
+                    text={
+                      isHe
+                        ? summary.unclear.length === 1
+                          ? "שורה אחת הגיעה בלי ציון ובלי סימן מעבר, אז לא קבענו לה שום מצב. היא לא נספרת — הזינו את הציון ברשימה למטה, או הסירו את הסימון שלה."
+                          : `${summary.unclear.length} שורות הגיעו בלי ציון ובלי סימן מעבר, אז לא קבענו להן שום מצב. הן לא נספרות — הזינו את הציונים ברשימה למטה, או הסירו את הסימון שלהן.`
+                        : summary.unclear.length === 1
+                          ? "One row came back with no grade and no pass mark, so we decided nothing about it. It counts for nothing — enter its grade in the list below, or un-tick it."
+                          : `${summary.unclear.length} rows came back with no grade and no pass mark, so we decided nothing about them. They count for nothing — enter their grades in the list below, or un-tick them.`
                     }
                   />
                 </span>
@@ -719,8 +785,49 @@ function StandingSummaryCard({
             ? "הסירו סימון משורה שאינה שלכם, תקנו ציון שנקרא לא נכון, ושייכו שורה לקורס הנכון. סף מעבר 60, ובאנגלית 70."
             : "Un-tick a row that isn't yours, fix a grade we misread, and point a row at the right course. The pass bar is 60, and 70 in English."}
         </p>
-        <ul className="mt-3 space-y-1.5">
-          {summary.rows.map((r, i) => {
+        {/* #2b — one block per semester header on the sheet, in the sheet's own
+            order. A row the sheet didn't date gets its own honest block instead
+            of being filed under the semester above it. */}
+        <div className="mt-3 space-y-3.5">
+        {semesterGroups.map((group) => (
+        <section key={group.sheetSemester ?? "unknown"}>
+          <div className="flex flex-wrap items-baseline gap-x-2 gap-y-0.5 border-b border-border/50 pb-1">
+            <span className="text-xs font-bold text-foreground/75">
+              {group.sheetSemester
+                ? [
+                    group.year ? (isHe ? YEAR_CONFIG[group.year as 1 | 2 | 3]?.nameHe : YEAR_CONFIG[group.year as 1 | 2 | 3]?.nameEn) : null,
+                    group.semester
+                      ? isHe
+                        ? SEMESTER_CONFIG[group.semester]?.nameHe
+                        : SEMESTER_CONFIG[group.semester]?.nameEn
+                      : null,
+                  ]
+                    .filter(Boolean)
+                    .join(" · ") || (isHe ? "סמסטר" : "Semester")
+                : isHe
+                  ? "סמסטר לא ידוע"
+                  : "Unknown semester"}
+            </span>
+            {group.sheetSemester ? (
+              <span className="font-mono text-[11px] text-foreground/40">
+                {isHe ? "בגיליון: " : "on the sheet: "}
+                <Bidi text={group.sheetSemester} />
+              </span>
+            ) : (
+              <span className="text-[11px] text-foreground/40">
+                {isHe
+                  ? "שורות שהגיליון לא הצמיד להן כותרת-סמסטר, וקורסים שהוספתם"
+                  : "Rows the sheet gave no semester header, plus courses you added"}
+              </span>
+            )}
+            <span className="ms-auto text-[11px] text-foreground/40">
+              {isHe
+                ? countPhrase(group.rows.length, "שורה אחת", `${group.rows.length} שורות`)
+                : `${group.rows.length} ${group.rows.length === 1 ? "row" : "rows"}`}
+            </span>
+          </div>
+          <ul className="mt-1.5 space-y-1.5">
+          {group.rows.map(({ row: r, index: i }) => {
             const included = !r.excluded;
             return (
               <li
@@ -798,6 +905,41 @@ function StandingSummaryCard({
                     {isHe ? "הוספתם" : "You added"}
                   </span>
                 )}
+                {/* #2a — one of our two reads DID see a number here and the
+                    other didn't, so we asserted nothing. Show both readings and
+                    let the student settle it with one tap, instead of burying
+                    the number we already have. */}
+                {included && r.grade == null && r.otherGrade != null && (
+                  <span className="inline-flex items-center gap-1.5 rounded-full bg-amber-500/10 px-2 py-0.5 text-[11px] text-amber-600">
+                    {isHe ? "באחת הקריאות יצא" : "One read gave"}
+                    <bdi dir="ltr" className="font-mono font-bold">
+                      {r.otherGrade}
+                    </bdi>
+                    <button
+                      type="button"
+                      onClick={() => onEditRow(i, { grade: r.otherGrade })}
+                      className="rounded font-semibold underline underline-offset-2 hover:text-amber-700"
+                    >
+                      {isHe ? "זה הציון" : "That's the grade"}
+                    </button>
+                  </span>
+                )}
+                {/* A course the sheet shows with no grade is the one row a
+                    student is most likely to need to correct (Ariel's לוגיקה).
+                    A named button beats hunting for the generic pencil. */}
+                {included &&
+                  r.grade == null &&
+                  r.otherGrade == null &&
+                  (r.status === "IN_PROGRESS" || r.status === "UNREADABLE") && (
+                    <button
+                      type="button"
+                      onClick={() => setEditingRow(i)}
+                      className="inline-flex shrink-0 items-center gap-1 rounded-full border border-emerald-500/35 px-2 py-0.5 text-[11px] font-semibold text-emerald-600 transition-colors hover:bg-emerald-500/10"
+                    >
+                      <PenLine className="size-3" />
+                      {isHe ? "להזין ציון" : "Enter a grade"}
+                    </button>
+                  )}
                 <button
                   type="button"
                   onClick={() => setEditingRow((cur) => (cur === i ? null : i))}
@@ -932,7 +1074,10 @@ function StandingSummaryCard({
               </li>
             );
           })}
-        </ul>
+          </ul>
+        </section>
+        ))}
+        </div>
 
         {/* #7 — "add a course we missed" moved here from the history step, which
             a scanned student no longer sees. Dropping it would have cost a real
@@ -993,7 +1138,11 @@ function StandingSummaryCard({
         </div>
       </details>
 
-      <div className="flex flex-col gap-2.5">
+      {/* #3 — the two escape hatches used to be bare text links sitting on one
+          line with nothing between them, so they read as a single broken
+          sentence under the primary action. They are real, separated controls
+          now: same weight as each other, visibly lighter than "נכון". */}
+      <div className="flex flex-col gap-3">
         <button
           type="button"
           onClick={onConfirm}
@@ -1001,20 +1150,22 @@ function StandingSummaryCard({
         >
           {isHe ? "נכון — המשיכו מכאן" : "That's right — continue from here"}
         </button>
-        <div className="flex flex-wrap justify-center gap-x-4 gap-y-2">
+        <div className="grid gap-2 sm:grid-cols-2">
           <button
             type="button"
             onClick={onRedo}
-            className="text-sm text-foreground/45 underline-offset-4 transition-colors hover:text-foreground/70 hover:underline"
+            className="inline-flex items-center justify-center gap-2 rounded-xl border border-border bg-card px-4 py-3 text-sm font-semibold text-foreground/70 transition-colors hover:border-foreground/30 hover:bg-foreground/[0.03] hover:text-foreground/90"
           >
+            <ScanLine className="size-4 shrink-0" />
             {isHe ? "לסרוק קובץ אחר" : "Scan a different file"}
           </button>
           <button
             type="button"
             onClick={onManual}
-            className="text-sm text-foreground/45 underline-offset-4 transition-colors hover:text-foreground/70 hover:underline"
+            className="inline-flex items-center justify-center gap-2 rounded-xl border border-border bg-card px-4 py-3 text-sm font-semibold text-foreground/70 transition-colors hover:border-foreground/30 hover:bg-foreground/[0.03] hover:text-foreground/90"
           >
-            {isHe ? "לא מדויק — נמלא ידנית" : "Not accurate — I'll fill it in manually"}
+            <PenLine className="size-4 shrink-0" />
+            {isHe ? "לא מדויק? נמלא ידנית" : "Not accurate? We'll fill it in manually"}
           </button>
         </div>
       </div>

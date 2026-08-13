@@ -17,8 +17,8 @@ import {
   ChevronRight,
   ChevronLeft,
 } from "lucide-react";
-import { PhilosopherKingIcon } from "@/components/ui/philosopher-king-icon";
-import { ReferentIcon } from "@/components/ui/referent-icon";
+import { PersonaIcon, usePersona, getPersona } from "@/components/persona/use-persona";
+import { personaLabels } from "@/lib/persona";
 import { toast } from "sonner";
 import { Link } from "@/i18n/navigation";
 import Markdown from "react-markdown";
@@ -50,20 +50,12 @@ export function MentorChat() {
   const [activeSessionId, setActiveSessionId] = useState<string | null>(null);
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
-  // Advisor persona (device-local, Settings → "דמות היועץ"). The full-page chat
-  // replied in the Referent's VOICE but showed the King's FACE everywhere
-  // (note #48 / audit 22.7) — read the choice on mount and brand accordingly.
-  const [persona, setPersona] = useState<"king" | "referent">("king");
-  useEffect(() => {
-    try {
-      setPersona(localStorage.getItem("pk-persona") === "referent" ? "referent" : "king");
-    } catch {
-      /* default king */
-    }
-  }, []);
-  const isReferent = persona === "referent";
-  const PersonaIcon = isReferent ? ReferentIcon : PhilosopherKingIcon;
-  const personaTitle = isReferent ? (isRTL ? "הרפרנט" : "The Referent") : t("title");
+  // Advisor persona (Settings → "דמות היועץ"). The full-page chat replied in
+  // the Referent's VOICE but showed the King's FACE everywhere (note #48 /
+  // audit 22.7). One shared store now drives the face AND the name — and the
+  // name comes from lib/persona, not the message catalog, so the two can't drift.
+  const { persona } = usePersona();
+  const personaTitle = personaLabels(persona, isRTL).name;
 
   // Open the sessions sidebar by default on desktop only — on a phone it would
   // cover the conversation, so it stays collapsed until the user opens it.
@@ -166,14 +158,8 @@ export function MentorChat() {
           body: JSON.stringify({
             sessionId: activeSessionId ?? undefined,
             message: messageText.trim(),
-            // Same device-local persona the FAB sends — one voice everywhere (#47).
-            persona: (() => {
-              try {
-                return localStorage.getItem("pk-persona") === "referent" ? "referent" : "king";
-              } catch {
-                return "king";
-              }
-            })(),
+            // Same persona the FAB sends — one voice everywhere (#47).
+            persona: getPersona(),
           }),
           signal: controller.signal,
         });

@@ -18,7 +18,7 @@ import type {
   ExamRecommendation,
 } from "@/lib/exam-planner";
 import { cn } from "@/lib/utils";
-import { AskKingButton } from "@/components/ui/ask-king-button";
+import { AskAdvisorButton } from "@/components/ui/ask-advisor-button";
 
 // ─────────────────────────────────────────────────────────────────────
 // Study Skyline — a study-spread timeline for the exam planner.
@@ -623,11 +623,11 @@ export function StudySkyline({ plan, recommendations, isHe, now, onDayClick, onM
 
       {/* ── Band 3 · Legend ── */}
       <div className="flex flex-wrap items-center gap-x-3 gap-y-1.5 border-t border-border/40 p-3">
-        <AskKingButton
+        <AskAdvisorButton
           promptHe="איך נכון לפזר את הלמידה שלי עד הבחינות? יש לי יום עמוס במיוחד — תעזור לי לתכנן אותו."
           promptEn="How do I spread my studying well up to my exams? I have an especially heavy day — help me plan it."
-          labelHe="שאל את המלך על הפיזור"
-          labelEn="Ask the King about the spread"
+          labelHe="שאל את {advisor} על הפיזור"
+          labelEn="Ask {advisor} about the spread"
           className="order-last inline-flex items-center gap-1.5 rounded-md px-1.5 py-1 text-[11px] font-medium text-accent-brand transition-colors hover:bg-accent-brand/10 hover:text-accent-brand ms-auto"
           iconClassName="size-3"
         />

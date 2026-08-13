@@ -1,35 +1,21 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import { useLocale } from "next-intl";
 import { cn } from "@/lib/utils";
 import { PhilosopherKingCharacter } from "@/components/ui/philosopher-king-character";
 import { ReferentCharacter } from "@/components/ui/referent-character";
+import { usePersona } from "@/components/persona/use-persona";
+import type { Persona } from "@/lib/persona";
 
 /**
  * Q5 (notes 17/48) — the ONE advisor-persona picker, shared by settings and
  * the last onboarding step so the choice + its explanation live once.
- * Device-local (localStorage "pk-persona", same key the FAB honors);
- * default = king (key removed).
+ * Device-local (localStorage "pk-persona"); default = king (key removed).
+ *
+ * Reads and writes through usePersona(), so choosing here immediately re-brands
+ * every other mounted surface (FAB, dashboard cards, toasts) without a reload.
  */
-export type Persona = "king" | "referent";
-
-export function readPersona(): Persona {
-  try {
-    return localStorage.getItem("pk-persona") === "referent" ? "referent" : "king";
-  } catch {
-    return "king";
-  }
-}
-
-export function writePersona(p: Persona) {
-  try {
-    if (p === "king") localStorage.removeItem("pk-persona");
-    else localStorage.setItem("pk-persona", p);
-  } catch {
-    /* storage blocked — the FAB will fall back to king */
-  }
-}
+export type { Persona };
 
 export function PersonaPicker({
   compact = false,
@@ -40,11 +26,9 @@ export function PersonaPicker({
   onChange?: (p: Persona) => void;
 }) {
   const isHe = useLocale() === "he";
-  const [persona, setPersona] = useState<Persona>("king");
-  useEffect(() => setPersona(readPersona()), []);
+  const { persona, setPersona } = usePersona();
   const choose = (p: Persona) => {
     setPersona(p);
-    writePersona(p);
     onChange?.(p);
   };
 

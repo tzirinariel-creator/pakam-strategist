@@ -13,7 +13,7 @@ import {
 import { useState } from "react";
 import { Link } from "@/i18n/navigation";
 import { Bidi } from "@/lib/bidi";
-import { AskKingButton } from "@/components/ui/ask-king-button";
+import { AskAdvisorButton } from "@/components/ui/ask-advisor-button";
 import { DISCIPLINE_CONFIG, ENGLISH_CONFIG } from "@/lib/constants";
 import type { RegulationResult } from "@/types/regulation";
 import { usePersonalAddress } from "@/components/personal/use-personal-address";
@@ -182,11 +182,11 @@ export function RuleCard({ rule }: RuleCardProps) {
           {/* Ask the King to explain a requirement you're not meeting + how to
               close it (P2 #7 — context-aware help where the gap actually is). */}
           {!passed && (
-            <AskKingButton
+            <AskAdvisorButton
               promptHe={`הסבר לי את הדרישה "${ruleName}" — למה אני עדיין לא ${pg("עומד", "עומדת", "עומד/ת")} בה, ומה בדיוק לעשות כדי לסגור אותה?`}
               promptEn={`Explain the requirement "${ruleName}" — why am I not meeting it, and what exactly should I do to close it?`}
-              labelHe="שאל את המלך איך לסגור את זה"
-              labelEn="Ask the King how to close this"
+              labelHe="שאל את {advisor} איך לסגור את זה"
+              labelEn="Ask {advisor} how to close this"
               className="mt-2.5 inline-flex items-center gap-1.5 rounded-lg bg-accent-brand/10 px-2.5 py-1.5 text-xs font-medium text-accent-brand transition-colors hover:bg-accent-brand/20"
               iconClassName="size-3.5"
             />

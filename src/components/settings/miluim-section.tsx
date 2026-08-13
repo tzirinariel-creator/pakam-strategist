@@ -468,8 +468,12 @@ export function MiluimSection() {
                 </p>
                 <ul className="mt-1.5 space-y-1">
                   <li>• <b>קבוצה A</b> — עד 20 ימי מילואים בסמסטר.</li>
-                  <li>• <b>קבוצה B</b> — 21 עד 34 ימים (לוחמים: כבר מ-14 ימים).</li>
-                  <li>• <b>קבוצה C</b> — 35 ימים ומעלה (לוחמים: כבר מ-21).</li>
+                  {/* A Latin letter followed by a number with only neutrals
+                      between them reorders in RTL ("קבוצה B — 21" reads
+                      "קבוצה 21 — B", measured). A Hebrew word between the two
+                      keeps them in reading order. */}
+                  <li>• <b>קבוצה B</b> — שירות של 21 עד 34 ימים (לוחמים: כבר מ-14 ימים).</li>
+                  <li>• <b>קבוצה C</b> — שירות של 35 ימים ומעלה (לוחמים: כבר מ-21).</li>
                   <li>• <b>קבוצה G</b> — נפגעי מלחמה, פצועים ומשפחות שכולות — מטופלים אישית בדיקנט.</li>
                 </ul>
                 <p className="mt-1.5">

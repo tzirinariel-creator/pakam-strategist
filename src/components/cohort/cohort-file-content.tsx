@@ -32,7 +32,8 @@ import {
 import { Link } from "@/i18n/navigation";
 import { api } from "@/lib/trpc/react";
 import { cn } from "@/lib/utils";
-import { ReferentCharacter } from "@/components/ui/referent-character";
+import { PersonaCharacter, usePersona } from "@/components/persona/use-persona";
+import { personaLabels } from "@/lib/persona";
 import { courseColor } from "@/lib/course-color";
 import { ThemedLoader } from "@/components/ui/themed-loader";
 import { CohortShareNudge } from "@/components/cohort/cohort-share-nudge";
@@ -47,6 +48,11 @@ export function CohortFileContent() {
   const digestQuery = api.courseKnowledge.getCohortDigest.useQuery();
   // Hooks BEFORE any early return — a conditional hook order crashes React.
   const profileQuery = api.user.getProfile.useQuery();
+  // The cohort file is HOSTED by the advisor. It used to be the Referent for
+  // everyone, which is precisely the "here the King, there the Referent"
+  // incoherence — there is one advisor in this app, and the student picked it.
+  const { persona } = usePersona();
+  const advisor = personaLabels(persona, isHe);
   const [electivesOnly, setElectivesOnly] = useState(false);
 
   if (digestQuery.isLoading) return <ThemedLoader />;
@@ -79,8 +85,10 @@ export function CohortFileContent() {
 
   return (
     <div className="bg-mesh space-y-8 p-4 md:p-6">
-      {/* Header — the Referent hosts. The file is one half of השושלת (#41), so
-          it says which whole it belongs to instead of floating on its own. */}
+      {/* Header — the student's OWN advisor hosts (it used to be the Referent
+          for everyone, so a King user met a second character here). The file is
+          one half of השושלת (#41), so it says which whole it belongs to
+          instead of floating on its own. */}
       <div className="animate-stagger-1 space-y-2">
         <Link
           href="/lineage"
@@ -90,15 +98,15 @@ export function CohortFileContent() {
           <ChevronLeft className="size-3.5 ltr:rotate-180" />
         </Link>
         <div className="flex items-start gap-4">
-          <ReferentCharacter className="size-14 shrink-0 drop-shadow-sm" />
+          <PersonaCharacter className="size-14 shrink-0 drop-shadow-sm" />
           <div>
             <h1 className="font-display text-3xl font-bold text-foreground/85">
               {isHe ? "תיק המחזור" : "The cohort file"}
             </h1>
             <p className="mt-1 text-foreground/55">
               {isHe
-                ? "הרפרנט מארח: מה שהמחזורים שלפניכם למדו בדם — שמור, אנונימי, ועובר הלאה."
-                : "Hosted by the Referent: what the cohorts before you learned the hard way — kept, anonymous, passed on."}
+                ? `${advisor.short} מארח: מה שהמחזורים שלפניכם למדו בדם — שמור, אנונימי, ועובר הלאה.`
+                : `Hosted by ${advisor.short}: what the cohorts before you learned the hard way — kept, anonymous, passed on.`}
             </p>
             <LineagePactStrip className="mt-2 max-w-2xl" />
           </div>
@@ -109,7 +117,7 @@ export function CohortFileContent() {
           next step. Counting only; no fake points. */}
       <LevelChip isHe={isHe} />
 
-      {/* דבר הרפרנט — data-driven, counting only */}
+      {/* דבר היועץ — data-driven, counting only */}
       <div className="animate-stagger-2 data-card flex flex-wrap items-center gap-3 p-4">
         <MessageSquareQuote className="size-5 shrink-0 text-accent-brand" />
         <p className="min-w-0 flex-1 text-sm leading-relaxed text-foreground/75">

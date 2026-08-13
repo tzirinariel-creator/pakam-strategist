@@ -1,15 +1,15 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useLocale } from "next-intl";
 import { Zap } from "lucide-react";
 import { DegreeAssistant } from "./degree-assistant";
 import { MentorChat } from "./mentor-chat";
 import { cn } from "@/lib/utils";
 import { PhilosopherKingIcon } from "@/components/ui/philosopher-king-icon";
-import { PhilosopherKingCharacter } from "@/components/ui/philosopher-king-character";
-import { ReferentCharacter } from "@/components/ui/referent-character";
 import { ReferentIcon } from "@/components/ui/referent-icon";
+import { PersonaCharacter, PersonaIcon, usePersona } from "@/components/persona/use-persona";
+import { otherPersona, personaLabels } from "@/lib/persona";
 
 /**
  * The degree assistant page with two modes:
@@ -22,46 +22,22 @@ import { ReferentIcon } from "@/components/ui/referent-icon";
 export function MentorPageClient() {
   const isHe = useLocale() === "he";
   const [mode, setMode] = useState<"quick" | "ai">("quick");
-  // Same device-local persona the FAB honors — a Referent user must not land
-  // here and meet the King (#47).
-  const [persona, setPersona] = useState<"king" | "referent">("king");
-  useEffect(() => {
-    try {
-      setPersona(localStorage.getItem("pk-persona") === "referent" ? "referent" : "king");
-    } catch {
-      /* default king */
-    }
-  }, []);
-  const isReferent = persona === "referent";
-  const advisorName = isReferent
-    ? isHe ? "הרפרנט" : "The Referent"
-    : isHe ? "המלך הפילוסוף" : "The Philosopher King";
-  const otherName = isReferent
-    ? isHe ? "המלך הפילוסוף" : "The Philosopher King"
-    : isHe ? "הרפרנט" : "The Referent";
+  // Same shared store the FAB, the dashboard cards and the toasts read — a
+  // Referent user must not land here and meet the King (#47).
+  const { persona, isReferent, toggle } = usePersona();
+  const advisorName = personaLabels(persona, isHe).name;
+  const otherName = personaLabels(otherPersona(persona), isHe).name;
 
   // In-context persona switch (#48): the referent used to be discoverable only
-  // deep in Settings. One tap here flips the device-local choice everywhere
-  // (the FAB and chat re-read pk-persona on open).
-  const switchPersona = () => {
-    const next = isReferent ? "king" : "referent";
-    try {
-      localStorage.setItem("pk-persona", next);
-    } catch {
-      /* storage blocked — still switch for this view */
-    }
-    setPersona(next);
-  };
+  // deep in Settings. One tap here flips the choice everywhere at once — every
+  // mounted surface re-renders, no reload.
+  const switchPersona = () => toggle();
 
   return (
     <div className="flex flex-col gap-4">
       {/* Identity — the full character (18:19), persona-aware. */}
       <div className="flex flex-col items-center gap-2 pt-1">
-        {isReferent ? (
-          <ReferentCharacter className="size-16 drop-shadow-sm" />
-        ) : (
-          <PhilosopherKingCharacter className="size-16 drop-shadow-sm" />
-        )}
+        <PersonaCharacter className="size-16 drop-shadow-sm" />
         <h1 className="font-display text-xl font-bold text-foreground/90">{advisorName}</h1>
         <p className="max-w-sm text-center text-xs leading-relaxed text-foreground/50">
           {isReferent
@@ -114,7 +90,7 @@ export function MentorPageClient() {
                 : "text-foreground/55 hover:text-foreground/80"
             )}
           >
-            {isReferent ? <ReferentIcon className="size-3.5" /> : <PhilosopherKingIcon className="size-3.5" />}
+            <PersonaIcon className="size-3.5" />
             {advisorName}
           </button>
         </div>

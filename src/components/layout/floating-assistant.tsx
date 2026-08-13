@@ -15,12 +15,11 @@ import { cn } from "@/lib/utils";
 import { Link } from "@/i18n/navigation";
 import { PhilosopherKingIcon } from "@/components/ui/philosopher-king-icon";
 import { ReferentIcon } from "@/components/ui/referent-icon";
-import type { MentorPersona } from "@/lib/ai/mentor-prompt";
+import { PersonaCharacter, PersonaIcon, PersonaSwap, usePersona } from "@/components/persona/use-persona";
+import { otherPersona, personaLabels } from "@/lib/persona";
 import { routeQuestion } from "@/lib/ai/answer-router";
 import { detectActions, type AssistantAction } from "@/lib/ai/action-router";
 import { buildActionExamples, actionVerbsLine } from "@/lib/ai/assistant-examples";
-import { PhilosopherKingCharacter } from "@/components/ui/philosopher-king-character";
-import { ReferentCharacter } from "@/components/ui/referent-character";
 import { invalidatePlanData } from "@/lib/trpc/invalidate-plan";
 import { suggestedQuestions } from "@/lib/degree-qa";
 import { getPlanningAnchor } from "@/lib/academic-calendar";
@@ -60,36 +59,22 @@ export function FloatingAssistant() {
   const { gender, greetName, g: pg } = usePersonalAddress();
   const [open, setOpen] = useState(false);
   const [messages, setMessages] = useState<Msg[]>([]);
-  // Advisor persona — a device-local choice (Settings → "דמות היועץ"), re-read on
-  // every open so a change in Settings applies without a reload. Server-validated.
-  const [persona, setPersona] = useState<MentorPersona>("king");
-  useEffect(() => {
-    // Read on MOUNT (not only on open) so a Referent user's FAB shows the
-    // Referent brand from first paint — otherwise they "meet the King" on every
-    // page load until they open it (audit 22.7 / note #48). Re-reads on open too,
-    // so a Settings change still applies live without a reload.
-    try {
-      setPersona(localStorage.getItem("pk-persona") === "referent" ? "referent" : "king");
-    } catch {
-      /* default king */
-    }
-  }, [open]);
-  const isReferent = persona === "referent";
-  const otherName = isReferent
-    ? isHe ? "המלך" : "the King"
-    : isHe ? "הרפרנט" : "the Referent";
+  // Advisor persona — the device-local choice (Settings → "דמות היועץ"), also
+  // sent to the server with every question and validated there.
+  // ONE shared store (components/persona/use-persona) instead of this file's
+  // own localStorage effect. It resolves during hydration rather than in an
+  // effect after paint — the trap this comment used to describe — and any
+  // switch (here, in Settings, on /mentor) re-brands every mounted surface at
+  // once. The FAB itself is painted by the SERVER, which cannot know a
+  // device-local choice, so its face and name go through <PersonaSwap>: both
+  // branches are rendered and CSS picks one from the very first frame.
+  const { persona, isReferent, toggle } = usePersona();
+  const labels = personaLabels(persona, isHe);
+  const otherName = personaLabels(otherPersona(persona), isHe).short;
   // In-context persona switch (#48): a student who meets the King here must be
   // able to discover + switch to the Referent from the header itself — not only
-  // buried in Settings. Writes the same device-local key the mentor page honors.
-  const switchPersona = () => {
-    const next = isReferent ? "king" : "referent";
-    try {
-      localStorage.setItem("pk-persona", next);
-    } catch {
-      /* storage blocked — still switch for this view */
-    }
-    setPersona(next);
-  };
+  // buried in Settings.
+  const switchPersona = () => toggle();
   const [input, setInput] = useState("");
 
   // ── Image attach ("photo & ask", Gemini vision) ──
@@ -562,7 +547,7 @@ export function FloatingAssistant() {
   //
   // Ariel asked for this repeatedly ("ביקשתי את זה כבר 100 פעם ב-10 מקומות
   // שונים") and it was never built. It was, in fact, forbidden: this file's own
-  // header carried a "never auto-opens" rule, and meet-the-king-card.tsx
+  // header carried a "never auto-opens" rule, and meet-the-advisor-card.tsx
   // restated it as product law. That rule was derived from his note 50 — where
   // he criticised the WORDING of the opening line as AI-sounding, not the idea
   // of an opening line. A copy note became a feature ban and nobody noticed.
@@ -585,19 +570,20 @@ export function FloatingAssistant() {
       // just been written, the advisor's own queries may not have refetched
       // yet, and a greeting is exactly the wrong place to risk a stale number
       // (#13/#14 is the same failure one screen earlier).
-      const hello = isHe
-        ? `שלום${name}, אני המלך הפילוסוף.\n\nהתוכנית שלך שמורה אצלי — הקורסים, הציונים, המילואים והתקנון. מכאן אפשר פשוט לשאול אותי דברים בשפה רגילה, ואני עונה מהנתונים שלך, לא מהאינטרנט.\n\n${pg(
-            "נסה למשל",
-            "נסי למשל",
-            "אפשר לנסות",
-          )}: "כמה ש״ס נשארו לי?", "מה הכי דחוף עכשיו?", או "תוסיף לי מיקרו ב׳ לסמסטר הבא" — כן, גם לבצע דברים.\n\nאני לא קופץ מעצמי יותר. כשתצטרך אותי, אני כאן למטה.`
-        : `Hello${name}, I'm the Philosopher King.\n\nI have your plan — courses, grades, reserve duty and the regulations. From here you can just ask me things in plain language, and I answer from your data, not from the internet.\n\nTry: "how many credits do I have left?", "what's most urgent right now?", or "add Micro B to next semester" — yes, I can act too.\n\nI won't pop up on my own again. I'll be down here when you need me.`;
+      const tryLine = pg("נסה למשל", "נסי למשל", "אפשר לנסות");
+      const hello = isReferent
+        ? isHe
+          ? `היי${name}, אני הרפרנט.\n\nהתוכנית שלך כבר אצלי — הקורסים, הציונים, המילואים והתקנון. אפשר לשאול אותי בשפה רגילה, ואני עונה מהנתונים שלך ולא מהאינטרנט.\n\n${tryLine}: "כמה ש״ס נשארו לי?", "מה הכי דחוף עכשיו?", או "תוסיף לי מיקרו ב׳ לסמסטר הבא" — כן, גם לבצע דברים.\n\nלא אקפוץ יותר מעצמי. כש${pg("תצטרך", "תצטרכי", "תצטרכו")} אותי, אני כאן למטה.`
+          : `Hey${name}, I'm the Referent.\n\nI already have your plan — courses, grades, reserve duty and the regulations. Ask me in plain language and I answer from your data, not from the internet.\n\nTry: "how many credits do I have left?", "what's most urgent right now?", or "add Micro B to next semester" — yes, I can act too.\n\nI won't pop up on my own again. I'm down here when you need me.`
+        : isHe
+          ? `שלום${name}, אני המלך הפילוסוף.\n\nהתוכנית שלך שמורה אצלי — הקורסים, הציונים, המילואים והתקנון. מכאן אפשר פשוט לשאול אותי דברים בשפה רגילה, ואני עונה מהנתונים שלך, לא מהאינטרנט.\n\n${tryLine}: "כמה ש״ס נשארו לי?", "מה הכי דחוף עכשיו?", או "תוסיף לי מיקרו ב׳ לסמסטר הבא" — כן, גם לבצע דברים.\n\nאני לא קופץ מעצמי יותר. כשתצטרך אותי, אני כאן למטה.`
+          : `Hello${name}, I'm the Philosopher King.\n\nI have your plan — courses, grades, reserve duty and the regulations. From here you can just ask me things in plain language, and I answer from your data, not from the internet.\n\nTry: "how many credits do I have left?", "what's most urgent right now?", or "add Micro B to next semester" — yes, I can act too.\n\nI won't pop up on my own again. I'll be down here when you need me.`;
       setMessages([{ role: "assistant", content: hello, source: "rules" }]);
       setOpen(true);
     };
     window.addEventListener("pk:greet", onGreet);
     return () => window.removeEventListener("pk:greet", onGreet);
-  }, [isHe, greetName, pg]);
+  }, [isHe, greetName, pg, isReferent]);
 
   const streamLLM = useCallback(
     async (
@@ -908,7 +894,7 @@ export function FloatingAssistant() {
           type="button"
           data-tour="king"
           onClick={() => setOpen(true)}
-          aria-label={isHe ? pg("פתח את המלך הפילוסוף", "פתחי את המלך הפילוסוף", "פתח/י את המלך הפילוסוף") : "Open the Philosopher King"}
+          aria-label={isHe ? pg(`פתח את ${labels.name}`, `פתחי את ${labels.name}`, `פתח/י את ${labels.name}`) : `Open ${labels.name}`}
           className={cn(
             "fixed bottom-[calc(5rem+var(--safe-bottom))] end-4 z-[65] flex items-center gap-2 rounded-full py-3 shadow-lg md:bottom-6 md:end-6",
             "bg-accent-brand text-accent-brand-fg ring-1 ring-crown-gold-bright/30 transition-all press-scale",
@@ -916,11 +902,10 @@ export function FloatingAssistant() {
             "px-4",
           )}
         >
-          {isReferent ? (
-            <ReferentIcon className="size-5 text-referent-teal" />
-          ) : (
-            <PhilosopherKingIcon className="size-5 text-crown-gold-bright" />
-          )}
+          <PersonaSwap
+            king={<PhilosopherKingIcon className="size-5 text-crown-gold-bright" />}
+            referent={<ReferentIcon className="size-5 text-referent-teal" />}
+          />
           {fabAlert && (
             <span
               aria-hidden="true"
@@ -934,9 +919,10 @@ export function FloatingAssistant() {
               mobile, and an icon-only FAB is exactly why "15 minutes in and I never
               met the King" (#13/#26). Naming him on the button introduces him. */}
           <span className="text-sm font-semibold">
-            {isReferent
-              ? isHe ? "הרפרנט" : "The Referent"
-              : isHe ? "המלך הפילוסוף" : "The Philosopher King"}
+            <PersonaSwap
+              king={isHe ? "המלך הפילוסוף" : "The Philosopher King"}
+              referent={isHe ? "הרפרנט" : "The Referent"}
+            />
           </span>
         </button>
       )}
@@ -952,7 +938,7 @@ export function FloatingAssistant() {
           <div
             role="dialog"
             aria-modal="true"
-            aria-label={isHe ? "המלך הפילוסוף" : "The Philosopher King"}
+            aria-label={labels.name}
             dir={isHe ? "rtl" : "ltr"}
             style={kbInset > 0 ? { bottom: `${kbInset}px` } : undefined}
             className={cn(
@@ -966,22 +952,14 @@ export function FloatingAssistant() {
             {/* Header — regal indigo with a gold crown (the Philosopher King). */}
             <div className="flex items-center gap-2.5 border-b border-border/60 bg-gradient-to-b from-accent-brand/[0.12] to-accent-brand/[0.04] px-4 py-3">
               <div className="flex size-9 items-center justify-center rounded-xl bg-accent-brand text-crown-gold-bright shadow-sm ring-1 ring-crown-gold-bright/40">
-                {isReferent ? (
-                  <ReferentIcon className="size-5 text-referent-teal" />
-                ) : (
-                  <PhilosopherKingIcon
-                    className="size-5"
-                    state={streaming ? "thinking" : "idle"}
-                    dot={proactiveNudge ? (proactiveNudge.severity as "critical" | "warning") : null}
-                  />
-                )}
+                <PersonaIcon
+                  className={cn("size-5", isReferent && "text-referent-teal")}
+                  state={streaming ? "thinking" : "idle"}
+                  dot={proactiveNudge ? (proactiveNudge.severity as "critical" | "warning") : null}
+                />
               </div>
               <div className="min-w-0 flex-1">
-                <p className="font-display text-sm font-bold text-foreground/90">
-                  {isReferent
-                    ? isHe ? "הרפרנט" : "The Referent"
-                    : isHe ? "המלך הפילוסוף" : "The Philosopher King"}
-                </p>
+                <p className="font-display text-sm font-bold text-foreground/90">{labels.name}</p>
                 <p className="text-[11px] text-foreground/50">
                   {isReferent
                     ? isHe ? "שנה ג׳ שכבר עבר את זה · דוגרי, מהנתונים שלכם" : "A final-year who's been through it · straight talk, from your data"
@@ -1007,21 +985,18 @@ export function FloatingAssistant() {
                 onClick={() => {
                   // Two bugs Ariel caught in one line (#24): the toast read
                   // "עברתם להרפרנט … חזרה להרפרנט" — both sides naming the SAME
-                  // persona. `back` was computed from the same branch as
-                  // `otherName` instead of the opposite one, so it named the
-                  // destination rather than the origin. And "ל" + a definite
-                  // noun contracts in Hebrew: "להרפרנט" is not a word, "לרפרנט"
-                  // is. Names are kept bare here and the preposition attached.
-                  const toBare = isReferent ? "מלך הפילוסוף" : "רפרנט";
-                  const backBare = isReferent ? "רפרנט" : "מלך הפילוסוף";
-                  const toEn = isReferent ? "the Philosopher King" : "the Referent";
-                  const backEn = isReferent ? "the Referent" : "the Philosopher King";
+                  // persona, because `back` was computed from the same branch as
+                  // the destination. And "ל" + a definite noun contracts in
+                  // Hebrew: "להרפרנט" is not a word, "לרפרנט" is — which is why
+                  // personaLabels carries a `bare` form for exactly this spot.
+                  const to = personaLabels(otherPersona(persona), isHe);
+                  const back = personaLabels(persona, isHe);
                   switchPersona();
                   toast.success(
-                    isHe ? `עברתם ל${toBare}` : `Switched to ${toEn}`,
+                    isHe ? `עברתם ל${to.bare}` : `Switched to ${to.name}`,
                     {
                       action: {
-                        label: isHe ? `חזרה ל${backBare}` : `Back to ${backEn}`,
+                        label: isHe ? `חזרה ל${back.bare}` : `Back to ${back.name}`,
                         onClick: () => switchPersona(),
                       },
                     },
@@ -1060,23 +1035,23 @@ export function FloatingAssistant() {
                     />
                   )}
                   <div className="flex justify-center pt-1">
-                    {isReferent ? (
-                      <ReferentCharacter className="size-20 drop-shadow-md pk-float" title={isHe ? "הרפרנט" : "The Referent"} />
-                    ) : (
-                      <PhilosopherKingCharacter className="size-20 drop-shadow-md pk-float" title={isHe ? "המלך הפילוסוף" : "The Philosopher King"} />
-                    )}
+                    <PersonaCharacter className="size-20 drop-shadow-md pk-float" title={labels.name} />
                   </div>
                   {/* #15 (12.7) — a real first meeting: the advisor introduces
-                      HIMSELF once, in his own voice, before any question. */}
+                      HIMSELF once, in his own voice, before any question. It is
+                      the one moment in the app that is a genuine introduction,
+                      so it is also the one that opens with the student's name
+                      (a vocative — it doesn't touch the plural product voice).
+                      Everywhere else the name would be repetition, not warmth. */}
                   {showIntro && (
                     <div className="rounded-xl border border-border/60 bg-foreground/[0.03] p-3 text-sm leading-relaxed text-foreground/70">
                       {isReferent
                         ? isHe
-                          ? "נעים מאוד, אני הרפרנט — שנה ג׳ בפכ״מ, כבר עברתי את כל מה שמחכה לכם. שואלים אותי הכול בגובה העיניים, ואני עונה לפי הנתונים שלכם, לא מהזיכרון. וגם: תגידו לי שסיימתם קורס או שאתם רוצים להוסיף אחד, ואני מקפיץ כרטיס-אישור שמעדכן את התוכנית בפועל. ואם בא לכם סגנון מכובד יותר — יש למעלה כפתור שמחליף אותי במלך."
-                          : "Hey, I'm the Referent — a final-year PPE student who's been through everything ahead of you. Ask me anything, I answer from your data. And tell me you finished a course or want to add one — I'll raise a confirm card that actually updates your plan. Prefer a more regal style? The button above swaps me for the King."
+                          ? `נעים מאוד${greetName ? `, ${greetName}` : ""}, אני הרפרנט — שנה ג׳ בפכ״מ, כבר עברתי את כל מה שמחכה לכם. שואלים אותי הכול בגובה העיניים, ואני עונה לפי הנתונים שלכם, לא מהזיכרון. וגם: תגידו לי שסיימתם קורס או שאתם רוצים להוסיף אחד, ואני מקפיץ כרטיס-אישור שמעדכן את התוכנית בפועל. ואם בא לכם סגנון מכובד יותר — יש למעלה כפתור שמחליף אותי במלך.`
+                          : `Hey${greetName ? ` ${greetName}` : ""}, I'm the Referent — a final-year PPE student who's been through everything ahead of you. Ask me anything, I answer from your data. And tell me you finished a course or want to add one — I'll raise a confirm card that actually updates your plan. Prefer a more regal style? The button above swaps me for the King.`
                         : isHe
-                          ? "נעים מאוד — אני המלך הפילוסוף, היועץ האישי שלכם לתואר. השם מאפלטון: ב„מדינה” הוא תיאר מנהיג שמוביל לפי ידע ולא לפי דעה, ותמיד לטובת מי שהוא מוביל — וזה בדיוק התפקיד שלי כאן. אני מכיר את התקנון, את הקטלוג ואת הנתונים שלכם, ומכוון למה שנכון לכם, לא לממוצע. שאלו אותי כל דבר — ואם תספרו לי שסיימתם קורס, שנכשלתם באחד או שבא לכם להוסיף אחד, אני מקפיץ כרטיס-אישור ומבצע ברגע שתאשרו. מעדיפים סגנון של חבר משנה ג׳? הכפתור למעלה מחליף אותי ברפרנט."
-                          : "A pleasure — I'm the Philosopher King, your personal degree advisor. The name is Plato's: in the Republic he pictured a leader who guides by knowledge, not opinion, and always for the good of those they lead — which is exactly my role here. I know the regulations, the catalog and your own data, and I aim for what's right for you, not the average. Ask me anything — and when you tell me you finished a course, failed one, or want to add one, I'll raise a confirm card and do it the moment you approve. Prefer a peer's tone? The button above swaps me for the Referent."}
+                          ? `נעים מאוד${greetName ? `, ${greetName}` : ""} — אני המלך הפילוסוף, היועץ האישי שלכם לתואר. השם מאפלטון: ב„מדינה” הוא תיאר מנהיג שמוביל לפי ידע ולא לפי דעה, ותמיד לטובת מי שהוא מוביל — וזה בדיוק התפקיד שלי כאן. אני מכיר את התקנון, את הקטלוג ואת הנתונים שלכם, ומכוון למה שנכון לכם, לא לממוצע. שאלו אותי כל דבר — ואם תספרו לי שסיימתם קורס, שנכשלתם באחד או שבא לכם להוסיף אחד, אני מקפיץ כרטיס-אישור ומבצע ברגע שתאשרו. מעדיפים סגנון של חבר משנה ג׳? הכפתור למעלה מחליף אותי ברפרנט.`
+                          : `A pleasure${greetName ? `, ${greetName}` : ""} — I'm the Philosopher King, your personal degree advisor. The name is Plato's: in the Republic he pictured a leader who guides by knowledge, not opinion, and always for the good of those they lead — which is exactly my role here. I know the regulations, the catalog and your own data, and I aim for what's right for you, not the average. Ask me anything — and when you tell me you finished a course, failed one, or want to add one, I'll raise a confirm card and do it the moment you approve. Prefer a peer's tone? The button above swaps me for the Referent.`}
                       <button
                         type="button"
                         onClick={dismissIntro}
@@ -1176,12 +1151,10 @@ export function FloatingAssistant() {
                       >
                         {m.source === "rules"
                           ? <Database className="size-2.5" />
-                          : isReferent ? <ReferentIcon className="size-2.5" /> : <PhilosopherKingIcon className="size-2.5" />}
+                          : <PersonaIcon className="size-2.5" />}
                         {m.source === "rules"
                           ? isHe ? "מהנתונים שלכם" : "From your data"
-                          : isReferent
-                            ? isHe ? "תשובת הרפרנט" : "The Referent"
-                            : isHe ? "תשובת המלך" : "The King"}
+                          : isHe ? `תשובת ${labels.short}` : labels.name}
                       </span>
                     )}
                     {m.imagePreview && (
@@ -1325,7 +1298,7 @@ export function FloatingAssistant() {
                   type="button"
                   onClick={toggleListening}
                   disabled={!ready || streaming}
-                  aria-label={isHe ? pg("דבר אל המלך", "דברי אל המלך", "דבר/י אל המלך") : "Speak to the King"}
+                  aria-label={isHe ? pg(`דבר אל ${labels.short}`, `דברי אל ${labels.short}`, `דבר/י אל ${labels.short}`) : `Speak to ${labels.short}`}
                   aria-pressed={listening}
                   title={isHe ? "קלט קולי" : "Voice input"}
                   className={cn(

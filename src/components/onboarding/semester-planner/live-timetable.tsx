@@ -6,6 +6,8 @@ import { CalendarX2 } from "lucide-react";
 import { WeeklyTimetable, type ScheduleSessionData } from "@/components/calendar/weekly-timetable";
 import { GroupPickerPopover } from "@/components/planner/group-picker-popover";
 import { type SessionInfo } from "@/lib/conflict-detector";
+import { defaultedSessionTypes } from "@/lib/session-groups";
+import { Bidi } from "@/lib/bidi";
 import { filterSessionsBySelectedGroups } from "./session-group-selector";
 import type { CourseWithSchedule } from "@/lib/plan-generator";
 import type { DayOfWeek } from "@/types/enums";
@@ -192,6 +194,26 @@ export function LiveTimetable({
     return { sessions: result, coursesWithoutSchedule: missing };
   }, [courses, isHe, currentSemester, sessionGroupSelections]);
 
+  // Which blocks on this grid are OUR default rather than the student's pick.
+  // `courseCode|sessionType` (lowercased), the key the grid marks dashed. This
+  // is the only place in the planner that ever knew the difference, and it kept
+  // it to itself: the block said "תרגול · קבוצה 03" as settled fact.
+  const defaultedGroupKeys = useMemo(() => {
+    const keys = new Set<string>();
+    for (const course of courses) {
+      const semesterSessions = (course.scheduleSessions ?? []).filter(
+        (s) => !s.semester || s.semester === currentSemester,
+      );
+      for (const type of defaultedSessionTypes(
+        semesterSessions,
+        sessionGroupSelections?.[course.code],
+      )) {
+        keys.add(`${course.code}|${type}`);
+      }
+    }
+    return keys;
+  }, [courses, currentSemester, sessionGroupSelections]);
+
   // Dashed preview blocks for the HOVERED group (#2) — only when it differs
   // from the currently-selected one (previewing the selected group adds noise).
   const previewSessions = useMemo(() => {
@@ -327,12 +349,36 @@ export function LiveTimetable({
           visit when at least one course offers a choice; a click on the hint
           (or any group pick) dismisses it for good (pk-grid-pick-hint). */}
       {pickingEnabled && (multiGroupCourseCodes?.size ?? 0) > 0 && <GridPickHint isHe={isHe} />}
+
+      {/* The one honest line about this week, counted from the student's own
+          picks: how much of what they're looking at is still our guess. The app
+          already spoke this way on /calendar ("יש קורסים שעוד לא בחרתם בהם
+          קבוצה") — the planner, where the choosing actually happens, said
+          nothing at all. */}
+      {defaultedGroupKeys.size > 0 && (
+        <p className="rounded-lg border border-dashed border-amber-500/45 bg-amber-500/[0.06] px-3 py-2 text-[11px] leading-relaxed text-amber-700 dark:text-amber-400">
+          {isHe ? (
+            <>
+              {defaultedGroupKeys.size === 1 ? (
+                "קבוצה אחת עדיין בברירת מחדל"
+              ) : (
+                <><Bidi text={defaultedGroupKeys.size} /> קבוצות עדיין בברירת מחדל</>
+              )}
+              {" — הבלוקים המקווקווים. בחרו כדי לנעול את השבוע."}
+            </>
+          ) : (
+            `${defaultedGroupKeys.size} group${defaultedGroupKeys.size === 1 ? "" : "s"} still on our default — the dashed blocks. Choose to lock your week.`
+          )}
+        </p>
+      )}
+
       <WeeklyTimetable
         preferGrid
         sessions={sessions}
         previewSessions={[...previewSessions, ...coursePreviewSessions]}
         interactive={pickingEnabled || undefined}
         multiGroupCourseCodes={pickingEnabled ? multiGroupCourseCodes : undefined}
+        defaultedGroupKeys={defaultedGroupKeys}
         onPickGroup={
           pickingEnabled
             ? (courseCode, anchor) => {

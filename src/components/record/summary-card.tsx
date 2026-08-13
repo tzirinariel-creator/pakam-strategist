@@ -4,7 +4,7 @@ import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import { Calculator } from "lucide-react";
 import { CREDIT_REQUIREMENTS } from "@/lib/constants";
-import { AskKingButton } from "@/components/ui/ask-king-button";
+import { AskAdvisorButton } from "@/components/ui/ask-advisor-button";
 
 // -----------------------------------------------------------------------
 // Summary card — completed credits, weighted average, focus-area progress.
@@ -69,11 +69,11 @@ export function SummaryCard({
           {t("summaryWeightedAvgHint")}
         </Link>
         {weightedAvg !== null && (
-          <AskKingButton
+          <AskAdvisorButton
             promptHe="איך משפרים את הממוצע שלי? תן לי צעדים קונקרטיים לפי הקורסים שנשארו לי."
             promptEn="How can I improve my average? Give me concrete steps based on my remaining courses."
-            labelHe="שאל את המלך איך לשפר"
-            labelEn="Ask the King how to improve"
+            labelHe="שאל את {advisor} איך לשפר"
+            labelEn="Ask {advisor} how to improve"
             className="mt-1 flex items-center gap-1 text-[11px] font-medium text-accent-brand transition-colors hover:text-accent-brand-hover"
           />
         )}

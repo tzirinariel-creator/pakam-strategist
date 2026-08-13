@@ -6,8 +6,9 @@ import { CalendarDays, Info, Download, Check, BarChart3 } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { SEMESTER_CONFIG, YEAR_CONFIG } from "@/lib/constants";
-import { detectConflicts } from "@/lib/plan-generator";
-import { filterSessionsBySelectedGroups, courseHasMultipleGroups } from "./session-group-selector";
+import { detectPlannerConflicts, coursesWithoutTimes } from "@/lib/planner-conflicts";
+import { defaultedSessionTypes, hasGroupChoice } from "@/lib/session-groups";
+import { filterSessionsBySelectedGroups } from "./session-group-selector";
 import { findBestCombination } from "@/lib/combo-finder";
 import { isMandatoryHeavy } from "@/lib/semester-type";
 import {
@@ -24,6 +25,7 @@ import type { Discipline } from "@/types/enums";
 import type { OnboardingData } from "../onboarding-wizard";
 import { CoursePool } from "./course-pool";
 import { MySemester } from "./my-semester";
+import { GroupRail } from "./group-rail";
 import { LiveTimetable, type SessionGroupSelections } from "./live-timetable";
 import { InsightsBar } from "./insights-bar";
 import { DegreeInfoCard } from "./degree-info-card";
@@ -176,13 +178,10 @@ export function SemesterPlanner({
   );
   // Bottom panel tab: timetable or exam gantt
   const [bottomTab, setBottomTab] = useState<"timetable" | "exams">("timetable");
-  // Hover-preview of a session group (#2): dashed blocks on the timetable
-  // show WHERE the hovered group would sit — the choice becomes visible.
-  const [groupPreview, setGroupPreview] = useState<{
-    courseCode: string;
-    sessionType: string;
-    groupCode: string;
-  } | null>(null);
+  // Rail tab: browse courses, or choose groups. null = the student hasn't
+  // picked a tab, so we open on whichever is the real work right now (pure
+  // derivation below — no effect ever writes this, so it can't desync).
+  const [railTabPref, setRailTabPref] = useState<"courses" | "groups" | null>(null);
   // Discipline overrides: courseId → discipline key. Seeded from the SAVED plan
   // so an edit-and-resave can't wipe an attribution the student already made
   // (#8) — these are now persisted, not a local colouring trick.
@@ -401,10 +400,40 @@ export function SemesterPlanner({
       const sessions = (course.scheduleSessions ?? []).filter(
         (s) => !s.semester || s.semester === currentSemester
       );
-      if (courseHasMultipleGroups(sessions)) set.add(course.code);
+      if (hasGroupChoice(sessions)) set.add(course.code);
     }
     return set;
   }, [allCurrentCourses, currentSemester]);
+
+  // How many session types are still on the app's DEFAULT group — i.e. how much
+  // of this week the student hasn't actually decided yet. Derived from
+  // `sessionGroupSelections`, never from the catalog, so it falls to zero the
+  // moment the last pick is made (the old count came from the catalog alone and
+  // could never be satisfied: you could pick every group and still be told to
+  // "בחרו את שלכם"). Also drives the CTA on the summary screen.
+  const defaultedGroups = useMemo(() => {
+    const out: { courseCode: string; sessionType: string }[] = [];
+    for (const course of allCurrentCourses) {
+      const sessions = (course.scheduleSessions ?? []).filter(
+        (s) => !s.semester || s.semester === currentSemester
+      );
+      for (const type of defaultedSessionTypes(sessions, sessionGroupSelections[course.code])) {
+        out.push({ courseCode: course.code, sessionType: type });
+      }
+    }
+    return out;
+  }, [allCurrentCourses, currentSemester, sessionGroupSelections]);
+  const unchosenGroupCount = defaultedGroups.length;
+
+  // Which side of the rail is showing. Pure derivation from the student's own
+  // tab choice, else from the work that's actually left: a mandatory-heavy
+  // semester with nothing to add (the year-1 path) opens on GROUPS, because
+  // that is the only decision that student still has. No effect writes this.
+  const railTab =
+    railTabPref ??
+    (mandatoryHeavy && selectedElectives.length === 0 && unchosenGroupCount > 0
+      ? "groups"
+      : "courses");
 
   // Total planned credits
   const totalCreditsPlanned = completedCredits + currentSemesterCredits;
@@ -429,9 +458,21 @@ export function SemesterPlanner({
     });
   }, [allCurrentCourses, sessionGroupSelections, currentSemester]);
 
+  // ONE conflict engine for the whole screen: the same deduped pairing the grid
+  // paints red. The old `detectConflicts` skipped same-course pairs and never
+  // deduped the catalog's duplicate rows, so the grid could name a clash while
+  // the card above it said "0 התנגשויות" in green.
   const conflicts = useMemo(
-    () => detectConflicts(groupFilteredCourses),
-    [groupFilteredCourses],
+    () => detectPlannerConflicts(groupFilteredCourses, isHe),
+    [groupFilteredCourses, isHe],
+  );
+
+  // Courses in this semester whose catalog rows carry no meeting times at all —
+  // every statement about the week ("0 conflicts", weekly hours) is true only of
+  // the courses we DO have times for, and says so.
+  const unscheduledCount = useMemo(
+    () => coursesWithoutTimes(allCurrentCourses),
+    [allCurrentCourses],
   );
 
 
@@ -792,7 +833,7 @@ export function SemesterPlanner({
           year={currentYear}
           semester={currentSemester}
           courses={groupFilteredCourses}
-          multiGroupCount={multiGroupCourseCodes.size}
+          unchosenGroupCount={unchosenGroupCount}
           semesterOver={declaredSemesterOver}
           totalCredits={totalCreditsPlanned}
           hasMoreSemesters={hasMoreSemesters}
@@ -804,13 +845,19 @@ export function SemesterPlanner({
         />
         </div>
         {/* #17 (12.7) — "לא באמת ראיתי את התכנון": the real weekly grid, right
-            next to the approve button. Read-only here; edits go through the
-            "הצגה ועריכה" link. */}
+            next to the approve button. INTERACTIVE: the card beside it says
+            "בחרו את שלכם על המערכת", and until now this grid was mounted
+            read-only — the first instruction a student ever got about groups
+            pointed at a surface where picking did nothing. Same handler as the
+            editor, so a pick here lands in the same state. */}
         <div className="w-full min-w-0 xl:flex-1">
           <LiveTimetable
-            courses={groupFilteredCourses}
+            courses={allCurrentCourses}
             currentSemester={currentSemester}
             sessionGroupSelections={sessionGroupSelections}
+            interactive
+            multiGroupCourseCodes={multiGroupCourseCodes}
+            onSelectSessionGroup={handleSelectSessionGroup}
           />
         </div>
       </div>
@@ -936,9 +983,10 @@ export function SemesterPlanner({
       <div data-tour="planner-insights" className="animate-stagger-2 w-full max-w-7xl">
         <InsightsBar
           selectedCourses={groupFilteredCourses}
-          allCourses={mergedCourses}
           totalCreditsPlanned={totalCreditsPlanned}
           conflicts={conflicts}
+          unscheduledCount={unscheduledCount}
+          canSwapGroups={multiGroupCourseCodes.size > 0}
           focusArea={data.focusArea}
           onFindCombination={handleFindCombination}
         />
@@ -956,27 +1004,86 @@ export function SemesterPlanner({
             layout was silently trading the grid away for a list. Below xl the
             timetable now takes the full row, which always clears 512px. */}
         <div className="flex flex-col gap-4 xl:flex-row xl:items-start">
-          {/* Course Pool — browse & add, on the start side */}
-          <div data-tour="planner-pool" className="w-full rounded-xl border border-border/40 bg-card/20 p-4 xl:w-[38%] xl:max-h-[600px] xl:overflow-hidden xl:flex xl:flex-col">
-            <CoursePool
-              allCourses={mergedCourses}
-              currentYear={currentYear}
-              currentSemester={currentSemester}
-              selectedIds={selectedCourseIds}
-              mandatoryIds={mandatoryIds}
-              completedCourseIds={completedCourseIds}
-              focusArea={data.focusArea}
-              onToggleCourse={handleToggleCourse}
-              onPreviewCourse={setHoverPreviewId}
-              onAddCustomCourse={() => setShowCustomCourseModal(true)}
-              onDisciplineOverride={handleDisciplineOverride}
-            />
+          {/* The rail: the two things a student DOES on this screen, opposite
+              the week they change — courses, and groups. The group picker used
+              to live at the bottom of "הסמסטר שלי", ~1350px below the top of
+              the planner and under a ~700px grid, so on a 1280×800 laptop you
+              could never see the timetable move when you picked. Sticky, with
+              its own scroll, so cause and effect share a screen.
+              The 38/62 split is deliberate and load-bearing: WeeklyTimetable
+              degrades from grid to day-list below 512px of its OWN box, and at
+              a 1280px viewport the timetable container measures 531.45px — 19px
+              of slack. Nothing here may take width from it, which is why the
+              rail's height comes from the tab strip and its own scroll, never
+              from the timetable column. (Measured 13.8 in Chrome over this exact
+              container stack: 531.45 / 630.64 / 749.68px at 1280 / 1440 / 1920.) */}
+          <div data-tour="planner-pool" className="order-2 w-full xl:order-none xl:w-[38%] xl:sticky xl:top-4 xl:max-h-[calc(100vh-2rem)] xl:flex xl:flex-col">
+            <div className="mb-2 flex items-center gap-1 rounded-lg bg-foreground/5 p-0.5">
+              <button
+                type="button"
+                onClick={() => setRailTabPref("courses")}
+                className={cn(
+                  "flex flex-1 items-center justify-center gap-1.5 rounded-md px-2.5 py-2 text-xs font-medium transition-all",
+                  railTab === "courses"
+                    ? "bg-background text-foreground/75 shadow-sm"
+                    : "text-foreground/40 hover:text-foreground/60",
+                )}
+              >
+                {isHe ? "קורסים" : "Courses"}
+              </button>
+              <button
+                type="button"
+                data-tour="planner-groups"
+                onClick={() => setRailTabPref("groups")}
+                className={cn(
+                  "flex flex-1 items-center justify-center gap-1.5 rounded-md px-2.5 py-2 text-xs font-medium transition-all",
+                  railTab === "groups"
+                    ? "bg-background text-foreground/75 shadow-sm"
+                    : "text-foreground/40 hover:text-foreground/60",
+                )}
+              >
+                {isHe ? "קבוצות" : "Groups"}
+                {/* Live count of what is still OUR default — the one number that
+                    tells a student how much of this week they haven't decided. */}
+                {unchosenGroupCount > 0 && (
+                  <span className="rounded-full bg-amber-500/20 px-1.5 py-0.5 text-[10px] font-bold text-amber-700 dark:text-amber-400">
+                    {unchosenGroupCount}
+                  </span>
+                )}
+              </button>
+            </div>
+
+            <div className="w-full rounded-xl border border-border/40 bg-card/20 p-4 xl:min-h-0 xl:flex-1 xl:overflow-y-auto">
+              {railTab === "courses" ? (
+                <CoursePool
+                  allCourses={mergedCourses}
+                  currentYear={currentYear}
+                  currentSemester={currentSemester}
+                  selectedIds={selectedCourseIds}
+                  mandatoryIds={mandatoryIds}
+                  completedCourseIds={completedCourseIds}
+                  focusArea={data.focusArea}
+                  onToggleCourse={handleToggleCourse}
+                  onPreviewCourse={setHoverPreviewId}
+                  onAddCustomCourse={() => setShowCustomCourseModal(true)}
+                  onDisciplineOverride={handleDisciplineOverride}
+                />
+              ) : (
+                <GroupRail
+                  courses={allCurrentCourses}
+                  gridCourses={groupFilteredCourses}
+                  currentSemester={currentSemester}
+                  sessionGroupSelections={sessionGroupSelections}
+                  onSelectSessionGroup={handleSelectSessionGroup}
+                />
+              )}
+            </div>
           </div>
 
           {/* Right column: the LIVE TIMETABLE first — the plan IS a schedule,
               not a list (#20) — with the course list under it. Both update the
               moment you pick a course from the pool. */}
-          <div className="flex w-full min-w-0 flex-col gap-4 xl:w-[62%]">
+          <div className="order-1 flex w-full min-w-0 flex-col gap-4 xl:order-none xl:w-[62%]">
             {/* Live schedule of the picked courses. Tab-toggles to exams. */}
             <div data-tour="planner-timetable" className="rounded-xl border border-border/40 bg-card/20 p-4">
           {/* Tab header */}
@@ -1034,7 +1141,6 @@ export function SemesterPlanner({
                 courses={allCurrentCourses}
                 currentSemester={currentSemester}
                 sessionGroupSelections={sessionGroupSelections}
-                groupPreview={groupPreview}
                 coursePreview={hoverPreviewCourse}
                 interactive
                 multiGroupCourseCodes={multiGroupCourseCodes}
@@ -1056,7 +1162,9 @@ export function SemesterPlanner({
             </div>
 
             {/* My Semester — the course list, under the timetable it feeds. */}
-            <div data-tour="planner-groups" className="rounded-xl border border-border/40 bg-card/20 p-4 lg:max-h-[380px] lg:overflow-y-auto">
+            {/* The tour's "planner-groups" anchor moved to the rail's tab — the
+                group picker is no longer down here. */}
+            <div className="rounded-xl border border-border/40 bg-card/20 p-4 lg:max-h-[380px] lg:overflow-y-auto">
               <MySemester
                 mandatoryCourses={mandatoryCourses}
                 selectedCourses={selectedElectives}
@@ -1065,8 +1173,6 @@ export function SemesterPlanner({
                 onDeleteCustomCourse={handleDeleteCustomCourse}
                 customCourseIds={customCourseIds}
                 sessionGroupSelections={sessionGroupSelections}
-                onSelectSessionGroup={handleSelectSessionGroup}
-                onPreviewGroup={setGroupPreview}
                 currentSemester={currentSemester}
               />
             </div>

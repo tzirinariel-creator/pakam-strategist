@@ -77,6 +77,12 @@ interface WeeklyTimetableProps {
   /** Course codes that offer a tutorial/lab group CHOICE — only these are
    *  tappable (a single-group course has nothing to pick). */
   multiGroupCourseCodes?: Set<string>;
+  /** `courseCode|sessionType` (lowercased) pairs whose group on this grid is
+   *  the app's DEFAULT — the student never picked it. Those blocks are drawn
+   *  dashed and labelled "ברירת מחדל" instead of stating "תרגול · קבוצה 03" as
+   *  settled fact. Without this the grid presented our guess and the student's
+   *  decision in exactly the same ink. */
+  defaultedGroupKeys?: Set<string>;
   /** Editor context (#2): switch agenda→grid already at @lg (~512px) instead
    *  of @2xl, so a 1280px laptop with the sidebar open still sees a SCHEDULE
    *  in the planning rail — not a list. */
@@ -220,6 +226,7 @@ export function WeeklyTimetable({
   interactive,
   onPickGroup,
   multiGroupCourseCodes,
+  defaultedGroupKeys,
 }: WeeklyTimetableProps) {
   const t = useTranslations("calendar");
   const locale = useLocale();
@@ -333,6 +340,12 @@ export function WeeklyTimetable({
     slot.groupCode
       ? `${typeLabel(slot.sessionType)} · ${isHe ? "קבוצה" : "group"} ${slot.groupCode}`
       : typeLabel(slot.sessionType);
+
+  /** Is this block here because the student chose it, or because we defaulted? */
+  const isDefaultedSlot = (slot: TimeSlot) =>
+    defaultedGroupKeys?.has(`${slot.courseCode}|${(slot.sessionType ?? "").toLowerCase()}`) ?? false;
+
+  const defaultedLabel = isHe ? "ברירת מחדל" : "our default";
 
   // The plain sentences behind the clash markers, capped so a badly-built week
   // doesn't turn the top of the page into a wall of red.
@@ -505,6 +518,11 @@ export function WeeklyTimetable({
                           </div>
                           <span className="truncate text-[11px] text-muted-foreground">
                             {slot.courseCode} · {typeAndGroup(slot)}
+                            {isDefaultedSlot(slot) && (
+                              <span className="text-amber-700 dark:text-amber-400">
+                                {` · ${defaultedLabel}`}
+                              </span>
+                            )}
                           </span>
                           {slot.lecturerName && (
                             <span className="mt-0.5 truncate text-[11px] text-muted-foreground">
@@ -724,6 +742,7 @@ export function WeeklyTimetable({
                 const slotLeftPct = basePct + subCol * slotWidthPct;
 
                 const hasConflict = conflictIds.has(slot.courseId);
+                const isDefaulted = isDefaultedSlot(slot);
                 const color = courseColor(slot.courseCode);
 
                 const locationText = [slot.building, slot.room]
@@ -761,6 +780,9 @@ export function WeeklyTimetable({
                       borderColor: hasConflict
                         ? "rgba(239, 68, 68, 0.7)"
                         : `color-mix(in srgb, ${color} 40%, transparent)`,
+                      // Dashed = "we put this here, you didn't". The one visual
+                      // difference between our guess and the student's decision.
+                      borderStyle: isDefaulted ? "dashed" : "solid",
                     }}
                     onMouseEnter={() => setDetailId(slot.courseId)}
                     onMouseLeave={() => setDetailId((cur) => (cur === slot.courseId ? null : cur))}
@@ -814,6 +836,11 @@ export function WeeklyTimetable({
                     {!isShort && (
                       <span className="mt-0.5 truncate text-[11px] text-foreground/70">
                         {isNarrow ? typeLabel(slot.sessionType) : typeAndGroup(slot)}
+                        {isDefaulted && (
+                          <span className="text-amber-700 dark:text-amber-400">
+                            {` · ${defaultedLabel}`}
+                          </span>
+                        )}
                       </span>
                     )}
 
@@ -892,6 +919,11 @@ export function WeeklyTimetable({
                       <bdi dir="ltr" className="tabular-nums">{detailSlot.courseCode}</bdi>
                       {" · "}
                       {typeAndGroup(detailSlot)}
+                      {isDefaultedSlot(detailSlot) && (
+                        <span className="text-amber-700 dark:text-amber-400">
+                          {` · ${defaultedLabel}`}
+                        </span>
+                      )}
                     </span>
                     <span className="text-[11px] text-foreground/70">
                       {dayLabel(detailSlot.day)}{" "}

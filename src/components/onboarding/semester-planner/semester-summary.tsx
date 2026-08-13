@@ -3,6 +3,7 @@
 import { useTranslations, useLocale } from "next-intl";
 import { CheckCircle, Calendar, Feather, Gauge, Weight, Flame, Pencil, Loader2, Users } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { Bidi } from "@/lib/bidi";
 import { calculateHonestLoad, type HonestLoadLabel } from "@/lib/workload-calculator";
 import { SEMESTER_CONFIG, YEAR_CONFIG, CREDIT_REQUIREMENTS } from "@/lib/constants";
 import type { CourseWithSchedule } from "@/lib/plan-generator";
@@ -56,9 +57,12 @@ interface SemesterSummaryProps {
    *  mandatory-heavy — the copy presents a READY recommended timetable to
    *  confirm, not a "you finished building" congratulation. */
   autoRecommended?: boolean;
-  /** #11 (12.7) — how many courses still have SEVERAL possible groups. >0
-   *  surfaces a dedicated "בחרו קבוצות" step before confirming blindly. */
-  multiGroupCount?: number;
+  /** How many session types are still on the app's DEFAULT group — i.e. what
+   *  the student has NOT decided. Derived from their actual picks, so it hits
+   *  zero and the nudge disappears once the work is done. (It used to be the
+   *  catalog's multi-group course count, which no amount of picking could ever
+   *  satisfy: you could choose every group and still be told "בחרו את שלכם".) */
+  unchosenGroupCount?: number;
   /** 18:19 (#6) — when the declared semester has already ENDED, group choice
    *  is moot (you're just marking what you took) — suppress the nudge. */
   semesterOver?: boolean;
@@ -75,7 +79,7 @@ export function SemesterSummary({
   onBack,
   isSaving = false,
   autoRecommended = false,
-  multiGroupCount = 0,
+  unchosenGroupCount = 0,
   semesterOver = false,
 }: SemesterSummaryProps) {
   const t = useTranslations("onboarding");
@@ -221,22 +225,43 @@ export function SemesterSummary({
           </div>
         </div>
 
-        {/* #11 (12.7) — group choice is a real decision, not a footnote: when
-            courses still have several groups, offer the dedicated step. */}
-        {multiGroupCount > 0 && !semesterOver && (
-          <button
-            type="button"
-            onClick={onBack}
-            disabled={isSaving}
-            className="flex w-full items-center justify-center gap-2 rounded-xl border-2 border-accent-brand/40 bg-accent-brand/[0.06] px-6 py-3 text-sm font-semibold text-accent-brand transition-all hover:bg-accent-brand/10 press-scale disabled:opacity-50"
-          >
-            <Users className="h-4 w-4" />
-            {isHe
-              ? multiGroupCount === 1
-                ? "לקורס אחד יש כמה קבוצות — בחרו את שלכם על המערכת"
-                : `ל-${multiGroupCount} קורסים יש כמה קבוצות — בחרו את שלכם על המערכת`
-              : `${multiGroupCount} course(s) have several groups — pick yours on the grid`}
-          </button>
+        {/* Group choice is a real decision, not a footnote. This says what is
+            actually true — how many session types are still showing the app's
+            DEFAULT group rather than the student's pick — and points at the
+            grid beside it, which is now interactive (it wasn't: the sentence
+            asked for something the surface it named could not do). It
+            disappears the moment the last group is chosen. */}
+        {unchosenGroupCount > 0 && !semesterOver && (
+          <div className="space-y-2 rounded-xl border-2 border-amber-500/40 bg-amber-500/[0.06] px-4 py-3 text-start">
+            <p className="flex items-start gap-2 text-xs font-semibold leading-relaxed text-amber-700 dark:text-amber-400">
+              <Users className="mt-0.5 h-4 w-4 shrink-0" />
+              <span>
+                {isHe ? (
+                  <>
+                    {unchosenGroupCount === 1
+                      ? "קבוצה אחת עדיין בברירת מחדל"
+                      : <><Bidi text={unchosenGroupCount} /> קבוצות עדיין בברירת מחדל</>}
+                    {" — המערכת מציגה בינתיים את הקבוצה הראשונה."}
+                  </>
+                ) : (
+                  `${unchosenGroupCount} group${unchosenGroupCount === 1 ? "" : "s"} still on our default — showing the first group meanwhile.`
+                )}
+              </span>
+            </p>
+            <p className="text-[11px] leading-relaxed text-foreground/55">
+              {isHe
+                ? "הקישו על הבלוק במערכת השעות שלצד כדי לבחור קבוצה — הבחירה נשמרת מיד."
+                : "Tap a block on the timetable beside this card to choose a group — it saves immediately."}
+            </p>
+            <button
+              type="button"
+              onClick={onBack}
+              disabled={isSaving}
+              className="text-[11px] font-semibold text-accent-brand underline-offset-2 transition-colors hover:underline disabled:opacity-50"
+            >
+              {isHe ? "או חזרה לעריכה מלאה" : "Or go back to full editing"}
+            </button>
+          </div>
         )}
 
         {/* CTAs */}

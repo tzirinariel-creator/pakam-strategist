@@ -6,7 +6,9 @@ import { Lock, X, Trash2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { DISCIPLINE_CONFIG } from "@/lib/constants";
 import { CourseDetailPopover } from "../step-plan/course-detail-popover";
-import { SessionGroupSelector, courseHasMultipleGroups } from "./session-group-selector";
+import { Bidi } from "@/lib/bidi";
+import { defaultedSessionTypes, resolveGroupSelections } from "@/lib/session-groups";
+import { sessionTypeNameFor } from "@/lib/group-options";
 import type { CourseWithSchedule } from "@/lib/plan-generator";
 
 interface MySemesterProps {
@@ -16,10 +18,10 @@ interface MySemesterProps {
   onRemoveCourse: (courseId: string) => void;
   onDeleteCustomCourse?: (id: string) => void;
   customCourseIds?: Set<string>;
+  /** The student's per-course picks — read only to SAY which group is on the
+   *  grid and whether that was a decision or our default. Choosing itself lives
+   *  in the rail beside the timetable now. */
   sessionGroupSelections?: Record<string, Record<string, string>>;
-  onSelectSessionGroup?: (courseCode: string, sessionType: string, groupCode: string) => void;
-  /** Hover-preview a group on the live timetable (#2). Null clears. */
-  onPreviewGroup?: (p: { courseCode: string; sessionType: string; groupCode: string } | null) => void;
   /** The semester this view represents — so the group selector shows only THIS
    *  semester's groups for a course offered in both (matches the on-grid picker). */
   currentSemester?: "FALL" | "SPRING";
@@ -39,8 +41,6 @@ export function MySemester({
   onDeleteCustomCourse,
   customCourseIds,
   sessionGroupSelections,
-  onSelectSessionGroup,
-  onPreviewGroup,
   currentSemester,
 }: MySemesterProps) {
   const t = useTranslations("onboarding");
@@ -52,6 +52,38 @@ export function MySemester({
   // picker: keep a session with no semester tag, else match the current one).
   const sessionsForSemester = (sessions: CourseWithSchedule["scheduleSessions"]) =>
     (sessions ?? []).filter((s) => !currentSemester || !s.semester || s.semester === currentSemester);
+
+  /** One quiet line per multi-group course: which group is on the grid, and
+   *  whether that was a decision or our default. It reads the SAME resolution
+   *  the grid draws — a list that states a group as fact while the grid shows a
+   *  default is the confusion this whole screen was reported for. */
+  const groupSummary = (course: CourseWithSchedule) => {
+    const semSessions = sessionsForSemester(course.scheduleSessions);
+    const resolved = resolveGroupSelections(semSessions, sessionGroupSelections?.[course.code]);
+    if (resolved.length === 0) return null;
+    const defaulted = new Set(
+      defaultedSessionTypes(semSessions, sessionGroupSelections?.[course.code]),
+    );
+    return (
+      <div className="ms-6 flex flex-wrap gap-x-2 gap-y-0.5">
+        {resolved.map((r) => (
+          <span
+            key={r.sessionType}
+            className={cn(
+              "text-[10px]",
+              defaulted.has(r.sessionType)
+                ? "text-amber-700 dark:text-amber-400"
+                : "text-foreground/40",
+            )}
+          >
+            {sessionTypeNameFor(r.sessionType, isHe)} {isHe ? "קבוצה" : "group"}{" "}
+            <Bidi text={r.groupCode} />
+            {defaulted.has(r.sessionType) && (isHe ? " · ברירת מחדל" : " · our default")}
+          </span>
+        ))}
+      </div>
+    );
+  };
 
   // Group all courses by discipline
   const disciplineGroups = useMemo(() => {
@@ -156,22 +188,12 @@ export function MySemester({
                           </span>
                         </button>
                       </CourseDetailPopover>
-                      {/* Session group selector — only for courses with multiple lecture/tutorial groups (this semester's) */}
-                      {(() => {
-                        const semSessions = sessionsForSemester(course.scheduleSessions);
-                        return onSelectSessionGroup && courseHasMultipleGroups(semSessions) ? (
-                          <div className="ms-6">
-                            <SessionGroupSelector
-                              courseCode={course.code}
-                              courseName={isHe ? course.nameHe : (course.nameEn ?? course.nameHe)}
-                              sessions={semSessions}
-                              selectedGroups={sessionGroupSelections?.[course.code] ?? {}}
-                              onSelectGroup={onSelectSessionGroup}
-                              onPreviewGroup={onPreviewGroup}
-                            />
-                          </div>
-                        ) : null;
-                      })()}
+                      {/* The group chips used to live here — a second, poorer
+                          picker (one meeting per group, no clash flag) two
+                          screen-heights below the grid it changed. Choosing now
+                          happens in the rail beside the timetable, or on the
+                          block itself. This list is the course list again. */}
+                      {groupSummary(course)}
                     </div>
                   ) : (
                     <div key={course.id} className="space-y-1">
@@ -224,24 +246,7 @@ export function MySemester({
                         </button>
                       </div>
                     </CourseDetailPopover>
-                    {/* Session-group selector for ELECTIVES too (#2) — a
-                        multi-group elective used to silently take group 1.
-                        Filtered to THIS semester's sessions. */}
-                    {(() => {
-                      const semSessions = sessionsForSemester(course.scheduleSessions);
-                      return onSelectSessionGroup && courseHasMultipleGroups(semSessions) ? (
-                        <div className="ms-6">
-                          <SessionGroupSelector
-                            courseCode={course.code}
-                            courseName={isHe ? course.nameHe : (course.nameEn ?? course.nameHe)}
-                            sessions={semSessions}
-                            selectedGroups={sessionGroupSelections?.[course.code] ?? {}}
-                            onSelectGroup={onSelectSessionGroup}
-                            onPreviewGroup={onPreviewGroup}
-                          />
-                        </div>
-                      ) : null;
-                    })()}
+                    {groupSummary(course)}
                     </div>
                   )
                 )}

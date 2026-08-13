@@ -18,6 +18,7 @@ import type { CompletedCourse } from "./step-history";
 import type { CourseWithSchedule } from "@/lib/plan-generator";
 import type { SessionGroupSelections } from "./semester-planner/live-timetable";
 import { PersonaPicker } from "@/components/persona/persona-picker";
+import { setPersona } from "@/components/persona/use-persona";
 import { PhilosopherKingCharacter } from "@/components/ui/philosopher-king-character";
 
 interface StepReadyProps {
@@ -333,12 +334,18 @@ export function StepReady({ data, plannedSemesters, completedCourses, allCourses
           "pakamon-google-banner-dismissed",
           "pk-met-king-card",
           "pk-met-advisor", // the chat-panel intro (floating-assistant) — missing it skipped the King intro on a reset account
-          "pk-persona", // otherwise a browser that once chose the Referent silently hands a brand-new account the Referent instead of the King
           "pakamon-planner-tour-done", // the in-place planner tour (#17)
           "pk-king-greeted", // the King's one-time opening message (#11)
         ]) {
           localStorage.removeItem(k);
         }
+        // The advisor persona goes through the shared store, not a raw
+        // removeItem: otherwise a browser that once chose the Referent hands a
+        // brand-new account the Referent AND — since this flow router.push-es to
+        // the dashboard without a reload — the mounted FAB keeps the old face
+        // until the next hard refresh. setPersona resets storage, the <html>
+        // attribute and every mounted surface at once.
+        setPersona("king");
       }
     } catch (error) {
       console.error("Failed to save onboarding plan:", error);
@@ -692,8 +699,8 @@ export function StepReady({ data, plannedSemesters, completedCourses, allCourses
             </h3>
             <p className="text-xs text-foreground/45">
               {isHe
-                ? "המלך הפילוסוף — הרעיון של אפלטון: להוביל לפי ידע. חזון ואסטרטגיה בגובה העיניים. הרפרנט — ענייני, פורמלי וקצר. שניהם עונים מאותם נתונים; אפשר להחליף בכל רגע בהגדרות."
-                : "The Philosopher King — Plato's idea of leading by knowledge: vision and strategy at eye level. The Referent — matter-of-fact and short. Both answer from the same data; switch anytime in settings."}
+                ? "המלך הפילוסוף — הרעיון של אפלטון: להוביל לפי ידע. חזון ואסטרטגיה, ומשפט-חוכמה כשהוא במקומו. הרפרנט — סטודנט שנה ג׳ שכבר עבר את זה: דוגרי, קצר, בלי סמכות מלמעלה. שניהם עונים מאותם נתונים; אפשר להחליף בכל רגע בהגדרות."
+                : "The Philosopher King — Plato's idea of leading by knowledge: vision and strategy, with a line of wisdom when it earns its place. The Referent — a final-year student who's been through it: blunt, short, no authority from above. Both answer from the same data; switch anytime in settings."}
             </p>
             <PersonaPicker compact />
           </div>

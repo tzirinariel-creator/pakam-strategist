@@ -19,14 +19,12 @@
 import { toast } from "sonner";
 import { PhilosopherKingIcon } from "@/components/ui/philosopher-king-icon";
 import { ReferentIcon } from "@/components/ui/referent-icon";
+import { getPersona } from "@/components/persona/use-persona";
 
 function personaIcon() {
-  let referent = false;
-  try {
-    referent = localStorage.getItem("pk-persona") === "referent";
-  } catch {
-    /* SSR / storage blocked — default to the King */
-  }
+  // Same store every component reads (SSR-safe, updates the instant the student
+  // switches) instead of a private localStorage read.
+  const referent = getPersona() === "referent";
   return referent ? (
     <ReferentIcon className="size-4 text-accent-brand" />
   ) : (

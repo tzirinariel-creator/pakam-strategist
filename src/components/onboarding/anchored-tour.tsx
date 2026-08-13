@@ -90,8 +90,14 @@ export const PLANNER_STEPS: Step[] = [
     selector: '[data-tour="planner-groups"]',
     titleHe: "לקורס עם כמה קבוצות — אתם בוחרים",
     titleEn: "Several groups? You choose",
-    bodyHe: "הרצאה או תרגיל עם כמה קבוצות מקבלים כאן בורר. ריחוף על קבוצה מראה מראש איפה היא תשב בלוח, לפני שבוחרים.",
-    bodyEn: "A lecture or TA session with several groups gets a picker here. Hover one to preview where it would sit before you commit.",
+    // Rewritten with the group rail (13.8). It used to teach "ריחוף על קבוצה" —
+    // hover — which was removed from the group path on purpose: on a trackpad a
+    // tap fires focus and click together, so previewing and committing happened
+    // in the same instant. The tour must not teach a gesture the screen no
+    // longer has, and the honest thing to name here is the default state,
+    // which is what actually confused Ariel.
+    bodyHe: "לכל הרצאה או תרגיל עם כמה קבוצות תמצאו כאן את כולן — עם השעות, החדר והמרצה. עד שתבחרו, בחרנו בשבילכם קבוצה זמנית; היא מסומנת בקו מקווקו בלוח.",
+    bodyEn: "Every lecture or TA session with several groups is listed here — times, room and lecturer. Until you choose, we hold a temporary group for you; it's the dashed block on the grid.",
   },
   {
     selector: '[data-tour="planner-insights"]',

@@ -409,6 +409,55 @@ describe("mergeDoubleRead (#5)", () => {
     const merged = mergeDoubleRead([mk("מתמטיקה", 100), mk("מוסר", 96)], [mk("מתמטיקה", 100)]);
     expect(merged.find((r) => r.courseName === "מוסר")!.uncertain).toBe(true);
   });
+
+  // ── Ariel, 13.8: "משום מה הוא לא הצליח לקלוט שעשיתי לוגיקה" ──────────
+  // The old rule was "the verify pass always wins". When the verify pass came
+  // back with an EMPTY grade cell, that rule let an absence overwrite a number
+  // the first read saw: the course lost its grade, inherited the *** flag, and
+  // was reported to the student as "עדיין בלימוד" — with its ש״ס dropped.
+  it("does not let an empty second read erase a grade the first read saw", () => {
+    const first = [{ ...mk("מבוא ללוגיקה", 89, "0618-1012") }];
+    const verify = [{ ...mk("מבוא ללוגיקה", null, "0618-1012"), inProgress: true }];
+    const logic = mergeDoubleRead(first, verify)[0]!;
+    // We assert NOTHING: no invented grade, and no invented "still studying".
+    expect(logic.grade).toBeNull();
+    expect(logic.inProgress).toBe(false);
+    expect(logic.uncertain).toBe(true);
+    // The number one read DID see is carried, so the review screen can offer it.
+    expect(logic.otherGrade).toBe(89);
+  });
+
+  it("treats the mirror case the same way — a first read that saw nothing", () => {
+    const first = [{ ...mk("מבוא ללוגיקה", null, "0618-1012"), inProgress: true }];
+    const verify = [{ ...mk("מבוא ללוגיקה", 89, "0618-1012") }];
+    const logic = mergeDoubleRead(first, verify)[0]!;
+    expect(logic.grade).toBeNull();
+    expect(logic.inProgress).toBe(false);
+    expect(logic.otherGrade).toBe(89);
+    expect(logic.uncertain).toBe(true);
+  });
+
+  // A retake / a course sat under two semester headers used to collapse: the
+  // verify rows were indexed key→row, so only the LAST sitting survived and
+  // BOTH first-read rows were reconciled against it — the graded sitting was
+  // overwritten by the ungraded one.
+  it("keeps two sittings of the same course apart, each with its own grade", () => {
+    const sitting = (grade: number | null, semester: string, inProgress = false) => ({
+      courseCode: "0651-1005",
+      courseName: 'סטטיסטיקה לפכ"מ',
+      grade,
+      credits: 5,
+      passText: null,
+      semester,
+      inProgress,
+    });
+    const first = [sitting(88, "2024/2"), sitting(null, "2025/2", true)];
+    const merged = mergeDoubleRead(first, [sitting(88, "2024/2"), sitting(null, "2025/2", true)]);
+    expect(merged).toHaveLength(2);
+    expect(merged.map((r) => r.grade)).toEqual([88, null]);
+    expect(merged.map((r) => r.semester)).toEqual(["2024/2", "2025/2"]);
+    expect(merged.some((r) => r.uncertain)).toBe(false); // the reads agreed
+  });
 });
 
 describe("printedAverageMismatch (#5)", () => {

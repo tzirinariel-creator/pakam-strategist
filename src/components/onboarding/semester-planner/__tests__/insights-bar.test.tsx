@@ -1,16 +1,25 @@
 // @vitest-environment jsdom
 // =========================================================================
 // Locks the shortfall/overload HONESTY contract of the planner InsightsBar
-// (#41 QA-5). The load label + the workload/schedule narrative must never cry
+// (#41 QA-5). The load label + the schedule narrative must never cry
 // "overload"/"heavy" on a genuinely light or empty plan — that state stays
 // calm ("קל") — and must surface REAL pain only when the inputs justify it:
-//   • 3+ hard courses            → "N קורסים קשים באותו סמסטר …"
-//   • a seminar + 2 hard courses → "סמינריון + 2 קורסים קשים … מאתגר במיוחד"
+//   • 2+ hard courses            → the insight names them
 //   • ≥ 20 ש״ס                    → honest-load label flips to "עומס ש״ס"
-//   • > 16 ש״ס                    → tip warns "עומס גבוה …"
 //   • ≥ 22 weekly contact hours  → honest-load label flips to "שבוע עמוס שעות"
-// calculateHonestLoad / generateWorkloadExplanation / generateScheduleInsights
-// all run for real here — only next-intl is mocked.
+//
+// CHANGED 13.8 — the "> 16 ש״ס → 'עומס גבוה'" assertion below was REMOVED, and
+// with it the whole `generateWorkloadExplanation` narrative. It was regression-
+// protecting a self-contradiction: `calculateHonestLoad` calls a semester קל
+// until 20 ש״ס, while that tip shouted "עומס גבוה — וודאו שאתם מסוגלים
+// להתמודד" from 17. At 17–19 ש״ס both rendered on the same card, thirty pixels
+// apart. Ariel's screenshot (19 ש״ס, chip reading "קל") is exactly that state,
+// and his note on it was "רמת עומס וכל המדדים האלו - אתה חותם עליהם?" — no.
+// Not one of that tip's thresholds (>16 ש״ס, avg > 3.5, 80% mandatory) had a
+// source, which the project's own iron rule forbids. The card now carries the
+// honest-load label, ITS two real numbers, and the schedule insights.
+// calculateHonestLoad / generateScheduleInsights run for real here — only
+// next-intl is mocked.
 // =========================================================================
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import "@testing-library/jest-dom/vitest";
@@ -70,12 +79,7 @@ function course(o: CourseOverrides): CourseWithSchedule {
 
 function renderBar(selected: CourseWithSchedule[]) {
   return render(
-    <InsightsBar
-      selectedCourses={selected}
-      allCourses={selected}
-      totalCreditsPlanned={30}
-      conflicts={[]}
-    />,
+    <InsightsBar selectedCourses={selected} totalCreditsPlanned={30} conflicts={[]} />,
   );
 }
 
@@ -119,28 +123,21 @@ describe("InsightsBar — shortfall/overload honesty (#41 QA-5)", () => {
     // Honest-load label is the calm one.
     expect(screen.getByText("קל")).toBeInTheDocument();
     // The narrative names the calm reality, not a false alarm.
-    expect(screen.getByText(/סמסטר מאוזן/)).toBeInTheDocument();
+    expect(screen.getByText(/מיקס טוב/)).toBeInTheDocument();
     expectNoOverloadNarrative();
   });
 
-  it("3+ hard courses → the tip surfaces the real pain", () => {
+  it("3+ hard courses → the insight NAMES them, instead of a verdict word", () => {
     const hard = [
-      course({ id: "H1", credits: 3, difficultyLevel: "hard" }),
-      course({ id: "H2", credits: 3, difficultyLevel: "hard" }),
-      course({ id: "H3", credits: 3, difficultyLevel: "very_hard" }),
+      course({ id: "H1", credits: 3, difficultyLevel: "hard", nameHe: "כלכלה" }),
+      course({ id: "H2", credits: 3, difficultyLevel: "hard", nameHe: "לוגיקה" }),
+      course({ id: "H3", credits: 3, difficultyLevel: "very_hard", nameHe: "סטטיסטיקה" }),
     ];
     renderBar(hard);
-    expect(screen.getByText(/קורסים קשים באותו סמסטר/)).toBeInTheDocument();
-  });
-
-  it("seminar + 2 hard → the 'especially challenging' warning fires", () => {
-    const plan = [
-      course({ id: "SEM", credits: 4, courseType: "SEMINAR" }),
-      course({ id: "H1", credits: 3, difficultyLevel: "hard" }),
-      course({ id: "H2", credits: 3, difficultyLevel: "hard" }),
-    ];
-    renderBar(plan);
-    expect(screen.getByText(/מאתגר במיוחד/)).toBeInTheDocument();
+    // generateScheduleInsights lists the actual course names — a fact the
+    // student can check — where the deleted tip only asserted "3 קורסים קשים".
+    expect(screen.getByText(/קורסים קשים: /)).toBeInTheDocument();
+    expect(screen.getByText(/כלכלה/)).toBeInTheDocument();
   });
 
   it("≥ 20 ש״ס → the honest-load label flips to the credit-heavy pain", () => {
@@ -154,14 +151,22 @@ describe("InsightsBar — shortfall/overload honesty (#41 QA-5)", () => {
     expect(screen.queryByText("קל")).toBeNull();
   });
 
-  it("> 16 ש״ס (no hard courses) → the tip still warns of high load", () => {
-    // 6 courses × 3 ש״ס = 18; no difficultyLevel so the 'balanced' calm branch
-    // is skipped and avg ש״ס ≤ 3.5 → the honest 'עומס גבוה' tip fires.
+  it("18 ש״ס → ONE verdict on the card, not two contradicting ones", () => {
+    // 6 courses × 3 ש״ס = 18. This is the exact state from Ariel's screenshot.
+    // The card used to render the chip "קל" (calculateHonestLoad: < 20 ש״ס) and
+    // the sentence "עומס גבוה — וודאו שאתם מסוגלים להתמודד" (the deleted tip:
+    // > 16 ש״ס) one under the other. Whatever the right threshold is, it cannot
+    // be both — and the tip's was unsourced, so the tip went.
     const many = Array.from({ length: 6 }, (_, i) =>
       course({ id: `M${i}`, credits: 3, sessions: [{ dayOfWeek: "SUNDAY", startTime: "10:00", endTime: "11:00" }] }),
     );
     renderBar(many);
-    expect(screen.getByText(/עומס גבוה/)).toBeInTheDocument();
+    expect(screen.getByText("קל")).toBeInTheDocument();
+    expect(document.body.textContent ?? "").not.toMatch(/עומס גבוה/);
+    // The verdict word is attributed to us, not presented as a fact about TAU.
+    expect(screen.getByText(/לפי הספים שלנו/)).toBeInTheDocument();
+    // The two numbers behind it are still on screen, unchanged.
+    expect(screen.getByText(/שעות לימוד בשבוע/)).toBeInTheDocument();
   });
 
   it("≥ 22 weekly contact hours → the honest-load label flips to 'heavy week'", () => {

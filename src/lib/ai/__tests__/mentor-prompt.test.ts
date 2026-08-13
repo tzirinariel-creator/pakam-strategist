@@ -267,6 +267,40 @@ describe("personas — one brain, two voices", () => {
     expect(p).toContain("אגף התקציבים");
   });
 
+  // 13.8 — Ariel judged one Referent answer "תשובה גרועה" and one King answer as
+  // not thinking "מחוץ לקופסה". Both had the same cause: the Referent's style
+  // block was written entirely as PROHIBITIONS ("no authority, no philosophy"),
+  // so with nothing positive to lean on the model fell back to the shared
+  // contract — which was authored for the King. Each persona now carries a
+  // POSITIVE move of its own, and they differ structurally, not just lexically.
+  it("each persona carries a positive move, not only a list of prohibitions", () => {
+    const king = buildMentorSystemPrompt(ctx(), program, "king");
+    const ref = buildMentorSystemPrompt(ctx(), program, "referent");
+
+    // The King's job is the consequence the student did not ask about.
+    expect(king).toContain("אל תעצור בעובדה — תן את המהלך");
+    expect(king).toContain("הימנע מלעצור בתשובה המובנת מאליה");
+    // The Referent's is the verdict first — a different ANSWER SHAPE.
+    expect(ref).toContain("שורה תחתונה קודם");
+    expect(ref).toContain("אתה מסכם ואז מסביר");
+    expect(ref).toContain("1-3 משפטים");
+
+    // …and neither borrows the other's move.
+    expect(ref).not.toContain("אל תעצור בעובדה — תן את המהלך");
+    expect(king).not.toContain("שורה תחתונה קודם");
+  });
+
+  it("the added depth may never become invention — both personas stay bound to the facts block", () => {
+    const king = buildMentorSystemPrompt(ctx(), program, "king");
+    const ref = buildMentorSystemPrompt(ctx(), program, "referent");
+    // The King's "extra angle" is explicitly capped by the authoritative facts.
+    expect(king).toContain("רק ממה שמופיע בעובדות המוסמכות למטה");
+    expect(king).toContain("היא ניחוש");
+    // The Referent's "from experience" needs a number under it or it is a lie.
+    expect(ref).toContain('"מניסיון" בלי נתון מתחתיו = המצאה');
+    expect(ref).toContain("אין לי נתון על זה");
+  });
+
   it("SAFETY survives every persona: bidding zero-prediction + authoritative facts + contract", () => {
     for (const persona of ["king", "referent"] as const) {
       const p = buildMentorSystemPrompt(ctx(), program, persona);

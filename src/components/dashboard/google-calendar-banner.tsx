@@ -29,11 +29,15 @@ export function GoogleCalendarBanner({
         </p>
         <p className="text-xs text-foreground/40 mt-0.5">
           {isConnected
-            ? (isHe ? "הלו״ז שלכם מסונכרן ליומן Google" : "Your schedule is synced to Google Calendar")
+            ? (isHe ? "השיעורים והמבחנים שלכם מסונכרנים ליומן Google" : "Your classes and exams are synced to Google Calendar")
             : (isHe
                 // Q4 (note 14): name the RIGHT MOMENT to sync, not just the button.
-                ? "סנכרנו את המערכת ישירות ליומן שלכם. הרגע הכי טוב — אחרי שסגרתם את מערכת הסמסטר."
-                : "Sync your schedule directly to your calendar. Best moment — right after you lock in your semester timetable.")}
+                // 13.8 (#40): name WHAT gets synced. The sync pushes lectures AND
+                // exam sittings (schedule.syncToGoogle contentFilter all|lectures|
+                // exams), but this line said only "המערכת" — so the half students
+                // care about most, the exams, was invisible.
+                ? "השיעורים והמבחנים עוברים ליומן שלכם — עם התזכורות. הרגע הכי טוב — אחרי שסגרתם את מערכת הסמסטר."
+                : "Your classes and your exam sittings move into your calendar, reminders included. Best moment — right after you lock in your semester timetable.")}
         </p>
       </div>
       <div className="flex items-center gap-2">

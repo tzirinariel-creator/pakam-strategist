@@ -2,6 +2,7 @@ import { describe, it, expect } from "vitest";
 import {
   summarizeStanding,
   buildCompletedSeed,
+  groupRowsBySemester,
   nextSemesterOn,
   yearFromCredits,
   type StandingCatalogCourse,
@@ -33,7 +34,7 @@ function row(partial: Partial<ExtractedRow> & { courseName: string }): Extracted
 }
 
 function summarize(
-  rows: (ExtractedRow & { uncertain?: boolean })[],
+  rows: (ExtractedRow & { uncertain?: boolean; otherGrade?: number | null })[],
   upcomingSemester: "FALL" | "SPRING" = "FALL",
 ) {
   const matched = matchExtractedToCatalog(rows, CATALOG);
@@ -160,6 +161,26 @@ describe("summarizeStanding — never over-claims", () => {
     expect(s.completed).toHaveLength(0);
   });
 
+  it("counts a binary 'עובר' row as a completion, with its catalog ש״ס", () => {
+    // A pass/fail course prints a word, not a number. It is a real completion —
+    // conflating it with a still-in-progress row is exactly how a passed course
+    // ends up reported as "בלימוד".
+    const s = summarize([
+      row({ courseCode: "0651-1001", courseName: "מבוא לפילוסופיה", passText: "עובר", semester: "2024/1" }),
+    ]);
+    expect(s.rows[0]!.status).toBe("COMPLETED");
+    expect(s.inProgress).toHaveLength(0);
+    expect(s.creditsEarned).toBe(4); // from the catalog, not from the sheet
+  });
+
+  it("counts a נכשל mark as failed, never as in-progress", () => {
+    const s = summarize([
+      row({ courseCode: "1011-1001", courseName: "מבוא לכלכלה", passText: "נכשל", semester: "2024/1" }),
+    ]);
+    expect(s.failed).toHaveLength(1);
+    expect(s.creditsEarned).toBe(0);
+  });
+
   it("carries the scanner's uncertainty flag through untouched", () => {
     const s = summarize([
       { ...row({ courseCode: "1011-1001", courseName: "מבוא לכלכלה", grade: 91, semester: "2024/1" }), uncertain: true },
@@ -173,6 +194,83 @@ describe("summarizeStanding — never over-claims", () => {
     expect(s.placement).toBeNull();
     expect(s.creditsEarned).toBe(0);
     expect(s.semestersOnSheet).toBe(0);
+  });
+});
+
+// =========================================================================
+// #2a (13.8) — "משום מה הוא לא הצליח לקלוט שעשיתי לוגיקה". A course Ariel
+// PASSED was reported "בלימוד", with no grade and its ש״ס dropped.
+//
+// The two ways a passed course could reach this screen without its grade:
+//   1. the row arrived carrying BOTH a number and the *** flag, and the flag
+//      was checked first — so the printed grade was thrown away;
+//   2. the two vision reads disagreed about whether the row has a grade at
+//      all, and the empty read silently won (see mergeDoubleRead).
+// Both are settled here: a printed number always beats the flag, and a
+// disputed row is reported as unclear — never as a fact about the document.
+// =========================================================================
+describe("status derivation — every mark the TAU sheet can print (#2a)", () => {
+  const statusOf = (over: Partial<ExtractedRow>) =>
+    summarize([row({ courseCode: "0651-1001", courseName: "מבוא לפילוסופיה", semester: "2024/1", ...over })])
+      .rows[0]!.status;
+
+  it("reads each mark exactly as the sheet prints it", () => {
+    expect(statusOf({ grade: 88 })).toBe("COMPLETED"); // a number
+    expect(statusOf({ grade: 45 })).toBe("FAILED");
+    expect(statusOf({ passText: "עובר" })).toBe("COMPLETED"); // binary pass
+    expect(statusOf({ passText: "פטור" })).toBe("EXEMPT");
+    expect(statusOf({ passText: "נכשל" })).toBe("FAILED");
+    expect(statusOf({ inProgress: true })).toBe("IN_PROGRESS"); // ***
+    expect(statusOf({})).toBe("UNREADABLE"); // nothing to go on — say so
+  });
+
+  it("a printed grade outranks the *** flag — the row is COMPLETED, not בלימוד", () => {
+    // The sheet prints *** INSTEAD of a grade, so a row carrying both is a read
+    // artefact. The number is the only positive evidence in it.
+    const s = summarize([
+      row({ courseCode: "0651-1001", courseName: "מבוא לפילוסופיה", grade: 88, inProgress: true, semester: "2024/1" }),
+    ]);
+    expect(s.rows[0]!.status).toBe("COMPLETED");
+    expect(s.inProgress).toHaveLength(0);
+    expect(s.creditsEarned).toBe(4); // the ש״ס are no longer dropped
+    expect(buildCompletedSeed(s, s.placement!)["0651-1001"]?.grade).toBe(88);
+  });
+
+  it("a binary pass mark still wins over a stray *** flag", () => {
+    expect(statusOf({ passText: "עובר", inProgress: true })).toBe("COMPLETED");
+    expect(statusOf({ passText: "פטור", inProgress: true })).toBe("EXEMPT");
+  });
+
+  it("a row the two reads disagreed about is 'unclear', never asserted as בלימוד", () => {
+    // What mergeDoubleRead now hands over when one read saw 89 and the other
+    // saw an empty grade cell: no grade, no *** — and the number carried along.
+    const s = summarize([
+      {
+        ...row({ courseCode: "0651-1001", courseName: "מבוא לפילוסופיה", grade: null, semester: "2024/1" }),
+        uncertain: true,
+        otherGrade: 89,
+      },
+    ]);
+    expect(s.rows[0]!.status).toBe("UNREADABLE");
+    expect(s.inProgress).toHaveLength(0); // never counted as "still studying"
+    expect(s.unclear).toHaveLength(1);
+    expect(s.rows[0]!.otherGrade).toBe(89); // the review screen can offer it
+    // And one tap on that number turns it into an honest completion.
+    const fixed = reviseStandingRow(s.rows[0]!, { grade: 89 });
+    expect(fixed.status).toBe("COMPLETED");
+  });
+
+  it("counts the same course sat twice only from the sitting that has a grade", () => {
+    // The retake shape: a first sitting with no grade, a later one graded.
+    const s = summarize([
+      row({ courseCode: "1011-1001", courseName: "מבוא לכלכלה", grade: null, inProgress: true, semester: "2024/2" }),
+      row({ courseCode: "1011-1001", courseName: "מבוא לכלכלה", grade: 78, semester: "2025/2" }),
+    ]);
+    expect(s.rows.map((r) => r.status)).toEqual(["IN_PROGRESS", "COMPLETED"]);
+    expect(s.creditsEarned).toBe(5); // counted ONCE, from the graded sitting
+    const seed = buildCompletedSeed(s, s.placement!);
+    expect(Object.keys(seed)).toEqual(["1011-1001"]);
+    expect(seed["1011-1001"]?.grade).toBe(78);
   });
 });
 
@@ -222,6 +320,55 @@ describe("summarizeStanding — off-catalog and headerless sheets", () => {
     );
     expect(s.semestersOnSheet).toBe(1); // only the FALL block counts as a step
     expect(s.placement).toMatchObject({ year: 1, semester: "SPRING", basis: "sheet" });
+  });
+});
+
+// =========================================================================
+// #2b (13.8) — the review is read semester by semester, like the sheet itself.
+// =========================================================================
+describe("groupRowsBySemester (#2b)", () => {
+  const scanned = () =>
+    summarize([
+      row({ courseCode: "1011-3450", courseName: "כלכלת פיתוח", grade: 82, semester: "2025/2" }),
+      row({ courseCode: "0651-1001", courseName: "מבוא לפילוסופיה", grade: 88, semester: "2024/1" }),
+      row({ courseCode: "1031-1001", courseName: "מבוא למדע המדינה", grade: 76, semester: "2024/1" }),
+      row({ courseCode: "1011-1001", courseName: "מבוא לכלכלה", grade: 91 }), // no header on the sheet
+    ]);
+
+  it("splits the rows into the sheet's own blocks, earliest first", () => {
+    const groups = groupRowsBySemester(scanned().rows);
+    expect(groups.map((g) => g.sheetSemester)).toEqual(["2024/1", "2025/2", null]);
+    expect(groups.map((g) => g.rows.length)).toEqual([2, 1, 1]);
+  });
+
+  it("decodes the sitting digit off the header and never invents one", () => {
+    const groups = groupRowsBySemester(scanned().rows);
+    expect(groups[0]).toMatchObject({ semester: "FALL", year: 1 });
+    expect(groups[1]).toMatchObject({ semester: "SPRING", year: 2 });
+    // A row with no header stays honestly unknown — not filed under a neighbour.
+    expect(groups[2]).toMatchObject({ sheetSemester: null, semester: null, year: null });
+  });
+
+  it("keeps each row's index in the original list, so every edit still lands", () => {
+    const s = scanned();
+    const groups = groupRowsBySemester(s.rows);
+    for (const g of groups) {
+      for (const { row: r, index } of g.rows) expect(s.rows[index]).toBe(r);
+    }
+    // The flat list is fully covered — grouping shows every row, exactly once.
+    const seen = groups.flatMap((g) => g.rows.map((r) => r.index)).sort((a, b) => a - b);
+    expect(seen).toEqual([0, 1, 2, 3]);
+  });
+
+  it("puts a course the student added by hand in the unknown-semester block", () => {
+    const rows = [...scanned().rows, manualStandingRow(CATALOG[3]!, "פילוסופיה של המוסר")];
+    const groups = groupRowsBySemester(rows);
+    expect(groups[groups.length - 1]!.sheetSemester).toBeNull();
+    expect(groups[groups.length - 1]!.rows.map(({ row: r }) => r.manual)).toEqual([undefined, true]);
+  });
+
+  it("returns nothing at all for an empty scan", () => {
+    expect(groupRowsBySemester([])).toEqual([]);
   });
 });
 

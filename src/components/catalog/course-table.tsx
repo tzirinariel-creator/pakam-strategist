@@ -14,7 +14,7 @@ import {
 import { DISCIPLINE_CONFIG, SEMESTER_CONFIG, YEAR_CONFIG } from "@/lib/constants";
 import { DisciplineBadge } from "./discipline-badge";
 import { CourseDetailModal } from "./course-detail-modal";
-import { AskKingButton } from "@/components/ui/ask-king-button";
+import { AskAdvisorButton } from "@/components/ui/ask-advisor-button";
 import { CohortCourseChip } from "@/components/cohort/cohort-course-chip";
 import { ARAZIM_ENABLED, arazimView } from "@/lib/arazim/visibility";
 import { api } from "@/lib/trpc/react";
@@ -460,11 +460,11 @@ export function CourseTable({ courses, allCourses, focusArea }: CourseTableProps
                 </span>
                 {/* Ask the Philosopher King about this specific course (P2 #7).
                     Reveals on row hover; always visible on touch. */}
-                <AskKingButton
+                <AskAdvisorButton
                   promptHe={`ספר לי על "${course.nameHe}" (${course.code}) — כמה הוא קשה, ואיך הוא משתלב לי בתואר?`}
                   promptEn={`Tell me about "${course.nameEn ?? course.nameHe}" (${course.code}) — how hard is it, and how does it fit my degree?`}
-                  labelHe="שאל את המלך על זה"
-                  labelEn="Ask the King"
+                  labelHe="שאל את {advisor} על זה"
+                  labelEn="Ask {advisor}"
                   className="mt-1 inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 text-[11px] font-medium text-accent-brand transition-all hover:bg-accent-brand/10 hover:text-accent-brand sm:opacity-0 sm:group-hover:opacity-100"
                 />
               </TableCell>

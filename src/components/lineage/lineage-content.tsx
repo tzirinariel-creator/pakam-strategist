@@ -24,7 +24,7 @@ import { Link } from "@/i18n/navigation";
 import { api } from "@/lib/trpc/react";
 import { Bidi } from "@/lib/bidi";
 import { cn } from "@/lib/utils";
-import { ReferentCharacter } from "@/components/ui/referent-character";
+import { PersonaCharacter } from "@/components/persona/use-persona";
 import { LineagePact } from "@/components/lineage/lineage-pact";
 import { generationSpan, hasContributed } from "@/lib/lineage";
 import { contributorLevel } from "@/lib/contributor-level";
@@ -56,7 +56,7 @@ export function LineageContent() {
     <div className="bg-mesh space-y-8 p-4 md:p-6">
       {/* ── Who we are ─────────────────────────────────────────────── */}
       <header className="animate-stagger-1 flex items-start gap-4">
-        <ReferentCharacter className="size-14 shrink-0 drop-shadow-sm" />
+        <PersonaCharacter className="size-14 shrink-0 drop-shadow-sm" />
         <div className="min-w-0">
           <h1 className="font-display text-3xl font-bold text-foreground/85">
             {isHe ? "השושלת" : "The Lineage"}

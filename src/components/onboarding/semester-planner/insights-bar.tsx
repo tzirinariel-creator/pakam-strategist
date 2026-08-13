@@ -26,7 +26,8 @@ import { findDenseDay } from "@/lib/schedule-density";
 import { Bidi } from "@/lib/bidi";
 import { CREDIT_REQUIREMENTS, DISCIPLINE_CONFIG } from "@/lib/constants";
 import { ARAZIM_ENABLED } from "@/lib/arazim/visibility";
-import type { CourseWithSchedule, ScheduleConflict } from "@/lib/plan-generator";
+import { conflictDayLabel, type PlannerConflict } from "@/lib/planner-conflicts";
+import type { CourseWithSchedule } from "@/lib/plan-generator";
 
 // ─── Constants ────────────────────────────────────────────────────────
 
@@ -64,102 +65,22 @@ const LEVEL_COLORS: Record<HonestLoadLabel, string> = {
 
 interface InsightsBarProps {
   selectedCourses: CourseWithSchedule[];
-  allCourses: CourseWithSchedule[];
   totalCreditsPlanned: number;
-  conflicts: ScheduleConflict[];
+  /** From `detectPlannerConflicts` — the SAME deduped pairing the grid paints
+   *  red. This card used to run its own engine and could print a green "0"
+   *  under a grid that was showing red. */
+  conflicts: PlannerConflict[];
+  /** Selected courses whose catalog rows carry no meeting times at all. Every
+   *  claim about the week is only about the courses we DO have times for, and
+   *  this is how the card says so instead of implying the silence is data. */
+  unscheduledCount?: number;
+  /** At least one course offers a group choice — so the combination search has
+   *  something to search. The button used to be gated on conflicts > 0, i.e. it
+   *  was hidden in exactly the case where a swap could still improve the week. */
+  canSwapGroups?: boolean;
   focusArea?: string | null;
-  /** P2 — "מצאו לי שילוב בלי התנגשויות": offered when conflicts exist. */
+  /** P2 — "מצאו לי שילוב בלי התנגשויות". */
   onFindCombination?: () => void;
-}
-
-// ─── Contextual workload explanation ──────────────────────────────────
-
-function generateWorkloadExplanation(
-  courses: CourseWithSchedule[],
-  credits: number,
-  hasSeminar: boolean,
-  disciplineSpread: number,
-  hardCourseCount: number,
-  isHe: boolean,
-): string | null {
-  if (courses.length === 0) return null;
-
-  const mandatoryCount = courses.filter(
-    (c) => c.isMandatory || c.courseType === "MANDATORY"
-  ).length;
-  const mandatoryRatio = mandatoryCount / courses.length;
-
-  // Priority-ordered contextual reasons (returns first match)
-
-  // Difficulty-aware warnings take highest priority
-  if (hardCourseCount >= 3) {
-    return isHe
-      ? `${hardCourseCount} קורסים קשים באותו סמסטר — שקלו להחליף אחד בקל יותר`
-      : `${hardCourseCount} hard courses in one semester — consider swapping one for an easier option`;
-  }
-  if (hasSeminar && hardCourseCount >= 2) {
-    return isHe
-      ? "סמינריון + 2 קורסים קשים — סמסטר מאתגר במיוחד, תכננו היטב"
-      : "Seminar + 2 hard courses — especially challenging semester, plan carefully";
-  }
-  if (hasSeminar && credits > 14) {
-    return isHe
-      ? "סמסטר של כתיבה + לימוד — תכננו זמן לעבודת הסמינריון"
-      : "Writing + studying semester — plan time for your seminar paper";
-  }
-  if (hardCourseCount >= 2 && credits > 16) {
-    return isHe
-      ? "עומס גבוה עם קורסים קשים — שקלו להוריד ש״ס"
-      : "High load with hard courses — consider reducing credits";
-  }
-  if (mandatoryRatio === 1 && courses.length >= 4) {
-    return isHe
-      ? "כל הקורסים חובה — אין גמישות, חייבים לעבור הכל"
-      : "All mandatory — no flexibility, must pass everything";
-  }
-  if (mandatoryRatio >= 0.8 && courses.length >= 4) {
-    return isHe
-      ? "רוב הקורסים חובה — שקלו להוסיף בחירה קלה לאיזון"
-      : "Mostly mandatory — consider adding a light elective";
-  }
-  if (hasSeminar) {
-    return isHe
-      ? "כולל סמינריון — דורש כתיבת עבודה, תכננו זמן"
-      : "Includes a seminar — requires a paper, plan accordingly";
-  }
-  if (disciplineSpread >= 4) {
-    return isHe
-      ? `מעבר בין ${disciplineSpread} תחומים — כדאי לקבץ ימים לפי נושא`
-      : `Spans ${disciplineSpread} disciplines — try grouping days by topic`;
-  }
-  // Positive: no hard courses at all
-  if (hardCourseCount === 0 && courses.length >= 3 && courses.some((c) => c.difficultyLevel)) {
-    return isHe
-      ? "סמסטר מאוזן — אין קורסים קשים במיוחד"
-      : "Balanced semester — no particularly hard courses";
-  }
-  if (credits > 0 && credits <= 10) {
-    return isHe
-      ? "עומס קל — יש מקום להתנדבות או עבודה"
-      : "Light load — room for volunteering or work";
-  }
-  const avgCredits = credits / courses.length;
-  if (avgCredits > 3.5) {
-    return isHe
-      ? "קורסים כבדים בממוצע — כל קורס שווה הרבה ש״ס"
-      : "Heavy courses on average — each one carries many credits";
-  }
-  if (credits <= 16 && credits >= 12) {
-    return isHe
-      ? "עומס סביר לסמסטר ממוצע"
-      : "Reasonable load for a typical semester";
-  }
-  if (credits > 16) {
-    return isHe
-      ? "עומס גבוה — וודאו שאתם מסוגלים להתמודד"
-      : "High load — make sure you can manage";
-  }
-  return null;
 }
 
 // ─── Smart Schedule Insights Generator ───────────────────────────────
@@ -177,6 +98,9 @@ function generateScheduleInsights(
   disciplineSpread: number,
   hardCourseCount: number,
   isHe: boolean,
+  /** Selected courses we hold NO meeting times for. A day only looks empty
+   *  because their hours are missing, so the free-day claim has to say so. */
+  unscheduledCount: number,
 ): ScheduleInsight[] {
   if (courses.length === 0) return [];
 
@@ -211,7 +135,12 @@ function generateScheduleInsights(
     });
   }
 
-  // 1. Detect free days (no sessions at all)
+  // 1. Free days. "Free" is a claim a student can ACT on — an internship, a
+  // shift — so it may only be made about a week we fully know. 75 of the 302
+  // תשפ״ז courses (35 of 68 seminars among them) carry no meeting rows at all,
+  // and a course with no hours made its day look empty. With any such course in
+  // the semester the line still appears, but as what it is: silence in the data,
+  // not a free day.
   const freeDays: string[] = [];
   for (let d = 0; d < 5; d++) {
     const dayTotal = weekHeatmap[d]?.reduce((a, b) => a + b, 0) ?? 0;
@@ -221,10 +150,15 @@ function generateScheduleInsights(
     const dayList = freeDays.join(isHe ? " ו" : " & ");
     insights.push({
       icon: Coffee,
-      text: isHe
-        ? `יום ${dayList} פנוי! אפשר לנצל לעבודה או התמחות`
-        : `${dayList} free! Use for work or internship`,
-      type: "positive",
+      text:
+        unscheduledCount > 0
+          ? isHe
+            ? `יום ${dayList} פנוי בקורסים שיש לנו שעות עבורם — ל-${unscheduledCount} מהקורסים בסמסטר אין שעות בידיעון, אז אל תקבעו לפי זה`
+            : `${dayList} is clear among the courses we have times for — ${unscheduledCount} of this semester's courses have no hours in the catalog, so don't commit on it`
+          : isHe
+            ? `יום ${dayList} פנוי! אפשר לנצל לעבודה או התמחות`
+            : `${dayList} free! Use for work or internship`,
+      type: unscheduledCount > 0 ? "neutral" : "positive",
     });
   }
 
@@ -317,9 +251,10 @@ function generateScheduleInsights(
 
 export function InsightsBar({
   selectedCourses,
-  allCourses,
   totalCreditsPlanned,
   conflicts,
+  unscheduledCount = 0,
+  canSwapGroups = false,
   focusArea,
   onFindCombination,
 }: InsightsBarProps) {
@@ -359,24 +294,22 @@ export function InsightsBar({
     return calculateHonestLoad(
       selectedCourses.map((c) => ({
         credits: c.credits,
+        // sessionType + groupCode are REQUIRED for the de-duplication inside
+        // calculateHonestLoad to tell a genuine second meeting from one of the
+        // catalog's duplicate rows (140 meetings are stored more than once).
+        // Without them this card announced more weekly hours than the summary
+        // card computed for the very same semester.
         sessions: (c.scheduleSessions ?? []).map((s) => ({
           dayOfWeek: s.dayOfWeek,
           startTime: s.startTime,
           endTime: s.endTime,
+          sessionType: s.sessionType,
+          groupCode: s.groupCode ?? null,
         })),
         examDate: c.examDateA ?? null,
       }))
     );
   }, [selectedCourses]);
-
-  // Course name map for conflict display
-  const courseNameMap = useMemo(() => {
-    const map = new Map<string, string>();
-    for (const c of allCourses) {
-      map.set(c.id, isHe ? c.nameHe : (c.nameEn ?? c.nameHe));
-    }
-    return map;
-  }, [allCourses, isHe]);
 
   const semesterCredits = selectedCourses.reduce((s, c) => s + c.credits, 0);
   const levelLabel = isHe ? LEVEL_LABELS_HE[honestLoad.label] : LEVEL_LABELS_EN[honestLoad.label];
@@ -394,18 +327,6 @@ export function InsightsBar({
   const focusAreaCfg = focusArea
     ? DISCIPLINE_CONFIG[focusArea]
     : null;
-
-  // Contextual workload explanation
-  const workloadTip = useMemo(() => {
-    return generateWorkloadExplanation(
-      difficultyGatedCourses,
-      semesterCredits,
-      mix.hasSeminar,
-      mix.disciplineSpread,
-      mix.hardCourseCount,
-      isHe,
-    );
-  }, [difficultyGatedCourses, semesterCredits, mix, isHe]);
 
   // ─── Extra insights data ──────────────────────────────────────────
 
@@ -470,8 +391,9 @@ export function InsightsBar({
       mix.disciplineSpread,
       mix.hardCourseCount,
       isHe,
+      unscheduledCount,
     );
-  }, [difficultyGatedCourses, weekHeatmap, earlyMorningCount, mix.disciplineSpread, mix.hardCourseCount, isHe]);
+  }, [difficultyGatedCourses, weekHeatmap, earlyMorningCount, mix.disciplineSpread, mix.hardCourseCount, isHe, unscheduledCount]);
 
   return (
     <div className="w-full space-y-2">
@@ -510,15 +432,27 @@ export function InsightsBar({
             <span className={cn("font-mono text-sm font-bold", LEVEL_COLORS[honestLoad.label])}>
               {levelLabel}
             </span>
+            {/* The word is OUR verdict over our own thresholds, not a fact from
+                the university — say so, and let the two real numbers below it
+                carry the weight. (A contradicting "עומס גבוה" sentence used to
+                sit right here whenever the semester ran 17–19 ש״ס, while this
+                very label said "קל".) */}
+            <span className="ms-1 text-[10px] text-foreground/30">
+              {isHe ? "לפי הספים שלנו" : "by our thresholds"}
+            </span>
             <p className="mt-0.5 text-[10px] text-foreground/40" dir="auto">
               {isHe
                 ? <>‏<Bidi text={honestLoad.weeklyHours} /> שעות לימוד בשבוע · <Bidi text={honestLoad.credits} /> ש״ס</>
                 : `${honestLoad.weeklyHours}h · ${honestLoad.credits} cr.`}
             </p>
-            {/* Contextual workload tip */}
-            {workloadTip && (
-              <p className="mt-1 text-[11px] text-foreground/30 leading-tight">
-                {workloadTip}
+            {/* The hours number is only about the courses we HAVE times for —
+                a quarter of the catalog carries no meeting rows, and a bare
+                number implied we had counted them. */}
+            {unscheduledCount > 0 && (
+              <p className="mt-0.5 text-[10px] leading-tight text-foreground/35">
+                {isHe
+                  ? <>(<Bidi text={unscheduledCount} /> קורסים בלי שעות ידועות לא נספרו)</>
+                  : `(${unscheduledCount} course(s) with no known hours aren't counted)`}
               </p>
             )}
           </div>
@@ -564,8 +498,21 @@ export function InsightsBar({
             <p className="text-[10px] text-foreground/30">
               {conflictCount > 0 ? t("conflictsDetected") : t("noConflicts")}
             </p>
-            {/* P2 — one click asks the finder to search every group combination */}
-            {conflictCount > 0 && onFindCombination && (
+            {/* A zero here means "none among the courses we hold times for" —
+                not "your week is clear". Say which one it is. */}
+            {unscheduledCount > 0 && (
+              <p className="mt-0.5 text-[10px] leading-tight text-foreground/35">
+                {isHe
+                  ? <>נבדק רק מול הקורסים שיש להם שעות (<Bidi text={unscheduledCount} /> בלי שעות ידועות)</>
+                  : `Checked only against courses with known hours (${unscheduledCount} without)`}
+              </p>
+            )}
+            {/* P2 — one click asks the finder to search every group combination.
+                It used to appear ONLY when a clash existed, i.e. it was hidden
+                in exactly the case a student could still improve the week by
+                swapping a group. Now it shows whenever there is a group to
+                swap, and the wording matches what the search can promise. */}
+            {canSwapGroups && onFindCombination && (
               <button
                 type="button"
                 onClick={(e) => {
@@ -574,7 +521,9 @@ export function InsightsBar({
                 }}
                 className="mt-1.5 w-full rounded-md bg-accent-brand/10 px-2 py-1 text-[11px] font-semibold text-accent-brand transition-colors hover:bg-accent-brand/20"
               >
-                {isHe ? "מצאו לי שילוב בלי התנגשויות" : "Find me a clash-free combo"}
+                {conflictCount > 0
+                  ? (isHe ? "מצאו לי שילוב בלי התנגשויות" : "Find me a clash-free combo")
+                  : (isHe ? "מצאו לי שילוב עם פחות ימים בקמפוס" : "Find me fewer campus days")}
               </button>
             )}
           </div>
@@ -608,13 +557,18 @@ export function InsightsBar({
                   className="h-1.5 w-1.5 shrink-0 rounded-full"
                   style={{ backgroundColor: focusAreaCfg.color }}
                 />
+                {/* "17/60" here was a fraction of two different things: the
+                    numerator counted THIS SEMESTER's focus credits, the
+                    denominator the whole degree's requirement — the same label
+                    the dashboard uses for the degree-wide figure. The planner
+                    only knows the semester, so it now says only that. */}
                 <span className="text-[11px] text-foreground/30 truncate">
-                  {isHe ? "תחום: " : "Focus: "}
+                  {isHe ? "תחום מיקוד בסמסטר הזה: " : "Focus area this semester: "}
                   {isHe ? focusAreaCfg.nameHe : focusAreaCfg.nameEn}
                 </span>
               </div>
-              <span className="font-mono text-[11px] text-foreground/30 shrink-0" dir="ltr">
-                {focusAreaCredits}/{CREDIT_REQUIREMENTS.FOCUS_AREA_MIN}
+              <span className="font-mono text-[11px] text-foreground/30 shrink-0">
+                <Bidi text={focusAreaCredits} /> {isHe ? "ש״ס" : "cr."}
               </span>
             </div>
           )}
@@ -694,31 +648,25 @@ export function InsightsBar({
           <p className="text-[10px] font-semibold text-red-400">
             {isHe ? "התנגשויות בין קורסים:" : "Schedule conflicts:"}
           </p>
-          {conflicts.map((conflict, idx) => {
-            const nameA = courseNameMap.get(conflict.courseA) ?? conflict.courseA;
-            const nameB = courseNameMap.get(conflict.courseB) ?? conflict.courseB;
-            return (
-              <div
-                key={idx}
-                className="flex items-start gap-2 rounded-lg bg-red-400/5 px-2.5 py-1.5"
-              >
-                <AlertTriangle className="h-3 w-3 shrink-0 text-red-400/60 mt-0.5" />
-                <div className="text-[10px] text-foreground/60 leading-relaxed">
-                  <span className="font-medium text-foreground/80">{nameA}</span>
-                  {" "}
-                  <X className="inline h-2.5 w-2.5 text-red-400" />
-                  {" "}
-                  <span className="font-medium text-foreground/80">{nameB}</span>
-                  <span className="text-foreground/30 ms-1.5">
-                    ({(isHe
-                      ? ({ SUNDAY: "ראשון", MONDAY: "שני", TUESDAY: "שלישי", WEDNESDAY: "רביעי", THURSDAY: "חמישי", FRIDAY: "שישי", SATURDAY: "שבת" } as Record<string, string>)[conflict.day] ?? conflict.day
-                      : ({ SUNDAY: "Sun", MONDAY: "Mon", TUESDAY: "Tue", WEDNESDAY: "Wed", THURSDAY: "Thu", FRIDAY: "Fri", SATURDAY: "Sat" } as Record<string, string>)[conflict.day] ?? conflict.day
-                    )} <bdi>{conflict.time}</bdi>)
-                  </span>
-                </div>
+          {conflicts.map((conflict, idx) => (
+            <div
+              key={`${conflict.aName}|${conflict.bName}|${conflict.day}|${conflict.time}|${idx}`}
+              className="flex items-start gap-2 rounded-lg bg-red-400/5 px-2.5 py-1.5"
+            >
+              <AlertTriangle className="h-3 w-3 shrink-0 text-red-400/60 mt-0.5" />
+              <div className="text-[10px] text-foreground/60 leading-relaxed">
+                <span className="font-medium text-foreground/80">{conflict.aName}</span>
+                {" "}
+                <X className="inline h-2.5 w-2.5 text-red-400" />
+                {" "}
+                <span className="font-medium text-foreground/80">{conflict.bName}</span>
+                <span className="text-foreground/30 ms-1.5">
+                  ({conflictDayLabel(conflict.day, isHe)}{" "}
+                  <bdi dir="ltr">{conflict.time}</bdi>)
+                </span>
               </div>
-            );
-          })}
+            </div>
+          ))}
         </div>
       )}
 

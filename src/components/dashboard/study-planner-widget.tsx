@@ -275,8 +275,11 @@ export function StudyPlannerWidget({
                     </div>
                   </div>
 
-                  {/* Date range */}
-                  <span dir="ltr" className="hidden text-[10px] text-foreground/30 sm:block">
+                  {/* Date range. NO dir="ltr": a he-IL short date is "10 ביולי",
+                      i.e. it CONTAINS a Hebrew word — forcing LTR pushes the
+                      month past the day and reorders the two ends of the range
+                      (measured). Natural RTL flow renders it correctly. */}
+                  <span className="hidden text-[10px] text-foreground/30 sm:block">
                     {formatTaskDate(task.startDate, isHe)} – {formatTaskDate(task.endDate, isHe)}
                   </span>
 

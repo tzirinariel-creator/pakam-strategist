@@ -139,40 +139,81 @@ const rowKey = (r: ExtractedRow): string =>
   (r.courseCode?.replace(/\D/g, "") || "") + "|" + normalizeName(r.courseName);
 
 /**
+ * Reconcile the two reads of ONE row.
+ *
+ * The asymmetry that matters (Ariel, 13.8 — "לא הצליח לקלוט שעשיתי לוגיקה"):
+ * a grade that is printed on the sheet is POSITIVE evidence, while a read that
+ * came back empty is only an absence of evidence. The old rule ("the verify
+ * pass always wins") let the empty read overwrite the number — so one flaky
+ * second read turned a course the student passed into "בלימוד", dropped its
+ * ש״ס, and printed "מופיע בגיליון בלי ציון" as if the document said so.
+ *
+ * When the two reads disagree about whether the row has a grade AT ALL we now
+ * decide nothing: no invented number (the iron rule), and no invented "still
+ * studying" either. The row comes back with no grade, NOT flagged in-progress,
+ * carrying the number one read did see in `otherGrade` — so the review screen
+ * can show both readings and let the student settle it in one tap.
+ */
+function reconcileReads(f: ExtractedRow, v: ExtractedRow): VerifiedRow {
+  const fg = f.grade ?? null;
+  const vg = v.grade ?? null;
+  const gradeAgrees = fg === vg;
+  const passAgrees = (f.passText ?? null) === (v.passText ?? null);
+  if (gradeAgrees && passAgrees) return { ...f };
+
+  if ((fg == null) !== (vg == null)) {
+    // Exactly one read saw a number. Keep the read that saw none as the base
+    // (so we never assert a grade), but drop its *** flag — the other witness
+    // says that cell was not empty, so "עדיין בלימוד" is not a fact either.
+    const base = fg == null ? f : v;
+    return { ...base, grade: null, inProgress: false, uncertain: true, otherGrade: fg ?? vg };
+  }
+
+  // Both reads saw a number (a different one) or the pass-text differs: the
+  // verify pass looked at the image a second time, specifically checking, so
+  // its value wins — flagged, with the other read carried for display.
+  return { ...v, uncertain: true, otherGrade: fg };
+}
+
+/**
  * Merge two independent reads of the same sheet. Rules:
  * - Row in both, same grade+passText → confident.
- * - Row in both, different grade → keep the VERIFY pass's value (it looked at
- *   the image a second time, specifically checking), but flag uncertain and
- *   carry the other value for display.
+ * - Row in both, disagreeing → reconcileReads above.
  * - Row in exactly one read → keep it, flagged uncertain (a dropped row is
  *   exactly the קריאה-מודרכת-א׳ failure mode).
+ *
+ * Rows are paired by key IN ORDER, as a queue. A sheet legitimately carries the
+ * same course twice — a retake, or the same course under two semester headers —
+ * and the old key→row Map kept only the LAST of them, so both first-read rows
+ * were reconciled against that one row: the graded sitting was overwritten by
+ * the ungraded one, and a passed course came back with no grade at all.
  */
 export function mergeDoubleRead(first: ExtractedRow[], verify: ExtractedRow[]): VerifiedRow[] {
-  const verifyByKey = new Map<string, ExtractedRow>();
-  for (const v of verify) verifyByKey.set(rowKey(v), v);
-  const seen = new Set<string>();
+  const verifyQueue = new Map<string, number[]>();
+  verify.forEach((v, i) => {
+    const key = rowKey(v);
+    const queue = verifyQueue.get(key);
+    if (queue) queue.push(i);
+    else verifyQueue.set(key, [i]);
+  });
+
+  const consumed = new Set<number>();
   const out: VerifiedRow[] = [];
 
   for (const f of first) {
-    const key = rowKey(f);
-    const v = verifyByKey.get(key);
-    seen.add(key);
-    if (!v) {
+    const queue = verifyQueue.get(rowKey(f));
+    const index = queue && queue.length > 0 ? queue.shift()! : null;
+    if (index == null) {
       out.push({ ...f, uncertain: true });
       continue;
     }
-    const gradeAgrees = (f.grade ?? null) === (v.grade ?? null);
-    const passAgrees = (f.passText ?? null) === (v.passText ?? null);
-    if (gradeAgrees && passAgrees) {
-      out.push({ ...f });
-    } else {
-      out.push({ ...v, uncertain: true, otherGrade: f.grade ?? null });
-    }
+    consumed.add(index);
+    out.push(reconcileReads(f, verify[index]!));
   }
-  // Rows the verify pass found that the first read dropped entirely.
-  for (const v of verify) {
-    const key = rowKey(v);
-    if (!seen.has(key)) out.push({ ...v, uncertain: true });
+  // Rows the verify pass found that the first read dropped entirely — in the
+  // verify pass's own order, so the sheet's order survives.
+  for (let i = 0; i < verify.length; i++) {
+    if (!consumed.has(i)) out.push({ ...verify[i]!, uncertain: true });
   }
   return out;
 }
@@ -438,6 +479,8 @@ export const GRADE_SHEET_SYSTEM = `אתה קורא "אישור קורסים וצ
 - בטבלת הקורסים, סדר העמודות מימין לשמאל: מס' קורס (בפורמט NNNN-NNNN) · שם הקורס · ציון קובע · אופן הוראה · שעות סמס' · משקל · הערות.
 - עמודת "ציון קובע" מודפסת בריפוד אפסים לשלוש ספרות: 089 פירושו 89, 096 פירושו 96. החזר תמיד את המספר האמיתי (89) בלי אפס מוביל.
 - *** בעמודת הציון = הקורס עדיין בלימוד ואין לו ציון. אל תמציא ציון: grade=null ו-inProgress=true.
+- inProgress=true אך ורק כשבעמודת "ציון קובע" של אותה שורה מופיע *** או שהיא ריקה לגמרי. אם מודפס באותה שורה ציון מספרי — inProgress=false תמיד, והחזר את המספר. שורה עם ציון מספרי לעולם אינה "בלימוד".
+- לפעמים מודפסות שתי שורות לאותו קורס (שיעור ותרגיל, או חזרה על קורס בסמסטר אחר). החזר כל שורה בנפרד, עם ה-semester שלה ועם הציון שמופיע בשורה שלה בלבד — אל תעתיק ציון משורה אחת לשנייה ואל תאחד אותן.
 - עמודת "אופן הוראה" מכילה קיצורים כמו ש', ת', ש'+ת', שו"ת — זה סוג השיעור, לא חלק משם הקורס. לעולם אל תכלול אותם ב-courseName.
 - גם עמודת "הערות" (למשל "לא לשקלול") אינה חלק משם הקורס.
 - דלג על שורות שאינן קורסים: "ממוצע משוקלל…", "ממוצע בחוג", "מפתח סימולי…", "סיכום מצב לימודים", כותרות עמוד וכותרות הטבלה עצמן. אבל: אם מופיעה שורת "ממוצע משוקלל" עם מספר — החזר את המספר בשדה printedAverage (מספר בלבד, למשל 95.7). אם אין — printedAverage=null.

@@ -74,6 +74,14 @@ export interface StandingRow {
   /** The sheet printed *** for this row — enrolled, not yet graded. */
   inProgress: boolean;
   /**
+   * The grade the OTHER vision read saw for this row, when the two reads
+   * disagreed. Carried so the review screen can show both readings instead of
+   * quietly picking one — in particular the case that cost a real completion:
+   * one read saw a number, the other saw an empty grade cell. Null when the
+   * reads agreed (or there was only one read).
+   */
+  otherGrade?: number | null;
+  /**
    * #5 (13.8) — the student said this row is not theirs. It stays VISIBLE (so
    * the decision is reversible and never looks like the app lost a row) but is
    * counted nowhere: not in credits, not in placement, not in the seed.
@@ -119,6 +127,10 @@ export interface StandingSummary {
   failed: StandingRow[];
   exempt: StandingRow[];
   inProgress: StandingRow[];
+  /** Rows we could not read a verdict for — no grade, no pass mark and no ***.
+   *  They are counted nowhere, and the UI must SAY so instead of leaving them
+   *  looking like a silently-dropped row. */
+  unclear: StandingRow[];
   /** Rows the scanner flagged as uncertain (any status). */
   uncertain: StandingRow[];
   /** Credits from COMPLETED rows only. Exempt/failed/in-progress excluded. */
@@ -214,15 +226,22 @@ function decideStatus(
   if (row.gradeEdited && row.grade != null) {
     return row.grade >= standingPassBar(courseType, row.name ?? "") ? "COMPLETED" : "FAILED";
   }
-  if (row.inProgress) return "IN_PROGRESS";
   const passText = row.passText ?? "";
   if (passText.includes("פטור")) return "EXEMPT";
   if (passText.includes("נכשל")) return "FAILED";
+  // A PRINTED NUMBER OUTRANKS THE *** FLAG (Ariel, 13.8). The sheet prints ***
+  // *instead of* a grade, so a row carrying both is a read artefact — and the
+  // number is the only positive evidence in it. This used to be the other way
+  // round, which meant a course with a grade on the sheet could be reported
+  // "עדיין בלימוד" and have its ש״ס dropped. /record already decides it this
+  // way (decideApplication in grade-sheet.ts); now both paths agree.
   if (row.grade != null) {
     return row.grade >= standingPassBar(courseType, row.name ?? "") ? "COMPLETED" : "FAILED";
   }
-  // "עובר" with no number is a genuine binary pass.
+  // "עובר" with no number is a genuine binary pass — a verdict, and therefore
+  // ahead of the *** flag for the same reason a number is.
   if (passText.includes("עובר")) return "COMPLETED";
+  if (row.inProgress) return "IN_PROGRESS";
   // A course the student added by hand is a completion THEY are asserting; the
   // grade is optional, as it was in the history step this screen replaced.
   if (row.manual) return "COMPLETED";
@@ -239,7 +258,7 @@ function offCatalogKey(row: ExtractedRow): string {
 
 export interface SummarizeInput {
   /** Rows as returned by /api/ai/scan-grades (already merged + flagged). */
-  rows: (ExtractedRow & { uncertain?: boolean | null })[];
+  rows: (ExtractedRow & { uncertain?: boolean | null; otherGrade?: number | null })[];
   catalog: StandingCatalogCourse[];
   /** Pre-matched catalog course per row, in the SAME order as `rows` — the
    *  caller uses the shared matchExtractedToCatalog so matching logic isn't
@@ -293,6 +312,7 @@ export function summarizeStanding({
       courseType,
       passText: row.passText ?? null,
       inProgress: Boolean(row.inProgress),
+      otherGrade: row.otherGrade ?? null,
     });
   }
 
@@ -321,6 +341,7 @@ export function aggregateStanding(
   const failed = out.filter((r) => r.status === "FAILED");
   const exempt = out.filter((r) => r.status === "EXEMPT");
   const inProgress = out.filter((r) => r.status === "IN_PROGRESS");
+  const unclear = out.filter((r) => r.status === "UNREADABLE");
   const uncertain = out.filter((r) => r.uncertain);
 
   const creditsEarned = completed.reduce((s, r) => s + (r.credits ?? 0), 0);
@@ -403,6 +424,7 @@ export function aggregateStanding(
     failed,
     exempt,
     inProgress,
+    unclear,
     uncertain,
     creditsEarned,
     creditsByDiscipline,
@@ -413,6 +435,67 @@ export function aggregateStanding(
     semestersOnSheet: blocks.length,
     placement,
   };
+}
+
+// =========================================================================
+// #2b (13.8) — "עדיף שזה יחולק לסמסטרים בסיכום ביניים הזה".
+//
+// The review listed 20 rows flat, so a student had to hold the sheet's own
+// structure in their head while checking it. The sheet is printed in semester
+// blocks; the review is now read the same way. Nothing here guesses: the group
+// IS the header the sheet printed, and a row that carries no header lands in
+// its own honestly-labelled group instead of being filed under a neighbour's.
+// =========================================================================
+
+export interface StandingSemesterGroup {
+  /** The semester header printed on the sheet ("2025/1"), verbatim. Null for a
+   *  row the sheet gave no header, and for a course the student added by hand. */
+  sheetSemester: string | null;
+  /** Decoded from the header's own sitting digit — never inferred from dates.
+   *  Null when the header isn't in the YYYY/N shape the sheet uses. */
+  semester: "FALL" | "SPRING" | "SUMMER" | null;
+  /** Study year, ranked from the sheet's own headers (earliest block = year 1). */
+  year: number | null;
+  /** The rows of this block, each with its index in the ORIGINAL row list —
+   *  every per-row control (tick, grade, ש״ס, re-match) edits by that index. */
+  rows: { row: StandingRow; index: number }[];
+}
+
+/** Rank a header for chronological ordering: "2025/2" → 20252. Rows with no
+ *  header sort last, and an unrecognisable header just before them. */
+function semesterRank(sheetSemester: string | null): number {
+  if (!sheetSemester) return Number.MAX_SAFE_INTEGER;
+  const m = /^(\d{4})\/(\d)$/.exec(sheetSemester);
+  if (!m) return Number.MAX_SAFE_INTEGER - 1;
+  return Number(m[1]) * 10 + Number(m[2]);
+}
+
+/**
+ * Split the reviewed rows into the sheet's own semester blocks, in the order
+ * the sheet prints them. Pure and index-preserving, so the review keeps every
+ * per-row capability it had as one flat list.
+ */
+export function groupRowsBySemester(rows: StandingRow[]): StandingSemesterGroup[] {
+  const groups = new Map<string, StandingSemesterGroup>();
+  rows.forEach((row, index) => {
+    const key = row.sheetSemester ?? "";
+    let group = groups.get(key);
+    if (!group) {
+      group = {
+        sheetSemester: row.sheetSemester ?? null,
+        semester: row.plannedSemester ?? null,
+        year: row.plannedYear ?? null,
+        rows: [],
+      };
+      groups.set(key, group);
+    }
+    group.rows.push({ row, index });
+  });
+  // Stable sort: blocks the sheet dated come first, chronologically; everything
+  // we couldn't date keeps its scan order at the end.
+  return [...groups.values()].sort(
+    (a, b) => semesterRank(a.sheetSemester) - semesterRank(b.sheetSemester),
+  );
 }
 
 // =========================================================================
