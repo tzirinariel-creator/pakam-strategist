@@ -1005,14 +1005,23 @@ export function FloatingAssistant() {
               <button
                 type="button"
                 onClick={() => {
-                  const to = otherName;
-                  const back = isReferent ? (isHe ? "המלך" : "the King") : (isHe ? "הרפרנט" : "the Referent");
+                  // Two bugs Ariel caught in one line (#24): the toast read
+                  // "עברתם להרפרנט … חזרה להרפרנט" — both sides naming the SAME
+                  // persona. `back` was computed from the same branch as
+                  // `otherName` instead of the opposite one, so it named the
+                  // destination rather than the origin. And "ל" + a definite
+                  // noun contracts in Hebrew: "להרפרנט" is not a word, "לרפרנט"
+                  // is. Names are kept bare here and the preposition attached.
+                  const toBare = isReferent ? "מלך הפילוסוף" : "רפרנט";
+                  const backBare = isReferent ? "רפרנט" : "מלך הפילוסוף";
+                  const toEn = isReferent ? "the Philosopher King" : "the Referent";
+                  const backEn = isReferent ? "the Referent" : "the Philosopher King";
                   switchPersona();
                   toast.success(
-                    isHe ? `עברתם ל${to}` : `Switched to ${to}`,
+                    isHe ? `עברתם ל${toBare}` : `Switched to ${toEn}`,
                     {
                       action: {
-                        label: isHe ? `חזרה ל${back}` : `Back to ${back}`,
+                        label: isHe ? `חזרה ל${backBare}` : `Back to ${backEn}`,
                         onClick: () => switchPersona(),
                       },
                     },

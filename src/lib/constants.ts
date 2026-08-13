@@ -18,7 +18,11 @@ export const APP_NAME_HE = "פכמון";
 // pakamon.app domain was never registered, so a mailto there would leak
 // inbound student mail to whoever claims it. When the domain lands, change
 // this ONE line.
-export const CONTACT_EMAIL = "tzirin.ariel@gmail.com";
+// 13.8 — switched from the personal gmail to the university address, at Ariel's
+// request: this is where students write about bugs and suggestions, and a TAU
+// address reads as "a student who built this", which is what the app claims to
+// be. It also keeps his private inbox out of a public page.
+export const CONTACT_EMAIL = "arieltzirin@mail.tau.ac.il";
 
 // ── Discipline display config ──────────────────────────────────────
 
