@@ -21,6 +21,7 @@ import {
 } from "@/lib/grade-sheet";
 import type { ScanDiagnostics } from "@/lib/grade-sheet";
 import { ScanDiagnosticsPanel } from "@/components/record/scan-diagnostics";
+import { heCount, heNoun } from "@/lib/he-count";
 import { getWrapTarget, wrapStorageKey } from "@/lib/semester-clock";
 import { calculateGrades } from "@/lib/grade-calculator";
 import { prefersHigherGrade, type MiluimGroupKey } from "@/lib/miluim";
@@ -257,18 +258,30 @@ export function GradeSheetScanner() {
         // #28 — say it out loud: these weren't in the plan and are now on record.
         parts.push(
           isHe
-            ? `${added} קורסים שלא היו בתוכנית נוספו לתיק`
-            : `${added} courses that weren't in the plan were added to your record`,
+            ? heCount(added, {
+                one: "קורס אחד שלא היה בתוכנית נוסף לתיק",
+                many: `${added} קורסים שלא היו בתוכנית נוספו לתיק`,
+              })
+            : `${added} course${added === 1 ? "" : "s"} that ${added === 1 ? "wasn't" : "weren't"} in the plan ${added === 1 ? "was" : "were"} added to your record`,
         );
       }
       if (failedGrades > 0) {
-        parts.push(isHe ? `${failedGrades} נרשמו כנכשלים` : `${failedGrades} recorded as failed`);
+        parts.push(
+          isHe
+            ? heCount(failedGrades, { one: "אחד נרשם כנכשל", many: `${failedGrades} נרשמו כנכשלים` })
+            : `${failedGrades} recorded as failed`,
+        );
       }
       if (englishApplied > 0) {
         parts.push(isHe ? "ציוני אנגלית אינם נספרים בממוצע" : "English grades don't count toward the average");
       }
       toast.success(
-        isHe ? `נקלטו ${ok + added} קורסים מהגיליון` : `${ok + added} courses taken from the sheet`,
+        isHe
+          ? heCount(ok + added, {
+              one: "נקלט קורס אחד מהגיליון",
+              many: `נקלטו ${ok + added} קורסים מהגיליון`,
+            })
+          : `${ok + added} course${ok + added === 1 ? "" : "s"} taken from the sheet`,
         parts.length ? { description: parts.join(" · ") } : undefined,
       );
       // Close the end-of-semester rite for this semester once grades are in.
@@ -369,8 +382,8 @@ export function GradeSheetScanner() {
           <p className="flex items-center gap-2 text-sm font-bold text-foreground/85">
             <Check className="size-4 text-emerald-500" />
             {isHe
-              ? `הגיליון נקלט — ${scanSummary.updated + scanSummary.added} קורסים`
-              : `Sheet applied — ${scanSummary.updated + scanSummary.added} courses`}
+              ? `הגיליון נקלט — ${heNoun(scanSummary.updated + scanSummary.added, "קורס", "קורסים")}`
+              : `Sheet applied — ${scanSummary.updated + scanSummary.added} course${scanSummary.updated + scanSummary.added === 1 ? "" : "s"}`}
           </p>
           <div className="space-y-1 text-xs leading-relaxed text-foreground/70">
             {scanSummary.added > 0 && (
@@ -378,7 +391,13 @@ export function GradeSheetScanner() {
               // "לא בתוכנית" used to mean "quietly not imported".
               <p>
                 {isHe
-                  ? `${scanSummary.updated} קורסים מהתוכנית עודכנו, ו-${scanSummary.added} קורסים שלא היו בתוכנית (בחירה כללית) נוספו לתיק עם הציון מהגיליון.`
+                  ? `${heCount(scanSummary.updated, {
+                      one: "קורס אחד מהתוכנית עודכן",
+                      many: `${scanSummary.updated} קורסים מהתוכנית עודכנו`,
+                    })}, ו${heCount(scanSummary.added, {
+                      one: "קורס אחד שלא היה בתוכנית (בחירה כללית) נוסף",
+                      many: `-${scanSummary.added} קורסים שלא היו בתוכנית (בחירה כללית) נוספו`,
+                    })} לתיק עם הציון מהגיליון.`
                   : `${scanSummary.updated} planned courses updated, and ${scanSummary.added} courses that weren't in the plan were added with the sheet's grade.`}
               </p>
             )}
@@ -392,7 +411,10 @@ export function GradeSheetScanner() {
             {scanSummary.failedGrades > 0 ? (
               <p>
                 {isHe
-                  ? `${scanSummary.failedGrades} קורסים נרשמו כנכשלים — בבדיקת-המסלול תראו מה זה אומר ומה אפשר לעשות.`
+                  ? `${heCount(scanSummary.failedGrades, {
+                      one: "קורס אחד נרשם כנכשל",
+                      many: `${scanSummary.failedGrades} קורסים נרשמו כנכשלים`,
+                    })} — בבדיקת-המסלול תראו מה זה אומר ומה אפשר לעשות.`
                   : `${scanSummary.failedGrades} courses recorded as failed — the track check shows what that means and what you can do.`}
               </p>
             ) : (

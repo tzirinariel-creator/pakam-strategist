@@ -273,3 +273,57 @@ describe("#8 — combination constraints", () => {
     expect(screen.getByText(/אלה בקשות, לא חוקים/)).toBeInTheDocument();
   });
 });
+
+// =========================================================================
+// Hebrew counts at ONE (note #6, found in the live browser walk)
+// =========================================================================
+// The planner printed "(1 קורסים בלי שעות ידועות לא נספרו)" and
+// "ל-1 מקורסי הסמסטר אין שעות". Hebrew doesn't count that way: at one the
+// digit becomes a word and the noun and verb go singular. Same family as the
+// free-day list that was fixed in the same pass — a template that only ever
+// imagined the plural.
+describe("counts of one read as Hebrew, not as a template", () => {
+  beforeEach(cleanup);
+
+  const withUnscheduled = (n: number) =>
+    render(
+      <InsightsBar
+        selectedCourses={[
+          course({ id: "A", credits: 4, sessions: [{ dayOfWeek: "MONDAY", startTime: "10:00", endTime: "12:00" }] }),
+        ]}
+        totalCreditsPlanned={30}
+        conflicts={[]}
+        unscheduledCount={n}
+      />,
+    );
+
+  it("says 'קורס אחד … לא נספר' for one, never '1 קורסים'", () => {
+    withUnscheduled(1);
+    const body = document.body.textContent ?? "";
+    expect(body).toContain("קורס אחד בלי שעות ידועות לא נספר");
+    expect(body).not.toMatch(/1 קורסים/);
+  });
+
+  it("keeps the plural form for more than one", () => {
+    withUnscheduled(3);
+    expect(document.body.textContent).toContain("קורסים בלי שעות ידועות לא נספרו");
+  });
+
+  it("the conflict-card caveat also drops the bare digit at one", () => {
+    withUnscheduled(1);
+    const body = document.body.textContent ?? "";
+    expect(body).toContain("(אחד בלי שעות ידועות)");
+    expect(body).not.toMatch(/\(1 בלי שעות ידועות\)/);
+  });
+
+  it("the free-day caveat says 'לאחד מקורסי הסמסטר' at one", () => {
+    // Needs a genuinely free day for the insight to fire at all: the single
+    // course above meets on Monday only.
+    withUnscheduled(1);
+    const body = document.body.textContent ?? "";
+    if (/פנוי/.test(body)) {
+      expect(body).toContain("לאחד מקורסי הסמסטר");
+      expect(body).not.toMatch(/ל-1 מקורסי/);
+    }
+  });
+});

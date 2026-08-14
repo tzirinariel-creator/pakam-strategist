@@ -12,6 +12,7 @@
 import { CREDIT_REQUIREMENTS, GRADE_REQUIREMENTS, GRADE_WEIGHTS, SEMINAR_REQUIREMENTS, resolveEnglishLevel } from "@/lib/constants";
 import { daysUntilLabel } from "@/lib/days-until";
 import { normalizeHebrewForMatch } from "@/lib/hebrew-normalize";
+import { israelDayKeyMs, storedDateKeyMs } from "@/lib/civil-day";
 
 export interface QAContext {
   isHe: boolean;
@@ -355,8 +356,12 @@ const HANDLERS: Handler[] = [
       // university, contradicting the dashboard countdown showing "היום" on the
       // same screen. Same fix days-until.ts already carries; identical shape so
       // the two can never diverge again.
-      const todayUTC = Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate());
-      const civilDay = (d: Date) => Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate());
+      // Now the SAME CALL days-until.ts makes, not a re-spelling of it: `now`
+      // was still bucketed by its UTC components here, which is a different
+      // "today" from israelDayKeyMs for the first hours of every Israeli day —
+      // the exact divergence the comment above claimed did not exist (deferred-2).
+      const todayUTC = israelDayKeyMs(now);
+      const civilDay = (d: Date) => storedDateKeyMs(d);
       const list = (c.upcomingExams ?? []).filter((e) => civilDay(e.date) >= todayUTC);
       if (list.length === 0) {
         return {

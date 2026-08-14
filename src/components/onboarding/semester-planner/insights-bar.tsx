@@ -170,8 +170,16 @@ function generateScheduleInsights(
           ? isHe
             // "פנוי בקורסים שיש לנו שעות עבורם" was a sentence nobody says.
             // The caveat is the point, so it gets its own clause.
-            ? `${heSubject} — אבל רק לפי הקורסים שיש לנו שעות עבורם. ל-${unscheduledCount} מקורסי הסמסטר אין שעות בידיעון, אז אל תקבעו כלום על סמך זה`
-            : `${dayList} ${many ? "look" : "looks"} clear — but only among the courses we have times for. ${unscheduledCount} of this semester's courses have no hours in the catalog, so don't commit to anything on it`
+            ? `${heSubject} — אבל רק לפי הקורסים שיש לנו שעות עבורם. ${
+                unscheduledCount === 1
+                  ? "לאחד מקורסי הסמסטר"
+                  : `ל-${unscheduledCount} מקורסי הסמסטר`
+              } אין שעות בידיעון, אז אל תקבעו כלום על סמך זה`
+            : `${dayList} ${many ? "look" : "looks"} clear — but only among the courses we have times for. ${
+                unscheduledCount === 1
+                  ? "One of this semester's courses has"
+                  : `${unscheduledCount} of this semester's courses have`
+              } no hours in the catalog, so don't commit to anything on it`
           : isHe
             ? `${heSubject}! אפשר לנצל לעבודה או התמחות`
             : `${dayList} ${many ? "are" : "is"} free! Use it for work or an internship`,
@@ -481,7 +489,11 @@ export function InsightsBar({
             {unscheduledCount > 0 && (
               <p className="mt-0.5 text-[10px] leading-tight text-foreground/35">
                 {isHe
-                  ? <>(<Bidi text={unscheduledCount} /> קורסים בלי שעות ידועות לא נספרו)</>
+                  ? unscheduledCount === 1
+                    // Hebrew counts: "1 קורסים" is not a thing a person writes.
+                    // At one, the number becomes a word and the noun goes singular.
+                    ? <>(קורס אחד בלי שעות ידועות לא נספר)</>
+                    : <>(<Bidi text={unscheduledCount} /> קורסים בלי שעות ידועות לא נספרו)</>
                   : `(${unscheduledCount} course(s) with no known hours aren't counted)`}
               </p>
             )}
@@ -533,7 +545,9 @@ export function InsightsBar({
             {unscheduledCount > 0 && (
               <p className="mt-0.5 text-[10px] leading-tight text-foreground/35">
                 {isHe
-                  ? <>נבדק רק מול הקורסים שיש להם שעות (<Bidi text={unscheduledCount} /> בלי שעות ידועות)</>
+                  ? unscheduledCount === 1
+                    ? <>נבדק רק מול הקורסים שיש להם שעות (אחד בלי שעות ידועות)</>
+                    : <>נבדק רק מול הקורסים שיש להם שעות (<Bidi text={unscheduledCount} /> בלי שעות ידועות)</>
                   : `Checked only against courses with known hours (${unscheduledCount} without)`}
               </p>
             )}

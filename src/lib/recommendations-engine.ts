@@ -16,6 +16,7 @@
 import { CREDIT_REQUIREMENTS, GRADE_REQUIREMENTS, resolveEnglishLevel } from "@/lib/constants";
 import { hasMiluimBinaryBenefit, type MiluimGroupKey } from "@/lib/miluim";
 import { countPassedEnglishLevelCourses, resolveEnglishStanding } from "@/lib/english-standing";
+import { civilDaysUntilStored } from "@/lib/civil-day";
 
 // -------------------------------------------------------------------
 // Types
@@ -118,12 +119,15 @@ function isRetakeWorthy(course: RecCourse): boolean {
   return course.grade < bar;
 }
 
+/**
+ * Civil days to an exam — the shared lib/civil-day count (deferred-2).
+ * `now` used to be bucketed by its UTC components, so between 00:00 and
+ * 02:00/03:00 Israel the nudge said "מחר" about an exam that was already TODAY.
+ */
 function daysUntil(date: Date | string, now: Date): number {
   const d = new Date(date);
   if (isNaN(d.getTime())) return NaN;
-  const dUTC = Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate());
-  const nUTC = Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate());
-  return Math.round((dUTC - nUTC) / (1000 * 60 * 60 * 24));
+  return civilDaysUntilStored(d, now);
 }
 
 function courseName(c: RecCourse, isHe: boolean): string {

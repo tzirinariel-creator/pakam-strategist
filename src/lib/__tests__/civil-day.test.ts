@@ -97,6 +97,19 @@ describe("civilDaysUntilStored — the ONE exam countdown", () => {
     expect(civilDaysUntilStored("2026-08-20T00:00:00.000Z", new Date("2026-08-14T12:00:00Z"))).toBe(6);
   });
 
+  it("every surface that counts to an exam gives the SAME number", () => {
+    // The point of the helper: five surfaces used to spell this subtraction out
+    // themselves — two by server-local midnight, two by UTC components, one via
+    // civil-day — so at 00:30 Israel the dashboard card, the exam board, the
+    // King's answer and the home nudge could disagree about the same exam.
+    const now = JUST_AFTER_IL_MIDNIGHT;
+    const exam = examOn("2026-08-15");
+    expect(civilDaysUntilStored(exam, now)).toBe(0);
+    // …which is exactly `storedDateKeyMs(exam) - israelDayKeyMs(now)`, the pair
+    // days-until.ts uses, so nearestUpcomingExam agrees by construction.
+    expect(storedDateKeyMs(exam)).toBe(israelDayKeyMs(now));
+  });
+
   it("never fractionally rounds across the DST flip", () => {
     // 26.3 → 30.3.2026 spans the spring-forward night; a raw ms division gives
     // 3.958… days, which Math.ceil would inflate to 4 and Math.floor crush to 3.

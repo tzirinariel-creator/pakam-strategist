@@ -177,6 +177,29 @@ describe("honesty — a claim about the week only covers courses we have times f
       />,
     );
     expect(screen.getByText(/נבדק רק מול הקורסים שיש להם שעות/)).toBeInTheDocument();
-    expect(screen.getByText(/בלי שעות ידועות לא נספרו/)).toBeInTheDocument();
+    // The fixture has exactly ONE course without hours, so the copy is the
+    // singular. This assertion used to expect "לא נספרו" and passed against
+    // "1 קורסים … לא נספרו" — broken Hebrew that the test was holding in place.
+    expect(screen.getByText(/קורס אחד בלי שעות ידועות לא נספר/)).toBeInTheDocument();
+    expect(document.body.textContent).not.toMatch(/1 קורסים/);
+  });
+
+  it("uses the plural once there is more than one", () => {
+    const twoMissing = [
+      ...courses,
+      course("0621-9999", "סמינר בלי שעות", []),
+      course("0621-9998", "עוד סמינר בלי שעות", []),
+    ];
+    render(
+      <InsightsBar
+        selectedCourses={twoMissing}
+        totalCreditsPlanned={16}
+        conflicts={detectPlannerConflicts(twoMissing, true)}
+        unscheduledCount={2}
+      />,
+    );
+    // The plural path renders the number through <Bidi>, so it is its own
+    // element and the sentence is split — assert on the flattened text.
+    expect(document.body.textContent).toContain("2 קורסים בלי שעות ידועות לא נספרו");
   });
 });
