@@ -4,7 +4,7 @@
 // The planner used to run THREE conflict engines over the same screen:
 //   • `plan-generator.detectConflicts` fed the insights bar — it skipped pairs
 //     that belong to the same course and never deduped the catalog's duplicate
-//     rows,
+//     rows. (Deleted 14.8 once nothing called it; this module replaced it.)
 //   • `timetable-conflicts.findConflictPairs` drew the red on the grid — it
 //     dedupes, and counts a lecture clashing with its own tutorial,
 //   • `conflict-detector.detectTimeConflicts` pre-flagged the picker's options.
