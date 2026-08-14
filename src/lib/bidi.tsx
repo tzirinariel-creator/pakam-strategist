@@ -16,7 +16,22 @@ import React from "react";
 // isolates with neutral text between them can still reorder, audit 24.7), and
 // an optional trailing % or +. Matches "35+", "21-34", "+10%", "0651-1007",
 // "7.10.23", "2/5", "C — 35", "C", "MA".
-const LTR_RUN = /[+\-]?[A-Za-z0-9]+(?:[ ]?[.,:/+\-–—][ ]?[A-Za-z0-9]+)*[%+]?/g;
+// The `(?<![֐-׿])` guard on the leading sign is load-bearing, and it
+// is the bug Ariel reported on 14.8 as "מינוס אחרי התאריך".
+//
+// The optional leading `[+\-]` exists for genuinely signed runs ("+10%", "-5").
+// But Hebrew attaches its one-letter prepositions with a hyphen — ב-10.7.26,
+// ל-31.12, מ-21, ה-19 — and there the hyphen belongs to the WORD, not the
+// number. Without the guard the run matched "-10.7.26", so the hyphen was
+// pulled INSIDE the LTR isolate and rendered on the isolate's left edge, i.e.
+// AFTER the date in reading order: "אנחנו בתוך תקופת המבחנים … הסתיימו ב
+// 10.7.26-". Measured per-character in a live RTL page, before and after.
+//
+// Same family as the ordinal bug fixed on 13.8: punctuation that belongs to the
+// Hebrew sentence must stay OUTSIDE the isolate. A sign only counts as part of
+// the number when the character before it is not a Hebrew letter.
+const LTR_RUN =
+  /(?<![֐-׿])[+\-]?[A-Za-z0-9]+(?:[ ]?[.,:/+\-–—][ ]?[A-Za-z0-9]+)*[%+]?/g;
 
 /**
  * Render `text` with every LTR/numeric run wrapped in an isolated, force-LTR

@@ -113,3 +113,46 @@ describe("Bidi — numeric ranges inside Hebrew (text sweep 13.8)", () => {
     expect(isolates[0]!.textContent).not.toContain(".");
   });
 });
+
+// ── 14.8: "מינוס אחרי התאריך" — a Hebrew prefix hyphen was eaten ──────────
+// LTR_RUN's optional leading sign exists for "+10%" / "-5". But Hebrew glues
+// its one-letter prepositions on with a hyphen (ב-10.7.26, ל-31.12, מ-21), and
+// there the hyphen belongs to the WORD. It was being pulled into the isolate,
+// so it rendered on the isolate's left edge — i.e. AFTER the date in reading
+// order. Ariel saw "הסתיימו ב 10.7.26-" on the onboarding screen.
+describe("a Hebrew prefix hyphen stays out of the isolate (14.8)", () => {
+  const isolates = (text: string) => {
+    const { container } = render(<Bidi text={text} />);
+    return [...container.querySelectorAll("bdi")].map((b) => b.textContent);
+  };
+
+  it("keeps ב- attached to the word, not the number", () => {
+    expect(isolates("הלימודים הסתיימו ב-10.7.26.")).toEqual(["10.7.26"]);
+  });
+
+  it("covers the other one-letter prefixes Hebrew glues on", () => {
+    expect(isolates("מגישים עד ל-31.12.26")).toEqual(["31.12.26"]);
+    expect(isolates("החל מ-21 ימים")).toEqual(["21"]);
+    expect(isolates("פילוסופיה של המאה ה-19")).toEqual(["19"]);
+  });
+
+  it("STILL isolates a real negative number when no Hebrew precedes it", () => {
+    // The guard must not break the case the leading sign was added for.
+    expect(isolates("הפרש: -5 ש״ס")).toEqual(["-5"]);
+    expect(isolates("+10% לקבוצה C")).toEqual(["+10%", "C"]);
+  });
+
+  it("leaves the whole sentence readable — both dates, both prefixes", () => {
+    const { container } = render(
+      <Bidi text="הלימודים הסתיימו ב-10.7.26, והמבחנים החלו ב-12.7.26." />,
+    );
+    expect([...container.querySelectorAll("bdi")].map((b) => b.textContent)).toEqual([
+      "10.7.26",
+      "12.7.26",
+    ]);
+    // Nothing may be lost or duplicated by the rewrite.
+    expect(container.textContent).toBe(
+      "הלימודים הסתיימו ב-10.7.26, והמבחנים החלו ב-12.7.26.",
+    );
+  });
+});
