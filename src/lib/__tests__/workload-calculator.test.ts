@@ -129,6 +129,61 @@ describe("calculateHonestLoad", () => {
     expect(r.label).not.toBe("examCrunch");
   });
 
+  // ── audit deferred-2: the same civil-day bug as the exam countdown ──
+  // Exam dates are date-only values stored at UTC MIDNIGHT, so a raw
+  // `examMs >= nowMs` filter dropped an exam the instant its own day started.
+  // At 12:00 Israel on the morning of an exam the density metric had already
+  // lost it — and with one date left the "tightest gap" fell back to "unknown",
+  // i.e. the honest-load card stopped warning about a crunch on the day of it.
+  // Instants are written as explicit UTC with their Israeli wall clock.
+  it("an exam happening TODAY still counts — it does not vanish at its own midnight", () => {
+    const now = new Date("2026-08-15T09:00:00Z").getTime(); // 12:00 Israel, 15.8
+    const r = calculateHonestLoad(
+      [
+        { credits: 4, examDate: "2026-08-15" }, // TODAY — must still count
+        { credits: 4, examDate: "2026-08-17" },
+      ],
+      now,
+    );
+    expect(r.tightestExamGapDays).toBe(2);
+    expect(r.label).toBe("examCrunch");
+  });
+
+  it("00:30 Israel: yesterday's exam is out, today's is in", () => {
+    const now = new Date("2026-08-14T21:30:00Z").getTime(); // 00:30 Israel, 15.8
+    const past = calculateHonestLoad(
+      [
+        { credits: 4, examDate: "2026-08-13" },
+        { credits: 4, examDate: "2026-08-14" }, // yesterday for the student
+      ],
+      now,
+    );
+    expect(past.tightestExamGapDays).toBeNull();
+
+    const live = calculateHonestLoad(
+      [
+        { credits: 4, examDate: "2026-08-15" }, // today for the student
+        { credits: 4, examDate: "2026-08-16" },
+      ],
+      now,
+    );
+    expect(live.tightestExamGapDays).toBe(1);
+  });
+
+  it("the gap is a whole number of civil days across the DST flip", () => {
+    // 27.3.2026 is the Israeli spring-forward night; a raw ms difference between
+    // the two UTC-midnight dates would be 3.958… days, not 4.
+    const r = calculateHonestLoad(
+      [
+        { credits: 4, examDate: "2026-03-26" },
+        { credits: 4, examDate: "2026-03-30" },
+      ],
+      new Date("2026-03-01T12:00:00Z").getTime(),
+    );
+    expect(r.tightestExamGapDays).toBe(4);
+    expect(Number.isInteger(r.tightestExamGapDays)).toBe(true);
+  });
+
 // ── 13.8: "8 שעות שבועיות" printed directly above a grid showing 6 ──
 describe("weekly hours are de-duplicated, so the summary and the grid agree", () => {
   it("counts a duplicated catalog row ONCE", () => {

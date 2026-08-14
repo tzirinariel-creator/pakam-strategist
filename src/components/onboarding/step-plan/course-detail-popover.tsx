@@ -10,6 +10,7 @@ import {
 } from "@/components/ui/popover";
 import { DISCIPLINE_CONFIG, FILTERABLE_DISCIPLINE_IDS } from "@/lib/constants";
 import { courseColor } from "@/lib/course-color";
+import { sessionTypeNameFor } from "@/lib/group-options";
 import { Clock, Calendar, BookOpen, Lock, Users, X, Pencil } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { arazimView } from "@/lib/arazim/visibility";
@@ -218,7 +219,7 @@ export function CourseDetailPopover({ course, children, onDisciplineOverride }: 
                   {session.startTime}–{session.endTime}
                 </span>
                 <span className="text-[11px] text-foreground/30">
-                  {session.sessionType === "lecture" ? (isHe ? "הרצאה" : "Lecture") : session.sessionType === "tutorial" ? (isHe ? "תרגול" : "Tutorial") : session.sessionType}
+                  {sessionTypeNameFor(session.sessionType, isHe)}
                 </span>
                 {session.room && (
                   <span className="text-[11px] text-foreground/20">

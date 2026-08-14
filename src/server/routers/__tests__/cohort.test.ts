@@ -5,6 +5,7 @@ import { describe, it, expect } from "vitest";
 import { createCallerFactory } from "@/server/trpc/init";
 import { cohortRouter } from "@/server/routers/cohort";
 import { encodePlan } from "@/lib/plan-share";
+import { COHORT_LABEL_MIN_N } from "@/lib/k-anonymity";
 
 const TOKEN_A = encodePlan([{ c: "1011-2103", y: 1, s: "FALL" }]);
 const TOKEN_B = encodePlan([{ c: "0651-1003", y: 2, s: "SPRING" }]);
@@ -220,5 +221,58 @@ describe("cohort router (stage ב)", () => {
     db.insights[0]!.status = "HIDDEN";
     const rows = await caller.listInsights();
     expect(rows).toHaveLength(0);
+  });
+});
+
+// ── The cohort-year label goes through the same gate as everything else ──
+// Reviews and the tips wall have run their year through safeCohortYear since
+// 13.8; insights and the plan gallery were never routed through it and returned
+// it raw. In a programme of ~24 people, "מחזור 2023" pinned to a free-text
+// opinion from a cohort of one is a pointer at a person. The content still
+// shows either way — only the year is withheld — so nothing here weakens a
+// threshold, it applies the one that already exists.
+describe("cohort router — cohort-year labels obey COHORT_LABEL_MIN_N", () => {
+  function insightRow(cohortYear: number | null, i: number) {
+    return {
+      id: `i-${i}`,
+      userId: `u-${i}`,
+      stage: "GENERAL",
+      text: `תובנה מספר ${i} לבדיקה`,
+      cohortYear,
+      status: "VISIBLE",
+      reportCount: 0,
+      createdAt: new Date(),
+    };
+  }
+
+  it("keeps the year when the cohort is crowded enough to hide the writer", async () => {
+    const db = makeDb();
+    for (let i = 0; i < COHORT_LABEL_MIN_N; i++) db.insights.push(insightRow(2023, i));
+    const rows = await makeCaller(db).listInsights();
+    expect(rows).toHaveLength(COHORT_LABEL_MIN_N);
+    expect(rows.every((r) => r.cohortYear === 2023)).toBe(true);
+  });
+
+  it("drops the year when one cohort is thin — the text stays, the pointer goes", async () => {
+    const db = makeDb();
+    for (let i = 0; i < COHORT_LABEL_MIN_N; i++) db.insights.push(insightRow(2023, i));
+    db.insights.push(insightRow(2021, 99)); // a cohort of one
+    const rows = await makeCaller(db).listInsights();
+    // Nothing is hidden — the archive keeps every insight.
+    expect(rows).toHaveLength(COHORT_LABEL_MIN_N + 1);
+    expect(rows.find((r) => r.id === "i-99")!.cohortYear).toBeNull();
+    expect(rows.find((r) => r.id === "i-99")!.text).toContain("תובנה");
+  });
+
+  it("gallery entries get the same gate — one plan per user makes a year loud", async () => {
+    const db = makeDb();
+    await makeCaller(db, "author-a").publishPlan({ title: "מסלול ראשון", token: TOKEN_A });
+    const rows = await makeCaller(db).listGallery();
+    expect(rows).toHaveLength(1);
+    // One entry from cohort 2025 is nowhere near the bar.
+    expect(rows[0]!.cohortYear).toBeNull();
+    expect(rows[0]!.title).toBe("מסלול ראשון");
+    // The token still travels — the plan is the point, the year was context.
+    expect(rows[0]!.token).toBe(TOKEN_A);
   });
 });

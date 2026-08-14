@@ -32,8 +32,9 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
-import { SEMESTER_CONFIG, YEAR_CONFIG, CREDIT_REQUIREMENTS } from "@/lib/constants";
+import { SEMESTER_CONFIG, YEAR_CONFIG, passBarFor } from "@/lib/constants";
 import { courseColor } from "@/lib/course-color";
+import { civilDaysUntilStored } from "@/lib/civil-day";
 import { Bidi } from "@/lib/bidi";
 import { Badge } from "@/components/ui/badge";
 import { StudySkyline } from "@/components/exam-planner/study-skyline";
@@ -67,12 +68,19 @@ interface ExamGroup {
 
 // ─── Helpers ────────────────────────────────────────────────────────
 
-function daysUntil(date: Date): number {
-  const now = new Date();
-  now.setHours(0, 0, 0, 0);
-  const target = new Date(date);
-  target.setHours(0, 0, 0, 0);
-  return Math.ceil((target.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
+/**
+ * Civil days to an exam — the shared lib/civil-day count, not a local copy.
+ *
+ * This used to snap BOTH sides to server-local midnight and `Math.ceil` the
+ * difference. That is the exact idiom civil-day.ts exists to kill: exam dates
+ * are date-only values at UTC midnight, so reading them locally shifted them a
+ * day for any student west of Greenwich, while `now` bucketed locally was still
+ * on yesterday for the first hours of every Israeli day — and `formatDate` right
+ * below already renders in UTC, so the header and the countdown disagreed about
+ * the same exam (audit deferred-2).
+ */
+function daysUntil(date: Date, now: Date = new Date()): number {
+  return civilDaysUntilStored(date, now);
 }
 
 function formatDate(date: Date, locale: string): string {
@@ -110,9 +118,10 @@ export function ExamSchedule() {
   const examGroups = useMemo<ExamGroup[]>(() => {
     if (!data?.exams) return [];
 
-    const todayStart = new Date();
-    todayStart.setHours(0, 0, 0, 0);
-    const isFuture = (d: Date) => d.getTime() >= todayStart.getTime();
+    // "Still ahead" is a CIVIL-day test, so an exam stays on the board through
+    // its own day instead of vanishing at midnight UTC / local (deferred-2).
+    const now = new Date();
+    const isFuture = (d: Date) => daysUntil(d, now) >= 0;
 
     const dateMap = new Map<string, ExamGroup>();
 
@@ -122,7 +131,10 @@ export function ExamSchedule() {
       const passed =
         exam.status === "COMPLETED" &&
         exam.grade != null &&
-        exam.grade >= CREDIT_REQUIREMENTS.PASSING_GRADE;
+        // English passes at 70, everything else at 60 (passBarFor). Using the
+        // generic bar here hid the remaining sittings of an English course
+        // graded 65 — the exact student who still needs the retake (deferred-4).
+        exam.grade >= passBarFor(exam.courseType);
       if (passed) continue;
 
       // Add Moed A — only if it hasn't happened yet.
@@ -170,8 +182,10 @@ export function ExamSchedule() {
   const stats = useMemo(() => {
     if (!data?.exams) return { total: 0, upcoming: 0, nextExam: null as Date | null, passed: 0 };
 
+    // Same civil-day test as the board above, so the "upcoming" tally and the
+    // next-exam countdown can never disagree with the list they sit next to.
     const now = new Date();
-    now.setHours(0, 0, 0, 0);
+    const isFuture = (d: Date) => daysUntil(d, now) >= 0;
 
     let upcoming = 0;
     let passed = 0;
@@ -181,7 +195,8 @@ export function ExamSchedule() {
       // Already passed → count it as passed and STOP — it must not feed the
       // "upcoming" tally or the next-exam countdown, so the stats agree with the
       // board (examGroups), which hides passed courses.
-      if (exam.status === "COMPLETED" && exam.grade !== null && exam.grade >= CREDIT_REQUIREMENTS.PASSING_GRADE) {
+      // Same English-aware bar as the board above — the two MUST agree.
+      if (exam.status === "COMPLETED" && exam.grade !== null && exam.grade >= passBarFor(exam.courseType)) {
         passed++;
         continue;
       }
@@ -190,14 +205,14 @@ export function ExamSchedule() {
       let hasUpcoming = false;
       if (exam.examDateA) {
         const dateA = exam.examDateA;
-        if (dateA >= now) {
+        if (isFuture(dateA)) {
           hasUpcoming = true;
           if (!nextExam || dateA < nextExam) nextExam = dateA;
         }
       }
       if (exam.examDateB) {
         const dateB = exam.examDateB;
-        if (dateB >= now) {
+        if (isFuture(dateB)) {
           hasUpcoming = true;
           if (!nextExam || dateB < nextExam) nextExam = dateB;
         }
@@ -215,16 +230,15 @@ export function ExamSchedule() {
   // MUST run before any early return (Rules of Hooks).
   const timelinePlan = useMemo(() => {
     if (!data?.exams) return { sessions: [], exams: [] };
-    const todayStart = new Date();
-    todayStart.setHours(0, 0, 0, 0);
-    const futureOnly = (d: Date | null) =>
-      d && d.getTime() >= todayStart.getTime() ? d : null;
+    const now = new Date();
+    const futureOnly = (d: Date | null) => (d && daysUntil(d, now) >= 0 ? d : null);
     const inputs: ExamInput[] = [];
     for (const e of data.exams) {
       const passed =
         e.status === "COMPLETED" &&
         e.grade != null &&
-        e.grade >= CREDIT_REQUIREMENTS.PASSING_GRADE;
+        // English-aware bar, same as the board and the stats (deferred-4).
+        e.grade >= passBarFor(e.courseType);
       if (passed) continue;
       const a = futureOnly(e.examDateA);
       const b = futureOnly(e.examDateB);
@@ -558,8 +572,11 @@ export function ExamSchedule() {
                   // ONE colour per course: the same dot this course wears on
                   // the weekly grid and on its plan card (src/lib/course-color).
                   const color = courseColor(exam.courseCode);
-                  const hasPassed = exam.status === "COMPLETED" && exam.grade !== null && exam.grade >= CREDIT_REQUIREMENTS.PASSING_GRADE;
-                  const hasFailed = exam.status === "COMPLETED" && exam.grade !== null && exam.grade < CREDIT_REQUIREMENTS.PASSING_GRADE;
+                  // The pass/fail badge on the row uses the SAME bar as every
+                  // filter above it — 70 for English, 60 otherwise.
+                  const examBar = passBarFor(exam.courseType);
+                  const hasPassed = exam.status === "COMPLETED" && exam.grade !== null && exam.grade >= examBar;
+                  const hasFailed = exam.status === "COMPLETED" && exam.grade !== null && exam.grade < examBar;
 
                   return (
                     <div

@@ -9,6 +9,7 @@ import { DISCIPLINE_CONFIG, SEMESTER_CONFIG, YEAR_CONFIG } from "@/lib/constants
 import type { CourseWithSchedule } from "@/lib/plan-generator";
 import { matchExtractedToCatalog } from "@/lib/grade-sheet";
 import { passBarFor } from "@/lib/constants";
+import { isEnglishCourse, passBarForName } from "@/lib/english-standing";
 import { fileToBase64, SCANNER_ACCEPT } from "@/lib/upload";
 import { WhereIsMySheet } from "@/components/record/where-is-my-sheet";
 import type { OnboardingData } from "./onboarding-wizard";
@@ -50,15 +51,6 @@ function computePlacement(course: CourseWithSchedule): {
     ? "SPRING"
     : "FALL";
   return { year, semester };
-}
-
-/** Is a course taught in English? courseType ENGLISH is the canonical flag the
- * credit-calculator / regulation engine use; we also fall back to a name match
- * ("אנגלית" / "English") for any catalog row not yet typed ENGLISH. */
-function isEnglishCourse(course: CourseWithSchedule): boolean {
-  if (course.courseType === "ENGLISH") return true;
-  const hay = `${course.nameHe ?? ""} ${course.nameEn ?? ""}`.toLowerCase();
-  return hay.includes("אנגלית") || /\benglish\b/.test(hay);
 }
 
 export interface CompletedCourse {
@@ -237,7 +229,18 @@ export function StepHistory({
             // 18:19 (#10 דוגרי) — a graded row that matched no catalog course
             // is a real elective taken outside the PPE list. Capture it as a
             // CUSTOM completed course so it's not silently dropped.
-            if (!row.inProgress && row.grade != null && row.grade >= 60 && row.courseCode) {
+            // The bar is 70 for English, 60 for everything else — decided by
+            // NAME because an off-catalog row has no courseType. This branch
+            // used to hardcode 60 while grade-sheet.decideAddition, which
+            // handles the very same off-catalog case in the /record scanner,
+            // applied 70: the same 65 in an English elective was FAILED there
+            // and a silent COMPLETED here (audit deferred-4).
+            if (
+              !row.inProgress &&
+              row.grade != null &&
+              row.grade >= passBarForName(row.courseName) &&
+              row.courseCode
+            ) {
               const key = row.courseCode.trim();
               const placement = latestPast ?? { year: 1, semester: "FALL" as const };
               if (!next[key]) {

@@ -81,3 +81,21 @@ export function storedDateKeyMs(d: Date | string): number {
   const date = typeof d === "string" ? new Date(d) : d;
   return Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate());
 }
+
+/**
+ * Whole civil days from TODAY (in Israel) to a DATE-ONLY stored value — the one
+ * countdown every exam surface uses: 0 = the exam is today, 1 = tomorrow,
+ * negative = already past.
+ *
+ * This is the composition `storedDateKeyMs(exam) - israelDayKeyMs(now)`, named
+ * once. It exists because four surfaces each spelled it out differently — two of
+ * them by server-local midnight — and so disagreed about the same exam for the
+ * first three hours of every Israeli day: the dashboard countdown listed
+ * YESTERDAY's exam as "היום" while the schedule board had already dropped it.
+ * Exam dates carry no time of day, so the exam side MUST be read by its UTC
+ * components and the "today" side MUST be resolved in Israel; mixing the two
+ * bases is the whole bug. Reach for this instead of writing the subtraction.
+ */
+export function civilDaysUntilStored(d: Date | string, now: Date = new Date()): number {
+  return Math.round((storedDateKeyMs(d) - israelDayKeyMs(now)) / 86_400_000);
+}

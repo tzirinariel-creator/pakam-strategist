@@ -55,3 +55,35 @@ describe("normalizeGender", () => {
     expect(normalizeGender(null)).toBeNull();
   });
 });
+
+// =========================================================================
+// #29a — "שם תצוגה שונה מהשם המקורי"
+// =========================================================================
+// Settings used to show TWO name inputs. The one labelled "שם תצוגה" promised,
+// in its own hint, "השם שיופיע בברכה בלוח הבית" — and it never reached the
+// greeting, because firstName wins here and displayName is rendered nowhere in
+// the app. A student who typed a name into the field that says it greets them
+// and then saw the other name is reporting a real defect, not a preference.
+//
+// The input is gone; "שם פרטי" is the single name. These tests pin the two
+// halves of that: the precedence that made the old field inert, and the
+// fallback that keeps old accounts greeted.
+describe("#29a — one name, one job", () => {
+  it("firstName is what greets — the reason the second field was inert", () => {
+    expect(
+      firstNameOf({ firstName: "אריאל", displayName: "משהו אחר לגמרי" }),
+    ).toBe("אריאל");
+  });
+
+  it("an account that only ever had displayName is still greeted by it", () => {
+    // The column and the tRPC field were kept precisely so this keeps working.
+    expect(firstNameOf({ firstName: null, displayName: "אריאל צירין" })).toBe("אריאל");
+  });
+
+  it("clearing firstName does not resurrect a stale displayName as the greeting", () => {
+    // Guard on the shape of the fallback: an EMPTY firstName is "no name", so
+    // the fallback is correct here. A WHITESPACE one must behave identically —
+    // otherwise " " silently outranks a real name.
+    expect(firstNameOf({ firstName: "   ", displayName: "דניאל" })).toBe("דניאל");
+  });
+});

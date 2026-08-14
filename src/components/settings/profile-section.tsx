@@ -48,7 +48,6 @@ export function ProfileSection() {
     },
   });
 
-  const [displayName, setDisplayName] = useState<string>("");
   const [firstName, setFirstName] = useState<string>("");
   const [lastName, setLastName] = useState<string>("");
   const [gender, setGender] = useState<string>(""); // "" | "male" | "female"
@@ -63,7 +62,6 @@ export function ProfileSection() {
   // Populate from query data
   useEffect(() => {
     if (profileQuery.data) {
-      setDisplayName(profileQuery.data.displayName ?? "");
       setFirstName(profileQuery.data.firstName ?? "");
       setLastName(profileQuery.data.lastName ?? "");
       setGender(profileQuery.data.gender ?? "");
@@ -87,12 +85,9 @@ export function ProfileSection() {
 
   const handleSaveProfile = () => {
     const input: Record<string, unknown> = {};
-    // Display name — Hebrew greeting name. Only send a non-empty value
-    // (the backend schema requires min length 1).
-    const trimmedName = displayName.trim();
-    if (trimmedName) {
-      input.displayName = trimmedName;
-    }
+    // #29a — displayName is no longer editable here (see the comment in the
+    // form below). It is deliberately not sent: leaving it out means an
+    // existing value is preserved untouched rather than overwritten.
     // Personal address — first name (for greetings) + gender (for gendered copy).
     input.firstName = firstName.trim() || null;
     input.lastName = lastName.trim() || null;
@@ -179,23 +174,21 @@ export function ProfileSection() {
           />
         </div>
 
-        {/* Display name — the Hebrew name used in the greeting */}
-        <div className="flex flex-col gap-1.5">
-          <label htmlFor="settings-display-name" className="text-sm font-medium text-foreground/80">
-            {t("displayName")}
-          </label>
-          <p className="text-xs text-foreground/40">
-            {t("displayNameHint")}
-          </p>
-          <Input
-            id="settings-display-name"
-            value={displayName}
-            onChange={(e) => setDisplayName(e.target.value)}
-            maxLength={100}
-            placeholder={t("displayNamePlaceholder")}
-          />
-        </div>
-
+        {/*
+          #29a — "שם תצוגה שונה מהשם המקורי".
+          There used to be a second input here, labelled "שם תצוגה", whose own
+          hint promised "השם שיופיע בברכה בלוח הבית". It never did: `firstName`
+          wins in firstNameOf(), and `displayName` is rendered nowhere in the
+          app. So the student typed a name into the field that says it will
+          greet them, watched the greeting keep the other name, and reported it
+          as a bug. It was one — two controls for one job, and the louder one
+          was inert.
+          The input is gone; "שם פרטי" below is now the only name, and it is the
+          one that actually reaches the greeting, the gendered address and the
+          advisor. The `displayName` COLUMN and the tRPC field stay (additive
+          rule, and firstNameOf still falls back to it for accounts that only
+          ever had one) — nothing was deleted from anyone's account.
+        */}
         {/* Personal address — first name + gender for a personalized, gendered UI */}
         <div className="flex flex-col gap-1.5">
           <label htmlFor="settings-first-name" className="text-sm font-medium text-foreground/80">

@@ -61,21 +61,7 @@ export type AssistantAction =
     };
 
 // Same normalization family as degree-qa: niqqud, punctuation, final letters.
-function normalize(s: string): string {
-  return s
-    .toLowerCase()
-    .replace(/־/g, " ")
-    .replace(/[֑-ׇ]/g, "")
-    .replace(/[׳״'"`]/g, "")
-    .replace(/[^\p{L}\p{N}\s]/gu, " ")
-    .replace(/ך/g, "כ")
-    .replace(/ם/g, "מ")
-    .replace(/ן/g, "נ")
-    .replace(/ף/g, "פ")
-    .replace(/ץ/g, "צ")
-    .replace(/\s+/g, " ")
-    .trim();
-}
+
 
 const COMPLETE_INTENT = /(סיימתי|סגרתי|עברתי|קיבלתי בקורס|יש לי ציון|finished|passed|completed)/;
 // NOTE: matched against NORMALIZED text — final letters are already folded

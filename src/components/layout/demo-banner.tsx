@@ -20,7 +20,7 @@ export function DemoBanner() {
 
   return (
     <div className="flex items-center justify-center gap-2 bg-foreground/90 px-4 py-1 text-xs font-medium text-background backdrop-blur-sm">
-      <Eye className="size-3.5 opacity-70" />
+      <Eye className="size-3.5 shrink-0 opacity-70" />
       <span>{t("banner")}</span>
     </div>
   );

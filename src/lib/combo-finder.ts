@@ -10,6 +10,8 @@
 // zero-conflict combination doesn't exist, it returns the least-bad one and
 // says so (`conflicts > 0`).
 
+import { hhmmToMinutes } from "@/lib/time-of-day";
+
 export interface ComboSession {
   sessionType: string;
   groupCode: string;
@@ -23,12 +25,44 @@ export interface ComboCourse {
   sessions: ComboSession[];
 }
 
+/**
+ * #8 — "שאלון → מערכת". Ariel's own condition on this was "ללכת על זה רק אם
+ * יעבוד ממש טוב", so it is NOT an AI that composes a timetable and hopes. It is
+ * the same exhaustive search, told what the student actually cares about.
+ *
+ * Everything here is a real constraint the student states about their own week,
+ * and every answer is checkable against the grid in front of them. Empty
+ * preferences reproduce the previous behaviour exactly.
+ */
+export interface ComboPreferences {
+  /** Days to keep clear, as dayOfWeek values ("SUNDAY", …). */
+  freeDays?: string[];
+  /** No class before this hour (0–23). Mornings at work. */
+  earliestHour?: number | null;
+  /** No class after this hour (0–23). A shift, a commute, kids. */
+  latestHour?: number | null;
+}
+
 export interface ComboResult {
   /** courseCode → sessionType → chosen groupCode (only MULTI-group types). */
   selections: Record<string, Record<string, string>>;
   conflicts: number;
   daysOnCampus: number;
   maxDailySpanHours: number;
+  /**
+   * #8 — which of the student's stated wishes this combination actually keeps.
+   * The UI must never say "כיבדנו את יום שלישי" unless this says so: a wish is
+   * a soft cost, and a week with a real clash in it can legitimately outrank it.
+   * `null` when no preferences were given.
+   */
+  honored: {
+    /** Requested free days that ended up genuinely empty. */
+    freeDaysKept: string[];
+    /** Requested free days that still carry a session. */
+    freeDaysBroken: string[];
+    /** Sessions falling outside the requested hours. 0 = every hour honoured. */
+    outOfHoursSessions: number;
+  } | null;
   /** True when the cap stopped the search before covering every combination. */
   capped: boolean;
   explored: number;
@@ -36,10 +70,9 @@ export interface ComboResult {
 
 const DEFAULT_CAP = 10_000;
 
-function toMinutes(t: string): number {
-  const [h, m] = t.split(":");
-  return (parseInt(h ?? "0", 10) || 0) * 60 + (parseInt(m ?? "0", 10) || 0);
-}
+// One HH:MM parser for the whole app (lib/time-of-day). The local copy answered
+// 0 — i.e. MIDNIGHT — for an unreadable time, which quietly parked a broken row
+// at the top of every candidate week instead of admitting we couldn't read it.
 
 interface FlatSession {
   day: string;
@@ -57,7 +90,29 @@ function conflictsWith(existing: FlatSession[], added: FlatSession[]): number {
   return n;
 }
 
-function scoreOf(sessions: FlatSession[], conflicts: number) {
+// A preference is a WISH, a clash is a FACT. The weights below are chosen so
+// that no number of wishes can ever outrank a single real overlap (×1000):
+// a violating session costs 100, an out-of-hours one 20, so even five sessions
+// on a "free" day (500) lose to one clash. The search will never hand a student
+// a broken week to keep their Tuesday.
+const FREE_DAY_PENALTY = 100;
+const OUT_OF_HOURS_PENALTY = 20;
+
+function preferenceCost(sessions: FlatSession[], prefs: ComboPreferences | undefined): number {
+  if (!prefs) return 0;
+  const free = new Set(prefs.freeDays ?? []);
+  const earliest = prefs.earliestHour != null ? prefs.earliestHour * 60 : null;
+  const latest = prefs.latestHour != null ? prefs.latestHour * 60 : null;
+  let cost = 0;
+  for (const s of sessions) {
+    if (free.has(s.day)) cost += FREE_DAY_PENALTY;
+    if (earliest != null && s.start < earliest) cost += OUT_OF_HOURS_PENALTY;
+    if (latest != null && s.end > latest) cost += OUT_OF_HOURS_PENALTY;
+  }
+  return cost;
+}
+
+function scoreOf(sessions: FlatSession[], conflicts: number, prefs?: ComboPreferences) {
   const byDay = new Map<string, { min: number; max: number }>();
   for (const s of sessions) {
     const d = byDay.get(s.day);
@@ -74,7 +129,11 @@ function scoreOf(sessions: FlatSession[], conflicts: number) {
   return {
     daysOnCampus,
     maxDailySpanHours,
-    score: conflicts * 1000 + daysOnCampus * 10 + maxDailySpanHours,
+    score:
+      conflicts * 1000 +
+      preferenceCost(sessions, prefs) +
+      daysOnCampus * 10 +
+      maxDailySpanHours,
   };
 }
 
@@ -87,6 +146,7 @@ function scoreOf(sessions: FlatSession[], conflicts: number) {
 export function findBestCombination(
   courses: ComboCourse[],
   cap: number = DEFAULT_CAP,
+  preferences?: ComboPreferences,
 ): ComboResult | null {
   // Fixed sessions (single-group session types) + decision variables.
   const fixed: FlatSession[] = [];
@@ -101,7 +161,14 @@ export function findBestCombination(
     // (same convention as the grid filter) — they are FIXED, never a choice.
     const byType = new Map<string, Map<string, FlatSession[]>>();
     for (const s of course.sessions) {
-      const flat = { day: s.dayOfWeek, start: toMinutes(s.startTime), end: toMinutes(s.endTime) };
+      const start = hhmmToMinutes(s.startTime);
+      const end = hhmmToMinutes(s.endTime);
+      // A meeting whose time we cannot read is DROPPED from the search rather
+      // than placed at midnight (what the old local parser's `|| 0` did) or fed
+      // in as NaN (which would poison the day-span score for the whole week).
+      // We don't know when it is, so we don't pretend to schedule around it.
+      if (!Number.isFinite(start) || !Number.isFinite(end)) continue;
+      const flat = { day: s.dayOfWeek, start, end };
       const gc = s.groupCode || "A";
       if (gc === "ALL") {
         fixed.push(flat);
@@ -149,7 +216,7 @@ export function findBestCombination(
       explored++;
       if (explored >= cap) capped = true;
       const all = [...fixed, ...chosen.flat()];
-      const { score } = scoreOf(all, partialConflicts);
+      const { score } = scoreOf(all, partialConflicts, preferences);
       if (!best || score < best.score) {
         best = { assignment: [...assignment], conflicts: partialConflicts, score };
       }
@@ -186,11 +253,29 @@ export function findBestCombination(
   ];
   const { daysOnCampus, maxDailySpanHours } = scoreOf(winningSessions, found.conflicts);
 
+  // Report the wishes against the winner, measured — never assumed from the
+  // fact that they were requested.
+  let honored: ComboResult["honored"] = null;
+  if (preferences) {
+    const requested = preferences.freeDays ?? [];
+    const busyDays = new Set(winningSessions.map((s) => s.day));
+    const earliest = preferences.earliestHour != null ? preferences.earliestHour * 60 : null;
+    const latest = preferences.latestHour != null ? preferences.latestHour * 60 : null;
+    honored = {
+      freeDaysKept: requested.filter((d) => !busyDays.has(d)),
+      freeDaysBroken: requested.filter((d) => busyDays.has(d)),
+      outOfHoursSessions: winningSessions.filter(
+        (s) => (earliest != null && s.start < earliest) || (latest != null && s.end > latest),
+      ).length,
+    };
+  }
+
   return {
     selections,
     conflicts: found.conflicts,
     daysOnCampus,
     maxDailySpanHours,
+    honored,
     capped,
     explored,
   };

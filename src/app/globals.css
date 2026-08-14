@@ -77,6 +77,19 @@
   --accent-gold-hover: #333333;
   --accent-gold-muted: rgba(0, 0, 0, 0.06);
 
+  /* Brand accent — DEFAULT/fallback only. The real values are re-declared in
+     `.light` and `.dark` below; these exist so the brand never disappears if
+     the pre-paint theme script in app/layout.tsx fails to stamp a class on
+     <html>. Without a :root value, `var(--accent-brand)` would resolve to
+     nothing and every indigo surface in the app — primary buttons, the "now"
+     line, the focus ring, the loader ring — would silently render unstyled.
+     Values intentionally mirror `.light`. */
+  --accent-brand: #5B5BD6;
+  --accent-brand-hover: #4F4FC9;
+  --accent-brand-fg: #FFFFFF;
+  --accent-brand-muted: rgba(91, 91, 214, 0.08);
+  --accent-brand-ring: rgba(91, 91, 214, 0.35);
+
   /* The King's gold — EXCLUSIVE to the Philosopher King (crown, FAB ring,
      chat header, landing King strip). Never success/rating/decoration.
      The Referent gets his own teal; the dark King band is defined once. */
@@ -295,9 +308,19 @@
    Base Styles
    ========================================= */
 
-* {
-  border-color: var(--border);
-}
+/* NOTE — there is deliberately NO unlayered `* { border-color }` here.
+   There used to be, and it was the same cascade trap the h1-h3 note below
+   documents: unlayered author CSS beats Tailwind v4's LAYERED utilities, so a
+   `*` selector with specificity 0 still won against every `border-*` colour
+   utility in the app. Measured in production before removal:
+   `border-accent-brand` computed to #E8E8EC (the neutral border) instead of
+   #5B5BD6, and `border-transparent` computed to a visible grey line. That hit
+   ~390 call sites across 98 files — every alert/brand/emerald/amber border in
+   the product was silently neutral.
+   The default border colour is still applied, by the LAYERED
+   `@layer base { * { @apply border-border } }` rule at the bottom of this file.
+   Being in `base`, it loses to `utilities` — which is exactly what every call
+   site already assumes. Do not reintroduce an unlayered version. */
 
 body {
   /* The default text colour lives HERE, not on the heading rules below, so
@@ -682,7 +705,13 @@ h4, h5, h6 {
 .dark .data-card {
   box-shadow: var(--shadow-card), inset 0 1px 0 rgba(255, 255, 255, 0.045);
 }
-.dark .data-card:hover {
+/* Scoped to the INTERACTIVE variant on purpose — this used to be
+   `.dark .data-card:hover`, which meant every one of the ~117 static
+   `.data-card` surfaces lit up on hover in dark mode while the very same cards
+   stayed calm in light mode. That is both a light/dark divergence and a direct
+   contradiction of the "hover honesty" rule stated on `.data-card-interactive`
+   above: a static surface must not animate as if it were clickable. */
+.dark .data-card-interactive:hover {
   box-shadow: var(--shadow-elevated), inset 0 1px 0 rgba(255, 255, 255, 0.06);
 }
 
@@ -752,6 +781,23 @@ h4, h5, h6 {
   }
   body {
     @apply bg-background text-foreground;
+  }
+
+  /* An icon is a fixed-size glyph, never a flexible column.
+     Every lucide icon is an <svg> with `width/height: 1em`-style sizing coming
+     from a `size-*` utility, but as a flex ITEM its default `flex-shrink: 1`
+     let the row steal that width back whenever the adjacent Hebrew label was
+     long. Measured in production: `size-3.5` checkmarks in the planner rendered
+     at 6.5px / 7.4px / 8.2px / 9.6px / 11.9px — a different width on every row,
+     because each row's course title has a different length. The page-header
+     graduation cap (`size-7`) and the "הוסיפו קורס" plus (`size-3.5`) had
+     collapsed to 0px and were simply not on screen.
+     Verified: adding this changes NO layout (page height and wrap counts are
+     byte-identical before/after) — it only stops icons being crushed.
+     Lives in `base` so a call site that genuinely wants a shrinking svg can
+     still win with a `shrink` utility. */
+  .lucide {
+    flex-shrink: 0;
   }
 }
 

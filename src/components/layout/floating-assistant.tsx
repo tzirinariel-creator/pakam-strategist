@@ -903,8 +903,8 @@ export function FloatingAssistant() {
           )}
         >
           <PersonaSwap
-            king={<PhilosopherKingIcon className="size-5 text-crown-gold-bright" />}
-            referent={<ReferentIcon className="size-5 text-referent-teal" />}
+            king={<PhilosopherKingIcon className="size-5 shrink-0 text-crown-gold-bright" />}
+            referent={<ReferentIcon className="size-5 shrink-0 text-referent-teal" />}
           />
           {fabAlert && (
             <span

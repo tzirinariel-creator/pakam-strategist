@@ -1,4 +1,4 @@
-import { ENGLISH_CONFIG, type EnglishLevelInfo } from "@/lib/constants";
+import { ENGLISH_CONFIG, passBarFor, type EnglishLevelInfo } from "@/lib/constants";
 
 /**
  * English LEVEL-course progress (Ariel's notes #6 + #18, 13.8).
@@ -28,12 +28,52 @@ const LEVEL_LADDER = [
   { level: "ADVANCED_B", match: /מתקדמים\s*ב/ },
 ] as const;
 
+/**
+ * Does this NAME look like an English course? The one name heuristic, for rows
+ * that carry no courseType at all — a scanned transcript line, an off-catalog
+ * elective. Four variants of this existed: two checked `courseType === "ENGLISH"`
+ * as well and two did not, and the two families used different regexes
+ * (`/\benglish\b/` on a lowercased string vs `/english/i` with no word
+ * boundary), so "Englishman Studies" was an English course to half the app.
+ * The word boundary wins: it is the stricter of the two, and a false POSITIVE
+ * here raises a student's pass bar from 60 to 70 — the expensive direction.
+ */
+export function looksEnglishByName(name: string | null | undefined): boolean {
+  if (!name) return false;
+  return /אנגלית/.test(name) || /\benglish\b/i.test(name);
+}
+
+/**
+ * Is this course taught in English? `courseType === "ENGLISH"` is the canonical
+ * flag the credit-calculator and the regulation engine use; the name match is
+ * the fallback for a catalog row not yet typed ENGLISH.
+ *
+ * This matters beyond a label: English has a DIFFERENT pass bar in the
+ * humanities faculty (70, not 60 — ENGLISH_CONFIG.COURSE_PASSING_GRADE), so a
+ * variant that misses an English course records a 65 as a pass the university
+ * does not recognise.
+ */
+export function isEnglishCourse(course: {
+  courseType?: string | null;
+  nameHe?: string | null;
+  nameEn?: string | null;
+}): boolean {
+  if (course.courseType === "ENGLISH") return true;
+  return looksEnglishByName(`${course.nameHe ?? ""} ${course.nameEn ?? ""}`);
+}
+
+/** The pass bar for a row with NO courseType, decided by its name. Routes
+ *  through the one `passBarFor` so there is still a single bar in the app. */
+export function passBarForName(name: string | null | undefined): number {
+  return passBarFor(looksEnglishByName(name) ? "ENGLISH" : undefined);
+}
+
 /** Preparatory LEVEL courses are English courses whose name also names a level.
  *  An English CONTENT course ("אנגלית לכלכלנים") names no level and is excluded —
  *  it counts toward PKM-012, a different requirement entirely. */
 export function isEnglishLevelCourseName(name: string | null | undefined): boolean {
   if (!name) return false;
-  if (!/אנגלית|english/i.test(name)) return false;
+  if (!looksEnglishByName(name)) return false;
   // "טרום בסיסי" contains "בסיסי", so it is matched by the BASIC pattern too —
   // both are level courses, which is all this predicate is asked to decide.
   return /טרום/.test(name) || LEVEL_LADDER.some((l) => l.match.test(name));
@@ -51,7 +91,7 @@ export interface EnglishLevelCourseLike {
  *  humanities faculty (ENGLISH_CONFIG.COURSE_PASSING_GRADE), not the usual 60. A
  *  binary/COMPLETED row with no number is a pass by definition. */
 function isPassed(c: EnglishLevelCourseLike): boolean {
-  if (c.grade != null) return c.grade >= ENGLISH_CONFIG.COURSE_PASSING_GRADE;
+  if (c.grade != null) return c.grade >= passBarFor("ENGLISH");
   return c.isBinary === true || c.status === "COMPLETED";
 }
 

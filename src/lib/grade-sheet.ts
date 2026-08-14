@@ -225,6 +225,29 @@ export function mergeDoubleRead(first: ExtractedRow[], verify: ExtractedRow[]): 
  * sheet's own average may use slightly different inclusion rules, so the
  * tolerance is generous (1.5) — this catches swaps, not rounding.
  */
+/**
+ * What a single scan actually did — shapes only, never names or grades.
+ *
+ * 14.8: Ariel uploaded his real grade sheet and courses he HAS grades for came
+ * back "בלימוד". There was no way to answer him, because the vision model's
+ * output is never logged: "the model didn't read the grade cell" and "the code
+ * dropped it afterwards" looked identical from the outside. These six numbers
+ * separate those two worlds, and the student can read them off the screen and
+ * tell us.
+ */
+export interface ScanDiagnostics {
+  /** Semester headers the read actually covered, chronological ("2024/1"). A
+   *  student who took a course in year 1 and doesn't see it here is looking at
+   *  the answer: that page of the sheet never reached us. */
+  semesters: string[];
+  firstReadRows: number;
+  verifyReadRows: number | null;
+  verifyFailed: boolean;
+  withGrade: number;
+  withoutGrade: number;
+  disputed: number;
+}
+
 export function printedAverageMismatch(
   rows: ExtractedRow[],
   printedAverage: number | null | undefined,
@@ -235,9 +258,8 @@ export function printedAverageMismatch(
   // false-fire the "a grade was misread" banner on a correctly-scanned sheet
   // (launch audit 24.7). Detect English by name — the extracted row has no
   // courseType yet. ("לא לשקלול" rows are already stripped upstream.)
-  const isEnglishName = (name: string) => /אנגלית|english/i.test(name);
   const graded = rows.filter(
-    (r) => r.grade != null && !r.inProgress && !isEnglishName(r.courseName ?? ""),
+    (r) => r.grade != null && !r.inProgress && !looksEnglishByName(r.courseName),
   );
   if (graded.length < 3) return null; // too little signal to judge
   let credits = 0;
@@ -504,7 +526,8 @@ export const GRADE_SHEET_SYSTEM = `אתה קורא "אישור קורסים וצ
 // (the "no silent automation" rule of #30).
 // =========================================================================
 
-import { ENGLISH_CONFIG, CREDIT_REQUIREMENTS } from "@/lib/constants";
+import { passBarFor } from "@/lib/constants";
+import { looksEnglishByName, passBarForName } from "@/lib/english-standing";
 
 export type ApplyDecision = {
   grade: number | null;
@@ -520,10 +543,7 @@ export type ApplyDecision = {
 export function decideApplication(row: MatchedRow): ApplyDecision | null {
   if (!row.match) return null;
   if (row.grade != null) {
-    const bar =
-      row.match.courseType === "ENGLISH"
-        ? ENGLISH_CONFIG.COURSE_PASSING_GRADE
-        : CREDIT_REQUIREMENTS.PASSING_GRADE;
+    const bar = passBarFor(row.match.courseType);
     return { grade: row.grade, status: row.grade >= bar ? "COMPLETED" : "FAILED" };
   }
   if (row.passText) {
@@ -573,9 +593,7 @@ export function decideAddition(row: MatchedRow): ScannedAddition | null {
     // the only type whose bar differs (70, not 60) — detect it by name, the
     // same way printedAverageMismatch does, so a 65 in an English elective is
     // never recorded as a silent COMPLETED.
-    const bar = /אנגלית|english/i.test(row.courseName)
-      ? ENGLISH_CONFIG.COURSE_PASSING_GRADE
-      : CREDIT_REQUIREMENTS.PASSING_GRADE;
+    const bar = passBarForName(row.courseName);
     return { ...base, grade: row.grade, status: row.grade >= bar ? "COMPLETED" : "FAILED" };
   }
   if (row.passText) {

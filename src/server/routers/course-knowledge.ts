@@ -310,6 +310,24 @@ export const courseKnowledgeRouter = createTRPCRouter({
       ),
     ].sort((a, b) => a - b);
 
+    // How close the file is to opening something new. An empty table with no
+    // explanation reads as "this feature is broken"; the same emptiness with
+    // "two more reviews open three courses" reads as a queue you can move.
+    //
+    // PRIVACY: this aggregates over COURSES, never over people, and names
+    // neither. It is strictly less than the per-course SEEDING chip the catalog
+    // already renders next to a course code, and it cannot be inverted to a
+    // contributor — a total of "4 reviews needed" says nothing about who wrote
+    // the ones already there, or for what. No threshold moves; the whole point
+    // of the number is that the bar is still there and is worth crossing.
+    const belowBar = [...byCourse.values()]
+      .map((rows) => rows.length)
+      .filter((n) => n > 0 && n < RATING_MIN_N);
+    const almostUnlocked = {
+      courses: belowBar.length,
+      reviewsNeeded: belowBar.reduce((sum, n) => sum + (RATING_MIN_N - n), 0),
+    };
+
     // "דבר הרפרנט" — data-driven counts only, no LLM, no invention.
     const totals = {
       reviews: reviews.length,
@@ -320,7 +338,56 @@ export const courseKnowledgeRouter = createTRPCRouter({
         : null,
     };
 
-    return { courses: courseDigests, tips, totals, cohortYearsPresent };
+    return { courses: courseDigests, tips, totals, almostUnlocked, cohortYearsPresent };
+  }),
+
+  /**
+   * The caller's OWN completed courses, flagged with whether they already
+   * reviewed each one. Every row is the caller's own data — nothing about
+   * anybody else crosses the wire, so this adds no privacy surface and touches
+   * no k-anonymity bar.
+   *
+   * Why it exists (#31): rating a finished course had no door a student could
+   * walk through on purpose. `ContributeReviewSheet` opened from exactly two
+   * places — the catalog's course-detail modal, and a one-shot toast fired in
+   * the onSuccess of a grade-locking write (and marked "done" the first time it
+   * is merely SHOWN). So the student the lineage's "start here" CTA addresses,
+   * the one who ALREADY entered their grades, was sent to /record and found
+   * nothing to click. This is the list that CTA needs in order to be true.
+   */
+  myReviewableCourses: protectedProcedure.query(async ({ ctx }) => {
+    const [completed, mine] = await Promise.all([
+      ctx.db.userCourse.findMany({
+        where: { userId: ctx.user.id, status: "COMPLETED" },
+        select: { course: { select: { code: true, nameHe: true, nameEn: true } } },
+      }),
+      ctx.db.courseReview.findMany({
+        where: { userId: ctx.user.id },
+        select: { courseCode: true },
+      }),
+    ]);
+    const reviewed = new Set(mine.map((r) => r.courseCode));
+    // A retaken course has one UserCourse row per attempt, but it is still ONE
+    // course to rate (contributeReview upserts on [userId, courseCode]).
+    const byCode = new Map<
+      string,
+      { courseCode: string; nameHe: string; nameEn: string | null; reviewed: boolean }
+    >();
+    for (const uc of completed) {
+      if (!uc.course || byCode.has(uc.course.code)) continue;
+      byCode.set(uc.course.code, {
+        courseCode: uc.course.code,
+        nameHe: uc.course.nameHe,
+        nameEn: uc.course.nameEn,
+        reviewed: reviewed.has(uc.course.code),
+      });
+    }
+    const courses = [...byCode.values()];
+    return {
+      courses,
+      completedCount: courses.length,
+      reviewedCount: courses.filter((c) => c.reviewed).length,
+    };
   }),
 
   /** Batched aggregate for the catalog table (audit 24.7 fast-follow): the

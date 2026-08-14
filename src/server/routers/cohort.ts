@@ -10,14 +10,24 @@ import { createTRPCRouter, protectedProcedure } from "../trpc/init";
 import { TRPCError } from "@trpc/server";
 import { checkRateLimit } from "@/lib/rate-limit";
 import { decodePlan } from "@/lib/plan-share";
-import { REPORT_HIDE_THRESHOLD } from "@/lib/k-anonymity";
+import { REPORT_HIDE_THRESHOLD, countByCohortYear, safeCohortYear } from "@/lib/k-anonymity";
 
 const INSIGHT_STAGES = ["BIDDING", "EXAMS", "FOCUS", "FIRST_YEAR", "GENERAL"] as const;
 // Shared with reviews so "3 distinct reporters hide it" is one number, one file.
 const HIDE_THRESHOLD = REPORT_HIDE_THRESHOLD;
 
 export const cohortRouter = createTRPCRouter({
-  /** Visible insights, grouped client-side by stage. Anonymous by design. */
+  /** Visible insights, grouped client-side by stage. Anonymous by design.
+   *
+   *  The cohort YEAR rides along only through safeCohortYear. It used to be
+   *  returned raw, so an insight from a cohort with a single contributor was
+   *  labelled "מחזור 2023 — שנה אחת לפניך" next to its text — and in a
+   *  programme of ~24 people that label narrows a free-text opinion to a
+   *  handful of named individuals. This is the exact gate the course reviews
+   *  and the tips wall have used since 13.8 (COHORT_LABEL_MIN_N); insights and
+   *  the plan gallery were simply never routed through it. Below the bar the
+   *  content still shows, with no year — the client already falls back to a
+   *  neutral "מחזור קודם" (see cohortLabel). No threshold moves. */
   listInsights: protectedProcedure.query(async ({ ctx }) => {
     const rows = await ctx.db.cohortInsight.findMany({
       where: { status: "VISIBLE" },
@@ -25,7 +35,8 @@ export const cohortRouter = createTRPCRouter({
       take: 100,
       select: { id: true, stage: true, text: true, cohortYear: true, createdAt: true },
     });
-    return rows;
+    const counts = countByCohortYear(rows);
+    return rows.map((r) => ({ ...r, cohortYear: safeCohortYear(r.cohortYear, counts) }));
   }),
 
   /** The caller's own insights — for the contribute box (edit-in-place). */
@@ -122,13 +133,18 @@ export const cohortRouter = createTRPCRouter({
 
   // ─── Winning-plans gallery ────────────────────────────────────────
 
+  /** The published plans. Same cohort-year gate as listInsights above: a
+   *  gallery holds ONE entry per user, so a year attached to a thin cohort is
+   *  a pointer at one identifiable planner. */
   listGallery: protectedProcedure.query(async ({ ctx }) => {
-    return ctx.db.sharedPlanEntry.findMany({
+    const rows = await ctx.db.sharedPlanEntry.findMany({
       where: { status: "VISIBLE" },
       orderBy: { createdAt: "desc" },
       take: 30,
       select: { id: true, title: true, token: true, cohortYear: true, createdAt: true },
     });
+    const counts = countByCohortYear(rows);
+    return rows.map((r) => ({ ...r, cohortYear: safeCohortYear(r.cohortYear, counts) }));
   }),
 
   /** Publish the caller's CURRENT plan under a title. Token is built client-

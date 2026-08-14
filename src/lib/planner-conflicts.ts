@@ -28,6 +28,7 @@ import {
   type ConflictPair,
 } from "@/lib/timetable-conflicts";
 import type { CourseWithSchedule } from "@/lib/plan-generator";
+import { hhmmToHours } from "@/lib/time-of-day";
 
 /** Sun–Fri, exactly the columns the grid draws. Saturday never appears. */
 const DAY_INDEX: Record<string, number> = {
@@ -57,13 +58,7 @@ const DAY_NAME_EN: Record<number, string> = {
   5: "Friday",
 };
 
-function parseHour(time: string): number {
-  const [h, m] = time.split(":");
-  const hours = parseInt(h ?? "", 10);
-  const mins = parseInt(m ?? "", 10);
-  if (!Number.isFinite(hours)) return NaN;
-  return hours + (Number.isFinite(mins) ? mins : 0) / 60;
-}
+
 
 /** A clash in the words the insights bar prints. Names, not ids: the pair may
  *  be two meetings of the SAME course (a tutorial over its own lecture), which
@@ -105,8 +100,8 @@ export function detectPlannerConflicts(
   for (const [i, row] of dedupeMeetings(rows).entries()) {
     const day = DAY_INDEX[row.dayOfWeek];
     if (day === undefined) continue; // Saturday / unknown — off the grid
-    const startHour = parseHour(row.startTime);
-    const endHour = parseHour(row.endTime);
+    const startHour = hhmmToHours(row.startTime);
+    const endHour = hhmmToHours(row.endTime);
     if (!Number.isFinite(startHour) || !Number.isFinite(endHour)) continue;
     slots.push({
       id: `${row.courseCode}-${row.sessionType}-${row.groupCode ?? ""}-${i}`,
@@ -142,5 +137,30 @@ export function conflictDayLabel(day: string, isHe: boolean): string {
  * quote this count instead of implying the silence is data.
  */
 export function coursesWithoutTimes(courses: CourseWithSchedule[]): number {
-  return courses.filter((c) => (c.scheduleSessions ?? []).length === 0).length;
+  return courses.filter((c) => !hasUsableMeeting(c)).length;
+}
+
+/**
+ * A course contributes to the week only if at least one of its meetings has a
+ * start AND an end we can actually read.
+ *
+ * This used to be "has any session row at all", and the gap between the two was
+ * a silent lie. `detectPlannerConflicts` drops a meeting whose "HH:MM" is
+ * unreadable — it must, because the alternative is inventing an end time and
+ * reporting a clash we made up. But a course with one unreadable session row
+ * counted as "we have times for this one", so the student read
+ * "נבדק רק מול הקורסים שיש להם שעות (3 בלי שעות ידועות)" while a fourth course
+ * had quietly contributed nothing.
+ *
+ * The times come off the ידיעון as raw strings and are never validated on the
+ * way in, and 75 of ~302 catalog courses already have no hours at all — so this
+ * is not a theoretical input. Either the number the student is shown covers
+ * every course we couldn't check, or the sentence around it isn't true.
+ */
+function hasUsableMeeting(course: CourseWithSchedule): boolean {
+  return (course.scheduleSessions ?? []).some(
+    (s) =>
+      Number.isFinite(hhmmToHours(s.startTime)) &&
+      Number.isFinite(hhmmToHours(s.endTime)),
+  );
 }

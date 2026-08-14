@@ -15,6 +15,8 @@
 // ─── Duplicate meetings ─────────────────────────────────────────────
 
 /** The fields that identify a real-world meeting, plus the detail fields. */
+import { hoursToHhmm } from "@/lib/time-of-day";
+
 export interface MeetingLike {
   courseCode: string;
   dayOfWeek: string;
@@ -182,12 +184,10 @@ export function conflictPartners(pairs: ConflictPair[]): Map<string, ConflictPar
   return out;
 }
 
-/** 12.5 → "12:30". Always two digits, always 24h — never a locale surprise. */
+/** 12.5 → "12:30". Always two digits, always 24h — never a locale surprise.
+ *  Delegates to lib/time-of-day so the app has ONE HH:MM formatter. */
 export function formatHour(hour: number): string {
-  const total = Math.round(hour * 60);
-  const h = Math.floor(total / 60);
-  const m = total % 60;
-  return `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}`;
+  return hoursToHhmm(hour);
 }
 
 /** "12:00–13:00" with an en dash. Render inside <bdi dir="ltr">. */

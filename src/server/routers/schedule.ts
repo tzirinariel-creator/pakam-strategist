@@ -10,6 +10,8 @@ import {
   type PushableEvent,
 } from "@/lib/google-calendar";
 import { getAcademicNow, getTeachingRange } from "@/lib/academic-calendar";
+import { sessionTypeNameFor } from "@/lib/group-options";
+import { hhmmToMinutesOr } from "@/lib/time-of-day";
 import {
   filterSessionsByGroups,
   normalizeSessionType,
@@ -370,16 +372,6 @@ export const scheduleRouter = createTRPCRouter({
       // Build pushable events from sessions
       const events: PushableEvent[] = [];
 
-      // Session type labels in Hebrew
-      const sessionTypeHe: Record<string, string> = {
-        lecture: "הרצאה",
-        tutorial: "תרגול",
-        lab: "מעבדה",
-        LECTURE: "הרצאה",
-        TUTORIAL: "תרגול",
-        LAB: "מעבדה",
-      };
-
       // Semester teaching ranges — from THE academic-calendar module (verified
       // TAU dates), shared with the .ics export so both paths place classes on
       // identical dates. SUMMER isn't a teaching semester for PPE — use the
@@ -419,13 +411,11 @@ export const scheduleRouter = createTRPCRouter({
 
       // Build lecture/tutorial events (skip if user chose exams-only)
       for (const session of (input.contentFilter === "exams" ? [] : sessions)) {
-        // Parse start/end times (format: "HH:MM")
-        const [startH, startM] = (session.startTime ?? "09:00")
-          .split(":")
-          .map(Number);
-        const [endH, endM] = (session.endTime ?? "10:00")
-          .split(":")
-          .map(Number);
+        // One HH:MM parser (lib/time-of-day) with an EXPLICIT fallback — a
+        // garbage time used to reach setHours as NaN and push an Invalid Date
+        // to Google Calendar. Defaults are this route's historical 09:00/10:00.
+        const startMin = hhmmToMinutesOr(session.startTime, 9 * 60);
+        const endMin = hhmmToMinutesOr(session.endTime, 10 * 60);
 
         // Find the first occurrence of this day within the semester
         const targetDay = dayMap[session.dayOfWeek] ?? 0;
@@ -438,16 +428,20 @@ export const scheduleRouter = createTRPCRouter({
 
         const startDate = new Date(baseDate);
         startDate.setDate(startDate.getDate() + daysUntil);
-        startDate.setHours(startH ?? 9, startM ?? 0, 0, 0);
+        startDate.setHours(Math.floor(startMin / 60), startMin % 60, 0, 0);
 
         const endDate = new Date(startDate);
-        endDate.setHours(endH ?? 10, endM ?? 0, 0, 0);
+        endDate.setHours(Math.floor(endMin / 60), endMin % 60, 0, 0);
 
         const courseName =
           session.course?.nameHe ?? session.courseCode;
 
         // Build recurrence rule bounded to semester end
-        const typeLabel = sessionTypeHe[session.sessionType ?? "lecture"] ?? session.sessionType ?? "הרצאה";
+        // ONE label source (lib/group-options), shared with the .ics download so
+        // a pushed event and a downloaded one never name the same meeting
+        // differently (deferred-3). It is case-insensitive, so the duplicated
+        // upper/lower keys this router used to carry are gone.
+        const typeLabel = sessionTypeNameFor(session.sessionType || "lecture", true);
         const recurrenceRule = semRange
           ? `RRULE:FREQ=WEEKLY;UNTIL=${formatUntil(semRange.end)}`
           : "RRULE:FREQ=WEEKLY;COUNT=14";

@@ -31,6 +31,7 @@ import { filterSessionsBySelectedGroups } from "@/components/onboarding/semester
 import type { CourseWithSchedule } from "@/lib/plan-generator";
 import type { UserCourseWithCourse } from "@/types/degree";
 import type { DayOfWeek } from "@/types/enums";
+import { sessionTypeNameFor } from "@/lib/group-options";
 import { cn } from "@/lib/utils";
 
 /**
@@ -42,17 +43,6 @@ import { cn } from "@/lib/utils";
  * its mere presence would invite fabricated recommendations). Patterns follow
  * real bidding systems (Wharton/Kellogg/Ross worksheets + Coursicle prep).
  */
-
-const SESSION_TYPE_HE: Record<string, string> = {
-  lecture: "הרצאה",
-  tutorial: "תרגיל",
-  lab: "מעבדה",
-};
-const SESSION_TYPE_EN: Record<string, string> = {
-  lecture: "Lecture",
-  tutorial: "Tutorial",
-  lab: "Lab",
-};
 
 interface Row {
   courseCode: string;
@@ -97,9 +87,11 @@ export function BiddingWorksheet({
       if (!c) continue;
       const sel = (uc as { selectedGroups?: unknown }).selectedGroups;
       const groups = sel && typeof sel === "object" ? (sel as Record<string, string>) : {};
-      const typeLabels = isHe ? SESSION_TYPE_HE : SESSION_TYPE_EN;
+      // ONE label source (lib/group-options). This worksheet used to carry its
+      // own map that spelled `tutorial` "תרגיל" while the planner beside it said
+      // "תרגול" for the very same meeting (deferred-3).
       const groupLabel = Object.entries(groups)
-        .map(([type, code]) => `${typeLabels[type] ?? type} ${code}`)
+        .map(([type, code]) => `${sessionTypeNameFor(type, isHe)} ${code}`)
         .join(" · ") || null;
       out.push({ courseCode: c.code, courseName: isHe ? c.nameHe : (c.nameEn ?? c.nameHe), groupLabel, hasClash: false });
       if (c.scheduleSessions?.length) {

@@ -6,6 +6,7 @@
  */
 
 import type { DayOfWeek } from "@/types/enums";
+import { hhmmToMinutes, minutesToHhmm } from "@/lib/time-of-day";
 
 // ─── Types ───────────────────────────────────────────────────────────
 
@@ -29,16 +30,9 @@ export interface ConflictResult {
 
 // ─── Helpers ────────────────────────────────────────────────────────
 
-function timeToMinutes(time: string): number {
-  const parts = time.split(":");
-  return (parseInt(parts[0] ?? "0", 10)) * 60 + parseInt(parts[1] ?? "0", 10);
-}
 
-function minutesToTime(minutes: number): string {
-  const h = Math.floor(minutes / 60);
-  const m = minutes % 60;
-  return `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}`;
-}
+
+
 
 function sessionsOverlap(
   aStart: number,
@@ -66,10 +60,10 @@ export function detectTimeConflicts(
       // Must be on the same day
       if (existing.dayOfWeek !== newSession.dayOfWeek) continue;
 
-      const existStart = timeToMinutes(existing.startTime);
-      const existEnd = timeToMinutes(existing.endTime);
-      const newStart = timeToMinutes(newSession.startTime);
-      const newEnd = timeToMinutes(newSession.endTime);
+      const existStart = hhmmToMinutes(existing.startTime);
+      const existEnd = hhmmToMinutes(existing.endTime);
+      const newStart = hhmmToMinutes(newSession.startTime);
+      const newEnd = hhmmToMinutes(newSession.endTime);
 
       if (sessionsOverlap(existStart, existEnd, newStart, newEnd)) {
         const overlapStart = Math.max(existStart, newStart);
@@ -79,8 +73,8 @@ export function detectTimeConflicts(
           existingSession: existing,
           newSession,
           day: existing.dayOfWeek,
-          overlapStart: minutesToTime(overlapStart),
-          overlapEnd: minutesToTime(overlapEnd),
+          overlapStart: minutesToHhmm(overlapStart),
+          overlapEnd: minutesToHhmm(overlapEnd),
         });
       }
     }
@@ -106,10 +100,10 @@ export function detectAllConflicts(sessions: SessionInfo[]): ConflictResult[] {
       if (a.courseCode === b.courseCode) continue; // same unit, not a clash
       if (a.dayOfWeek !== b.dayOfWeek) continue;
 
-      const aStart = timeToMinutes(a.startTime);
-      const aEnd = timeToMinutes(a.endTime);
-      const bStart = timeToMinutes(b.startTime);
-      const bEnd = timeToMinutes(b.endTime);
+      const aStart = hhmmToMinutes(a.startTime);
+      const aEnd = hhmmToMinutes(a.endTime);
+      const bStart = hhmmToMinutes(b.startTime);
+      const bEnd = hhmmToMinutes(b.endTime);
       // A malformed time (NaN) must not silently "clear" the pair — skip it
       // explicitly; the remaining valid pairs still get checked.
       if (![aStart, aEnd, bStart, bEnd].every(Number.isFinite)) continue;
@@ -123,8 +117,8 @@ export function detectAllConflicts(sessions: SessionInfo[]): ConflictResult[] {
           existingSession: a,
           newSession: b,
           day: a.dayOfWeek,
-          overlapStart: minutesToTime(Math.max(aStart, bStart)),
-          overlapEnd: minutesToTime(Math.min(aEnd, bEnd)),
+          overlapStart: minutesToHhmm(Math.max(aStart, bStart)),
+          overlapEnd: minutesToHhmm(Math.min(aEnd, bEnd)),
         });
       }
     }

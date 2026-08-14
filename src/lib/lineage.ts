@@ -25,9 +25,18 @@ export interface GenerationSpan {
   total: number;
   /** The earliest cohort year present, or null when the file is empty. */
   earliest: number | null;
+  /**
+   * Whether before/mine/after mean anything at all.
+   *
+   * False when the student never told us their start year: we then know how
+   * many cohorts are in the file but not which side of the student they sit on.
+   * Without this flag the caller cannot tell "nobody came before you" (a fact)
+   * apart from "we don't know who came before you" (an absence), and the page
+   * printed the first while meaning the second — a claim built out of missing
+   * data, which is the one thing this app is not allowed to do.
+   */
+  positionKnown: boolean;
 }
-
-const EMPTY: GenerationSpan = { before: 0, mine: 0, after: 0, total: 0, earliest: null };
 
 /**
  * Where the caller sits in the chain of cohorts that contributed.
@@ -40,12 +49,15 @@ export function generationSpan(
   cohortYears: readonly (number | null | undefined)[],
   myStartYear: number | null | undefined,
 ): GenerationSpan {
+  const positionKnown = myStartYear != null;
   const years = [...new Set(cohortYears.filter((y): y is number => typeof y === "number" && Number.isFinite(y)))];
-  if (years.length === 0) return EMPTY;
+  if (years.length === 0) {
+    return { before: 0, mine: 0, after: 0, total: 0, earliest: null, positionKnown };
+  }
 
   const earliest = Math.min(...years);
   if (myStartYear == null) {
-    return { before: 0, mine: 0, after: 0, total: years.length, earliest };
+    return { before: 0, mine: 0, after: 0, total: years.length, earliest, positionKnown: false };
   }
 
   let before = 0;
@@ -56,7 +68,7 @@ export function generationSpan(
     else if (y === myStartYear) mine = 1;
     else after++;
   }
-  return { before, mine, after, total: years.length, earliest };
+  return { before, mine, after, total: years.length, earliest, positionKnown: true };
 }
 
 /**

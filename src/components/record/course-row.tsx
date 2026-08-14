@@ -9,7 +9,7 @@ import type { UserCourseWithCourse } from "@/types/degree";
 import type { CourseStatus } from "@/types/enums";
 import { GradeInput } from "./grade-input";
 import { DisciplineBadge } from "./discipline-badge";
-import { isEnglishCourse } from "./record-utils";
+import { isEnglishCourse } from "@/lib/english-standing";
 
 // -----------------------------------------------------------------------
 // One completed-course row.

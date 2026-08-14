@@ -8,7 +8,7 @@ import { advisorError } from "@/lib/advisor-toast";
 import { api } from "@/lib/trpc/react";
 import { invalidatePlanData } from "@/lib/trpc/invalidate-plan";
 import { getAcademicNow } from "@/lib/academic-calendar";
-import { rankBinaryCandidates, type GradedCourseLite } from "@/lib/binary-advisor";
+import { rankBinaryCandidates } from "@/lib/binary-advisor";
 import { usePersonalAddress } from "@/components/personal/use-personal-address";
 import {
   deriveCurrentGroup,
@@ -18,7 +18,6 @@ import {
   prefersHigherGrade,
   type MiluimGroupKey,
 } from "@/lib/miluim";
-import { canonicalAttempts } from "@/lib/grade-calculator";
 import { AskAdvisorButton } from "@/components/ui/ask-advisor-button";
 import { cn } from "@/lib/utils";
 
@@ -44,27 +43,23 @@ export function BinaryAdvisor() {
 
   const profile = profileQuery.data;
 
-  const graded = useMemo<GradedCourseLite[]>(
-    () =>
-      // Collapse retakes to ONE determining row per course FIRST — this advisor
-      // renders only for B/C/G reservists, the exact students with extra sittings
-      // (two COMPLETED rows for one course). Without this the baseline average and
-      // every "would raise it to X" double-counted the retake and diverged from
-      // the /record + /graduation GPA (launch audit 24.7). Higher grade counts
-      // (B/C/G), matching every other grade surface.
-      canonicalAttempts(
-        (planQuery.data?.courses ?? []).filter((uc) => uc.status === "COMPLETED" && uc.grade != null),
-        { preferHigherGrade: prefersHigherGrade((profileQuery.data?.miluimGroup ?? "NONE") as MiluimGroupKey) },
-      ).map((uc) => ({
-        userCourseId: uc.id,
-        nameHe: uc.course.nameHe,
-        code: uc.course.code,
-        grade: uc.grade!,
-        credits: uc.course.credits,
-        isBinary: uc.isBinary ?? false,
-        courseType: uc.course.courseType,
-      })),
-    [planQuery.data, profileQuery.data?.miluimGroup],
+  // Hand the advisor the RAW plan rows. Eligibility (countsTowardAverage) and
+  // the retake collapse (canonicalAttempts) now happen INSIDE lib/binary-advisor,
+  // through the same engine /record and /graduation use — this advisor renders
+  // only for B/C/G reservists, the exact students with extra sittings, and a
+  // filter applied here instead of there is how the two drifted apart before
+  // (launch audit 24.7, audit deferred-1).
+  const allCourses = useMemo(
+    () => planQuery.data?.courses ?? [],
+    [planQuery.data],
+  );
+  const advisorOpts = useMemo(
+    () => ({
+      preferHigherGrade: prefersHigherGrade(
+        (profileQuery.data?.miluimGroup ?? "NONE") as MiluimGroupKey,
+      ),
+    }),
+    [profileQuery.data?.miluimGroup],
   );
 
   if (!profile) return null;
@@ -99,7 +94,7 @@ export function BinaryAdvisor() {
       : binaryCapRemaining(usedTotal, group);
   if (quotaLeft <= 0) return null;
 
-  const { current, candidates } = rankBinaryCandidates(graded, quotaLeft);
+  const { current, candidates } = rankBinaryCandidates(allCourses, quotaLeft, advisorOpts);
   if (current == null || candidates.length === 0) return null;
 
   // For a credit cap, only offer courses that still FIT the remaining credits.

@@ -87,3 +87,143 @@ describe("findBestCombination", () => {
     expect(r.selections).toBeTruthy(); // still returns its best-so-far
   });
 });
+
+// =========================================================================
+// #8 — "שאלון → מערכת", answered deterministically
+// =========================================================================
+// Ariel's note asked for a questionnaire that builds a timetable, and attached
+// his own condition: "ללכת על זה רק אם יעבוד ממש טוב". So this is not a model
+// composing a week and hoping. It is the same exhaustive search, given the two
+// things a student can state exactly about their own life — days they need
+// clear, and hours they can't be on campus — and it reports which of those
+// wishes the winning combination actually keeps.
+//
+// The load-bearing test is the third one. A preference is a wish; an overlap is
+// a fact. If a wish could ever outrank a clash, the feature would hand students
+// broken weeks — which is precisely the "רק אם יעבוד ממש טוב" failure.
+describe("findBestCombination — stated preferences (#8)", () => {
+  it("keeps a requested day clear when a group choice allows it", () => {
+    const courses: ComboCourse[] = [
+      { code: "A", sessions: [s("lecture", "01", "MON", "10:00", "12:00")] },
+      {
+        code: "B",
+        sessions: [
+          s("tutorial", "01", "TUE", "10:00", "12:00"),
+          s("tutorial", "02", "WED", "10:00", "12:00"),
+        ],
+      },
+    ];
+    const plain = findBestCombination(courses)!;
+    const withPref = findBestCombination(courses, 10_000, { freeDays: ["TUE"] })!;
+    expect(withPref.selections.B!.tutorial).toBe("02");
+    expect(withPref.honored!.freeDaysKept).toEqual(["TUE"]);
+    expect(withPref.honored!.freeDaysBroken).toEqual([]);
+    // Neither version invents a clash to get there.
+    expect(plain.conflicts).toBe(0);
+    expect(withPref.conflicts).toBe(0);
+  });
+
+  it("says plainly when a requested day could NOT be kept clear", () => {
+    // Every group of B runs on TUE — the wish is impossible, and the result
+    // must admit it rather than quietly reporting success.
+    const courses: ComboCourse[] = [
+      { code: "A", sessions: [s("lecture", "01", "MON", "10:00", "12:00")] },
+      {
+        code: "B",
+        sessions: [
+          s("tutorial", "01", "TUE", "10:00", "12:00"),
+          s("tutorial", "02", "TUE", "14:00", "16:00"),
+        ],
+      },
+    ];
+    const r = findBestCombination(courses, 10_000, { freeDays: ["TUE"] })!;
+    expect(r.honored!.freeDaysKept).toEqual([]);
+    expect(r.honored!.freeDaysBroken).toEqual(["TUE"]);
+  });
+
+  it("NEVER trades a real clash for a free day", () => {
+    // Group 01 keeps TUE clear but collides head-on with A's fixed lecture.
+    // Group 02 breaks the wish and is clean. The clean week must win.
+    const courses: ComboCourse[] = [
+      { code: "A", sessions: [s("lecture", "01", "MON", "10:00", "12:00")] },
+      {
+        code: "B",
+        sessions: [
+          s("tutorial", "01", "MON", "10:00", "12:00"), // clashes with A
+          s("tutorial", "02", "TUE", "10:00", "12:00"), // breaks the wish
+        ],
+      },
+    ];
+    const r = findBestCombination(courses, 10_000, { freeDays: ["TUE"] })!;
+    expect(r.selections.B!.tutorial).toBe("02");
+    expect(r.conflicts).toBe(0);
+    expect(r.honored!.freeDaysBroken).toEqual(["TUE"]);
+  });
+
+  it("avoids early sessions when the student can't be there before 10", () => {
+    const courses: ComboCourse[] = [
+      { code: "A", sessions: [s("lecture", "01", "MON", "14:00", "16:00")] },
+      {
+        code: "B",
+        sessions: [
+          s("tutorial", "01", "TUE", "08:00", "10:00"),
+          s("tutorial", "02", "TUE", "12:00", "14:00"),
+        ],
+      },
+    ];
+    const r = findBestCombination(courses, 10_000, { earliestHour: 10 })!;
+    expect(r.selections.B!.tutorial).toBe("02");
+    expect(r.honored!.outOfHoursSessions).toBe(0);
+  });
+
+  it("avoids late sessions when the student has to leave by 16", () => {
+    const courses: ComboCourse[] = [
+      { code: "A", sessions: [s("lecture", "01", "MON", "10:00", "12:00")] },
+      {
+        code: "B",
+        sessions: [
+          s("tutorial", "01", "TUE", "18:00", "20:00"),
+          s("tutorial", "02", "TUE", "12:00", "14:00"),
+        ],
+      },
+    ];
+    const r = findBestCombination(courses, 10_000, { latestHour: 16 })!;
+    expect(r.selections.B!.tutorial).toBe("02");
+    expect(r.honored!.outOfHoursSessions).toBe(0);
+  });
+
+  it("counts the sessions it could not fit inside the requested hours", () => {
+    // A's lecture is FIXED at 08:00 — no combination can move it. The number
+    // has to come back as 1, not as a silent success.
+    const courses: ComboCourse[] = [
+      { code: "A", sessions: [s("lecture", "01", "MON", "08:00", "10:00")] },
+      {
+        code: "B",
+        sessions: [
+          s("tutorial", "01", "TUE", "08:00", "10:00"),
+          s("tutorial", "02", "TUE", "12:00", "14:00"),
+        ],
+      },
+    ];
+    const r = findBestCombination(courses, 10_000, { earliestHour: 10 })!;
+    expect(r.honored!.outOfHoursSessions).toBe(1);
+  });
+
+  it("with no preferences, behaves exactly as before and reports honored=null", () => {
+    const courses: ComboCourse[] = [
+      { code: "A", sessions: [s("lecture", "01", "MON", "10:00", "12:00")] },
+      {
+        code: "B",
+        sessions: [
+          s("tutorial", "01", "MON", "10:00", "12:00"),
+          s("tutorial", "02", "TUE", "10:00", "12:00"),
+        ],
+      },
+    ];
+    const before = findBestCombination(courses)!;
+    const empty = findBestCombination(courses, 10_000, {})!;
+    expect(before.honored).toBeNull();
+    expect(empty.selections).toEqual(before.selections);
+    expect(empty.conflicts).toBe(before.conflicts);
+  });
+});

@@ -5,6 +5,8 @@ import { Clock, MapPin, User, BookOpen } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 import { api } from "@/lib/trpc/react";
 import { getAcademicNow } from "@/lib/academic-calendar";
+import { sessionTypeNameFor } from "@/lib/group-options";
+import { hhmmToMinutesOr } from "@/lib/time-of-day";
 import { cn } from "@/lib/utils";
 
 const JS_DAY_TO_SESSION: Record<number, string> = {
@@ -104,14 +106,9 @@ export function TodaysClasses({ currentYear, currentSemester }: TodaysClassesPro
     ? DAY_NAMES_HE[todayDayName] ?? todayDayName
     : DAY_NAMES_EN[todayDayName] ?? todayDayName;
 
-  // Session type labels
-  const typeLabel = (type: string | null) => {
-    if (!type) return "";
-    const map: Record<string, string> = isHe
-      ? { LECTURE: "הרצאה", TUTORIAL: "תרגול", LAB: "מעבדה", lecture: "הרצאה", tutorial: "תרגול", lab: "מעבדה" }
-      : { LECTURE: "Lecture", TUTORIAL: "Tutorial", LAB: "Lab", lecture: "Lecture", tutorial: "Tutorial", lab: "Lab" };
-    return map[type] ?? type;
-  };
+  // Session type labels — the ONE shared map (lib/group-options), which is
+  // case-insensitive, so the hand-rolled upper+lower key pairs are gone.
+  const typeLabel = (type: string | null) => (type ? sessionTypeNameFor(type, isHe) : "");
 
   if (todaySessions.length === 0) {
     return (
@@ -140,11 +137,14 @@ export function TodaysClasses({ currentYear, currentSemester }: TodaysClassesPro
         {todaySessions.map((session) => {
           const courseName = session.course?.nameHe ?? session.courseCode;
           const now = new Date();
-          const [startH, startM] = (session.startTime ?? "00:00").split(":").map(Number);
-          const [endH, endM] = (session.endTime ?? "23:59").split(":").map(Number);
+          // One HH:MM parser (lib/time-of-day). The inline copy used Number(),
+          // so an unreadable time became NaN and BOTH "now" and "past" silently
+          // read false — the row just never lit up. The widest fallback (all
+          // day) keeps it visible instead, which is what a student needs from a
+          // "today's classes" list.
           const currentMinutes = now.getHours() * 60 + now.getMinutes();
-          const sessionStart = (startH ?? 0) * 60 + (startM ?? 0);
-          const sessionEnd = (endH ?? 0) * 60 + (endM ?? 0);
+          const sessionStart = hhmmToMinutesOr(session.startTime, 0);
+          const sessionEnd = hhmmToMinutesOr(session.endTime, 23 * 60 + 59);
           const isNow = currentMinutes >= sessionStart && currentMinutes <= sessionEnd;
           const isPast = currentMinutes > sessionEnd;
 

@@ -6,6 +6,8 @@
 
 import type { CourseWithSchedule } from "./plan-generator";
 import { getTeachingRange } from "./academic-calendar";
+import { sessionTypeNameFor } from "./group-options";
+import { hhmmToMinutesOr } from "./time-of-day";
 
 // ─── Constants ─────────────────────────────────────────────────────
 
@@ -109,21 +111,27 @@ export function generateICS(
       if (!icsDay) continue;
 
       // Parse start/end times
-      const [startH, startM] = (session.startTime ?? "08:00").split(":").map(Number);
-      const [endH, endM] = (session.endTime ?? "09:00").split(":").map(Number);
+      // One HH:MM parser (lib/time-of-day) with an EXPLICIT fallback. The old
+      // inline copy let a garbage time reach setHours as NaN, which produced an
+      // Invalid Date and emitted a literal "NaN" into the calendar file — the
+      // download then failed to import at all. An unreadable time now falls back
+      // to the same default a missing one always had.
+      const startMin = hhmmToMinutesOr(session.startTime, 8 * 60);
+      const endMin = hhmmToMinutesOr(session.endTime, 9 * 60);
 
       // Find the first occurrence of this day of week within the semester
       const firstOccurrence = getFirstDayOfWeek(range.start, session.dayOfWeek);
       const dtStart = new Date(firstOccurrence);
-      dtStart.setHours(startH ?? 8, startM ?? 0, 0);
+      dtStart.setHours(Math.floor(startMin / 60), startMin % 60, 0);
       const dtEnd = new Date(firstOccurrence);
-      dtEnd.setHours(endH ?? 9, endM ?? 0, 0);
+      dtEnd.setHours(Math.floor(endMin / 60), endMin % 60, 0);
 
       const uid = `${course.id}-${session.dayOfWeek}-${session.startTime}@pakamon`;
-      const typeLabel =
-        session.sessionType === "tutorial" ? "תרגיל"
-        : session.sessionType === "lab" ? "מעבדה"
-        : "הרצאה";
+      // ONE label source (lib/group-options). This file used to spell `tutorial`
+      // "תרגיל" while every screen said "תרגול", so the calendar a student
+      // DOWNLOADED disagreed with the calendar they were looking at (deferred-3).
+      // `|| "lecture"` keeps the historical default for a missing/unknown type.
+      const typeLabel = sessionTypeNameFor(session.sessionType || "lecture", true);
       const summary = `${course.nameHe} — ${typeLabel}`;
       const location = [session.building, session.room]
         .filter(Boolean)
@@ -218,20 +226,18 @@ export function generateICSFromSessions(
     const icsDay = DAY_MAP[session.dayOfWeek];
     if (!icsDay) continue;
 
-    const [startH, startM] = (session.startTime ?? "08:00").split(":").map(Number);
-    const [endH, endM] = (session.endTime ?? "09:00").split(":").map(Number);
+    const startMin = hhmmToMinutesOr(session.startTime, 8 * 60);
+    const endMin = hhmmToMinutesOr(session.endTime, 9 * 60);
 
     const firstOccurrence = getFirstDayOfWeek(range.start, session.dayOfWeek);
     const dtStart = new Date(firstOccurrence);
-    dtStart.setHours(startH ?? 8, startM ?? 0, 0);
+    dtStart.setHours(Math.floor(startMin / 60), startMin % 60, 0);
     const dtEnd = new Date(firstOccurrence);
-    dtEnd.setHours(endH ?? 9, endM ?? 0, 0);
+    dtEnd.setHours(Math.floor(endMin / 60), endMin % 60, 0);
 
     const uid = `${session.id}@pakamon`;
-    const typeLabel =
-      session.sessionType === "tutorial" ? "תרגיל"
-      : session.sessionType === "lab" ? "מעבדה"
-      : "הרצאה";
+    // Same single label source as generateICS above (deferred-3).
+    const typeLabel = sessionTypeNameFor(session.sessionType || "lecture", true);
     const summary = `${session.course.nameHe} — ${typeLabel}`;
     const location = [session.building, session.room]
       .filter(Boolean)

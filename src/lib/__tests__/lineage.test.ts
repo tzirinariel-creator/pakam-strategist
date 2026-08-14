@@ -9,6 +9,7 @@ describe("generationSpan", () => {
       after: 0,
       total: 0,
       earliest: null,
+      positionKnown: true,
     });
   });
 
@@ -36,7 +37,14 @@ describe("generationSpan", () => {
 
   it("handles a first cohort with nobody before them", () => {
     const span = generationSpan([2026], 2026);
-    expect(span).toEqual({ before: 0, mine: 1, after: 0, total: 1, earliest: 2026 });
+    expect(span).toEqual({
+      before: 0,
+      mine: 1,
+      after: 0,
+      total: 1,
+      earliest: 2026,
+      positionKnown: true,
+    });
   });
 
   it("refuses to claim before/after when my start year is unknown", () => {
@@ -47,6 +55,25 @@ describe("generationSpan", () => {
     // Still honest about what IS known.
     expect(span.total).toBe(3);
     expect(span.earliest).toBe(2021);
+  });
+
+  // The zeros above are indistinguishable from "nobody came before you", and
+  // the page printed exactly that sentence for a student who simply never
+  // filled in a start year. positionKnown is what lets the caller tell an
+  // absence of cohorts apart from an absence of knowledge about them.
+  it("flags that before/mine/after are meaningless without a start year", () => {
+    expect(generationSpan([2021, 2022, 2024], null).positionKnown).toBe(false);
+    expect(generationSpan([2021, 2022, 2024], undefined).positionKnown).toBe(false);
+    // ...and an empty archive with an unknown start year is still unknown.
+    expect(generationSpan([], null).positionKnown).toBe(false);
+  });
+
+  it("flags the position as known whenever a start year exists", () => {
+    expect(generationSpan([2021], 2024).positionKnown).toBe(true);
+    expect(generationSpan([], 2024).positionKnown).toBe(true);
+    // Year 0 is not a real start year but is falsy — the check must be on
+    // null/undefined, not on truthiness.
+    expect(generationSpan([2021], 0).positionKnown).toBe(true);
   });
 
   it("ignores null, undefined and non-finite years", () => {

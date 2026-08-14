@@ -24,6 +24,7 @@ import {
   printedAverageMismatch,
   GRADE_SHEET_SYSTEM,
 } from "@/lib/grade-sheet";
+import type { ScanDiagnostics } from "@/lib/grade-sheet";
 
 const ALLOWED_MIME = new Set([
   "image/jpeg",
@@ -153,6 +154,15 @@ export async function POST(request: NextRequest) {
     // "check each row against the image" — has a different error profile;
     // rows where the two reads disagree are flagged so nothing lands silently.
     let rows = firstRows.map((r) => ({ ...r }) as ReturnType<typeof mergeDoubleRead>[number]);
+    // 14.8 — scan diagnostics. Ariel reported courses he HAS grades for coming
+    // back "בלימוד", and the honest answer was that this was undiagnosable: the
+    // vision model's output is never logged, so there was no way to tell "the
+    // model didn't read the grade cell" from "the code lost it afterwards".
+    // These counters are cheap and they split exactly that question. They carry
+    // NO course names and NO grades — just shapes — so nothing personal leaves
+    // the server that wasn't already going back to this same student.
+    let verifyReadRows: number | null = null;
+    let verifyFailed = false;
     try {
       const verifyText = await generateGeminiVision(
         encryptedKey,
@@ -165,10 +175,12 @@ export async function POST(request: NextRequest) {
         parsed.data.mimeType,
       );
       const verifyRows = parseExtraction(verifyText);
+      verifyReadRows = verifyRows?.length ?? 0;
       if (verifyRows && verifyRows.length > 0) {
         rows = mergeDoubleRead(firstRows, verifyRows);
       }
     } catch {
+      verifyFailed = true;
       // Verification is best-effort: if the second call fails (quota, blip),
       // the first read still ships — without confidence flags.
     }
@@ -182,7 +194,27 @@ export async function POST(request: NextRequest) {
     // here; the client offers it as an explicit, declared change (no silent write).
     const englishLevel = mapEnglishLevelLabel(parseEnglishLevelLabel(text));
 
-    return NextResponse.json({ rows, englishLevel, averageMismatch });
+    const diagnostics: ScanDiagnostics = {
+      semesters: Array.from(
+        new Set(rows.map((r) => r.semester).filter((x): x is string => !!x)),
+      ).sort(),
+      /** Rows the FIRST vision pass returned. */
+      firstReadRows: firstRows.length,
+      /** Rows the VERIFY pass returned; null when it never ran. */
+      verifyReadRows,
+      /** The verify pass threw (quota/blip) — the first read shipped alone. */
+      verifyFailed,
+      /** Final rows carrying a numeric grade. */
+      withGrade: rows.filter((r) => r.grade != null).length,
+      /** Final rows with no grade — the "בלימוד" population. */
+      withoutGrade: rows.filter((r) => r.grade == null).length,
+      /** Rows the two passes disagreed about (grade present vs absent, or a
+       *  row only one pass saw). This is the number that says "the code is
+       *  losing it" as opposed to "the model never read it". */
+      disputed: rows.filter((r) => (r as { uncertain?: boolean }).uncertain === true).length,
+    };
+
+    return NextResponse.json({ rows, englishLevel, averageMismatch, diagnostics });
   } catch (e) {
     const status = (e as { status?: number })?.status;
     // Distinguish real causes instead of blaming the photo (and making the user

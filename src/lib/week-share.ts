@@ -5,6 +5,7 @@
 // =========================================================================
 
 import type { ScheduleSessionData } from "@/components/calendar/weekly-timetable";
+import { sessionTypeNameFor } from "@/lib/group-options";
 
 const DAY_ORDER = [
   "SUNDAY",
@@ -24,12 +25,6 @@ const DAY_HE: Record<string, string> = {
   THURSDAY: "יום ה׳",
   FRIDAY: "יום ו׳",
   SATURDAY: "שבת",
-};
-
-const TYPE_HE: Record<string, string> = {
-  lecture: "הרצאה",
-  tutorial: "תרגול",
-  lab: "מעבדה",
 };
 
 export function buildWeekShareText(
@@ -54,10 +49,10 @@ export function buildWeekShareText(
     lines.push(isHe ? `*${DAY_HE[day]}*` : `*${day.charAt(0) + day.slice(1).toLowerCase()}*`);
     for (const s of [...list].sort((a, b) => a.startTime.localeCompare(b.startTime))) {
       const name = isHe ? s.course.nameHe : (s.course.nameEn ?? s.course.nameHe);
-      // DB casing isn't guaranteed lowercase (schedule.ts normalizes defensively
-      // too) — same guard here so the type label never silently vanishes.
-      const typeKey = s.sessionType.toLowerCase();
-      const type = isHe ? (TYPE_HE[typeKey] ?? "") : typeKey;
+      // The ONE shared label map (lib/group-options) — case-insensitive, so the
+      // defensive lowercasing that used to live here is handled inside it, and
+      // the English share text finally says "Lecture" instead of the raw code.
+      const type = sessionTypeNameFor(s.sessionType, isHe);
       lines.push(`• ${s.startTime}–${s.endTime} ${name}${type ? ` (${type})` : ""}`);
     }
   }

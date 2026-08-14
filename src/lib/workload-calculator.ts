@@ -16,6 +16,9 @@
 // never a prediction. No exam dates are invented — only dates we actually hold
 // count; if fewer than two exams have a date, the gap is null (unknown, honest).
 
+import { israelDayKeyMs, storedDateKeyMs } from "@/lib/civil-day";
+import { durationHours } from "@/lib/time-of-day";
+
 export type HonestLoadLabel =
   | "hours" // contact hours dominate
   | "credits" // credit weight dominates
@@ -50,14 +53,7 @@ export interface HonestLoadResult {
   label: HonestLoadLabel;
 }
 
-function sessionHours(s: HonestLoadSession): number {
-  const [sh, sm] = s.startTime.split(":");
-  const [eh, em] = s.endTime.split(":");
-  const start = parseInt(sh ?? "0", 10) + parseInt(sm ?? "0", 10) / 60;
-  const end = parseInt(eh ?? "0", 10) + parseInt(em ?? "0", 10) / 60;
-  const diff = end - start;
-  return Number.isFinite(diff) && diff > 0 ? diff : 0;
-}
+
 
 /**
  * Compute the honest three-number load for a semester's courses.
@@ -86,7 +82,7 @@ export function calculateHonestLoad(
       const key = [s.dayOfWeek, s.startTime, s.endTime, s.sessionType ?? "", s.groupCode ?? ""].join("|");
       if (seen.has(key)) continue;
       seen.add(key);
-      weeklyHours += sessionHours(s);
+      weeklyHours += durationHours(s.startTime, s.endTime);
     }
   }
   weeklyHours = Math.round(weeklyHours * 2) / 2;
@@ -97,26 +93,33 @@ export function calculateHonestLoad(
   // dates. Without this filter, two stale dates on the same day rounded to a false
   // "0-day exam crunch" for a plan whose real exams are months away / unpublished
   // (QA 13.7). Fewer than 2 future dates → gap is unknown (null), never 0.
-  const nowMs = now;
-  const examTimes = courses
+  //
+  // Counted in CIVIL days (lib/civil-day), not raw milliseconds. Exam dates are
+  // date-only values stored at UTC midnight, so a raw `t >= nowMs` filter dropped
+  // an exam the moment its own day began — on the morning of an exam the density
+  // metric silently lost it, and with only one date left the gap fell back to
+  // "unknown" (audit deferred-2, same class as the exam-countdown off-by-one).
+  // Day keys also make the gap a whole number by construction instead of by
+  // rounding a fraction.
+  const todayKey = israelDayKeyMs(new Date(now));
+  const examDayKeys = courses
     .map((c) => {
       if (!c.examDate) return null;
       const d = c.examDate instanceof Date ? c.examDate : new Date(c.examDate);
-      const t = d.getTime();
-      return Number.isFinite(t) ? t : null;
+      return Number.isFinite(d.getTime()) ? storedDateKeyMs(d) : null;
     })
-    .filter((t): t is number => t != null && t >= nowMs)
+    .filter((k): k is number => k != null && k >= todayKey)
     .sort((a, b) => a - b);
 
   let tightestExamGapDays: number | null = null;
-  if (examTimes.length >= 2) {
+  if (examDayKeys.length >= 2) {
     const MS_PER_DAY = 86_400_000;
     let smallest = Infinity;
-    for (let i = 1; i < examTimes.length; i++) {
-      const gap = (examTimes[i]! - examTimes[i - 1]!) / MS_PER_DAY;
+    for (let i = 1; i < examDayKeys.length; i++) {
+      const gap = (examDayKeys[i]! - examDayKeys[i - 1]!) / MS_PER_DAY;
       if (gap < smallest) smallest = gap;
     }
-    tightestExamGapDays = Math.round(smallest);
+    tightestExamGapDays = smallest;
   }
 
   // Label = the worst of the three. Thresholds are deliberately conservative:

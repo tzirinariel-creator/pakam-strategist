@@ -23,7 +23,9 @@ import {
 import { cn } from "@/lib/utils";
 import { calculateHonestLoad, type HonestLoadLabel } from "@/lib/workload-calculator";
 import { findDenseDay } from "@/lib/schedule-density";
+import { hhmmToHours } from "@/lib/time-of-day";
 import { Bidi } from "@/lib/bidi";
+import type { ComboPreferences } from "@/lib/combo-finder";
 import { CREDIT_REQUIREMENTS, DISCIPLINE_CONFIG } from "@/lib/constants";
 import { ARAZIM_ENABLED } from "@/lib/arazim/visibility";
 import { conflictDayLabel, type PlannerConflict } from "@/lib/planner-conflicts";
@@ -80,7 +82,7 @@ interface InsightsBarProps {
   canSwapGroups?: boolean;
   focusArea?: string | null;
   /** P2 — "מצאו לי שילוב בלי התנגשויות". */
-  onFindCombination?: () => void;
+  onFindCombination?: (preferences?: ComboPreferences) => void;
 }
 
 // ─── Smart Schedule Insights Generator ───────────────────────────────
@@ -262,6 +264,14 @@ export function InsightsBar({
   const locale = useLocale();
   const isHe = locale === "he";
   const [showConflictDetails, setShowConflictDetails] = useState(false);
+  // #8 — the student's own constraints for the combination search. Local and
+  // deliberately unsaved: it is a question asked at the moment of searching,
+  // not a profile setting to maintain.
+  const [prefs, setPrefs] = useState<ComboPreferences>({});
+  const hasPrefs =
+    (prefs.freeDays?.length ?? 0) > 0 ||
+    prefs.earliestHour != null ||
+    prefs.latestHour != null;
 
   // Arazim gate: difficulty comes ONLY from Arazim. With it off ("בלי ארזים
   // כרגע") null out difficultyLevel so every difficulty-based insight (hard-count
@@ -353,7 +363,9 @@ export function InsightsBar({
     let count = 0;
     for (const c of selectedCourses) {
       for (const s of c.scheduleSessions ?? []) {
-        const hour = parseInt(s.startTime?.split(":")[0] ?? "12", 10);
+        // One HH:MM parser (lib/time-of-day); an unreadable time is not counted
+        // as an early morning (the 12 fallback said exactly that, by hand).
+        const hour = hhmmToHours(s.startTime);
         if (hour < 10) count++;
       }
     }
@@ -372,8 +384,11 @@ export function InsightsBar({
         };
         const dayIdx = dayMap[s.dayOfWeek];
         if (dayIdx == null) continue;
-        const start = parseInt(s.startTime?.split(":")[0] ?? "8", 10);
-        const end = parseInt(s.endTime?.split(":")[0] ?? "9", 10);
+        // Both ends FLOORED, exactly as the old `parseInt(split(":")[0])` did —
+        // a 10:00–11:30 meeting shades hour 10 only. Unified parser, same grid.
+        const start = Math.floor(hhmmToHours(s.startTime));
+        const end = Math.floor(hhmmToHours(s.endTime));
+        if (!Number.isFinite(start) || !Number.isFinite(end)) continue;
         for (let h = Math.max(start, 8); h < Math.min(end, 20); h++) {
           grid[dayIdx]![h - 8]! += 1;
         }
@@ -513,18 +528,25 @@ export function InsightsBar({
                 swapping a group. Now it shows whenever there is a group to
                 swap, and the wording matches what the search can promise. */}
             {canSwapGroups && onFindCombination && (
-              <button
-                type="button"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onFindCombination();
-                }}
-                className="mt-1.5 w-full rounded-md bg-accent-brand/10 px-2 py-1 text-[11px] font-semibold text-accent-brand transition-colors hover:bg-accent-brand/20"
-              >
-                {conflictCount > 0
-                  ? (isHe ? "מצאו לי שילוב בלי התנגשויות" : "Find me a clash-free combo")
-                  : (isHe ? "מצאו לי שילוב עם פחות ימים בקמפוס" : "Find me fewer campus days")}
-              </button>
+              <>
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onFindCombination(hasPrefs ? prefs : undefined);
+                  }}
+                  className="mt-1.5 w-full rounded-md bg-accent-brand/10 px-2 py-1 text-[11px] font-semibold text-accent-brand transition-colors hover:bg-accent-brand/20"
+                >
+                  {conflictCount > 0
+                    ? (isHe ? "מצאו לי שילוב בלי התנגשויות" : "Find me a clash-free combo")
+                    : (isHe ? "מצאו לי שילוב עם פחות ימים בקמפוס" : "Find me fewer campus days")}
+                </button>
+                <ComboPreferencesControl
+                  prefs={prefs}
+                  onChange={setPrefs}
+                  isHe={isHe}
+                />
+              </>
             )}
           </div>
         </div>
@@ -722,6 +744,132 @@ export function InsightsBar({
               </div>
             ))}
           </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+
+// =========================================================================
+// #8 — the questionnaire, kept to the two things a student can answer exactly
+// =========================================================================
+// The note asked for "שאלון → AI בונה מערכת", with Ariel's own condition
+// attached: "ללכת על זה רק אם יעבוד ממש טוב". A model guessing at a week can't
+// meet that bar. An exhaustive search can — so the questionnaire's job is only
+// to collect constraints the search can honour exactly and report back on:
+// days you need clear, and the hours you can actually be on campus.
+//
+// ש״ס and work hours from the original note are deliberately NOT here: the
+// credit target is already the planner's own counter, and "I work Tuesdays"
+// IS a free day. Asking the same thing twice in different words is how a
+// questionnaire starts feeling like a form.
+const COMBO_DAYS = ["SUNDAY", "MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY"] as const;
+const COMBO_DAY_SHORT_HE: Record<string, string> = {
+  SUNDAY: "א", MONDAY: "ב", TUESDAY: "ג", WEDNESDAY: "ד", THURSDAY: "ה", FRIDAY: "ו",
+};
+const COMBO_DAY_SHORT_EN: Record<string, string> = {
+  SUNDAY: "Su", MONDAY: "Mo", TUESDAY: "Tu", WEDNESDAY: "We", THURSDAY: "Th", FRIDAY: "Fr",
+};
+
+function ComboPreferencesControl({
+  prefs,
+  onChange,
+  isHe,
+}: {
+  prefs: ComboPreferences;
+  onChange: (next: ComboPreferences) => void;
+  isHe: boolean;
+}) {
+  const [open, setOpen] = useState(false);
+  const free = prefs.freeDays ?? [];
+  const toggleDay = (day: string) =>
+    onChange({
+      ...prefs,
+      freeDays: free.includes(day) ? free.filter((d) => d !== day) : [...free, day],
+    });
+
+  return (
+    <div className="mt-1" onClick={(e) => e.stopPropagation()}>
+      <button
+        type="button"
+        onClick={() => setOpen((v) => !v)}
+        className="w-full rounded-md px-2 py-0.5 text-[10px] font-medium text-foreground/50 transition-colors hover:text-foreground/70"
+        aria-expanded={open}
+      >
+        {isHe ? "יש לי בקשות לשבוע" : "I have constraints"}
+      </button>
+      {open && (
+        <div className="mt-1 space-y-2 rounded-md border border-border/60 bg-card/50 p-2">
+          <div>
+            <p className="text-[10px] text-foreground/50">
+              {isHe ? "ימים שהייתם רוצים לשמור פנויים" : "Days you'd like to keep clear"}
+            </p>
+            <div className="mt-1 flex gap-1">
+              {COMBO_DAYS.map((day) => {
+                const on = free.includes(day);
+                return (
+                  <button
+                    key={day}
+                    type="button"
+                    onClick={() => toggleDay(day)}
+                    aria-pressed={on}
+                    className={cn(
+                      "size-6 rounded-md border text-[10px] font-semibold transition-colors",
+                      on
+                        ? "border-transparent bg-foreground text-background"
+                        : "border-border/60 text-foreground/50 hover:text-foreground/80",
+                    )}
+                  >
+                    {isHe ? COMBO_DAY_SHORT_HE[day] : COMBO_DAY_SHORT_EN[day]}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+          <div className="flex items-center gap-2">
+            <label className="flex items-center gap-1 text-[10px] text-foreground/50">
+              {isHe ? "לא לפני" : "Not before"}
+              <select
+                value={prefs.earliestHour ?? ""}
+                onChange={(e) =>
+                  onChange({
+                    ...prefs,
+                    earliestHour: e.target.value === "" ? null : Number(e.target.value),
+                  })
+                }
+                className="rounded border border-border/60 bg-transparent px-1 py-0.5 text-[10px] text-foreground/80"
+              >
+                <option value="">{isHe ? "—" : "—"}</option>
+                {[8, 9, 10, 11, 12, 13, 14].map((h) => (
+                  <option key={h} value={h}>{`${h}:00`}</option>
+                ))}
+              </select>
+            </label>
+            <label className="flex items-center gap-1 text-[10px] text-foreground/50">
+              {isHe ? "לא אחרי" : "Not after"}
+              <select
+                value={prefs.latestHour ?? ""}
+                onChange={(e) =>
+                  onChange({
+                    ...prefs,
+                    latestHour: e.target.value === "" ? null : Number(e.target.value),
+                  })
+                }
+                className="rounded border border-border/60 bg-transparent px-1 py-0.5 text-[10px] text-foreground/80"
+              >
+                <option value="">{isHe ? "—" : "—"}</option>
+                {[14, 15, 16, 17, 18, 19, 20, 21].map((h) => (
+                  <option key={h} value={h}>{`${h}:00`}</option>
+                ))}
+              </select>
+            </label>
+          </div>
+          <p className="text-[10px] leading-relaxed text-foreground/40">
+            {isHe
+              ? "אלה בקשות, לא חוקים: אם הדרך היחידה לכבד אותן היא מערכת עם חפיפה — נעדיף מערכת בלי חפיפה, ונגיד לכם מה לא הסתדר."
+              : "These are wishes, not rules: if the only way to honour one is a week with a clash, we'll pick the clash-free week and tell you what we couldn't keep."}
+          </p>
         </div>
       )}
     </div>

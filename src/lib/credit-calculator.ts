@@ -16,7 +16,7 @@ import type {
   DisciplineCredits,
 } from "@/types/degree";
 import { getActiveProgram, type ProgramDefinition } from "@/lib/programs/registry";
-import { ENGLISH_CONFIG } from "@/lib/constants";
+import { passBarFor } from "@/lib/constants";
 import { canonicalAttempts } from "@/lib/grade-calculator";
 
 // Practice ("משלב עשייה") credit caps (domain rules §1):
@@ -116,7 +116,7 @@ function englishContentCourseCounts(uc: UserCourseWithCourse): boolean {
   // Completed but no grade recorded → treat as on-track (don't penalize).
   if (uc.grade == null) return true;
   // Completed and graded → must clear the humanities English passing grade.
-  return uc.grade >= ENGLISH_CONFIG.COURSE_PASSING_GRADE;
+  return uc.grade >= passBarFor("ENGLISH");
 }
 
 /**

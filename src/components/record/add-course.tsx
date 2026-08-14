@@ -8,7 +8,7 @@ import { cn } from "@/lib/utils";
 import { DISCIPLINE_CONFIG, SEMESTER_CONFIG, YEAR_CONFIG } from "@/lib/constants";
 import type { Semester } from "@/types/enums";
 import type { CourseWithSchedule } from "@/lib/plan-generator";
-import { isEnglishCourse } from "./record-utils";
+import { isEnglishCourse } from "@/lib/english-standing";
 
 // -----------------------------------------------------------------------
 // Add-a-past-course search (reuses step-history's catalog search idea).

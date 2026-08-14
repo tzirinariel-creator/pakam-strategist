@@ -108,21 +108,7 @@ const REASONING_MARKERS = [
 /** Mirror of degree-qa's normalizer, kept local so the two modules stay
  *  independent. Folds niqqud, maqaf, geresh/quotes, punctuation and Hebrew
  *  final-letter forms so markers match paraphrases. */
-function normalize(s: string): string {
-  return s
-    .toLowerCase()
-    .replace(/־/g, " ")
-    .replace(/[֑-ׇ]/g, "")
-    .replace(/[׳״'"`]/g, "")
-    .replace(/[^\p{L}\p{N}\s]/gu, " ")
-    .replace(/ך/g, "כ")
-    .replace(/ם/g, "מ")
-    .replace(/ן/g, "נ")
-    .replace(/ף/g, "פ")
-    .replace(/ץ/g, "צ")
-    .replace(/\s+/g, " ")
-    .trim();
-}
+
 
 const NORMALIZED_MARKERS = REASONING_MARKERS.map(normalize).filter(Boolean);
 

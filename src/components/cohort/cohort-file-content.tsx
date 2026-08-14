@@ -41,6 +41,7 @@ import { encodePlan, type SharedCourse } from "@/lib/plan-share";
 import { contributorLevel } from "@/lib/contributor-level";
 import { cohortLabel } from "@/lib/cohort-label";
 import { LineagePactStrip } from "@/components/lineage/lineage-pact";
+import { LineageFirstContribution } from "@/components/lineage/lineage-first-contribution";
 
 export function CohortFileContent() {
   const locale = useLocale();
@@ -121,10 +122,20 @@ export function CohortFileContent() {
       <div className="animate-stagger-2 data-card flex flex-wrap items-center gap-3 p-4">
         <MessageSquareQuote className="size-5 shrink-0 text-accent-brand" />
         <p className="min-w-0 flex-1 text-sm leading-relaxed text-foreground/75">
-          {!totals || totals.reviews === 0
+          {/* "אין כאן כלום" and "יש כאן משהו שעוד לא עבר את הסף" are different
+              facts, and the second one was being told as the first: students
+              who imported their grades were informed that the file is empty,
+              which writes off the contribution they just made. The grade-point
+              count is already printed verbatim in the branch below — this only
+              stops it from being rounded down to "nothing" (#30). */}
+          {!totals || (totals.reviews === 0 && totals.gradePoints === 0)
             ? isHe
               ? "עוד אין כאן חוכמת-מחזור — מישהו צריך להיות ראשון. חוות-דעת אחת שלכם פותחת את התיק לכולם."
               : "No cohort wisdom yet — someone has to go first. One review of yours opens the file for everyone."
+            : totals.reviews === 0
+              ? isHe
+                ? `נאספו כאן כבר ${totals.gradePoints} תרומות-ציונים אנונימיות, אבל עוד לא נכתבה אף חוות-דעת — ולכן אין עדיין מה להציג. זה לא ריק, זה מתחת לסף.`
+                : `${totals.gradePoints} anonymous grade contributions are already in, but not one review has been written yet — so there's still nothing to show. This isn't empty, it's below the bar.`
             : isHe
               ? `עד עכשיו נאספו כאן ${totals.reviews} חוות-דעת ו-${totals.gradePoints} תרומות-ציונים על ${totals.coursesCovered} קורסים.${totals.mostDiscussed ? ` הקורס המדובר ביותר: ${totals.mostDiscussed.nameHe} (${totals.mostDiscussed.count} חוות-דעת).` : ""}`
               : `${totals.reviews} reviews and ${totals.gradePoints} grade contributions across ${totals.coursesCovered} courses so far.${totals.mostDiscussed ? ` Most discussed: ${totals.mostDiscussed.nameHe} (${totals.mostDiscussed.count} reviews).` : ""}`}
@@ -256,20 +267,19 @@ export function CohortFileContent() {
           )}
         </>
       ) : (
-        /* Seeding empty state — honest, inviting, no fake life */
-        <div className="animate-stagger-3 data-card flex flex-col items-center gap-3 p-10 text-center">
-          <Sprout className="size-10 text-foreground/25" />
-          <p className="max-w-md text-sm leading-relaxed text-foreground/60">
-            {isHe
-              ? "התיק נפתח ברגע שיש מספיק תרומות כדי לשמור על אנונימיות (3 מדרגים לקורס). סיימתם קורס? דרגו אותו בתיק האקדמי — ותפתחו את הידע לכל המחזור."
-              : "The file opens once enough contributions clear the anonymity bar (3 raters per course). Finished a course? Rate it in your record — and unlock the knowledge for the whole cohort."}
-          </p>
-          <Link
-            href="/record"
-            className="rounded-lg bg-foreground px-4 py-2 text-sm font-semibold text-background transition-colors hover:bg-foreground/90"
-          >
-            {isHe ? "לתיק האקדמי שלי" : "To my record"}
-          </Link>
+        /* Seeding empty state — honest, inviting, no fake life. #31: it used to
+           say "דרגו אותו בתיק האקדמי" and link to /record, which carries no
+           rating control; the rating list itself is the CTA now. */
+        <div className="animate-stagger-3 space-y-3">
+          <div className="data-card flex flex-col items-center gap-2 p-8 text-center">
+            <Sprout className="size-10 text-foreground/25" />
+            <p className="max-w-md text-sm leading-relaxed text-foreground/60">
+              {isHe
+                ? "התיק נפתח ברגע שיש מספיק תרומות כדי לשמור על אנונימיות (3 מדרגים לקורס). סיימתם קורס? דרגו אותו כאן ותפתחו את הידע לכל המחזור."
+                : "The file opens once enough contributions clear the anonymity bar (3 raters per course). Finished a course? Rate it here and unlock the knowledge for the whole cohort."}
+            </p>
+          </div>
+          <LineageFirstContribution />
         </div>
       )}
 

@@ -7,7 +7,8 @@ import { cn } from "@/lib/utils";
 import { Bidi } from "@/lib/bidi";
 import { fileToBase64, SCANNER_ACCEPT } from "@/lib/upload";
 import { matchExtractedToCatalog } from "@/lib/grade-sheet";
-import type { ExtractedRow } from "@/lib/grade-sheet";
+import type { ExtractedRow, ScanDiagnostics } from "@/lib/grade-sheet";
+import { ScanDiagnosticsPanel } from "@/components/record/scan-diagnostics";
 import {
   summarizeStanding,
   buildCompletedSeed,
@@ -79,6 +80,9 @@ export function StepStanding({ allCourses, isLoadingCourses, onDone, onBack }: S
    *  used to drop it on the floor, so the one signal that a grade went missing
    *  never reached the student reviewing the scan. */
   const [averageMismatch, setAverageMismatch] = useState<{ computed: number; printed: number } | null>(null);
+  // 14.8 — what the scan actually did, so "it didn't pick up my grade" stops
+  // being undiagnosable. Collapsed by default; nobody has to read it.
+  const [diagnostics, setDiagnostics] = useState<ScanDiagnostics | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
 
   const upcomingSemester = useMemo(() => getPlanningAnchor().semester, []);
@@ -107,6 +111,7 @@ export function StepStanding({ allCourses, isLoadingCourses, onDone, onBack }: S
           rows?: (ExtractedRow & { uncertain?: boolean; otherGrade?: number | null })[];
           englishLevel?: string | null;
           averageMismatch?: { computed: number; printed: number } | null;
+          diagnostics?: ScanDiagnostics | null;
           error?: string;
         };
         if (!res.ok) {
@@ -137,6 +142,7 @@ export function StepStanding({ allCourses, isLoadingCourses, onDone, onBack }: S
         });
         setEnglishLevel(payload.englishLevel ?? null);
         setAverageMismatch(payload.averageMismatch ?? null);
+        setDiagnostics(payload.diagnostics ?? null);
         setScan({ kind: "done", summary });
       } catch {
         setScan({
@@ -408,6 +414,10 @@ export function StepStanding({ allCourses, isLoadingCourses, onDone, onBack }: S
             onRedo={() => setScan({ kind: "idle" })}
             onManual={() => onDone({ choice: "returning" })}
           />
+        )}
+
+        {scan.kind === "done" && diagnostics && (
+          <ScanDiagnosticsPanel d={diagnostics} isHe={isHe} />
         )}
       </div>
 

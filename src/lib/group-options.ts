@@ -17,6 +17,7 @@ import { detectTimeConflicts, type SessionInfo } from "@/lib/conflict-detector";
 import { savedGroupFor } from "@/lib/session-groups";
 import type { ScheduleSessionLike } from "@/lib/plan-generator";
 import type { DayOfWeek } from "@/types/enums";
+import { hhmmToMinutes } from "@/lib/time-of-day";
 
 // ─── Types ───────────────────────────────────────────────────────────
 
@@ -122,8 +123,29 @@ export function dayNameFor(day: string, isHe: boolean): string {
   return (isHe ? DAY_NAMES_HE[day] : DAY_NAMES_EN[day]) ?? day;
 }
 
+/**
+ * THE name of a session type, in one place. Every surface that prints a session
+ * type — the grid, the group pickers, today's classes, the calendar page, the
+ * course popovers, the WhatsApp week share, the .ics download, the Google
+ * Calendar push and the bidding worksheet — must come through here.
+ *
+ * It is one function because it was several: `tutorial` rendered as "תרגול" on
+ * every screen but as "תרגיל" in the .ics file and on the bidding worksheet, so
+ * the calendar the student downloaded disagreed with the calendar they were
+ * looking at, for the same meeting (audit deferred-3). תרגול is the ידיעון's own
+ * word for the session type and was already the overwhelming majority.
+ *
+ * Case-insensitive on purpose: catalog rows are lowercase but a student-created
+ * course is stored "LECTURE" (custom-course-modal), and only some of the old
+ * copies handled that — the rest printed the raw enum inside a Hebrew screen.
+ *
+ * NOTE: "תרגיל" is still correct in two places and must NOT be swept up here —
+ * scraper/parser.ts, which READS both spellings out of the ידיעון, and the
+ * `PRACTICE` courseType (he.json), which is a degree-requirement bucket
+ * ("קורס תרגיל", capped at 8 ש״ס), not a weekly session.
+ */
 export function sessionTypeNameFor(sessionType: string, isHe: boolean): string {
-  const label = SESSION_TYPE_LABELS[sessionType];
+  const label = SESSION_TYPE_LABELS[(sessionType ?? "").toLowerCase()];
   if (!label) return sessionType;
   return isHe ? label.he : label.en;
 }
@@ -160,13 +182,7 @@ const DAY_ORDER: Record<string, number> = {
   SATURDAY: 6,
 };
 
-function toMinutes(time: string): number {
-  const [h, m] = time.split(":");
-  const hours = parseInt(h ?? "", 10);
-  const mins = parseInt(m ?? "", 10);
-  if (!Number.isFinite(hours)) return NaN;
-  return hours * 60 + (Number.isFinite(mins) ? mins : 0);
-}
+
 
 function meetingSort(a: GroupMeeting, b: GroupMeeting): number {
   const byDay = (DAY_ORDER[a.dayOfWeek] ?? 9) - (DAY_ORDER[b.dayOfWeek] ?? 9);
@@ -306,7 +322,7 @@ export function buildGroupChoices({
 
       let minutes = 0;
       for (const m of meetings) {
-        const span = toMinutes(m.endTime) - toMinutes(m.startTime);
+        const span = hhmmToMinutes(m.endTime) - hhmmToMinutes(m.startTime);
         if (Number.isFinite(span) && span > 0) minutes += span;
       }
 

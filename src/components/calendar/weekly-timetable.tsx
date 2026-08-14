@@ -4,6 +4,7 @@ import { useMemo, useState, type KeyboardEvent, type MouseEvent } from "react";
 import { useTranslations, useLocale } from "next-intl";
 import { AlertTriangle, MapPin, Repeat, User } from "lucide-react";
 import { courseColor } from "@/lib/course-color";
+import { sessionTypeNameFor } from "@/lib/group-options";
 import { cn } from "@/lib/utils";
 import {
   dedupeMeetings,
@@ -16,6 +17,7 @@ import {
   type ConflictCandidate,
 } from "@/lib/timetable-conflicts";
 import type { Discipline, DayOfWeek } from "@/types/enums";
+import { hhmmToHours } from "@/lib/time-of-day";
 
 // ─── Types ───────────────────────────────────────────────────────────
 
@@ -130,18 +132,13 @@ const DETAIL_MAX_CONFLICT_LINES = 2;
 
 // ─── Helpers ────────────────────────────────────────────────────────
 
-function parseTime(timeStr: string): number {
-  const parts = timeStr.split(":");
-  const h = parseInt(parts[0] ?? "0", 10);
-  const m = parseInt(parts[1] ?? "0", 10);
-  return h + m / 60;
-}
+
 
 function sessionsToSlots(sessions: ScheduleSessionData[], locale: string): TimeSlot[] {
   return sessions.map((s) => ({
     day: DAY_MAP[s.dayOfWeek],
-    startHour: parseTime(s.startTime),
-    endHour: parseTime(s.endTime),
+    startHour: hhmmToHours(s.startTime),
+    endHour: hhmmToHours(s.endTime),
     courseId: s.id,
     courseName: locale === "he" ? s.course.nameHe : (s.course.nameEn ?? s.course.nameHe),
     courseCode: s.course.code,
@@ -156,19 +153,6 @@ function sessionsToSlots(sessions: ScheduleSessionData[], locale: string): TimeS
     endTimeStr: s.endTime,
   }));
 }
-
-const SESSION_TYPE_KEYS: Record<string, string> = {
-  lecture: "lecture",
-  tutorial: "tutorial",
-  lab: "lab",
-  // Raw English "seminar" leaked into the Hebrew grid for year-3 courses
-  // (live-verify 14.7 — the demo's 0651-3001 showed "· seminar").
-  seminar: "seminarSession",
-  workshop: "workshopSession",
-  // `project` exists in the real תשפ״ז rows and had no label anywhere — it
-  // rendered as the raw English word inside the Hebrew grid.
-  project: "projectSession",
-};
 
 // ─── Overlap layout ─────────────────────────────────────────────────
 
@@ -330,12 +314,12 @@ export function WeeklyTimetable({
     return key != null ? t(`days.${key}`) : "";
   };
 
-  const typeLabel = (sessionType: string) => {
-    const key = SESSION_TYPE_KEYS[sessionType];
-    return key ? t(key) : sessionType;
-  };
+  // ONE label source (lib/group-options). The messages files carried a second
+  // copy of these six words, which is how `tutorial` came to be spelled two
+  // different ways across the app (deferred-3).
+  const typeLabel = (sessionType: string) => sessionTypeNameFor(sessionType, isHe);
 
-  /** "תרגיל · קבוצה 05" — the line TauPlan shows, plus the word for the group. */
+  /** "תרגול · קבוצה 05" — the line TauPlan shows, plus the word for the group. */
   const typeAndGroup = (slot: TimeSlot) =>
     slot.groupCode
       ? `${typeLabel(slot.sessionType)} · ${isHe ? "קבוצה" : "group"} ${slot.groupCode}`

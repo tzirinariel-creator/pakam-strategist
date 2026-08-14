@@ -54,8 +54,12 @@ function isDone(c: ExamAvailabilityCourse): boolean {
 }
 
 /** PAPER / REFERAT / NONE have no sitting to plan. An unknown/missing value is
- *  treated as an exam course — never hide a course on a guess. */
-function isExamAssessed(c: ExamAvailabilityCourse): boolean {
+ *  treated as an exam course — never hide a course on a guess.
+ *
+ *  Exported so every surface that draws a sitting asks the SAME question (#21):
+ *  the exam gantt used to ignore submissionType entirely, so a paper course
+ *  carrying a stale catalog date drew a full exam bar. */
+export function isExamAssessed(c: Pick<ExamAvailabilityCourse, "submissionType">): boolean {
   const t = c.submissionType;
   if (t == null) return true;
   return t !== "PAPER" && t !== "REFERAT" && t !== "NONE";

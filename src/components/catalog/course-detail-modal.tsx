@@ -13,6 +13,7 @@ import {
 } from "@/components/ui/dialog";
 import { DISCIPLINE_CONFIG } from "@/lib/constants";
 import { courseColor } from "@/lib/course-color";
+import { sessionTypeNameFor } from "@/lib/group-options";
 import { Bidi } from "@/lib/bidi";
 import { cn } from "@/lib/utils";
 import { AskAdvisorButton } from "@/components/ui/ask-advisor-button";
@@ -161,7 +162,7 @@ export function CourseDetailModal({
                     <span className="font-medium">{dayLabels[s.dayOfWeek] ?? s.dayOfWeek}</span>
                     <span dir="ltr" className="font-mono text-[10px]">{s.startTime}–{s.endTime}</span>
                     <span className="text-[10px] text-foreground/35">
-                      {s.sessionType === "lecture" ? (isHe ? "הרצאה" : "Lecture") : s.sessionType === "tutorial" ? (isHe ? "תרגול" : "Tutorial") : s.sessionType}
+                      {sessionTypeNameFor(s.sessionType, isHe)}
                     </span>
                   </div>
                 ))}

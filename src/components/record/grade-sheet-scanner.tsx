@@ -19,6 +19,8 @@ import {
   type MatchedRowEdit,
   type UserCourseLite,
 } from "@/lib/grade-sheet";
+import type { ScanDiagnostics } from "@/lib/grade-sheet";
+import { ScanDiagnosticsPanel } from "@/components/record/scan-diagnostics";
 import { getWrapTarget, wrapStorageKey } from "@/lib/semester-clock";
 import { calculateGrades } from "@/lib/grade-calculator";
 import { prefersHigherGrade, type MiluimGroupKey } from "@/lib/miluim";
@@ -42,6 +44,9 @@ export function GradeSheetScanner() {
   const [rows, setRows] = useState<MatchedRow[] | null>(null);
   // #5 — printed-average cross-check result; #4 — post-apply personal summary.
   const [avgMismatch, setAvgMismatch] = useState<{ computed: number; printed: number } | null>(null);
+  // 14.8 — the shape of what the scan read, so "it didn't pick up my grade"
+  // becomes answerable instead of a shrug. See scan-diagnostics.tsx.
+  const [diagnostics, setDiagnostics] = useState<ScanDiagnostics | null>(null);
   const [scanSummary, setScanSummary] = useState<{
     updated: number;
     /** #28 — electives the sheet had that weren't in the plan, now recorded. */
@@ -115,6 +120,7 @@ export function GradeSheetScanner() {
         rows?: unknown[];
         englishLevel?: EnglishLevel | null;
         averageMismatch?: { computed: number; printed: number } | null;
+        diagnostics?: ScanDiagnostics | null;
         error?: string;
       };
       if (!res.ok) {
@@ -127,6 +133,7 @@ export function GradeSheetScanner() {
       );
       setRows(matched);
       setAvgMismatch(data.averageMismatch ?? null);
+      setDiagnostics(data.diagnostics ?? null);
       // #23 — offer the read-off English level only when it actually adds
       // something: present on the sheet AND not already the student's stored level.
       const current = profileQuery.data?.englishLevel ?? null;
@@ -277,6 +284,7 @@ export function GradeSheetScanner() {
       setEditing(null);
       setScannedEnglish(null);
       setAvgMismatch(null);
+      setDiagnostics(null);
       invalidatePlanData(utils);
       // #4 — a personal wrap-up right after the scan lands: the fresh average
       // and what changed, computed deterministically from the updated plan
@@ -466,6 +474,7 @@ export function GradeSheetScanner() {
               </span>
             </div>
           )}
+          {diagnostics && <ScanDiagnosticsPanel d={diagnostics} isHe={isHe} />}
           <ul className="space-y-1.5">
             {rows.map((r, i) => {
               const decision = decideApplication(r);

@@ -9,7 +9,7 @@ import { SEMESTER_CONFIG, YEAR_CONFIG } from "@/lib/constants";
 import { detectPlannerConflicts, coursesWithoutTimes } from "@/lib/planner-conflicts";
 import { defaultedSessionTypes, hasGroupChoice } from "@/lib/session-groups";
 import { filterSessionsBySelectedGroups } from "./session-group-selector";
-import { findBestCombination } from "@/lib/combo-finder";
+import { findBestCombination, type ComboPreferences } from "@/lib/combo-finder";
 import { isMandatoryHeavy } from "@/lib/semester-type";
 import {
   Dialog,
@@ -594,7 +594,7 @@ export function SemesterPlanner({
   // (raw semester sessions, not the group-filtered ones — we're choosing the
   // groups), apply the winner through the regular handler (undo/dirty flow),
   // and offer an exact one-click revert.
-  const handleFindCombination = useCallback(() => {
+  const handleFindCombination = useCallback((preferences?: ComboPreferences) => {
     const comboCourses = allCurrentCourses.map((c) => ({
       code: c.code,
       sessions: (c.scheduleSessions ?? [])
@@ -607,7 +607,7 @@ export function SemesterPlanner({
           endTime: s.endTime,
         })),
     }));
-    const result = findBestCombination(comboCourses);
+    const result = findBestCombination(comboCourses, undefined, preferences);
     if (!result) {
       toast.info(isHe ? "אין כאן קבוצות להחליף — לכל הקורסים קבוצה אחת" : "Nothing to optimize — every course has a single group");
       return;
@@ -644,12 +644,44 @@ export function SemesterPlanner({
     const undo = () => {
       for (const [code, type, group] of changes) handleSelectSessionGroup(code, type, group);
     };
-    toast.success(
+    // #8 — when the student stated constraints, the toast has to say which of
+    // them survived. A wish is a soft cost in the search, so "we looked" and
+    // "we kept it" are different claims and only the second may be made here.
+    const h = result.honored;
+    const dayName = (d: string) =>
+      isHe
+        ? { SUNDAY: "ראשון", MONDAY: "שני", TUESDAY: "שלישי", WEDNESDAY: "רביעי", THURSDAY: "חמישי", FRIDAY: "שישי" }[d] ?? d
+        : d.charAt(0) + d.slice(1).toLowerCase();
+    const prefNote =
+      !h || (h.freeDaysKept.length === 0 && h.freeDaysBroken.length === 0 && h.outOfHoursSessions === 0)
+        ? null
+        : [
+            h.freeDaysKept.length > 0
+              ? isHe
+                ? `${h.freeDaysKept.map(dayName).join(", ")} נשאר פנוי`
+                : `kept ${h.freeDaysKept.map(dayName).join(", ")} clear`
+              : null,
+            h.freeDaysBroken.length > 0
+              ? isHe
+                ? `לא הצלחנו לפנות את ${h.freeDaysBroken.map(dayName).join(", ")}`
+                : `couldn't clear ${h.freeDaysBroken.map(dayName).join(", ")}`
+              : null,
+            h.outOfHoursSessions > 0
+              ? isHe
+                ? `${h.outOfHoursSessions} מפגשים נשארו מחוץ לשעות שביקשתם`
+                : `${h.outOfHoursSessions} sessions fall outside your hours`
+              : null,
+          ]
+            .filter(Boolean)
+            .join(" · ");
+    const headline =
       result.conflicts === 0
         ? (isHe ? `נמצא שילוב בלי התנגשויות (${result.daysOnCampus} ימים בקמפוס)` : `Found a clash-free combination (${result.daysOnCampus} campus days)`)
-        : (isHe ? "אין שילוב בלי חפיפה — זה הקרוב ביותר" : "No clash-free combination exists — this is the closest"),
-      { action: { label: isHe ? "בטל" : "Undo", onClick: undo }, duration: 8000 },
-    );
+        : (isHe ? "אין שילוב בלי חפיפה — זה הקרוב ביותר" : "No clash-free combination exists — this is the closest");
+    toast.success(prefNote ? `${headline} · ${prefNote}` : headline, {
+      action: { label: isHe ? "בטל" : "Undo", onClick: undo },
+      duration: 8000,
+    });
   }, [allCurrentCourses, currentSemester, sessionGroupSelections, conflicts.length, handleSelectSessionGroup, isHe]);
 
   const handleDisciplineOverride = useCallback(

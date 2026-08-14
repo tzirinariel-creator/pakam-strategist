@@ -5,6 +5,7 @@ import { CalendarClock, ArrowLeft, ArrowRight } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import { api } from "@/lib/trpc/react";
+import { civilDaysUntilStored } from "@/lib/civil-day";
 import { cn } from "@/lib/utils";
 
 export function ExamCountdown() {
@@ -20,10 +21,14 @@ export function ExamCountdown() {
   const upcomingExams = useMemo(() => {
     if (!data?.exams) return [];
 
-    // Use UTC day comparison to avoid timezone shift (±1 day) issues.
-    const n = new Date();
-    const todayUTC = Date.UTC(n.getUTCFullYear(), n.getUTCMonth(), n.getUTCDate());
-    const MS_PER_DAY = 1000 * 60 * 60 * 24;
+    // Civil days, counted in ISRAEL — via lib/civil-day, never re-derived here.
+    // This used to bucket `now` by its UTC components, so between 00:00 and
+    // 02:00/03:00 Israel time the card was a day behind the student: it listed
+    // YESTERDAY's exam with the pulsing "היום" badge and called today's exam
+    // "1 day" (audit deferred-2). The exam side stays UTC-read — exam dates are
+    // date-only values stored at UTC midnight — which is exactly the asymmetry
+    // civilDaysUntilStored encodes.
+    const now = new Date();
 
     const upcoming: {
       courseCode: string;
@@ -41,8 +46,7 @@ export function ExamCountdown() {
       if (!raw) return;
       const d = new Date(raw);
       if (isNaN(d.getTime())) return;
-      const examUTC = Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate());
-      const daysLeft = Math.round((examUTC - todayUTC) / MS_PER_DAY);
+      const daysLeft = civilDaysUntilStored(d, now);
       if (daysLeft >= 0) {
         upcoming.push({
           courseCode: exam.courseCode,

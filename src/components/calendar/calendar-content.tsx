@@ -25,6 +25,7 @@ import { downloadICSFromSessions } from "@/lib/ics-export";
 import { buildWeekShareText } from "@/lib/week-share";
 import { getAcademicNow, deriveYearOfStudy, getPlanningAnchor , hebrewYearLabel } from "@/lib/academic-calendar";
 import { groupCoursesBySemester } from "@/lib/plan-grouping";
+import { sessionTypeNameFor } from "@/lib/group-options";
 import type { Semester } from "@/types/enums";
 
 // ─── Types ───────────────────────────────────────────────────────────
@@ -496,9 +497,7 @@ export function CalendarContent() {
                       {[...info.types.entries()].map(([type, opts]) => (
                         <div key={type} className="flex flex-wrap items-center gap-1.5">
                           <span className="text-[11px] text-foreground/50">
-                            {isHe
-                              ? (type === "tutorial" ? "תרגול" : type === "lab" ? "מעבדה" : type === "lecture" ? "הרצאה" : type)
-                              : (type.charAt(0).toUpperCase() + type.slice(1))}:
+                            {sessionTypeNameFor(type, isHe)}:
                           </span>
                           {opts.map((o) => (
                             <button
