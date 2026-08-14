@@ -11,6 +11,8 @@
 // Pure + unit-tested. Ambiguity is honest: two equally-good matches → null
 // (the assistant answers normally and can ask which course was meant).
 
+import { normalizeHebrewForMatch } from "@/lib/hebrew-normalize";
+
 export interface PlanCourseLite {
   userCourseId: string;
   nameHe: string;
@@ -60,8 +62,9 @@ export type AssistantAction =
       targetLabel: string;
     };
 
-// Same normalization family as degree-qa: niqqud, punctuation, final letters.
-
+// THE shared Hebrew fold (lib/hebrew-normalize): niqqud, maqaf, geresh/quotes,
+// punctuation, final letters. Same function degree-qa and answer-router use.
+const normalize = normalizeHebrewForMatch;
 
 const COMPLETE_INTENT = /(סיימתי|סגרתי|עברתי|קיבלתי בקורס|יש לי ציון|finished|passed|completed)/;
 // NOTE: matched against NORMALIZED text — final letters are already folded

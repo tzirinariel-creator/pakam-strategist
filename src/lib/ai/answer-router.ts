@@ -13,6 +13,7 @@
 // =========================================================================
 
 import { answerDegreeQuestion, socialTalkKind, type QAAnswer, type QAContext } from "@/lib/degree-qa";
+import { normalizeHebrewForMatch } from "@/lib/hebrew-normalize";
 
 export type AnswerSource = "rules" | "llm";
 
@@ -105,10 +106,12 @@ const REASONING_MARKERS = [
   "tradeoff",
 ];
 
-/** Mirror of degree-qa's normalizer, kept local so the two modules stay
- *  independent. Folds niqqud, maqaf, geresh/quotes, punctuation and Hebrew
- *  final-letter forms so markers match paraphrases. */
-
+/** THE shared Hebrew fold (lib/hebrew-normalize) — the same one degree-qa and
+ *  action-router run. Three byte-identical copies used to sit side by side,
+ *  each commented as "kept local so the modules stay independent"; the routers
+ *  read the SAME question, so a fold added to one and not the others would make
+ *  them disagree about what a student asked. */
+const normalize = normalizeHebrewForMatch;
 
 const NORMALIZED_MARKERS = REASONING_MARKERS.map(normalize).filter(Boolean);
 

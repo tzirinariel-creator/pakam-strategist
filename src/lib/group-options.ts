@@ -15,6 +15,7 @@
 
 import { detectTimeConflicts, type SessionInfo } from "@/lib/conflict-detector";
 import { savedGroupFor } from "@/lib/session-groups";
+import { DAY_OF_WEEK_INDEX } from "@/lib/day-of-week";
 import type { ScheduleSessionLike } from "@/lib/plan-generator";
 import type { DayOfWeek } from "@/types/enums";
 import { hhmmToMinutes } from "@/lib/time-of-day";
@@ -172,20 +173,10 @@ export function formatLocation(meeting: GroupMeeting): string {
 
 // ─── Helpers ─────────────────────────────────────────────────────────
 
-const DAY_ORDER: Record<string, number> = {
-  SUNDAY: 0,
-  MONDAY: 1,
-  TUESDAY: 2,
-  WEDNESDAY: 3,
-  THURSDAY: 4,
-  FRIDAY: 5,
-  SATURDAY: 6,
-};
-
 
 
 function meetingSort(a: GroupMeeting, b: GroupMeeting): number {
-  const byDay = (DAY_ORDER[a.dayOfWeek] ?? 9) - (DAY_ORDER[b.dayOfWeek] ?? 9);
+  const byDay = (DAY_OF_WEEK_INDEX[a.dayOfWeek] ?? 9) - (DAY_OF_WEEK_INDEX[b.dayOfWeek] ?? 9);
   if (byDay !== 0) return byDay;
   return a.startTime.localeCompare(b.startTime);
 }

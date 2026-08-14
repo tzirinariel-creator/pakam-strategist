@@ -11,6 +11,7 @@
 
 import { CREDIT_REQUIREMENTS, GRADE_REQUIREMENTS, GRADE_WEIGHTS, SEMINAR_REQUIREMENTS, resolveEnglishLevel } from "@/lib/constants";
 import { daysUntilLabel } from "@/lib/days-until";
+import { normalizeHebrewForMatch } from "@/lib/hebrew-normalize";
 
 export interface QAContext {
   isHe: boolean;
@@ -805,28 +806,10 @@ export function suggestedQuestions(isHe: boolean): string[] {
       ];
 }
 
-/**
- * Fold the noise that trips plain substring matching, so paraphrases and
- * typos still land on the right intent: case, Hebrew niqqud/cantillation,
- * geresh/gershayim/quotes, any other punctuation, and final-letter forms
- * (ך/ם/ן/ף/ץ → base). Applied to BOTH the question and the keys, so e.g.
- * "ש״ס", "שס" and "ש\"ס" all match, and "עובר/לא-עובר" matches "עובר לא עובר".
- */
-function normalize(s: string): string {
-  return s
-    .toLowerCase()
-    .replace(/־/g, " ") // Hebrew maqaf is a word joiner → space, not a mark to drop
-    .replace(/[֑-ׇ]/g, "") // niqqud + cantillation marks
-    .replace(/[׳״'"`]/g, "") // geresh / gershayim / quotes
-    .replace(/[^\p{L}\p{N}\s]/gu, " ") // any remaining punctuation → space
-    .replace(/ך/g, "כ")
-    .replace(/ם/g, "מ")
-    .replace(/ן/g, "נ")
-    .replace(/ף/g, "פ")
-    .replace(/ץ/g, "צ")
-    .replace(/\s+/g, " ")
-    .trim();
-}
+/** THE shared Hebrew fold (lib/hebrew-normalize) — the same function the two
+ *  AI routers run, so the free engine and the router can never disagree about
+ *  what a student asked. */
+const normalize = normalizeHebrewForMatch;
 
 // Keys are normalized once at module load — the matcher runs on every keystroke
 // path, so we don't re-normalize the static key list per call.

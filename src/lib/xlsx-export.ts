@@ -22,6 +22,7 @@
 
 import type { ExamPlanResult, StudySession } from "./exam-planner";
 import type { Workbook } from "exceljs";
+import { startOfDay, addDays, dayKey, daysBetween } from "@/lib/local-day";
 
 export interface XlsxExportOptions {
   isHe?: boolean;
@@ -30,32 +31,6 @@ export interface XlsxExportOptions {
   filename?: string;
   /** Student's name for a personal banner ("תקופת המבחנים של אריאל צירין"). */
   studentName?: string | null;
-}
-
-// ─── date helpers (LOCAL-midnight — must match exam-planner/study-skyline) ───
-
-function startOfDay(d: Date): Date {
-  const x = new Date(d);
-  x.setHours(0, 0, 0, 0);
-  return x;
-}
-
-function addDays(d: Date, n: number): Date {
-  const x = startOfDay(d);
-  x.setDate(x.getDate() + n);
-  return x;
-}
-
-/** LOCAL day key (NOT toISOString/UTC): Israel is UTC+2/+3, so a local-midnight
- *  Date serialized as UTC rolls back a day and would misalign sessions from
- *  their column. Same convention the engine and the on-screen skyline use. */
-function dayKey(d: Date): string {
-  const x = startOfDay(d);
-  return `${x.getFullYear()}-${String(x.getMonth() + 1).padStart(2, "0")}-${String(x.getDate()).padStart(2, "0")}`;
-}
-
-function daysBetween(a: Date, b: Date): number {
-  return Math.round((startOfDay(b).getTime() - startOfDay(a).getTime()) / 86400000);
 }
 
 const HE_WEEKDAYS_FULL = ["ראשון", "שני", "שלישי", "רביעי", "חמישי", "שישי", "שבת"];

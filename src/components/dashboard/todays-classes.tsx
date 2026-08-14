@@ -7,17 +7,8 @@ import { api } from "@/lib/trpc/react";
 import { getAcademicNow } from "@/lib/academic-calendar";
 import { sessionTypeNameFor } from "@/lib/group-options";
 import { hhmmToMinutesOr } from "@/lib/time-of-day";
+import { jsDayToDayOfWeek } from "@/lib/day-of-week";
 import { cn } from "@/lib/utils";
-
-const JS_DAY_TO_SESSION: Record<number, string> = {
-  0: "SUNDAY",
-  1: "MONDAY",
-  2: "TUESDAY",
-  3: "WEDNESDAY",
-  4: "THURSDAY",
-  5: "FRIDAY",
-  6: "SATURDAY",
-};
 
 const DAY_NAMES_HE: Record<string, string> = {
   SUNDAY: "ראשון",
@@ -59,7 +50,7 @@ export function TodaysClasses({ currentYear, currentSemester }: TodaysClassesPro
     { retry: 1, staleTime: 5 * 60 * 1000, enabled: teaching }
   );
 
-  const todayDayName = JS_DAY_TO_SESSION[new Date().getDay()] ?? "SUNDAY";
+  const todayDayName: string = jsDayToDayOfWeek(new Date().getDay()) ?? "SUNDAY";
 
   const todaySessions = useMemo(() => {
     if (!data?.sessions) return [];

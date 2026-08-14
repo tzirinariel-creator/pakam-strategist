@@ -14,6 +14,7 @@ import {
 import { DISCIPLINE_CONFIG } from "@/lib/constants";
 import { courseColor } from "@/lib/course-color";
 import { sessionTypeNameFor } from "@/lib/group-options";
+import { dayShortFor } from "@/lib/day-of-week";
 import { Bidi } from "@/lib/bidi";
 import { cn } from "@/lib/utils";
 import { AskAdvisorButton } from "@/components/ui/ask-advisor-button";
@@ -30,9 +31,6 @@ const DIFFICULTY_META: Record<string, { he: string; en: string; cls: string }> =
   hard: { he: "קשה", en: "Hard", cls: "text-amber-500" },
   very_hard: { he: "קשה מאוד", en: "Very hard", cls: "text-red-500" },
 };
-
-const DAY_LABELS_HE: Record<string, string> = { SUNDAY: "א׳", MONDAY: "ב׳", TUESDAY: "ג׳", WEDNESDAY: "ד׳", THURSDAY: "ה׳" };
-const DAY_LABELS_EN: Record<string, string> = { SUNDAY: "Sun", MONDAY: "Mon", TUESDAY: "Tue", WEDNESDAY: "Wed", THURSDAY: "Thu" };
 
 function formatGradeYear(raw: string | null, isHe: boolean): string | null {
   if (!raw) return null;
@@ -73,7 +71,6 @@ export function CourseDetailModal({
   const av = arazimView(course);
   const diff = av.difficultyLevel ? DIFFICULTY_META[av.difficultyLevel as keyof typeof DIFFICULTY_META] : null;
   const fromYear = formatGradeYear(av.gradeDataYear, isHe);
-  const dayLabels = isHe ? DAY_LABELS_HE : DAY_LABELS_EN;
   const sessions = course.scheduleSessions ?? [];
   const byCode = (code: string) => courses.find((c) => c.code === code) ?? null;
   const hasGrade = av.averageGrade != null || av.medianGrade != null || (av.failRate != null && av.failRate >= 1);
@@ -159,7 +156,7 @@ export function CourseDetailModal({
                 {sessions.map((s, i) => (
                   <div key={i} className="flex items-center gap-2 text-xs text-foreground/60">
                     <Clock className="size-3 text-foreground/30" />
-                    <span className="font-medium">{dayLabels[s.dayOfWeek] ?? s.dayOfWeek}</span>
+                    <span className="font-medium">{dayShortFor(s.dayOfWeek, isHe)}</span>
                     <span dir="ltr" className="font-mono text-[10px]">{s.startTime}–{s.endTime}</span>
                     <span className="text-[10px] text-foreground/35">
                       {sessionTypeNameFor(s.sessionType, isHe)}

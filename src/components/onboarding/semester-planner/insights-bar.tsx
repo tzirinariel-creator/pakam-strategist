@@ -149,17 +149,32 @@ function generateScheduleInsights(
     if (dayTotal === 0) freeDays.push(dayNames[d]!);
   }
   if (freeDays.length > 0 && freeDays.length < 5) {
-    const dayList = freeDays.join(isHe ? " ו" : " & ");
+    // A list of days is a list, not a chain of "ו". `join(" ו")` produced
+    // "יום ראשון ושני וחמישי פנוי" — wrong on three counts at once: the days
+    // aren't comma-separated, "יום" is singular in front of three of them, and
+    // "פנוי" doesn't agree either. Hebrew joins a list with commas and one
+    // final "ו", and the noun + adjective follow the count.
+    const many = freeDays.length > 1;
+    const dayList = isHe
+      ? many
+        ? `${freeDays.slice(0, -1).join(", ")} ו${freeDays[freeDays.length - 1]}`
+        : freeDays[0]!
+      : many
+        ? `${freeDays.slice(0, -1).join(", ")} and ${freeDays[freeDays.length - 1]}`
+        : freeDays[0]!;
+    const heSubject = many ? `ימים ${dayList} פנויים` : `יום ${dayList} פנוי`;
     insights.push({
       icon: Coffee,
       text:
         unscheduledCount > 0
           ? isHe
-            ? `יום ${dayList} פנוי בקורסים שיש לנו שעות עבורם — ל-${unscheduledCount} מהקורסים בסמסטר אין שעות בידיעון, אז אל תקבעו לפי זה`
-            : `${dayList} is clear among the courses we have times for — ${unscheduledCount} of this semester's courses have no hours in the catalog, so don't commit on it`
+            // "פנוי בקורסים שיש לנו שעות עבורם" was a sentence nobody says.
+            // The caveat is the point, so it gets its own clause.
+            ? `${heSubject} — אבל רק לפי הקורסים שיש לנו שעות עבורם. ל-${unscheduledCount} מקורסי הסמסטר אין שעות בידיעון, אז אל תקבעו כלום על סמך זה`
+            : `${dayList} ${many ? "look" : "looks"} clear — but only among the courses we have times for. ${unscheduledCount} of this semester's courses have no hours in the catalog, so don't commit to anything on it`
           : isHe
-            ? `יום ${dayList} פנוי! אפשר לנצל לעבודה או התמחות`
-            : `${dayList} free! Use for work or internship`,
+            ? `${heSubject}! אפשר לנצל לעבודה או התמחות`
+            : `${dayList} ${many ? "are" : "is"} free! Use it for work or an internship`,
       type: unscheduledCount > 0 ? "neutral" : "positive",
     });
   }

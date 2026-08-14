@@ -7,6 +7,7 @@
 import type { CourseWithSchedule } from "./plan-generator";
 import { getTeachingRange } from "./academic-calendar";
 import { sessionTypeNameFor } from "./group-options";
+import { dayOfWeekIndex } from "./day-of-week";
 import { hhmmToMinutesOr } from "./time-of-day";
 
 // ─── Constants ─────────────────────────────────────────────────────
@@ -63,17 +64,7 @@ function getFirstDayOfWeek(
   startDate: Date,
   targetDay: string
 ): Date {
-  const dayIndex: Record<string, number> = {
-    SUNDAY: 0,
-    MONDAY: 1,
-    TUESDAY: 2,
-    WEDNESDAY: 3,
-    THURSDAY: 4,
-    FRIDAY: 5,
-    SATURDAY: 6,
-  };
-
-  const target = dayIndex[targetDay] ?? 0;
+  const target = dayOfWeekIndex(targetDay) ?? 0;
   const current = startDate.getDay();
   const diff = (target - current + 7) % 7;
   const result = new Date(startDate);

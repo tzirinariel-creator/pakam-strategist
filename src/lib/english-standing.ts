@@ -1,4 +1,4 @@
-import { ENGLISH_CONFIG, passBarFor, type EnglishLevelInfo } from "@/lib/constants";
+import { passBarFor, type EnglishLevelInfo } from "@/lib/constants";
 
 /**
  * English LEVEL-course progress (Ariel's notes #6 + #18, 13.8).

@@ -9,6 +9,7 @@
 // Import the leaf visibility module directly (not the barrel) so this pure lib
 // never pulls in the Arazim network fetcher.
 import { ARAZIM_ENABLED } from "./arazim/visibility";
+import { startOfDay, addDays, dayKey } from "@/lib/local-day";
 
 export interface ExamInput {
   courseCode: string;
@@ -121,26 +122,6 @@ export function explainBudget(
     overridden,
     total: overridden ? Math.max(1, Math.round(exam.hoursOverride!)) : estimated,
   };
-}
-
-function startOfDay(d: Date): Date {
-  const x = new Date(d);
-  x.setHours(0, 0, 0, 0);
-  return x;
-}
-
-function addDays(d: Date, n: number): Date {
-  const x = startOfDay(d);
-  x.setDate(x.getDate() + n);
-  return x;
-}
-
-/** LOCAL day key — NOT toISOString(): for Israel (UTC+2/+3) a local-midnight
- *  date serialized as UTC rolls to the previous day, so blocked-day matching
- *  would silently miss by one. Must stay consistent with the UI's day keys. */
-function dayKey(d: Date): string {
-  const x = startOfDay(d);
-  return `${x.getFullYear()}-${String(x.getMonth() + 1).padStart(2, "0")}-${String(x.getDate()).padStart(2, "0")}`;
 }
 
 /** Classify difficulty from the course's historical grade signal. */

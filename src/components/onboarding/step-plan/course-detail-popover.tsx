@@ -11,26 +11,11 @@ import {
 import { DISCIPLINE_CONFIG, FILTERABLE_DISCIPLINE_IDS } from "@/lib/constants";
 import { courseColor } from "@/lib/course-color";
 import { sessionTypeNameFor } from "@/lib/group-options";
+import { dayShortFor } from "@/lib/day-of-week";
 import { Clock, Calendar, BookOpen, Lock, Users, X, Pencil } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { arazimView } from "@/lib/arazim/visibility";
 import type { CourseWithSchedule } from "@/lib/plan-generator";
-
-const DAY_LABELS_HE: Record<string, string> = {
-  SUNDAY: "א׳",
-  MONDAY: "ב׳",
-  TUESDAY: "ג׳",
-  WEDNESDAY: "ד׳",
-  THURSDAY: "ה׳",
-};
-
-const DAY_LABELS_EN: Record<string, string> = {
-  SUNDAY: "Sun",
-  MONDAY: "Mon",
-  TUESDAY: "Tue",
-  WEDNESDAY: "Wed",
-  THURSDAY: "Thu",
-};
 
 interface CourseDetailPopoverProps {
   course: CourseWithSchedule;
@@ -43,7 +28,6 @@ export function CourseDetailPopover({ course, children, onDisciplineOverride }: 
   const t = useTranslations("onboarding");
   const isHe = locale === "he";
   const cfg = DISCIPLINE_CONFIG[course.discipline];
-  const dayLabels = isHe ? DAY_LABELS_HE : DAY_LABELS_EN;
   const [showDisciplineSelect, setShowDisciplineSelect] = useState(false);
   // Arazim gate: hide the external past-grade difficulty row when Arazim is off.
   const av = arazimView(course);
@@ -214,7 +198,7 @@ export function CourseDetailPopover({ course, children, onDisciplineOverride }: 
             {course.scheduleSessions.map((session, i) => (
               <div key={i} className="flex items-center gap-2 text-xs text-foreground/60">
                 <Clock className="h-3 w-3 text-foreground/30" />
-                <span className="font-medium">{dayLabels[session.dayOfWeek] ?? session.dayOfWeek}</span>
+                <span className="font-medium">{dayShortFor(session.dayOfWeek, isHe)}</span>
                 <span dir="ltr" className="font-mono text-[10px]">
                   {session.startTime}–{session.endTime}
                 </span>

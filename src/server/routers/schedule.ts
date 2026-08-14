@@ -11,6 +11,7 @@ import {
 } from "@/lib/google-calendar";
 import { getAcademicNow, getTeachingRange } from "@/lib/academic-calendar";
 import { sessionTypeNameFor } from "@/lib/group-options";
+import { dayOfWeekIndex } from "@/lib/day-of-week";
 import { hhmmToMinutesOr } from "@/lib/time-of-day";
 import {
   filterSessionsByGroups,
@@ -391,16 +392,6 @@ export const scheduleRouter = createTRPCRouter({
 
       const semRange = semesterDates[input.semester];
 
-      // Day-of-week mapping (sessions use "SUNDAY"..."FRIDAY", JS Date uses 0=Sunday...6=Saturday)
-      const dayMap: Record<string, number> = {
-        SUNDAY: 0,
-        MONDAY: 1,
-        TUESDAY: 2,
-        WEDNESDAY: 3,
-        THURSDAY: 4,
-        FRIDAY: 5,
-      };
-
       // Helper: format date as RRULE UNTIL value (YYYYMMDDTHHMMSSZ)
       const formatUntil = (d: Date): string => {
         const y = d.getFullYear();
@@ -418,7 +409,10 @@ export const scheduleRouter = createTRPCRouter({
         const endMin = hhmmToMinutesOr(session.endTime, 10 * 60);
 
         // Find the first occurrence of this day within the semester
-        const targetDay = dayMap[session.dayOfWeek] ?? 0;
+        // The COMPLETE day map (lib/day-of-week). The local copy stopped at
+        // FRIDAY, so a SATURDAY row fell through `?? 0` and was pushed to
+        // Google Calendar as a SUNDAY event — a wrong day, not a missing one.
+        const targetDay = dayOfWeekIndex(session.dayOfWeek) ?? 0;
         const baseDate = semRange ? new Date(semRange.start) : new Date();
         const baseDay = baseDate.getDay();
         const daysUntil =

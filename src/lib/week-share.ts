@@ -6,16 +6,7 @@
 
 import type { ScheduleSessionData } from "@/components/calendar/weekly-timetable";
 import { sessionTypeNameFor } from "@/lib/group-options";
-
-const DAY_ORDER = [
-  "SUNDAY",
-  "MONDAY",
-  "TUESDAY",
-  "WEDNESDAY",
-  "THURSDAY",
-  "FRIDAY",
-  "SATURDAY",
-] as const;
+import { DAY_OF_WEEK_ORDER as DAY_ORDER } from "@/lib/day-of-week";
 
 const DAY_HE: Record<string, string> = {
   SUNDAY: "יום א׳",
