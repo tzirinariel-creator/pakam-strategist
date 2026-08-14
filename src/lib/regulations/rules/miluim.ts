@@ -93,14 +93,18 @@ export const ruleMiluimBinaryCap: RegulationRule = (ctx: RuleContext) => {
 // honors eligibility — the app must WARN. This is WARNING/INFO ONLY and must
 // NEVER ERROR (honors is not a graduation requirement).
 //
-// There is no per-course "is binary" flag in the schema (kept additive), so we
-// estimate the binary-converted hours from the cumulative miluimBinaryUsed
-// counter × the average weekly hours of the current academic year's courses,
-// compared against that year's total course hours. With no binary usage this is
-// always INFO (nothing converted → 0%).
+// Conversions come from the SAME two sources PKM-024 counts: the courses marked
+// isBinary in the plan, plus the manual "converted outside the app" offset. The
+// in-plan ones contribute their REAL weekly hours; only the off-app offset has
+// to be estimated (counter × the year's average course hours).
+//
+// Until now this rule read the manual offset ALONE. A Group-C student who
+// converted three courses inside the app and never touched the manual counter
+// was told "לא הומרו קורסים לבינארי השנה — אין השפעה על זכאות להצטיינות", while
+// PKM-024 on the very same page said "3/5 נוצלו" — one page, two answers, and
+// the answer that mattered (honors at risk) was the silent one.
 
 export const ruleMiluimHonorsBinary: RegulationRule = (ctx: RuleContext) => {
-  const binaryUsed = Math.max(0, ctx.miluimBinaryUsed ?? 0);
   const year = ctx.academicYear;
 
   // Courses for the relevant year (or all, if academic year is unknown), that
@@ -116,8 +120,19 @@ export const ruleMiluimHonorsBinary: RegulationRule = (ctx: RuleContext) => {
   );
   const courseCount = yearCourses.length;
   const avgHours = courseCount > 0 ? totalHours / courseCount : 0;
+
+  // In-plan conversions for THIS year — exact hours, no estimate needed.
+  const binaryInYear = yearCourses.filter(
+    (uc) => (uc as { isBinary?: boolean }).isBinary,
+  );
+  const inPlanHours = binaryInYear.reduce(
+    (sum, uc) => sum + (uc.course.weeklyHours ?? 0),
+    0,
+  );
+  const externalUsed = Math.max(0, ctx.miluimBinaryUsed ?? 0);
+  const binaryUsed = binaryInYear.length + externalUsed;
   // Estimated binary-converted hours (cannot exceed the year's total hours).
-  const binaryHours = Math.min(binaryUsed * avgHours, totalHours);
+  const binaryHours = Math.min(inPlanHours + externalUsed * avgHours, totalHours);
 
   const { percent, cap, over } = honorsBinaryStatus(binaryHours, totalHours);
   const pct = Math.round(percent);

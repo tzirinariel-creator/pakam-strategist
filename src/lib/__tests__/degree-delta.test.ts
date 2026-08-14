@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { degreePct, diffBreakdown } from "@/lib/degree-delta";
+import { degreePct, plannedPct, diffBreakdown } from "@/lib/degree-delta";
 import { CREDIT_REQUIREMENTS } from "@/lib/constants";
 import type { CreditBreakdown } from "@/types/degree";
 
@@ -25,23 +25,51 @@ function bd(over: Partial<CreditBreakdown>): CreditBreakdown {
 }
 
 describe("degreePct", () => {
-  it("matches the DegreeStatus formula (round of effective/total)", () => {
-    expect(degreePct(bd({ effectiveTotal: 75 }))).toBe(50); // 75/150
-    expect(degreePct(bd({ effectiveTotal: 96 }))).toBe(64); // the demo user's number
+  it("matches the DegreeStatus formula (round of (earned + exemption) / total)", () => {
+    expect(degreePct(bd({ earned: 75 }))).toBe(50); // 75/150
+    expect(degreePct(bd({ earned: 92, miluimExemption: 4 }))).toBe(64); // the demo user's number
   });
 
   it("clamps at 100 and handles null", () => {
-    expect(degreePct(bd({ effectiveTotal: 999 }))).toBe(100);
+    expect(degreePct(bd({ earned: 999 }))).toBe(100);
     expect(degreePct(null)).toBe(0);
+  });
+
+  it("defect: PLANNED credits used to be counted as degree progress", () => {
+    // A student who had laid out their whole degree but finished nothing saw
+    // the save banner announce "עלית ל-100% בתואר" beside a hero reading 0%.
+    // Planned credits graduate nobody: the bare degree-% is what they HOLD.
+    const allPlanned = bd({ earned: 0, planned: 150, effectiveTotal: 150 });
+    expect(degreePct(allPlanned)).toBe(0);
+    // ...and the projection is still available, under its own name.
+    expect(plannedPct(allPlanned)).toBe(100);
+  });
+
+  it("the miluim exemption counts as credits HELD, planned ones do not", () => {
+    const b = bd({ earned: 70, planned: 30, miluimExemption: 5, effectiveTotal: 105 });
+    expect(degreePct(b)).toBe(50); // (70 + 5) / 150
+    expect(plannedPct(b)).toBe(70); // 105 / 150
   });
 });
 
 describe("diffBreakdown", () => {
   it("names the % movement from server values", () => {
-    const d = diffBreakdown(bd({ effectiveTotal: 82 }), bd({ effectiveTotal: 96 }));
+    const d = diffBreakdown(bd({ earned: 82 }), bd({ earned: 96 }));
     expect(d.fromPct).toBe(55);
     expect(d.toPct).toBe(64);
     expect(d.closedLaneHe).toBeNull();
+  });
+
+  it("reports plan coverage separately from credits held", () => {
+    // Saving a plan adds PLANNED courses: coverage moves, held credits do not.
+    // Both numbers come back so the banner can label whichever it shows.
+    const before = bd({ earned: 30, planned: 0, effectiveTotal: 30 });
+    const after = bd({ earned: 30, planned: 45, effectiveTotal: 75 });
+    const d = diffBreakdown(before, after);
+    expect(d.fromPct).toBe(20);
+    expect(d.toPct).toBe(20); // nothing was COMPLETED by saving a plan
+    expect(d.fromPlanPct).toBe(20);
+    expect(d.toPlanPct).toBe(50);
   });
 
   it("detects a lane crossing unmet → met (seminars)", () => {

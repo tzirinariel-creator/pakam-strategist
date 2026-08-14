@@ -40,7 +40,9 @@ export interface MentorContext {
   completedCourses: CourseInfo[];
   /** Currently in-progress courses. */
   currentCourses: CourseInfo[];
-  /** Courses available next semester (prerequisite-filtered). */
+  /** Courses offered next semester. NOT prerequisite-filtered — PPE students
+   *  are exempt from per-course prerequisites (docs §9b); unmet prereqs travel
+   *  as the `recommendedAfter` ordering hint below, never as a filter. */
   availableNextSemester: CourseInfo[];
   /** Total credits in current semester. */
   currentSemesterCredits: number;
@@ -435,7 +437,7 @@ ${completedBlock}
 ## קורסים בלימוד כעת:
 ${currentBlock}
 
-## קורסים זמינים לסמסטר הבא (עומד בדרישות קדם):
+## קורסים זמינים לסמסטר הבא (פכ״מ פטור מדרישות-קדם — הרשימה לא מסוננת):
 ${availableBlock}
 
 ## מצב רגולטורי:

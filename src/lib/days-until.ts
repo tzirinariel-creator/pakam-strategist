@@ -1,3 +1,5 @@
+import { israelDayKeyMs, storedDateKeyMs } from "@/lib/civil-day";
+
 /**
  * Grammatical "in N days" countdown for both languages — never the ungrammatical
  * "בעוד 1 ימים" / "in 1 days" near a boundary (audit 22.7).
@@ -46,15 +48,21 @@ export function nearestUpcomingExam(
   courses: ExamCourseLike[],
   now: Date = new Date(),
 ): { nameHe: string; nameEn: string | null; days: number } | null {
-  const todayUTC = Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate());
+  // "Today" is the ISRAELI civil day, not the server's UTC one. Bucketing `now`
+  // by its UTC components made every instant between 00:00 and 03:00 Israel
+  // count as YESTERDAY: a student opening the dashboard at 01:00 on the morning
+  // of their exam was told "המבחן בעוד יום" for an exam that is TODAY — and the
+  // whole time-focus ladder is built on this number.
+  const todayUTC = israelDayKeyMs(now);
   let best: { nameHe: string; nameEn: string | null; examUTC: number } | null = null;
   for (const uc of courses) {
     // Done = completed WITH a grade (mirrors schedule.ts's NOT filter).
     if (uc.status === "COMPLETED" && uc.grade != null) continue;
     for (const d of [uc.course.examDateA, uc.course.examDateB]) {
       if (!d) continue;
-      const e = new Date(d);
-      const examUTC = Date.UTC(e.getUTCFullYear(), e.getUTCMonth(), e.getUTCDate());
+      // Exam dates are DATE-ONLY values stored at UTC midnight — read by their
+      // UTC components, never by a local zone.
+      const examUTC = storedDateKeyMs(d);
       if (examUTC >= todayUTC && (best == null || examUTC < best.examUTC)) {
         best = { nameHe: uc.course.nameHe, nameEn: uc.course.nameEn ?? null, examUTC };
       }

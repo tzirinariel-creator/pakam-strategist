@@ -147,8 +147,12 @@ const PLANNING_TIPS: Tip[] = [
   },
   {
     id: "pt-4",
-    textEn: "Plan seminars early — not because of prerequisites, but because popular ones fill up fast.",
-    textHe: "תכננו סמינריונים מוקדם — לא בגלל דרישות קדם, אלא כי המקומות נגמרים מהר.",
+    // The old copy said "not because of prerequisites" — the exact opposite of
+    // the ידיעון rule (domain §9b): PPE is exempt from per-course prerequisites,
+    // but EVERY seminar requires a passing grade in ALL mandatory courses first
+    // (rule PKM-027). A tip must never contradict a gate the מזכירות enforces.
+    textEn: "Seminars need a passing grade in every mandatory course before you can register — plan them after the mandatory load, and early, because popular ones fill up fast.",
+    textHe: "רישום לסמינר דורש ציון עובר בכל קורסי החובה — תכננו אותם אחרי עומס החובה, ומוקדם, כי המקומות נגמרים מהר.",
     category: "planning_tip",
     icon: CalendarDays,
   },

@@ -1291,6 +1291,7 @@ export function FloatingAssistant() {
                     : isHe ? "טוען את הנתונים שלכם…" : "Loading your data…"
                 }
                 disabled={!ready || streaming}
+                aria-label={isHe ? `שאלה אל ${labels.name}` : `Question for ${labels.name}`}
                 className="flex-1 rounded-xl border border-border/60 bg-background/50 px-3.5 py-2.5 text-sm outline-none transition-colors focus:border-accent-brand/50 disabled:opacity-60"
               />
               {speechSupported && (

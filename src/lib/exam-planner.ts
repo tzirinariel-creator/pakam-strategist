@@ -9,6 +9,7 @@
 // Import the leaf visibility module directly (not the barrel) so this pure lib
 // never pulls in the Arazim network fetcher.
 import { ARAZIM_ENABLED } from "./arazim/visibility";
+import { israelCivilDate as civilDay } from "@/lib/civil-day";
 
 export interface ExamInput {
   courseCode: string;
@@ -153,14 +154,10 @@ function dayKey(d: Date): string {
  * removes that shift. `now` is injectable for testing.
  */
 export function israelCivilDate(now: Date = new Date()): Date {
-  const parts = new Intl.DateTimeFormat("en-CA", {
-    timeZone: "Asia/Jerusalem",
-    year: "numeric",
-    month: "2-digit",
-    day: "2-digit",
-  }).formatToParts(now);
-  const get = (t: string) => Number(parts.find((p) => p.type === t)!.value);
-  return new Date(get("year"), get("month") - 1, get("day"));
+  // Implementation lives in @/lib/civil-day — the single source for every
+  // "which day is it for the student" question. Re-exported from here so the
+  // existing importers keep working.
+  return civilDay(now);
 }
 
 /** Classify difficulty from the course's historical grade signal. */

@@ -584,7 +584,7 @@ export function ExamPlannerContent() {
             const recommended = recommendMoed(c, otherChosenDates);
             return (
               <div key={c.code} className={cn("flex flex-wrap items-center gap-2 rounded-lg border p-2.5", sel ? "border-accent-brand/30 bg-accent-brand/[0.04]" : "border-border/50")}>
-                <button type="button" onClick={() => setSelected((s) => ({ ...s, [c.code]: sel ? undefined : (recommended ?? "A") }))} className={cn("flex size-5 shrink-0 items-center justify-center rounded-md border transition-colors", sel ? "border-accent-brand bg-accent-brand text-accent-brand-fg" : "border-foreground/30")} aria-label="select">
+                <button type="button" onClick={() => setSelected((s) => ({ ...s, [c.code]: sel ? undefined : (recommended ?? "A") }))} className={cn("flex size-5 shrink-0 items-center justify-center rounded-md border transition-colors", sel ? "border-accent-brand bg-accent-brand text-accent-brand-fg" : "border-foreground/30")} aria-pressed={!!sel} aria-label={isHe ? (sel ? `הסירו את ${c.name} מלוח המבחנים` : `הוסיפו את ${c.name} ללוח המבחנים`) : (sel ? `Remove ${c.name} from the exam board` : `Add ${c.name} to the exam board`)}>
                   {sel && <Check className="size-3.5" />}
                 </button>
                 <span className="min-w-0 flex-1 truncate text-sm text-foreground/80">{c.name}</span>

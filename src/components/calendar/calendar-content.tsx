@@ -354,10 +354,16 @@ export function CalendarContent() {
           </span>
         </div>
 
-        <div className="flex items-center gap-2">
+        {/* flex-wrap is load-bearing on a phone: at 375px this row wants 355px
+            inside a 293px box, and `.data-card` clips overflow — without it the
+            "חברו ליומן Google" CTA sat 21px OFF the start edge, permanently
+            half-cut. Wrapping is the only branch here that keeps every control
+            reachable; the desktop row is unaffected (it never overflows). */}
+        <div className="flex flex-wrap items-center gap-2">
           <select
             value={activeSemester}
             onChange={(e) => setSelectedSemester(e.target.value)}
+            aria-label={t("selectSemester")}
             className="rounded-lg border border-border bg-card px-3 py-1.5 text-sm text-foreground focus:border-foreground/40 focus:outline-none focus:ring-1 focus:ring-foreground/20"
           >
             {semesterOptions.map((opt) => (

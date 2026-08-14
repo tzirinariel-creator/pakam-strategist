@@ -21,6 +21,8 @@
 // "לידיעה בלבד ואין להסיק מהן". Predicting points stays forbidden.
 
 /** A single bidding round. All times are Israel local time. */
+import { civilDaysBetween } from "@/lib/civil-day";
+
 export interface BiddingRound {
   round: 1 | 2;
   /** Round opens (inclusive). */
@@ -94,12 +96,12 @@ export interface BiddingPhase {
   daysUntil: number | null;
 }
 
-/** Whole-day difference, counted on civil days so "closes tomorrow" is 1. */
-function civilDaysBetween(from: Date, to: Date): number {
-  const a = Date.UTC(from.getUTCFullYear(), from.getUTCMonth(), from.getUTCDate());
-  const b = Date.UTC(to.getUTCFullYear(), to.getUTCMonth(), to.getUTCDate());
-  return Math.round((b - a) / 86_400_000);
-}
+// Whole-day difference on ISRAELI civil days ("closes tomorrow" = 1). It used
+// to bucket both instants by their UTC components, so a student checking at
+// 00:30 on closing day — 21:30Z the previous day — was told the round "נסגר
+// מחר" when it actually closed in nine hours. This file's own header calls a
+// wrong bidding deadline the most expensive error the app can make.
+// Imported from @/lib/civil-day (single source).
 
 /**
  * Where the student stands relative to the bidding calendar right now.

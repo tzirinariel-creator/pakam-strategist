@@ -41,6 +41,10 @@ export const createTRPCContext = async (opts: { headers: Headers }) => {
 export function createRequestLoaders(db: typeof prisma) {
   const userCourses = new Map<string, ReturnType<typeof queryUserCourses>>();
   const miluim = new Map<string, ReturnType<typeof queryMiluim>>();
+  // Plain Promise, not Prisma's fluent PrismaPromise: `primeUser` stores an
+  // already-resolved row, which has no fluent relation methods to offer.
+  type MemoizedUser = Promise<Awaited<ReturnType<typeof queryUser>>>;
+  const users = new Map<string, MemoizedUser>();
 
   function queryUserCourses(userId: string) {
     return db.userCourse.findMany({
@@ -51,6 +55,9 @@ export function createRequestLoaders(db: typeof prisma) {
   }
   function queryMiluim(userId: string) {
     return db.miluimSemester.findMany({ where: { userId } });
+  }
+  function queryUser(supabaseId: string) {
+    return db.user.findUnique({ where: { supabaseId } });
   }
 
   return {
@@ -71,6 +78,33 @@ export function createRequestLoaders(db: typeof prisma) {
         miluim.set(userId, p);
       }
       return p;
+    },
+    /**
+     * PERF3 — the Prisma User row for a verified Supabase identity.
+     *
+     * `createTRPCContext` runs ONCE per HTTP request, but `enforceAuth` is tRPC
+     * middleware and therefore runs once per PROCEDURE. With httpBatchLink the
+     * dashboard sends five procedures in one request, so the same
+     * `SELECT … FROM users WHERE supabaseId = $1` ran five times — measured on
+     * prod, that batch spent ~2.9s server-side. Memoizing the promise here
+     * collapses it to one, exactly like the two loaders above: one context =
+     * one request, and enforceAuth always runs BEFORE any handler, so nothing
+     * can have written to the row between the memo and its use.
+     */
+    userBySupabaseId(supabaseId: string) {
+      let p = users.get(supabaseId);
+      if (!p) {
+        p = queryUser(supabaseId);
+        users.set(supabaseId, p);
+      }
+      return p;
+    },
+    /**
+     * Seed the memo with a row we just created, so the remaining procedures in
+     * a first-login batch see the new user instead of re-querying for it.
+     */
+    primeUser(supabaseId: string, user: Awaited<ReturnType<typeof queryUser>>) {
+      users.set(supabaseId, Promise.resolve(user));
     },
   };
 }
@@ -135,9 +169,11 @@ const enforceAuth = t.middleware(async ({ ctx, type, next, path }) => {
   // supabaseId to a new session would hand that account's entire record to the
   // new authenticator (account takeover). A session whose supabaseId has no row
   // is a brand-new user and gets a fresh row below.
-  let user = await ctx.db.user.findUnique({
-    where: { supabaseId: ctx.session.user.id },
-  });
+  // PERF3 — one User lookup per REQUEST, not per procedure. See
+  // `createRequestLoaders.userBySupabaseId`. The `??` fallback keeps
+  // loaders-less hand-built test contexts working unchanged.
+  const loaders = ctx.loaders ?? createRequestLoaders(ctx.db);
+  let user = await loaders.userBySupabaseId(ctx.session.user.id);
 
   if (!user) {
     // Populate displayName from verified session metadata. Email-confirm signups
@@ -158,6 +194,7 @@ const enforceAuth = t.middleware(async ({ ctx, type, next, path }) => {
         displayName,
       },
     });
+    loaders.primeUser(ctx.session.user.id, user);
   }
 
   // Demo account is read-only: reject every write (mutation) for the shared

@@ -61,7 +61,11 @@ export function GoogleCalendarBanner({
         <button
           type="button"
           onClick={onDismiss}
-          className="rounded-md p-1 text-foreground/20 hover:text-foreground/50 transition-colors"
+          aria-label={isHe ? "סגרו את ההודעה על יומן Google" : "Dismiss the Google Calendar notice"}
+          // /20 measured 1.75:1 (dark) and 1.53:1 (light) against the card —
+          // WCAG 1.4.11 wants 3:1 for a control's icon. /50 measures 4.64:1 and
+          // 3.40:1, the lowest step that clears it in BOTH themes.
+          className="rounded-md p-1 text-foreground/50 hover:text-foreground/75 transition-colors"
         >
           <X className="size-4" />
         </button>

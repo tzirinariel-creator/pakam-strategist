@@ -108,22 +108,42 @@ export function CoursePool({
     return planned;
   }, [completedCourseIds, mandatoryIds, selectedIds, currentYear, currentSemester]);
 
+  // PERF — all three of these MUST stay reference-stable, because `tabs` is a
+  // dep of the reset effect below and that effect calls setActiveTab. As bare
+  // array literals they were fresh references on every render, so the effect
+  // re-ran after every render it had itself caused. It converged only because
+  // the `length === 0` guard happened to go false in one hop — an accident of
+  // the current data, not a property of the code. The moment a semester switch
+  // leaves the target tab empty too, that is an unbounded setState loop
+  // ("Maximum update depth exceeded"), the same class of bug fixed in the
+  // onboarding wizard in 10.7. `grouped` is already memoized above, so pinning
+  // these to it is enough.
+
   // Elective-family tabs (the student CHOOSES to add these).
-  const electiveTabs: { key: TabKey; label: string; count: number }[] = [
-    { key: "elective", label: t("tabElective"), count: grouped.elective.length },
-    { key: "law", label: t("tabLaw"), count: grouped.law.length },
-    { key: "seminar", label: t("tabSeminar"), count: grouped.seminar.length },
-  ];
+  const electiveTabs: { key: TabKey; label: string; count: number }[] = useMemo(
+    () => [
+      { key: "elective", label: t("tabElective"), count: grouped.elective.length },
+      { key: "law", label: t("tabLaw"), count: grouped.law.length },
+      { key: "seminar", label: t("tabSeminar"), count: grouped.seminar.length },
+    ],
+    [grouped, t],
+  );
 
   // Mandatory tab only appears for non-auto-placed mandatory courses (rare):
   // most mandatory courses are already locked into "My Semester".
-  const mandatoryTabs: { key: TabKey; label: string; count: number }[] =
-    grouped.mandatory.length > 0
-      ? [{ key: "mandatory", label: t("tabMandatory"), count: grouped.mandatory.length }]
-      : [];
+  const mandatoryTabs: { key: TabKey; label: string; count: number }[] = useMemo(
+    () =>
+      grouped.mandatory.length > 0
+        ? [{ key: "mandatory", label: t("tabMandatory"), count: grouped.mandatory.length }]
+        : [],
+    [grouped, t],
+  );
 
   // Flat list preserved for activeTab reset logic below.
-  const tabs = [...mandatoryTabs, ...electiveTabs];
+  const tabs = useMemo(
+    () => [...mandatoryTabs, ...electiveTabs],
+    [mandatoryTabs, electiveTabs],
+  );
 
   // Reset activeTab when current tab has no courses (e.g., after semester switch)
   useEffect(() => {
@@ -258,6 +278,7 @@ export function CoursePool({
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
           placeholder={isHe ? "חיפוש קורס..." : "Search course..."}
+          aria-label={isHe ? "חיפוש קורס לפי שם או מספר" : "Search a course by name or code"}
           className="w-full rounded-md border border-foreground/10 bg-foreground/[0.02] py-1.5 pe-3 ps-8 text-xs text-foreground placeholder:text-foreground/25 focus:border-foreground/25 focus:outline-none"
         />
       </div>

@@ -932,7 +932,11 @@ export function SemesterPlanner({
               return (
                 <button
                   key={key}
+                  type="button"
                   onClick={() => handleSwitchSemester(year, semester)}
+                  // Which pill is open was communicated by fill colour only, so
+                  // a screen reader announced six identical buttons.
+                  aria-current={isActive ? "true" : undefined}
                   title={isFar ? (isHe ? "סמסטר רחוק — עוד יכול להשתנות" : "Far semester — may still change") : undefined}
                   className={cn(
                     "relative flex items-center gap-1 rounded-full px-2.5 py-1 text-[11px] font-medium transition-all",

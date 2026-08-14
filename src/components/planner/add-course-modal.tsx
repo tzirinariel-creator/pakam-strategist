@@ -86,9 +86,12 @@ export function AddCourseModal() {
   const [addProgress, setAddProgress] = useState<{ done: number; total: number } | null>(null);
 
   // Fetch course catalog (now includes scheduleSessions)
+  // PERF — staleTime matches the other course.list callers. Without it this
+  // inherited the 30s global default, so re-opening the picker after half a
+  // minute re-downloaded the whole 302-course catalog (450 KB raw, measured).
   const { data: allCourses, isLoading: catalogLoading } = api.course.list.useQuery(
     search.length >= 2 ? { search } : undefined,
-    { enabled: showAddCourseModal },
+    { enabled: showAddCourseModal, staleTime: 5 * 60 * 1000 },
   );
 
   // Fetch user plan to know which courses are already added

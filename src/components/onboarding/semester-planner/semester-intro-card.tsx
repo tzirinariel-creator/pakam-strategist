@@ -120,7 +120,9 @@ export function SemesterIntroCard({ year, semester }: SemesterIntroCardProps) {
       )}
     >
       <button
+        type="button"
         onClick={() => setDismissed(true)}
+        aria-label={isHe ? "סגרו את ההסבר על הסמסטר" : "Dismiss the semester note"}
         className="absolute top-2 end-2 rounded-full p-0.5 text-current opacity-40 hover:opacity-70 transition-opacity"
       >
         <X className="h-3.5 w-3.5" />

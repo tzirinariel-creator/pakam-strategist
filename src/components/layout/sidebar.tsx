@@ -233,7 +233,15 @@ export function Sidebar() {
         <button
           onClick={toggleSidebar}
           className="flex w-full items-center justify-center rounded-lg p-2 text-sidebar-foreground/50 transition-colors hover:bg-sidebar-accent hover:text-sidebar-foreground"
-          aria-label={sidebarCollapsed ? "Expand sidebar" : "Collapse sidebar"}
+          aria-label={
+            locale === "he"
+              ? sidebarCollapsed
+                ? "הרחיבו את התפריט"
+                : "כווצו את התפריט"
+              : sidebarCollapsed
+                ? "Expand sidebar"
+                : "Collapse sidebar"
+          }
         >
           <CollapseIcon className="h-5 w-5" />
         </button>

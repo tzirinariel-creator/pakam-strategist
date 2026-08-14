@@ -10,15 +10,36 @@
 
 import { describe, it, expect } from "vitest";
 import { calculateCredits } from "@/lib/credit-calculator";
-import { calculateGrades } from "@/lib/grade-calculator";
+import { calculateGrades, roundScore } from "@/lib/grade-calculator";
 import { prereqAdvisoryFor } from "@/lib/ai/context-builder";
-import { ruleEnglishLevel, ruleEnglishRequirement } from "@/lib/regulations/rules/english";
-import { ruleElectiveCredits } from "@/lib/regulations/rules/credits";
+import {
+  ruleEnglishLevel,
+  ruleEnglishRequirement,
+  ruleEnglishExemptionDeadline,
+} from "@/lib/regulations/rules/english";
+import { ruleElectiveCredits, ruleTotalCredits } from "@/lib/regulations/rules/credits";
+import { ruleSeminarMandatoryGate } from "@/lib/regulations/rules/seminars";
 import { runRegulationEngine } from "@/lib/regulations/rule-engine";
-import { GRADE_WEIGHTS, CREDIT_REQUIREMENTS } from "@/lib/constants";
+import { degreeProgress, degreeCompletionPct } from "@/lib/degree-progress";
+import { degreePct } from "@/lib/degree-delta";
+import {
+  deriveGroupFromDays,
+  computeCreditExemption,
+  binaryDegreeCap,
+  binaryCapRemaining,
+  deriveExemptionEntitlement,
+  splitByDegreeStart,
+  prefersHigherGrade,
+  honorsBinaryStatus,
+  type MiluimGroupKey,
+} from "@/lib/miluim";
+import { GRADE_WEIGHTS, CREDIT_REQUIREMENTS, MILUIM_CONFIG } from "@/lib/constants";
 import type { UserCourseWithCourse } from "@/types/degree";
 import type { RuleContext } from "@/types/regulation";
 import { getActiveProgram } from "@/lib/programs/registry";
+import { nearestUpcomingExam, daysUntilLabel } from "@/lib/days-until";
+import { getBiddingPhase } from "@/lib/bidding-calendar";
+import { civilDaysBetween, storedDateKeyMs } from "@/lib/civil-day";
 
 // -------------------------------------------------------------------
 // Builders
@@ -74,9 +95,9 @@ function uc(over: Over = {}): UserCourseWithCourse {
 }
 
 /** Minimal RuleContext for rules that only read a few fields. */
-function ctxOf(over: Partial<RuleContext> = {}): RuleContext {
+function ctxOf(over: Partial<RuleContext> & { miluimExemption?: number } = {}): RuleContext {
   const courses = over.userCourses ?? [];
-  const calc = calculateCredits(courses, over.focusArea ?? null, 0);
+  const calc = calculateCredits(courses, over.focusArea ?? null, over.miluimExemption ?? 0);
   return {
     userCourses: courses,
     focusArea: null,
@@ -575,5 +596,678 @@ describe("regulation engine — no false alarms for legitimate profiles", () => 
     ];
     expect(calculateGrades(reversed).courseAverage).toBe(60);
     expect(calculateGrades(reversed, { preferHigherGrade: true }).courseAverage).toBe(90);
+  });
+});
+
+// =========================================================================
+// 6. CREDIT ENGINE — the shapes a real transcript actually contains
+// =========================================================================
+// One table per question the auditor asked: can a course land in two buckets,
+// what happens to a FAILED course, which attempt of a retake counts, does a
+// binary (pass/fail) course keep its credits, does disciplineOverride move a
+// course, how does an off-catalog course behave, how does the miluim exemption
+// interact, and what does a 0-credit course do.
+
+describe("credit engine — buckets, statuses and overrides (§1, §4, §6)", () => {
+  const table: {
+    name: string;
+    courses: UserCourseWithCourse[];
+    exemption?: number;
+    expect: Partial<{
+      total: number;
+      earned: number;
+      planned: number;
+      mandatory: number;
+      elective: number;
+      seminar: number;
+      effectiveTotal: number;
+    }>;
+  }[] = [
+    {
+      // A course lands in EXACTLY ONE course-type bucket. The discipline map is
+      // a second, independent axis — not a second bucket — so the three
+      // course-type buckets always sum back to `total`.
+      name: "no course is counted in two course-type buckets",
+      courses: [
+        uc({ courseType: "MANDATORY", credits: 4, isMandatory: true }),
+        uc({ courseType: "ELECTIVE", credits: 3 }),
+        uc({ courseType: "SEMINAR", credits: 4, isMandatory: false }),
+      ],
+      expect: { total: 11, mandatory: 4, elective: 3, seminar: 4 },
+    },
+    {
+      // A MANDATORY seminar (the PPE seminar) belongs to the 103 mandatory
+      // credits, NOT the 12-credit seminar bucket — still exactly one bucket.
+      name: "the mandatory PPE seminar counts as mandatory, not as a seminar credit",
+      courses: [uc({ courseType: "SEMINAR", credits: 4, isMandatory: true })],
+      expect: { total: 4, mandatory: 4, seminar: 0 },
+    },
+    {
+      name: "a FAILED course contributes nothing to any bucket or total (§4)",
+      courses: [
+        uc({ status: "FAILED", credits: 4, courseType: "ELECTIVE", grade: 45 }),
+        uc({ status: "COMPLETED", credits: 3, courseType: "ELECTIVE", grade: 80 }),
+      ],
+      expect: { total: 3, earned: 3, elective: 3 },
+    },
+    {
+      // §4: "the last grade counts". Two COMPLETED rows for one course are one
+      // course's worth of credits, taken from the determining (last) sitting.
+      name: "a retake counts its credits ONCE",
+      courses: [
+        uc({ courseId: "rt", grade: 60, credits: 4, attemptNumber: 1 }),
+        uc({ courseId: "rt", grade: 90, credits: 4, attemptNumber: 2 }),
+      ],
+      expect: { total: 4, earned: 4 },
+    },
+    {
+      // A failed first attempt followed by a pass is ONE earned course — the
+      // failed row must not subtract from or duplicate the credits.
+      name: "failed-then-passed earns the credits exactly once",
+      courses: [
+        uc({ courseId: "fp", status: "FAILED", credits: 4, attemptNumber: 1 }),
+        uc({ courseId: "fp", status: "COMPLETED", grade: 75, credits: 4, attemptNumber: 2 }),
+      ],
+      expect: { total: 4, earned: 4 },
+    },
+    {
+      // Binary (pass/fail) conversion removes the GRADE from the average — it
+      // never removes the CREDITS from the degree (domain §6 Layer B).
+      name: "a binary / pass-fail course keeps its credits",
+      courses: [uc({ isBinary: true, grade: null, credits: 4, courseType: "ELECTIVE" })],
+      expect: { total: 4, earned: 4, elective: 4 },
+    },
+    {
+      name: "IN_PROGRESS and PLANNED are on-track, not yet earned",
+      courses: [
+        uc({ status: "IN_PROGRESS", credits: 4, courseType: "ELECTIVE" }),
+        uc({ status: "PLANNED", credits: 3, courseType: "ELECTIVE" }),
+        uc({ status: "COMPLETED", grade: 80, credits: 5, courseType: "ELECTIVE" }),
+      ],
+      expect: { total: 12, earned: 5, planned: 7 },
+    },
+    {
+      // EXEMPT (prior learning, §4) satisfies the requirement, so it is EARNED.
+      name: "an EXEMPT (prior-learning) course is earned, not planned",
+      courses: [uc({ status: "EXEMPT", grade: null, credits: 4, courseType: "ELECTIVE" })],
+      expect: { total: 4, earned: 4, planned: 0 },
+    },
+    {
+      // An off-catalog course the student typed in is stored as a GENERAL
+      // ELECTIVE (server: courseType ELECTIVE, discipline GENERAL) — it earns
+      // real credit toward the 150 and lands in the elective bucket.
+      name: "an off-catalog (student-declared) course earns elective credit",
+      courses: [uc({ courseType: "ELECTIVE", discipline: "GENERAL", credits: 3, grade: 88 })],
+      expect: { total: 3, earned: 3, elective: 3 },
+    },
+    {
+      name: "a 0-credit course adds nothing but breaks nothing",
+      courses: [
+        uc({ credits: 0, grade: 90, courseType: "ELECTIVE" }),
+        uc({ credits: 4, grade: 90, courseType: "ELECTIVE" }),
+      ],
+      expect: { total: 4, earned: 4, elective: 4 },
+    },
+    {
+      // The exemption lifts the 150-credit TARGET progress; it is not earned
+      // coursework and must never appear inside `earned` (this exact conflation
+      // once had the app narrate an exemption as credit the student had earned).
+      name: "the miluim exemption lifts effectiveTotal, never earned",
+      courses: [uc({ credits: 10, grade: 90, courseType: "ELECTIVE" })],
+      exemption: 8,
+      expect: { total: 10, earned: 10, effectiveTotal: 18 },
+    },
+  ];
+
+  for (const t of table) {
+    it(t.name, () => {
+      const b = calculateCredits(t.courses, null, t.exemption ?? 0).breakdown;
+      for (const [key, value] of Object.entries(t.expect)) {
+        expect(b[key as keyof typeof b], key).toBe(value);
+      }
+      // Invariant for every row: the three course-type buckets reconcile to the
+      // countable total (practice and English are sub-kinds of elective).
+      expect(b.mandatory + b.elective + b.seminar).toBe(b.total);
+      // ...and earned + planned is the total, with the exemption strictly outside.
+      expect(b.earned + b.planned).toBe(b.total);
+      expect(b.effectiveTotal).toBe(b.total + b.miluimExemption);
+    });
+  }
+
+  it("disciplineOverride moves a course to the declared discipline (§1)", () => {
+    // §1: a course tied to one department may count toward another discipline
+    // with advisor approval — so the student's declaration wins over the
+    // catalog's tag, for the discipline totals AND the focus area.
+    const courses = [
+      uc({ credits: 6, discipline: "ECONOMICS", disciplineOverride: "PHILOSOPHY", grade: 90 }),
+    ];
+    const calc = calculateCredits(courses, "PHILOSOPHY" as never, 0);
+    expect(calc.breakdown.byDiscipline.PHILOSOPHY).toBe(6);
+    expect(calc.breakdown.byDiscipline.ECONOMICS).toBe(0);
+    expect(calc.breakdown.focusArea).toBe(6);
+  });
+
+  it("a FAILED course cannot be resurrected by a disciplineOverride", () => {
+    const courses = [
+      uc({ status: "FAILED", credits: 6, disciplineOverride: "PHILOSOPHY" }),
+    ];
+    const calc = calculateCredits(courses, "PHILOSOPHY" as never, 0);
+    expect(calc.breakdown.total).toBe(0);
+    expect(calc.breakdown.byDiscipline.PHILOSOPHY).toBe(0);
+  });
+});
+
+// =========================================================================
+// 7. ONE DEFINITION OF DEGREE PROGRESS
+// =========================================================================
+// The defect the owner has caught three times: "104/150" on one screen and
+// "78/150" on another, both labelled degree progress. `earned + exemption` is
+// what the student HOLDS; `+ planned` is a projection. One derivation module,
+// and the bare label always belongs to the held figure.
+
+describe("degree progress — one definition, one label", () => {
+  const planned150 = {
+    earned: 0,
+    planned: 150,
+    miluimExemption: 0,
+    effectiveTotal: 150,
+  };
+
+  it("defect: a fully-planned, zero-completed degree read as 100% / 150 of 150", () => {
+    const p = degreeProgress(planned150);
+    expect(p.secured).toBe(0);
+    expect(p.pct).toBe(0);
+    // The projection survives — under its own name, never as "degree progress".
+    expect(p.projected).toBe(150);
+    expect(p.projectedPct).toBe(100);
+    expect(p.remaining).toBe(150);
+  });
+
+  it("the save-banner % and the dashboard hero % are the same arithmetic", () => {
+    const b = { earned: 78, planned: 26, miluimExemption: 0, effectiveTotal: 104 };
+    // <DegreeStatus> renders round((earned + exemption) / target * 100).
+    const heroPct = Math.round(((b.earned + b.miluimExemption) / CREDIT_REQUIREMENTS.TOTAL) * 100);
+    expect(degreeCompletionPct(b)).toBe(heroPct);
+    expect(degreePct(b)).toBe(heroPct);
+  });
+
+  it("PKM-001 judges on credits HELD and labels the planned projection", () => {
+    // A student who planned all 150 but finished nothing was told the total
+    // credit requirement "מתקיימת". Planned credits graduate nobody.
+    const courses = [uc({ status: "PLANNED", credits: 150, courseType: "ELECTIVE" })];
+    const r = ruleTotalCredits(ctxOf({ userCourses: courses }));
+    expect(r.passed).toBe(false);
+    expect(r.details?.current).toBe(0);
+    expect(r.details?.projected).toBe(150);
+    expect(r.severity).toBe("INFO"); // progress, never a red violation
+    // The projection is present but explicitly labelled as including planned.
+    expect(r.messageHe).toContain("כולל הקורסים המתוכננים");
+  });
+
+  it("PKM-001 counts the miluim exemption as credits held (reservist parity)", () => {
+    const courses = [uc({ credits: 142, grade: 90, courseType: "ELECTIVE" })];
+    const r = ruleTotalCredits(ctxOf({ userCourses: courses, miluimExemption: 8 }));
+    expect(r.details?.current).toBe(150);
+    expect(r.passed).toBe(true);
+  });
+
+  it("PKM-001 and the dashboard hero never disagree, for any mix", () => {
+    const mixes: UserCourseWithCourse[][] = [
+      [],
+      [uc({ credits: 20, grade: 80, courseType: "ELECTIVE" })],
+      [
+        uc({ credits: 20, grade: 80, courseType: "ELECTIVE" }),
+        uc({ status: "PLANNED", credits: 30, courseType: "ELECTIVE" }),
+      ],
+      [uc({ status: "IN_PROGRESS", credits: 12, courseType: "ELECTIVE" })],
+    ];
+    for (const courses of mixes) {
+      const calc = calculateCredits(courses, null, 4);
+      const r = ruleTotalCredits(ctxOf({ userCourses: courses, miluimExemption: 4 }));
+      expect(r.details?.current).toBe(calc.breakdown.earned + calc.breakdown.miluimExemption);
+      expect(degreeCompletionPct(calc.breakdown)).toBe(
+        Math.round(((calc.breakdown.earned + 4) / CREDIT_REQUIREMENTS.TOTAL) * 100),
+      );
+    }
+  });
+});
+
+// =========================================================================
+// 8. GRADE ENGINE — weighting, emptiness and rounding (domain rules §3)
+// =========================================================================
+
+describe("grade engine — weighting, emptiness, rounding", () => {
+  it("an EMPTY category does NOT redistribute its weight — the score stays null", () => {
+    // §3 fixes the weights at 78/18/4. If the referat is missing there is no
+    // honest final score, and silently re-normalising the other two to 100%
+    // would invent a number. Null is the correct answer, everywhere.
+    const noReferat = calculateGrades([
+      uc({ grade: 100, credits: 4 }),
+      uc({ courseId: "s1", courseType: "SEMINAR", submissionType: "PAPER", submissionGrade: 100 }),
+    ]);
+    expect(noReferat.weightedScore).toBeNull();
+    expect(noReferat.courseAverage).toBe(100);
+  });
+
+  it("the score is the exact 78/18/4 blend when all three exist", () => {
+    const r = calculateGrades([
+      uc({ grade: 80, credits: 4 }),
+      uc({ courseId: "s1", courseType: "SEMINAR", submissionType: "PAPER", submissionGrade: 90 }),
+      uc({ courseId: "s2", courseType: "SEMINAR", submissionType: "REFERAT", submissionGrade: 100 }),
+    ]);
+    expect(r.weightedScore).toBeCloseTo(80 * 0.78 + 90 * 0.18 + 100 * 0.04, 10);
+  });
+
+  it("credit weighting is real: a 6-credit 90 outweighs a 2-credit 60", () => {
+    const r = calculateGrades([
+      uc({ grade: 90, credits: 6 }),
+      uc({ grade: 60, credits: 2 }),
+    ]);
+    expect(r.courseAverage).toBeCloseTo((90 * 6 + 60 * 2) / 8, 10);
+    expect(r.completedCredits).toBe(8);
+  });
+
+  it("rounding is 2 decimals and never fabricates precision", () => {
+    expect(roundScore(87.6543)).toBe(87.65);
+    expect(roundScore(87.005)).toBe(87.01);
+    expect(roundScore(null)).toBeNull();
+    expect(roundScore(undefined)).toBeNull();
+    expect(roundScore(NaN)).toBeNull();
+  });
+
+  it("ENGLISH is out of the average even when it is the ONLY graded course", () => {
+    // Iron rule (owner-verified): English grades never enter the degree average.
+    const r = calculateGrades([uc({ grade: 100, credits: 4, courseType: "ENGLISH" })]);
+    expect(r.courseAverage).toBeNull();
+    expect(r.totalGradedCourses).toBe(0);
+  });
+
+  it("a binary course is out of the average but its credits are in the degree", () => {
+    const courses = [
+      uc({ grade: 90, credits: 4 }),
+      uc({ grade: 50, credits: 4, isBinary: true }),
+    ];
+    expect(calculateGrades(courses).courseAverage).toBe(90);
+    expect(calculateCredits(courses, null).breakdown.total).toBe(8);
+  });
+});
+
+// =========================================================================
+// 9. ENGLISH — the 2-credit floor per content course (domain rules §5)
+// =========================================================================
+
+describe("english content courses must each be ≥ 2 credits (§5)", () => {
+  it("defect: two 1-credit English courses reported the requirement as met", () => {
+    // §5 (double-verified): 2 academic English CONTENT courses, "each ≥ 2
+    // credits". The rule passed on the COUNT alone, so a student who recorded
+    // two 1-credit English workshops was told they were done — and would reach
+    // their final year missing a requirement they cannot graduate without.
+    const tiny = [
+      uc({ courseType: "ENGLISH", credits: 1, grade: 90 }),
+      uc({ courseType: "ENGLISH", credits: 1, grade: 90 }),
+    ];
+    const b = calculateCredits(tiny, null).breakdown;
+    expect(b.englishCourseCount).toBe(0);
+    expect(ruleEnglishRequirement(ctxOf({ userCourses: tiny })).passed).toBe(false);
+    // The credits themselves are NOT confiscated — they still count to the 150.
+    expect(b.total).toBe(2);
+    expect(b.elective).toBe(2);
+  });
+
+  it("2-credit content courses (the catalog's own shape) still satisfy it", () => {
+    const ok = [
+      uc({ courseType: "ENGLISH", credits: 2, grade: 90 }),
+      uc({ courseType: "ENGLISH", credits: 2, grade: 90 }),
+    ];
+    expect(calculateCredits(ok, null).breakdown.englishCourseCount).toBe(2);
+    expect(ruleEnglishRequirement(ctxOf({ userCourses: ok })).passed).toBe(true);
+  });
+});
+
+// =========================================================================
+// 10. RULES THAT MUST AGREE WITH EACH OTHER
+// =========================================================================
+
+describe("no two rules may answer the same question differently", () => {
+  it("defect: PKM-022 demanded level courses PKM-021 said were already done", () => {
+    // Same student, same page: PKM-021 said "עברתם את קורסי הרמה — לא נותרו",
+    // PKM-022 still quoted the raw placement constant ("נדרשים 1 קורסי רמה")
+    // and warned that studies stop. One standing helper, one number.
+    const courses = [uc({ nameHe: "אנגלית מתקדמים ב׳", grade: 85, courseType: "ENGLISH", credits: 4 })];
+    const ctx = ctxOf({ userCourses: courses, englishLevel: "ADVANCED_B", academicYear: 1, currentSemester: "FALL" });
+    const level = ruleEnglishLevel(ctx);
+    const deadline = ruleEnglishExemptionDeadline(ctx);
+    expect(level.details?.levelCourses).toBe(0);
+    expect(deadline.details?.levelCoursesRemaining).toBe(0);
+    // ...and it stops threatening a student who has done the work.
+    expect(deadline.messageHe).not.toContain("הלימודים נפסקים");
+    expect(deadline.messageHe).toContain("המזכירות");
+    expect(deadline.severity).toBe("WARNING"); // actionable, never a red ERROR
+  });
+
+  it("a student with level courses still outstanding is told the honest number", () => {
+    const ctx = ctxOf({ englishLevel: "ADVANCED_A", academicYear: 1, currentSemester: "FALL" });
+    const deadline = ruleEnglishExemptionDeadline(ctx);
+    expect(deadline.details?.levelCoursesRemaining).toBe(2);
+    expect(deadline.messageHe).toContain("2");
+  });
+
+  it("defect: PKM-025 ignored in-app binary conversions that PKM-024 counted", () => {
+    // A Group-C reservist converts 3 of their 4 courses to binary inside the
+    // app and never touches the manual counter. PKM-024 said "3/5 נוצלו";
+    // PKM-025 said "לא הומרו קורסים לבינארי השנה — אין השפעה על הצטיינות",
+    // which is precisely the warning that student needed (75% >> the 25% cap).
+    const courses = [
+      uc({ isBinary: true, grade: null, credits: 4, weeklyHours: 4, plannedYear: 1 }),
+      uc({ isBinary: true, grade: null, credits: 4, weeklyHours: 4, plannedYear: 1 }),
+      uc({ isBinary: true, grade: null, credits: 4, weeklyHours: 4, plannedYear: 1 }),
+      uc({ grade: 90, credits: 4, weeklyHours: 4, plannedYear: 1 }),
+    ];
+    const summary = runRegulationEngine(courses, null, 0, undefined, {
+      academicYear: 1,
+      currentSemester: "FALL",
+      miluimGroup: "GROUP_C",
+      miluimBinaryUsed: 0,
+    });
+    const cap = summary.results.find((r) => r.ruleId === "PKM-024");
+    const honors = summary.results.find((r) => r.ruleId === "PKM-025");
+    expect(cap?.details?.used).toBe(3);
+    expect(honors?.details?.binaryUsed).toBe(3);
+    expect(honors?.details?.percent).toBe(75);
+    expect(honors?.passed).toBe(false);
+    expect(honors?.severity).toBe("WARNING"); // honors is not a graduation gate
+  });
+
+  it("no binary conversions anywhere → PKM-025 stays neutral", () => {
+    const courses = [uc({ grade: 90, credits: 4, weeklyHours: 4, plannedYear: 1 })];
+    const summary = runRegulationEngine(courses, null, 0, undefined, {
+      academicYear: 1,
+      miluimGroup: "GROUP_C",
+      miluimBinaryUsed: 0,
+    });
+    const honors = summary.results.find((r) => r.ruleId === "PKM-025");
+    expect(honors?.passed).toBe(true);
+    expect(honors?.details?.binaryUsed).toBe(0);
+  });
+
+  it("the honors cap itself is the sourced 25% of course hours (§6)", () => {
+    expect(MILUIM_CONFIG.BINARY_GRADE.EXCELLENCE_MAX_PERCENT).toBe(25);
+    expect(honorsBinaryStatus(3, 12)).toEqual({ percent: 25, cap: 25, over: false });
+    expect(honorsBinaryStatus(4, 12).over).toBe(true);
+    // A zero-hour year can never be "over" the cap.
+    expect(honorsBinaryStatus(5, 0)).toEqual({ percent: 0, cap: 25, over: false });
+  });
+});
+
+// =========================================================================
+// 11. THE SEMINAR GATE — the ONE prerequisite that binds PPE (§9b)
+// =========================================================================
+// §9b, quoting the ידיעון: "דרישת קדם לכל הסמינרים: ציון עובר בכל קורסי החובה".
+// Per-course prerequisites are advisory for PPE (section 4 above); this one is
+// a real registration gate, and it was stated NOWHERE in the app.
+
+describe("seminars require a passing grade in all mandatory courses (PKM-027)", () => {
+  const mandatoryFull = () =>
+    uc({
+      courseType: "MANDATORY",
+      isMandatory: true,
+      credits: CREDIT_REQUIREMENTS.MANDATORY_TOTAL,
+      grade: 85,
+    });
+
+  it("stays SILENT for a student with no seminar in the plan", () => {
+    const r = ruleSeminarMandatoryGate(ctxOf({ userCourses: [uc({ grade: 80 })] }));
+    expect(r.passed).toBe(true);
+    expect(r.details?.seminars).toBe(0);
+  });
+
+  it("defect: a seminar planned before the mandatory load said nothing at all", () => {
+    const courses = [
+      uc({ courseType: "MANDATORY", isMandatory: true, credits: 20, grade: 85 }),
+      uc({ courseType: "SEMINAR", credits: 4, status: "PLANNED", isMandatory: false }),
+    ];
+    const r = ruleSeminarMandatoryGate(ctxOf({ userCourses: courses }));
+    expect(r.passed).toBe(false);
+    expect(r.details?.deficit).toBe(CREDIT_REQUIREMENTS.MANDATORY_TOTAL - 20);
+    expect(r.messageHe).toContain("ציון עובר בכל קורסי החובה");
+    // Never red: this is derived from what the student ENTERED, and a thin
+    // course history must not manufacture a blocking violation.
+    expect(r.severity).toBe("INFO");
+  });
+
+  it("goes green once every mandatory course is passed", () => {
+    const courses = [mandatoryFull(), uc({ courseType: "SEMINAR", credits: 4, isMandatory: false })];
+    const r = ruleSeminarMandatoryGate(ctxOf({ userCourses: courses }));
+    expect(r.passed).toBe(true);
+  });
+
+  it("an unfinished mandatory ROW blocks the gate even at full credits", () => {
+    const courses = [
+      mandatoryFull(),
+      uc({ courseType: "MANDATORY", isMandatory: true, credits: 4, status: "IN_PROGRESS" }),
+      uc({ courseType: "SEMINAR", credits: 4, isMandatory: false }),
+    ];
+    const r = ruleSeminarMandatoryGate(ctxOf({ userCourses: courses }));
+    expect(r.passed).toBe(false);
+    expect(r.details?.openMandatoryCourses).toBe(1);
+  });
+
+  it("the gate never produces an ERROR in the full engine", () => {
+    const courses = [
+      uc({ courseType: "SEMINAR", credits: 4, status: "PLANNED", isMandatory: false }),
+    ];
+    const summary = runRegulationEngine(courses, null, 0, undefined, {
+      academicYear: 1,
+      currentSemester: "FALL",
+    });
+    const gate = summary.results.find((r) => r.ruleId === "PKM-027");
+    expect(gate).toBeDefined();
+    expect(gate?.severity).toBe("INFO");
+    expect(summary.violations).toBe(0);
+  });
+});
+
+// =========================================================================
+// 12. MILUIM — groups, caps and the degree boundary (domain rules §6)
+// =========================================================================
+
+describe("miluim — per-semester group derivation (§6 Layer B)", () => {
+  const table: { days: number; combat: boolean; group: MiluimGroupKey }[] = [
+    // Regular reservist: 35+ → C, 21–34 → B, 1–20 → A, 0 → NONE.
+    { days: 0, combat: false, group: "NONE" },
+    { days: 1, combat: false, group: "GROUP_A" },
+    { days: 20, combat: false, group: "GROUP_A" },
+    { days: 21, combat: false, group: "GROUP_B" },
+    { days: 34, combat: false, group: "GROUP_B" },
+    { days: 35, combat: false, group: "GROUP_C" },
+    { days: 200, combat: false, group: "GROUP_C" },
+    // Combat (ייעוד קדמי): a better group with fewer days — 21+ → C, 14–20 → B.
+    { days: 0, combat: true, group: "NONE" },
+    { days: 13, combat: true, group: "GROUP_A" },
+    { days: 14, combat: true, group: "GROUP_B" },
+    { days: 20, combat: true, group: "GROUP_B" },
+    { days: 21, combat: true, group: "GROUP_C" },
+    // Nonsense input must not invent an entitlement.
+    { days: -5, combat: true, group: "NONE" },
+  ];
+
+  for (const t of table) {
+    it(`${t.days} days${t.combat ? " (combat)" : ""} → ${t.group}`, () => {
+      expect(deriveGroupFromDays(t.days, t.combat)).toBe(t.group);
+    });
+  }
+
+  it("every threshold traces to MILUIM_CONFIG, not to a literal in the code", () => {
+    const [b, c] = MILUIM_CONFIG.REGULAR_RESERVIST.perSemesterRules;
+    expect(deriveGroupFromDays(b!.minDays, false)).toBe("GROUP_B");
+    expect(deriveGroupFromDays(c!.minDays, false)).toBe("GROUP_C");
+    const [cb, cc] = MILUIM_CONFIG.COMBAT_UPGRADE.perSemesterRules;
+    expect(deriveGroupFromDays(cb!.minDays, true)).toBe("GROUP_B");
+    expect(deriveGroupFromDays(cc!.minDays, true)).toBe("GROUP_C");
+  });
+});
+
+describe("miluim — the caps (§6, owner-confirmed 12.7)", () => {
+  it("the per-group exemption rates are the sourced ones", () => {
+    // Owner-confirmed 12.7: C is 8 ש״ס (not 10); 10 is the DEGREE-WIDE cap.
+    expect(MILUIM_CONFIG.GROUPS.GROUP_A.creditExemptionPerYear).toBe(2);
+    expect(MILUIM_CONFIG.GROUPS.GROUP_B.creditExemptionPerYear).toBe(6);
+    expect(MILUIM_CONFIG.GROUPS.GROUP_C.creditExemptionPerYear).toBe(8);
+    expect(MILUIM_CONFIG.GROUPS.GROUP_G.creditExemptionPerYear).toBe(3);
+    expect(MILUIM_CONFIG.MAX_CREDIT_EXEMPTIONS_DEGREE).toBe(10);
+  });
+
+  const exemptionTable: { group: MiluimGroupKey | null; used: number; expected: number }[] = [
+    { group: "NONE", used: 0, expected: 0 },
+    { group: null, used: 0, expected: 0 },
+    { group: "GROUP_C", used: 0, expected: 8 },
+    { group: "GROUP_C", used: 4, expected: 6 }, // capped by 10 − 4
+    { group: "GROUP_C", used: 10, expected: 0 }, // degree cap exhausted
+    { group: "GROUP_C", used: 99, expected: 0 }, // never negative
+    { group: "GROUP_B", used: 0, expected: 6 },
+    { group: "GROUP_A", used: 0, expected: 2 },
+  ];
+
+  for (const t of exemptionTable) {
+    it(`${t.group ?? "null"} with ${t.used} used → ${t.expected} ש״ס`, () => {
+      expect(computeCreditExemption(t.group, t.used)).toBe(t.expected);
+    });
+  }
+
+  it("the exemption is NEVER multiplied by the year (§6 'BUG to fix')", () => {
+    // The documented failure mode: a per-year rate × currentYear over-grants.
+    // A group-C student in year 3 is entitled to 8 now, not 24.
+    expect(computeCreditExemption("GROUP_C", 0)).toBeLessThanOrEqual(
+      MILUIM_CONFIG.MAX_CREDIT_EXEMPTIONS_DEGREE,
+    );
+  });
+
+  it("the binary degree cap is 5 courses for a BA, never lowered by a group", () => {
+    expect(binaryDegreeCap("NONE")).toBe(MILUIM_CONFIG.BINARY_GRADE.BA_DEGREE_CAP);
+    expect(binaryDegreeCap("GROUP_B")).toBe(5);
+    expect(binaryDegreeCap("GROUP_G")).toBe(5);
+    expect(binaryCapRemaining(2, "GROUP_C")).toBe(3);
+    expect(binaryCapRemaining(9, "GROUP_C")).toBe(0); // never negative
+  });
+
+  it("B/C/G keep the HIGHER exam grade; A and NONE keep the last (§6 Layer B)", () => {
+    expect(prefersHigherGrade("GROUP_B")).toBe(true);
+    expect(prefersHigherGrade("GROUP_C")).toBe(true);
+    expect(prefersHigherGrade("GROUP_G")).toBe(true);
+    expect(prefersHigherGrade("GROUP_A")).toBe(false);
+    expect(prefersHigherGrade("NONE")).toBe(false);
+    expect(prefersHigherGrade(null)).toBe(false);
+  });
+});
+
+describe("miluim — service before the degree grants nothing (#7/#37)", () => {
+  const row = (academicYear: number, group: string) => ({
+    academicYear,
+    semester: "FALL",
+    daysServed: 40,
+    isCombat: false,
+    derivedGroup: group,
+  });
+
+  it("defect: a 3010 form's whole reserve career inflated the entitlement", () => {
+    // The form lists service from years before enrolment. Counting them granted
+    // exemption credits for semesters the student never studied in.
+    const career = [row(2021, "GROUP_C"), row(2022, "GROUP_C"), row(2025, "GROUP_C")];
+    const unfiltered = deriveExemptionEntitlement(career);
+    const { degree } = splitByDegreeStart(career, 2025);
+    const filtered = deriveExemptionEntitlement(degree);
+    expect(degree).toHaveLength(1);
+    expect(filtered.total).toBe(8);
+    expect(unfiltered.total).toBeGreaterThan(filtered.total);
+  });
+
+  it("an unknown degree-start year keeps every row rather than guessing", () => {
+    const career = [row(2021, "GROUP_B"), row(2025, "GROUP_B")];
+    expect(splitByDegreeStart(career, null).degree).toHaveLength(2);
+    expect(splitByDegreeStart(career, undefined).preDegree).toHaveLength(0);
+  });
+
+  it("the accrued entitlement is capped at the degree maximum", () => {
+    const many = [row(2025, "GROUP_C"), row(2026, "GROUP_C"), row(2027, "GROUP_C")];
+    expect(deriveExemptionEntitlement(many).total).toBe(
+      MILUIM_CONFIG.MAX_CREDIT_EXEMPTIONS_DEGREE,
+    );
+  });
+
+  it("the one-time A/G new-student exemption is not granted year after year", () => {
+    const threeYears = [row(2025, "GROUP_A"), row(2026, "GROUP_A"), row(2027, "GROUP_A")];
+    expect(deriveExemptionEntitlement(threeYears).total).toBe(2);
+  });
+});
+
+// =========================================================================
+// 13. TIMEZONES — the server is UTC, every student is in Israel
+// =========================================================================
+// Between 00:00 and 03:00 Israel time a UTC-bucketed "today" is YESTERDAY.
+// Every countdown the app shows is a civil-day count, so that three-hour window
+// shifted them all by one. Each instant below is written with an explicit
+// offset, so these tests prove the PRODUCTION (UTC) behaviour even though the
+// suite pins TZ=Asia/Jerusalem.
+
+describe("civil days are counted in Israel, not on the server (§timezone)", () => {
+  const examCourse = (name: string, dateA: string | null, dateB: string | null = null) => ({
+    status: "IN_PROGRESS",
+    grade: null,
+    course: { nameHe: name, nameEn: name, examDateA: dateA ? new Date(dateA) : null, examDateB: dateB ? new Date(dateB) : null },
+  });
+
+  it("defect: at 01:00 on exam morning the app said the exam was TOMORROW", () => {
+    // Exam dates are stored as date-only values at UTC midnight.
+    const courses = [examCourse("מיקרו א׳", "2026-02-10T00:00:00.000Z")];
+    // 01:00 Israel on 10.2.26 = 23:00Z on the 9th. UTC says "9th" → 1 day out.
+    const at0100 = new Date("2026-02-10T01:00:00+02:00");
+    expect(nearestUpcomingExam(courses, at0100)?.days).toBe(0);
+    expect(daysUntilLabel(nearestUpcomingExam(courses, at0100)!.days, true)).toBe("היום");
+    // Midday on the same civil day must give the identical answer.
+    expect(nearestUpcomingExam(courses, new Date("2026-02-10T14:00:00+02:00"))?.days).toBe(0);
+  });
+
+  it("yesterday's exam is not resurrected as 'today' in that same window", () => {
+    const courses = [examCourse("מאקרו א׳", "2026-02-09T00:00:00.000Z")];
+    expect(nearestUpcomingExam(courses, new Date("2026-02-10T01:00:00+02:00"))).toBeNull();
+  });
+
+  it("the day count survives the Israeli DST flip (Oct 2026)", () => {
+    // 25.10.26 is the IDT→IST change. A fixed +3h offset gets this wrong; the
+    // civil-day helper does not.
+    const courses = [examCourse("סטטיסטיקה", "2026-10-27T00:00:00.000Z")];
+    expect(nearestUpcomingExam(courses, new Date("2026-10-24T23:30:00+03:00"))?.days).toBe(3);
+    expect(nearestUpcomingExam(courses, new Date("2026-10-26T00:30:00+02:00"))?.days).toBe(1);
+  });
+
+  it("civilDaysBetween is 0 for two instants on the same Israeli day", () => {
+    expect(
+      civilDaysBetween(new Date("2026-09-15T00:30:00+03:00"), new Date("2026-09-15T23:30:00+03:00")),
+    ).toBe(0);
+    expect(
+      civilDaysBetween(new Date("2026-09-15T23:30:00+03:00"), new Date("2026-09-16T00:30:00+03:00")),
+    ).toBe(1);
+  });
+
+  it("defect: bidding said 'closes tomorrow' nine hours before it closed", () => {
+    // Official תשפ״ז round 1 closes 15.9.26 at 10:00 Israel. A student checking
+    // at 00:30 that morning (= 21:30Z on the 14th) was told "נסגר מחר".
+    const phase = getBiddingPhase(new Date("2026-09-15T00:30:00+03:00"));
+    expect(phase.kind).toBe("open");
+    expect(phase.daysUntil).toBe(0);
+  });
+
+  it("the bidding countdown still reads 1 the day before closing", () => {
+    const phase = getBiddingPhase(new Date("2026-09-14T00:30:00+03:00"));
+    expect(phase.kind).toBe("open");
+    expect(phase.daysUntil).toBe(1);
+  });
+
+  it("a stored UTC-midnight date keeps its civil day in any host zone", () => {
+    // storedDateKeyMs reads the UTC components — the whole point of date-only
+    // storage. Reading such a value in a local zone is what shifted every exam
+    // by a day for a student on exchange west of Greenwich.
+    expect(storedDateKeyMs("2026-02-10T00:00:00.000Z")).toBe(Date.UTC(2026, 1, 10));
+    expect(storedDateKeyMs(new Date("2026-02-10T00:00:00.000Z"))).toBe(Date.UTC(2026, 1, 10));
   });
 });

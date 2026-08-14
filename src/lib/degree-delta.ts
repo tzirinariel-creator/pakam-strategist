@@ -7,13 +7,28 @@
 // canonical status the way a client-side projection would.
 
 import { CREDIT_REQUIREMENTS } from "@/lib/constants";
+import { degreeProgress, type CreditProgressInput } from "@/lib/degree-progress";
 import type { CreditBreakdown } from "@/types/degree";
 
-/** The degree-% formula — identical to <DegreeStatus> (effectiveTotal / total). */
-export function degreePct(b: Pick<CreditBreakdown, "effectiveTotal"> | null): number {
-  const target = CREDIT_REQUIREMENTS.TOTAL;
-  const effective = b?.effectiveTotal ?? 0;
-  return target > 0 ? Math.min(100, Math.round((effective / target) * 100)) : 0;
+/**
+ * The degree-% — the SAME number <DegreeStatus> renders (credits already held:
+ * earned + miluim exemption, over the program total).
+ *
+ * It used to read `effectiveTotal`, which folds in PLANNED courses, while the
+ * hero two centimetres above it counted only what the student HAS. Saving a
+ * plan therefore announced "עלית מ-52% ל-69% בתואר" next to a hero reading 52%
+ * — two definitions of degree progress under one label, on one screen. The
+ * projected figure is still available (`plannedPct` below), but it may only be
+ * shown with a label that says "including planned" out loud.
+ */
+export function degreePct(b: CreditProgressInput | null): number {
+  return degreeProgress(b, CREDIT_REQUIREMENTS.TOTAL).pct;
+}
+
+/** The projection if every PLANNED course is passed (effectiveTotal / total).
+ *  Never render this against a bare "% of the degree" label. */
+export function plannedPct(b: CreditProgressInput | null): number {
+  return degreeProgress(b, CREDIT_REQUIREMENTS.TOTAL).projectedPct;
 }
 
 export type Lane = "mandatory" | "elective" | "seminar" | "focusArea" | "english";
@@ -27,8 +42,15 @@ const LANE_META: { lane: Lane; field: keyof CreditBreakdown; target: number; he:
 ];
 
 export interface BreakdownDelta {
+  /** Degree-% BEFORE the save — credits held (matches the dashboard hero). */
   fromPct: number;
+  /** Degree-% AFTER the save — credits held (matches the dashboard hero). */
   toPct: number;
+  /** Plan COVERAGE before the save (held + planned). Only ever render this with
+   *  an explicit "including planned courses" label — never as "% of the degree". */
+  fromPlanPct: number;
+  /** Plan COVERAGE after the save (held + planned). Same labelling rule. */
+  toPlanPct: number;
   /** A requirement bucket that crossed from unmet → met with this save, if any. */
   closedLaneHe: string | null;
   closedLaneEn: string | null;
@@ -38,6 +60,12 @@ export interface BreakdownDelta {
  * Diff two SERVER credit breakdowns into a narrative-ready delta: the degree-%
  * movement, and the first requirement bucket (if any) that this save pushed from
  * unmet to met. focusAreaTarget is read from the `after` snapshot when present.
+ *
+ * Two percentage pairs come back on purpose. `fromPct`/`toPct` are the credits
+ * the student HOLDS — the identical definition the hero renders, so the save
+ * banner can never contradict the number right above it. `fromPlanPct`/
+ * `toPlanPct` are plan coverage (held + planned); they answer "what did this
+ * save add to my plan" and MUST carry a label that says so.
  */
 export function diffBreakdown(
   before: CreditBreakdown | null,
@@ -45,6 +73,8 @@ export function diffBreakdown(
 ): BreakdownDelta {
   const fromPct = degreePct(before);
   const toPct = degreePct(after);
+  const fromPlanPct = plannedPct(before);
+  const toPlanPct = plannedPct(after);
 
   let closedLaneHe: string | null = null;
   let closedLaneEn: string | null = null;
@@ -65,5 +95,5 @@ export function diffBreakdown(
     }
   }
 
-  return { fromPct, toPct, closedLaneHe, closedLaneEn };
+  return { fromPct, toPct, fromPlanPct, toPlanPct, closedLaneHe, closedLaneEn };
 }

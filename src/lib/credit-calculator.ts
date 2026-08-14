@@ -32,6 +32,11 @@ const PRACTICE_TOTAL_MAX = 8;
 // `mandatory` bucket; any beyond 8 fall through to the `elective` bucket.
 const LAW_FOUNDATION_MANDATORY_CAP = 8;
 
+// Minimum credits for ONE of the 2 required English CONTENT courses (domain
+// rules §5: "each ≥ 2 credits"). Mirrored by
+// CREDIT_REQUIREMENTS.ENGLISH_MIN_CREDITS_PER_COURSE.
+const ENGLISH_MIN_CREDITS_PER_COURSE = 2;
+
 // -------------------------------------------------------------------
 // Helpers
 // -------------------------------------------------------------------
@@ -112,6 +117,28 @@ function englishContentCourseCounts(uc: UserCourseWithCourse): boolean {
   if (uc.grade == null) return true;
   // Completed and graded → must clear the humanities English passing grade.
   return uc.grade >= ENGLISH_CONFIG.COURSE_PASSING_GRADE;
+}
+
+/**
+ * Does this English course count toward the PKM-012 "2 English CONTENT courses"
+ * requirement?
+ *
+ * Two conditions, and they are NOT the same question:
+ *  1. It must not have been failed against the humanities bar
+ *     (englishContentCourseCounts above).
+ *  2. Domain rules §5 (double-verified): each of the two content courses must
+ *     carry AT LEAST 2 credits ("all coursework in English, each ≥ 2 credits").
+ *     A 1-credit English workshop a student typed in themselves is real credit
+ *     toward the 150 — so its credits still bucket normally — but it does not
+ *     satisfy one of the two required content courses, and telling a student it
+ *     does would send them into their final year one course short of a
+ *     requirement they cannot finish the degree without.
+ */
+function countsTowardEnglishRequirement(uc: UserCourseWithCourse): boolean {
+  return (
+    englishContentCourseCounts(uc) &&
+    uc.course.credits >= ENGLISH_MIN_CREDITS_PER_COURSE
+  );
 }
 
 // -------------------------------------------------------------------
@@ -266,8 +293,9 @@ export function calculateCredits(
         // "2 courses" requirement. A COMPLETED English course graded below the
         // humanities passing bar (70) was failed and must NOT count; planned /
         // in-progress / ungraded courses still count (on-track). This count is
-        // kept INDEPENDENT of the elective bucketing above (don't break PKM-012).
-        if (englishContentCourseCounts(uc)) {
+        // kept INDEPENDENT of the elective bucketing above (don't break PKM-012),
+        // and additionally requires the §5 per-course 2-credit floor.
+        if (countsTowardEnglishRequirement(uc)) {
           englishCredits += credits;
           englishCourseCount += 1;
         }

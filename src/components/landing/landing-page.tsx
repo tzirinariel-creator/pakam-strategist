@@ -357,7 +357,16 @@ export function LandingPage() {
             <div className="mx-auto mb-6 flex size-16 items-center justify-center lg:mx-0">
               <PhilosopherKingCharacter className="size-16 drop-shadow-lg" />
             </div>
-            <h2 className="font-display text-2xl font-bold tracking-tight text-white text-balance md:text-4xl">
+            {/* The colour is pinned inline ON PURPOSE. globals.css carries an
+                UNLAYERED `h1,h2,h3 { color: var(--foreground) }`, and unlayered
+                author CSS beats Tailwind's layered utilities — so `text-white`
+                here was silently dropped and this heading rendered #18181B on
+                the dark indigo band at 1.27:1. Same cascade trap the .data-card
+                note in globals.css describes, applied to headings. */}
+            <h2
+              style={{ color: "#fff" }}
+              className="font-display text-2xl font-bold tracking-tight text-balance md:text-4xl"
+            >
               {t("king.title")}
             </h2>
             <p className="mx-auto mt-5 max-w-lg text-base leading-relaxed text-white/80 lg:mx-0">

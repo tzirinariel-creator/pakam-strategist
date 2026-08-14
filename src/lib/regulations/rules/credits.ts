@@ -2,6 +2,7 @@ import type { RuleContext, RegulationRule } from "@/types/regulation";
 import type { DisciplineDefinition, ProgramDefinition } from "@/lib/programs/types";
 import { getActiveProgram } from "@/lib/programs/registry";
 import { getDiscipline } from "@/lib/programs/types";
+import { degreeProgress } from "@/lib/degree-progress";
 import { result } from "./_result";
 
 // -------------------------------------------------------------------
@@ -9,17 +10,32 @@ import { result } from "./_result";
 // -------------------------------------------------------------------
 
 export const ruleTotalCredits: RegulationRule = (ctx: RuleContext) => {
-  // Use effectiveTotal (includes the miluim/reserve-duty credit exemption) so this
-  // matches the dashboard progress bar — the exemption counts toward the 150-credit total.
-  const current = ctx.creditBreakdown.effectiveTotal;
   const required = ctx.programDefinition.creditRequirements.total;
+  // ONE definition of degree progress (src/lib/degree-progress.ts): the credits
+  // a student HOLDS = earned (COMPLETED/EXEMPT) + the miluim credit exemption.
+  //
+  // This rule used to report `effectiveTotal`, which folds PLANNED courses in.
+  // A student who had laid out their whole degree read "104/150 ש״ס" here and
+  // "78/150" on the dashboard, both labelled degree progress — and, worse, a
+  // student with 150 PLANNED and nothing finished was told the total-credit
+  // requirement "מתקיימת". Planned credits graduate nobody: the verdict and the
+  // headline number are now the SECURED figure, and the projection is still
+  // reported — under a label that says it includes planned courses.
+  const p = degreeProgress(ctx.creditBreakdown, required);
+  const current = p.secured;
   const passed = current >= required;
+  const deficit = p.remaining;
 
   // Severity: a credit-ACCUMULATION target is PROGRESS, not a compliance
   // VIOLATION. A mid-degree student simply hasn't earned the credits yet, so
   // an unmet total is INFO (a progress target), never a red ERROR. ERROR is
   // reserved for genuine violations (fail-twice, the 75/80 year gate, the
   // English-exemption deadline).
+  const plannedNoteEn =
+    p.planned > 0 ? ` Including planned courses: ${p.projected}/${required}.` : "";
+  const plannedNoteHe =
+    p.planned > 0 ? ` כולל הקורסים המתוכננים: ${p.projected}/${required}.` : "";
+
   return result(
     "PKM-001",
     "Total Credits Requirement",
@@ -27,12 +43,22 @@ export const ruleTotalCredits: RegulationRule = (ctx: RuleContext) => {
     passed,
     "INFO",
     passed
-      ? `Total credits met: ${current}/${required} SH"S.`
-      : `Total credits insufficient: ${current}/${required} SH"S. Need ${required - current} more.`,
+      ? `Total credits met: ${current}/${required} SH"S earned.`
+      : `Total credits insufficient: ${current}/${required} SH"S earned. Need ${deficit} more.${plannedNoteEn}`,
     passed
-      ? `דרישת ש״ס כוללת מתקיימת: ${current}/${required} ש״ס.`
-      : `דרישת ש״ס כוללת לא מתקיימת: ${current}/${required} ש״ס. חסרות ${required - current} ש״ס.`,
-    { current, required, deficit: Math.max(0, required - current) }
+      ? `דרישת ש״ס כוללת מתקיימת: ${current}/${required} ש״ס שנצברו.`
+      : `דרישת ש״ס כוללת לא מתקיימת: ${current}/${required} ש״ס שנצברו. חסרות ${deficit} ש״ס.${plannedNoteHe}`,
+    {
+      current,
+      required,
+      deficit,
+      // The decomposition, so no consumer (UI, the King) has to guess which
+      // definition `current` is.
+      earned: p.earned,
+      planned: p.planned,
+      miluimExemption: p.miluimExemption,
+      projected: p.projected,
+    }
   );
 };
 

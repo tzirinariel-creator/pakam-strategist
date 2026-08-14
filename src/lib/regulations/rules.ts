@@ -24,7 +24,7 @@ import {
   disciplineRules,
   ruleFocusAreaCredits,
 } from "./rules/credits";
-import { ruleSeminarPapers, ruleReferat } from "./rules/seminars";
+import { ruleSeminarPapers, ruleReferat, ruleSeminarMandatoryGate } from "./rules/seminars";
 import { ruleMandatoryCourses, ruleLawFoundation } from "./rules/courses";
 import {
   ruleEnglishRequirement,
@@ -55,6 +55,7 @@ export {
   ruleFocusAreaCredits,
   ruleSeminarPapers,
   ruleReferat,
+  ruleSeminarMandatoryGate,
   ruleMandatoryCourses,
   ruleLawFoundation,
   ruleEnglishRequirement,
@@ -89,6 +90,7 @@ export function getAllRulesFor(program?: ProgramDefinition): RegulationRule[] {
     ruleFocusAreaCredits,
     ruleSeminarPapers,
     ruleReferat,
+    ruleSeminarMandatoryGate,
     ruleMandatoryCourses,
     ruleLawFoundation,
     ruleEnglishRequirement,
@@ -116,6 +118,7 @@ export const ALL_RULES: RegulationRule[] = [
   ruleFocusAreaCredits,
   ruleSeminarPapers,
   ruleReferat,
+  ruleSeminarMandatoryGate,
   ruleMandatoryCourses,
   ruleLawFoundation,
   ruleEnglishRequirement,

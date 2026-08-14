@@ -32,6 +32,7 @@ export function ruleGroup(ruleId: string): RuleGroup {
     case "PKM-008":
     case "PKM-009":
     case "PKM-019":
+    case "PKM-027": // seminar registration gate (all mandatory courses passed)
       return "seminars";
     // Miluim (reserve-duty) benefits + caps.
     case "PKM-024":

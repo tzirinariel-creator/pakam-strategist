@@ -6,6 +6,8 @@ import { createTRPCContext } from "@/server/trpc/init";
 export const maxDuration = 60;
 // Frankfurt region — closest Vercel region to TAU servers in Israel
 export const preferredRegion = "fra1";
+// Every response here is per-user and cookie-derived — never a static segment.
+export const dynamic = "force-dynamic";
 
 const handler = (req: Request) =>
   fetchRequestHandler({
@@ -13,6 +15,19 @@ const handler = (req: Request) =>
     req,
     router: appRouter,
     createContext: () => createTRPCContext({ headers: req.headers }),
+    // SEC — same bug class as the ICS calendar route, one layer up. Next's
+    // default for a route handler is `cache-control: public, max-age=0,
+    // must-revalidate` with `vary: trpc-accept` (measured on prod). Because
+    // httpBatchLink sends every query as a GET, a student's whole academic
+    // record — plan.getCredits, plan.getUserPlan, user.getProfile — went out
+    // marked `public` with NO `Vary: Cookie`, i.e. with no signal to a shared
+    // cache that the body is per-user. Vercel's CDN does not store Function
+    // responses without explicit directives, so this was not exploitable on
+    // our own edge — but the path from a TAU student to Vercel runs through
+    // campus proxies we do not control. Say `private, no-store` explicitly.
+    responseMeta: () => ({
+      headers: { "cache-control": "private, no-store" },
+    }),
     // Always log server-side (SEC1): in production the client now gets a masked
     // 500 message (see errorFormatter), so the real error must land in the
     // function logs or it is gone. Path + code + message only — no user data.

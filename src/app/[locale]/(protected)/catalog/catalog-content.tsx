@@ -59,7 +59,11 @@ export function CatalogContent() {
     isLoading,
     error,
     refetch,
-  } = api.course.list.useQuery(queryInput);
+    // PERF — the catalog is synced once a day by the 03:00 cron, but this call
+    // had no staleTime and so inherited the 30s global default: the main table
+    // re-downloaded all 302 courses (450 KB raw / 52 KB on the wire, measured)
+    // every 30s of interaction. 5 min matches every other course.list caller.
+  } = api.course.list.useQuery(queryInput, { staleTime: 5 * 60 * 1000 });
 
   // The student's focus area — its courses get starred + tinted in the table.
   const { data: profile } = api.user.getProfile.useQuery();

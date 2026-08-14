@@ -203,6 +203,37 @@ export const ruleEnglishExemptionDeadline: RegulationRule = (ctx: RuleContext) =
     );
   }
 
+  // Level courses the student has ALREADY PASSED count here exactly as they do
+  // in PKM-021. Without this the two rules contradicted each other on the same
+  // page for the same student: PKM-021 said "עברתם את קורסי הרמה — לא נותרו",
+  // while this rule still quoted the raw PLACEMENT constant ("נדרשים 1 קורסי
+  // רמה") and threatened that studies stop. Same standing helper, one number.
+  const standing = resolveEnglishStanding(info, levelCourseRows(ctx));
+  const levelCoursesRemaining = standing?.levelCoursesRemaining ?? info.levelCourses;
+  const levelTrackDone = levelCoursesRemaining === 0 && (standing?.passedLevelCourses ?? 0) > 0;
+
+  // The level ladder is finished by coursework. We still do NOT declare פטור —
+  // only the מזכירות can — but the honest action is "confirm it", not "reach an
+  // exemption you have already worked for, or your studies stop".
+  if (levelTrackDone) {
+    return result(
+      "PKM-022",
+      "English Exemption Deadline",
+      "מועד אחרון לפטור באנגלית",
+      false,
+      "WARNING",
+      `You have passed every preparatory level course your placement required (${srcEn}, ${info.nameEn}). Confirm the exemption itself with the department office — the deadline is the end of the 2nd semester.`,
+      `עברתם את כל קורסי הרמה שנדרשו לפי הסיווג (${srcHe}, ${info.nameHe}). את הפטור עצמו צריך לאמת מול המזכירות — המועד האחרון הוא סוף הסמסטר השני. (נכון לתשפ״ו)`,
+      {
+        amirantScore: ctx.amirantScore,
+        level: info.level,
+        isExempt: false,
+        levelCoursesRemaining: 0,
+        levelTrackDone: true,
+      },
+    );
+  }
+
   // Not exempt: must reach exemption by end of year-1 semester B.
   const deadlineYear = ENGLISH_CONFIG.EXEMPTION_DEADLINE_YEAR;       // 1
   const deadlineSem = ENGLISH_CONFIG.EXEMPTION_DEADLINE_SEMESTER;    // "SPRING"
@@ -258,8 +289,8 @@ export const ruleEnglishExemptionDeadline: RegulationRule = (ctx: RuleContext) =
     "מועד אחרון לפטור באנגלית",
     false,
     "WARNING",
-    `Not yet exempt in English (${srcEn}, ${info.nameEn}). Reach exemption by the end of the 2nd semester (year 1, semester B) — ${info.levelCourses} level course(s) needed — or studies stop.`,
-    `עדיין לא הושג פטור באנגלית (${srcHe}, ${info.nameHe}). יש להגיע לפטור עד סוף הסמסטר השני (שנה א׳, סמסטר ב׳) — נדרשים ${info.levelCourses} קורסי רמה — אחרת הלימודים נפסקים. (נכון לתשפ״ו)`,
-    { amirantScore: ctx.amirantScore, level: info.level, isExempt: false, pastDeadline: false, currentRank, deadlineRank }
+    `Not yet exempt in English (${srcEn}, ${info.nameEn}). Reach exemption by the end of the 2nd semester (year 1, semester B) — ${levelCoursesRemaining} level course(s) needed — or studies stop.`,
+    `עדיין לא הושג פטור באנגלית (${srcHe}, ${info.nameHe}). יש להגיע לפטור עד סוף הסמסטר השני (שנה א׳, סמסטר ב׳) — נדרשים ${levelCoursesRemaining} קורסי רמה — אחרת הלימודים נפסקים. (נכון לתשפ״ו)`,
+    { amirantScore: ctx.amirantScore, level: info.level, isExempt: false, pastDeadline: false, levelCoursesRemaining, currentRank, deadlineRank }
   );
 };
