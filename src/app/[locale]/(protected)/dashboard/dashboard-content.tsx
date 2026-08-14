@@ -32,6 +32,7 @@ const OnboardingWizard = dynamic(
   { ssr: false, loading: () => <ThemedLoader variant="page" /> },
 );
 import { AnchoredTour, TourReopenButton, TOUR_DONE_KEY } from "@/components/onboarding/anchored-tour";
+import { QuietBoundary } from "@/components/shared/query-error";
 import { cn } from "@/lib/utils";
 import { TodaysClasses } from "@/components/dashboard/todays-classes";
 import { SemesterWrapCard } from "@/components/dashboard/semester-wrap-card";
@@ -546,8 +547,11 @@ export function DashboardContent() {
 
   return (
     <div className="bg-mesh space-y-8 p-4 md:p-6">
-      {/* Anchored product tour — spotlights the real UI it describes */}
-      <AnchoredTour open={tourOpen} onClose={closeTour} />
+      {/* Anchored product tour — spotlights the real UI it describes. Wrapped so
+          a crash inside it can't take the whole dashboard down with it (13.8). */}
+      <QuietBoundary label="dashboard-tour">
+        <AnchoredTour open={tourOpen} onClose={closeTour} />
+      </QuietBoundary>
 
       {/* #29 — year-1 nudge to the written beginner guide (once, dismissible,
           never while the tour is open so the two don't stack). */}

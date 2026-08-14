@@ -35,6 +35,7 @@ import { applyResolvedCustomIds } from "./custom-course-ids";
 import { api } from "@/lib/trpc/react";
 import { SemesterIntroCard } from "./semester-intro-card";
 import { AnchoredTour, PLANNER_STEPS } from "../anchored-tour";
+import { QuietBoundary } from "@/components/shared/query-error";
 import { ExamGantt } from "./exam-gantt";
 import { getAcademicNow } from "@/lib/academic-calendar";
 
@@ -1205,11 +1206,17 @@ export function SemesterPlanner({
 
       {/* #17 — the four-step planner tour, on the screen it explains. Suppressed
           while the custom-course modal is open so two overlays never stack. */}
-      <AnchoredTour
-        open={plannerTourOpen && !showCustomCourseModal && !showDegreeModal}
-        onClose={closePlannerTour}
-        steps={PLANNER_STEPS}
-      />
+      {/* The tour is DECORATION on top of a board that may hold unsaved edits.
+          A React #310 inside it used to throw all the way to planner/error.tsx,
+          replacing the whole screen and discarding the in-progress plan. It now
+          fails alone and silently: the student loses the tour, not the work. */}
+      <QuietBoundary label="planner-tour">
+        <AnchoredTour
+          open={plannerTourOpen && !showCustomCourseModal && !showDegreeModal}
+          onClose={closePlannerTour}
+          steps={PLANNER_STEPS}
+        />
+      </QuietBoundary>
     </div>
   );
 }

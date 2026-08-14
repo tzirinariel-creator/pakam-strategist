@@ -26,6 +26,8 @@ import { Bidi } from "@/lib/bidi";
 import { cn } from "@/lib/utils";
 import { PersonaCharacter } from "@/components/persona/use-persona";
 import { LineagePact } from "@/components/lineage/lineage-pact";
+import { ThemedLoader } from "@/components/ui/themed-loader";
+import { QueryErrorState } from "@/components/shared/query-error";
 import { generationSpan, hasContributed } from "@/lib/lineage";
 import { contributorLevel } from "@/lib/contributor-level";
 
@@ -51,6 +53,42 @@ export function LineageContent() {
   const mine = stats.data ?? null;
   const iContributed = hasContributed(mine);
   const level = mine ? contributorLevel(mine.total) : null;
+
+  // Every query above degrades with `?? []` / `?? null`, which is right for a
+  // PARTIAL failure but became a lie on a TOTAL one: a student with 40
+  // contributions was told "you haven't contributed yet" and "you're at the
+  // start of the lineage" whenever the fetch failed. The lineage's whole promise
+  // is that what you give stays — so it must never claim you gave nothing
+  // because a request timed out (audit 13.8).
+  const lineageFailed =
+    digest.isError && insights.isError && gallery.isError && stats.isError;
+  const lineageLoading =
+    digest.isLoading || insights.isLoading || gallery.isLoading || stats.isLoading;
+
+  if (lineageFailed) {
+    return (
+      <div className="bg-mesh p-4 md:p-6">
+        <QueryErrorState
+          what={isHe ? "השושלת" : "the lineage"}
+          onRetry={() => {
+            void digest.refetch();
+            void insights.refetch();
+            void gallery.refetch();
+            void profile.refetch();
+            void stats.refetch();
+          }}
+        />
+      </div>
+    );
+  }
+
+  if (lineageLoading) {
+    return (
+      <div className="bg-mesh p-4 md:p-6">
+        <ThemedLoader />
+      </div>
+    );
+  }
 
   return (
     <div className="bg-mesh space-y-8 p-4 md:p-6">

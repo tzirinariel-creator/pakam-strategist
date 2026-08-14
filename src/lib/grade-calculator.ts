@@ -151,15 +151,27 @@ export function calculateGrades(
   // ----- Seminar papers -----
   // Seminar papers are courses of type SEMINAR with submissionType PAPER and
   // a non-null submissionGrade.
-  const seminarPaperGrades = courses
-    .filter(
+  //
+  // Collapse resubmissions to the DETERMINING (highest-attemptNumber) row first.
+  // A resubmitted seminar paper is stored as a second COMPLETED row, exactly
+  // like a course retake — and without this both grades were averaged into the
+  // 18% seminar component, so a 60 improved to a 90 scored as a 75. The referat
+  // branch below already took the highest attempt, and PKM-008 already counts
+  // DISTINCT seminar courses (#audit-r6); this is the same collapse, applied to
+  // the number that actually moves the graduation score.
+  //
+  // NOTE: deliberately NOT `preferHigherGrade`. The B/C/G reservist right is
+  // "2 of 3 EXAM dates, the higher counts" (domain §6 Layer B) — it says nothing
+  // about seminar papers, so the standard last-attempt rule stands for papers.
+  const seminarPaperGrades = canonicalAttempts(
+    courses.filter(
       (uc) =>
         uc.status === "COMPLETED" &&
         uc.course.courseType === "SEMINAR" &&
         uc.submissionType === "PAPER" &&
         uc.submissionGrade !== null
     )
-    .map((uc) => uc.submissionGrade!);
+  ).map((uc) => uc.submissionGrade!);
 
   const seminarPaperAverage = simpleAverage(seminarPaperGrades);
 

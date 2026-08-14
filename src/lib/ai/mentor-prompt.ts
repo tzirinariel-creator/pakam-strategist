@@ -76,6 +76,13 @@ export interface CourseInfo {
   failRate?: number | null;
   /** Mandatory this semester — so the King can lead with the required courses. */
   isMandatory?: boolean;
+  /**
+   * Prerequisite course codes not yet completed — an ORDERING HINT ONLY.
+   * PPE students are exempt from prerequisites (docs §9b), so this never
+   * removes a course from the list; it only lets the King say "worth taking X
+   * first". Undefined when nothing is outstanding.
+   */
+  recommendedAfter?: string[];
 }
 
 export interface RegulationIssue {
@@ -153,7 +160,14 @@ function formatCourseList(courses: CourseInfo[], includeGrade: boolean): string 
       }
 
       const mand = c.isMandatory ? " [חובה]" : "";
-      return `  • ${c.nameHe} (${c.code})${mand} | ${disc} | ${c.credits} ש״ס${diffTag}${grade}`;
+      // Ordering hint, NOT a gate — PPE is exempt from prerequisites (docs §9b).
+      // Worded as a recommendation so the King can sequence sensibly without
+      // ever telling a student they may not register.
+      const after =
+        c.recommendedAfter && c.recommendedAfter.length > 0
+          ? ` | מומלץ לקחת קודם: ${c.recommendedAfter.join(", ")} (המלצה בלבד — פכ״מ פטור מדרישות-קדם)`
+          : "";
+      return `  • ${c.nameHe} (${c.code})${mand} | ${disc} | ${c.credits} ש״ס${diffTag}${after}${grade}`;
     })
     .join("\n");
 }

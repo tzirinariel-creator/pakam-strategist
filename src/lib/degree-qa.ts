@@ -10,6 +10,7 @@
 // answerDegreeQuestion().
 
 import { CREDIT_REQUIREMENTS, GRADE_REQUIREMENTS, GRADE_WEIGHTS, SEMINAR_REQUIREMENTS, resolveEnglishLevel } from "@/lib/constants";
+import { daysUntilLabel } from "@/lib/days-until";
 
 export interface QAContext {
   isHe: boolean;
@@ -345,7 +346,17 @@ const HANDLERS: Handler[] = [
       const now = c.now ?? new Date();
       // Future-only filter lives HERE (pure, at answer time), not in the React
       // context builder where Date.now() is impure-during-render (14.7 W1).
-      const list = (c.upcomingExams ?? []).filter((e) => e.date.getTime() >= now.getTime());
+      //
+      // The test is a CIVIL-DAY one, not a raw-ms one. Exam dates are stored at
+      // UTC midnight; a raw `e.date >= now` therefore declared today's exam PAST
+      // from 02:00 Israel onward — and with one exam left the King fell through
+      // to "אין כרגע תאריכי-מבחן שפורסמו", a false statement about the
+      // university, contradicting the dashboard countdown showing "היום" on the
+      // same screen. Same fix days-until.ts already carries; identical shape so
+      // the two can never diverge again.
+      const todayUTC = Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate());
+      const civilDay = (d: Date) => Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate());
+      const list = (c.upcomingExams ?? []).filter((e) => civilDay(e.date) >= todayUTC);
       if (list.length === 0) {
         return {
           text: he(
@@ -357,11 +368,15 @@ const HANDLERS: Handler[] = [
           cta: he(c, "למתכנן המבחנים", "Exam planner"),
         };
       }
-      const daysTo = (d: Date) => Math.max(0, Math.round((d.getTime() - now.getTime()) / 86_400_000));
+      // Civil days too — a raw-ms Math.round labelled TOMORROW's exam "היום"
+      // from ~13:00 Israel onward (11h away rounds to 0 days).
+      const daysTo = (d: Date) => Math.max(0, Math.round((civilDay(d) - todayUTC) / 86_400_000));
       const whenHe = (d: Date) => { const n = daysTo(d); return n === 0 ? "היום" : n === 1 ? "מחר" : `בעוד ${n} ימים`; };
       const top = list.slice(0, 3);
       const linesHe = top.map((e) => `• ${e.nameHe} (מועד ${e.moed === "B" ? "ב׳" : "א׳"}) — ${whenHe(e.date)}`);
-      const linesEn = top.map((e) => `• ${e.nameEn} (Moed ${e.moed}) — in ${daysTo(e.date)} days`);
+      // daysUntilLabel keeps "today"/"in 1 day" grammatical — "in 0 days" was
+      // both wrong-looking and, on the exam morning, wrong.
+      const linesEn = top.map((e) => `• ${e.nameEn} (Moed ${e.moed}) — ${daysUntilLabel(daysTo(e.date), false)}`);
       return {
         text: he(
           c,

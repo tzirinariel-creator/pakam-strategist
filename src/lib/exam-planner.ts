@@ -289,7 +289,17 @@ export function generateExamPlan(
   // ones. (Also gives stable, date-ordered colors.)
   const ordered = exams
     .map((e) => ({ ...e, _date: startOfDay(new Date(e.examDate)) }))
-    .filter((e) => !isNaN(e._date.getTime()) && e._date.getTime() > today.getTime())
+    // `>=`, NOT `>`: an exam happening TODAY is still upcoming. Every other
+    // surface agrees — the picker (exam-planner-content), exam-availability,
+    // the countdown list and days-until all use a `>= today` civil-day test and
+    // label it "היום". Only this engine used `>`, so on the MORNING OF THE EXAM
+    // the row vanished from the skyline / weekly grid / agenda / XLSX while it
+    // sat checked in the picker, and analyzeExamPeriod announced the SECOND
+    // exam as "המבחן הכי קרוב". (Its own `days === 0 → "היום!"` branch was
+    // unreachable, which is the tell.) Today's exam yields an exam summary with
+    // no study sessions — the candidate-day loop below starts at exam−1 and
+    // naturally finds nothing, which is the honest answer.
+    .filter((e) => !isNaN(e._date.getTime()) && e._date.getTime() >= today.getTime())
     .sort((a, b) => a._date.getTime() - b._date.getTime());
 
   ordered.forEach((exam, idx) => {

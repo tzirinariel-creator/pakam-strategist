@@ -7,6 +7,7 @@ import { ArrowRight, AlertTriangle, Target, Eye } from "lucide-react";
 import { toast } from "sonner";
 import { api } from "@/lib/trpc/react";
 import { ThemedLoader } from "@/components/ui/themed-loader";
+import { QueryErrorState } from "@/components/shared/query-error";
 import { SemesterPlanner, type PlannedSemester } from "@/components/onboarding/semester-planner/index";
 import { useRouter } from "@/i18n/navigation";
 import {
@@ -139,6 +140,29 @@ export function SemesterPlannerPage() {
 
   if (isLoading) {
     return <ThemedLoader />;
+  }
+
+  // DATA-LOSS GUARD (audit 13.8). This is not cosmetic. If planQuery or
+  // coursesQuery FAILS, isLoading goes false with undefined data, so the board
+  // used to render as an EMPTY plan with an empty course pool — indistinguishable
+  // from a student who has planned nothing. The student then adds a course and
+  // presses Done, and savePlan (which deletes every PLANNED/IN_PROGRESS row and
+  // rewrites from the payload) replaces their real plan with that one course.
+  // A failed read must never become a destructive write: refuse to render the
+  // editor at all until we actually know what the student has.
+  if (planQuery.isError || coursesQuery.isError || profileQuery.isError) {
+    return (
+      <div className="p-4 md:p-6">
+        <QueryErrorState
+          what={isHe ? "התוכנית והקטלוג" : "your plan and the catalog"}
+          onRetry={() => {
+            void planQuery.refetch();
+            void coursesQuery.refetch();
+            void profileQuery.refetch();
+          }}
+        />
+      </div>
+    );
   }
 
   const profile = profileQuery.data;

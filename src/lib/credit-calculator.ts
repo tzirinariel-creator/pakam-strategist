@@ -242,7 +242,19 @@ export function calculateCredits(
         }
         break;
       case "PRACTICE":
-        // practice total already accumulated above (with caps applied).
+        // "משלב עשייה" courses ARE electives (domain rules §1 calls them
+        // "Practice/משלב עשייה **electives**", and the 150 has exactly three
+        // buckets: 103 mandatory + 12 seminars + 35 electives — there is no
+        // fourth). Their capped credits therefore belong in `elective`; the
+        // `practice` counter stays as the sub-total that enforces the two caps
+        // (≤4 per course, ≤8 across the degree — CREDIT_REQUIREMENTS
+        // .PRACTICE_ELECTIVE_MAX names it an ELECTIVE max for this reason).
+        // Until now they landed in NO course-type bucket at all, so a student
+        // on the practice track saw their elective progress 8 ש״ס short
+        // everywhere (PKM-020, the dashboard bucket, the King) and would take
+        // two courses they had already covered. The credits were never lost
+        // from `total` — only from the bucket that decides "what's left".
+        elective += credits;
         break;
       case "ENGLISH":
         // Fix #3 (reconciliation): the 2 English CONTENT courses are part of the

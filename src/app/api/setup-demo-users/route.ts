@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { checkRateLimit } from "@/lib/rate-limit";
+import { timingSafeEqualStr } from "@/lib/crypto";
 
 /**
  * POST /api/setup-demo-users
@@ -126,7 +127,12 @@ export async function POST(request: Request) {
 
   const authHeader = request.headers.get("Authorization");
   const token = authHeader?.replace("Bearer ", "");
-  if (token !== secret) {
+  // Constant-time compare. `!==` returns as soon as two bytes differ, leaking the
+  // secret one prefix byte at a time — and THIS route is the one that holds
+  // SUPABASE_SERVICE_ROLE_KEY and can create/overwrite auth users, so it is the
+  // last place that should have the weakest check. crypto.ts:88 was extracted
+  // naming this exact route; it was never applied here (audit 13.8).
+  if (!token || !timingSafeEqualStr(token, secret)) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 

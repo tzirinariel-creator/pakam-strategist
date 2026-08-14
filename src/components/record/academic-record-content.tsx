@@ -13,6 +13,7 @@ import { computeHonorsDistance } from "@/lib/honors";
 import { prefersHigherGrade, type MiluimGroupKey } from "@/lib/miluim";
 import { isCurrentlyStudying } from "@/lib/semester-clock";
 import { ThemedLoader } from "@/components/ui/themed-loader";
+import { QueryErrorState } from "@/components/shared/query-error";
 import dynamic from "next/dynamic";
 // PERF1: the scanner (zod + parsing engine) loads when the record page mounts
 // it, not in every page that shares the record chunk graph.
@@ -354,6 +355,25 @@ export function AcademicRecordContent() {
 
   if (isLoading) {
     return <ThemedLoader />;
+  }
+
+  // Both queries use retry:false, so a single failed request lands here with
+  // planQuery.data === undefined → completedCourses === [] → the screen used to
+  // render "you haven't completed any courses yet". On the RECORD screen that is
+  // the worst possible lie: it tells a student their grades are gone. Say the
+  // true thing instead (audit 13.8 — same fix already shipped on /graduation).
+  if (planQuery.isError || profileQuery.isError) {
+    return (
+      <div className="p-4 md:p-6">
+        <QueryErrorState
+          what={isHe ? "הגיליון שלכם" : "your record"}
+          onRetry={() => {
+            void planQuery.refetch();
+            void profileQuery.refetch();
+          }}
+        />
+      </div>
+    );
   }
 
   const catalog = (catalogQuery.data ?? []) as CourseWithSchedule[];

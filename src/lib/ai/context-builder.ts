@@ -125,6 +125,34 @@ export function extractResponseText(
 // Context builder
 // -------------------------------------------------------------------
 
+/**
+ * The prerequisite codes a student has not completed yet — as an ADVISORY
+ * ordering hint, never a gate.
+ *
+ * PPE students are formally EXEMPT from course prerequisites (ידיעון note 19,
+ * quoted in docs/pakam-domain-rules-2026.md §9b: "תלמידי פכ״ם אינם מחוייבים
+ * בדרישות הקדם"), and that doc names a hard prereq gate as a BUG for this
+ * program. The King's course list used to be `.filter(prereqs.every(completed))`,
+ * which silently deleted every course with an unmet prereq from the advisor's
+ * context — in practice the entire economics mandatory chain (מיקרו א׳/ב׳/ג׳,
+ * מאקרו, אקונומטריקה) plus סמינר פכ״מ ב׳. A first-year asking "what should I take
+ * next semester?" was never told about courses they may legally register for.
+ *
+ * The signal is worth keeping, so it is kept — as data on the course ("worth
+ * doing X first"), not as a reason to hide it. Mirrors what the planner already
+ * does (batch-course-select.courseFit keeps such a course selectable and shows
+ * "מומלץ לפני כן").
+ *
+ * Returns undefined when nothing is outstanding, so the prompt stays silent.
+ */
+export function prereqAdvisoryFor(
+  prerequisites: string[] | null | undefined,
+  completedCodes: ReadonlySet<string>,
+): string[] | undefined {
+  const missing = (prerequisites ?? []).filter((code) => !completedCodes.has(code));
+  return missing.length > 0 ? missing : undefined;
+}
+
 function mapToCourseInfo(
   uc: UserCourseWithCourse,
   includeGrade: boolean,
@@ -314,8 +342,7 @@ export async function buildUserContext(
       // what the DB returned (guards against stale rows before cleanup).
       if (isForeignLawCourseCode(course.code)) return false;
       if (allUserCourseCodes.has(course.code)) return false;
-      const prereqs = course.prerequisites ?? [];
-      return prereqs.every((code) => completedCodes.has(code));
+      return true;
     })
     .map((course) => {
       // Arazim gate — omit external averages/difficulty for the King when off.
@@ -329,6 +356,8 @@ export async function buildUserContext(
         difficultyLevel: av.difficultyLevel,
         failRate: av.failRate,
         isMandatory: course.courseType === "MANDATORY" || course.isMandatory === true,
+        // ADVISORY ONLY — see prereqAdvisoryFor.
+        recommendedAfter: prereqAdvisoryFor(course.prerequisites, completedCodes),
       };
     });
 

@@ -1,6 +1,17 @@
 import type { RuleContext, RegulationRule } from "@/types/regulation";
 import { resolveEnglishLevel, ENGLISH_CONFIG } from "@/lib/constants";
+import { resolveEnglishStanding } from "@/lib/english-standing";
 import { result } from "./_result";
+
+/** The shape resolveEnglishStanding reads, projected off the rule context. */
+function levelCourseRows(ctx: RuleContext) {
+  return ctx.userCourses.map((uc) => ({
+    nameHe: uc.course.nameHe,
+    grade: uc.grade,
+    isBinary: (uc as { isBinary?: boolean }).isBinary,
+    status: uc.status,
+  }));
+}
 
 // -------------------------------------------------------------------
 // PKM-012: English requirement — 2 courses taught IN English (any discipline)
@@ -79,7 +90,17 @@ export const ruleEnglishLevel: RegulationRule = (ctx: RuleContext) => {
     );
   }
 
-  const { level, nameHe, nameEn, levelCourses, isExempt, isRejected } = info;
+  const { level, nameHe, nameEn, isExempt, isRejected } = info;
+  // Credit the preparatory LEVEL courses the student has already PASSED before
+  // telling them how many are "still needed" (#6/#18, src/lib/english-standing.ts).
+  // `info.levelCourses` is a PLACEMENT constant — the courses the level implies
+  // from scratch — so a student holding a pass in אנגלית מתקדמים ב׳ was told to
+  // go take the course they had already passed. This is arithmetic on a
+  // remainder, not a new regulation: it never claims a pass grants פטור (that
+  // stays with the מזכירות, and PKM-022 below is untouched).
+  const standing = resolveEnglishStanding(info, levelCourseRows(ctx));
+  const levelCourses = standing?.levelCoursesRemaining ?? info.levelCourses;
+  const passedLevelCourses = standing?.passedLevelCourses ?? 0;
   // Source label: an exact "AMIRANT <score>" when a score exists (keeps the
   // score-based wording byte-identical), else the grade-sheet level itself.
   const score = ctx.amirantScore ?? null;
@@ -100,19 +121,41 @@ export const ruleEnglishLevel: RegulationRule = (ctx: RuleContext) => {
     );
   }
 
+  // Level track finished by coursework (not exempt by placement). We say the
+  // courses are done — NEVER that the student is exempt; confirming פטור is the
+  // מזכירות's call (english-standing.ts states this explicitly).
+  const levelTrackDone = !isExempt && levelCourses === 0 && passedLevelCourses > 0;
+
+  let messageEn: string;
+  let messageHe: string;
+  if (isExempt) {
+    messageEn = `${srcEn} → ${nameEn}: exempt from level courses. The 2 English content courses still apply.`;
+    messageHe = `${srcHe} → ${nameHe}: פטור מקורסי רמה. עדיין נדרשים 2 קורסי תוכן באנגלית. (נכון לתשפ״ו)`;
+  } else if (levelTrackDone) {
+    messageEn = `${srcEn} → ${nameEn}: you have passed the ${passedLevelCourses} preparatory level course(s) your placement required — none left to take. Confirm your exemption status with the department office. The 2 English content courses still apply.`;
+    messageHe = `${srcHe} → ${nameHe}: עברתם את ${passedLevelCourses} קורסי הרמה שנדרשו לפי הסיווג — לא נותרו קורסי רמה. את מעמד הפטור עצמו כדאי לאמת מול המזכירות. עדיין נדרשים 2 קורסי תוכן באנגלית. (נכון לתשפ״ו)`;
+  } else {
+    messageEn = `${srcEn} → ${nameEn}: ${levelCourses} preparatory level course(s) still needed (not counted in the 150 credits). The 2 English content courses still apply.`;
+    messageHe = `${srcHe} → ${nameHe}: נדרשים עוד ${levelCourses} קורסי רמה (לא נספרים ב-150 ש״ס). עדיין נדרשים 2 קורסי תוכן באנגלית. (נכון לתשפ״ו)`;
+  }
+
   return result(
     "PKM-021",
     "English Level (AMIRANT)",
     "רמת אנגלית (אמירנט)",
     true,
     "INFO",
-    isExempt
-      ? `${srcEn} → ${nameEn}: exempt from level courses. The 2 English content courses still apply.`
-      : `${srcEn} → ${nameEn}: ${levelCourses} preparatory level course(s) still needed (not counted in the 150 credits). The 2 English content courses still apply.`,
-    isExempt
-      ? `${srcHe} → ${nameHe}: פטור מקורסי רמה. עדיין נדרשים 2 קורסי תוכן באנגלית. (נכון לתשפ״ו)`
-      : `${srcHe} → ${nameHe}: נדרשים עוד ${levelCourses} קורסי רמה (לא נספרים ב-150 ש״ס). עדיין נדרשים 2 קורסי תוכן באנגלית. (נכון לתשפ״ו)`,
-    { amirantScore: score, level, levelCourses, isExempt, isRejected }
+    messageEn,
+    messageHe,
+    {
+      amirantScore: score,
+      level,
+      levelCourses,
+      passedLevelCourses,
+      isExempt,
+      isRejected,
+      levelTrackDone,
+    }
   );
 };
 
