@@ -1,5 +1,5 @@
 import { z } from "zod/v4";
-import { createTRPCRouter, protectedProcedure, publicProcedure } from "../trpc/init";
+import { createTRPCRouter, publicProcedure } from "../trpc/init";
 
 export const courseRouter = createTRPCRouter({
   /**
@@ -94,59 +94,5 @@ export const courseRouter = createTRPCRouter({
         where: { code: input.code },
       });
       return course;
-    }),
-
-  /**
-   * Suggest courses for a discipline that the user hasn't completed yet.
-   * Used by DegreeGapWidget to show actionable suggestions.
-   */
-  suggestForDiscipline: protectedProcedure
-    .input(
-      z.object({
-        discipline: z.string(),
-        limit: z.number().int().min(1).max(5).default(3),
-      })
-    )
-    .query(async ({ ctx, input }) => {
-      // enforceAuth already resolved the Prisma User into ctx.user (#9: no refetch).
-      const user = ctx.user;
-      if (!user) return [];
-
-      // Get course IDs the user already has (any status except FAILED)
-      const userCourses = await ctx.db.userCourse.findMany({
-        where: {
-          userId: user.id,
-          status: { not: "FAILED" },
-        },
-        select: { courseId: true },
-      });
-      const takenIds = new Set(userCourses.map((uc) => uc.courseId));
-
-      // Get active courses in the discipline
-      const courses = await ctx.db.course.findMany({
-        where: {
-          discipline: input.discipline,
-          isActive: true,
-        },
-        orderBy: [
-          { isMandatory: "desc" },
-          { credits: "desc" },
-          { nameHe: "asc" },
-        ],
-      });
-
-      // Filter out taken courses and return top N
-      return courses
-        .filter((c) => !takenIds.has(c.id))
-        .slice(0, input.limit)
-        .map((c) => ({
-          id: c.id,
-          code: c.code,
-          nameHe: c.nameHe,
-          nameEn: c.nameEn,
-          credits: c.credits,
-          difficultyLevel: c.difficultyLevel,
-          courseType: c.courseType,
-        }));
     }),
 });

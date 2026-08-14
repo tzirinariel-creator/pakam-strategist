@@ -43,13 +43,6 @@ export function getProgramById(
 }
 
 /**
- * Get a program by ID (returns undefined if not found).
- */
-export function getProgram(id: string): ProgramDefinition | undefined {
-  return PROGRAMS[id];
-}
-
-/**
  * List all registered programs.
  */
 export function listPrograms(): ProgramDefinition[] {

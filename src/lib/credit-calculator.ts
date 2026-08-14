@@ -365,20 +365,3 @@ export function calculateCredits(
     totalCredits,
   };
 }
-
-// -------------------------------------------------------------------
-// Utility: determine valid discipline options for a course
-// -------------------------------------------------------------------
-
-/**
- * Return the list of disciplines a course may legally be counted toward.
- * Always includes the course's primary discipline, plus any entries in
- * `canCountAs`.
- */
-export function allowedDisciplines(course: {
-  discipline: Discipline;
-  canCountAs: Discipline[];
-}): Discipline[] {
-  const set = new Set<Discipline>([course.discipline, ...course.canCountAs]);
-  return Array.from(set);
-}

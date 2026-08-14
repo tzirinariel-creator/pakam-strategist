@@ -124,22 +124,32 @@ export const ruleFailureRate: RegulationRule = (ctx: RuleContext) => {
   }
 
   const failureRate = failedCount / totalAttempted;
-  const passed = failureRate <= maxFailureRate;
   const ratePercent = Math.round(failureRate * 100);
 
+  // NO VERDICT. `maxFailureRate` (0.3) has NO source: there is no
+  // failure-rate rule in docs/pakam-domain-rules-2026.md, in דומיין-עומק, or
+  // anywhere else in docs/ — the only "30%" in the docs is about JS bundle
+  // size. This rule used to tell a student "שיעור כישלון 33%, חורג מהמגבלה של
+  // 30%", i.e. assert a regulation violation against an invented number, which
+  // the project's iron rule forbids outright.
+  //
+  // The RATE itself is real — it is the student's own record — so it is still
+  // reported, as a fact with no limit attached. The rule that actually binds
+  // failures IS sourced and IS implemented: PKM-023 (§4, a second failure in
+  // the same course means you cannot continue), which fires as a blocking
+  // ERROR. Nothing is lost by removing this one's fake verdict.
+  //
+  // If a real faculty failure-rate cap is ever found, put the citation in
+  // docs/ and restore the verdict here — not before.
   return result(
     "PKM-014",
-    "Failure Rate Limit",
-    "מגבלת שיעור כישלון",
-    passed,
-    passed ? "INFO" : "WARNING",
-    passed
-      ? `Failure rate is ${ratePercent}% (${failedCount}/${totalAttempted}), within the ${Math.round(maxFailureRate * 100)}% limit.`
-      : `Failure rate is ${ratePercent}% (${failedCount}/${totalAttempted}), exceeds the ${Math.round(maxFailureRate * 100)}% limit.`,
-    passed
-      ? `שיעור כישלון ${ratePercent}% (${failedCount}/${totalAttempted}), בטווח המותר של ${Math.round(maxFailureRate * 100)}%.`
-      : `שיעור כישלון ${ratePercent}% (${failedCount}/${totalAttempted}), חורג מהמגבלה של ${Math.round(maxFailureRate * 100)}%.`,
-    { failedCount, totalAttempted, failureRate: ratePercent, maxFailureRate: Math.round(maxFailureRate * 100) },
+    "Failure Rate",
+    "שיעור כישלון",
+    true,
+    "INFO",
+    `Failure rate is ${ratePercent}% (${failedCount} of ${totalAttempted} courses). Informational — we have no sourced faculty limit for this.`,
+    `שיעור הכישלון שלכם: ${ratePercent}% (${failedCount} מתוך ${totalAttempted} קורסים). זה מידע בלבד — אין לנו מקור רשמי למגבלה על שיעור כישלון. הכלל שכן קיים הוא כישלון שני באותו קורס (ראו מטה).`,
+    { failedCount, totalAttempted, failureRate: ratePercent },
     failedCourses
   );
 };
@@ -180,22 +190,32 @@ export const ruleMaxAttempts: RegulationRule = (ctx: RuleContext) => {
     }
   }
 
-  const passed = violations.length === 0;
   const affectedIds = violations.flatMap((v) => v.userCourseIds);
 
+  // NO VERDICT, same reason as PKM-014. `maxExamAttempts` (3) has no source,
+  // and it is also the WRONG QUANTITY: §4 governs FAILURES, not attempts, and
+  // §6 Layer A speaks of exam SITTINGS ("2 of 3 מועדים"), which is a different
+  // thing again. Firing a blocking ERROR at "4 attempts" invented both the
+  // number and the rule.
+  //
+  // Critically, the real rule is NOT missing — PKM-023 implements §4 exactly
+  // (a second failure in the same course = cannot continue) and fires as a
+  // blocking ERROR at the right threshold. This rule was, at best, noise
+  // layered on top of it, and at worst a false alarm for a student who
+  // legitimately retook a course.
   return result(
     "PKM-015",
-    "Maximum Attempts Per Course",
-    "מספר ניסיונות מרבי לקורס",
-    passed,
-    passed ? "INFO" : "ERROR",
-    passed
-      ? `All courses are within the ${maxAttempts}-attempt limit.`
-      : `${violations.length} course(s) exceed the ${maxAttempts}-attempt limit: ${violations.map((v) => `${v.courseCode} (${v.attempts} attempts)`).join(", ")}.`,
-    passed
-      ? `כל הקורסים בטווח המותר של ${maxAttempts} ניסיונות.`
-      : `${violations.length} קורס/ים חורגים ממגבלת ${maxAttempts} ניסיונות: ${violations.map((v) => `${v.courseCode} (${v.attempts} ניסיונות)`).join(", ")}.`,
-    { maxAttempts, violations: violations.map((v) => ({ courseCode: v.courseCode, attempts: v.attempts })) },
+    "Attempts Per Course",
+    "מספר ניסיונות בקורס",
+    true,
+    "INFO",
+    violations.length === 0
+      ? "No course has an unusual number of attempts."
+      : `Courses with several attempts: ${violations.map((v) => `${v.courseCode} (${v.attempts})`).join(", ")}. Informational — the binding rule is a second failure in the same course.`,
+    violations.length === 0
+      ? "אין קורס עם מספר ניסיונות חריג."
+      : `קורסים עם כמה ניסיונות: ${violations.map((v) => `${v.courseCode} (${v.attempts})`).join(", ")}. זה מידע בלבד — הכלל שמחייב הוא כישלון שני באותו קורס.`,
+    { violations: violations.map((v) => ({ courseCode: v.courseCode, attempts: v.attempts })) },
     affectedIds
   );
 };

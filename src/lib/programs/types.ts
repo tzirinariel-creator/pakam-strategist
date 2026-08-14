@@ -149,22 +149,3 @@ export function getDiscipline(
   return program.disciplines.find((d) => d.id === disciplineId);
 }
 
-/**
- * Get all discipline IDs that can be focus areas.
- */
-export function getFocusOptions(program: ProgramDefinition): string[] {
-  return program.disciplines
-    .filter((d) => d.isFocusOption)
-    .map((d) => d.id);
-}
-
-/**
- * Get the minimum credits for a specific discipline.
- * Returns 0 if discipline not found.
- */
-export function getDisciplineMinCredits(
-  program: ProgramDefinition,
-  disciplineId: string
-): number {
-  return getDiscipline(program, disciplineId)?.minCredits ?? 0;
-}

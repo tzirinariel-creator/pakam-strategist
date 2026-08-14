@@ -72,5 +72,3 @@ export function shouldOfferInstall(platform: InstallPlatform): boolean {
     platform === "android-manual"
   );
 }
-
-export const INSTALL_DISMISS_KEY = "pk-install-dismissed";

@@ -300,6 +300,10 @@
 }
 
 body {
+  /* The default text colour lives HERE, not on the heading rules below, so
+     headings INHERIT it instead of being assigned it. See the note on the
+     h1-h3 rule for why that distinction is load-bearing. */
+  color: var(--foreground);
   background-color: var(--background);
   font-family: var(--font-body);
   -webkit-font-smoothing: antialiased;
@@ -316,10 +320,18 @@ body {
    Typography
    ========================================= */
 
-/* Big headings wear the scholarly serif; small headings stay in the clean sans */
+/* Big headings wear the scholarly serif; small headings stay in the clean sans.
+   NO `color` here — deliberately. These rules are UNLAYERED author CSS, and
+   unlayered author CSS beats Tailwind v4's layered utilities. So `color` on
+   this selector silently overrode every `text-*` class on a heading: 131
+   headings across the app were dropping their colour utility, and the King
+   band's `<h2 class="text-white">` on the public landing page computed to
+   #18181B on #262658 — a contrast ratio of 1.27:1, i.e. effectively invisible.
+   The colour now comes from `body` by inheritance, which produces the identical
+   result for a heading with no utility and lets a utility win when there is one.
+   Same cascade trap the `.data-card` note at the top of this file documents. */
 h1, h2, h3 {
   font-family: var(--font-heading);
-  color: var(--foreground);
   font-weight: 700;
   letter-spacing: -0.01em;
   line-height: 1.15;
@@ -327,7 +339,6 @@ h1, h2, h3 {
 
 h4, h5, h6 {
   font-family: var(--font-body);
-  color: var(--foreground);
   font-weight: 600;
 }
 

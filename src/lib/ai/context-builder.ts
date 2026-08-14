@@ -22,7 +22,7 @@ import { arazimView } from "@/lib/arazim/visibility";
 import { buildExamPeriodBlock } from "@/lib/ai/exam-facts";
 import { getProgramById } from "@/lib/programs/registry";
 import { getAcademicNow, getPlanningAnchor, deriveYearOfStudy } from "@/lib/academic-calendar";
-import { israelCivilDate } from "@/lib/exam-planner";
+import { israelCivilDate } from "@/lib/civil-day";
 
 // Defense-in-depth against the foreign TAU law-school catalog (0910-xxxx) that
 // was co-seeded into the shared Course table and hides under the shared
@@ -79,46 +79,12 @@ export interface UserForContext {
 // -------------------------------------------------------------------
 
 /**
- * Determine the next semester (year, semester) given the current one.
- */
-export function getNextSemester(
-  currentYear: number,
-  currentSemester: string,
-): { year: number; semester: Semester } {
-  switch (currentSemester) {
-    case "FALL":
-      return { year: currentYear, semester: "SPRING" };
-    case "SPRING":
-      return { year: currentYear, semester: "SUMMER" };
-    case "SUMMER":
-      return { year: currentYear + 1, semester: "FALL" };
-    default:
-      return { year: currentYear, semester: "SPRING" };
-  }
-}
-
-/**
  * Auto-generate a title from the first user message (first 60 chars).
  */
 export function generateTitle(message: string): string {
   const cleaned = message.replace(/\s+/g, " ").trim();
   if (cleaned.length <= 60) return cleaned;
   return cleaned.slice(0, 57) + "...";
-}
-
-/**
- * Extract text from Claude API response content blocks.
- */
-export function extractResponseText(
-  content: Array<{ type: string; text?: string }>,
-): string {
-  return content
-    .filter(
-      (block): block is { type: "text"; text: string } =>
-        block.type === "text",
-    )
-    .map((block) => block.text)
-    .join("");
 }
 
 // -------------------------------------------------------------------

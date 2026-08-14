@@ -9,7 +9,6 @@
 // Import the leaf visibility module directly (not the barrel) so this pure lib
 // never pulls in the Arazim network fetcher.
 import { ARAZIM_ENABLED } from "./arazim/visibility";
-import { israelCivilDate as civilDay } from "@/lib/civil-day";
 
 export interface ExamInput {
   courseCode: string;
@@ -142,22 +141,6 @@ function addDays(d: Date, n: number): Date {
 function dayKey(d: Date): string {
   const x = startOfDay(d);
   return `${x.getFullYear()}-${String(x.getMonth() + 1).padStart(2, "0")}-${String(x.getDate()).padStart(2, "0")}`;
-}
-
-/**
- * "Today" as the Israel CIVIL date, returned as a Date whose local Y/M/D equal
- * that civil date — so the local-based dayKey()/startOfDay() above produce
- * Israel day keys. On the client this already equals new Date(); the point is
- * the SERVER, which runs UTC: a bare new Date() between 00:00–03:00 Israel is
- * still "yesterday" in UTC, which placed the saved study blocks a day off from
- * what the student previewed (client-local). Anchoring the server build to this
- * removes that shift. `now` is injectable for testing.
- */
-export function israelCivilDate(now: Date = new Date()): Date {
-  // Implementation lives in @/lib/civil-day — the single source for every
-  // "which day is it for the student" question. Re-exported from here so the
-  // existing importers keep working.
-  return civilDay(now);
 }
 
 /** Classify difficulty from the course's historical grade signal. */

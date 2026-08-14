@@ -137,10 +137,6 @@ export function hasAddIntent(text: string): boolean {
   return ADD_INTENT.test(normalize(text));
 }
 
-export function hasCompleteIntent(text: string): boolean {
-  return COMPLETE_INTENT.test(normalize(text));
-}
-
 // Generic words that appear in half the catalog — matching on them alone
 // would grab the wrong course.
 const STOPWORDS = new Set([

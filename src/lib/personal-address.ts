@@ -48,11 +48,6 @@ export function gendered(
   return norm === "male" ? forms.m : norm === "female" ? forms.f : forms.n;
 }
 
-/** A greeting head: "היי דני" / "היי" (no name) — never "היי null". */
-export function greetingName(p?: PersonProfile | null): string | null {
-  return firstNameOf(p);
-}
-
 /**
  * The first name to use in a greeting, guarded by script: in Hebrew we never
  * jam a Latin name into Hebrew text ("היי Dan"), so a non-Hebrew name returns

@@ -66,14 +66,3 @@ export function createClaudeClient(encryptedKey: string): Anthropic {
   // SDK default (10 min); one retry smooths transient blips.
   return new Anthropic({ apiKey, timeout: 120_000, maxRetries: 1 });
 }
-
-/**
- * Mask an API key for safe display.
- * Example: "sk-ant-api03-abc...wxyz" -> "sk-ant-••••wxyz"
- */
-export function maskApiKey(key: string): string {
-  if (key.length <= 12) {
-    return "sk-ant-" + "\u2022".repeat(8);
-  }
-  return "sk-ant-" + "\u2022".repeat(4) + key.slice(-4);
-}

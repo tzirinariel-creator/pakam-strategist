@@ -6,7 +6,8 @@ vi.mock("@/lib/arazim/visibility", async (orig) => ({
   ...(await orig<typeof import("@/lib/arazim/visibility")>()),
   ARAZIM_ENABLED: true,
 }));
-import { generateExamPlan, analyzeExamPeriod, classifyDifficulty, confidenceMultiplier, explainBudget, israelCivilDate, type ExamInput } from "@/lib/exam-planner";
+import { generateExamPlan, analyzeExamPeriod, classifyDifficulty, confidenceMultiplier, explainBudget, type ExamInput } from "@/lib/exam-planner";
+import { israelCivilDate } from "@/lib/civil-day";
 
 const NOW = new Date("2026-06-01T00:00:00Z");
 

@@ -1,7 +1,8 @@
 import { z } from "zod/v4";
 import { TRPCError } from "@trpc/server";
 import { createTRPCRouter, protectedProcedure } from "../trpc/init";
-import { generateExamPlan, israelCivilDate, type ExamInput } from "@/lib/exam-planner";
+import { generateExamPlan, type ExamInput } from "@/lib/exam-planner";
+import { israelCivilDate } from "@/lib/civil-day";
 import { buildPrePlaced, LOCK_MARK } from "@/lib/plan-from-tasks";
 
 // Marker stored in `notes` so we can regenerate the auto plan without wiping a

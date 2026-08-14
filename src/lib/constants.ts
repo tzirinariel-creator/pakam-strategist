@@ -9,9 +9,6 @@
 import { getActiveProgram } from "@/lib/programs/registry";
 import type { ProgramDefinition } from "@/lib/programs/types";
 
-export const APP_NAME = "Pakamon";
-export const APP_NAME_HE = "פכמון";
-
 // Public contact address — ONE source of truth for every mailto in the app
 // (footer, about/privacy/accessibility, settings feedback, catalog report).
 // Points at an owner-controlled inbox until a real domain is bought; the
@@ -105,60 +102,21 @@ function buildDisciplineConfig(
   return config;
 }
 
-// ── Per-program caches (avoid recomputing on every call) ────────
-const _disciplineConfigCache = new Map<string, Record<string, DisciplineDisplayConfig>>();
+// ── Module-level constants (resolved from the active program) ──
+// A per-program factory layer (getDisciplineConfigFor(program) & friends) used
+// to sit here for future multi-program support. Nothing ever called it, so it
+// was removed; when a second program actually ships, re-derive these from the
+// user's ProgramDefinition instead of getActiveProgram().
 
-// ── Factory functions (per-program) ──────────────────────────────
-// These accept an optional ProgramDefinition. When omitted, they
-// fall back to the default program (PPE). Use these for per-user
-// program support; the module-level constants below are backwards-
-// compatible aliases that always resolve to the default program.
-
-/** Get DISCIPLINE_CONFIG for a specific program (cached). */
-export function getDisciplineConfigFor(
-  program?: ProgramDefinition
-): Record<string, DisciplineDisplayConfig> {
-  const p = program ?? getActiveProgram();
-  const cached = _disciplineConfigCache.get(p.id);
-  if (cached) return cached;
-  const config = buildDisciplineConfig(p);
-  _disciplineConfigCache.set(p.id, config);
-  return config;
-}
-
-/** Get all discipline IDs in program order. */
-export function getAllDisciplineIdsFor(program?: ProgramDefinition): string[] {
-  const p = program ?? getActiveProgram();
-  return p.disciplines.map((d) => d.id);
-}
-
-/** Get discipline IDs that can be chosen as focus area. */
-export function getFocusDisciplineIdsFor(program?: ProgramDefinition): string[] {
-  const p = program ?? getActiveProgram();
-  return p.disciplines.filter((d) => d.isFocusOption).map((d) => d.id);
-}
-
-/** Get discipline IDs suitable for filtering (all except GENERAL). */
-export function getFilterableDisciplineIdsFor(program?: ProgramDefinition): string[] {
-  const p = program ?? getActiveProgram();
-  return p.disciplines.filter((d) => d.id !== "GENERAL").map((d) => d.id);
-}
-
-// ── Module-level constants (backwards-compatible, always default program) ──
-
-/** @deprecated Use getDisciplineConfigFor(program) for per-user support. */
 export const DISCIPLINE_CONFIG: Record<string, DisciplineDisplayConfig> =
   buildDisciplineConfig(getActiveProgram());
 
-/** @deprecated Use getAllDisciplineIdsFor(program) for per-user support. */
 export const ALL_DISCIPLINE_IDS: string[] =
   getActiveProgram().disciplines.map((d) => d.id);
 
-/** @deprecated Use getFocusDisciplineIdsFor(program) for per-user support. */
 export const FOCUS_DISCIPLINE_IDS: string[] =
   getActiveProgram().disciplines.filter((d) => d.isFocusOption).map((d) => d.id);
 
-/** @deprecated Use getFilterableDisciplineIdsFor(program) for per-user support. */
 export const FILTERABLE_DISCIPLINE_IDS: string[] =
   getActiveProgram().disciplines.filter((d) => d.id !== "GENERAL").map((d) => d.id);
 
@@ -171,8 +129,8 @@ function buildCreditRequirements(program: ProgramDefinition) {
   // to ProgramDefinition yet. Future: add electiveCredits to ProgramDefinition.
   //
   // NOTE: Discipline-specific credits (PHILOSOPHY: 18, etc.) are NOT included
-  // here — use getDisciplineCredits(id) instead. This avoids index-signature
-  // issues with noUncheckedIndexedAccess.
+  // here — read them off `program.disciplines[].minCredits`. This avoids
+  // index-signature issues with noUncheckedIndexedAccess.
   return {
     TOTAL: program.creditRequirements.total,
     FOCUS_AREA_MIN: program.creditRequirements.focusAreaMin,
@@ -192,19 +150,6 @@ function buildCreditRequirements(program: ProgramDefinition) {
   } as const;
 }
 
-/**
- * Get minimum credits for a discipline.
- * Accepts an optional program; defaults to active program if omitted.
- * Returns 0 if discipline not found.
- */
-export function getDisciplineCredits(
-  disciplineId: string,
-  program?: ProgramDefinition
-): number {
-  const p = program ?? getActiveProgram();
-  return p.disciplines.find((d) => d.id === disciplineId)?.minCredits ?? 0;
-}
-
 function buildSeminarRequirements(program: ProgramDefinition) {
   const sem = program.seminarRequirements;
   // Use first discipline rule (e.g., ECONOMICS for PPE) — generic, not hardcoded
@@ -215,7 +160,6 @@ function buildSeminarRequirements(program: ProgramDefinition) {
     REFERATS: sem?.referats ?? 0,
     MAX_DISCIPLINE_SEMINARS: firstRule?.maxPerYear ?? 2,
     DISCIPLINE_RULE_ID: firstRule?.disciplineId ?? null,
-    MIN_CREDITS_FOR_SUBMISSION: 3,
   } as const;
 }
 
@@ -227,7 +171,6 @@ function buildGradeRequirements(program: ProgramDefinition) {
     MAX_GRADE_IMPROVEMENTS: 2,
     MAX_FAILURES_SAME_COURSE: 2,
     PRIOR_STUDIES_MIN_GRADE: 80,
-    APPEAL_DAYS: 5,
   } as const;
 }
 
@@ -239,64 +182,19 @@ function buildGradeWeights(program: ProgramDefinition) {
   } as const;
 }
 
-// ── Per-program caches for derived constants ──
-const _creditReqCache = new Map<string, ReturnType<typeof buildCreditRequirements>>();
-const _seminarReqCache = new Map<string, ReturnType<typeof buildSeminarRequirements>>();
-const _gradeReqCache = new Map<string, ReturnType<typeof buildGradeRequirements>>();
-const _gradeWeightsCache = new Map<string, ReturnType<typeof buildGradeWeights>>();
+// ── Module-level constants (resolved from the active program) ──
+// A cached per-program getter layer (getCreditRequirementsFor(program) &
+// friends) used to sit here for future multi-program support. Nothing ever
+// called it — every one of the ~160 call sites in the app reads the constants
+// below — so it was removed. When a second program actually ships, thread a
+// ProgramDefinition through instead of adding the getters back unused.
 
-/** Get credit requirements for a specific program (cached). */
-export function getCreditRequirementsFor(program?: ProgramDefinition) {
-  const p = program ?? getActiveProgram();
-  const cached = _creditReqCache.get(p.id);
-  if (cached) return cached;
-  const req = buildCreditRequirements(p);
-  _creditReqCache.set(p.id, req);
-  return req;
-}
-
-/** Get seminar requirements for a specific program (cached). */
-export function getSeminarRequirementsFor(program?: ProgramDefinition) {
-  const p = program ?? getActiveProgram();
-  const cached = _seminarReqCache.get(p.id);
-  if (cached) return cached;
-  const req = buildSeminarRequirements(p);
-  _seminarReqCache.set(p.id, req);
-  return req;
-}
-
-/** Get grade requirements for a specific program (cached). */
-export function getGradeRequirementsFor(program?: ProgramDefinition) {
-  const p = program ?? getActiveProgram();
-  const cached = _gradeReqCache.get(p.id);
-  if (cached) return cached;
-  const req = buildGradeRequirements(p);
-  _gradeReqCache.set(p.id, req);
-  return req;
-}
-
-/** Get grade weights for a specific program (cached). */
-export function getGradeWeightsFor(program?: ProgramDefinition) {
-  const p = program ?? getActiveProgram();
-  const cached = _gradeWeightsCache.get(p.id);
-  if (cached) return cached;
-  const req = buildGradeWeights(p);
-  _gradeWeightsCache.set(p.id, req);
-  return req;
-}
-
-// ── Module-level constants (backwards-compatible, always default program) ──
-
-/** @deprecated Use getCreditRequirementsFor(program) for per-user support. */
 export const CREDIT_REQUIREMENTS = buildCreditRequirements(getActiveProgram());
 
-/** @deprecated Use getSeminarRequirementsFor(program) for per-user support. */
 export const SEMINAR_REQUIREMENTS = buildSeminarRequirements(getActiveProgram());
 
-/** @deprecated Use getGradeRequirementsFor(program) for per-user support. */
 export const GRADE_REQUIREMENTS = buildGradeRequirements(getActiveProgram());
 
-/** @deprecated Use getGradeWeightsFor(program) for per-user support. */
 export const GRADE_WEIGHTS = buildGradeWeights(getActiveProgram());
 
 // Semester display config
@@ -314,17 +212,6 @@ export const YEAR_CONFIG = {
   1: { nameEn: "Year A", nameHe: "שנה א׳" },
   2: { nameEn: "Year B", nameHe: "שנה ב׳" },
   3: { nameEn: "Year C", nameHe: "שנה ג׳" },
-} as const;
-
-// Calendar event colors
-export const EVENT_COLORS = {
-  LECTURE: "#4A90D9",
-  EXAM: "#E74C3C",
-  ASSIGNMENT_DUE: "#FFA502",
-  STUDY_BLOCK: "#4A90D9",
-  OFFICE_HOURS: "#2ECC71",
-  CUSTOM: "#8B949E",
-  GOOGLE_SYNCED: "#6B7280",
 } as const;
 
 // ────────────────────────────────────────────────────────────────────
@@ -598,9 +485,6 @@ export const AMIRNET_CONFIG = {
   PPE_CONTENT_COURSES_REQUIRED: 2,  // PPE requires 2 academic courses in English regardless
 } as const;
 
-// Backwards-compatible alias
-export const AMIRAM_CONFIG = AMIRNET_CONFIG;
-
 // ────────────────────────────────────────────────────────────────────
 // English (AMIRANT) placement → level mapping — נכון לתשפ"ו
 // Official 50–150 scale. The LEVEL (preparatory) courses below are NOT
@@ -648,8 +532,11 @@ export interface EnglishLevelInfo {
  * Map an AMIRANT score (50–150) to its English level + how many LEVEL
  * (preparatory) courses are still needed. Returns null for a null score
  * so callers can stay neutral (no rule firing). נכון לתשפ"ו.
+ *
+ * Internal on purpose: callers must go through `resolveEnglishLevel`, so a
+ * declared level always wins over the score (#23).
  */
-export function getEnglishLevel(score: number | null): EnglishLevelInfo | null {
+function getEnglishLevel(score: number | null): EnglishLevelInfo | null {
   if (score == null) return null;
   const row =
     ENGLISH_CONFIG.LEVELS.find((l) => score >= l.minScore) ??
@@ -720,21 +607,6 @@ export const SPECIAL_EXAM_RULES = {
   DEADLINE_WEEKS_AFTER_GRADE: 2,
   DOCUMENTATION_REQUIRED: true,
 } as const;
-
-// File upload limits
-export const UPLOAD_LIMITS = {
-  MAX_FILE_SIZE: 10 * 1024 * 1024, // 10MB
-  ALLOWED_TYPES: ["application/pdf", "application/vnd.openxmlformats-officedocument.wordprocessingml.document", "image/png", "image/jpeg"] as const,
-  ALLOWED_EXTENSIONS: [".pdf", ".docx", ".png", ".jpg", ".jpeg"] as const,
-} as const;
-
-// Navigation items (Round 13: simplified — exam/syllabus/calendar merged into dashboard tabs)
-export const NAV_ITEMS = [
-  { key: "dashboard", href: "/dashboard", iconName: "LayoutDashboard" as const },
-  { key: "planner", href: "/planner", iconName: "GraduationCap" as const },
-  { key: "regulations", href: "/regulations", iconName: "Scale" as const },
-  { key: "settings", href: "/settings", iconName: "Settings" as const },
-] as const;
 
 /**
  * The honest pass bar per course type — ENGLISH passes at 70, everything else

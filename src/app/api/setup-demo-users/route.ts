@@ -48,13 +48,22 @@ async function supabaseAdminFetch(
   });
 }
 
-async function listUsers(supabaseUrl: string, serviceRoleKey: string) {
+/** The only two fields this route reads off a GoTrue admin user record. */
+interface AdminUser {
+  id: string;
+  email?: string | null;
+}
+
+async function listUsers(
+  supabaseUrl: string,
+  serviceRoleKey: string
+): Promise<{ users: AdminUser[]; error: string | null }> {
   const res = await supabaseAdminFetch(
     `${supabaseUrl}/auth/v1/admin/users?per_page=500`,
     serviceRoleKey
   );
   if (!res.ok) return { users: [], error: await res.text() };
-  const data = await res.json();
+  const data = (await res.json()) as { users?: AdminUser[] };
   return { users: data.users ?? [], error: null };
 }
 
@@ -130,8 +139,9 @@ export async function POST(request: Request) {
   // Constant-time compare. `!==` returns as soon as two bytes differ, leaking the
   // secret one prefix byte at a time — and THIS route is the one that holds
   // SUPABASE_SERVICE_ROLE_KEY and can create/overwrite auth users, so it is the
-  // last place that should have the weakest check. crypto.ts:88 was extracted
-  // naming this exact route; it was never applied here (audit 13.8).
+  // last place that should have the weakest check. `timingSafeEqualStr`
+  // (src/lib/crypto.ts) was extracted naming this exact route and is applied
+  // below (audit 13.8, wired 14.8).
   if (!token || !timingSafeEqualStr(token, secret)) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
@@ -172,8 +182,7 @@ export async function POST(request: Request) {
 
   for (const user of USERS) {
     try {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const existing = existingUsers.find((u: any) => u.email === user.email);
+      const existing = existingUsers.find((u) => u.email === user.email);
 
       if (existing) {
         const { error: updErr } = await updateUser(

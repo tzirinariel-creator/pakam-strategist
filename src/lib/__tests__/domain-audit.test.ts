@@ -1271,3 +1271,93 @@ describe("civil days are counted in Israel, not on the server (§timezone)", () 
     expect(storedDateKeyMs(new Date("2026-02-10T00:00:00.000Z"))).toBe(Date.UTC(2026, 1, 10));
   });
 });
+
+// =========================================================================
+// §14 — rules must not assert a limit we cannot cite.
+//
+// Two rules shipped a verdict against an INVENTED threshold:
+//   PKM-014 `maxFailureRate: 0.3` — there is NO failure-rate rule anywhere in
+//     docs/. It told a student "שיעור כישלון 33%, חורג מהמגבלה של 30%", i.e.
+//     asserted a regulation violation that does not exist.
+//   PKM-015 `maxExamAttempts: 3` — unsourced, AND the wrong quantity: §4
+//     governs FAILURES, not attempts, and §6 speaks of exam SITTINGS.
+//
+// Nothing is lost by removing the verdicts, because the rule that DOES bind is
+// sourced and already implemented: PKM-023 (§4 — a second failure in the same
+// course means you cannot continue), which fires as a blocking ERROR.
+// =========================================================================
+import { ruleFailureRate, ruleMaxAttempts, ruleFailTwice } from "@/lib/regulations/rules/grades";
+
+describe("§14 unsourced thresholds never produce a verdict", () => {
+  it("PKM-014 reports a high failure rate as INFO, never as a violation", () => {
+    // 2 of 3 failed = 67%, way past the old invented 30% "limit".
+    const courses = [
+      uc({ status: "FAILED", courseId: "f1" }),
+      uc({ status: "FAILED", courseId: "f2" }),
+      uc({ status: "COMPLETED", grade: 80, courseId: "p1" }),
+    ];
+    const r = ruleFailureRate(ctxOf({ userCourses: courses }));
+    expect(r.passed).toBe(true);
+    expect(r.severity).toBe("INFO");
+    expect(r.messageHe).toContain("67%");
+    // It must not name a limit it cannot cite.
+    expect(r.messageHe).not.toContain("חורג");
+    expect(r.messageHe).not.toContain("30%");
+  });
+
+  it("PKM-015 reports many attempts as INFO, never as a blocking ERROR", () => {
+    const courses = [
+      uc({ courseId: "x", status: "FAILED", attemptNumber: 1 }),
+      uc({ courseId: "x", status: "FAILED", attemptNumber: 2 }),
+      uc({ courseId: "x", status: "FAILED", attemptNumber: 3 }),
+      uc({ courseId: "x", status: "COMPLETED", grade: 70, attemptNumber: 4 }),
+    ];
+    const r = ruleMaxAttempts(ctxOf({ userCourses: courses }));
+    expect(r.passed).toBe(true);
+    expect(r.severity).toBe("INFO");
+    expect(r.severity).not.toBe("ERROR");
+  });
+
+  it("but the SOURCED rule still bites: a second failure in the same course blocks", () => {
+    // This is the guarantee that makes removing the two verdicts safe.
+    const courses = [
+      // isMandatory matters: §4 scopes the blocker to MANDATORY courses — a
+      // twice-failed elective is replaced, not degree-ending. The migration
+      // sets isMandatory from courseType, so this mirrors real catalog rows.
+      uc({ courseId: "y", status: "FAILED", attemptNumber: 1, isMandatory: true }),
+      uc({ courseId: "y", status: "FAILED", attemptNumber: 2, isMandatory: true }),
+    ];
+    const r = ruleFailTwice(ctxOf({ userCourses: courses }));
+    expect(r.passed).toBe(false);
+    expect(r.severity).toBe("ERROR");
+  });
+
+  it("and a single failure, or a failure then a pass, does NOT block", () => {
+    const once = ruleFailTwice(
+      ctxOf({ userCourses: [uc({ courseId: "z", status: "FAILED", isMandatory: true })] }),
+    );
+    expect(once.passed).toBe(true);
+
+    const recovered = ruleFailTwice(
+      ctxOf({
+        userCourses: [
+          uc({ courseId: "w", status: "FAILED", attemptNumber: 1, isMandatory: true }),
+          uc({ courseId: "w", status: "COMPLETED", grade: 75, attemptNumber: 2, isMandatory: true }),
+        ],
+      }),
+    );
+    expect(recovered.passed).toBe(true);
+  });
+
+  it("a twice-failed ELECTIVE does not block — §4 scopes the blocker to mandatory", () => {
+    const r = ruleFailTwice(
+      ctxOf({
+        userCourses: [
+          uc({ courseId: "e", status: "FAILED", attemptNumber: 1, isMandatory: false }),
+          uc({ courseId: "e", status: "FAILED", attemptNumber: 2, isMandatory: false }),
+        ],
+      }),
+    );
+    expect(r.passed).toBe(true);
+  });
+});
