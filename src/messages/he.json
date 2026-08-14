@@ -1,8 +1,4 @@
 {
-  "app": {
-    "name": "פכמון",
-    "tagline": "התואר שלכם, מסודר סוף סוף"
-  },
   "nav": {
     "dashboard": "בית",
     "planner": "תכנון התואר",
@@ -84,11 +80,6 @@
     "COMPLETED": "הושלם",
     "FAILED": "נכשל",
     "EXEMPT": "פטור"
-  },
-  "semester": {
-    "FALL": "סמסטר א׳",
-    "SPRING": "סמסטר ב׳",
-    "SUMMER": "סמסטר קיץ"
   },
   "year": {
     "1": "שנה א׳",
@@ -417,59 +408,6 @@
     "none": "אין",
     "sortAsc": "מיון עולה",
     "sortDesc": "מיון יורד"
-  },
-  "synthesis": {
-    "title": "מעבדת סינתזה",
-    "subtitle": "חברו רעיונות מתחומים שונים ושמרו את הקשרים שמצאתם",
-    "newNote": "רשומה חדשה",
-    "aiSuggest": "הצעת AI",
-    "editNote": "ערכו רשומה",
-    "deleteNote": "מחקו רשומה",
-    "noteTitle": "כותרת",
-    "noteContent": "תוכן",
-    "disciplines": "תחומים",
-    "courseConnections": "קורסים קשורים",
-    "tags": "תגיות",
-    "searchPlaceholder": "חיפוש ברשומות…",
-    "noNotes": "אין רשומות עדיין. שמתם לב לקשר מעניין בין קורסים? תעדו אותו פה",
-    "aiGenerating": "מייצרים חיבור בין-דיסציפלינרי…",
-    "selectDisciplines": "בחרו שתיים או שלוש דיסציפלינות לחיבור",
-    "customPrompt": "שאלה או נושא ספציפי (אופציונלי)",
-    "generateSuggestion": "צרו הצעה",
-    "saveAsNote": "שמרו כרשומה",
-    "aiGenerated": "נוצר עם AI",
-    "save": "שמרו",
-    "cancel": "ביטול",
-    "noApiKey": "צריך מפתח בינה מלאכותית — הגדירו אותו בהגדרות (אפשר Gemini חינמי)",
-    "newest": "חדש ביותר",
-    "oldest": "ישן ביותר",
-    "alphabetical": "אלפביתי"
-  },
-  "syllabus": {
-    "title": "ניהול סילבוסים",
-    "subtitle": "העלו סילבוס וה-AI יחלץ מועדים, מבנה ציון וביבליוגרפיה",
-    "upload": "העלו סילבוס",
-    "uploadHint": "גררו קובץ לכאן או הדביקו טקסט",
-    "selectCourse": "בחרו קורס",
-    "pasteContent": "הדביקו תוכן סילבוס",
-    "parse": "נתחו עם AI",
-    "parsing": "מנתחים את הסילבוס…",
-    "topics": "נושאי הקורס",
-    "deadlines": "מועדים חשובים",
-    "grading": "מבנה הציון",
-    "summary": "סיכום",
-    "noSyllabi": "אין סילבוסים עדיין — העלו קובץ או הדביקו טקסט כדי להתחיל",
-    "parsedSuccessfully": "הסילבוס נותח בהצלחה",
-    "editParsed": "ערכו נתונים",
-    "delete": "מחקו סילבוס",
-    "exam": "מבחן",
-    "assignment": "מטלה",
-    "paper": "עבודה",
-    "weeklySchedule": "לוח שבועי",
-    "noApiKey": "צריך מפתח בינה מלאכותית — הגדירו אותו בהגדרות (אפשר Gemini חינמי)",
-    "syllabusDeleted": "הסילבוס נמחק",
-    "clearFile": "הסירו את הקובץ",
-    "chooseFile": "בחרו קובץ סילבוס"
   },
   "calendar": {
     "title": "יומן אקדמי",
@@ -924,59 +862,6 @@
       "exemptDef": "אין צורך בקורסי-רמה. עדיין צריך 2 קורסי-תוכן באנגלית."
     }
   },
-  "customCourse": {
-    "title": "הוסיפו קורס ידני",
-    "subtitle": "לקורסים שלא נמצאים בקטלוג (בחירות חיצוניות, סדנאות וכו׳)",
-    "courseName": "שם הקורס",
-    "courseNamePlaceholder": "למשל: סדנת כתיבה אקדמית",
-    "credits": "ש״ס",
-    "discipline": "תחום",
-    "scheduleOptional": "מערכת שעות (אופציונלי)",
-    "dayPlaceholder": "יום",
-    "cancel": "ביטול",
-    "add": "הוסיפו"
-  },
-  "courseDetail": {
-    "hoursPerWeek": "ש״ס",
-    "lecture": "הרצאה",
-    "tutorial": "תרגול",
-    "examDateA": "א׳:",
-    "examDateB": "ב׳:",
-    "days": {
-      "SUNDAY": "א׳",
-      "MONDAY": "ב׳",
-      "TUESDAY": "ג׳",
-      "WEDNESDAY": "ד׳",
-      "THURSDAY": "ה׳"
-    }
-  },
-  "intensityMeter": {
-    "avgHoursPerWeek": "שעות/שבוע ממוצע",
-    "avgWorkload": "עומס ממוצע",
-    "totalExams": "סה״כ בחינות",
-    "conflicts": "התנגשויות",
-    "hourUnit": "ש",
-    "heaviestSemester": "הסמסטר הכבד ביותר:",
-    "semesterA": "סמסטר א׳",
-    "semesterB": "סמסטר ב׳"
-  },
-  "workload": {
-    "workload": "עומס",
-    "credits": "ש״ס",
-    "courses": "קורסים",
-    "seminar": "סמינריון",
-    "details": "פרטי עומס",
-    "disciplines": "תחומים",
-    "includesSeminar": "כולל סמינריון",
-    "score": "ציון עומס"
-  },
-  "tips": {
-    "funFact": "שווה לדעת",
-    "planningTip": "טיפ לתכנון",
-    "warning": "שימו לב",
-    "motivation": "לא לשכוח",
-    "academicRule": "כלל אקדמי"
-  },
   "examSchedule": {
     "title": "בחינות וציונים",
     "subtitle": "לוח בחינות ומחשבון ציון גמר",
@@ -998,28 +883,6 @@
     "exportSuccess": "קובץ היומן נוצר",
     "tabTimeline": "ציר זמן",
     "openGradeCalculator": "פתחו את מחשבון ציון הגמר"
-  },
-  "roi": {
-    "title": "ניתוח ביצועים",
-    "subtitle": "מגמות ציונים, יעילות לימודית וניתוח לפי דיסציפלינה",
-    "noCourses": "אין עדיין קורסים עם ציונים — הזינו ציונים כדי לראות ניתוח",
-    "coursesCompleted": "קורסים שהושלמו",
-    "creditsEarned": "ש״ס שנצברו",
-    "overallAvg": "ממוצע כללי",
-    "progress": "התקדמות",
-    "disciplineBreakdown": "פירוט לפי תחום",
-    "semesterTrend": "מגמת ציונים לפי סמסטר",
-    "efficiency": "יעילות לימודית",
-    "discipline": "דיסציפלינה",
-    "courses": "קורסים",
-    "credits": "ש״ס",
-    "avgGrade": "ציון ממוצע",
-    "gradePerCredit": "ציון / ש״ס",
-    "noGrades": "אין ציונים עדיין",
-    "yearPrefix": "שנה",
-    "fall": "א'",
-    "spring": "ב'",
-    "summer": "קיץ"
   },
   "landing": {
     "brand": "פכמון",
@@ -1200,37 +1063,6 @@
     "changesTitle": "שינויים",
     "changes": "התנאים עשויים להתעדכן. שינויים מהותיים יפורסמו באתר."
   },
-  "graduation": {
-    "scoreSumma": "מצטיין יתר",
-    "scoreMagna": "מצטיין",
-    "scoreVeryGood": "טוב מאוד",
-    "scoreGood": "טוב",
-    "scoreAlmostGood": "כמעט טוב",
-    "scoreSufficient": "מספיק",
-    "gradedCourses": "קורסים מוערכים",
-    "completedCredits": "ש״ס שהושלמו",
-    "noScoreHint": "השלימו קורסים והזינו ציונים כדי לראות את ציון הגמר.",
-    "noDataTitle": "עדיין אין ציונים",
-    "noDataSubtitle": "ציון הגמר יחושב אוטומטית ברגע שתזינו ציונים.",
-    "formulaExplainer": "ציון = (ממוצע קורסי חובה ובחירה × 0.78) + (ממוצע סמינריוניות × 0.18) + (רפרט × 0.04)",
-    "formulaTitle": "פירוט נוסחת הציון",
-    "courseAvg": "ממוצע קורסים",
-    "seminarAvg": "ממוצע עבודות סמינריוניות",
-    "referatGrade": "ציון רפרט",
-    "missing": "חסר",
-    "totalWeighted": "סה״כ ציון משוקלל",
-    "whatIfTitle": "סימולציית \"מה אם\"",
-    "whatIfDesc": "שחקו עם ציונים ותראו איך הממוצע זז",
-    "courseAvgLabel": "ממוצע קורסים (78%)",
-    "seminarAvgLabel": "ממוצע סמינריוניות (18%)",
-    "referatLabel": "ציון רפרט (4%)",
-    "simulatedScore": "ציון סימולציה",
-    "change": "שינוי",
-    "forecastBasis": "תחזית · מבוססת על {credits} מתוך 150 ש״ס שהושלמו",
-    "provisionalBasis": "ממוצע הקורסים הנוכחי · ציון הגמר המלא יחושב אחרי הסמינרים",
-    "generalAverage": "ממוצע כללי",
-    "graduationScoreLabel": "ציון גמר משוקלל"
-  },
   "dashboard": {
     "title": "הבית שלכם",
     "subtitle": "כל מה שחשוב לדעת על התואר שלכם, במבט אחד",
@@ -1369,59 +1201,6 @@
     "filter": "סינון",
     "noResults": "לא נמצאו תוצאות",
     "back": "חזרה"
-  },
-  "knowledgeBase": {
-    "title": "מאגר הידע של פכמון",
-    "subtitle": "טיפים, כללים ועובדות על תוכנית פכ״מ — כל מה שכדאי לדעת",
-    "searchPlaceholder": "חיפוש טיפים, כללים ועובדות…",
-    "all": "הכול",
-    "resultsCount": "{count} מתוך {total} תוצאות",
-    "noResults": "לא נמצא כלום — נסו מילת חיפוש אחרת",
-    "connectApiBanner": "רוצים שיחות AI מלאות?",
-    "connectApiDesc": "חברו מפתח בינה מלאכותית בהגדרות (אפשר Gemini חינמי) לייעוץ אקדמי",
-    "quickLinks": "קישורים מהירים",
-    "linkRegulations": "בדיקת מסלול",
-    "linkPlanner": "תכנון התואר",
-    "linkDashboard": "דף הבית"
-  },
-  "insights": {
-    "levelLight": "קל",
-    "levelModerate": "בינוני",
-    "levelHeavy": "כבד",
-    "levelIntense": "עמוס",
-    "degreeProgress": "התקדמות בתואר",
-    "focusPrefix": "תחום: ",
-    "conflictsTitle": "התנגשויות בין קורסים:",
-    "tipSeminarPlusStudy": "סמסטר של כתיבה + לימוד — תכננו זמן לעבודת הסמינריון",
-    "tipAllMandatory": "כל הקורסים חובה — אין גמישות, חייבים לעבור הכול",
-    "tipMostlyMandatory": "רוב הקורסים חובה — שקלו להוסיף בחירה קלה לאיזון",
-    "tipIncludesSeminar": "כולל סמינריון — דורש כתיבת עבודה, תכננו זמן",
-    "tipMultipleDisciplines": "מעבר בין {count} תחומים — כדאי לקבץ ימים לפי נושא",
-    "tipLightLoad": "עומס קל — יש מקום לעבודה או פרויקט צדדי",
-    "tipHeavyCourses": "קורסים כבדים בממוצע — כל קורס שווה הרבה ש״ס",
-    "tipReasonableLoad": "עומס סביר לסמסטר ממוצע",
-    "tipHighLoad": "עומס גבוה — ודאו שאתם מסוגלים להתמודד",
-    "dayFree": "יום {days} פנוי — אפשר לנצל לעבודה או התמחות",
-    "weekFrontLoaded": "רוב הלימודים בתחילת השבוע — סוף שבוע ארוך",
-    "weekBackLoaded": "רוב הלימודים בסוף השבוע — תחילת שבוע פנויה",
-    "consecutiveHours": "{count} שעות רצופות ביום {day} — שקלו הפסקה",
-    "earlyBird": "{count} שיעורים לפני 10:00 — בוקר מוקדם",
-    "allEndBy4pm": "כל הימים מסתיימים עד 16:00 — זמן לעבודה",
-    "disciplineDiversity": "{count} תחומים שונים — מגוון אבל מאתגר",
-    "dayNames": {
-      "sunday": "ראשון",
-      "monday": "שני",
-      "tuesday": "שלישי",
-      "wednesday": "רביעי",
-      "thursday": "חמישי"
-    }
-  },
-  "dashboardTabs": {
-    "examsAndGrades": "בחינות וציונים",
-    "calendar": "מערכת שעות",
-    "assignments": "משימות",
-    "syllabi": "סילבוסים",
-    "fullCalendarView": "מערכת שעות מלאה"
   },
   "tour": {
     "title": "סיור קצר",

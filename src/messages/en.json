@@ -1,8 +1,4 @@
 {
-  "app": {
-    "name": "Pakamon",
-    "tagline": "Your degree, finally organized"
-  },
   "nav": {
     "dashboard": "Home",
     "planner": "Degree Planner",
@@ -84,11 +80,6 @@
     "COMPLETED": "Completed",
     "FAILED": "Failed",
     "EXEMPT": "Exempt"
-  },
-  "semester": {
-    "FALL": "Fall (Sem A)",
-    "SPRING": "Spring (Sem B)",
-    "SUMMER": "Summer"
   },
   "year": {
     "1": "Year A",
@@ -417,59 +408,6 @@
     "none": "None",
     "sortAsc": "Sort ascending",
     "sortDesc": "Sort descending"
-  },
-  "synthesis": {
-    "title": "Synthesis Lab",
-    "subtitle": "Connect ideas across disciplines and document interesting links",
-    "newNote": "New Note",
-    "aiSuggest": "AI Suggest",
-    "editNote": "Edit Note",
-    "deleteNote": "Delete Note",
-    "noteTitle": "Title",
-    "noteContent": "Content",
-    "disciplines": "Disciplines",
-    "courseConnections": "Related Courses",
-    "tags": "Tags",
-    "searchPlaceholder": "Search notes…",
-    "noNotes": "No notes yet. Noticed an interesting connection between courses? Document it here",
-    "aiGenerating": "Generating cross-discipline connection…",
-    "selectDisciplines": "Select 2-3 disciplines to connect",
-    "customPrompt": "Specific question or topic (optional)",
-    "generateSuggestion": "Generate Suggestion",
-    "saveAsNote": "Save as Note",
-    "aiGenerated": "AI Generated",
-    "save": "Save",
-    "cancel": "Cancel",
-    "noApiKey": "Need an AI key — set it up in Settings (a free Gemini key works)",
-    "newest": "Newest",
-    "oldest": "Oldest",
-    "alphabetical": "A-Z"
-  },
-  "syllabus": {
-    "title": "Syllabus Manager",
-    "subtitle": "Upload a syllabus and AI will extract deadlines, grading, and bibliography",
-    "upload": "Upload Syllabus",
-    "uploadHint": "Drag a file here or paste text",
-    "selectCourse": "Select Course",
-    "pasteContent": "Paste syllabus content",
-    "parse": "Analyze with AI",
-    "parsing": "Analyzing syllabus…",
-    "topics": "Course Topics",
-    "deadlines": "Important Dates",
-    "grading": "Grading Breakdown",
-    "summary": "Summary",
-    "noSyllabi": "No syllabi yet — upload a file or paste text to get started",
-    "parsedSuccessfully": "Syllabus analyzed successfully",
-    "editParsed": "Edit Data",
-    "delete": "Delete syllabus",
-    "exam": "Exam",
-    "assignment": "Assignment",
-    "paper": "Paper",
-    "weeklySchedule": "Weekly Schedule",
-    "noApiKey": "Need an AI key — set it up in Settings (a free Gemini key works)",
-    "syllabusDeleted": "Syllabus deleted",
-    "clearFile": "Remove file",
-    "chooseFile": "Choose syllabus file"
   },
   "calendar": {
     "title": "Academic Calendar",
@@ -879,23 +817,6 @@
     "historyContinue": "Continue",
     "historySkip": "Skip — I haven't taken courses yet"
   },
-  "workload": {
-    "workload": "Workload",
-    "credits": "credits",
-    "courses": "courses",
-    "seminar": "Seminar",
-    "details": "Workload Details",
-    "disciplines": "Disciplines",
-    "includesSeminar": "Includes seminar",
-    "score": "Score"
-  },
-  "tips": {
-    "funFact": "Worth knowing",
-    "planningTip": "Planning tip",
-    "warning": "Heads up",
-    "motivation": "Remember",
-    "academicRule": "Academic Rule"
-  },
   "examSchedule": {
     "title": "Exams & Grades",
     "subtitle": "Exam schedule and final grade calculator",
@@ -917,28 +838,6 @@
     "exportSuccess": "Calendar file created",
     "tabTimeline": "Timeline",
     "openGradeCalculator": "Open the final grade calculator"
-  },
-  "roi": {
-    "title": "Performance Analytics",
-    "subtitle": "Grade trends, learning efficiency, and analysis by discipline",
-    "noCourses": "No courses with grades yet — enter grades to see analysis",
-    "coursesCompleted": "Courses Completed",
-    "creditsEarned": "Credits Earned",
-    "overallAvg": "Overall Average",
-    "progress": "Progress",
-    "disciplineBreakdown": "Discipline Breakdown",
-    "semesterTrend": "Grade Trend by Semester",
-    "efficiency": "Learning Efficiency",
-    "discipline": "Discipline",
-    "courses": "Courses",
-    "credits": "Credits",
-    "avgGrade": "Avg Grade",
-    "gradePerCredit": "Grade / Credit",
-    "noGrades": "No grades yet",
-    "yearPrefix": "Y",
-    "fall": "Fall",
-    "spring": "Spring",
-    "summer": "Summer"
   },
   "landing": {
     "brand": "Pakamon",
@@ -1119,37 +1018,6 @@
     "changesTitle": "Changes",
     "changes": "These terms may be updated. Significant changes will be posted on the site."
   },
-  "graduation": {
-    "scoreSumma": "Summa Cum Laude",
-    "scoreMagna": "Magna Cum Laude",
-    "scoreVeryGood": "Very Good",
-    "scoreGood": "Good",
-    "scoreAlmostGood": "Almost Good",
-    "scoreSufficient": "Sufficient",
-    "gradedCourses": "Graded courses",
-    "completedCredits": "Credits completed",
-    "noScoreHint": "Complete courses and enter grades to see your graduation score.",
-    "noDataTitle": "No Grades Yet",
-    "noDataSubtitle": "Your graduation score will be calculated automatically once you enter grades.",
-    "formulaExplainer": "Score = (Mandatory+Elective Avg × 0.78) + (Seminar Avg × 0.18) + (Referat × 0.04)",
-    "formulaTitle": "Score Formula Breakdown",
-    "courseAvg": "Course Average",
-    "seminarAvg": "Seminar Paper Average",
-    "referatGrade": "Referat Grade",
-    "missing": "Missing",
-    "totalWeighted": "Total Weighted Score",
-    "whatIfTitle": "\"What If\" Simulation",
-    "whatIfDesc": "Enter hypothetical grades to explore future scenarios",
-    "courseAvgLabel": "Course Avg (78%)",
-    "seminarAvgLabel": "Seminar Avg (18%)",
-    "referatLabel": "Referat Grade (4%)",
-    "simulatedScore": "Simulated Score",
-    "change": "Change",
-    "forecastBasis": "Forecast · based on {credits} of 150 credits completed",
-    "provisionalBasis": "Current course average · the full graduation score is computed once seminars are graded",
-    "generalAverage": "General average",
-    "graduationScoreLabel": "Weighted graduation score"
-  },
   "dashboard": {
     "title": "Your Home",
     "subtitle": "Everything that matters about your degree, at a glance",
@@ -1289,52 +1157,6 @@
     "noResults": "No results found",
     "back": "Back"
   },
-  "knowledgeBase": {
-    "title": "Pakamon Knowledge Base",
-    "subtitle": "Tips, rules, and facts about the PPE program — everything worth knowing",
-    "searchPlaceholder": "Search tips, rules, and facts…",
-    "all": "All",
-    "resultsCount": "{count} of {total} results",
-    "noResults": "Nothing found — try a different search term",
-    "connectApiBanner": "Want full AI conversations?",
-    "connectApiDesc": "Connect an AI key in Settings (free Gemini works) for academic advice",
-    "quickLinks": "Quick Links",
-    "linkRegulations": "Academic Regulations",
-    "linkPlanner": "Degree Planner",
-    "linkDashboard": "Home"
-  },
-  "insights": {
-    "levelLight": "Light",
-    "levelModerate": "Moderate",
-    "levelHeavy": "Heavy",
-    "levelIntense": "Intense",
-    "degreeProgress": "Degree Progress",
-    "focusPrefix": "Focus: ",
-    "conflictsTitle": "Schedule conflicts:",
-    "tipSeminarPlusStudy": "Writing + studying semester — plan time for your seminar paper",
-    "tipAllMandatory": "All mandatory — no flexibility, must pass everything",
-    "tipMostlyMandatory": "Mostly mandatory — consider adding a light elective",
-    "tipIncludesSeminar": "Includes a seminar — requires a paper, plan accordingly",
-    "tipMultipleDisciplines": "Spans {count} disciplines — try grouping days by topic",
-    "tipLightLoad": "Light load — room for work or a side project",
-    "tipHeavyCourses": "Heavy courses on average — each one carries many credits",
-    "tipReasonableLoad": "Reasonable load for a typical semester",
-    "tipHighLoad": "High load — make sure you can manage",
-    "dayFree": "{days} free — use for work or internship",
-    "weekFrontLoaded": "Most classes early in the week — long weekend ahead",
-    "weekBackLoaded": "Most classes later in the week — free start",
-    "consecutiveHours": "{count} consecutive hours on {day} — consider a break",
-    "earlyBird": "{count} classes before 10:00 — early bird schedule",
-    "allEndBy4pm": "All days end by 4pm — time for work",
-    "disciplineDiversity": "{count} different disciplines — diverse but demanding",
-    "dayNames": {
-      "sunday": "Sunday",
-      "monday": "Monday",
-      "tuesday": "Tuesday",
-      "wednesday": "Wednesday",
-      "thursday": "Thursday"
-    }
-  },
   "degreeInfo": {
     "overviewTitle": "Overview",
     "totalCredits": "Total degree credits",
@@ -1379,49 +1201,6 @@
       "exemptTerm": "English exemption",
       "exemptDef": "No level courses needed. You still need 2 English content courses."
     }
-  },
-  "customCourse": {
-    "title": "Add custom course",
-    "subtitle": "For courses not in our catalog (external electives, workshops, etc.)",
-    "courseName": "Course name",
-    "courseNamePlaceholder": "e.g. Academic Writing Workshop",
-    "credits": "Credits",
-    "discipline": "Discipline",
-    "scheduleOptional": "Schedule (optional)",
-    "dayPlaceholder": "Day",
-    "cancel": "Cancel",
-    "add": "Add"
-  },
-  "courseDetail": {
-    "hoursPerWeek": "credits",
-    "lecture": "Lecture",
-    "tutorial": "Tutorial",
-    "examDateA": "A:",
-    "examDateB": "B:",
-    "days": {
-      "SUNDAY": "Sun",
-      "MONDAY": "Mon",
-      "TUESDAY": "Tue",
-      "WEDNESDAY": "Wed",
-      "THURSDAY": "Thu"
-    }
-  },
-  "intensityMeter": {
-    "avgHoursPerWeek": "Avg hours/week",
-    "avgWorkload": "Avg workload",
-    "totalExams": "Total exams",
-    "conflicts": "Conflicts",
-    "hourUnit": "h",
-    "heaviestSemester": "Heaviest semester:",
-    "semesterA": "Semester A",
-    "semesterB": "Semester B"
-  },
-  "dashboardTabs": {
-    "examsAndGrades": "Exams & Grades",
-    "calendar": "Schedule",
-    "assignments": "Assignments",
-    "syllabi": "Syllabi",
-    "fullCalendarView": "Full Calendar View"
   },
   "tour": {
     "title": "Quick tour",
