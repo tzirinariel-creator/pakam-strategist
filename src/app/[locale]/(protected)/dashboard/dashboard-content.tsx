@@ -41,6 +41,7 @@ import { ExamCountdown } from "@/components/dashboard/exam-countdown";
 import { RecommendationsWidget } from "@/components/dashboard/recommendations-widget";
 import { StudyPlannerWidget } from "@/components/dashboard/study-planner-widget";
 import { MyStatusHero, type DisciplineProgress } from "@/components/dashboard/my-status-hero";
+import { UnassignedDisciplinePrompt } from "@/components/dashboard/unassigned-discipline-prompt";
 import { MeetTheAdvisorCard } from "@/components/dashboard/meet-the-advisor-card";
 import { getActiveProgram } from "@/lib/programs/registry";
 import { buildRecommendations } from "@/lib/recommendations-engine";
@@ -819,6 +820,24 @@ export function DashboardContent() {
       {hasAnyCourses && (
         <div className="animate-stagger-1" data-tour="status">
           <MyStatusHero credits={credits} grade={gradeBreakdown} isHe={isHe} topGap={topGap} topGapKnown={regulationQuery.isSuccess} hasFocusArea={hasFocusArea} amiramScore={profileQuery.data?.amiramScore ?? null} declaredEnglishLevel={profileQuery.data?.englishLevel ?? null} currentYear={currentYear} disciplines={disciplineBreakdown} inProgressCount={inProgressCount} />
+          {/* Directly under the focus-area meter, because that is the meter
+              these courses are holding back. */}
+          <div className="mt-4">
+            <UnassignedDisciplinePrompt
+              hasFocusArea={hasFocusArea}
+              courses={(planQuery.data?.courses ?? []).map((uc) => ({
+                userCourseId: uc.id,
+                courseCode: uc.course.code,
+                nameHe: uc.course.nameHe,
+                nameEn: uc.course.nameEn,
+                credits: uc.course.credits,
+                discipline: uc.course.discipline,
+                disciplineOverride: uc.disciplineOverride,
+                status: uc.status,
+                isSeminar: /סמינר/.test(uc.course.nameHe),
+              }))}
+            />
+          </div>
         </div>
       )}
 
