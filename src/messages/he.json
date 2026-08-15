@@ -806,7 +806,9 @@
     "historySearchPlaceholder": "חיפוש לפי שם קורס או קוד…",
     "historyNoResults": "לא נמצאו קורסים",
     "historyContinue": "המשיכו",
-    "historySkip": "דלגו — לא עברנו קורסים"
+    "historySkip": "דלגו — לא עברנו קורסים",
+    "demoNotSavedTitle": "זה חשבון ההדגמה — התוכנית לא נשמרה",
+    "demoNotSavedDesc": "בנינו כאן תוכנית אמיתית, אבל חשבון ההדגמה הוא לקריאה בלבד ולכן היא לא נשמרת. פתחו חשבון והתוכנית תישמר בכל מכשיר שתתחברו בו."
   },
   "degreeInfo": {
     "overviewTitle": "סקירה כללית",

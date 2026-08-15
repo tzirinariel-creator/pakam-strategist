@@ -806,7 +806,9 @@
     "historySearchPlaceholder": "Search by course name or code…",
     "historyNoResults": "No courses found",
     "historyContinue": "Continue",
-    "historySkip": "Skip — I haven't taken courses yet"
+    "historySkip": "Skip — I haven't taken courses yet",
+    "demoNotSavedTitle": "This is the demo account — your plan wasn't saved",
+    "demoNotSavedDesc": "We built a real plan here, but the demo account is read-only so nothing is stored. Create an account and your plan will be waiting on any device you sign in from."
   },
   "examSchedule": {
     "title": "Exams & Grades",

@@ -4,6 +4,7 @@ import { useState, useEffect, useRef, useCallback } from "react";
 import { PartyPopper, Calendar, BookOpen, Check, RefreshCw, AlertTriangle, Download, CalendarDays } from "lucide-react";
 import { useTranslations, useLocale } from "next-intl";
 import { toast } from "sonner";
+import { isDemoRefusal } from "@/lib/demo-refusal";
 import { advisorError } from "@/lib/advisor-toast";
 import { cn } from "@/lib/utils";
 import { api } from "@/lib/trpc/react";
@@ -42,7 +43,9 @@ export function StepReady({ data, plannedSemesters, completedCourses, allCourses
   const router = useRouter();
   const [isSaving, setIsSaving] = useState(false);
   const [hasSaved, setHasSaved] = useState(false);
-  const [saveError, setSaveError] = useState(false);
+  // null = no failure yet · "demo" = refused by the read-only demo guard ·
+  // "network" = anything else, where "try again" is honest advice.
+  const [saveError, setSaveError] = useState<null | "demo" | "network">(null);
   const didSave = useRef(false);
 
   const updateProfile = api.user.updateProfile.useMutation();
@@ -199,7 +202,7 @@ export function StepReady({ data, plannedSemesters, completedCourses, allCourses
     const data = dataRef.current;
     const completedCourses = completedRef.current;
     setIsSaving(true);
-    setSaveError(false);
+    setSaveError(null);
     setSaveStage(0);
     try {
       // 1. Update user profile (including miluim + AMIRANT) — 15s timeout.
@@ -349,8 +352,13 @@ export function StepReady({ data, plannedSemesters, completedCourses, allCourses
       }
     } catch (error) {
       console.error("Failed to save onboarding plan:", error);
-      setSaveError(true);
-      advisorError(t("saveFailedMessage"));
+      // 14.8 — tell the truth about WHY. Every failure used to render
+      // "כנראה בעיית חיבור. רעננו ונסו שוב", which on the demo account is
+      // simply false: the save was refused by our own read-only guard, and no
+      // amount of refreshing will ever change that. Ariel hit exactly this and
+      // reported it as "משהו מוזר" — because the screen blamed his internet
+      // for a rule we set.
+      setSaveError(isDemoRefusal(error) ? "demo" : "network");
     } finally {
       setIsSaving(false);
     }
@@ -492,16 +500,20 @@ export function StepReady({ data, plannedSemesters, completedCourses, allCourses
       <h2 className="animate-stagger-1 font-display text-foreground text-3xl font-bold">
         {hasSaved
           ? t("allDoneReadyTitle")
-          : saveError
-            ? t("saveFailedTitle")
-            : t("allDone")}
+          : saveError === "demo"
+            ? t("demoNotSavedTitle")
+            : saveError
+              ? t("saveFailedTitle")
+              : t("allDone")}
       </h2>
       <p className="animate-stagger-2 mt-2 text-foreground/50">
         {hasSaved
           ? t("allDoneReadyDesc")
-          : saveError
-            ? t("saveFailedDesc")
-            : t("allDoneDesc")}
+          : saveError === "demo"
+            ? t("demoNotSavedDesc")
+            : saveError
+              ? t("saveFailedDesc")
+              : t("allDoneDesc")}
       </p>
 
       {/* Summary card */}
@@ -735,10 +747,10 @@ export function StepReady({ data, plannedSemesters, completedCourses, allCourses
             <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-red-400" />
             <div>
               <p className="text-sm font-medium text-red-400">
-                {t("saveFailedTitle")}
+                {saveError === "demo" ? t("demoNotSavedTitle") : t("saveFailedTitle")}
               </p>
               <p className="mt-0.5 text-xs text-foreground/50">
-                {t("saveFailedDesc")}
+                {saveError === "demo" ? t("demoNotSavedDesc") : t("saveFailedDesc")}
               </p>
             </div>
           </div>
