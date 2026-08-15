@@ -1,5 +1,6 @@
 "use client";
 
+import { heNoun } from "@/lib/he-count";
 import { useMemo } from "react";
 import { useLocale } from "next-intl";
 import { AlertTriangle, ShieldCheck } from "lucide-react";
@@ -100,7 +101,7 @@ export function BiddingOverlapAlert({
             <span className="text-foreground/45">
               {" "}
               {isHe
-                ? `(${unscheduledCount === 1 ? "לקורס אחד" : `ל-${unscheduledCount} קורסים`} אין עדיין שעות בידיעון — לא נבדקו.)`
+                ? `(${unscheduledCount === 1 ? "לקורס אחד" : `ל-${heNoun(unscheduledCount, "קורס", "קורסים")}`} אין עדיין שעות בידיעון — לא נבדקו.)`
                 : ` (${unscheduledCount} course${unscheduledCount === 1 ? " has" : "s have"} no published times yet — not checked.)`}
             </span>
           )}

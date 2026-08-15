@@ -1,5 +1,6 @@
 "use client";
 
+import { heNoun } from "@/lib/he-count";
 import { useState, useRef } from "react";
 import { Loader2, Check, Shield } from "lucide-react";
 import { toast } from "sonner";
@@ -125,7 +126,7 @@ export function Form3010Uploader({
             >
               <Check className="size-3.5" />
               {isHe
-                ? `אישור והחלה של הכול (${summary.suggestions.length} סמסטרים)`
+                ? `אישור והחלה של הכול (${heNoun(summary.suggestions.length, "סמסטר", "סמסטרים")})`
                 : `Apply all (${summary.suggestions.length} semesters)`}
             </button>
           )}
@@ -181,7 +182,7 @@ export function Form3010Uploader({
                 <Bidi
                   text={
                     isHe
-                      ? `${summary.preDegree.length} סמסטרים בטופס קדמו לתחילת התואר — לא ייובאו`
+                      ? `${heNoun(summary.preDegree.length, "סמסטר", "סמסטרים")} בטופס קדמו לתחילת התואר — לא ייובאו`
                       : `${summary.preDegree.length} semester(s) on the form predate your degree — not imported`
                   }
                 />
@@ -192,7 +193,7 @@ export function Form3010Uploader({
                     <Bidi
                       text={
                         isHe
-                          ? `${s.labelHe} · ${s.semester === "FALL" ? "סמסטר א׳" : "סמסטר ב׳"} — ${Math.round(s.days)} ימים`
+                          ? `${s.labelHe} · ${s.semester === "FALL" ? "סמסטר א׳" : "סמסטר ב׳"} — ${heNoun(Math.round(s.days), "יום", "ימים")}`
                           : `${s.academicYear} · ${s.semester === "FALL" ? "Fall" : "Spring"} — ${Math.round(s.days)} days`
                       }
                     />

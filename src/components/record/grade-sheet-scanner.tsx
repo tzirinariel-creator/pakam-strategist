@@ -22,7 +22,7 @@ import {
 import type { ScanDiagnostics } from "@/lib/grade-sheet";
 import { ScanDiagnosticsPanel } from "@/components/record/scan-diagnostics";
 import { ScanGapBanner } from "@/components/record/scan-gap-banner";
-import { heCount, heNoun } from "@/lib/he-count";
+import { heCount, heNoun, heNounF } from "@/lib/he-count";
 import { getWrapTarget, wrapStorageKey } from "@/lib/semester-clock";
 import { calculateGrades } from "@/lib/grade-calculator";
 import { prefersHigherGrade, type MiluimGroupKey } from "@/lib/miluim";
@@ -444,8 +444,14 @@ export function GradeSheetScanner() {
           <div className="flex items-center justify-between">
             <p className="text-xs font-bold text-foreground/70">
               {isHe
-                ? `נמצאו ${rows.length} שורות — סמנו מה לשמור, ותקנו כל שורה שנקראה לא נכון:`
-                : `Found ${rows.length} rows — pick what to save, and fix any row we misread:`}
+                // heNoun alone isn't enough here: the VERB has to agree too, so
+                // "נמצאו שורה אחת" would just be a different broken sentence.
+                // This is exactly why heCount takes both phrasings.
+                ? `${heCount(rows.length, {
+                    one: "נמצאה שורה אחת",
+                    many: `נמצאו ${rows.length} שורות`,
+                  })} — סמנו מה לשמור, ותקנו כל שורה שנקראה לא נכון:`
+                : `Found ${rows.length} row${rows.length === 1 ? "" : "s"} — pick what to save, and fix any row we misread:`}
             </p>
             <button type="button" onClick={() => { setRows(null); setEditing(null); setScannedEnglish(null); }} aria-label={isHe ? "סגירה" : "Close"} className="rounded-md p-1 text-foreground/30 hover:text-foreground/60">
               <X className="size-4" />

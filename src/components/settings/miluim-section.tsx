@@ -1,5 +1,6 @@
 "use client";
 
+import { heNoun } from "@/lib/he-count";
 import { useState, useEffect } from "react";
 import { Shield, Loader2, Check, Swords } from "lucide-react";
 import { useTranslations, useLocale } from "next-intl";
@@ -284,7 +285,7 @@ export function MiluimSection() {
               void utils.regulation.checkCompliance.invalidate();
               const ok = results.filter((r) => r.status === "fulfilled").length;
               toast.success(
-                isHe ? `הוחלו ${ok} סמסטרים מהטופס` : `Applied ${ok} semesters from the form`,
+                isHe ? `הוחלו ${heNoun(ok, "סמסטר", "סמסטרים")} מהטופס` : `Applied ${ok} semesters from the form`,
                 {
                   action: {
                     label: isHe ? "בטלו הכול" : "Undo all",

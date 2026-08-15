@@ -54,6 +54,7 @@ export function BiddingExplainer({ isHe }: { isHe: boolean }) {
       {open && (
         <div className="space-y-4 border-t border-border/50 p-4">
           <Steps isHe={isHe} />
+          <RegistrationCadence isHe={isHe} />
           <OverlapTrap isHe={isHe} />
           <Checklist isHe={isHe} />
 
@@ -221,6 +222,54 @@ function Checklist({ isHe }: { isHe: boolean }) {
           </li>
         ))}
       </ul>
+    </div>
+  );
+}
+
+
+/**
+ * ANNUAL OR PER-SEMESTER? — the question the app used to answer by assuming.
+ *
+ * `getBiddingTarget` computes "the next teaching semester", which quietly
+ * assumes everyone re-registers every semester. Ariel asked which it actually
+ * is, and the answer from TAU's own pages is that the question has no single
+ * answer:
+ *
+ *   "הרישום בחלק מהחוגים הוא סמסטריאלי ובחלק מהחוגים הוא שנתי"
+ *     — social-sciences.tau.ac.il/bidding
+ *   "נרשמים בתחילת השנה לקורסים שמתקיימים בשני הסמסטרים: א + ב,
+ *    למעט בבית הספר לכלכלה בו נרשמים לפני כל סמסטר"
+ *     — social-sciences.tau.ac.il/biddingsite/rishum-faq
+ *
+ * That matters specifically for פכ״מ, which is a joint degree: the philosophy
+ * (0618) and political-science (1031) courses follow the annual rule, and the
+ * economics courses (1011 — בית הספר לכלכלה) follow the per-semester one. So a
+ * PPE student is genuinely in BOTH regimes at once.
+ *
+ * The iron rule says we don't state a fact without a source, and we don't
+ * invent one. So this states exactly what the university states, quotes where
+ * it came from, and tells the student the one thing they should verify for
+ * their own courses. It does not guess on their behalf.
+ */
+function RegistrationCadence({ isHe }: { isHe: boolean }) {
+  return (
+    <div className="rounded-xl border border-border/50 bg-foreground/[0.02] p-3">
+      <p className="text-xs font-semibold text-foreground/80">
+        {isHe ? "שנתי או סמסטריאלי? — תלוי בחוג" : "Annual or per-semester? It depends on the department"}
+      </p>
+      <p className="mt-1.5 text-xs leading-relaxed text-foreground/60">
+        {isHe
+          ? "באוניברסיטה כתוב במפורש שהרישום בחלק מהחוגים סמסטריאלי ובחלק שנתי. ברוב החוגים נרשמים בתחילת השנה לקורסים של שני הסמסטרים יחד — אבל בבית הספר לכלכלה נרשמים מחדש לפני כל סמסטר."
+          : "The university states plainly that registration is per-semester in some departments and annual in others. In most, you register at the start of the year for both semesters together — but the School of Economics registers again before each semester."}
+      </p>
+      <p className="mt-1.5 text-xs leading-relaxed text-foreground/60">
+        {isHe
+          ? "פכ״מ הוא תואר משולב, אז זה נוגע לכם משני הצדדים: קורסי הפילוסופיה ומדע המדינה בדרך כלל שנתיים, וקורסי הכלכלה סמסטריאליים. אנחנו לא מנחשים בשבילכם — שווה לוודא מול המזכירות מה חל על הקורסים שלכם השנה."
+          : "PPE is a joint degree, so both apply to you: philosophy and political-science courses are usually annual, economics courses per-semester. We won't guess for you — worth confirming with the secretariat which applies to your courses this year."}
+      </p>
+      <p className="mt-2 text-[11px] leading-tight text-foreground/35">
+        {isHe ? "מקור: עמודי הבידינג של הפקולטה למדעי החברה, אוניברסיטת תל אביב." : "Source: TAU Faculty of Social Sciences bidding pages."}
+      </p>
     </div>
   );
 }

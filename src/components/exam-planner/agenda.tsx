@@ -1,5 +1,6 @@
 "use client";
 
+import { heNoun } from "@/lib/he-count";
 import { useEffect, useState } from "react";
 import { Check, ChevronDown, Clock, Trash2 } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -181,7 +182,7 @@ export function Agenda({
           {showTail && tail.map(([key, list]) => renderDay(key, list, false))}
           <button type="button" onClick={() => setShowTail((s) => !s)} className="flex items-center justify-center gap-1.5 rounded-xl border border-border/50 bg-foreground/[0.02] px-4 py-2 text-xs font-medium text-foreground/55 transition-colors hover:bg-foreground/[0.04]">
             <ChevronDown className={cn("size-3.5 transition-transform", showTail && "rotate-180")} />
-            {showTail ? (isHe ? "הסתר" : "Hide") : isHe ? `שאר התוכנית (${tail.length} ימים)` : `Rest of the plan (${tail.length} days)`}
+            {showTail ? (isHe ? "הסתר" : "Hide") : isHe ? `שאר התוכנית (${heNoun(tail.length, "יום", "ימים")})` : `Rest of the plan (${tail.length} days)`}
           </button>
         </>
       )}

@@ -114,7 +114,7 @@ async function scan(rows: unknown[]) {
   const file = new File(["x"], "sheet.png", { type: "image/png" });
   Object.defineProperty(input, "files", { value: [file] });
   fireEvent.change(input);
-  await waitFor(() => expect(screen.getByText(/נמצאו .* שורות/)).toBeInTheDocument());
+  await waitFor(() => expect(screen.getByText(/נמצא[הו] .*(שורה אחת|שורות)/)).toBeInTheDocument());
 }
 
 const row = (over: Record<string, unknown>) => ({

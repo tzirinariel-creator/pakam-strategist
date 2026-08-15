@@ -5,7 +5,7 @@ import { useLocale } from "next-intl";
 import { usePathname } from "next/navigation";
 import { usePersonalAddress } from "@/components/personal/use-personal-address";
 import {
-  X, Send, Zap, Loader2, Database, Mic, ImagePlus, ArrowLeftRight,
+  X, Send, Loader2, Database, Mic, ImagePlus, ArrowLeftRight,
 } from "lucide-react";
 import { toast } from "sonner";
 import { advisorError } from "@/lib/advisor-toast";
@@ -1222,7 +1222,11 @@ export function FloatingAssistant() {
                         onClick={() => setOpen(false)}
                         className="mt-1.5 flex items-center gap-1 text-[11px] font-medium text-accent-brand"
                       >
-                        <Zap className="size-3" />
+                        {/* Ariel's rule: anything AI wears the brand's face,
+                            never a generic glyph. Zap was the second-most
+                            generic AI icon after the Sparkles we already
+                            banned — and it sat directly on an AI affordance. */}
+                        <PhilosopherKingIcon className="size-3" />
                         {isHe ? pg("חבר מפתח חינמי לתשובות מעמיקות", "חברי מפתח חינמי לתשובות מעמיקות", "חבר/י מפתח חינמי לתשובות מעמיקות") : "Connect a free key for deeper answers"}
                       </Link>
                     )}

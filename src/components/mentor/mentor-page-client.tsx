@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import { useLocale } from "next-intl";
-import { Zap } from "lucide-react";
 import { DegreeAssistant } from "./degree-assistant";
 import { MentorChat } from "./mentor-chat";
 import { cn } from "@/lib/utils";
@@ -77,7 +76,7 @@ export function MentorPageClient() {
                 : "text-foreground/55 hover:text-foreground/80"
             )}
           >
-            <Zap className="size-3.5" />
+            <PersonaIcon className="size-3.5" />
             {isHe ? "תשובות מהירות" : "Quick answers"}
           </button>
           <button

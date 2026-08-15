@@ -13,6 +13,7 @@
 // iron rule and the guidelines' own warning that past results are "לידיעה
 // בלבד ואין להסיק מהן" — nothing here predicts points.
 
+import { heNoun } from "@/lib/he-count";
 import { CalendarClock, ExternalLink, CheckCircle2, Circle, Radio } from "lucide-react";
 import {
   BIDDING_ROUNDS_5787,
@@ -43,7 +44,7 @@ function headline(
 ): { title: string; body: string; tone: "urgent" | "active" | "calm" } {
   const d = phase.daysUntil ?? 0;
   const inDays = isHe
-    ? d === 0 ? "היום" : d === 1 ? "מחר" : `בעוד ${d} ימים`
+    ? d === 0 ? "היום" : d === 1 ? "מחר" : `בעוד ${heNoun(d, "יום", "ימים")}`
     : d === 0 ? "today" : d === 1 ? "tomorrow" : `in ${d} days`;
 
   switch (phase.kind) {

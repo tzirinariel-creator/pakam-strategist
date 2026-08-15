@@ -1,5 +1,6 @@
 "use client";
 
+import { heNoun } from "@/lib/he-count";
 import { useEffect, useMemo, useRef, useState } from "react";
 import {
   DndContext,
@@ -240,7 +241,7 @@ function countdownClasses(days: number): string {
 function hebCountdown(days: number): string {
   if (days === 1) return "מחר";
   if (days === 2) return "בעוד יומיים";
-  return `בעוד ${days} ימים`;
+  return `בעוד ${heNoun(days, "יום", "ימים")}`;
 }
 
 // ── Component ─────────────────────────────────────────────────────────
@@ -442,7 +443,7 @@ export function StudySkyline({ plan, recommendations, isHe, now, onDayClick, onM
                 {model.todayHours} {isHe ? "שע׳" : "h"}{" "}
                 <span className="text-xs font-normal text-foreground/45">
                   · {isHe
-                    ? model.todayCourses === 1 ? "קורס אחד" : `${model.todayCourses} קורסים`
+                    ? model.todayCourses === 1 ? "קורס אחד" : `${heNoun(model.todayCourses, "קורס", "קורסים")}`
                     : `${model.todayCourses} course${model.todayCourses === 1 ? "" : "s"}`}
                 </span>
               </p>

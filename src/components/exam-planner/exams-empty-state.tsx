@@ -14,6 +14,7 @@
 // were this year's.
 // =========================================================================
 
+import { heNoun } from "@/lib/he-count";
 import { CalendarClock, CalendarX2, FileText, GraduationCap } from "lucide-react";
 import { Link } from "@/i18n/navigation";
 import { Bidi } from "@/lib/bidi";
@@ -108,7 +109,7 @@ export function ExamsEmptyState({
             <Bidi
               text={
                 isHe
-                  ? `בתכנית שלכם ${plannedCount} קורסים, ולאף אחד מהם אין עדיין תאריך בחינה בקטלוג — האוניברסיטה פשוט לא פרסמה את הלוח. זו לא תקלה אצלכם, ואנחנו לא נמציא תאריכים ולא נציג לכם את הלוח של השנה שעברה. ברגע שהתאריכים יפורסמו הם ייכנסו לכאן מעצמם.`
+                  ? `בתכנית שלכם ${heNoun(plannedCount, "קורס", "קורסים")}, ולאף אחד מהם אין עדיין תאריך בחינה בקטלוג — האוניברסיטה פשוט לא פרסמה את הלוח. זו לא תקלה אצלכם, ואנחנו לא נמציא תאריכים ולא נציג לכם את הלוח של השנה שעברה. ברגע שהתאריכים יפורסמו הם ייכנסו לכאן מעצמם.`
                   : `Your plan holds ${plannedCount} courses and not one of them has an exam date in the catalog — the university simply hasn't published the timetable. Nothing is broken on your side; we won't invent dates or show you last year's timetable. The moment they're published they'll appear here.`
               }
             />
