@@ -114,6 +114,8 @@ export function LiveTimetable({
     nonce: number;
     top: number;
     left: number;
+    width: number;
+    height: number;
   } | null>(null);
   const pickerCourseCode = picker?.courseCode ?? null;
   // Hidden trigger for the currently-mounted picker; clicked on mount to open.
@@ -123,16 +125,29 @@ export function LiveTimetable({
     if (picker) pickerTriggerRef.current?.click();
   }, [picker]);
 
-  // Centre of `anchor`, expressed in the (position: relative) wrapper's own
-  // coordinates. Falls back to the wrapper's middle if either box is missing.
+  // The tapped block's FULL BOX, in the (position: relative) wrapper's own
+  // coordinates.
+  //
+  // 14.8 — Ariel: "החלונות של הקבוצות מופיעים מעל ומעצבן כזה". This used to
+  // return the block's CENTRE POINT, and the hidden trigger was `size-0`. A
+  // zero-area anchor gives Radix nothing to avoid: "below the anchor" means
+  // "below the middle of the block", so the picker opened straight over the
+  // lower half of the very block you tapped — and when it flipped for room, it
+  // covered the upper half instead. There was no placement that didn't hide
+  // the thing being changed.
+  //
+  // Handing over the real rect lets collision handling do its job: the picker
+  // sits BESIDE or BELOW the block, and flips only when it genuinely must.
   const anchorPoint = useCallback((anchor: HTMLElement | undefined) => {
     const wrapper = wrapperRef.current;
     if (!wrapper || !anchor) return null;
     const w = wrapper.getBoundingClientRect();
     const a = anchor.getBoundingClientRect();
     return {
-      top: a.top - w.top + a.height / 2,
-      left: a.left - w.left + a.width / 2,
+      top: a.top - w.top,
+      left: a.left - w.left,
+      width: a.width,
+      height: a.height,
     };
   }, []);
 
@@ -388,6 +403,8 @@ export function LiveTimetable({
                   nonce: (prev?.nonce ?? 0) + 1,
                   top: point?.top ?? 0,
                   left: point?.left ?? 0,
+                  width: point?.width ?? 0,
+                  height: point?.height ?? 0,
                 }));
                 // First real interaction retires the P1′ hint permanently.
                 try {
@@ -421,8 +438,13 @@ export function LiveTimetable({
             type="button"
             aria-hidden="true"
             tabIndex={-1}
-            className="pointer-events-none absolute size-0 opacity-0"
-            style={{ top: `${picker!.top}px`, left: `${picker!.left}px` }}
+            className="pointer-events-none absolute opacity-0"
+            style={{
+              top: `${picker!.top}px`,
+              left: `${picker!.left}px`,
+              width: `${picker!.width}px`,
+              height: `${picker!.height}px`,
+            }}
           />
         </GroupPickerPopover>
       )}

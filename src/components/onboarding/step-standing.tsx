@@ -9,6 +9,7 @@ import { fileToBase64, SCANNER_ACCEPT } from "@/lib/upload";
 import { matchExtractedToCatalog } from "@/lib/grade-sheet";
 import type { ExtractedRow, ScanDiagnostics } from "@/lib/grade-sheet";
 import { ScanDiagnosticsPanel } from "@/components/record/scan-diagnostics";
+import { ScanGapBanner } from "@/components/record/scan-gap-banner";
 import {
   summarizeStanding,
   buildCompletedSeed,
@@ -416,8 +417,20 @@ export function StepStanding({ allCourses, isLoadingCourses, onDone, onBack }: S
           />
         )}
 
+        {/* The gap banner sits ABOVE the collapsed diagnostics on purpose: a
+            missing course is not a diagnostic, it is the student's decision to
+            make before they confirm. */}
         {scan.kind === "done" && diagnostics && (
-          <ScanDiagnosticsPanel d={diagnostics} isHe={isHe} />
+          <>
+            <ScanGapBanner
+              d={diagnostics}
+              isHe={isHe}
+              courseNameFor={(code) =>
+                allCourses.find((c) => c.code === code)?.nameHe ?? null
+              }
+            />
+            <ScanDiagnosticsPanel d={diagnostics} isHe={isHe} />
+          </>
         )}
       </div>
 

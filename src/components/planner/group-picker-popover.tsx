@@ -71,6 +71,12 @@ export function GroupPickerPopover({
       <PopoverTrigger asChild>{children}</PopoverTrigger>
       <PopoverContent
         align="center"
+        // 14.8 — open BESIDE the block, not over it. With a real anchor box
+        // (live-timetable passes the block's rect now), "right" keeps the
+        // course you are changing visible while you choose; Radix still flips
+        // to the other side, or below, when the viewport demands it.
+        side="right"
+        sideOffset={8}
         collisionPadding={12}
         // A course with two multi-group session types can list ten options.
         // Radix reports the room it actually has after collision handling —

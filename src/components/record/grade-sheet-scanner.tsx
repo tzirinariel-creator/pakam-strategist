@@ -21,6 +21,7 @@ import {
 } from "@/lib/grade-sheet";
 import type { ScanDiagnostics } from "@/lib/grade-sheet";
 import { ScanDiagnosticsPanel } from "@/components/record/scan-diagnostics";
+import { ScanGapBanner } from "@/components/record/scan-gap-banner";
 import { heCount, heNoun } from "@/lib/he-count";
 import { getWrapTarget, wrapStorageKey } from "@/lib/semester-clock";
 import { calculateGrades } from "@/lib/grade-calculator";
@@ -495,6 +496,15 @@ export function GradeSheetScanner() {
                   : <>The numbers disagree: the sheet prints an average of {avgMismatch.printed}, but the grades we read compute to {avgMismatch.computed}. One or more grades were probably misread — review the rows before applying.</>}
               </span>
             </div>
+          )}
+          {diagnostics && (
+            <ScanGapBanner
+              d={diagnostics}
+              isHe={isHe}
+              courseNameFor={(code) =>
+                userCourses.find((uc) => uc.courseCode === code)?.nameHe ?? null
+              }
+            />
           )}
           {diagnostics && <ScanDiagnosticsPanel d={diagnostics} isHe={isHe} />}
           <ul className="space-y-1.5">

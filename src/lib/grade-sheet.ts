@@ -93,11 +93,51 @@ function extractValidated(text: string): z.infer<typeof extractionSchema> | null
     .slice(start, end + 1)
     .replace(/("grade"\s*:\s*)0+(\d)/g, "$1$2");
   try {
-    const parsed = extractionSchema.safeParse(JSON.parse(jsonText));
-    return parsed.success ? parsed.data : null;
+    const raw: unknown = JSON.parse(jsonText);
+    const parsed = extractionSchema.safeParse(raw);
+    if (parsed.success) return parsed.data;
+
+    // ALL-OR-NOTHING WAS THE BUG (14.8). `safeParse` on the whole object means
+    // ONE malformed row — a grade of 105, a name over 120 chars, a stray
+    // string where a number belongs — threw away the student's ENTIRE sheet,
+    // silently, and the screen just said "לא הצלחנו לקרוא שורות". Twenty good
+    // rows lost to one bad one is never the right trade.
+    //
+    // Validate row by row instead: keep every row that is well-formed, drop
+    // only the ones that aren't. The dropped count rides out in `diagnostics`
+    // so a student who is missing a course can see that we threw something
+    // away rather than being told nothing happened.
+    const obj = raw as { rows?: unknown[]; englishLevelLabel?: unknown; printedAverage?: unknown };
+    if (!Array.isArray(obj?.rows)) return null;
+    const rows: z.infer<typeof extractedRowSchema>[] = [];
+    let rejected = 0;
+    for (const r of obj.rows) {
+      const one = extractedRowSchema.safeParse(r);
+      if (one.success) rows.push(one.data);
+      else rejected++;
+    }
+    if (rows.length === 0) return null;
+    lastRejectedRows = rejected;
+    return {
+      rows,
+      englishLevelLabel: typeof obj.englishLevelLabel === "string" ? obj.englishLevelLabel : null,
+      printedAverage: typeof obj.printedAverage === "number" ? obj.printedAverage : null,
+    };
   } catch {
     return null;
   }
+}
+
+/**
+ * How many rows the LAST parse had to reject as malformed. Module-level because
+ * `parseExtraction` returns rows, and threading a second value through every
+ * caller would be a worse trade than this. Read it immediately after a parse.
+ */
+let lastRejectedRows = 0;
+export function takeRejectedRowCount(): number {
+  const n = lastRejectedRows;
+  lastRejectedRows = 0;
+  return n;
 }
 
 /** Parse the model's text output (may be wrapped in ```json fences). */
@@ -246,6 +286,123 @@ export interface ScanDiagnostics {
   withGrade: number;
   withoutGrade: number;
   disputed: number;
+  /** Rows the parser had to reject as malformed (see extractValidated). */
+  rejectedRows: number;
+  /** The census pass threw — no completeness check ran this time. */
+  censusFailed: boolean;
+  /** Codes the census saw that the extraction never returned. */
+  missingRows: CensusEntry[];
+  /** Rows that came back ungraded where the census read a grade. */
+  missingGrades: { courseCode: string; censusGrade: number }[];
+}
+
+// =========================================================================
+// The census — a second, far EASIER question, used only as a completeness check
+// =========================================================================
+// 14.8. Ariel scanned his sheet twice, days apart, and both times courses were
+// missing: דוגרי (93) and משבר האקלים (94) never arrived at all, and אסטרטגיה
+// and the English course arrived with their grades stripped. His words:
+// "משהו במנגנון שם פשוט לא עובד לך!" — and he is right.
+//
+// The full extraction is a HARD task: read a dense RTL table, keep every row
+// aligned to its own grade, strip two neighbouring columns, and emit valid
+// JSON. When a model doing that quietly skips a row, nothing downstream can
+// tell — a row that was never returned leaves no trace.
+//
+// So we stop relying on the hard task being perfect. A second pass asks a much
+// EASIER question: "list the course codes and their grades, nothing else."
+// Codes are a rigid NNNN-NNNN pattern and grades are three digits in one
+// column — a read a model gets right when it drops rows from the full table.
+//
+// The census is NEVER used as data. It cannot add a course, set a grade, or
+// change anything the student will see as fact. Its only job is to say
+// "the sheet has 20 rows and you extracted 18" and name the two — and then the
+// STUDENT decides. That keeps the iron rule intact: we never invent a grade,
+// we only stop silently losing one.
+export const CENSUS_SYSTEM = `אתה קורא "אישור קורסים וציונים" של אוניברסיטת תל אביב.
+המשימה שלך צרה בכוונה: החזר אך ורק את **מספרי הקורסים** ואת **הציון** שבאותה שורה.
+- מספר קורס הוא תמיד בתבנית NNNN-NNNN (למשל 0618-1012).
+- הציון נמצא בעמודת "ציון קובע" באותה שורה בדיוק. מודפס בריפוד אפסים (089 = 89) — החזר את המספר האמיתי.
+- אם בעמודת הציון מופיע *** או שהיא ריקה — grade=null.
+- אם מופיע "עובר"/"נכשל"/"פטור" — grade=null.
+- כלול **כל** שורה שיש לה מספר קורס, בכל הטבלאות ובכל העמודים, כולל שורות שמתחת ל"דרישות כלל אוניברסיטאיות".
+- אל תחזיר שמות קורסים, ש"ס, או כל שדה אחר.
+
+החזר JSON בלבד: {"codes":[{"courseCode":"0618-1012","grade":100},{"courseCode":"0651-1005","grade":null}]}`;
+
+const censusSchema = z.object({
+  codes: z.array(
+    z.object({
+      courseCode: z.string().max(30),
+      grade: z.number().min(0).max(100).nullish(),
+    }),
+  ).max(120),
+});
+
+export interface CensusEntry {
+  courseCode: string;
+  grade: number | null;
+}
+
+/** Parse the census response. Same tolerant JSON handling as the main read. */
+export function parseCodeCensus(text: string): CensusEntry[] | null {
+  const stripped = text.replace(BIDI_CONTROLS, "").replace(/```json|```/g, "").trim();
+  const start = stripped.indexOf("{");
+  const end = stripped.lastIndexOf("}");
+  if (start < 0 || end <= start) return null;
+  const jsonText = stripped.slice(start, end + 1).replace(/("grade"\s*:\s*)0+(\d)/g, "$1$2");
+  try {
+    const parsed = censusSchema.safeParse(JSON.parse(jsonText));
+    if (!parsed.success) return null;
+    // Only well-formed TAU codes count — a hallucinated "1" must never become
+    // a "missing course" the student is asked about.
+    return parsed.data.codes
+      .map((c) => ({ courseCode: c.courseCode.trim(), grade: c.grade ?? null }))
+      .filter((c) => /^\d{4}-\d{4}$/.test(c.courseCode));
+  } catch {
+    return null;
+  }
+}
+
+export interface CensusGap {
+  /** Codes the census saw that the full extraction never returned. */
+  missingRows: CensusEntry[];
+  /** Rows the extraction returned WITHOUT a grade, where the census read one. */
+  missingGrades: { courseCode: string; censusGrade: number }[];
+}
+
+/**
+ * Compare the full extraction against the census. Reports gaps only — it never
+ * mutates the rows. A gap is a QUESTION for the student, not a correction.
+ */
+export function censusGap(rows: ExtractedRow[], census: CensusEntry[] | null): CensusGap {
+  if (!census || census.length === 0) return { missingRows: [], missingGrades: [] };
+  const byCode = new Map<string, ExtractedRow[]>();
+  for (const r of rows) {
+    const code = r.courseCode?.trim();
+    if (!code) continue;
+    const list = byCode.get(code);
+    if (list) list.push(r);
+    else byCode.set(code, [r]);
+  }
+  const missingRows: CensusEntry[] = [];
+  const missingGrades: { courseCode: string; censusGrade: number }[] = [];
+  const seen = new Set<string>();
+  for (const c of census) {
+    if (seen.has(c.courseCode)) continue; // a retake appears twice; ask once
+    seen.add(c.courseCode);
+    const extracted = byCode.get(c.courseCode);
+    if (!extracted || extracted.length === 0) {
+      missingRows.push(c);
+      continue;
+    }
+    // A grade the census saw and NO extracted row for that code carries. The
+    // "some row has it" test matters for retakes: one sitting graded, one not.
+    if (c.grade != null && extracted.every((r) => r.grade == null)) {
+      missingGrades.push({ courseCode: c.courseCode, censusGrade: c.grade });
+    }
+  }
+  return { missingRows, missingGrades };
 }
 
 export function printedAverageMismatch(

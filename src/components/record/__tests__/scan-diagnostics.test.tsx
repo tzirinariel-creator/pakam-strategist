@@ -28,6 +28,10 @@ const base: ScanDiagnostics = {
   withGrade: 10,
   withoutGrade: 2,
   disputed: 0,
+  rejectedRows: 0,
+  censusFailed: false,
+  missingRows: [],
+  missingGrades: [],
 };
 
 /** Read the panel's value for a given label — the row shape is a <dt>/<dd> pair. */

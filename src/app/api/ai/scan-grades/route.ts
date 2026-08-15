@@ -23,6 +23,10 @@ import {
   mergeDoubleRead,
   printedAverageMismatch,
   GRADE_SHEET_SYSTEM,
+  CENSUS_SYSTEM,
+  parseCodeCensus,
+  censusGap,
+  takeRejectedRowCount,
 } from "@/lib/grade-sheet";
 import type { ScanDiagnostics } from "@/lib/grade-sheet";
 
@@ -144,6 +148,7 @@ export async function POST(request: NextRequest) {
     );
 
     const firstRows = parseExtraction(text);
+    const rejectedRows = takeRejectedRowCount();
     if (!firstRows || firstRows.length === 0) {
       return NextResponse.json({ error: errs.unreadable }, { status: 422 });
     }
@@ -185,6 +190,36 @@ export async function POST(request: NextRequest) {
       // the first read still ships — without confidence flags.
     }
 
+    // 14.8 — THE CENSUS. Ariel scanned the same sheet twice, days apart, and
+    // both times דוגרי (93) and משבר האקלים (94) never arrived, while
+    // אסטרטגיה and the English course arrived with their grades stripped.
+    // Nothing downstream could tell, because a row the model never returns
+    // leaves no trace to notice.
+    //
+    // So this pass asks a deliberately EASIER question — codes and grades only,
+    // no names, no ש״ס, no column stripping — and we compare. The answer is
+    // never used as data: it cannot add a course or set a grade. It can only
+    // raise a QUESTION the student answers, which is what keeps the iron rule
+    // ("never invent a grade") intact while ending the silent loss.
+    let gap: ReturnType<typeof censusGap> = { missingRows: [], missingGrades: [] };
+    let censusFailed = false;
+    try {
+      const censusText = await generateGeminiVision(
+        encryptedKey,
+        CENSUS_SYSTEM,
+        locale === "en"
+          ? "List every course code on this sheet with its grade. Codes and grades only."
+          : "רשום כל מספר קורס בגיליון עם הציון שלו. קודים וציונים בלבד.",
+        parsed.data.imageBase64,
+        parsed.data.mimeType,
+      );
+      gap = censusGap(rows, parseCodeCensus(censusText));
+    } catch {
+      censusFailed = true;
+      // Best-effort, exactly like the verify pass. A census that fails must
+      // never make the scan look worse than it is — it just goes quiet.
+    }
+
     // #5 — printed-average cross-check: computed weighted mean vs the ממוצע
     // printed on the sheet. A drift means a misread somewhere → banner.
     const printedAverage = parsePrintedAverage(text);
@@ -212,6 +247,10 @@ export async function POST(request: NextRequest) {
        *  row only one pass saw). This is the number that says "the code is
        *  losing it" as opposed to "the model never read it". */
       disputed: rows.filter((r) => (r as { uncertain?: boolean }).uncertain === true).length,
+      rejectedRows,
+      censusFailed,
+      missingRows: gap.missingRows,
+      missingGrades: gap.missingGrades,
     };
 
     return NextResponse.json({ rows, englishLevel, averageMismatch, diagnostics });
