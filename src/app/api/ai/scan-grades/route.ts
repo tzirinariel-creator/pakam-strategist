@@ -26,6 +26,7 @@ import {
   CENSUS_SYSTEM,
   parseCodeCensus,
   censusGap,
+  applyCensusCandidates,
   takeRejectedRowCount,
 } from "@/lib/grade-sheet";
 import type { ScanDiagnostics } from "@/lib/grade-sheet";
@@ -214,6 +215,8 @@ export async function POST(request: NextRequest) {
         parsed.data.mimeType,
       );
       gap = censusGap(rows, parseCodeCensus(censusText));
+      // Offer what the census read as a one-tap candidate — never as a fact.
+      rows = applyCensusCandidates(rows, gap);
     } catch {
       censusFailed = true;
       // Best-effort, exactly like the verify pass. A census that fails must

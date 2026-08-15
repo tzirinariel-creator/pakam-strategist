@@ -20,6 +20,9 @@ export const extractedRowSchema = z.object({
   semester: z.string().max(12).nullish(),
   /** The sheet prints *** in the grade column for enrolled-not-yet-graded. */
   inProgress: z.boolean().nullish(),
+  /** Set when the row carried a "grade" outside 0-100 (TAU prints such codes —
+   *  see extractValidated). The course is kept; the number is not. */
+  gradeOutOfRange: z.boolean().nullish(),
 });
 
 export const extractionSchema = z.object({
@@ -113,8 +116,30 @@ function extractValidated(text: string): z.infer<typeof extractionSchema> | null
     let rejected = 0;
     for (const r of obj.rows) {
       const one = extractedRowSchema.safeParse(r);
-      if (one.success) rows.push(one.data);
-      else rejected++;
+      if (one.success) {
+        rows.push(one.data);
+        continue;
+      }
+      // LAST RESORT before dropping a course: a row is usually rejected for
+      // ONE bad field, and almost always the grade. Ariel's own sheet prints
+      // "260" in the ציון קובע column of חקיקה ורגולציה — and the sheet's own
+      // weighted average proves TAU doesn't count it either (96.25 is exactly
+      // the other two rows). Whatever 260 means, it is not a grade.
+      //
+      // Dropping the whole row would make the COURSE disappear, which is the
+      // silent-loss shape this whole area keeps failing on. So retry once
+      // without the offending grade: the student keeps the course, ungraded
+      // and visible, and can type the real number. We lose a value we never
+      // had; we do not lose the course.
+      const retried = extractedRowSchema.safeParse({
+        ...(r as Record<string, unknown>),
+        grade: null,
+      });
+      if (retried.success) {
+        rows.push({ ...retried.data, gradeOutOfRange: true });
+      } else {
+        rejected++;
+      }
     }
     if (rows.length === 0) return null;
     lastRejectedRows = rejected;
@@ -403,6 +428,35 @@ export function censusGap(rows: ExtractedRow[], census: CensusEntry[] | null): C
     }
   }
   return { missingRows, missingGrades };
+}
+
+/**
+ * Hand the census's reading to the review screen as a CANDIDATE, so a row it
+ * knows a number for offers one tap instead of an empty box.
+ *
+ * 15.8 — Ariel's third scan. אסטרטגיה (090) came back flagged "לבדיקה" with a
+ * bare "להזין ציון", and he had to type a number printed in front of him. The
+ * flag was right — the reads disagreed, and we must not assert a grade nobody
+ * confirmed — but "we're not sure" and "we have no idea" are different states,
+ * and the screen showed the weaker one.
+ *
+ * `otherGrade` is the field the review UI already uses to render
+ * "קראנו 90 — נכון?" with a single tap. This fills it from the census when the
+ * double-read left it empty. It NEVER touches `grade`: the number still only
+ * becomes real when the student says so.
+ */
+export function applyCensusCandidates<T extends ExtractedRow & { otherGrade?: number | null }>(
+  rows: T[],
+  gap: CensusGap,
+): T[] {
+  if (gap.missingGrades.length === 0) return rows;
+  const candidate = new Map(gap.missingGrades.map((m) => [m.courseCode, m.censusGrade]));
+  return rows.map((r) => {
+    const code = r.courseCode?.trim();
+    if (!code || r.grade != null || r.otherGrade != null) return r;
+    const g = candidate.get(code);
+    return g == null ? r : { ...r, otherGrade: g, uncertain: true };
+  });
 }
 
 export function printedAverageMismatch(

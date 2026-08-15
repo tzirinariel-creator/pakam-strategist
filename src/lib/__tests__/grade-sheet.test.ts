@@ -13,9 +13,30 @@ describe("parseExtraction", () => {
     expect(rows?.[0]?.grade).toBe(88);
   });
 
-  it("rejects garbage, out-of-range grades, and non-JSON", () => {
+  it("rejects garbage and non-JSON", () => {
     expect(parseExtraction("sorry, I cannot read this")).toBeNull();
-    expect(parseExtraction('{"rows":[{"courseCode":null,"courseName":"x","grade":150,"credits":null,"passText":null}]}')).toBeNull();
+  });
+
+  // CHANGED 15.8 — this used to assert that an out-of-range grade returns null,
+  // i.e. that ONE bad number throws away the student's whole sheet. That was
+  // the behaviour, and the test was holding it in place.
+  //
+  // Ariel's own sheet prints "260" in the ציון קובע column of חקיקה ורגולציה,
+  // and the sheet's own weighted average proves TAU doesn't count it either
+  // (96.25 is exactly the other two rows). Whatever 260 encodes, it is not a
+  // grade — but the COURSE is real and he is taking it. Losing the number is
+  // correct; losing the course is the silent-loss bug this area keeps hitting.
+  it("keeps the COURSE when only its grade is out of range", () => {
+    const rows = parseExtraction('{"rows":[{"courseCode":"1411-9107","courseName":"חקיקה ורגולציה","grade":260,"credits":4,"passText":null}]}');
+    expect(rows).toHaveLength(1);
+    expect(rows![0]!.grade).toBeNull();
+    expect(rows![0]!.gradeOutOfRange).toBe(true);
+    expect(rows![0]!.courseCode).toBe("1411-9107");
+  });
+
+  it("still returns null when there is no usable row at all", () => {
+    // A row with no name is not a row — the retry only ever clears the grade.
+    expect(parseExtraction('{"rows":[{"courseCode":null,"courseName":"","grade":150,"credits":null,"passText":null}]}')).toBeNull();
   });
 
   // #23 — the sheet prints the English level as words on the requirements line;

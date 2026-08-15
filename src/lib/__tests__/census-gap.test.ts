@@ -11,7 +11,7 @@
 // writes a grade. These tests hold that line: every case below asserts a
 // QUESTION was raised, never that data was silently filled in.
 import { describe, it, expect } from "vitest";
-import { parseCodeCensus, censusGap } from "@/lib/grade-sheet";
+import { parseCodeCensus, censusGap, applyCensusCandidates } from "@/lib/grade-sheet";
 import type { ExtractedRow } from "@/lib/grade-sheet";
 
 const row = (courseCode: string, grade: number | null): ExtractedRow =>
@@ -114,5 +114,60 @@ describe("censusGap — Ariel's actual failures", () => {
   it("ignores extracted rows that carry no code, rather than crashing", () => {
     const noCode = { courseCode: null, courseName: "משהו", grade: 90, credits: 2, passText: null } as ExtractedRow;
     expect(() => censusGap([noCode], [{ courseCode: "1031-4015", grade: 93 }])).not.toThrow();
+  });
+});
+
+// =========================================================================
+// The census's reading becomes a one-tap CANDIDATE, never a fact
+// =========================================================================
+// 15.8, Ariel's third scan: אסטרטגיה (090) came back flagged "לבדיקה" with a
+// bare "להזין ציון", so he had to type a number printed right in front of him.
+// The flag was correct — the two reads disagreed and we may not assert a grade
+// nobody confirmed — but "we're not sure" and "we have no idea" are different
+// states, and the screen was showing the weaker one.
+describe("applyCensusCandidates", () => {
+  const base = (courseCode: string, grade: number | null) =>
+    ({ courseCode, courseName: courseCode, grade, credits: 3, passText: null, semester: "2025/2" }) as ExtractedRow & { otherGrade?: number | null; uncertain?: boolean };
+
+  it("offers the census grade as a candidate on an ungraded row", () => {
+    const out = applyCensusCandidates(
+      [base("1031-2108", null)],
+      { missingRows: [], missingGrades: [{ courseCode: "1031-2108", censusGrade: 90 }] },
+    );
+    expect(out[0]!.otherGrade).toBe(90);
+    expect(out[0]!.uncertain).toBe(true);
+    // The load-bearing assertion: it is a CANDIDATE, not a grade.
+    expect(out[0]!.grade).toBeNull();
+  });
+
+  it("never overwrites a grade the extraction already read", () => {
+    const out = applyCensusCandidates(
+      [base("1031-2108", 88)],
+      { missingRows: [], missingGrades: [{ courseCode: "1031-2108", censusGrade: 90 }] },
+    );
+    expect(out[0]!.grade).toBe(88);
+    expect(out[0]!.otherGrade).toBeUndefined();
+  });
+
+  it("never overwrites a candidate the double-read already produced", () => {
+    const row = { ...base("1031-2108", null), otherGrade: 85 };
+    const out = applyCensusCandidates(
+      [row],
+      { missingRows: [], missingGrades: [{ courseCode: "1031-2108", censusGrade: 90 }] },
+    );
+    expect(out[0]!.otherGrade).toBe(85);
+  });
+
+  it("is a no-op when the census found no missing grades", () => {
+    const rows = [base("1031-2108", null)];
+    expect(applyCensusCandidates(rows, { missingRows: [], missingGrades: [] })).toBe(rows);
+  });
+
+  it("leaves rows with no course code alone", () => {
+    const noCode = { courseName: "x", courseCode: null, grade: null, credits: 2, passText: null } as ExtractedRow;
+    const out = applyCensusCandidates([noCode], {
+      missingRows: [], missingGrades: [{ courseCode: "1031-2108", censusGrade: 90 }],
+    });
+    expect(out[0]).toBe(noCode);
   });
 });
