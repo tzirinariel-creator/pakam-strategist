@@ -1,5 +1,6 @@
 "use client";
 
+import { UnofficialNotice } from "@/components/layout/unofficial-notice";
 import { useState, useCallback } from "react";
 import { useTranslations } from "next-intl";
 import { usePathname, Link } from "@/i18n/navigation";
@@ -128,6 +129,15 @@ export function MobileNav() {
                     </Link>
                   );
                 })}
+              </div>
+
+              {/* 21.8 — the "not an official site" line lives in the desktop
+                  sidebar, which does not exist on a phone. Ariel uses the app
+                  mostly on mobile, so on mobile the notice simply never
+                  appeared. The "עוד" drawer is where the chrome-level things
+                  live, so it belongs here. */}
+              <div className="border-t border-border px-2 py-2">
+                <UnofficialNotice variant="compact" />
               </div>
             </div>
           </div>
