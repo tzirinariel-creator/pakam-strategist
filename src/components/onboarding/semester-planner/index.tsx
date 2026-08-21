@@ -60,7 +60,7 @@ interface SemesterPlannerProps {
   allCourses: CourseWithSchedule[];
   isLoadingCourses: boolean;
   /** Completed rows, so the planner can state the student's English standing. */
-  completedRows?: { nameHe: string; courseCode?: string | null; grade: number | null; status?: string }[];
+  completedRows?: { nameHe: string; courseCode?: string | null; grade: number | null; status?: string; credits?: number | null }[];
   /**
    * Receives the finished plan.
    *
@@ -1041,6 +1041,9 @@ export function SemesterPlanner({
           unscheduledCount={unscheduledCount}
           canSwapGroups={multiGroupCourseCodes.size > 0}
           focusArea={data.focusArea}
+          // Degree progress has to include what is already earned, or the
+          // label "התקדמות בתואר" is false for anyone mid-degree.
+          completedCredits={(completedRows ?? []).reduce((sum, r) => sum + (r.credits ?? 0), 0)}
           onFindCombination={handleFindCombination}
         />
       </div>

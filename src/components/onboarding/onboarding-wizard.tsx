@@ -565,6 +565,8 @@ export function OnboardingWizard() {
                       courseCode: c.courseCode,
                       grade: c.grade,
                       status: "COMPLETED" as const,
+                      credits:
+                        allCourses.find((a) => a.code === c.courseCode)?.credits ?? c.credits ?? 2,
                     }))}
                   />
                 )}

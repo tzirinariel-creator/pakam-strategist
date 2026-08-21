@@ -1,7 +1,8 @@
 "use client";
 
-import { MessageSquare, Mail } from "lucide-react";
-import { useTranslations } from "next-intl";
+import { useState } from "react";
+import { MessageSquare, Mail, Copy, Check } from "lucide-react";
+import { useLocale, useTranslations } from "next-intl";
 import { CONTACT_EMAIL } from "@/lib/constants";
 import { usePathname } from "@/i18n/navigation";
 import { SectionCard } from "./section-card";
@@ -12,7 +13,9 @@ import { SectionCard } from "./section-card";
 
 export function FeedbackSection() {
   const t = useTranslations("settings");
+  const isHe = useLocale() === "he";
   const pathname = usePathname();
+  const [copied, setCopied] = useState(false);
 
   // L3 — the feedback channel is a prefilled mail (no tracking, no extra
   // table); the page context rides along so the report lands actionable.
@@ -30,14 +33,46 @@ export function FeedbackSection() {
     >
       <div className="space-y-4">
         <div>
-          <a
-            href={mailtoHref}
-            className="inline-flex items-center gap-2 rounded-lg bg-foreground px-4 py-2 text-sm font-semibold text-background transition-colors hover:bg-foreground/90"
-          >
-            <Mail className="size-4" />
-            {t("feedbackButton")}
-          </a>
-          <p className="mt-2 text-xs text-foreground/50">{t("feedbackHint")}</p>
+          {/* Ariel, 21.8: "החלון משוב לא עובד".
+              It was a bare mailto:. On a machine with no mail client bound to
+              the protocol — a browser-only setup, which is most people — the
+              click does nothing at all: no error, no new window, nothing. A
+              button whose entire failure mode is silence is indistinguishable
+              from a broken one, and he had no way to tell which it was.
+              The address is now visible and copyable, so the mail link is a
+              convenience rather than the only route. */}
+          <div className="flex flex-wrap items-center gap-2">
+            <a
+              href={mailtoHref}
+              className="inline-flex items-center gap-2 rounded-lg bg-foreground px-4 py-2 text-sm font-semibold text-background transition-colors hover:bg-foreground/90"
+            >
+              <Mail className="size-4" />
+              {t("feedbackButton")}
+            </a>
+            <button
+              type="button"
+              onClick={async () => {
+                try {
+                  await navigator.clipboard.writeText(CONTACT_EMAIL);
+                  setCopied(true);
+                  setTimeout(() => setCopied(false), 2000);
+                } catch {
+                  /* clipboard blocked — the address is on screen anyway */
+                }
+              }}
+              className="inline-flex items-center gap-1.5 rounded-lg border border-border px-3 py-2 text-xs font-medium text-foreground/70 transition-colors hover:border-foreground/30"
+            >
+              {copied ? <Check className="size-3.5" /> : <Copy className="size-3.5" />}
+              {copied
+                ? isHe ? "הועתק" : "Copied"
+                : isHe ? "העתקת הכתובת" : "Copy address"}
+            </button>
+          </div>
+          <p className="mt-2 text-xs text-foreground/50">
+            {isHe ? "או כתבו ישירות ל־" : "Or write directly to "}
+            <span className="font-data text-foreground/70" dir="ltr">{CONTACT_EMAIL}</span>
+          </p>
+          <p className="mt-1 text-xs text-foreground/50">{t("feedbackHint")}</p>
           {/* Ariel, 21.8: "נזכיר שאני סטודנט שעושה את זה בשביל הכיף ובשביל
               לעזור". Worth saying out loud — it sets the right expectation
               (there is no support desk) and it makes people write to a person

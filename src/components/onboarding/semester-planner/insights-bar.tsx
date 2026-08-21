@@ -68,6 +68,16 @@ const LEVEL_COLORS: Record<HonestLoadLabel, string> = {
 interface InsightsBarProps {
   selectedCourses: CourseWithSchedule[];
   totalCreditsPlanned: number;
+  /**
+   * Credits the student has ALREADY completed, from their record.
+   *
+   * Ariel, 21.8: "מה עם כל הש״ס שכבר עשיתי? משהו שם לא קוהרנטי בכלל". This
+   * card was labelled "התקדמות בתואר" and counted only what sat in the
+   * planner, so a student with a full year behind them watched their degree
+   * progress start again from zero. Progress toward a degree has to include
+   * the part already earned or the label is simply false.
+   */
+  completedCredits?: number;
   /** From `detectPlannerConflicts` — the SAME deduped pairing the grid paints
    *  red. This card used to run its own engine and could print a green "0"
    *  under a grid that was showing red. */
@@ -277,6 +287,7 @@ function generateScheduleInsights(
 export function InsightsBar({
   selectedCourses,
   totalCreditsPlanned,
+  completedCredits = 0,
   conflicts,
   unscheduledCount = 0,
   canSwapGroups = false,
@@ -590,16 +601,26 @@ export function InsightsBar({
           </div>
           <div className="mt-1 flex items-baseline gap-1" dir="ltr">
             <span className="font-mono text-lg font-bold text-foreground/70">
-              {totalCreditsPlanned}
+              {completedCredits + totalCreditsPlanned}
             </span>
             <span className="text-[10px] text-foreground/30">/ {CREDIT_REQUIREMENTS.TOTAL}</span>
           </div>
           <div className="mt-1 h-1 w-full rounded-full bg-foreground/10 overflow-hidden">
             <div
               className="progress-gradient h-full rounded-full transition-all duration-500"
-              style={{ width: `${Math.min((totalCreditsPlanned / CREDIT_REQUIREMENTS.TOTAL) * 100, 100)}%` }}
+              style={{
+                width: `${Math.min(((completedCredits + totalCreditsPlanned) / CREDIT_REQUIREMENTS.TOTAL) * 100, 100)}%`,
+              }}
             />
           </div>
+          {/* Earned and planned are different kinds of certainty, so the split
+              is stated rather than folded into one number. */}
+          {completedCredits > 0 && (
+            <p className="mt-1 text-[10px] leading-tight text-foreground/40">
+              <Bidi text={completedCredits} /> {isHe ? "שכבר עשיתם" : "already done"} ·{" "}
+              <Bidi text={totalCreditsPlanned} /> {isHe ? "בתכנון" : "planned"}
+            </p>
+          )}
           {/* Focus area progress — clearer display */}
           {focusArea && focusAreaCfg && (
             <div className="mt-1.5 flex items-center justify-between gap-1.5">
