@@ -1,5 +1,6 @@
 "use client";
 
+import { buildPlanShareText, type PlanShareCourse } from "@/lib/plan-share";
 import { useLocale } from "next-intl";
 import { Copy, MessageCircle } from "lucide-react";
 import { toast } from "sonner";
@@ -24,10 +25,13 @@ export function SharePlanDialog({
   open,
   onOpenChange,
   courses,
+  detail,
 }: {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   courses: SharedCourse[];
+  /** #25 — names/credits, so the message can describe itself. */
+  detail?: PlanShareCourse[];
 }) {
   const isHe = useLocale() === "he";
 
@@ -45,10 +49,10 @@ export function SharePlanDialog({
   };
 
   const shareWhatsApp = () => {
-    const text =
-      (isHe
-        ? "בניתי את תוכנית התואר שלי בפכמון. אפשר לראות ולהעתיק כאן: "
-        : "I built my degree plan in Pakamon. View and copy it here: ") + shareUrl();
+    // #25 — was one generic sentence plus a long ?d=<base64> URL, which told
+    // the recipient nothing and read like spam. Now the message describes the
+    // plan first and puts the link on its own line.
+    const text = buildPlanShareText(detail ?? [], { url: shareUrl(), isHe });
     window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, "_blank", "noopener");
     onOpenChange(false);
   };

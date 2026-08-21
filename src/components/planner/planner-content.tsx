@@ -124,6 +124,17 @@ export function PlannerContent() {
     y: uc.plannedYear,
     s: uc.plannedSemester as SharedCourse["s"],
   }));
+  // #25 — the WhatsApp message needs to say what is IN the plan, so the detail
+  // travels alongside the token. The token itself stays exactly as it was.
+  const shareDetail = courses.map((uc) => ({
+    code: uc.course.code,
+    nameHe: uc.course.nameHe,
+    nameEn: uc.course.nameEn ?? null,
+    credits: uc.course.credits ?? 0,
+    year: uc.plannedYear,
+    semester: uc.plannedSemester as "FALL" | "SPRING" | "SUMMER",
+  }));
+
   const handleShare = () => {
     if (sharedCourses.length === 0) {
       toast.error(isHe ? "אין קורסים לשיתוף" : "No courses to share");
@@ -235,7 +246,7 @@ export function PlannerContent() {
             <Share2 className="h-4 w-4" />
             {isHe ? "שתף" : "Share"}
           </button>
-          <SharePlanDialog open={shareOpen} onOpenChange={setShareOpen} courses={sharedCourses} />
+          <SharePlanDialog open={shareOpen} onOpenChange={setShareOpen} courses={sharedCourses} detail={shareDetail} />
           <Link
             href="/planner/semester"
             className="flex items-center gap-2 rounded-lg border border-border/40 bg-card/40 px-4 py-2 text-sm text-foreground/60 transition-colors hover:border-foreground/20 hover:bg-card/60 hover:text-foreground/80"

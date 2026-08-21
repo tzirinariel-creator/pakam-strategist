@@ -103,3 +103,85 @@ export function decodePlan(token: string): SharedCourse[] | null {
     return null;
   }
 }
+
+// =========================================================================
+// The WhatsApp message itself — #25
+// =========================================================================
+// Ariel: "כפתור השיתוף בוואטסאפ ממש גרוע ואי אפשר באמת להבין ממנו כלום".
+//
+// He is right, and the reason is structural: the message was one generic
+// sentence followed by a very long `?d=<base64>` URL. The person receiving it
+// could not tell what was in the plan without clicking, and a wall of encoded
+// characters from an app they have never heard of reads like spam — which is
+// the worst possible first contact for the one organic growth channel this
+// product has.
+//
+// A share message has to stand on its own. This one says which semester, how
+// many courses, how many ש״ס, and names a few of them — so the recipient knows
+// what they are being sent before they decide whether to open it.
+
+export interface PlanShareCourse {
+  code: string;
+  nameHe: string;
+  nameEn?: string | null;
+  credits: number;
+  year: number;
+  semester: "FALL" | "SPRING" | "SUMMER";
+}
+
+const SEMESTER_HE: Record<string, string> = { FALL: "סמסטר א׳", SPRING: "סמסטר ב׳", SUMMER: "סמסטר קיץ" };
+const YEAR_HE = ["", "שנה א׳", "שנה ב׳", "שנה ג׳", "שנה ד׳"];
+
+/** How many course names to name before saying "ועוד N". Four fits a preview. */
+const NAMED_COURSES = 4;
+
+export function buildPlanShareText(
+  courses: PlanShareCourse[],
+  opts: { url: string; isHe: boolean },
+): string {
+  const { url, isHe } = opts;
+  if (courses.length === 0) {
+    return isHe
+      ? `בניתי תוכנית תואר בפכמון — אפשר לראות ולהעתיק כאן:\n${url}`
+      : `I built a degree plan in Pakamon — view and copy it here:\n${url}`;
+  }
+
+  const credits = courses.reduce((sum, c) => sum + (c.credits || 0), 0);
+  // Lead with the semester the plan is mostly about, so the message has a subject.
+  const counts = new Map<string, number>();
+  for (const c of courses) {
+    const key = `${c.year}|${c.semester}`;
+    counts.set(key, (counts.get(key) ?? 0) + 1);
+  }
+  const [topKey] = [...counts.entries()].sort((a, b) => b[1] - a[1])[0]!;
+  const [topYear, topSem] = topKey.split("|");
+  const label = isHe
+    ? `${YEAR_HE[Number(topYear)] ?? ""} ${SEMESTER_HE[topSem!] ?? ""}`.trim()
+    : `Year ${topYear}, ${topSem!.toLowerCase()}`;
+
+  const names = courses
+    .slice(0, NAMED_COURSES)
+    .map((c) => (isHe ? c.nameHe : (c.nameEn ?? c.nameHe)));
+  const more = courses.length - names.length;
+
+  const lines: string[] = [];
+  if (isHe) {
+    lines.push(`*תוכנית התואר שלי — ${label}*`);
+    lines.push(`${courses.length === 1 ? "קורס אחד" : `${courses.length} קורסים`} · ${credits} ש״ס`);
+    lines.push("");
+    for (const n of names) lines.push(`• ${n}`);
+    if (more > 0) lines.push(`• ועוד ${more === 1 ? "קורס אחד" : `${more} קורסים`}`);
+    lines.push("");
+    lines.push("אפשר לראות את הכול ולהעתיק לעצמכם:");
+  } else {
+    lines.push(`*My degree plan — ${label}*`);
+    lines.push(`${courses.length} course${courses.length === 1 ? "" : "s"} · ${credits} credits`);
+    lines.push("");
+    for (const n of names) lines.push(`• ${n}`);
+    if (more > 0) lines.push(`• and ${more} more`);
+    lines.push("");
+    lines.push("See it all and copy it for yourself:");
+  }
+  lines.push(url);
+  return lines.join("\n");
+}
