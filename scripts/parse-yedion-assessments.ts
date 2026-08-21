@@ -1,88 +1,101 @@
 #!/usr/bin/env npx tsx
 // =========================================================================
-// Parse the ידיעון's "לוח בחינות ומטלות" tab (תשפ״ז) into structured data
+// Parse the ידיעון's "לוח בחינות ומטלות" (תשפ״ז) into structured data
 // =========================================================================
-// Ariel sent this three times; the first two exports were empty files. This one
-// is a Word save of the ידיעון page, and it carries real data — but NOT the
-// data everyone assumed.
+// Source: https://www.tau.ac.il/study-program?safa=1&shana=2026&tab=assignments&tcid=5904
+// saved to .docx and exported. One row per course/group, shaped:
 //
-// WHAT IT ACTUALLY CONTAINS, counted:
-//   · 270 exam sittings — with DAY OF WEEK and TIME, and NO DATE.
-//   · ~198 assignment/paper deadlines — with a real dd/mm/yy date.
+//   0618-1018 · מבוא לפילוסופיה של המוסר · א · 01 · בחינה סופית
+//     מועד א׳  28/01/2027 יום ה 09:00
+//     מועד ב׳  05/03/2027 יום ו 09:00
 //
-// So the ידיעון has not published exam DATES for תשפ״ז yet. It publishes the
-// slot ("מועד א׳ ביום ד׳ ב-14:00") and fills the date in later. That is worth
-// stating plainly, because "the exam schedule" was treated as a missing file
-// for two rounds when the source simply doesn't have that column yet.
+// ── A CORRECTION, and it matters ─────────────────────────────────────────
+// My first version of this parser reported "the ידיעון publishes no exam
+// DATES, only day and time". That was WRONG, and it was my bug, not the
+// source's. The run-extraction regex was `<w:t[^>]*>` — which also matches
+// `<w:tbl>`, `<w:tc>` and `<w:tcPr>`, since every one of them starts with
+// `<w:t`. The non-greedy body then swallowed whole spans of paragraph
+// properties, and all 701 exam dates disappeared inside them.
 //
-// VERIFIED against an independent source: bid-it (the student association's
-// planner) prints real dates for תשפ״ז. For the four courses we could compare,
-// the weekday of bid-it's date matches the ידיעון's day exactly:
-//   1011-2101 20/01/2027 → יום ד   ידיעון: יום ד   ✓
-//   1011-2109 27/01/2027 → יום ד   ידיעון: יום ד   ✓
-//   0618-2200 29/01/2027 → יום ו   ידיעון: יום ו   ✓
-//   1011-2106 01/02/2027 → יום ב   ידיעון: יום ב   ✓
-// Four for four. The ידיעון's day/time is real; only the date is pending.
+// The fix is one character class: `<w:t(?:\s[^>]*)?>` requires whitespace or
+// the closing bracket immediately after `w:t`, so a table tag can never match.
+// Ariel caught it by looking at the actual page and asking "למה? תסתכל
+// המבנה.. יש תאריך" — he was right and the data was there the whole time.
 //
-// Output is a JSON asset, not a migration. Nothing is written to the database:
-// this is catalog reference data, it is reversible by deleting a file, and a
-// schema change days before launch is a risk with no upside.
+// Output is a JSON asset read at runtime, NOT a migration: catalog reference
+// data, reversible by deleting a file, and no schema change days before launch.
 //
 // USAGE:  npx tsx scripts/parse-yedion-assessments.ts <document.xml> <out.json>
 import fs from "node:fs";
 import path from "node:path";
 
 const COURSE_CODE = /^\d{4}-\d{4}$/;
-const DATE = /^(\d{2})\/(\d{2})\/(\d{2})$/;
+/** The ידיעון prints dd/mm/yyyy for exams and dd/mm/yy for some deadlines. */
+const DATE = /^(\d{2})\/(\d{2})\/(\d{2}|\d{4})$/;
 const TIME = /^\d{1,2}:\d{2}$/;
-const DAY_LETTERS = new Set(["א", "ב", "ג", "ד", "ה", "ו"]);
 
-/** "יום ד" → DayOfWeek. The ידיעון never lists Saturday. */
 const DAY_ENUM: Record<string, string> = {
   "א": "SUNDAY", "ב": "MONDAY", "ג": "TUESDAY",
-  "ד": "WEDNESDAY", "ה": "THURSDAY", "ו": "FRIDAY",
+  "ד": "WEDNESDAY", "ה": "THURSDAY", "ו": "FRIDAY", "ש": "SATURDAY",
 };
 
-export interface ExamSitting {
+export interface YedionSitting {
   /** "A" = מועד א׳, "B" = מועד ב׳. */
   sitting: "A" | "B";
-  /** DayOfWeek enum, e.g. "WEDNESDAY". */
-  dayOfWeek: string;
-  /** "14:00". */
-  time: string;
+  /** ISO date, e.g. "2027-01-28". */
+  date: string;
+  /** DayOfWeek enum, as printed alongside the date. */
+  dayOfWeek: string | null;
+  /** "09:00". */
+  time: string | null;
 }
 
 export interface AssessmentRecord {
   courseCode: string;
+  courseName: string;
+  /** The ידיעון's semester letter: "א" / "ב" / "קיץ". */
+  semester: string | null;
   /** "01" / "02" / "כל הקבוצות". */
   group: string | null;
-  /** An exam ("סופית") publishes sittings; a paper ("בית") publishes a deadline. */
-  kind: "exam" | "paper" | "unknown";
-  /** Day+time per sitting. EMPTY for papers. Dates are NOT published yet. */
-  sittings: ExamSitting[];
-  /** ISO date for a paper deadline, or null. */
+  /** "בחינה סופית", "עבודת בית", … as the ידיעון labels it. */
+  assessmentType: string | null;
+  /** Exam sittings with real dates. Empty for a paper. */
+  sittings: YedionSitting[];
+  /** ISO deadline for a paper/assignment, or null. */
   dueDate: string | null;
 }
 
-/** Pull the `<w:t>` runs out of a .docx document.xml, in document order. */
+/**
+ * Pull `<w:t>` run text out of a .docx document.xml, in document order.
+ *
+ * The `(?:\s[^>]*)?` is load-bearing — see the correction note above. Without
+ * it this also matches `<w:tbl>`/`<w:tc>`/`<w:tcPr>` and silently eats content.
+ */
 export function tokensFromDocumentXml(xml: string): string[] {
-  const body = xml.slice(Math.max(0, xml.indexOf("<w:body>")));
-  const runs = [...body.matchAll(/<w:t[^>]*>([\s\S]*?)<\/w:t>/g)].map((m) => m[1]!);
+  const at = xml.indexOf("<w:body>");
+  const body = xml.slice(at >= 0 ? at : 0);
+  const runs = [...body.matchAll(/<w:t(?:\s[^>]*)?>([\s\S]*?)<\/w:t>/g)].map((m) => m[1]!);
   return runs
     .map((t) =>
       t.replace(/&amp;/g, "&").replace(/&lt;/g, "<").replace(/&gt;/g, ">")
        .replace(/&quot;/g, '"').replace(/&apos;/g, "'").trim(),
     )
-    .filter((t) => t && !t.includes("<w:"));
+    .filter(Boolean);
+}
+
+/** "28/01/2027" → "2027-01-28". Two-digit years are 20xx; the ידיעון spans no century. */
+function toIso(token: string): string | null {
+  const m = DATE.exec(token);
+  if (!m) return null;
+  const [, dd, mm, yy] = m;
+  const year = yy!.length === 4 ? yy! : `20${yy}`;
+  return `${year}-${mm}-${dd}`;
 }
 
 /**
- * Group the flat token stream into one record per course-code occurrence.
- *
- * The page is a table flattened into runs, so a record is "everything between
- * this course code and the next one". Word splits Hebrew course names across
- * many runs, which is why the name is not reconstructed here — the catalog
- * already holds the authoritative name, and the code is the join key.
+ * Group the flat run stream into one record per course-code occurrence and
+ * read the fields positionally: everything between this course code and the
+ * next one belongs to this row.
  */
 export function parseAssessments(tokens: string[]): AssessmentRecord[] {
   const starts: number[] = [];
@@ -94,40 +107,52 @@ export function parseAssessments(tokens: string[]): AssessmentRecord[] {
     const end = n + 1 < starts.length ? starts[n + 1]! : tokens.length;
     const body = tokens.slice(i + 1, end);
 
-    const kind: AssessmentRecord["kind"] =
-      body.includes("סופית") ? "exam" : body.includes("בית") ? "paper" : "unknown";
+    // Name = the words before the first structural marker (semester letter,
+    // group number, or assessment label). Word splits Hebrew across runs, so
+    // it is rejoined here.
+    const nameParts: string[] = [];
+    for (const t of body) {
+      if (/^(א|ב|קיץ)$/.test(t) || /^\d{2}$/.test(t) || t === "כל" ||
+          t.startsWith("בחינה") || t.startsWith("עבודת") || t.startsWith("תאריך")) break;
+      nameParts.push(t);
+    }
+    const courseName = nameParts.join(" ").replace(/\s+([,'"])/g, "$1").trim();
 
+    const semester = body.find((t) => /^(א|ב|קיץ)$/.test(t)) ?? null;
     const group =
-      body.find((t) => /^\d{2}$/.test(t)) ??
-      (body.includes("הקבוצות") ? "כל הקבוצות" : null);
+      body.find((t) => /^\d{2}$/.test(t)) ?? (body.includes("הקבוצות") ? "כל הקבוצות" : null);
 
-    // Sittings: the ידיעון prints "יום <letter> <HH:MM>" once for מועד א׳ and
-    // again for מועד ב׳, in that order.
-    const sittings: ExamSitting[] = [];
-    for (let k = 0; k < body.length - 2; k++) {
-      if (body[k] !== "יום") continue;
-      const letter = body[k + 1]!;
-      const time = body[k + 2]!;
-      if (!DAY_LETTERS.has(letter) || !TIME.test(time)) continue;
-      const day = DAY_ENUM[letter];
-      if (!day) continue;
-      sittings.push({ sitting: sittings.length === 0 ? "A" : "B", dayOfWeek: day, time });
-      if (sittings.length === 2) break;
-    }
+    const typeIdx = body.findIndex((t) => t === "בחינה" || t === "עבודת" || t === "תאריך");
+    const assessmentType =
+      typeIdx >= 0 ? [body[typeIdx], body[typeIdx + 1]].filter(Boolean).join(" ") : null;
 
-    // A paper deadline is a real dd/mm/yy. Two-digit years in this document are
-    // 27 → 2027; the ידיעון never spans a century.
+    // Every date in the row, with the day/time that follow it.
+    const sittings: YedionSitting[] = [];
     let dueDate: string | null = null;
-    const d = body.find((t) => DATE.test(t));
-    if (d) {
-      const m = DATE.exec(d)!;
-      dueDate = `20${m[3]}-${m[2]}-${m[1]}`;
+    for (let k = 0; k < body.length; k++) {
+      const iso = toIso(body[k]!);
+      if (!iso) continue;
+      const dayLetter = body[k + 1] === "יום" ? body[k + 2] : undefined;
+      const time = body.slice(k + 1, k + 4).find((t) => TIME.test(t)) ?? null;
+      const isExam = assessmentType?.startsWith("בחינה") ?? false;
+      if (isExam) {
+        sittings.push({
+          sitting: sittings.length === 0 ? "A" : "B",
+          date: iso,
+          dayOfWeek: dayLetter ? (DAY_ENUM[dayLetter] ?? null) : null,
+          time,
+        });
+        if (sittings.length === 2) break;
+      } else if (!dueDate) {
+        dueDate = iso;
+      }
     }
 
-    // A record with nothing usable is a table-header artefact, not a course.
-    if (kind === "unknown" && sittings.length === 0 && !dueDate) continue;
+    if (!courseName && sittings.length === 0 && !dueDate) continue; // header artefact
 
-    out.push({ courseCode: tokens[i]!, group, kind, sittings, dueDate });
+    out.push({
+      courseCode: tokens[i]!, courseName, semester, group, assessmentType, sittings, dueDate,
+    });
   }
   return out;
 }
@@ -141,19 +166,25 @@ if (require.main === module) {
   }
   const tokens = tokensFromDocumentXml(fs.readFileSync(xmlPath, "utf-8"));
   const records = parseAssessments(tokens);
+  const exams = records.filter((r) => r.sittings.length > 0);
+  const papers = records.filter((r) => r.dueDate);
 
-  const exams = records.filter((r) => r.kind === "exam");
-  const papers = records.filter((r) => r.kind === "paper");
-  const examsWithBothSittings = exams.filter((r) => r.sittings.length === 2);
-  const papersWithDate = papers.filter((r) => r.dueDate);
-
-  console.log(`tokens               ${tokens.length}`);
-  console.log(`records              ${records.length}`);
-  console.log(`  exams              ${exams.length}  (both sittings: ${examsWithBothSittings.length})`);
-  console.log(`  papers             ${papers.length}  (with a date: ${papersWithDate.length})`);
-  console.log(`  exams with a DATE  ${exams.filter((r) => r.dueDate).length}  ← the ידיעון hasn't published these`);
+  console.log(`tokens                    ${tokens.length}`);
+  console.log(`records                   ${records.length}`);
+  console.log(`  with exam sittings      ${exams.length}`);
+  console.log(`    both מועד א׳ and ב׳    ${exams.filter((r) => r.sittings.length === 2).length}`);
+  console.log(`    sittings carrying a DATE ${exams.flatMap((r) => r.sittings).filter((s) => s.date).length}`);
+  console.log(`  with a paper deadline   ${papers.length}`);
 
   fs.mkdirSync(path.dirname(outPath), { recursive: true });
-  fs.writeFileSync(outPath, JSON.stringify({ source: "ידיעון פכ״מ תשפ״ז — לוח בחינות ומטלות", records }, null, 2), "utf-8");
+  fs.writeFileSync(
+    outPath,
+    JSON.stringify({
+      source: "ידיעון פכ״מ תשפ״ז — לוח בחינות ומטלות",
+      sourceUrl: "https://www.tau.ac.il/study-program?safa=1&shana=2026&tab=assignments&tcid=5904",
+      records,
+    }, null, 2),
+    "utf-8",
+  );
   console.log(`\nwrote ${outPath}`);
 }

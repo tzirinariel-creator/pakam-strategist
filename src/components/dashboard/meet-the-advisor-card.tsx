@@ -86,7 +86,7 @@ export function MeetTheAdvisorCard() {
       ? `שנה ג׳ בפכ״מ — כבר עברתי את כל מה שמחכה ${pg("לך", "לך", "לכם")}. ${pg("תשאל", "תשאלי", "תשאלו")} אותי הכול בגובה העיניים, או פשוט ${pg("תגיד", "תגידי", "תגידו")} לי מה קרה: "סיימתי מיקרו עם 88", "נכשלתי בסטטיסטיקה", "תעביר לי את חקיקה לסמסטר ב׳" — ואני מקפיץ כרטיס־אישור שמעדכן את התוכנית בפועל. אני כאן בכל מסך.`
       : `A final-year PPE student who's already been through what's ahead of you. Ask me anything at eye level, or just tell me what happened: "finished micro with 88", "failed statistics", "move legislation to spring" — and I'll raise a confirm card that actually updates your plan. I'm on every screen.`
     : isHe
-      ? `היועץ האישי שלך לתואר. ${pg("שאל", "שאלי", "שאל/י")} אותי כל דבר — או פשוט ${pg("ספר", "ספרי", "ספר/י")} לי מה קרה: "סיימתי מיקרו עם 88", "נכשלתי בסטטיסטיקה", "תעביר לי את חקיקה לסמסטר ב׳" — ואני אעדכן בשבילך (תמיד עם אישור). אני כאן בכל מסך.`
+      ? `היועץ האישי שלך לתואר. ${pg("שאל", "שאלי", "שאלו")} אותי כל דבר — או פשוט ${pg("ספר", "ספרי", "ספרו")} לי מה קרה: "סיימתי מיקרו עם 88", "נכשלתי בסטטיסטיקה", "תעביר לי את חקיקה לסמסטר ב׳" — ואני אעדכן בשבילך (תמיד עם אישור). אני כאן בכל מסך.`
       : `Your personal degree advisor. Ask me anything — or just tell me what happened: "finished micro with 88", "failed statistics", "move legislation to spring" — and I'll update it for you (always with a confirm). I'm on every screen.`;
 
   return (

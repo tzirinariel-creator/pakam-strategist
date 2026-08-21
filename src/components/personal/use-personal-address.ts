@@ -15,7 +15,7 @@ import {
  * (getProfile) — no extra request on pages that already load it.
  *   const { greetName, g } = usePersonalAddress();
  *   <h1>{greetName ? `היי ${greetName}` : "היי"}</h1>
- *   <p>{g("מוזמן", "מוזמנת", "מוזמן/ת") + " להתחיל"}</p>
+ *   <p>{g("מוזמן", "מוזמנת", "מוזמנים") + " להתחיל"}</p>
  */
 export function usePersonalAddress(): {
   firstName: string | null;

@@ -183,7 +183,7 @@ export function RuleCard({ rule }: RuleCardProps) {
               close it (P2 #7 — context-aware help where the gap actually is). */}
           {!passed && (
             <AskAdvisorButton
-              promptHe={`הסבר לי את הדרישה "${ruleName}" — למה אני עדיין לא ${pg("עומד", "עומדת", "עומד/ת")} בה, ומה בדיוק לעשות כדי לסגור אותה?`}
+              promptHe={`הסבר לי את הדרישה "${ruleName}" — למה אני עדיין לא ${pg("עומד", "עומדת", "עומדים")} בה, ומה בדיוק לעשות כדי לסגור אותה?`}
               promptEn={`Explain the requirement "${ruleName}" — why am I not meeting it, and what exactly should I do to close it?`}
               labelHe="שאל את {advisor} איך לסגור את זה"
               labelEn="Ask {advisor} how to close this"

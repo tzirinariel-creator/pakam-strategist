@@ -136,7 +136,7 @@ function RedFlagCard({ rule, isHe }: { rule: RegulationResult; isHe: boolean }) 
           <p className="text-sm font-bold text-foreground/85">{name}</p>
           <p className="mt-0.5 text-xs leading-relaxed text-foreground/65">{msg}</p>
           <AskAdvisorButton
-            promptHe={`הסבר לי את הדרישה "${name}" — למה אני עדיין לא ${pg("עומד", "עומדת", "עומד/ת")} בה, ומה בדיוק לעשות כדי לסגור אותה?`}
+            promptHe={`הסבר לי את הדרישה "${name}" — למה אני עדיין לא ${pg("עומד", "עומדת", "עומדים")} בה, ומה בדיוק לעשות כדי לסגור אותה?`}
             promptEn={`Explain the requirement "${name}" — why am I not meeting it, and what exactly should I do to close it?`}
             labelHe="שאל את {advisor} איך לסגור את זה"
             labelEn="Ask {advisor} how to close this"

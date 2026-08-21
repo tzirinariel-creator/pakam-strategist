@@ -146,11 +146,11 @@ export function FloatingAssistant() {
       setListening(false);
       const err = e?.error;
       if (err === "not-allowed" || err === "service-not-allowed") {
-        toast.error(isHe ? pg("אין גישה למיקרופון — אפשר אותה בהגדרות הדפדפן ונסה שוב.", "אין גישה למיקרופון — אפשרי אותה בהגדרות הדפדפן ונסי שוב.", "אין גישה למיקרופון — אפשר/י אותה בהגדרות הדפדפן ונסה/י שוב.") : "No microphone access — allow it in your browser settings and try again.");
+        toast.error(isHe ? pg("אין גישה למיקרופון — אפשר אותה בהגדרות הדפדפן ונסה שוב.", "אין גישה למיקרופון — אפשרי אותה בהגדרות הדפדפן ונסי שוב.", "אין גישה למיקרופון — צריך לאפשר אותה בהגדרות הדפדפן ואז לנסות שוב.") : "No microphone access — allow it in your browser settings and try again.");
       } else if (err === "no-speech") {
-        toast.error(isHe ? pg("לא נקלט קול — נסה שוב.", "לא נקלט קול — נסי שוב.", "לא נקלט קול — נסה/י שוב.") : "No speech detected — try again.");
+        toast.error(isHe ? pg("לא נקלט קול — נסה שוב.", "לא נקלט קול — נסי שוב.", "לא נקלט קול — אפשר לנסות שוב.") : "No speech detected — try again.");
       } else if (err && err !== "aborted") {
-        advisorError(isHe ? pg("ההקלטה לא הצליחה — נסה שוב.", "הקלטה נכשלה — נסי שוב.", "הקלטה נכשלה — נסה/י שוב.") : "Voice input failed — try again.");
+        advisorError(isHe ? pg("ההקלטה לא הצליחה — נסה שוב.", "ההקלטה לא הצליחה — נסי שוב.", "ההקלטה לא הצליחה — אפשר לנסות שוב.") : "Voice input failed — try again.");
       }
     };
     recognitionRef.current = rec;
@@ -442,7 +442,7 @@ export function FloatingAssistant() {
     const p = pathname ?? "";
     const gg = (m: string, f: string, n: string) =>
       gender === "male" ? m : gender === "female" ? f : n;
-    const ask = gg("שאל", "שאלי", "שאל/י");
+    const ask = gg("שאל", "שאלי", "שאלו");
     // Adaptive lead (#10) — if a REAL exam from the student's OWN plan is close,
     // the King opens with it: grounded in their calendar (never invented, never
     // creepy) and immediately actionable. Only within ~14 days, and skipped on
@@ -1227,7 +1227,7 @@ export function FloatingAssistant() {
                             generic AI icon after the Sparkles we already
                             banned — and it sat directly on an AI affordance. */}
                         <PhilosopherKingIcon className="size-3" />
-                        {isHe ? pg("חבר מפתח חינמי לתשובות מעמיקות", "חברי מפתח חינמי לתשובות מעמיקות", "חבר/י מפתח חינמי לתשובות מעמיקות") : "Connect a free key for deeper answers"}
+                        {isHe ? pg("חבר מפתח חינמי לתשובות מעמיקות", "חברי מפתח חינמי לתשובות מעמיקות", "חברו מפתח חינמי לתשובות מעמיקות") : "Connect a free key for deeper answers"}
                       </Link>
                     )}
                   </div>
@@ -1247,7 +1247,7 @@ export function FloatingAssistant() {
               <div className="flex items-center gap-2 border-t border-border/60 px-3 pt-3">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img src={attachedImage.preview} alt="" className="size-12 rounded-lg border border-border/50 object-cover" />
-                <span className="flex-1 text-xs text-foreground/55">{isHe ? pg("תמונה מצורפת — שאל עליה", "תמונה מצורפת — שאלי עליה", "תמונה מצורפת — שאל/י עליה") : "Image attached — ask about it"}</span>
+                <span className="flex-1 text-xs text-foreground/55">{isHe ? pg("תמונה מצורפת — שאל עליה", "תמונה מצורפת — שאלי עליה", "תמונה מצורפת — שאלו עליה") : "Image attached — ask about it"}</span>
                 <button type="button" onClick={clearImage} aria-label={isHe ? "הסר תמונה" : "Remove image"} className="rounded-md p-1 text-foreground/40 hover:text-foreground/70">
                   <X className="size-4" />
                 </button>
@@ -1290,8 +1290,8 @@ export function FloatingAssistant() {
                 placeholder={
                   ready
                     ? attachedImage
-                      ? isHe ? pg("שאל על התמונה…", "שאלי על התמונה…", "שאל/י על התמונה…") : "Ask about the image…"
-                      : isHe ? pg("כתוב שאלה…", "כתבי שאלה…", "כתוב/י שאלה…") : "Type a question…"
+                      ? isHe ? pg("שאל על התמונה…", "שאלי על התמונה…", "שאלו על התמונה…") : "Ask about the image…"
+                      : isHe ? pg("כתוב שאלה…", "כתבי שאלה…", "כתבו שאלה…") : "Type a question…"
                     : isHe ? "טוען את הנתונים שלכם…" : "Loading your data…"
                 }
                 disabled={!ready || streaming}

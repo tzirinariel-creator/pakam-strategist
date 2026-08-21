@@ -20,9 +20,9 @@ export function WelcomeHomeCard({
   const Arrow = isHe ? ArrowLeft : ArrowRight;
   const { greetName, g: pg } = usePersonalAddress();
   const steps: { href: string; label: string; icon: React.ComponentType<{ className?: string }> }[] = [
-    { href: "/calendar", label: isHe ? pg("בדוק את מערכת השעות שלך", "בדקי את מערכת השעות שלך", "בדוק/י את מערכת השעות שלך") : t("welcomeStepSchedule"), icon: Calendar },
-    { href: "/record", label: isHe ? pg("הוסף ציונים וקורסים מהעבר", "הוסיפי ציונים וקורסים מהעבר", "הוסף/י ציונים וקורסים מהעבר") : t("welcomeStepRecord"), icon: Pencil },
-    { href: "/regulations", label: isHe ? pg("בדוק שאתה עומד בתקנון", "בדקי שאת עומדת בתקנון", "בדוק/י שאת/ה עומד/ת בתקנון") : t("welcomeStepRegulations"), icon: Scale },
+    { href: "/calendar", label: isHe ? pg("בדוק את מערכת השעות שלך", "בדקי את מערכת השעות שלך", "בדקו את מערכת השעות שלכם") : t("welcomeStepSchedule"), icon: Calendar },
+    { href: "/record", label: isHe ? pg("הוסף ציונים וקורסים מהעבר", "הוסיפי ציונים וקורסים מהעבר", "הוסיפו ציונים וקורסים מהעבר") : t("welcomeStepRecord"), icon: Pencil },
+    { href: "/regulations", label: isHe ? pg("בדוק שאתה עומד בתקנון", "בדקי שאת עומדת בתקנון", "בדקו שאתם עומדים בתקנון") : t("welcomeStepRegulations"), icon: Scale },
   ];
 
   return (

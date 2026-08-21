@@ -146,7 +146,7 @@ export function ComplianceOverview({ summary }: ComplianceOverviewProps) {
         {level === "clear" && progressMet < progressTotal && (
           <p className="rounded-lg border border-foreground/10 bg-foreground/[0.03] px-3 py-2 text-xs leading-relaxed text-foreground/55">
             {isHe
-              ? `“תקין” אומר ${pg("שאתה עומד", "שאת עומדת", "שאת/ה עומד/ת")} בכל הכללים — לא שסיימת את התואר. עדיין נשארו דרישות להשלים (מסומנות “בתהליך” למטה).`
+              ? `“תקין” אומר ${pg("שאתה עומד", "שאת עומדת", "שאתם עומדים")} בכל הכללים — לא שסיימת את התואר. עדיין נשארו דרישות להשלים (מסומנות “בתהליך” למטה).`
               : '“Compliant” means you meet every rule — not that you’ve finished the degree. You still have requirements left (marked “in progress” below).'}
           </p>
         )}

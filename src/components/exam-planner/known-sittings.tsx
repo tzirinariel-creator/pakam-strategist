@@ -6,22 +6,27 @@
 // Ariel: "תבחן את הפיצר של התכנון מועדי ב׳ הזה ותראה שהוא נגיש … זה יכול
 // להיות פיצר אדיר שיעזור לאנשים".
 //
-// The blocker was that the exam planner had nothing to work with before the
-// university publishes dates — so for most of the year it showed an honest but
-// useless "טרם פורסם" and that was that.
+// The blocker was that the exam planner had nothing to work with when our own
+// catalog lacked a date — so it showed an honest but useless "טרם פורסם".
 //
-// Parsing the ידיעון's own board turned up something better: for תשפ״ז it
-// publishes 270 exam sittings WITH day-of-week and time, and no dates. So we
-// can say "מועד א׳ ביום ד׳ ב-14:00" today — sourced, checkable, and enough to
-// start planning around, months before a single date exists.
+// The ידיעון's board carries 269 courses with BOTH sittings dated, plus the day
+// and time our catalog never had. Those dates now feed the planner directly
+// (see exam-planner-content), and this block adds what a date alone doesn't
+// say: which day of the week it falls on and at what hour.
 //
-// It still refuses to invent the date. That is the whole point: this turns
-// "we know nothing" into "here is exactly what is known and what isn't".
+// Nothing here is invented. Every line traces to the ידיעון page, and a date
+// the student typed still beats it.
 import { useLocale } from "next-intl";
 import { CalendarClock } from "lucide-react";
 import { Bidi } from "@/lib/bidi";
 import { heNoun } from "@/lib/he-count";
 import { examSittingsFor, describeSitting } from "@/lib/yedion-assessments";
+
+/** "2027-01-28" → "28.1.2027". Rendered inside <Bidi>, so digits stay LTR. */
+function formatIsoDate(iso: string, isHe: boolean): string {
+  const [y, m, d] = iso.split("-");
+  return isHe ? `${Number(d)}.${Number(m)}.${y}` : `${d}/${m}/${y}`;
+}
 
 export interface PlannedCourseLite {
   courseCode: string;
@@ -44,12 +49,12 @@ export function KnownSittings({ courses }: { courses: PlannedCourseLite[] }) {
     <div className="rounded-xl border border-border/60 bg-card/40 p-3">
       <p className="flex items-center gap-2 text-sm font-semibold text-foreground/85">
         <CalendarClock className="size-4 shrink-0 text-foreground/45" />
-        {isHe ? "מה שכן ידוע כבר עכשיו" : "What's already known"}
+        {isHe ? "מועדי הבחינה לפי הידיעון" : "Exam sittings per the ידיעון"}
       </p>
       <p className="mt-1.5 text-xs leading-relaxed text-foreground/60">
         {isHe
-          ? `הידיעון כבר מפרסם את היום והשעה של כל מועד — רק התאריך עוד לא נקבע. ל${heNoun(rows.length, "קורס", "קורסים")} בתכנית שלכם יש מידע כזה, ואפשר להתחיל לתכנן סביבו.`
-          : `The ידיעון already publishes the day and time of each sitting — only the date isn't set yet. ${rows.length} of your courses have this, and you can start planning around it.`}
+          ? `לפי לוח הבחינות בידיעון, ל${heNoun(rows.length, "קורס", "קורסים")} בתכנית שלכם יש מועד א׳ ומועד ב׳ עם תאריך, יום ושעה.`
+          : `Per the ידיעון's exam board, ${rows.length} of your courses have both sittings with a date, day and time.`}
       </p>
 
       <ul className="mt-2.5 space-y-2">
@@ -61,7 +66,7 @@ export function KnownSittings({ courses }: { courses: PlannedCourseLite[] }) {
             <div className="mt-1 flex flex-wrap gap-x-3 gap-y-1">
               {sittings.map((s) => (
                 <span key={s.sitting} className="text-[11px] text-foreground/60">
-                  <Bidi text={describeSitting(s, isHe)} />
+                  <Bidi text={`${describeSitting(s, isHe)}${s.date ? ` · ${formatIsoDate(s.date, isHe)}` : ""}`} />
                 </span>
               ))}
             </div>
@@ -71,8 +76,8 @@ export function KnownSittings({ courses }: { courses: PlannedCourseLite[] }) {
 
       <p className="mt-2.5 text-[11px] leading-relaxed text-foreground/40">
         {isHe
-          ? "מקור: לוח הבחינות והמטלות בידיעון פכ״מ תשפ״ז. התאריכים עצמם יתווספו כאן ברגע שהאוניברסיטה תפרסם אותם — אנחנו לא ננחש אותם."
-          : "Source: the PPE תשפ״ז exam and assignment board. The dates themselves will appear here the moment the university publishes them — we won't guess them."}
+          ? "מקור: לוח הבחינות והמטלות בידיעון פכ״מ תשפ״ז. תאריכים משתנים לפעמים — שווה לאמת מול הידיעון לפני שסוגרים משהו. אם הזנתם תאריך בעצמכם, הוא תמיד גובר."
+          : "Source: the PPE תשפ״ז exam and assignment board. Dates do change — worth verifying against the ידיעון before you commit. A date you entered yourself always wins."}
       </p>
     </div>
   );

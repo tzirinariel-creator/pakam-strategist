@@ -1,6 +1,7 @@
 "use client";
 
 import { KnownSittings } from "@/components/exam-planner/known-sittings";
+import { yedionExamDates } from "@/lib/yedion-assessments";
 import { useEffect, useMemo, useRef, useState } from "react";
 import {
   CalendarClock,
@@ -157,9 +158,15 @@ export function ExamPlannerContent() {
       if (c.status === "COMPLETED" && c.grade != null) continue;
       const catalogA = futureOnly(c.examDateA);
       const catalogB = futureOnly(c.examDateB);
+      // The ידיעון's own board (תשפ״ז) as a SECONDARY source, used only where
+      // our catalog has nothing. The scraped catalog stays authoritative and a
+      // date the student typed still wins over both — this only fills silence.
+      // 269 courses, 538 dated sittings, verified against the page itself and
+      // against bid-it. See src/lib/yedion-assessments.ts.
+      const yedion = yedionExamDates(c.code);
       const manual = !catalogA && !catalogB ? futureOnly(parseManual(manualDates[c.code])) : null;
-      const examDateA = catalogA ?? manual;
-      const examDateB = catalogB;
+      const examDateA = catalogA ?? manual ?? futureOnly(yedion.examDateA);
+      const examDateB = catalogB ?? futureOnly(yedion.examDateB);
       if (!examDateA && !examDateB) continue;
       out.push({ code: c.code, name: c.name, credits: c.credits, examDateA, examDateB, averageGrade: c.averageGrade, failRate: c.failRate, manual: manual != null });
     }
@@ -851,7 +858,7 @@ export function ExamPlannerContent() {
   const headerTitle = hasPlan
     ? isHe ? "תקופת המבחנים שלכם" : "Your exam period"
     : greetName
-      ? isHe ? `${g("יאללה", "יאללה", "יאללה")} ${greetName}, ${g("בוא נסדר", "בואי נסדר", "בוא/י נסדר")} את תקופת המבחנים` : `Let's sort your exam period, ${greetName}`
+      ? isHe ? `${g("יאללה", "יאללה", "יאללה")} ${greetName}, ${g("בוא נסדר", "בואי נסדר", "בואו נסדר")} את תקופת המבחנים` : `Let's sort your exam period, ${greetName}`
       : isHe ? "תכנון תקופת המבחנים" : "Exam-period planner";
 
   return (
