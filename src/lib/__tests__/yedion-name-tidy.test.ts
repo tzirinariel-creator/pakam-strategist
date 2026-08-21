@@ -2,7 +2,7 @@
 // go into the catalog, that typesetting has to come off — without changing a
 // single word. These pin the two rules that were actually wrong in drafting.
 import { describe, it, expect } from "vitest";
-import { tidyYedionName, looksTruncated } from "../../../scripts/fix-code-as-name";
+import { tidyYedionName, looksTruncated } from "../yedion-name-tidy";
 
 describe("tidyYedionName", () => {
   it("glues gershayim back to the following letter", () => {

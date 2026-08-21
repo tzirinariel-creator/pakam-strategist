@@ -11,6 +11,8 @@
 // regression fails the build rather than reaching a student's screen.
 
 import { describe, it, expect } from "vitest";
+import fs from "node:fs";
+import path from "node:path";
 import he from "@/messages/he.json";
 import en from "@/messages/en.json";
 
@@ -83,5 +85,38 @@ describe("Hebrew copy audit", () => {
       return other !== undefined && ph(v).join() !== ph(other).join();
     });
     expect(bad.map(([k]) => k)).toEqual([]);
+  });
+});
+
+describe("test hygiene", () => {
+  it("no test imports a script that opens a database connection", () => {
+    // CI has no .env.local. A script that constructs a PrismaClient at module
+    // scope throws "DATABASE_URL not set" the moment it is imported — so a
+    // test pulling a pure helper out of one passes locally and fails in CI.
+    // That is exactly how this repo's CI went red for a day.
+    //
+    // The rule is about side effects, not about the folder: importing from
+    // scripts/parse-yedion-assessments.ts is fine, because it opens nothing.
+    // Pure logic that a test needs belongs in src/lib either way.
+    const root = path.join(process.cwd(), "src");
+    const offenders: string[] = [];
+
+    const walk = (dir: string) => {
+      for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
+        const full = path.join(dir, entry.name);
+        if (entry.isDirectory()) { walk(full); continue; }
+        if (!/\.test\.tsx?$/.test(entry.name)) continue;
+        const src = fs.readFileSync(full, "utf-8");
+        for (const m of src.matchAll(/from\s+["'][^"']*\/scripts\/([\w.-]+)["']/g)) {
+          const script = path.join(process.cwd(), "scripts", `${m[1]!.replace(/\.ts$/, "")}.ts`);
+          if (!fs.existsSync(script)) continue;
+          if (/new PrismaClient\(/.test(fs.readFileSync(script, "utf-8"))) {
+            offenders.push(`${path.relative(process.cwd(), full)} → scripts/${m[1]}`);
+          }
+        }
+      }
+    };
+    walk(root);
+    expect(offenders).toEqual([]);
   });
 });

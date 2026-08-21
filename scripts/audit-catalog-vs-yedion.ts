@@ -21,7 +21,7 @@ import { PrismaPg } from "@prisma/adapter-pg";
 import fs from "node:fs";
 import path from "node:path";
 import data from "../src/data/yedion-5787-assessments.json";
-import { tidyYedionName } from "./fix-code-as-name";
+import { tidyYedionName } from "../src/lib/yedion-name-tidy";
 
 for (const envFile of [".env.local", ".env"]) {
   const envPath = path.join(__dirname, "..", envFile);

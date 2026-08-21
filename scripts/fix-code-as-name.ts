@@ -30,6 +30,7 @@ import { PrismaPg } from "@prisma/adapter-pg";
 import fs from "node:fs";
 import path from "node:path";
 import data from "../src/data/yedion-5787-assessments.json";
+import { tidyYedionName, looksTruncated } from "../src/lib/yedion-name-tidy";
 
 for (const envFile of [".env.local", ".env"]) {
   const envPath = path.join(__dirname, "..", envFile);
@@ -45,48 +46,6 @@ for (const envFile of [".env.local", ".env"]) {
 const connectionString = process.env.DATABASE_URL || process.env.DIRECT_URL;
 if (!connectionString) throw new Error("DATABASE_URL not set");
 const prisma = new PrismaClient({ adapter: new PrismaPg({ connectionString }) });
-
-/**
- * Undo the ידיעון table's typesetting, which pads punctuation on both sides:
- * `לפכ" מ` → `לפכ"מ`, `יסוד :` → `יסוד:`, `הניאו - ליברלי` → `הניאו-ליברלי`.
- * Purely presentational; no word is added or removed.
- */
-export function tidyYedionName(raw: string): string {
-  return raw
-    .replace(/\s+/g, " ")
-    .replace(/([״"׳'])\s+(?=\S)/g, "$1")   // גרשיים glued back to the next letter
-    .replace(/\s+([:,.?!])/g, "$1")         // no space BEFORE punctuation
-    .replace(/\(\s+/g, "(").replace(/\s+\)/g, ")")
-    // "שנתי" is a yearly-course marker that bleeds in from the neighbouring
-    // column, not part of the title — all four courses carrying it also have
-    // an ordinary semester value of "א". Caught after it had already been
-    // written once, as "הלכה כפילוסופיה יהודית שנתי".
-    .replace(/\s+שנתי\s*$/, "")
-    // A spaced hyphen is ambiguous in the ידיעון, because it pads BOTH the
-    // compound hyphen of "הניאו-ליברלי" and the clause dash of "ועירוניות -
-    // סמינר מעשי". Gluing indiscriminately produced "לחשוב מקום-לחשוב שפה",
-    // which is wrong. So glue only after a real Hebrew compounding prefix (or
-    // before a number, as in "ה-19"); everything else stays a spaced dash,
-    // which is what the rest of our catalog already uses.
-    // The stem may itself carry a Hebrew prefix letter — the real case that
-    // caught this was "בעידן הניאו - ליברלי", where the token is "הניאו",
-    // not "ניאו", so a bare stem list silently matched nothing.
-    .replace(
-      /(^|\s)([הובלכמש]?(?:ניאו|אנטי|פרו|בין|תת|רב|אי|דו|חד|תלת|קדם|בתר|על|פוסט|פרה|מטא))\s+-\s+/g,
-      "$1$2-",
-    )
-    .replace(/\s+-\s+(?=\d)/g, "-")
-    .trim();
-}
-
-/** A ידיעון cell that got clipped mid-title. Never trust one of these. */
-export function looksTruncated(name: string): boolean {
-  const n = name.trim();
-  if (n.length < 8) return true;
-  if (/[״"׳'\-–,:]$/.test(n)) return true;  // ends on punctuation that opens something
-  if (/\sה$|\sו$|\sב$|\sל$|\sמ$|\sש$/.test(n)) return true; // ends on a dangling prefix letter
-  return false;
-}
 
 async function main() {
   const apply = process.argv.includes("--apply");
