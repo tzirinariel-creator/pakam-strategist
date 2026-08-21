@@ -30,6 +30,7 @@ import {
   takeRejectedRowCount,
 } from "@/lib/grade-sheet";
 import type { ScanDiagnostics } from "@/lib/grade-sheet";
+import { extractSheetFromPdf } from "@/lib/grade-sheet-pdf";
 
 const ALLOWED_MIME = new Set([
   "image/jpeg",
@@ -108,6 +109,31 @@ export async function POST(request: NextRequest) {
     }
     if (!encryptedKey) {
       return NextResponse.json({ error: errs.noKey }, { status: 412 });
+    }
+
+    // =====================================================================
+    // THE EXACT PATH — read the PDF's own text layer before asking a model.
+    // =====================================================================
+    // Ariel, after the third scan lost real courses: "זה כבר שובר אמון עם
+    // המשתמש ברגע שהוא נכנס … תסתכל רגע בזום אאוט ותראה מה הפתרון הכי טוב
+    // שבוודאות יעבוד".
+    //
+    // The zoom-out: TAU issues this document as a generated PDF, not a photo.
+    // Its text layer is perfectly regular, so a regex reads every row the same
+    // way every time — and we can PROVE the read is complete by recomputing the
+    // averages TAU printed on the sheet and checking they match to the cent.
+    // A vision model cannot offer that guarantee; this can.
+    //
+    // Vision stays as the fallback for photographs and scans. It also costs a
+    // quota slot; this path costs nothing, so it runs before the rate limit.
+    if (parsed.data.mimeType === "application/pdf") {
+      try {
+        const exact = await extractSheetFromPdf(parsed.data.imageBase64);
+        if (exact) return NextResponse.json(exact);
+      } catch {
+        // Any failure here is silent by design: it just means we ask the model,
+        // exactly as before. An exact path that breaks must never break the scan.
+      }
     }
 
     // Per-user daily quota — checked AFTER auth/validation/key-resolution so a
