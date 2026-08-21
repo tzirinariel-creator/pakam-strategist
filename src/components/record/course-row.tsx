@@ -65,10 +65,21 @@ export function CourseRow({
   // The level-name check is added because TAU titles these without "אנגלית".
   const englishCourse =
     isEnglishCourse(course) || isEnglishLevelCourseName(course.nameHe, course.code);
-  const canAssignDiscipline = (offCatalog || unassignedDiscipline) && !englishCourse;
   const studentAdded = isStudentAddedCourse(course);
   const declared = isDeclaredApproved(uc);
   const isElective = !(course.courseType === "MANDATORY" || course.isMandatory);
+  // Ariel, 21.8: "בוא תמיד ניתן אפשרות לשנות שיוך של קורס בחירה - כי יש כאלו
+  // שיש להם כמה אופציות".
+  //
+  // The picker used to appear only for a course with NO field, on the reasoning
+  // that an assigned course has its answer already. But the catalog's answer is
+  // one of several for a genuine cross-listed elective — "משבר האקלים וקיימות:
+  // מבט רב-תחומי" is the obvious case — and which one it counts toward is the
+  // student's declaration to make, not ours. A MANDATORY course keeps its
+  // field: that one really is fixed, and offering to change it would invite a
+  // choice that does not exist.
+  const canAssignDiscipline =
+    (offCatalog || unassignedDiscipline || isElective) && !englishCourse;
   const countsForFocus =
     focusArea != null &&
     (discipline === focusArea || (course.canCountAs ?? []).includes(focusArea));
