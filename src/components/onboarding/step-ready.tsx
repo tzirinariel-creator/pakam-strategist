@@ -12,6 +12,8 @@ import { downloadICSFromSessions } from "@/lib/ics-export";
 import { useRouter } from "@/i18n/navigation";
 import { DISCIPLINE_CONFIG, FOCUS_DISCIPLINE_IDS, SEMESTER_CONFIG, YEAR_CONFIG } from "@/lib/constants";
 import { getCurrentAcademicYear } from "@/lib/miluim";
+import { getPlanningAnchor } from "@/lib/academic-calendar";
+import { impliedStartYear } from "@/lib/implied-start-year";
 import { isPersistedCourseId } from "@/lib/off-catalog";
 import type { OnboardingData } from "./onboarding-wizard";
 import type { PlannedSemester } from "./semester-planner/index";
@@ -51,7 +53,7 @@ export function StepReady({ data, plannedSemesters, completedCourses, allCourses
   const updateProfile = api.user.updateProfile.useMutation();
   const savePlanMutation = api.plan.savePlan.useMutation();
   const saveCompletedMutation = api.plan.saveCompletedCourses.useMutation();
-  const addScannedMutation = api.plan.addScannedCourse.useMutation();
+  const addScannedBulkMutation = api.plan.addScannedCourses.useMutation();
   const upsertMiluimSemester = api.user.upsertMiluimSemester.useMutation();
   const utils = api.useUtils();
 
@@ -210,11 +212,28 @@ export function StepReady({ data, plannedSemesters, completedCourses, allCourses
       //    onboarding field was renamed to `amirantScore` for correctness.
       // #17 (12.7) — profile + miluim are independent writes: run them in
       // PARALLEL (they used to run back-to-back and doubled the wait).
+      // The grade sheet can contradict the declared year, and when it does the
+      // sheet wins. Ariel picked "שנה א׳" in August 2026 while the same
+      // onboarding imported rows stamped 2025/1 and 2025/2 — so the app
+      // anchored his degree at 2026, and his 3010 import then reported that
+      // ALL of his reserve service, including January–May 2026, "predates your
+      // degree". Nothing about that message pointed at the real cause.
+      //
+      // Only ever moves the anchor EARLIER (see implied-start-year.ts): a sheet
+      // proves a degree had already begun, never that it began later.
+      const impliedStart = impliedStartYear(
+        (completedCourses ?? []).map((c) => c.sheetSemester),
+        getPlanningAnchor().startYear - (data.year - 1),
+      );
+
       await Promise.all([
         withTimeout(
         updateProfile.mutateAsync({
           currentYear: data.year,
           currentSemester: data.semester,
+          // Sending startYear makes it authoritative: the server derives
+          // currentYear from it, so the anchor and the year stay consistent.
+          ...(impliedStart ? { startYear: impliedStart.earliestAcademicYear } : {}),
           // Always send focusArea (null = "undecided"), so the chosen value is
           // written in the SAME call as year/semester. The old conditional
           // spread omitted the key when undecided, which (a) could never clear a
@@ -284,22 +303,36 @@ export function StepReady({ data, plannedSemesters, completedCourses, allCourses
           20000,
         );
       }
-      // Custom courses — one addScannedCourse each (idempotent upsert).
-      for (const c of customCompleted) {
+      // Custom courses — ONE request for all of them.
+      //
+      // Ariel, 21.8: "באג רציני בשמירה" / "השמירה לוקחת מלא זמן משום מה".
+      // This was a `for` loop of awaited addScannedCourse calls: one HTTP
+      // round-trip per custom course, in sequence, each with its own 15s
+      // timeout, tacked onto the end of a save that had already made three
+      // sequential calls. On a real account with a scanned sheet that is a
+      // dozen serialised round-trips — slow enough to look broken, and long
+      // enough for one slow row to tip the whole finale into the error state.
+      //
+      // The server still isolates a bad row (it reports failures per course
+      // rather than throwing), so the old "one course must not abort the save"
+      // property survives — but it is no longer swallowed in silence.
+      if (customCompleted.length > 0) {
         try {
           await withTimeout(
-            addScannedMutation.mutateAsync({
-              courseCode: c.courseCode.startsWith("CUSTOM-") ? null : c.courseCode,
-              courseName: c.customName!,
-              credits: c.credits ?? 2,
-              grade: c.grade,
-              plannedYear: c.plannedYear,
-              plannedSemester: c.plannedSemester,
+            addScannedBulkMutation.mutateAsync({
+              courses: customCompleted.map((c) => ({
+                courseCode: c.courseCode.startsWith("CUSTOM-") ? null : c.courseCode,
+                courseName: c.customName!,
+                credits: c.credits ?? 2,
+                grade: c.grade,
+                plannedYear: c.plannedYear,
+                plannedSemester: c.plannedSemester,
+              })),
             }),
-            15000,
+            25000,
           );
         } catch {
-          /* one custom course failing must not abort the whole save */
+          /* the custom-course batch failing must not abort the whole save */
         }
       }
 

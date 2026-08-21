@@ -57,9 +57,27 @@ export function isEnglishCourse(course: {
   courseType?: string | null;
   nameHe?: string | null;
   nameEn?: string | null;
+  /** TAU's own code. 2171-xxxx is the English unit — the registrar's answer. */
+  code?: string | null;
+  courseCode?: string | null;
 }): boolean {
   if (course.courseType === "ENGLISH") return true;
-  return looksEnglishByName(`${course.nameHe ?? ""} ${course.nameEn ?? ""}`);
+  if (looksEnglishByName(`${course.nameHe ?? ""} ${course.nameEn ?? ""}`)) return true;
+  // Ariel, 21.8, for the third time: "מתקדמים ב׳ - עדיין לא הצלחת להגדיר את זה
+  // בתור אנגלית וזה משפיע לרעה", and "אני מזכיר שאנגלית לא נכנס בממוצע".
+  //
+  // Those two complaints were the same bug. isEnglishLevelCourseName already
+  // recognised his row — "מתקדמים ב' חוצה דיצפלינות בין תחומי", code
+  // 2171-9201 — but THIS function is the one the rest of the app asks, and it
+  // still demanded the literal word "אנגלית", which TAU does not print. So the
+  // pass bar, the credit engine and the average-exclusion all saw an ordinary
+  // elective: his English course counted toward his degree average, and
+  // nothing could tell he had finished the English track.
+  //
+  // Delegating to the level-course predicate instead of repeating its rules
+  // is the point — two functions answering "is this English?" differently is
+  // how this survived being fixed once already.
+  return isEnglishLevelCourseName(course.nameHe, course.code ?? course.courseCode ?? null);
 }
 
 /** The pass bar for a row with NO courseType, decided by its name. Routes

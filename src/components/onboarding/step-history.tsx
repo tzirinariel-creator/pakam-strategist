@@ -64,6 +64,14 @@ export interface CompletedCourse {
    *  save (which skips unknown codes). */
   customName?: string;
   credits?: number | null;
+  /**
+   * The sheet's own semester stamp for this row ("2025/1"), when it came from
+   * a scan. Kept because it is the only evidence of WHICH academic year the
+   * course was taken in — `plannedYear` is relative to a start year we may
+   * have derived wrongly, which is exactly the bug this exists to catch.
+   * See src/lib/implied-start-year.ts.
+   */
+  sheetSemester?: string | null;
 }
 
 interface PastSemester {
@@ -251,6 +259,7 @@ export function StepHistory({
                   grade: row.grade,
                   customName: row.courseName,
                   credits: row.credits,
+                  sheetSemester: row.semester ?? null,
                 };
                 added++;
               }
@@ -280,6 +289,7 @@ export function StepHistory({
             plannedYear: existing?.plannedYear ?? placement.year,
             plannedSemester: existing?.plannedSemester ?? placement.semester,
             grade: row.grade ?? existing?.grade ?? null,
+            sheetSemester: row.semester ?? existing?.sheetSemester ?? null,
           };
           hits++;
           if (row.grade != null) graded++;

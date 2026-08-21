@@ -493,6 +493,119 @@ export const planRouter = createTRPCRouter({
     }),
 
   /**
+   * The same thing as addScannedCourse, for a whole scanned sheet at once.
+   *
+   * Ariel, 21.8: "באג רציני בשמירה" and "השמירה לוקחת מלא זמן משום מה".
+   *
+   * The onboarding finale used to call addScannedCourse in a `for` loop — one
+   * HTTP round-trip PER custom course, awaited in sequence, each with its own
+   * 15-second timeout, at the END of a save that had already made three
+   * sequential calls. On his own account (19 planned courses and ~20 scanned
+   * rows, several of them custom) that is a dozen serialised round-trips: slow
+   * enough to look broken, and long enough that a single slow one could push
+   * the whole finale into the failure state he saw.
+   *
+   * One call, one pass. Failures are reported PER COURSE rather than throwing,
+   * because the old loop deliberately swallowed individual errors so one bad
+   * row could not abort the save — that property is worth keeping, but
+   * swallowing them silently is not: the caller now learns which rows did not
+   * make it and can say so.
+   */
+  addScannedCourses: protectedProcedure
+    .input(
+      z.object({
+        courses: z
+          .array(
+            z.object({
+              courseCode: z.string().max(40).nullable(),
+              courseName: z.string().min(1).max(120),
+              credits: z.number().min(0).max(20).nullable(),
+              grade: z.number().min(0).max(100).nullable(),
+              plannedYear: z.number().int().min(1).max(4),
+              plannedSemester: z.enum(["FALL", "SPRING", "SUMMER"]),
+              status: z.enum(["COMPLETED", "FAILED", "EXEMPT"]).default("COMPLETED"),
+              discipline: disciplineEnum.nullish(),
+            }),
+          )
+          .max(60),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      const user = ctx.user;
+      if (!user) throw new TRPCError({ code: "NOT_FOUND", message: "User not found" });
+
+      const saved: { courseId: string; courseName: string }[] = [];
+      const failed: { courseName: string }[] = [];
+
+      for (const c of input.courses) {
+        try {
+          let course =
+            (c.courseCode
+              ? await ctx.db.course.findUnique({ where: { code: c.courseCode } })
+              : null) ?? (await ctx.db.course.findFirst({ where: { nameHe: c.courseName } }));
+
+          if (!course) {
+            const code =
+              c.courseCode && c.courseCode.trim().length >= 4
+                ? c.courseCode.trim()
+                : customCourseCode(c.courseName);
+            course = await ctx.db.course.upsert({
+              where: { code },
+              update: {},
+              create: {
+                code,
+                nameHe: c.courseName,
+                discipline: "GENERAL",
+                courseType: "ELECTIVE",
+                credits: c.credits ?? 2,
+                yearOffered: [1, 2, 3],
+                prerequisites: [],
+                canCountAs: [],
+                isMandatory: false,
+                // Same quarantine as addScannedCourse — a scanned free-text
+                // name must never reach the shared public catalog.
+                isActive: false,
+              },
+            });
+          }
+
+          const existing = await ctx.db.userCourse.findFirst({
+            where: { userId: user.id, courseId: course.id },
+          });
+          if (existing) {
+            await ctx.db.userCourse.update({
+              where: { id: existing.id },
+              data: {
+                status: c.status,
+                grade: c.grade,
+                ...(c.discipline !== undefined ? { disciplineOverride: c.discipline ?? null } : {}),
+              },
+            });
+          } else {
+            await ctx.db.userCourse.create({
+              data: {
+                userId: user.id,
+                courseId: course.id,
+                status: c.status,
+                grade: c.grade,
+                plannedYear: c.plannedYear,
+                plannedSemester: c.plannedSemester,
+                disciplineOverride: c.discipline ?? null,
+                attemptNumber: 1,
+              },
+            });
+          }
+          saved.push({ courseId: course.id, courseName: course.nameHe });
+        } catch {
+          // One unusable row must not lose the other nineteen.
+          failed.push({ courseName: c.courseName });
+        }
+      }
+
+      return { saved, failed };
+    }),
+
+  /**
    * #8 — Register the Course rows for courses the student added by hand in the
    * planner ("דוגרי" and friends: real courses, approved for their degree, that
    * were never in OUR catalog).

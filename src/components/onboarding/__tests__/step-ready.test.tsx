@@ -32,6 +32,8 @@ import type { CourseWithSchedule } from "@/lib/plan-generator";
 // matches it (especially the custom-course credit fallback).
 const h = vi.hoisted(() => ({
   addScannedCalls: [] as Array<{ courseCode: string | null; credits: number; courseName: string }>,
+  /** How many REQUESTS the batch took — the point of the change. */
+  addScannedBatches: [] as number[],
   saveCompletedCalls: [] as Array<{ courses: unknown[] }>,
   savePlanCalls: [] as Array<{ courses: unknown[] }>,
 }));
@@ -100,13 +102,20 @@ vi.mock("@/lib/trpc/react", () => {
             isPending: false,
           }),
         },
-        addScannedCourse: {
+        // Custom courses now go in ONE bulk request instead of a per-course
+        // loop (the save was a dozen serialised round-trips on a real account).
+        // The mock flattens the batch so the existing per-course assertions
+        // still describe what gets PERSISTED, which is what they were about.
+        addScannedCourses: {
           useMutation: () => ({
             mutate: vi.fn(),
             mutateAsync: vi.fn(
-              async (a: { courseCode: string | null; credits: number; courseName: string }) => {
-                h.addScannedCalls.push(a);
-                return {};
+              async (a: {
+                courses: { courseCode: string | null; credits: number; courseName: string }[];
+              }) => {
+                h.addScannedBatches.push(a.courses.length);
+                for (const c of a.courses) h.addScannedCalls.push(c);
+                return { saved: [], failed: [] };
               },
             ),
             isPending: false,
@@ -161,6 +170,7 @@ beforeEach(() => {
   cleanup();
   localStorage.clear();
   h.addScannedCalls.length = 0;
+  h.addScannedBatches.length = 0;
   h.saveCompletedCalls.length = 0;
   h.savePlanCalls.length = 0;
 });
@@ -236,6 +246,10 @@ describe("StepReady — final-summary credit honesty (#39 QA-3 / #18)", () => {
     // The two customs were persisted via addScannedCourse with the SAME credits
     // the summary summed (3 and the 2-floor) — proving summary === saved.
     expect(h.addScannedCalls).toHaveLength(2);
+    // ...and both travelled in a SINGLE request. The old code awaited one
+    // round-trip per custom course at the end of an already-serial save, which
+    // is what made a real account's save slow enough to look broken.
+    expect(h.addScannedBatches).toEqual([2]);
     const dugri = h.addScannedCalls.find((c) => c.courseName === "דוגרי");
     const free = h.addScannedCalls.find((c) => c.courseName === "קורס חופשי");
     expect(dugri).toBeDefined();

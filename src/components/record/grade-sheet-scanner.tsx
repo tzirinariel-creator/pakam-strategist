@@ -32,6 +32,7 @@ import { CohortShareNudge } from "@/components/cohort/cohort-share-nudge";
 import { fileToBase64, SCANNER_ACCEPT } from "@/lib/upload";
 import { invalidatePlanData } from "@/lib/trpc/invalidate-plan";
 import { cn } from "@/lib/utils";
+import { sheetSemesterLabel } from "@/lib/sheet-semester-label";
 
 /**
  * Grade-sheet scanner — upload a photo/PDF of the TAU grade sheet, Gemini
@@ -568,11 +569,27 @@ export function GradeSheetScanner() {
                       </span>
                     )}
                   </span>
-                  {r.semester && (
-                    <span className="rounded bg-foreground/5 px-1.5 py-px font-data text-[10px] text-foreground/45" dir="ltr">
-                      {r.semester}
-                    </span>
-                  )}
+                  {/* Ariel, 21.8: "מה זה ה-1/2025 הזה?" — it was TAU's raw
+                      semester stamp, printed verbatim in a monospace LTR chip,
+                      which reads as a system id you are expected to already
+                      know. It says what it means now; the raw stamp stays as
+                      the tooltip, because it is what ties this row to the line
+                      on the printed sheet. */}
+                  {r.semester && (() => {
+                    const label = sheetSemesterLabel(r.semester, isHe ? "he" : "en");
+                    return label ? (
+                      <span
+                        title={label.raw}
+                        className="rounded bg-foreground/5 px-1.5 py-px text-[10px] text-foreground/45"
+                      >
+                        {label.text}
+                      </span>
+                    ) : (
+                      <span className="rounded bg-foreground/5 px-1.5 py-px font-data text-[10px] text-foreground/45" dir="ltr">
+                        {r.semester}
+                      </span>
+                    );
+                  })()}
                   <span className="font-mono font-bold text-foreground/85" dir="ltr">
                     {r.grade ?? r.passText ?? "—"}
                   </span>

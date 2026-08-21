@@ -12,6 +12,7 @@
 
 import type { UserCourseWithCourse, GradeBreakdown } from "@/types/degree";
 import { GRADE_WEIGHTS } from "@/lib/constants";
+import { isEnglishCourse } from "@/lib/english-standing";
 
 // -------------------------------------------------------------------
 // Helpers
@@ -72,7 +73,19 @@ function simpleAverage(values: number[]): number | null {
 export function courseTypeCountsTowardAverage(uc: UserCourseWithCourse): boolean {
   return (
     uc.course.courseType !== "SEMINAR" &&
-    uc.course.courseType !== "ENGLISH" &&
+    // Ariel, 21.8, having said it several times: "אל תשכח שאנגלית לא נחשב
+    // בממוצע" — and it still was.
+    //
+    // The rule was right and the test for it was too narrow: this asked only
+    // whether courseType === "ENGLISH". His English course reached the
+    // database through the grade-sheet scanner, which creates rows as
+    // ELECTIVE, so the one filter that mattered never fired and
+    // "מתקדמים ב' חוצה דיצפלינות בין תחומי" was averaged into his degree.
+    //
+    // isEnglishCourse now answers this for the whole app — the catalog flag,
+    // the name, and TAU's 2171 English-unit code — so a row cannot be English
+    // on the record screen and not English in the average.
+    !isEnglishCourse(uc.course) &&
     !uc.isBinary
   );
 }
