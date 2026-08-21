@@ -367,6 +367,7 @@ export function DashboardContent() {
       nameEn: uc.course.nameEn,
       examDateB: uc.course.examDateB,
       discipline: (uc.disciplineOverride ?? uc.course.discipline) as string,
+      courseCode: uc.course.code,
     })),
     courseAverage: gradeBreakdown.courseAverage,
     englishCourseCount: credits?.englishCourseCount ?? 0,

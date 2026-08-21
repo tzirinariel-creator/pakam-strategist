@@ -608,14 +608,20 @@ export function InsightsBar({
                   className="h-1.5 w-1.5 shrink-0 rounded-full"
                   style={{ backgroundColor: focusAreaCfg.color }}
                 />
-                {/* "17/60" here was a fraction of two different things: the
-                    numerator counted THIS SEMESTER's focus credits, the
-                    denominator the whole degree's requirement — the same label
-                    the dashboard uses for the degree-wide figure. The planner
-                    only knows the semester, so it now says only that. */}
+                {/* Ariel, 21.8: "תחום מיקוד בסמסטר הזה: כלכלה — מה זה הדבר
+                    הזה? תחום מיקוד הוא לכל התואר, תעיף את זה".
+                    He is right, and the phrasing invented a concept the degree
+                    does not have. A focus area is chosen ONCE for the whole
+                    degree; there is no such thing as a per-semester one. What
+                    this row can honestly say is how many of THIS semester's
+                    credits land inside that one focus area — so it says that,
+                    and names the area without implying it belongs to the
+                    semester. (An earlier pass already fixed a "17/60" here that
+                    divided one semester by the whole degree's requirement.) */}
                 <span className="text-[11px] text-foreground/30 truncate">
-                  {isHe ? "תחום מיקוד בסמסטר הזה: " : "Focus area this semester: "}
-                  {isHe ? focusAreaCfg.nameHe : focusAreaCfg.nameEn}
+                  {isHe
+                    ? `נספר ל${focusAreaCfg.nameHe} — תחום המיקוד שלכם`
+                    : `Counts toward ${focusAreaCfg.nameEn} — your focus area`}
                 </span>
               </div>
               <span className="font-mono text-[11px] text-foreground/30 shrink-0">

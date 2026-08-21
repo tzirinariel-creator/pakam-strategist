@@ -1,5 +1,6 @@
 "use client";
 
+import { UnofficialNotice } from "@/components/layout/unofficial-notice";
 import { useTranslations } from "next-intl";
 import { Scale, RefreshCw, BookOpen } from "lucide-react";
 import { api } from "@/lib/trpc/react";
@@ -85,6 +86,13 @@ export function RegulationsContent() {
       {summary && (
         <>
           <ComplianceOverview summary={summary} />
+
+          {/* The full notice belongs on THIS screen above all others: it is the
+              one that tells a student whether they are on track, which is the
+              claim most worth double-checking against the real ידיעון. */}
+          <div className="mt-4">
+            <UnofficialNotice />
+          </div>
           <RuleList results={summary.results} />
         </>
       )}

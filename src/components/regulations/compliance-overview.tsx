@@ -1,5 +1,6 @@
 "use client";
 
+import { heCount } from "@/lib/he-count";
 import { useTranslations, useLocale } from "next-intl";
 import { ShieldCheck, ShieldAlert, CheckCircle2, XCircle, AlertTriangle } from "lucide-react";
 import type { RegulationSummary } from "@/types/regulation";
@@ -123,8 +124,19 @@ export function ComplianceOverview({ summary }: ComplianceOverviewProps) {
             ? t("nonCompliantDescription", { count: violations })
             : level === "attention"
               ? isHe
-                ? `יש ${warnings} ${warnings === 1 ? "דבר" : "דברים"} שכדאי לשים לב אליהם — לא חוסמים את התואר, אבל שווה לטפל בהם.`
-                : `${warnings} thing${warnings === 1 ? "" : "s"} worth your attention — they don't block the degree, but worth handling.`
+                // Ariel, 21.8: "יש 1 דבר שכדאי לשים לב אליהם — יש פה עברית
+                // שבורה". The noun was already switched on the count, but the
+                // rest of the sentence stayed plural: "1 דבר … אליהם … בהם".
+                // In Hebrew the whole clause has to agree, which is exactly why
+                // heCount takes both phrasings instead of swapping one word.
+                ? heCount(warnings, {
+                    one: "יש דבר אחד שכדאי לשים לב אליו — הוא לא חוסם את התואר, אבל שווה לטפל בו.",
+                    many: `יש ${warnings} דברים שכדאי לשים לב אליהם — הם לא חוסמים את התואר, אבל שווה לטפל בהם.`,
+                  })
+                : heCount(warnings, {
+                    one: "One thing worth your attention — it doesn't block the degree, but it's worth handling.",
+                    many: `${warnings} things worth your attention — they don't block the degree, but they're worth handling.`,
+                  })
               : t("compliantDescription")}
         </p>
 

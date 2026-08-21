@@ -369,14 +369,15 @@
       "ofCap": "of {cap}"
     },
     "feedbackTitle": "Feedback & install",
-    "feedbackDesc": "Hit a problem? Have an idea? This is the place",
+    "feedbackDesc": "Hit a problem? Got an idea? This is the place — I read every message",
     "feedbackButton": "Report a problem or idea",
-    "feedbackHint": "Opens a prefilled email — write freely, every message is read.",
+    "feedbackHint": "Opens a ready email to me. The more detail — what you did, what you expected, what actually happened, and on which screen — the faster I can fix it. A screenshot helps a lot.",
     "feedbackSubject": "Pakamon feedback",
-    "feedbackBody": "What happened / the idea:%0D%0A%0D%0A(screenshots welcome)%0D%0A%0D%0AThe page I was on: ",
+    "feedbackBody": "What I did:%0D%0A%0D%0AWhat I expected:%0D%0A%0D%0AWhat actually happened:%0D%0A%0D%0AScreen I was on:%0D%0A%0D%0APhone or desktop:%0D%0A%0D%0A(a screenshot really helps)",
     "installTitle": "Add Pakamon to your home screen",
     "installIos": "iPhone: Safari share button → \"Add to Home Screen\".",
-    "installAndroid": "Android: browser menu (⋮) → \"Install app\" or \"Add to Home screen\"."
+    "installAndroid": "Android: browser menu (⋮) → \"Install app\" or \"Add to Home screen\".",
+    "feedbackWhoAmI": "I'm Ariel, a PPE student. I built Pakamon in my spare time because I wanted this tool myself, and to help others in the program. There's no company and no support desk — there's me, and I'm glad to hear from you."
   },
   "courseType": {
     "MANDATORY": "Mandatory",

@@ -38,6 +38,13 @@ export function FeedbackSection() {
             {t("feedbackButton")}
           </a>
           <p className="mt-2 text-xs text-foreground/50">{t("feedbackHint")}</p>
+          {/* Ariel, 21.8: "נזכיר שאני סטודנט שעושה את זה בשביל הכיף ובשביל
+              לעזור". Worth saying out loud — it sets the right expectation
+              (there is no support desk) and it makes people write to a person
+              rather than to a form. */}
+          <p className="mt-2 rounded-lg bg-foreground/[0.03] p-2.5 text-xs leading-relaxed text-foreground/60">
+            {t("feedbackWhoAmI")}
+          </p>
         </div>
 
         {/* #45 — the install hint used to live HERE, inside the "send us

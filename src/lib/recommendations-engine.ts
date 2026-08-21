@@ -67,6 +67,9 @@ export interface RecCourse {
   examDateB: Date | string | null;
   /** Resolved discipline (override ?? course.discipline). */
   discipline: string;
+  /** #19 — the registrar's code. 2171-xxxx is the English unit, which is how
+   *  we recognise a level course TAU titled without the word "אנגלית". */
+  courseCode?: string | null;
 }
 
 export interface RecRegulationResult {

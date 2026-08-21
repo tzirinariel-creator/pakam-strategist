@@ -17,11 +17,7 @@
 //     then HID its remaining sittings — hiding the Moed B from the one student
 //     who still needs it.
 import { describe, it, expect } from "vitest";
-import {
-  looksEnglishByName,
-  isEnglishCourse,
-  passBarForName,
-} from "@/lib/english-standing";
+import { countPassedEnglishLevelCourses, isEnglishCourse, isEnglishLevelCourseName, looksEnglishByName, passBarForName } from "@/lib/english-standing";
 import { passBarFor, ENGLISH_CONFIG, CREDIT_REQUIREMENTS } from "@/lib/constants";
 import { decideAddition, decideApplication } from "@/lib/grade-sheet";
 
@@ -126,5 +122,54 @@ describe("the two doors into the same grade sheet now agree", () => {
       const viaType = grade >= passBarFor("ENGLISH");
       expect(viaName).toBe(viaType);
     }
+  });
+});
+
+// =========================================================================
+// #19 — "למה הוא לא מבין אוטומטית שמתקדמים ב׳ זה אנגלית"
+// =========================================================================
+// Because recognition required the word "אנגלית" in the course name, and TAU
+// does not print it. Ariel's own row is "מתקדמים ב' חוצה דיצפלינות בין תחומי"
+// under code 2171-9201 — an English level course with no "אנגלית" in it. The
+// app therefore kept counting a level course as still owed and asked him to
+// declare something his sheet already stated.
+describe("#19 — recognising a level course the way TAU actually names it", () => {
+  it("recognises Ariel's real row, which never says 'אנגלית'", () => {
+    expect(isEnglishLevelCourseName("מתקדמים ב' חוצה דיצפלינות בין תחומי")).toBe(true);
+  });
+
+  it("recognises it by the registrar's course code alone", () => {
+    // Strongest signal: the 2171 English unit. Name deliberately unhelpful.
+    expect(isEnglishLevelCourseName("קורס כלשהו", "2171-9201")).toBe(true);
+  });
+
+  it("still recognises the explicit spellings", () => {
+    expect(isEnglishLevelCourseName("אנגלית מתקדמים ב'")).toBe(true);
+    expect(isEnglishLevelCourseName("אנגלית טרום בסיסי")).toBe(true);
+    expect(isEnglishLevelCourseName("מתקדמים א׳")).toBe(true);
+  });
+
+  it("does NOT sweep in a course that merely contains 'מתקדמים'", () => {
+    // The anchor to the start of the name is what keeps this honest.
+    expect(isEnglishLevelCourseName("נושאים מתקדמים בכלכלה")).toBe(false);
+    expect(isEnglishLevelCourseName("סמינר מתקדמים במדע המדינה")).toBe(false);
+  });
+
+  it("does NOT count an English CONTENT course as a level course", () => {
+    // Counts toward PKM-012, a different requirement.
+    expect(isEnglishLevelCourseName("אנגלית לכלכלנים")).toBe(false);
+  });
+
+  it("credits Ariel's passing 90 so nothing is still 'owed'", () => {
+    const passed = countPassedEnglishLevelCourses([
+      { nameHe: "מתקדמים ב' חוצה דיצפלינות בין תחומי", courseCode: "2171-9201", grade: 90, status: "COMPLETED" },
+    ]);
+    expect(passed).toBe(1);
+  });
+
+  it("does not credit a level course graded below the English bar of 70", () => {
+    expect(countPassedEnglishLevelCourses([
+      { nameHe: "מתקדמים ב'", courseCode: "2171-9201", grade: 65, status: "COMPLETED" },
+    ])).toBe(0);
   });
 });

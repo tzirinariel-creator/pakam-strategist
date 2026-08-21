@@ -68,15 +68,47 @@ export function passBarForName(name: string | null | undefined): number {
   return passBarFor(looksEnglishByName(name) ? "ENGLISH" : undefined);
 }
 
-/** Preparatory LEVEL courses are English courses whose name also names a level.
- *  An English CONTENT course ("אנגלית לכלכלנים") names no level and is excluded —
- *  it counts toward PKM-012, a different requirement entirely. */
-export function isEnglishLevelCourseName(name: string | null | undefined): boolean {
+/**
+ * TAU's course code for the English unit. A row carrying it is an English
+ * course no matter what its name says — the registrar's own classification,
+ * which beats any heuristic we could write.
+ */
+const ENGLISH_UNIT_CODE = /^2171-/;
+
+/**
+ * Preparatory LEVEL courses.
+ *
+ * Ariel, 21.8: "למה הוא לא מבין אוטומטית שמתקדמים ב׳ למשל זה אנגלית והוא
+ * מבקש ממני הצהרה". Because this used to require the word "אנגלית" to appear
+ * in the name — and TAU does not print it. His actual row reads
+ * "מתקדמים ב' חוצה דיצפלינות בין תחומי" under course code 2171-9201: an
+ * English level course with no "אנגלית" anywhere in it. So the app couldn't
+ * see it, kept counting a level course as still owed, and asked him to declare
+ * something the sheet had already stated.
+ *
+ * Recognised three ways now, strongest first:
+ *   1. the 2171 course code — the registrar's own answer;
+ *   2. an explicit English name plus a level word (the original path);
+ *   3. a name that OPENS with a level phrase — "מתקדמים ב׳ …", "טרום בסיסי …" —
+ *      which is exactly how TAU titles these and nothing else.
+ *
+ * Anchoring (3) to the start is what keeps it honest: "נושאים מתקדמים בכלכלה"
+ * contains "מתקדמים" but does not begin with it, so it is not swept in. An
+ * English CONTENT course ("אנגלית לכלכלנים") names no level and stays excluded —
+ * it counts toward PKM-012, a different requirement entirely.
+ */
+export function isEnglishLevelCourseName(
+  name: string | null | undefined,
+  courseCode?: string | null,
+): boolean {
+  if (courseCode && ENGLISH_UNIT_CODE.test(courseCode.trim())) return true;
   if (!name) return false;
-  if (!looksEnglishByName(name)) return false;
   // "טרום בסיסי" contains "בסיסי", so it is matched by the BASIC pattern too —
   // both are level courses, which is all this predicate is asked to decide.
-  return /טרום/.test(name) || LEVEL_LADDER.some((l) => l.match.test(name));
+  const namesALevel = /טרום/.test(name) || LEVEL_LADDER.some((l) => l.match.test(name));
+  if (looksEnglishByName(name) && namesALevel) return true;
+  // A title that OPENS with the level is TAU's own naming for these rows.
+  return /^\s*(?:טרום\s*)?(?:בסיסי|מתקדמים\s*[אב])/.test(name);
 }
 
 export interface EnglishLevelCourseLike {
@@ -85,6 +117,8 @@ export interface EnglishLevelCourseLike {
   /** Miluim pass/fail conversion — passed, but with no numeric grade. */
   isBinary?: boolean;
   status?: string;
+  /** The registrar's own classification — 2171-xxxx is the English unit. */
+  courseCode?: string | null;
 }
 
 /** A level course counts as done when it was passed. English passes at 70 in the
@@ -96,7 +130,7 @@ function isPassed(c: EnglishLevelCourseLike): boolean {
 }
 
 export function countPassedEnglishLevelCourses(courses: EnglishLevelCourseLike[]): number {
-  return courses.filter((c) => isEnglishLevelCourseName(c.nameHe) && isPassed(c)).length;
+  return courses.filter((c) => isEnglishLevelCourseName(c.nameHe, c.courseCode) && isPassed(c)).length;
 }
 
 export interface EnglishStanding {

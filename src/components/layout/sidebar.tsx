@@ -1,5 +1,6 @@
 "use client";
 
+import { UnofficialNotice } from "@/components/layout/unofficial-notice";
 import { useTranslations, useLocale } from "next-intl";
 import { usePathname, Link } from "@/i18n/navigation";
 import {
@@ -227,6 +228,15 @@ export function Sidebar() {
           {renderNavItem(SETTINGS_ITEM)}
         </div>
       </TooltipProvider>
+
+      {/* Not an official university site — stated in the chrome, so it is
+          present on every screen rather than only where someone thought to
+          put it. Hidden when collapsed, where there is no room for words. */}
+      {!sidebarCollapsed && (
+        <div className="border-t border-sidebar-border px-2 py-2">
+          <UnofficialNotice variant="compact" />
+        </div>
+      )}
 
       {/* Collapse toggle */}
       <div className="border-t border-sidebar-border p-2">
