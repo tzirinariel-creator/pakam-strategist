@@ -1,5 +1,6 @@
 "use client";
 
+import { GradeSimulator } from "@/components/graduation/grade-simulator";
 import { useState, useMemo } from "react";
 import { useTranslations } from "next-intl";
 import { useLocale } from "next-intl";
@@ -545,6 +546,20 @@ export function GradeCalculatorContent() {
           <FolderOpen className="h-4 w-4" />
           {tRecord("crossLinkFromGrades")}
         </Link>
+      </div>
+
+      {/* Ariel, 21.8 — the simulator he asked for, from the screenshots he sent.
+          Placed directly under the header because "מה יקרה אם" is the reason
+          most students open this screen at all, and the מועד ב׳ decision has a
+          deadline. Everything it computes runs through the same
+          `calculateGrades` as the numbers below it. */}
+      <div className="animate-stagger-2">
+        <GradeSimulator
+          courses={allCourses}
+          preferHigherGrade={prefersHigherGrade(
+            (profileQuery.data?.miluimGroup ?? "NONE") as MiluimGroupKey,
+          )}
+        />
       </div>
 
       {/* Section 2: Score Dashboard + Section 3: Reverse Calculator */}
