@@ -39,6 +39,7 @@ const SyllabusScanner = dynamic(
   { ssr: false },
 );
 import { MoedBenefitBanner } from "@/components/exam-planner/moed-benefit-banner";
+import { MoedBDecisionCard } from "@/components/exam-planner/moed-b-decision-card";
 import { ExamPlanWizard, MoedPrinciplesCard, type PrepStyle } from "@/components/exam-planner/exam-plan-wizard";
 import { planFromStudyTasks, buildPrePlaced } from "@/lib/plan-from-tasks";
 import { downloadGanttCsv, type GanttTask } from "@/lib/excel-export";
@@ -940,6 +941,10 @@ export function ExamPlannerContent() {
           <Disclosure title={isHe ? "כוונון מחדש / הוסיפו תאריכים וכלים" : "Re-tune / add dates & tools"}>
             <div className="flex flex-col gap-4">
               <MoedPrinciplesCard isHe={isHe} />
+              <MoedBDecisionCard
+                courses={planQuery.data?.courses ?? []}
+                keepsHigherGrade={preferHigherGradeFlag}
+              />
               {retuneOpen ? (
                 <ExamPlanWizard
                   isHe={isHe}
@@ -1001,6 +1006,15 @@ export function ExamPlannerContent() {
           <MoedBenefitBanner />
           <ExamSeasonWisdom isHe={isHe} />
           <MoedPrinciplesCard isHe={isHe} />
+          {/* Ariel, 21.8: "איפה הפיצר / אשף בחירה האם לעשות מועדי ב׳
+              וסימולציות ציון". The simulator lived on the graduation page as a
+              general sandbox; the question gets asked HERE, holding a grade you
+              are unhappy with. Top level, not inside a disclosure — being
+              buried is what the note was about. */}
+          <MoedBDecisionCard
+            courses={planQuery.data?.courses ?? []}
+            keepsHigherGrade={preferHigherGradeFlag}
+          />
           <div className="animate-stagger-2">
             <ExamPlanWizard
               isHe={isHe}
