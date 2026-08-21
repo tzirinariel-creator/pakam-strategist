@@ -1,0 +1,7080 @@
+{
+  "source": "ידיעון פכ״מ תשפ״ז — לוח בחינות ומטלות",
+  "records": [
+    {
+      "courseCode": "0651-1001",
+      "group": "כל הקבוצות",
+      "kind": "paper",
+      "sittings": [],
+      "dueDate": "2027-03-02"
+    },
+    {
+      "courseCode": "0651-1002",
+      "group": "כל הקבוצות",
+      "kind": "paper",
+      "sittings": [],
+      "dueDate": "2027-09-23"
+    },
+    {
+      "courseCode": "0651-1003",
+      "group": "01",
+      "kind": "paper",
+      "sittings": [],
+      "dueDate": "2027-09-30"
+    },
+    {
+      "courseCode": "0651-1005",
+      "group": "01",
+      "kind": "exam",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "SUNDAY",
+          "time": "09:00"
+        },
+        {
+          "sitting": "B",
+          "dayOfWeek": "TUESDAY",
+          "time": "09:00"
+        }
+      ],
+      "dueDate": null
+    },
+    {
+      "courseCode": "0651-1007",
+      "group": "01",
+      "kind": "exam",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "WEDNESDAY",
+          "time": "09:00"
+        },
+        {
+          "sitting": "B",
+          "dayOfWeek": "SUNDAY",
+          "time": "09:00"
+        }
+      ],
+      "dueDate": null
+    },
+    {
+      "courseCode": "0618-1018",
+      "group": "01",
+      "kind": "exam",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "THURSDAY",
+          "time": "09:00"
+        },
+        {
+          "sitting": "B",
+          "dayOfWeek": "FRIDAY",
+          "time": "09:00"
+        }
+      ],
+      "dueDate": null
+    },
+    {
+      "courseCode": "0618-1012",
+      "group": "01",
+      "kind": "exam",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "THURSDAY",
+          "time": "09:00"
+        },
+        {
+          "sitting": "B",
+          "dayOfWeek": "FRIDAY",
+          "time": "09:00"
+        }
+      ],
+      "dueDate": null
+    },
+    {
+      "courseCode": "0618-1019",
+      "group": "01",
+      "kind": "exam",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "TUESDAY",
+          "time": "09:00"
+        },
+        {
+          "sitting": "B",
+          "dayOfWeek": "FRIDAY",
+          "time": "09:00"
+        }
+      ],
+      "dueDate": null
+    },
+    {
+      "courseCode": "0618-1037",
+      "group": "01",
+      "kind": "exam",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "FRIDAY",
+          "time": "09:00"
+        },
+        {
+          "sitting": "B",
+          "dayOfWeek": "FRIDAY",
+          "time": "09:00"
+        }
+      ],
+      "dueDate": null
+    },
+    {
+      "courseCode": "0618-1032",
+      "group": "01",
+      "kind": "exam",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "FRIDAY",
+          "time": "09:00"
+        },
+        {
+          "sitting": "B",
+          "dayOfWeek": "THURSDAY",
+          "time": "09:00"
+        }
+      ],
+      "dueDate": null
+    },
+    {
+      "courseCode": "1011-2103",
+      "group": "כל הקבוצות",
+      "kind": "exam",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "WEDNESDAY",
+          "time": "09:00"
+        },
+        {
+          "sitting": "B",
+          "dayOfWeek": "TUESDAY",
+          "time": "09:00"
+        }
+      ],
+      "dueDate": null
+    },
+    {
+      "courseCode": "1031-1002",
+      "group": "01",
+      "kind": "exam",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "FRIDAY",
+          "time": "08:30"
+        },
+        {
+          "sitting": "B",
+          "dayOfWeek": "FRIDAY",
+          "time": "08:30"
+        }
+      ],
+      "dueDate": null
+    },
+    {
+      "courseCode": "1031-1100",
+      "group": "01",
+      "kind": "paper",
+      "sittings": [],
+      "dueDate": "2027-03-04"
+    },
+    {
+      "courseCode": "1031-2108",
+      "group": "05",
+      "kind": "exam",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "WEDNESDAY",
+          "time": "14:00"
+        },
+        {
+          "sitting": "B",
+          "dayOfWeek": "THURSDAY",
+          "time": "09:00"
+        }
+      ],
+      "dueDate": null
+    },
+    {
+      "courseCode": "1411-9107",
+      "group": "01",
+      "kind": "exam",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "MONDAY",
+          "time": "14:00"
+        },
+        {
+          "sitting": "B",
+          "dayOfWeek": "MONDAY",
+          "time": "14:00"
+        }
+      ],
+      "dueDate": null
+    },
+    {
+      "courseCode": "0616-1017",
+      "group": "01",
+      "kind": "paper",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "MONDAY",
+          "time": "13:00"
+        }
+      ],
+      "dueDate": "2027-03-15"
+    },
+    {
+      "courseCode": "0616-1215",
+      "group": "01",
+      "kind": "paper",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "WEDNESDAY",
+          "time": "13:00"
+        }
+      ],
+      "dueDate": "2027-07-21"
+    },
+    {
+      "courseCode": "0616-3227",
+      "group": "01",
+      "kind": "paper",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "MONDAY",
+          "time": "13:00"
+        }
+      ],
+      "dueDate": "2027-03-15"
+    },
+    {
+      "courseCode": "0616-3228",
+      "group": "01",
+      "kind": "paper",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "WEDNESDAY",
+          "time": "13:00"
+        }
+      ],
+      "dueDate": "2027-07-21"
+    },
+    {
+      "courseCode": "0616-6037",
+      "group": "01",
+      "kind": "paper",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "WEDNESDAY",
+          "time": "13:00"
+        }
+      ],
+      "dueDate": "2027-07-21"
+    },
+    {
+      "courseCode": "0616-6043",
+      "group": "01",
+      "kind": "paper",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "WEDNESDAY",
+          "time": "13:00"
+        }
+      ],
+      "dueDate": "2027-07-21"
+    },
+    {
+      "courseCode": "0618-1015",
+      "group": "01",
+      "kind": "exam",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "TUESDAY",
+          "time": "09:00"
+        },
+        {
+          "sitting": "B",
+          "dayOfWeek": "FRIDAY",
+          "time": "09:00"
+        }
+      ],
+      "dueDate": null
+    },
+    {
+      "courseCode": "0618-1016",
+      "group": "01",
+      "kind": "exam",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "TUESDAY",
+          "time": "09:00"
+        },
+        {
+          "sitting": "B",
+          "dayOfWeek": "SUNDAY",
+          "time": "09:00"
+        }
+      ],
+      "dueDate": null
+    },
+    {
+      "courseCode": "0618-1030",
+      "group": "01",
+      "kind": "exam",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "FRIDAY",
+          "time": "09:00"
+        },
+        {
+          "sitting": "B",
+          "dayOfWeek": "FRIDAY",
+          "time": "09:00"
+        }
+      ],
+      "dueDate": null
+    },
+    {
+      "courseCode": "0618-1042",
+      "group": "01",
+      "kind": "exam",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "WEDNESDAY",
+          "time": "09:00"
+        },
+        {
+          "sitting": "B",
+          "dayOfWeek": "THURSDAY",
+          "time": "09:00"
+        }
+      ],
+      "dueDate": null
+    },
+    {
+      "courseCode": "0618-1043",
+      "group": "01",
+      "kind": "exam",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "WEDNESDAY",
+          "time": "09:00"
+        },
+        {
+          "sitting": "B",
+          "dayOfWeek": "TUESDAY",
+          "time": "09:00"
+        }
+      ],
+      "dueDate": null
+    },
+    {
+      "courseCode": "0618-1068",
+      "group": "כל הקבוצות",
+      "kind": "exam",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "FRIDAY",
+          "time": "09:00"
+        },
+        {
+          "sitting": "B",
+          "dayOfWeek": "MONDAY",
+          "time": "09:00"
+        }
+      ],
+      "dueDate": null
+    },
+    {
+      "courseCode": "1011-2500",
+      "group": "01",
+      "kind": "exam",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "WEDNESDAY",
+          "time": "09:00"
+        },
+        {
+          "sitting": "B",
+          "dayOfWeek": "WEDNESDAY",
+          "time": "09:00"
+        }
+      ],
+      "dueDate": null
+    },
+    {
+      "courseCode": "1031-0906",
+      "group": "01",
+      "kind": "paper",
+      "sittings": [],
+      "dueDate": "2027-09-02"
+    },
+    {
+      "courseCode": "1031-0922",
+      "group": "01",
+      "kind": "exam",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "TUESDAY",
+          "time": "14:00"
+        },
+        {
+          "sitting": "B",
+          "dayOfWeek": "MONDAY",
+          "time": "09:00"
+        }
+      ],
+      "dueDate": null
+    },
+    {
+      "courseCode": "1031-0939",
+      "group": "01",
+      "kind": "exam",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "WEDNESDAY",
+          "time": "14:00"
+        },
+        {
+          "sitting": "B",
+          "dayOfWeek": "SUNDAY",
+          "time": "09:00"
+        }
+      ],
+      "dueDate": null
+    },
+    {
+      "courseCode": "1031-0976",
+      "group": "01",
+      "kind": "paper",
+      "sittings": [],
+      "dueDate": "2027-03-04"
+    },
+    {
+      "courseCode": "1031-1800",
+      "group": "01",
+      "kind": "exam",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "FRIDAY",
+          "time": "08:30"
+        },
+        {
+          "sitting": "B",
+          "dayOfWeek": "FRIDAY",
+          "time": "08:30"
+        }
+      ],
+      "dueDate": null
+    },
+    {
+      "courseCode": "1031-3793",
+      "group": "01",
+      "kind": "paper",
+      "sittings": [],
+      "dueDate": "2027-09-02"
+    },
+    {
+      "courseCode": "1031-3821",
+      "group": "01",
+      "kind": "exam",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "FRIDAY",
+          "time": "08:30"
+        },
+        {
+          "sitting": "B",
+          "dayOfWeek": "FRIDAY",
+          "time": "08:30"
+        }
+      ],
+      "dueDate": null
+    },
+    {
+      "courseCode": "1031-3922",
+      "group": "01",
+      "kind": "paper",
+      "sittings": [],
+      "dueDate": "2027-03-04"
+    },
+    {
+      "courseCode": "1031-3996",
+      "group": "01",
+      "kind": "exam",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "TUESDAY",
+          "time": "16:00"
+        },
+        {
+          "sitting": "B",
+          "dayOfWeek": "WEDNESDAY",
+          "time": "09:00"
+        }
+      ],
+      "dueDate": null
+    },
+    {
+      "courseCode": "1221-4326",
+      "group": "01",
+      "kind": "exam",
+      "sittings": [],
+      "dueDate": null
+    },
+    {
+      "courseCode": "0910-1000",
+      "group": "01",
+      "kind": "exam",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "SUNDAY",
+          "time": "09:00"
+        },
+        {
+          "sitting": "B",
+          "dayOfWeek": "THURSDAY",
+          "time": "09:00"
+        }
+      ],
+      "dueDate": null
+    },
+    {
+      "courseCode": "0910-2030",
+      "group": "01",
+      "kind": "paper",
+      "sittings": [],
+      "dueDate": "2027-08-01"
+    },
+    {
+      "courseCode": "0910-4002",
+      "group": "01",
+      "kind": "exam",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "THURSDAY",
+          "time": "09:00"
+        },
+        {
+          "sitting": "B",
+          "dayOfWeek": "MONDAY",
+          "time": "09:00"
+        }
+      ],
+      "dueDate": null
+    },
+    {
+      "courseCode": "0687-2616",
+      "group": "01",
+      "kind": "exam",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "MONDAY",
+          "time": "09:00"
+        },
+        {
+          "sitting": "B",
+          "dayOfWeek": "SUNDAY",
+          "time": "09:00"
+        }
+      ],
+      "dueDate": null
+    },
+    {
+      "courseCode": "0687-2623",
+      "group": "01",
+      "kind": "exam",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "WEDNESDAY",
+          "time": "09:00"
+        },
+        {
+          "sitting": "B",
+          "dayOfWeek": "THURSDAY",
+          "time": "09:00"
+        }
+      ],
+      "dueDate": null
+    },
+    {
+      "courseCode": "0662-1011",
+      "group": "01",
+      "kind": "paper",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "SUNDAY",
+          "time": "23:00"
+        }
+      ],
+      "dueDate": "2027-02-21"
+    },
+    {
+      "courseCode": "0662-2252",
+      "group": "01",
+      "kind": "paper",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "MONDAY",
+          "time": "09:00"
+        },
+        {
+          "sitting": "B",
+          "dayOfWeek": "WEDNESDAY",
+          "time": "13:00"
+        }
+      ],
+      "dueDate": "2027-02-08"
+    },
+    {
+      "courseCode": "0662-2645",
+      "group": "01",
+      "kind": "paper",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "SUNDAY",
+          "time": "23:00"
+        }
+      ],
+      "dueDate": "2027-08-08"
+    },
+    {
+      "courseCode": "1662-1108",
+      "group": "01",
+      "kind": "exam",
+      "sittings": [],
+      "dueDate": null
+    },
+    {
+      "courseCode": "1662-1118",
+      "group": "01",
+      "kind": "paper",
+      "sittings": [],
+      "dueDate": "2027-03-03"
+    },
+    {
+      "courseCode": "1662-1159",
+      "group": "01",
+      "kind": "exam",
+      "sittings": [],
+      "dueDate": null
+    },
+    {
+      "courseCode": "1662-1206",
+      "group": "01",
+      "kind": "paper",
+      "sittings": [],
+      "dueDate": "2027-02-08"
+    },
+    {
+      "courseCode": "1662-1216",
+      "group": "01",
+      "kind": "exam",
+      "sittings": [],
+      "dueDate": null
+    },
+    {
+      "courseCode": "1662-1300",
+      "group": "01",
+      "kind": "paper",
+      "sittings": [],
+      "dueDate": "2027-07-14"
+    },
+    {
+      "courseCode": "0621-1974",
+      "group": "01",
+      "kind": "exam",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "SUNDAY",
+          "time": "09:00"
+        },
+        {
+          "sitting": "B",
+          "dayOfWeek": "SUNDAY",
+          "time": "09:00"
+        }
+      ],
+      "dueDate": null
+    },
+    {
+      "courseCode": "0608-1010",
+      "group": "01",
+      "kind": "exam",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "MONDAY",
+          "time": "09:00"
+        },
+        {
+          "sitting": "B",
+          "dayOfWeek": "WEDNESDAY",
+          "time": "09:00"
+        }
+      ],
+      "dueDate": null
+    },
+    {
+      "courseCode": "0608-1177",
+      "group": "01",
+      "kind": "exam",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "SUNDAY",
+          "time": "09:00"
+        },
+        {
+          "sitting": "B",
+          "dayOfWeek": "TUESDAY",
+          "time": "09:00"
+        }
+      ],
+      "dueDate": null
+    },
+    {
+      "courseCode": "0609-1013",
+      "group": "01",
+      "kind": "paper",
+      "sittings": [],
+      "dueDate": "2027-02-18"
+    },
+    {
+      "courseCode": "0609-1020",
+      "group": "01",
+      "kind": "paper",
+      "sittings": [],
+      "dueDate": "2027-08-02"
+    },
+    {
+      "courseCode": "0609-1212",
+      "group": "01",
+      "kind": "exam",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "WEDNESDAY",
+          "time": "09:00"
+        },
+        {
+          "sitting": "B",
+          "dayOfWeek": "SUNDAY",
+          "time": "09:00"
+        }
+      ],
+      "dueDate": null
+    },
+    {
+      "courseCode": "0609-1229",
+      "group": "01",
+      "kind": "paper",
+      "sittings": [],
+      "dueDate": "2027-02-18"
+    },
+    {
+      "courseCode": "0609-1303",
+      "group": "01",
+      "kind": "paper",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "MONDAY",
+          "time": "13:00"
+        },
+        {
+          "sitting": "B",
+          "dayOfWeek": "THURSDAY",
+          "time": "13:00"
+        }
+      ],
+      "dueDate": "2027-02-08"
+    },
+    {
+      "courseCode": "0680-3242",
+      "group": "01",
+      "kind": "paper",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "SUNDAY",
+          "time": "13:00"
+        }
+      ],
+      "dueDate": "2027-03-14"
+    },
+    {
+      "courseCode": "1051-3421",
+      "group": "01",
+      "kind": "paper",
+      "sittings": [],
+      "dueDate": "2027-09-02"
+    },
+    {
+      "courseCode": "1880-0901",
+      "group": "01",
+      "kind": "exam",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "SUNDAY",
+          "time": "16:00"
+        },
+        {
+          "sitting": "B",
+          "dayOfWeek": "THURSDAY",
+          "time": "16:00"
+        }
+      ],
+      "dueDate": null
+    },
+    {
+      "courseCode": "1882-0301",
+      "group": "01",
+      "kind": "exam",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "FRIDAY",
+          "time": "09:30"
+        },
+        {
+          "sitting": "B",
+          "dayOfWeek": "FRIDAY",
+          "time": "09:30"
+        }
+      ],
+      "dueDate": null
+    },
+    {
+      "courseCode": "1882-1002",
+      "group": "01",
+      "kind": "exam",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "FRIDAY",
+          "time": "13:00"
+        }
+      ],
+      "dueDate": null
+    },
+    {
+      "courseCode": "0910-2030",
+      "group": "01",
+      "kind": "paper",
+      "sittings": [],
+      "dueDate": "2027-08-01"
+    },
+    {
+      "courseCode": "1051-3421",
+      "group": "01",
+      "kind": "paper",
+      "sittings": [],
+      "dueDate": "2027-09-02"
+    },
+    {
+      "courseCode": "1662-1108",
+      "group": "01",
+      "kind": "exam",
+      "sittings": [],
+      "dueDate": null
+    },
+    {
+      "courseCode": "1662-1118",
+      "group": "01",
+      "kind": "paper",
+      "sittings": [],
+      "dueDate": "2027-03-03"
+    },
+    {
+      "courseCode": "1662-1159",
+      "group": "01",
+      "kind": "exam",
+      "sittings": [],
+      "dueDate": null
+    },
+    {
+      "courseCode": "1662-1206",
+      "group": "01",
+      "kind": "paper",
+      "sittings": [],
+      "dueDate": "2027-02-08"
+    },
+    {
+      "courseCode": "1662-1216",
+      "group": "01",
+      "kind": "exam",
+      "sittings": [],
+      "dueDate": null
+    },
+    {
+      "courseCode": "1662-1300",
+      "group": "01",
+      "kind": "paper",
+      "sittings": [],
+      "dueDate": "2027-07-14"
+    },
+    {
+      "courseCode": "0651-1010",
+      "group": "01",
+      "kind": "exam",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "MONDAY",
+          "time": "09:00"
+        },
+        {
+          "sitting": "B",
+          "dayOfWeek": "TUESDAY",
+          "time": "09:00"
+        }
+      ],
+      "dueDate": null
+    },
+    {
+      "courseCode": "0618-2200",
+      "group": "01",
+      "kind": "exam",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "FRIDAY",
+          "time": "09:00"
+        },
+        {
+          "sitting": "B",
+          "dayOfWeek": "WEDNESDAY",
+          "time": "09:00"
+        }
+      ],
+      "dueDate": null
+    },
+    {
+      "courseCode": "0618-2601",
+      "group": "01",
+      "kind": "exam",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "SUNDAY",
+          "time": "09:00"
+        },
+        {
+          "sitting": "B",
+          "dayOfWeek": "WEDNESDAY",
+          "time": "09:00"
+        }
+      ],
+      "dueDate": null
+    },
+    {
+      "courseCode": "0618-2103",
+      "group": "01",
+      "kind": "exam",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "WEDNESDAY",
+          "time": "09:00"
+        },
+        {
+          "sitting": "B",
+          "dayOfWeek": "FRIDAY",
+          "time": "09:00"
+        }
+      ],
+      "dueDate": null
+    },
+    {
+      "courseCode": "0618-2104",
+      "group": "01",
+      "kind": "exam",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "WEDNESDAY",
+          "time": "09:00"
+        },
+        {
+          "sitting": "B",
+          "dayOfWeek": "SUNDAY",
+          "time": "09:00"
+        }
+      ],
+      "dueDate": null
+    },
+    {
+      "courseCode": "0618-2243",
+      "group": "01",
+      "kind": "exam",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "FRIDAY",
+          "time": "09:00"
+        },
+        {
+          "sitting": "B",
+          "dayOfWeek": "SUNDAY",
+          "time": "16:00"
+        }
+      ],
+      "dueDate": null
+    },
+    {
+      "courseCode": "0618-2264",
+      "group": "01",
+      "kind": "exam",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "WEDNESDAY",
+          "time": "09:00"
+        },
+        {
+          "sitting": "B",
+          "dayOfWeek": "SUNDAY",
+          "time": "09:00"
+        }
+      ],
+      "dueDate": null
+    },
+    {
+      "courseCode": "0618-2458",
+      "group": "01",
+      "kind": "exam",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "WEDNESDAY",
+          "time": "09:00"
+        },
+        {
+          "sitting": "B",
+          "dayOfWeek": "FRIDAY",
+          "time": "09:00"
+        }
+      ],
+      "dueDate": null
+    },
+    {
+      "courseCode": "0618-2459",
+      "group": "01",
+      "kind": "exam",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "FRIDAY",
+          "time": "09:00"
+        },
+        {
+          "sitting": "B",
+          "dayOfWeek": "THURSDAY",
+          "time": "09:00"
+        }
+      ],
+      "dueDate": null
+    },
+    {
+      "courseCode": "0618-2531",
+      "group": "01",
+      "kind": "paper",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "SUNDAY",
+          "time": "13:00"
+        }
+      ],
+      "dueDate": "2027-03-07"
+    },
+    {
+      "courseCode": "0618-2595",
+      "group": "01",
+      "kind": "paper",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "SUNDAY",
+          "time": "13:00"
+        }
+      ],
+      "dueDate": "2027-03-07"
+    },
+    {
+      "courseCode": "0618-2811",
+      "group": "01",
+      "kind": "paper",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "SUNDAY",
+          "time": "13:00"
+        }
+      ],
+      "dueDate": "2027-08-15"
+    },
+    {
+      "courseCode": "0618-2813",
+      "group": "01",
+      "kind": "paper",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "SUNDAY",
+          "time": "13:00"
+        }
+      ],
+      "dueDate": "2027-03-07"
+    },
+    {
+      "courseCode": "0618-8013",
+      "group": "01",
+      "kind": "exam",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "TUESDAY",
+          "time": "09:00"
+        },
+        {
+          "sitting": "B",
+          "dayOfWeek": "FRIDAY",
+          "time": "09:00"
+        }
+      ],
+      "dueDate": null
+    },
+    {
+      "courseCode": "0618-8015",
+      "group": "01",
+      "kind": "paper",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "SUNDAY",
+          "time": "13:00"
+        }
+      ],
+      "dueDate": "2027-03-07"
+    },
+    {
+      "courseCode": "0618-8016",
+      "group": "01",
+      "kind": "exam",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "FRIDAY",
+          "time": "09:00"
+        },
+        {
+          "sitting": "B",
+          "dayOfWeek": "SUNDAY",
+          "time": "09:00"
+        }
+      ],
+      "dueDate": null
+    },
+    {
+      "courseCode": "0618-5260",
+      "group": "01",
+      "kind": "paper",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "SUNDAY",
+          "time": "13:00"
+        }
+      ],
+      "dueDate": "2027-03-07"
+    },
+    {
+      "courseCode": "0618-5263",
+      "group": "01",
+      "kind": "paper",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "SUNDAY",
+          "time": "13:00"
+        }
+      ],
+      "dueDate": "2027-03-07"
+    },
+    {
+      "courseCode": "0618-5269",
+      "group": "01",
+      "kind": "paper",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "SUNDAY",
+          "time": "13:00"
+        }
+      ],
+      "dueDate": "2027-08-15"
+    },
+    {
+      "courseCode": "0618-5270",
+      "group": "01",
+      "kind": "paper",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "SUNDAY",
+          "time": "13:00"
+        }
+      ],
+      "dueDate": "2027-03-07"
+    },
+    {
+      "courseCode": "0618-5271",
+      "group": "01",
+      "kind": "paper",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "SUNDAY",
+          "time": "13:00"
+        }
+      ],
+      "dueDate": "2027-08-15"
+    },
+    {
+      "courseCode": "0618-5272",
+      "group": "01",
+      "kind": "paper",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "SUNDAY",
+          "time": "13:00"
+        }
+      ],
+      "dueDate": "2027-03-07"
+    },
+    {
+      "courseCode": "0618-5273",
+      "group": "01",
+      "kind": "paper",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "SUNDAY",
+          "time": "13:00"
+        }
+      ],
+      "dueDate": "2027-03-07"
+    },
+    {
+      "courseCode": "0618-5275",
+      "group": "01",
+      "kind": "paper",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "SUNDAY",
+          "time": "13:00"
+        }
+      ],
+      "dueDate": "2027-08-15"
+    },
+    {
+      "courseCode": "1011-2101",
+      "group": "02",
+      "kind": "exam",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "WEDNESDAY",
+          "time": "14:00"
+        },
+        {
+          "sitting": "B",
+          "dayOfWeek": "THURSDAY",
+          "time": "09:00"
+        }
+      ],
+      "dueDate": null
+    },
+    {
+      "courseCode": "1011-2106",
+      "group": "כל הקבוצות",
+      "kind": "exam",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "MONDAY",
+          "time": "09:00"
+        },
+        {
+          "sitting": "B",
+          "dayOfWeek": "FRIDAY",
+          "time": "08:30"
+        }
+      ],
+      "dueDate": null
+    },
+    {
+      "courseCode": "1011-2109",
+      "group": "כל הקבוצות",
+      "kind": "exam",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "WEDNESDAY",
+          "time": "09:00"
+        },
+        {
+          "sitting": "B",
+          "dayOfWeek": "FRIDAY",
+          "time": "08:30"
+        }
+      ],
+      "dueDate": null
+    },
+    {
+      "courseCode": "1031-1108",
+      "group": "10",
+      "kind": "exam",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "THURSDAY",
+          "time": "09:00"
+        },
+        {
+          "sitting": "B",
+          "dayOfWeek": "THURSDAY",
+          "time": "09:00"
+        }
+      ],
+      "dueDate": "2027-09-02"
+    },
+    {
+      "courseCode": "1411-9102",
+      "group": "01",
+      "kind": "exam",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "MONDAY",
+          "time": "09:00"
+        },
+        {
+          "sitting": "B",
+          "dayOfWeek": "MONDAY",
+          "time": "09:00"
+        }
+      ],
+      "dueDate": null
+    },
+    {
+      "courseCode": "1411-9103",
+      "group": "01",
+      "kind": "exam",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "MONDAY",
+          "time": "14:00"
+        },
+        {
+          "sitting": "B",
+          "dayOfWeek": "MONDAY",
+          "time": "14:00"
+        }
+      ],
+      "dueDate": null
+    },
+    {
+      "courseCode": "1411-9104",
+      "group": "01",
+      "kind": "exam",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "THURSDAY",
+          "time": "14:00"
+        },
+        {
+          "sitting": "B",
+          "dayOfWeek": "THURSDAY",
+          "time": "14:00"
+        }
+      ],
+      "dueDate": null
+    },
+    {
+      "courseCode": "1411-9111",
+      "group": "01",
+      "kind": "exam",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "MONDAY",
+          "time": "14:00"
+        },
+        {
+          "sitting": "B",
+          "dayOfWeek": "MONDAY",
+          "time": "14:00"
+        }
+      ],
+      "dueDate": null
+    },
+    {
+      "courseCode": "1411-9221",
+      "group": "01",
+      "kind": "exam",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "WEDNESDAY",
+          "time": "09:00"
+        },
+        {
+          "sitting": "B",
+          "dayOfWeek": "WEDNESDAY",
+          "time": "09:00"
+        }
+      ],
+      "dueDate": null
+    },
+    {
+      "courseCode": "1411-9223",
+      "group": "01",
+      "kind": "exam",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "SUNDAY",
+          "time": "14:00"
+        },
+        {
+          "sitting": "B",
+          "dayOfWeek": "SUNDAY",
+          "time": "14:00"
+        }
+      ],
+      "dueDate": null
+    },
+    {
+      "courseCode": "1411-9224",
+      "group": "01",
+      "kind": "exam",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "SUNDAY",
+          "time": "14:00"
+        },
+        {
+          "sitting": "B",
+          "dayOfWeek": "SUNDAY",
+          "time": "09:00"
+        }
+      ],
+      "dueDate": null
+    },
+    {
+      "courseCode": "1411-9225",
+      "group": "01",
+      "kind": "exam",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "SUNDAY",
+          "time": "09:00"
+        },
+        {
+          "sitting": "B",
+          "dayOfWeek": "SUNDAY",
+          "time": "09:00"
+        }
+      ],
+      "dueDate": null
+    },
+    {
+      "courseCode": "0616-3521",
+      "group": "01",
+      "kind": "unknown",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "SUNDAY",
+          "time": "13:00"
+        }
+      ],
+      "dueDate": null
+    },
+    {
+      "courseCode": "0616-4017",
+      "group": "01",
+      "kind": "unknown",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "SUNDAY",
+          "time": "13:00"
+        }
+      ],
+      "dueDate": null
+    },
+    {
+      "courseCode": "0618-3015",
+      "group": "01",
+      "kind": "unknown",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "SUNDAY",
+          "time": "13:00"
+        }
+      ],
+      "dueDate": null
+    },
+    {
+      "courseCode": "0618-3896",
+      "group": "01",
+      "kind": "unknown",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "SUNDAY",
+          "time": "13:00"
+        }
+      ],
+      "dueDate": null
+    },
+    {
+      "courseCode": "0618-3917",
+      "group": "01",
+      "kind": "unknown",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "SUNDAY",
+          "time": "13:00"
+        }
+      ],
+      "dueDate": null
+    },
+    {
+      "courseCode": "0618-3919",
+      "group": "01",
+      "kind": "unknown",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "SUNDAY",
+          "time": "13:00"
+        }
+      ],
+      "dueDate": null
+    },
+    {
+      "courseCode": "0618-3924",
+      "group": "01",
+      "kind": "unknown",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "SUNDAY",
+          "time": "13:00"
+        }
+      ],
+      "dueDate": null
+    },
+    {
+      "courseCode": "0618-3925",
+      "group": "01",
+      "kind": "unknown",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "SUNDAY",
+          "time": "13:00"
+        }
+      ],
+      "dueDate": null
+    },
+    {
+      "courseCode": "0618-3927",
+      "group": "01",
+      "kind": "unknown",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "SUNDAY",
+          "time": "13:00"
+        }
+      ],
+      "dueDate": null
+    },
+    {
+      "courseCode": "0651-1012",
+      "group": "01",
+      "kind": "exam",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "FRIDAY",
+          "time": "09:00"
+        },
+        {
+          "sitting": "B",
+          "dayOfWeek": "MONDAY",
+          "time": "09:00"
+        }
+      ],
+      "dueDate": null
+    },
+    {
+      "courseCode": "0651-1014",
+      "group": "01",
+      "kind": "paper",
+      "sittings": [],
+      "dueDate": "2027-02-19"
+    },
+    {
+      "courseCode": "0651-1012",
+      "group": "01",
+      "kind": "exam",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "FRIDAY",
+          "time": "09:00"
+        },
+        {
+          "sitting": "B",
+          "dayOfWeek": "MONDAY",
+          "time": "09:00"
+        }
+      ],
+      "dueDate": null
+    },
+    {
+      "courseCode": "0651-1014",
+      "group": "01",
+      "kind": "paper",
+      "sittings": [],
+      "dueDate": "2027-02-19"
+    },
+    {
+      "courseCode": "0616-1017",
+      "group": "01",
+      "kind": "paper",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "MONDAY",
+          "time": "13:00"
+        }
+      ],
+      "dueDate": "2027-03-15"
+    },
+    {
+      "courseCode": "0616-3227",
+      "group": "01",
+      "kind": "paper",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "MONDAY",
+          "time": "13:00"
+        }
+      ],
+      "dueDate": "2027-03-15"
+    },
+    {
+      "courseCode": "0616-3228",
+      "group": "01",
+      "kind": "paper",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "WEDNESDAY",
+          "time": "13:00"
+        }
+      ],
+      "dueDate": "2027-07-21"
+    },
+    {
+      "courseCode": "0616-6037",
+      "group": "01",
+      "kind": "paper",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "WEDNESDAY",
+          "time": "13:00"
+        }
+      ],
+      "dueDate": "2027-07-21"
+    },
+    {
+      "courseCode": "0618-1015",
+      "group": "01",
+      "kind": "exam",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "TUESDAY",
+          "time": "09:00"
+        },
+        {
+          "sitting": "B",
+          "dayOfWeek": "FRIDAY",
+          "time": "09:00"
+        }
+      ],
+      "dueDate": null
+    },
+    {
+      "courseCode": "0618-1030",
+      "group": "01",
+      "kind": "exam",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "FRIDAY",
+          "time": "09:00"
+        },
+        {
+          "sitting": "B",
+          "dayOfWeek": "FRIDAY",
+          "time": "09:00"
+        }
+      ],
+      "dueDate": null
+    },
+    {
+      "courseCode": "0618-1043",
+      "group": "01",
+      "kind": "exam",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "WEDNESDAY",
+          "time": "09:00"
+        },
+        {
+          "sitting": "B",
+          "dayOfWeek": "TUESDAY",
+          "time": "09:00"
+        }
+      ],
+      "dueDate": null
+    },
+    {
+      "courseCode": "0618-1059",
+      "group": "01",
+      "kind": "exam",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "WEDNESDAY",
+          "time": "09:00"
+        },
+        {
+          "sitting": "B",
+          "dayOfWeek": "FRIDAY",
+          "time": "09:00"
+        }
+      ],
+      "dueDate": null
+    },
+    {
+      "courseCode": "0618-1068",
+      "group": "כל הקבוצות",
+      "kind": "exam",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "FRIDAY",
+          "time": "09:00"
+        },
+        {
+          "sitting": "B",
+          "dayOfWeek": "MONDAY",
+          "time": "09:00"
+        }
+      ],
+      "dueDate": null
+    },
+    {
+      "courseCode": "0618-2030",
+      "group": "01",
+      "kind": "exam",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "FRIDAY",
+          "time": "09:00"
+        },
+        {
+          "sitting": "B",
+          "dayOfWeek": "FRIDAY",
+          "time": "09:00"
+        }
+      ],
+      "dueDate": null
+    },
+    {
+      "courseCode": "0618-2032",
+      "group": "01",
+      "kind": "exam",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "FRIDAY",
+          "time": "09:00"
+        },
+        {
+          "sitting": "B",
+          "dayOfWeek": "MONDAY",
+          "time": "09:00"
+        }
+      ],
+      "dueDate": null
+    },
+    {
+      "courseCode": "0618-2202",
+      "group": "01",
+      "kind": "exam",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "SUNDAY",
+          "time": "09:00"
+        },
+        {
+          "sitting": "B",
+          "dayOfWeek": "MONDAY",
+          "time": "09:00"
+        }
+      ],
+      "dueDate": null
+    },
+    {
+      "courseCode": "0618-2209",
+      "group": "01",
+      "kind": "paper",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "SUNDAY",
+          "time": "13:00"
+        }
+      ],
+      "dueDate": "2027-08-15"
+    },
+    {
+      "courseCode": "0618-2223",
+      "group": "01",
+      "kind": "exam",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "WEDNESDAY",
+          "time": "09:00"
+        },
+        {
+          "sitting": "B",
+          "dayOfWeek": "THURSDAY",
+          "time": "09:00"
+        }
+      ],
+      "dueDate": null
+    },
+    {
+      "courseCode": "0618-2225",
+      "group": "01",
+      "kind": "paper",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "SUNDAY",
+          "time": "13:00"
+        }
+      ],
+      "dueDate": "2027-08-15"
+    },
+    {
+      "courseCode": "0618-2350",
+      "group": "01",
+      "kind": "exam",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "SUNDAY",
+          "time": "09:00"
+        },
+        {
+          "sitting": "B",
+          "dayOfWeek": "SUNDAY",
+          "time": "16:00"
+        }
+      ],
+      "dueDate": null
+    },
+    {
+      "courseCode": "0618-2400",
+      "group": "01",
+      "kind": "paper",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "MONDAY",
+          "time": "09:00"
+        },
+        {
+          "sitting": "B",
+          "dayOfWeek": "TUESDAY",
+          "time": "09:00"
+        }
+      ],
+      "dueDate": "2027-01-25"
+    },
+    {
+      "courseCode": "0618-7458",
+      "group": "01",
+      "kind": "exam",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "SUNDAY",
+          "time": "09:00"
+        },
+        {
+          "sitting": "B",
+          "dayOfWeek": "FRIDAY",
+          "time": "09:00"
+        }
+      ],
+      "dueDate": null
+    },
+    {
+      "courseCode": "0618-7585",
+      "group": "01",
+      "kind": "exam",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "TUESDAY",
+          "time": "09:00"
+        },
+        {
+          "sitting": "B",
+          "dayOfWeek": "FRIDAY",
+          "time": "09:00"
+        }
+      ],
+      "dueDate": null
+    },
+    {
+      "courseCode": "1011-2116",
+      "group": "כל הקבוצות",
+      "kind": "exam",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "WEDNESDAY",
+          "time": "09:00"
+        },
+        {
+          "sitting": "B",
+          "dayOfWeek": "SUNDAY",
+          "time": "09:00"
+        }
+      ],
+      "dueDate": null
+    },
+    {
+      "courseCode": "1011-2500",
+      "group": "01",
+      "kind": "exam",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "WEDNESDAY",
+          "time": "09:00"
+        },
+        {
+          "sitting": "B",
+          "dayOfWeek": "WEDNESDAY",
+          "time": "09:00"
+        }
+      ],
+      "dueDate": null
+    },
+    {
+      "courseCode": "1011-3166",
+      "group": "01",
+      "kind": "exam",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "THURSDAY",
+          "time": "09:00"
+        },
+        {
+          "sitting": "B",
+          "dayOfWeek": "SUNDAY",
+          "time": "09:00"
+        }
+      ],
+      "dueDate": null
+    },
+    {
+      "courseCode": "1011-3369",
+      "group": "01",
+      "kind": "exam",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "SUNDAY",
+          "time": "14:00"
+        },
+        {
+          "sitting": "B",
+          "dayOfWeek": "FRIDAY",
+          "time": "08:30"
+        }
+      ],
+      "dueDate": null
+    },
+    {
+      "courseCode": "1011-3371",
+      "group": "01",
+      "kind": "exam",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "FRIDAY",
+          "time": "08:30"
+        },
+        {
+          "sitting": "B",
+          "dayOfWeek": "SUNDAY",
+          "time": "09:00"
+        }
+      ],
+      "dueDate": null
+    },
+    {
+      "courseCode": "1011-3484",
+      "group": "01",
+      "kind": "exam",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "TUESDAY",
+          "time": "09:00"
+        },
+        {
+          "sitting": "B",
+          "dayOfWeek": "THURSDAY",
+          "time": "09:00"
+        }
+      ],
+      "dueDate": null
+    },
+    {
+      "courseCode": "1011-3505",
+      "group": "01",
+      "kind": "paper",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "TUESDAY",
+          "time": "09:00"
+        },
+        {
+          "sitting": "B",
+          "dayOfWeek": "THURSDAY",
+          "time": "09:00"
+        }
+      ],
+      "dueDate": "2027-07-06"
+    },
+    {
+      "courseCode": "1031-0906",
+      "group": "01",
+      "kind": "paper",
+      "sittings": [],
+      "dueDate": "2027-09-02"
+    },
+    {
+      "courseCode": "1031-0907",
+      "group": "01",
+      "kind": "paper",
+      "sittings": [],
+      "dueDate": "2027-03-04"
+    },
+    {
+      "courseCode": "1031-0910",
+      "group": "01",
+      "kind": "paper",
+      "sittings": [],
+      "dueDate": "2027-09-02"
+    },
+    {
+      "courseCode": "1031-0922",
+      "group": "01",
+      "kind": "exam",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "TUESDAY",
+          "time": "14:00"
+        },
+        {
+          "sitting": "B",
+          "dayOfWeek": "MONDAY",
+          "time": "09:00"
+        }
+      ],
+      "dueDate": null
+    },
+    {
+      "courseCode": "1031-0926",
+      "group": "01",
+      "kind": "exam",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "THURSDAY",
+          "time": "09:00"
+        },
+        {
+          "sitting": "B",
+          "dayOfWeek": "FRIDAY",
+          "time": "08:30"
+        }
+      ],
+      "dueDate": null
+    },
+    {
+      "courseCode": "1031-0927",
+      "group": "01",
+      "kind": "exam",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "SUNDAY",
+          "time": "09:00"
+        },
+        {
+          "sitting": "B",
+          "dayOfWeek": "SUNDAY",
+          "time": "09:00"
+        }
+      ],
+      "dueDate": null
+    },
+    {
+      "courseCode": "1031-0928",
+      "group": "01",
+      "kind": "exam",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "SUNDAY",
+          "time": "14:00"
+        },
+        {
+          "sitting": "B",
+          "dayOfWeek": "WEDNESDAY",
+          "time": "09:00"
+        }
+      ],
+      "dueDate": null
+    },
+    {
+      "courseCode": "1031-0932",
+      "group": "01",
+      "kind": "paper",
+      "sittings": [],
+      "dueDate": "2027-03-04"
+    },
+    {
+      "courseCode": "1031-0938",
+      "group": "01",
+      "kind": "paper",
+      "sittings": [],
+      "dueDate": "2027-03-04"
+    },
+    {
+      "courseCode": "1031-0976",
+      "group": "01",
+      "kind": "paper",
+      "sittings": [],
+      "dueDate": "2027-03-04"
+    },
+    {
+      "courseCode": "1031-0989",
+      "group": "01",
+      "kind": "exam",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "MONDAY",
+          "time": "09:00"
+        },
+        {
+          "sitting": "B",
+          "dayOfWeek": "FRIDAY",
+          "time": "08:30"
+        }
+      ],
+      "dueDate": null
+    },
+    {
+      "courseCode": "1031-1800",
+      "group": "01",
+      "kind": "exam",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "FRIDAY",
+          "time": "08:30"
+        },
+        {
+          "sitting": "B",
+          "dayOfWeek": "FRIDAY",
+          "time": "08:30"
+        }
+      ],
+      "dueDate": null
+    },
+    {
+      "courseCode": "1031-3102",
+      "group": "01",
+      "kind": "paper",
+      "sittings": [],
+      "dueDate": "2027-03-04"
+    },
+    {
+      "courseCode": "1031-3793",
+      "group": "01",
+      "kind": "paper",
+      "sittings": [],
+      "dueDate": "2027-09-02"
+    },
+    {
+      "courseCode": "1031-3821",
+      "group": "01",
+      "kind": "exam",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "FRIDAY",
+          "time": "08:30"
+        },
+        {
+          "sitting": "B",
+          "dayOfWeek": "FRIDAY",
+          "time": "08:30"
+        }
+      ],
+      "dueDate": null
+    },
+    {
+      "courseCode": "1031-3918",
+      "group": "01",
+      "kind": "exam",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "SUNDAY",
+          "time": "09:00"
+        },
+        {
+          "sitting": "B",
+          "dayOfWeek": "SUNDAY",
+          "time": "09:00"
+        }
+      ],
+      "dueDate": null
+    },
+    {
+      "courseCode": "1031-3922",
+      "group": "01",
+      "kind": "paper",
+      "sittings": [],
+      "dueDate": "2027-03-04"
+    },
+    {
+      "courseCode": "1031-3964",
+      "group": "01",
+      "kind": "paper",
+      "sittings": [],
+      "dueDate": "2027-09-02"
+    },
+    {
+      "courseCode": "1031-3982",
+      "group": "01",
+      "kind": "exam",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "FRIDAY",
+          "time": "08:30"
+        },
+        {
+          "sitting": "B",
+          "dayOfWeek": "SUNDAY",
+          "time": "14:00"
+        }
+      ],
+      "dueDate": null
+    },
+    {
+      "courseCode": "1031-3993",
+      "group": "01",
+      "kind": "paper",
+      "sittings": [],
+      "dueDate": "2027-09-02"
+    },
+    {
+      "courseCode": "1031-3994",
+      "group": "01",
+      "kind": "paper",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "SUNDAY",
+          "time": "09:00"
+        },
+        {
+          "sitting": "B",
+          "dayOfWeek": "WEDNESDAY",
+          "time": "09:00"
+        }
+      ],
+      "dueDate": "2027-01-31"
+    },
+    {
+      "courseCode": "1031-3996",
+      "group": "01",
+      "kind": "exam",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "TUESDAY",
+          "time": "16:00"
+        },
+        {
+          "sitting": "B",
+          "dayOfWeek": "WEDNESDAY",
+          "time": "09:00"
+        }
+      ],
+      "dueDate": null
+    },
+    {
+      "courseCode": "1031-4546",
+      "group": "01",
+      "kind": "paper",
+      "sittings": [],
+      "dueDate": "2027-03-04"
+    },
+    {
+      "courseCode": "1411-6604",
+      "group": "01",
+      "kind": "exam",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "TUESDAY",
+          "time": "09:00"
+        },
+        {
+          "sitting": "B",
+          "dayOfWeek": "TUESDAY",
+          "time": "09:00"
+        }
+      ],
+      "dueDate": null
+    },
+    {
+      "courseCode": "1411-7557",
+      "group": "01",
+      "kind": "exam",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "FRIDAY",
+          "time": "09:00"
+        },
+        {
+          "sitting": "B",
+          "dayOfWeek": "TUESDAY",
+          "time": "09:00"
+        }
+      ],
+      "dueDate": null
+    },
+    {
+      "courseCode": "1411-7664",
+      "group": "01",
+      "kind": "paper",
+      "sittings": [],
+      "dueDate": null
+    },
+    {
+      "courseCode": "1411-7841",
+      "group": "01",
+      "kind": "paper",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "THURSDAY",
+          "time": "09:00"
+        },
+        {
+          "sitting": "B",
+          "dayOfWeek": "FRIDAY",
+          "time": "09:00"
+        }
+      ],
+      "dueDate": "2027-01-28"
+    },
+    {
+      "courseCode": "1411-9105",
+      "group": "כל הקבוצות",
+      "kind": "exam",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "THURSDAY",
+          "time": "09:00"
+        },
+        {
+          "sitting": "B",
+          "dayOfWeek": "THURSDAY",
+          "time": "09:00"
+        }
+      ],
+      "dueDate": null
+    },
+    {
+      "courseCode": "1411-9108",
+      "group": "20",
+      "kind": "exam",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "MONDAY",
+          "time": "14:00"
+        },
+        {
+          "sitting": "B",
+          "dayOfWeek": "MONDAY",
+          "time": "14:00"
+        }
+      ],
+      "dueDate": null
+    },
+    {
+      "courseCode": "1411-9110",
+      "group": "כל הקבוצות",
+      "kind": "exam",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "THURSDAY",
+          "time": "09:00"
+        },
+        {
+          "sitting": "B",
+          "dayOfWeek": "THURSDAY",
+          "time": "09:00"
+        }
+      ],
+      "dueDate": null
+    },
+    {
+      "courseCode": "1411-9112",
+      "group": "20",
+      "kind": "exam",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "MONDAY",
+          "time": "09:00"
+        },
+        {
+          "sitting": "B",
+          "dayOfWeek": "MONDAY",
+          "time": "09:00"
+        }
+      ],
+      "dueDate": null
+    },
+    {
+      "courseCode": "1411-9113",
+      "group": "20",
+      "kind": "exam",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "MONDAY",
+          "time": "14:00"
+        },
+        {
+          "sitting": "B",
+          "dayOfWeek": "MONDAY",
+          "time": "14:00"
+        }
+      ],
+      "dueDate": null
+    },
+    {
+      "courseCode": "1411-9222",
+      "group": "01",
+      "kind": "exam",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "WEDNESDAY",
+          "time": "09:00"
+        },
+        {
+          "sitting": "B",
+          "dayOfWeek": "WEDNESDAY",
+          "time": "09:00"
+        }
+      ],
+      "dueDate": null
+    },
+    {
+      "courseCode": "1411-9226",
+      "group": "01",
+      "kind": "exam",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "WEDNESDAY",
+          "time": "09:00"
+        },
+        {
+          "sitting": "B",
+          "dayOfWeek": "WEDNESDAY",
+          "time": "09:00"
+        }
+      ],
+      "dueDate": null
+    },
+    {
+      "courseCode": "1411-9241",
+      "group": "01",
+      "kind": "exam",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "SUNDAY",
+          "time": "14:00"
+        },
+        {
+          "sitting": "B",
+          "dayOfWeek": "SUNDAY",
+          "time": "14:00"
+        }
+      ],
+      "dueDate": null
+    },
+    {
+      "courseCode": "1411-9242",
+      "group": "01",
+      "kind": "exam",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "SUNDAY",
+          "time": "09:00"
+        },
+        {
+          "sitting": "B",
+          "dayOfWeek": "SUNDAY",
+          "time": "09:00"
+        }
+      ],
+      "dueDate": null
+    },
+    {
+      "courseCode": "1411-9244",
+      "group": "01",
+      "kind": "exam",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "SUNDAY",
+          "time": "14:00"
+        },
+        {
+          "sitting": "B",
+          "dayOfWeek": "SUNDAY",
+          "time": "14:00"
+        }
+      ],
+      "dueDate": null
+    },
+    {
+      "courseCode": "1411-9245",
+      "group": "01",
+      "kind": "exam",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "WEDNESDAY",
+          "time": "09:00"
+        },
+        {
+          "sitting": "B",
+          "dayOfWeek": "WEDNESDAY",
+          "time": "09:00"
+        }
+      ],
+      "dueDate": null
+    },
+    {
+      "courseCode": "1411-9305",
+      "group": "01",
+      "kind": "exam",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "WEDNESDAY",
+          "time": "14:00"
+        },
+        {
+          "sitting": "B",
+          "dayOfWeek": "SUNDAY",
+          "time": "14:00"
+        }
+      ],
+      "dueDate": null
+    },
+    {
+      "courseCode": "1411-9306",
+      "group": "01",
+      "kind": "exam",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "WEDNESDAY",
+          "time": "14:00"
+        },
+        {
+          "sitting": "B",
+          "dayOfWeek": "SUNDAY",
+          "time": "09:00"
+        }
+      ],
+      "dueDate": null
+    },
+    {
+      "courseCode": "1411-9312",
+      "group": "01",
+      "kind": "exam",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "SUNDAY",
+          "time": "09:00"
+        },
+        {
+          "sitting": "B",
+          "dayOfWeek": "FRIDAY",
+          "time": "09:00"
+        }
+      ],
+      "dueDate": null
+    },
+    {
+      "courseCode": "1411-9314",
+      "group": "01",
+      "kind": "exam",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "WEDNESDAY",
+          "time": "14:00"
+        },
+        {
+          "sitting": "B",
+          "dayOfWeek": "MONDAY",
+          "time": "09:00"
+        }
+      ],
+      "dueDate": null
+    },
+    {
+      "courseCode": "1411-9335",
+      "group": "01",
+      "kind": "exam",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "WEDNESDAY",
+          "time": "09:00"
+        },
+        {
+          "sitting": "B",
+          "dayOfWeek": "SUNDAY",
+          "time": "14:00"
+        }
+      ],
+      "dueDate": null
+    },
+    {
+      "courseCode": "0659-2119",
+      "group": "01",
+      "kind": "paper",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "WEDNESDAY",
+          "time": "10:00"
+        },
+        {
+          "sitting": "B",
+          "dayOfWeek": "SUNDAY",
+          "time": "18:00"
+        }
+      ],
+      "dueDate": "2027-06-30"
+    },
+    {
+      "courseCode": "0659-2578",
+      "group": "01",
+      "kind": "unknown",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "SUNDAY",
+          "time": "18:00"
+        }
+      ],
+      "dueDate": null
+    },
+    {
+      "courseCode": "0659-3056",
+      "group": "01",
+      "kind": "paper",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "TUESDAY",
+          "time": "10:00"
+        },
+        {
+          "sitting": "B",
+          "dayOfWeek": "TUESDAY",
+          "time": "18:00"
+        }
+      ],
+      "dueDate": "2027-07-06"
+    },
+    {
+      "courseCode": "0659-4613",
+      "group": "01",
+      "kind": "paper",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "TUESDAY",
+          "time": "10:00"
+        },
+        {
+          "sitting": "B",
+          "dayOfWeek": "THURSDAY",
+          "time": "18:00"
+        }
+      ],
+      "dueDate": "2027-06-29"
+    },
+    {
+      "courseCode": "0659-6126",
+      "group": "01",
+      "kind": "paper",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "THURSDAY",
+          "time": "18:00"
+        }
+      ],
+      "dueDate": "2027-02-25"
+    },
+    {
+      "courseCode": "0697-1115",
+      "group": "01",
+      "kind": "paper",
+      "sittings": [],
+      "dueDate": "2027-02-18"
+    },
+    {
+      "courseCode": "0687-2616",
+      "group": "01",
+      "kind": "exam",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "MONDAY",
+          "time": "09:00"
+        },
+        {
+          "sitting": "B",
+          "dayOfWeek": "SUNDAY",
+          "time": "09:00"
+        }
+      ],
+      "dueDate": null
+    },
+    {
+      "courseCode": "0687-2622",
+      "group": "01",
+      "kind": "exam",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "FRIDAY",
+          "time": "09:00"
+        },
+        {
+          "sitting": "B",
+          "dayOfWeek": "SUNDAY",
+          "time": "09:00"
+        }
+      ],
+      "dueDate": null
+    },
+    {
+      "courseCode": "0662-1011",
+      "group": "01",
+      "kind": "paper",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "SUNDAY",
+          "time": "23:00"
+        }
+      ],
+      "dueDate": "2027-02-21"
+    },
+    {
+      "courseCode": "0662-1043",
+      "group": "01",
+      "kind": "paper",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "SUNDAY",
+          "time": "09:00"
+        },
+        {
+          "sitting": "B",
+          "dayOfWeek": "TUESDAY",
+          "time": "13:00"
+        }
+      ],
+      "dueDate": "2027-02-14"
+    },
+    {
+      "courseCode": "0662-2074",
+      "group": "01",
+      "kind": "exam",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "FRIDAY",
+          "time": "09:00"
+        },
+        {
+          "sitting": "B",
+          "dayOfWeek": "THURSDAY",
+          "time": "09:00"
+        }
+      ],
+      "dueDate": null
+    },
+    {
+      "courseCode": "0662-2252",
+      "group": "01",
+      "kind": "paper",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "MONDAY",
+          "time": "09:00"
+        },
+        {
+          "sitting": "B",
+          "dayOfWeek": "WEDNESDAY",
+          "time": "13:00"
+        }
+      ],
+      "dueDate": "2027-02-08"
+    },
+    {
+      "courseCode": "0662-2620",
+      "group": "01",
+      "kind": "paper",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "SUNDAY",
+          "time": "09:00"
+        },
+        {
+          "sitting": "B",
+          "dayOfWeek": "TUESDAY",
+          "time": "13:00"
+        }
+      ],
+      "dueDate": "2027-01-31"
+    },
+    {
+      "courseCode": "0662-2623",
+      "group": "01",
+      "kind": "exam",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "FRIDAY",
+          "time": "09:00"
+        },
+        {
+          "sitting": "B",
+          "dayOfWeek": "FRIDAY",
+          "time": "09:00"
+        }
+      ],
+      "dueDate": null
+    },
+    {
+      "courseCode": "0662-2645",
+      "group": "01",
+      "kind": "paper",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "SUNDAY",
+          "time": "23:00"
+        }
+      ],
+      "dueDate": "2027-08-08"
+    },
+    {
+      "courseCode": "0662-2670",
+      "group": "01",
+      "kind": "paper",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "WEDNESDAY",
+          "time": "23:00"
+        }
+      ],
+      "dueDate": "2027-03-03"
+    },
+    {
+      "courseCode": "0662-3229",
+      "group": "01",
+      "kind": "paper",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "WEDNESDAY",
+          "time": "23:00"
+        }
+      ],
+      "dueDate": "2027-03-10"
+    },
+    {
+      "courseCode": "0662-5005",
+      "group": "01",
+      "kind": "exam",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "FRIDAY",
+          "time": "09:00"
+        },
+        {
+          "sitting": "B",
+          "dayOfWeek": "FRIDAY",
+          "time": "09:00"
+        }
+      ],
+      "dueDate": null
+    },
+    {
+      "courseCode": "0662-5008",
+      "group": "01",
+      "kind": "exam",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "MONDAY",
+          "time": "09:00"
+        },
+        {
+          "sitting": "B",
+          "dayOfWeek": "MONDAY",
+          "time": "09:00"
+        }
+      ],
+      "dueDate": null
+    },
+    {
+      "courseCode": "1662-1108",
+      "group": "01",
+      "kind": "exam",
+      "sittings": [],
+      "dueDate": null
+    },
+    {
+      "courseCode": "1662-1118",
+      "group": "01",
+      "kind": "paper",
+      "sittings": [],
+      "dueDate": "2027-03-03"
+    },
+    {
+      "courseCode": "1662-1129",
+      "group": "01",
+      "kind": "paper",
+      "sittings": [],
+      "dueDate": "2027-02-16"
+    },
+    {
+      "courseCode": "1662-1159",
+      "group": "01",
+      "kind": "exam",
+      "sittings": [],
+      "dueDate": null
+    },
+    {
+      "courseCode": "1662-1163",
+      "group": "01",
+      "kind": "paper",
+      "sittings": [],
+      "dueDate": "2027-07-25"
+    },
+    {
+      "courseCode": "1662-1206",
+      "group": "01",
+      "kind": "paper",
+      "sittings": [],
+      "dueDate": "2027-02-08"
+    },
+    {
+      "courseCode": "1662-1216",
+      "group": "01",
+      "kind": "exam",
+      "sittings": [],
+      "dueDate": null
+    },
+    {
+      "courseCode": "1662-1300",
+      "group": "01",
+      "kind": "paper",
+      "sittings": [],
+      "dueDate": "2027-07-14"
+    },
+    {
+      "courseCode": "1662-1400",
+      "group": "01",
+      "kind": "exam",
+      "sittings": [],
+      "dueDate": null
+    },
+    {
+      "courseCode": "1662-2233",
+      "group": "01",
+      "kind": "paper",
+      "sittings": [],
+      "dueDate": "2027-02-10"
+    },
+    {
+      "courseCode": "0677-1501",
+      "group": "01",
+      "kind": "exam",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "WEDNESDAY",
+          "time": "09:00"
+        },
+        {
+          "sitting": "B",
+          "dayOfWeek": "SUNDAY",
+          "time": "09:00"
+        }
+      ],
+      "dueDate": null
+    },
+    {
+      "courseCode": "0677-1503",
+      "group": "01",
+      "kind": "exam",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "SUNDAY",
+          "time": "09:00"
+        },
+        {
+          "sitting": "B",
+          "dayOfWeek": "MONDAY",
+          "time": "09:00"
+        }
+      ],
+      "dueDate": null
+    },
+    {
+      "courseCode": "0621-1922",
+      "group": "01",
+      "kind": "exam",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "THURSDAY",
+          "time": "09:00"
+        },
+        {
+          "sitting": "B",
+          "dayOfWeek": "SUNDAY",
+          "time": "09:00"
+        }
+      ],
+      "dueDate": null
+    },
+    {
+      "courseCode": "0621-1974",
+      "group": "01",
+      "kind": "exam",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "SUNDAY",
+          "time": "09:00"
+        },
+        {
+          "sitting": "B",
+          "dayOfWeek": "SUNDAY",
+          "time": "09:00"
+        }
+      ],
+      "dueDate": null
+    },
+    {
+      "courseCode": "0608-1010",
+      "group": "01",
+      "kind": "exam",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "MONDAY",
+          "time": "09:00"
+        },
+        {
+          "sitting": "B",
+          "dayOfWeek": "WEDNESDAY",
+          "time": "09:00"
+        }
+      ],
+      "dueDate": null
+    },
+    {
+      "courseCode": "0608-1110",
+      "group": "01",
+      "kind": "exam",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "FRIDAY",
+          "time": "09:00"
+        },
+        {
+          "sitting": "B",
+          "dayOfWeek": "SUNDAY",
+          "time": "09:00"
+        }
+      ],
+      "dueDate": null
+    },
+    {
+      "courseCode": "0608-1177",
+      "group": "01",
+      "kind": "exam",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "SUNDAY",
+          "time": "09:00"
+        },
+        {
+          "sitting": "B",
+          "dayOfWeek": "TUESDAY",
+          "time": "09:00"
+        }
+      ],
+      "dueDate": null
+    },
+    {
+      "courseCode": "1082-6425",
+      "group": "01",
+      "kind": "paper",
+      "sittings": [],
+      "dueDate": "2027-03-04"
+    },
+    {
+      "courseCode": "1082-6426",
+      "group": "01",
+      "kind": "exam",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "SUNDAY",
+          "time": "14:00"
+        },
+        {
+          "sitting": "B",
+          "dayOfWeek": "MONDAY",
+          "time": "09:00"
+        }
+      ],
+      "dueDate": null
+    },
+    {
+      "courseCode": "1082-6449",
+      "group": "01",
+      "kind": "exam",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "THURSDAY",
+          "time": "09:00"
+        },
+        {
+          "sitting": "B",
+          "dayOfWeek": "FRIDAY",
+          "time": "08:30"
+        }
+      ],
+      "dueDate": null
+    },
+    {
+      "courseCode": "1221-3301",
+      "group": "01",
+      "kind": "exam",
+      "sittings": [],
+      "dueDate": null
+    },
+    {
+      "courseCode": "1221-4301",
+      "group": "כל הקבוצות",
+      "kind": "exam",
+      "sittings": [],
+      "dueDate": null
+    },
+    {
+      "courseCode": "0609-1013",
+      "group": "01",
+      "kind": "paper",
+      "sittings": [],
+      "dueDate": "2027-02-18"
+    },
+    {
+      "courseCode": "0609-1020",
+      "group": "01",
+      "kind": "paper",
+      "sittings": [],
+      "dueDate": "2027-08-02"
+    },
+    {
+      "courseCode": "0609-1212",
+      "group": "01",
+      "kind": "exam",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "WEDNESDAY",
+          "time": "09:00"
+        },
+        {
+          "sitting": "B",
+          "dayOfWeek": "SUNDAY",
+          "time": "09:00"
+        }
+      ],
+      "dueDate": null
+    },
+    {
+      "courseCode": "0609-1229",
+      "group": "01",
+      "kind": "paper",
+      "sittings": [],
+      "dueDate": "2027-02-18"
+    },
+    {
+      "courseCode": "0609-1303",
+      "group": "01",
+      "kind": "paper",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "MONDAY",
+          "time": "13:00"
+        },
+        {
+          "sitting": "B",
+          "dayOfWeek": "THURSDAY",
+          "time": "13:00"
+        }
+      ],
+      "dueDate": "2027-02-08"
+    },
+    {
+      "courseCode": "0672-1542",
+      "group": "01",
+      "kind": "exam",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "TUESDAY",
+          "time": "09:00"
+        },
+        {
+          "sitting": "B",
+          "dayOfWeek": "MONDAY",
+          "time": "09:00"
+        }
+      ],
+      "dueDate": null
+    },
+    {
+      "courseCode": "0680-3242",
+      "group": "01",
+      "kind": "paper",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "SUNDAY",
+          "time": "13:00"
+        }
+      ],
+      "dueDate": "2027-03-14"
+    },
+    {
+      "courseCode": "0697-1002",
+      "group": "01",
+      "kind": "paper",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "MONDAY",
+          "time": "09:00"
+        },
+        {
+          "sitting": "B",
+          "dayOfWeek": "THURSDAY",
+          "time": "09:00"
+        }
+      ],
+      "dueDate": "2027-07-12"
+    },
+    {
+      "courseCode": "0697-1010",
+      "group": "01",
+      "kind": "paper",
+      "sittings": [],
+      "dueDate": "2027-03-02"
+    },
+    {
+      "courseCode": "0697-1115",
+      "group": "01",
+      "kind": "paper",
+      "sittings": [],
+      "dueDate": "2027-02-18"
+    },
+    {
+      "courseCode": "0910-1000",
+      "group": "01",
+      "kind": "exam",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "SUNDAY",
+          "time": "09:00"
+        },
+        {
+          "sitting": "B",
+          "dayOfWeek": "THURSDAY",
+          "time": "09:00"
+        }
+      ],
+      "dueDate": null
+    },
+    {
+      "courseCode": "0910-2030",
+      "group": "01",
+      "kind": "paper",
+      "sittings": [],
+      "dueDate": "2027-08-01"
+    },
+    {
+      "courseCode": "0910-4002",
+      "group": "01",
+      "kind": "exam",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "THURSDAY",
+          "time": "09:00"
+        },
+        {
+          "sitting": "B",
+          "dayOfWeek": "MONDAY",
+          "time": "09:00"
+        }
+      ],
+      "dueDate": null
+    },
+    {
+      "courseCode": "1041-1107",
+      "group": "01",
+      "kind": "exam",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "SUNDAY",
+          "time": "14:00"
+        },
+        {
+          "sitting": "B",
+          "dayOfWeek": "FRIDAY",
+          "time": "08:30"
+        }
+      ],
+      "dueDate": null
+    },
+    {
+      "courseCode": "1041-2611",
+      "group": "01",
+      "kind": "exam",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "MONDAY",
+          "time": "09:00"
+        },
+        {
+          "sitting": "B",
+          "dayOfWeek": "SUNDAY",
+          "time": "09:00"
+        }
+      ],
+      "dueDate": null
+    },
+    {
+      "courseCode": "1051-1102",
+      "group": "01",
+      "kind": "exam",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "TUESDAY",
+          "time": "14:00"
+        },
+        {
+          "sitting": "B",
+          "dayOfWeek": "FRIDAY",
+          "time": "08:30"
+        }
+      ],
+      "dueDate": null
+    },
+    {
+      "courseCode": "1051-3421",
+      "group": "01",
+      "kind": "paper",
+      "sittings": [],
+      "dueDate": "2027-09-02"
+    },
+    {
+      "courseCode": "1880-0901",
+      "group": "01",
+      "kind": "exam",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "SUNDAY",
+          "time": "16:00"
+        },
+        {
+          "sitting": "B",
+          "dayOfWeek": "THURSDAY",
+          "time": "16:00"
+        }
+      ],
+      "dueDate": null
+    },
+    {
+      "courseCode": "1882-0301",
+      "group": "01",
+      "kind": "exam",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "FRIDAY",
+          "time": "09:30"
+        },
+        {
+          "sitting": "B",
+          "dayOfWeek": "FRIDAY",
+          "time": "09:30"
+        }
+      ],
+      "dueDate": null
+    },
+    {
+      "courseCode": "1882-1002",
+      "group": "01",
+      "kind": "exam",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "FRIDAY",
+          "time": "13:00"
+        }
+      ],
+      "dueDate": null
+    },
+    {
+      "courseCode": "1886-1812",
+      "group": "כל הקבוצות",
+      "kind": "exam",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "WEDNESDAY",
+          "time": "09:00"
+        }
+      ],
+      "dueDate": null
+    },
+    {
+      "courseCode": "1886-1813",
+      "group": "01",
+      "kind": "exam",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "SUNDAY",
+          "time": "13:00"
+        },
+        {
+          "sitting": "B",
+          "dayOfWeek": "SUNDAY",
+          "time": "13:00"
+        }
+      ],
+      "dueDate": null
+    },
+    {
+      "courseCode": "0651-2030",
+      "group": "01",
+      "kind": "paper",
+      "sittings": [],
+      "dueDate": null
+    },
+    {
+      "courseCode": "0651-1014",
+      "group": "01",
+      "kind": "paper",
+      "sittings": [],
+      "dueDate": "2027-02-19"
+    },
+    {
+      "courseCode": "0618-2459",
+      "group": "01",
+      "kind": "exam",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "FRIDAY",
+          "time": "09:00"
+        },
+        {
+          "sitting": "B",
+          "dayOfWeek": "THURSDAY",
+          "time": "09:00"
+        }
+      ],
+      "dueDate": null
+    },
+    {
+      "courseCode": "0618-2595",
+      "group": "01",
+      "kind": "paper",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "SUNDAY",
+          "time": "13:00"
+        }
+      ],
+      "dueDate": "2027-03-07"
+    },
+    {
+      "courseCode": "0910-2030",
+      "group": "01",
+      "kind": "paper",
+      "sittings": [],
+      "dueDate": "2027-08-01"
+    },
+    {
+      "courseCode": "1011-3371",
+      "group": "01",
+      "kind": "exam",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "FRIDAY",
+          "time": "08:30"
+        },
+        {
+          "sitting": "B",
+          "dayOfWeek": "SUNDAY",
+          "time": "09:00"
+        }
+      ],
+      "dueDate": null
+    },
+    {
+      "courseCode": "1031-0926",
+      "group": "01",
+      "kind": "exam",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "THURSDAY",
+          "time": "09:00"
+        },
+        {
+          "sitting": "B",
+          "dayOfWeek": "FRIDAY",
+          "time": "08:30"
+        }
+      ],
+      "dueDate": null
+    },
+    {
+      "courseCode": "1031-0927",
+      "group": "01",
+      "kind": "exam",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "SUNDAY",
+          "time": "09:00"
+        },
+        {
+          "sitting": "B",
+          "dayOfWeek": "SUNDAY",
+          "time": "09:00"
+        }
+      ],
+      "dueDate": null
+    },
+    {
+      "courseCode": "1031-0928",
+      "group": "01",
+      "kind": "exam",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "SUNDAY",
+          "time": "14:00"
+        },
+        {
+          "sitting": "B",
+          "dayOfWeek": "WEDNESDAY",
+          "time": "09:00"
+        }
+      ],
+      "dueDate": null
+    },
+    {
+      "courseCode": "1031-0989",
+      "group": "01",
+      "kind": "exam",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "MONDAY",
+          "time": "09:00"
+        },
+        {
+          "sitting": "B",
+          "dayOfWeek": "FRIDAY",
+          "time": "08:30"
+        }
+      ],
+      "dueDate": null
+    },
+    {
+      "courseCode": "1031-3982",
+      "group": "01",
+      "kind": "exam",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "FRIDAY",
+          "time": "08:30"
+        },
+        {
+          "sitting": "B",
+          "dayOfWeek": "SUNDAY",
+          "time": "14:00"
+        }
+      ],
+      "dueDate": null
+    },
+    {
+      "courseCode": "1051-3421",
+      "group": "01",
+      "kind": "paper",
+      "sittings": [],
+      "dueDate": "2027-09-02"
+    },
+    {
+      "courseCode": "1411-6604",
+      "group": "01",
+      "kind": "exam",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "TUESDAY",
+          "time": "09:00"
+        },
+        {
+          "sitting": "B",
+          "dayOfWeek": "TUESDAY",
+          "time": "09:00"
+        }
+      ],
+      "dueDate": null
+    },
+    {
+      "courseCode": "1662-1108",
+      "group": "01",
+      "kind": "exam",
+      "sittings": [],
+      "dueDate": null
+    },
+    {
+      "courseCode": "1662-1118",
+      "group": "01",
+      "kind": "paper",
+      "sittings": [],
+      "dueDate": "2027-03-03"
+    },
+    {
+      "courseCode": "1662-1129",
+      "group": "01",
+      "kind": "paper",
+      "sittings": [],
+      "dueDate": "2027-02-16"
+    },
+    {
+      "courseCode": "1662-1159",
+      "group": "01",
+      "kind": "exam",
+      "sittings": [],
+      "dueDate": null
+    },
+    {
+      "courseCode": "1662-1163",
+      "group": "01",
+      "kind": "paper",
+      "sittings": [],
+      "dueDate": "2027-07-25"
+    },
+    {
+      "courseCode": "1662-1206",
+      "group": "01",
+      "kind": "paper",
+      "sittings": [],
+      "dueDate": "2027-02-08"
+    },
+    {
+      "courseCode": "1662-1216",
+      "group": "01",
+      "kind": "exam",
+      "sittings": [],
+      "dueDate": null
+    },
+    {
+      "courseCode": "1662-1300",
+      "group": "01",
+      "kind": "paper",
+      "sittings": [],
+      "dueDate": "2027-07-14"
+    },
+    {
+      "courseCode": "1662-1400",
+      "group": "01",
+      "kind": "exam",
+      "sittings": [],
+      "dueDate": null
+    },
+    {
+      "courseCode": "1662-2233",
+      "group": "01",
+      "kind": "paper",
+      "sittings": [],
+      "dueDate": "2027-02-10"
+    },
+    {
+      "courseCode": "1011-2104",
+      "group": "01",
+      "kind": "exam",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "FRIDAY",
+          "time": "08:30"
+        },
+        {
+          "sitting": "B",
+          "dayOfWeek": "SUNDAY",
+          "time": "14:00"
+        }
+      ],
+      "dueDate": null
+    },
+    {
+      "courseCode": "1221-4325",
+      "group": "כל הקבוצות",
+      "kind": "exam",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "SUNDAY",
+          "time": "09:00"
+        },
+        {
+          "sitting": "B",
+          "dayOfWeek": "SUNDAY",
+          "time": "09:00"
+        }
+      ],
+      "dueDate": null
+    },
+    {
+      "courseCode": "0616-3521",
+      "group": "01",
+      "kind": "unknown",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "SUNDAY",
+          "time": "13:00"
+        }
+      ],
+      "dueDate": null
+    },
+    {
+      "courseCode": "0616-4017",
+      "group": "01",
+      "kind": "unknown",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "SUNDAY",
+          "time": "13:00"
+        }
+      ],
+      "dueDate": null
+    },
+    {
+      "courseCode": "0618-3015",
+      "group": "01",
+      "kind": "unknown",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "SUNDAY",
+          "time": "13:00"
+        }
+      ],
+      "dueDate": null
+    },
+    {
+      "courseCode": "0618-3917",
+      "group": "01",
+      "kind": "unknown",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "SUNDAY",
+          "time": "13:00"
+        }
+      ],
+      "dueDate": null
+    },
+    {
+      "courseCode": "0618-3919",
+      "group": "01",
+      "kind": "unknown",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "SUNDAY",
+          "time": "13:00"
+        }
+      ],
+      "dueDate": null
+    },
+    {
+      "courseCode": "0618-3924",
+      "group": "01",
+      "kind": "unknown",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "SUNDAY",
+          "time": "13:00"
+        }
+      ],
+      "dueDate": null
+    },
+    {
+      "courseCode": "0618-3925",
+      "group": "01",
+      "kind": "unknown",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "SUNDAY",
+          "time": "13:00"
+        }
+      ],
+      "dueDate": null
+    },
+    {
+      "courseCode": "0618-3926",
+      "group": "01",
+      "kind": "unknown",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "SUNDAY",
+          "time": "13:00"
+        }
+      ],
+      "dueDate": null
+    },
+    {
+      "courseCode": "0618-3927",
+      "group": "01",
+      "kind": "unknown",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "SUNDAY",
+          "time": "13:00"
+        }
+      ],
+      "dueDate": null
+    },
+    {
+      "courseCode": "0618-3928",
+      "group": "01",
+      "kind": "unknown",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "SUNDAY",
+          "time": "13:00"
+        }
+      ],
+      "dueDate": null
+    },
+    {
+      "courseCode": "0659-1994",
+      "group": "01",
+      "kind": "unknown",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "SUNDAY",
+          "time": "18:00"
+        }
+      ],
+      "dueDate": null
+    },
+    {
+      "courseCode": "0659-2146",
+      "group": "01",
+      "kind": "unknown",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "SUNDAY",
+          "time": "18:00"
+        }
+      ],
+      "dueDate": null
+    },
+    {
+      "courseCode": "0659-2217",
+      "group": "01",
+      "kind": "unknown",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "SUNDAY",
+          "time": "18:00"
+        }
+      ],
+      "dueDate": null
+    },
+    {
+      "courseCode": "0659-2465",
+      "group": "01",
+      "kind": "unknown",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "SUNDAY",
+          "time": "18:00"
+        }
+      ],
+      "dueDate": null
+    },
+    {
+      "courseCode": "0659-2502",
+      "group": "01",
+      "kind": "unknown",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "SUNDAY",
+          "time": "18:00"
+        }
+      ],
+      "dueDate": null
+    },
+    {
+      "courseCode": "0659-2628",
+      "group": "01",
+      "kind": "unknown",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "SUNDAY",
+          "time": "18:00"
+        }
+      ],
+      "dueDate": null
+    },
+    {
+      "courseCode": "0659-2649",
+      "group": "01",
+      "kind": "unknown",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "SUNDAY",
+          "time": "18:00"
+        }
+      ],
+      "dueDate": null
+    },
+    {
+      "courseCode": "0659-2650",
+      "group": "01",
+      "kind": "unknown",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "SUNDAY",
+          "time": "18:00"
+        }
+      ],
+      "dueDate": null
+    },
+    {
+      "courseCode": "0659-2651",
+      "group": "01",
+      "kind": "unknown",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "SUNDAY",
+          "time": "18:00"
+        }
+      ],
+      "dueDate": null
+    },
+    {
+      "courseCode": "0659-2652",
+      "group": "01",
+      "kind": "unknown",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "SUNDAY",
+          "time": "18:00"
+        }
+      ],
+      "dueDate": null
+    },
+    {
+      "courseCode": "0659-2654",
+      "group": "01",
+      "kind": "unknown",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "SUNDAY",
+          "time": "18:00"
+        }
+      ],
+      "dueDate": null
+    },
+    {
+      "courseCode": "0659-2655",
+      "group": "01",
+      "kind": "unknown",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "SUNDAY",
+          "time": "18:00"
+        }
+      ],
+      "dueDate": null
+    },
+    {
+      "courseCode": "1031-4018",
+      "group": "01",
+      "kind": "paper",
+      "sittings": [],
+      "dueDate": "2027-03-04"
+    },
+    {
+      "courseCode": "1031-4659",
+      "group": "01",
+      "kind": "paper",
+      "sittings": [],
+      "dueDate": "2027-09-02"
+    },
+    {
+      "courseCode": "1031-4707",
+      "group": "01",
+      "kind": "paper",
+      "sittings": [],
+      "dueDate": "2027-09-02"
+    },
+    {
+      "courseCode": "0651-1012",
+      "group": "01",
+      "kind": "exam",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "FRIDAY",
+          "time": "09:00"
+        },
+        {
+          "sitting": "B",
+          "dayOfWeek": "MONDAY",
+          "time": "09:00"
+        }
+      ],
+      "dueDate": null
+    },
+    {
+      "courseCode": "0651-1014",
+      "group": "01",
+      "kind": "paper",
+      "sittings": [],
+      "dueDate": "2027-02-19"
+    },
+    {
+      "courseCode": "0618-1015",
+      "group": "01",
+      "kind": "exam",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "TUESDAY",
+          "time": "09:00"
+        },
+        {
+          "sitting": "B",
+          "dayOfWeek": "FRIDAY",
+          "time": "09:00"
+        }
+      ],
+      "dueDate": null
+    },
+    {
+      "courseCode": "0618-1016",
+      "group": "01",
+      "kind": "exam",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "TUESDAY",
+          "time": "09:00"
+        },
+        {
+          "sitting": "B",
+          "dayOfWeek": "SUNDAY",
+          "time": "09:00"
+        }
+      ],
+      "dueDate": null
+    },
+    {
+      "courseCode": "0618-1030",
+      "group": "01",
+      "kind": "exam",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "FRIDAY",
+          "time": "09:00"
+        },
+        {
+          "sitting": "B",
+          "dayOfWeek": "FRIDAY",
+          "time": "09:00"
+        }
+      ],
+      "dueDate": null
+    },
+    {
+      "courseCode": "0618-1042",
+      "group": "01",
+      "kind": "exam",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "WEDNESDAY",
+          "time": "09:00"
+        },
+        {
+          "sitting": "B",
+          "dayOfWeek": "THURSDAY",
+          "time": "09:00"
+        }
+      ],
+      "dueDate": null
+    },
+    {
+      "courseCode": "0618-1043",
+      "group": "01",
+      "kind": "exam",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "WEDNESDAY",
+          "time": "09:00"
+        },
+        {
+          "sitting": "B",
+          "dayOfWeek": "TUESDAY",
+          "time": "09:00"
+        }
+      ],
+      "dueDate": null
+    },
+    {
+      "courseCode": "0618-1059",
+      "group": "01",
+      "kind": "exam",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "WEDNESDAY",
+          "time": "09:00"
+        },
+        {
+          "sitting": "B",
+          "dayOfWeek": "FRIDAY",
+          "time": "09:00"
+        }
+      ],
+      "dueDate": null
+    },
+    {
+      "courseCode": "0618-1068",
+      "group": "כל הקבוצות",
+      "kind": "exam",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "FRIDAY",
+          "time": "09:00"
+        },
+        {
+          "sitting": "B",
+          "dayOfWeek": "MONDAY",
+          "time": "09:00"
+        }
+      ],
+      "dueDate": null
+    },
+    {
+      "courseCode": "0618-2030",
+      "group": "01",
+      "kind": "exam",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "FRIDAY",
+          "time": "09:00"
+        },
+        {
+          "sitting": "B",
+          "dayOfWeek": "FRIDAY",
+          "time": "09:00"
+        }
+      ],
+      "dueDate": null
+    },
+    {
+      "courseCode": "0618-2032",
+      "group": "01",
+      "kind": "exam",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "FRIDAY",
+          "time": "09:00"
+        },
+        {
+          "sitting": "B",
+          "dayOfWeek": "MONDAY",
+          "time": "09:00"
+        }
+      ],
+      "dueDate": null
+    },
+    {
+      "courseCode": "0618-2104",
+      "group": "01",
+      "kind": "exam",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "WEDNESDAY",
+          "time": "09:00"
+        },
+        {
+          "sitting": "B",
+          "dayOfWeek": "SUNDAY",
+          "time": "09:00"
+        }
+      ],
+      "dueDate": null
+    },
+    {
+      "courseCode": "0618-2202",
+      "group": "01",
+      "kind": "exam",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "SUNDAY",
+          "time": "09:00"
+        },
+        {
+          "sitting": "B",
+          "dayOfWeek": "MONDAY",
+          "time": "09:00"
+        }
+      ],
+      "dueDate": null
+    },
+    {
+      "courseCode": "0618-2209",
+      "group": "01",
+      "kind": "paper",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "SUNDAY",
+          "time": "13:00"
+        }
+      ],
+      "dueDate": "2027-08-15"
+    },
+    {
+      "courseCode": "0618-2223",
+      "group": "01",
+      "kind": "exam",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "WEDNESDAY",
+          "time": "09:00"
+        },
+        {
+          "sitting": "B",
+          "dayOfWeek": "THURSDAY",
+          "time": "09:00"
+        }
+      ],
+      "dueDate": null
+    },
+    {
+      "courseCode": "0618-2243",
+      "group": "01",
+      "kind": "exam",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "FRIDAY",
+          "time": "09:00"
+        },
+        {
+          "sitting": "B",
+          "dayOfWeek": "SUNDAY",
+          "time": "16:00"
+        }
+      ],
+      "dueDate": null
+    },
+    {
+      "courseCode": "0618-2264",
+      "group": "01",
+      "kind": "exam",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "WEDNESDAY",
+          "time": "09:00"
+        },
+        {
+          "sitting": "B",
+          "dayOfWeek": "SUNDAY",
+          "time": "09:00"
+        }
+      ],
+      "dueDate": null
+    },
+    {
+      "courseCode": "0618-2350",
+      "group": "01",
+      "kind": "exam",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "SUNDAY",
+          "time": "09:00"
+        },
+        {
+          "sitting": "B",
+          "dayOfWeek": "SUNDAY",
+          "time": "16:00"
+        }
+      ],
+      "dueDate": null
+    },
+    {
+      "courseCode": "0618-2400",
+      "group": "01",
+      "kind": "paper",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "MONDAY",
+          "time": "09:00"
+        },
+        {
+          "sitting": "B",
+          "dayOfWeek": "TUESDAY",
+          "time": "09:00"
+        }
+      ],
+      "dueDate": "2027-01-25"
+    },
+    {
+      "courseCode": "0618-2401",
+      "group": "01",
+      "kind": "paper",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "MONDAY",
+          "time": "09:00"
+        },
+        {
+          "sitting": "B",
+          "dayOfWeek": "THURSDAY",
+          "time": "09:00"
+        }
+      ],
+      "dueDate": "2027-07-12"
+    },
+    {
+      "courseCode": "0618-2458",
+      "group": "01",
+      "kind": "exam",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "WEDNESDAY",
+          "time": "09:00"
+        },
+        {
+          "sitting": "B",
+          "dayOfWeek": "FRIDAY",
+          "time": "09:00"
+        }
+      ],
+      "dueDate": null
+    },
+    {
+      "courseCode": "0618-2595",
+      "group": "01",
+      "kind": "paper",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "SUNDAY",
+          "time": "13:00"
+        }
+      ],
+      "dueDate": "2027-03-07"
+    },
+    {
+      "courseCode": "0618-2808",
+      "group": "01",
+      "kind": "paper",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "SUNDAY",
+          "time": "13:00"
+        }
+      ],
+      "dueDate": "2027-08-15"
+    },
+    {
+      "courseCode": "0618-2811",
+      "group": "01",
+      "kind": "paper",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "SUNDAY",
+          "time": "13:00"
+        }
+      ],
+      "dueDate": "2027-08-15"
+    },
+    {
+      "courseCode": "0618-2813",
+      "group": "01",
+      "kind": "paper",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "SUNDAY",
+          "time": "13:00"
+        }
+      ],
+      "dueDate": "2027-03-07"
+    },
+    {
+      "courseCode": "0618-5260",
+      "group": "01",
+      "kind": "paper",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "SUNDAY",
+          "time": "13:00"
+        }
+      ],
+      "dueDate": "2027-03-07"
+    },
+    {
+      "courseCode": "0618-5263",
+      "group": "01",
+      "kind": "paper",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "SUNDAY",
+          "time": "13:00"
+        }
+      ],
+      "dueDate": "2027-03-07"
+    },
+    {
+      "courseCode": "0618-5269",
+      "group": "01",
+      "kind": "paper",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "SUNDAY",
+          "time": "13:00"
+        }
+      ],
+      "dueDate": "2027-08-15"
+    },
+    {
+      "courseCode": "0618-5270",
+      "group": "01",
+      "kind": "paper",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "SUNDAY",
+          "time": "13:00"
+        }
+      ],
+      "dueDate": "2027-03-07"
+    },
+    {
+      "courseCode": "0618-5271",
+      "group": "01",
+      "kind": "paper",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "SUNDAY",
+          "time": "13:00"
+        }
+      ],
+      "dueDate": "2027-08-15"
+    },
+    {
+      "courseCode": "0618-5272",
+      "group": "01",
+      "kind": "paper",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "SUNDAY",
+          "time": "13:00"
+        }
+      ],
+      "dueDate": "2027-03-07"
+    },
+    {
+      "courseCode": "0618-5273",
+      "group": "01",
+      "kind": "paper",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "SUNDAY",
+          "time": "13:00"
+        }
+      ],
+      "dueDate": "2027-03-07"
+    },
+    {
+      "courseCode": "0618-5275",
+      "group": "01",
+      "kind": "paper",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "SUNDAY",
+          "time": "13:00"
+        }
+      ],
+      "dueDate": "2027-08-15"
+    },
+    {
+      "courseCode": "0618-7175",
+      "group": "01",
+      "kind": "exam",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "SUNDAY",
+          "time": "09:00"
+        },
+        {
+          "sitting": "B",
+          "dayOfWeek": "TUESDAY",
+          "time": "09:00"
+        }
+      ],
+      "dueDate": null
+    },
+    {
+      "courseCode": "0618-7458",
+      "group": "01",
+      "kind": "exam",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "SUNDAY",
+          "time": "09:00"
+        },
+        {
+          "sitting": "B",
+          "dayOfWeek": "FRIDAY",
+          "time": "09:00"
+        }
+      ],
+      "dueDate": null
+    },
+    {
+      "courseCode": "0618-7585",
+      "group": "01",
+      "kind": "exam",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "TUESDAY",
+          "time": "09:00"
+        },
+        {
+          "sitting": "B",
+          "dayOfWeek": "FRIDAY",
+          "time": "09:00"
+        }
+      ],
+      "dueDate": null
+    },
+    {
+      "courseCode": "0618-8013",
+      "group": "01",
+      "kind": "exam",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "TUESDAY",
+          "time": "09:00"
+        },
+        {
+          "sitting": "B",
+          "dayOfWeek": "FRIDAY",
+          "time": "09:00"
+        }
+      ],
+      "dueDate": null
+    },
+    {
+      "courseCode": "0618-8015",
+      "group": "01",
+      "kind": "paper",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "SUNDAY",
+          "time": "13:00"
+        }
+      ],
+      "dueDate": "2027-03-07"
+    },
+    {
+      "courseCode": "0618-8016",
+      "group": "01",
+      "kind": "exam",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "FRIDAY",
+          "time": "09:00"
+        },
+        {
+          "sitting": "B",
+          "dayOfWeek": "SUNDAY",
+          "time": "09:00"
+        }
+      ],
+      "dueDate": null
+    },
+    {
+      "courseCode": "1011-2116",
+      "group": "כל הקבוצות",
+      "kind": "exam",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "WEDNESDAY",
+          "time": "09:00"
+        },
+        {
+          "sitting": "B",
+          "dayOfWeek": "SUNDAY",
+          "time": "09:00"
+        }
+      ],
+      "dueDate": null
+    },
+    {
+      "courseCode": "1011-2500",
+      "group": "01",
+      "kind": "exam",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "WEDNESDAY",
+          "time": "09:00"
+        },
+        {
+          "sitting": "B",
+          "dayOfWeek": "WEDNESDAY",
+          "time": "09:00"
+        }
+      ],
+      "dueDate": null
+    },
+    {
+      "courseCode": "1011-3166",
+      "group": "01",
+      "kind": "exam",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "THURSDAY",
+          "time": "09:00"
+        },
+        {
+          "sitting": "B",
+          "dayOfWeek": "SUNDAY",
+          "time": "09:00"
+        }
+      ],
+      "dueDate": null
+    },
+    {
+      "courseCode": "1011-3168",
+      "group": "01",
+      "kind": "paper",
+      "sittings": [],
+      "dueDate": "2027-03-04"
+    },
+    {
+      "courseCode": "1011-3169",
+      "group": "01",
+      "kind": "exam",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "SUNDAY",
+          "time": "14:00"
+        },
+        {
+          "sitting": "B",
+          "dayOfWeek": "TUESDAY",
+          "time": "14:00"
+        }
+      ],
+      "dueDate": null
+    },
+    {
+      "courseCode": "1011-3305",
+      "group": "01",
+      "kind": "paper",
+      "sittings": [],
+      "dueDate": "2027-09-02"
+    },
+    {
+      "courseCode": "1011-3310",
+      "group": "01",
+      "kind": "exam",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "MONDAY",
+          "time": "14:00"
+        },
+        {
+          "sitting": "B",
+          "dayOfWeek": "MONDAY",
+          "time": "14:00"
+        }
+      ],
+      "dueDate": null
+    },
+    {
+      "courseCode": "1011-3359",
+      "group": "01",
+      "kind": "exam",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "FRIDAY",
+          "time": "08:30"
+        },
+        {
+          "sitting": "B",
+          "dayOfWeek": "THURSDAY",
+          "time": "09:00"
+        }
+      ],
+      "dueDate": null
+    },
+    {
+      "courseCode": "1011-3369",
+      "group": "01",
+      "kind": "exam",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "SUNDAY",
+          "time": "14:00"
+        },
+        {
+          "sitting": "B",
+          "dayOfWeek": "FRIDAY",
+          "time": "08:30"
+        }
+      ],
+      "dueDate": null
+    },
+    {
+      "courseCode": "1011-3370",
+      "group": "01",
+      "kind": "paper",
+      "sittings": [],
+      "dueDate": "2027-03-04"
+    },
+    {
+      "courseCode": "1011-3371",
+      "group": "01",
+      "kind": "exam",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "FRIDAY",
+          "time": "08:30"
+        },
+        {
+          "sitting": "B",
+          "dayOfWeek": "SUNDAY",
+          "time": "09:00"
+        }
+      ],
+      "dueDate": null
+    },
+    {
+      "courseCode": "1011-3450",
+      "group": "01",
+      "kind": "paper",
+      "sittings": [],
+      "dueDate": "2027-09-02"
+    },
+    {
+      "courseCode": "1011-3456",
+      "group": "01",
+      "kind": "exam",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "TUESDAY",
+          "time": "14:00"
+        },
+        {
+          "sitting": "B",
+          "dayOfWeek": "FRIDAY",
+          "time": "08:30"
+        }
+      ],
+      "dueDate": null
+    },
+    {
+      "courseCode": "1011-3484",
+      "group": "01",
+      "kind": "exam",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "TUESDAY",
+          "time": "09:00"
+        },
+        {
+          "sitting": "B",
+          "dayOfWeek": "THURSDAY",
+          "time": "09:00"
+        }
+      ],
+      "dueDate": null
+    },
+    {
+      "courseCode": "1011-3505",
+      "group": "01",
+      "kind": "paper",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "TUESDAY",
+          "time": "09:00"
+        },
+        {
+          "sitting": "B",
+          "dayOfWeek": "THURSDAY",
+          "time": "09:00"
+        }
+      ],
+      "dueDate": "2027-07-06"
+    },
+    {
+      "courseCode": "1011-3509",
+      "group": "01",
+      "kind": "exam",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "THURSDAY",
+          "time": "09:00"
+        },
+        {
+          "sitting": "B",
+          "dayOfWeek": "WEDNESDAY",
+          "time": "09:00"
+        }
+      ],
+      "dueDate": null
+    },
+    {
+      "courseCode": "1031-0906",
+      "group": "01",
+      "kind": "paper",
+      "sittings": [],
+      "dueDate": "2027-09-02"
+    },
+    {
+      "courseCode": "1031-0907",
+      "group": "01",
+      "kind": "paper",
+      "sittings": [],
+      "dueDate": "2027-03-04"
+    },
+    {
+      "courseCode": "1031-0914",
+      "group": "01",
+      "kind": "exam",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "MONDAY",
+          "time": "09:00"
+        },
+        {
+          "sitting": "B",
+          "dayOfWeek": "TUESDAY",
+          "time": "09:00"
+        }
+      ],
+      "dueDate": null
+    },
+    {
+      "courseCode": "1031-0918",
+      "group": "01",
+      "kind": "exam",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "FRIDAY",
+          "time": "08:30"
+        },
+        {
+          "sitting": "B",
+          "dayOfWeek": "FRIDAY",
+          "time": "08:30"
+        }
+      ],
+      "dueDate": null
+    },
+    {
+      "courseCode": "1031-0922",
+      "group": "01",
+      "kind": "exam",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "TUESDAY",
+          "time": "14:00"
+        },
+        {
+          "sitting": "B",
+          "dayOfWeek": "MONDAY",
+          "time": "09:00"
+        }
+      ],
+      "dueDate": null
+    },
+    {
+      "courseCode": "1031-0926",
+      "group": "01",
+      "kind": "exam",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "THURSDAY",
+          "time": "09:00"
+        },
+        {
+          "sitting": "B",
+          "dayOfWeek": "FRIDAY",
+          "time": "08:30"
+        }
+      ],
+      "dueDate": null
+    },
+    {
+      "courseCode": "1031-0927",
+      "group": "01",
+      "kind": "exam",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "SUNDAY",
+          "time": "09:00"
+        },
+        {
+          "sitting": "B",
+          "dayOfWeek": "SUNDAY",
+          "time": "09:00"
+        }
+      ],
+      "dueDate": null
+    },
+    {
+      "courseCode": "1031-0928",
+      "group": "01",
+      "kind": "exam",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "SUNDAY",
+          "time": "14:00"
+        },
+        {
+          "sitting": "B",
+          "dayOfWeek": "WEDNESDAY",
+          "time": "09:00"
+        }
+      ],
+      "dueDate": null
+    },
+    {
+      "courseCode": "1031-0939",
+      "group": "01",
+      "kind": "exam",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "WEDNESDAY",
+          "time": "14:00"
+        },
+        {
+          "sitting": "B",
+          "dayOfWeek": "SUNDAY",
+          "time": "09:00"
+        }
+      ],
+      "dueDate": null
+    },
+    {
+      "courseCode": "1031-0941",
+      "group": "01",
+      "kind": "exam",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "SUNDAY",
+          "time": "09:00"
+        },
+        {
+          "sitting": "B",
+          "dayOfWeek": "TUESDAY",
+          "time": "09:00"
+        }
+      ],
+      "dueDate": null
+    },
+    {
+      "courseCode": "1031-0976",
+      "group": "01",
+      "kind": "paper",
+      "sittings": [],
+      "dueDate": "2027-03-04"
+    },
+    {
+      "courseCode": "1031-0989",
+      "group": "01",
+      "kind": "exam",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "MONDAY",
+          "time": "09:00"
+        },
+        {
+          "sitting": "B",
+          "dayOfWeek": "FRIDAY",
+          "time": "08:30"
+        }
+      ],
+      "dueDate": null
+    },
+    {
+      "courseCode": "1031-1800",
+      "group": "01",
+      "kind": "exam",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "FRIDAY",
+          "time": "08:30"
+        },
+        {
+          "sitting": "B",
+          "dayOfWeek": "FRIDAY",
+          "time": "08:30"
+        }
+      ],
+      "dueDate": null
+    },
+    {
+      "courseCode": "1031-3102",
+      "group": "01",
+      "kind": "paper",
+      "sittings": [],
+      "dueDate": "2027-03-04"
+    },
+    {
+      "courseCode": "1031-3793",
+      "group": "01",
+      "kind": "paper",
+      "sittings": [],
+      "dueDate": "2027-09-02"
+    },
+    {
+      "courseCode": "1031-3821",
+      "group": "01",
+      "kind": "exam",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "FRIDAY",
+          "time": "08:30"
+        },
+        {
+          "sitting": "B",
+          "dayOfWeek": "FRIDAY",
+          "time": "08:30"
+        }
+      ],
+      "dueDate": null
+    },
+    {
+      "courseCode": "1031-3918",
+      "group": "01",
+      "kind": "exam",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "SUNDAY",
+          "time": "09:00"
+        },
+        {
+          "sitting": "B",
+          "dayOfWeek": "SUNDAY",
+          "time": "09:00"
+        }
+      ],
+      "dueDate": null
+    },
+    {
+      "courseCode": "1031-3922",
+      "group": "01",
+      "kind": "paper",
+      "sittings": [],
+      "dueDate": "2027-03-04"
+    },
+    {
+      "courseCode": "1031-3951",
+      "group": "01",
+      "kind": "exam",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "MONDAY",
+          "time": "09:00"
+        },
+        {
+          "sitting": "B",
+          "dayOfWeek": "SUNDAY",
+          "time": "09:00"
+        }
+      ],
+      "dueDate": null
+    },
+    {
+      "courseCode": "1031-3993",
+      "group": "01",
+      "kind": "paper",
+      "sittings": [],
+      "dueDate": "2027-09-02"
+    },
+    {
+      "courseCode": "1031-3994",
+      "group": "01",
+      "kind": "paper",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "SUNDAY",
+          "time": "09:00"
+        },
+        {
+          "sitting": "B",
+          "dayOfWeek": "WEDNESDAY",
+          "time": "09:00"
+        }
+      ],
+      "dueDate": "2027-01-31"
+    },
+    {
+      "courseCode": "1031-3996",
+      "group": "01",
+      "kind": "exam",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "TUESDAY",
+          "time": "16:00"
+        },
+        {
+          "sitting": "B",
+          "dayOfWeek": "WEDNESDAY",
+          "time": "09:00"
+        }
+      ],
+      "dueDate": null
+    },
+    {
+      "courseCode": "1031-4110",
+      "group": "01",
+      "kind": "exam",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "THURSDAY",
+          "time": "09:00"
+        },
+        {
+          "sitting": "B",
+          "dayOfWeek": "THURSDAY",
+          "time": "09:00"
+        }
+      ],
+      "dueDate": null
+    },
+    {
+      "courseCode": "1031-4112",
+      "group": "01",
+      "kind": "paper",
+      "sittings": [],
+      "dueDate": "2027-09-02"
+    },
+    {
+      "courseCode": "1031-4481",
+      "group": "01",
+      "kind": "paper",
+      "sittings": [],
+      "dueDate": "2027-03-04"
+    },
+    {
+      "courseCode": "1031-4483",
+      "group": "01",
+      "kind": "paper",
+      "sittings": [],
+      "dueDate": "2027-09-02"
+    },
+    {
+      "courseCode": "1031-4486",
+      "group": "01",
+      "kind": "exam",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "THURSDAY",
+          "time": "09:00"
+        },
+        {
+          "sitting": "B",
+          "dayOfWeek": "FRIDAY",
+          "time": "08:30"
+        }
+      ],
+      "dueDate": null
+    },
+    {
+      "courseCode": "1031-4487",
+      "group": "01",
+      "kind": "paper",
+      "sittings": [],
+      "dueDate": "2027-09-02"
+    },
+    {
+      "courseCode": "1031-4546",
+      "group": "01",
+      "kind": "paper",
+      "sittings": [],
+      "dueDate": "2027-03-04"
+    },
+    {
+      "courseCode": "1411-6604",
+      "group": "01",
+      "kind": "exam",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "TUESDAY",
+          "time": "09:00"
+        },
+        {
+          "sitting": "B",
+          "dayOfWeek": "TUESDAY",
+          "time": "09:00"
+        }
+      ],
+      "dueDate": null
+    },
+    {
+      "courseCode": "1411-7557",
+      "group": "01",
+      "kind": "exam",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "FRIDAY",
+          "time": "09:00"
+        },
+        {
+          "sitting": "B",
+          "dayOfWeek": "TUESDAY",
+          "time": "09:00"
+        }
+      ],
+      "dueDate": null
+    },
+    {
+      "courseCode": "1411-7664",
+      "group": "01",
+      "kind": "paper",
+      "sittings": [],
+      "dueDate": null
+    },
+    {
+      "courseCode": "1411-7841",
+      "group": "01",
+      "kind": "paper",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "THURSDAY",
+          "time": "09:00"
+        },
+        {
+          "sitting": "B",
+          "dayOfWeek": "FRIDAY",
+          "time": "09:00"
+        }
+      ],
+      "dueDate": "2027-01-28"
+    },
+    {
+      "courseCode": "1411-9105",
+      "group": "כל הקבוצות",
+      "kind": "exam",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "THURSDAY",
+          "time": "09:00"
+        },
+        {
+          "sitting": "B",
+          "dayOfWeek": "THURSDAY",
+          "time": "09:00"
+        }
+      ],
+      "dueDate": null
+    },
+    {
+      "courseCode": "1411-9108",
+      "group": "20",
+      "kind": "exam",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "MONDAY",
+          "time": "14:00"
+        },
+        {
+          "sitting": "B",
+          "dayOfWeek": "MONDAY",
+          "time": "14:00"
+        }
+      ],
+      "dueDate": null
+    },
+    {
+      "courseCode": "1411-9110",
+      "group": "כל הקבוצות",
+      "kind": "exam",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "THURSDAY",
+          "time": "09:00"
+        },
+        {
+          "sitting": "B",
+          "dayOfWeek": "THURSDAY",
+          "time": "09:00"
+        }
+      ],
+      "dueDate": null
+    },
+    {
+      "courseCode": "1411-9112",
+      "group": "20",
+      "kind": "exam",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "MONDAY",
+          "time": "09:00"
+        },
+        {
+          "sitting": "B",
+          "dayOfWeek": "MONDAY",
+          "time": "09:00"
+        }
+      ],
+      "dueDate": null
+    },
+    {
+      "courseCode": "1411-9113",
+      "group": "20",
+      "kind": "exam",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "MONDAY",
+          "time": "14:00"
+        },
+        {
+          "sitting": "B",
+          "dayOfWeek": "MONDAY",
+          "time": "14:00"
+        }
+      ],
+      "dueDate": null
+    },
+    {
+      "courseCode": "1411-9222",
+      "group": "01",
+      "kind": "exam",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "WEDNESDAY",
+          "time": "09:00"
+        },
+        {
+          "sitting": "B",
+          "dayOfWeek": "WEDNESDAY",
+          "time": "09:00"
+        }
+      ],
+      "dueDate": null
+    },
+    {
+      "courseCode": "1411-9226",
+      "group": "01",
+      "kind": "exam",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "WEDNESDAY",
+          "time": "09:00"
+        },
+        {
+          "sitting": "B",
+          "dayOfWeek": "WEDNESDAY",
+          "time": "09:00"
+        }
+      ],
+      "dueDate": null
+    },
+    {
+      "courseCode": "1411-9241",
+      "group": "01",
+      "kind": "exam",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "SUNDAY",
+          "time": "14:00"
+        },
+        {
+          "sitting": "B",
+          "dayOfWeek": "SUNDAY",
+          "time": "14:00"
+        }
+      ],
+      "dueDate": null
+    },
+    {
+      "courseCode": "1411-9242",
+      "group": "01",
+      "kind": "exam",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "SUNDAY",
+          "time": "09:00"
+        },
+        {
+          "sitting": "B",
+          "dayOfWeek": "SUNDAY",
+          "time": "09:00"
+        }
+      ],
+      "dueDate": null
+    },
+    {
+      "courseCode": "1411-9244",
+      "group": "01",
+      "kind": "exam",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "SUNDAY",
+          "time": "14:00"
+        },
+        {
+          "sitting": "B",
+          "dayOfWeek": "SUNDAY",
+          "time": "14:00"
+        }
+      ],
+      "dueDate": null
+    },
+    {
+      "courseCode": "1411-9245",
+      "group": "01",
+      "kind": "exam",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "WEDNESDAY",
+          "time": "09:00"
+        },
+        {
+          "sitting": "B",
+          "dayOfWeek": "WEDNESDAY",
+          "time": "09:00"
+        }
+      ],
+      "dueDate": null
+    },
+    {
+      "courseCode": "1411-9305",
+      "group": "01",
+      "kind": "exam",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "WEDNESDAY",
+          "time": "14:00"
+        },
+        {
+          "sitting": "B",
+          "dayOfWeek": "SUNDAY",
+          "time": "14:00"
+        }
+      ],
+      "dueDate": null
+    },
+    {
+      "courseCode": "1411-9306",
+      "group": "01",
+      "kind": "exam",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "WEDNESDAY",
+          "time": "14:00"
+        },
+        {
+          "sitting": "B",
+          "dayOfWeek": "SUNDAY",
+          "time": "09:00"
+        }
+      ],
+      "dueDate": null
+    },
+    {
+      "courseCode": "1411-9312",
+      "group": "01",
+      "kind": "exam",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "SUNDAY",
+          "time": "09:00"
+        },
+        {
+          "sitting": "B",
+          "dayOfWeek": "FRIDAY",
+          "time": "09:00"
+        }
+      ],
+      "dueDate": null
+    },
+    {
+      "courseCode": "1411-9314",
+      "group": "01",
+      "kind": "exam",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "WEDNESDAY",
+          "time": "14:00"
+        },
+        {
+          "sitting": "B",
+          "dayOfWeek": "MONDAY",
+          "time": "09:00"
+        }
+      ],
+      "dueDate": null
+    },
+    {
+      "courseCode": "1411-9335",
+      "group": "01",
+      "kind": "exam",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "WEDNESDAY",
+          "time": "09:00"
+        },
+        {
+          "sitting": "B",
+          "dayOfWeek": "SUNDAY",
+          "time": "14:00"
+        }
+      ],
+      "dueDate": null
+    },
+    {
+      "courseCode": "0616-1017",
+      "group": "01",
+      "kind": "paper",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "MONDAY",
+          "time": "13:00"
+        }
+      ],
+      "dueDate": "2027-03-15"
+    },
+    {
+      "courseCode": "0616-1022",
+      "group": "01",
+      "kind": "paper",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "SUNDAY",
+          "time": "09:00"
+        },
+        {
+          "sitting": "B",
+          "dayOfWeek": "WEDNESDAY",
+          "time": "13:00"
+        }
+      ],
+      "dueDate": "2027-01-31"
+    },
+    {
+      "courseCode": "0616-1023",
+      "group": "01",
+      "kind": "paper",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "SUNDAY",
+          "time": "09:00"
+        },
+        {
+          "sitting": "B",
+          "dayOfWeek": "WEDNESDAY",
+          "time": "13:00"
+        }
+      ],
+      "dueDate": "2027-07-11"
+    },
+    {
+      "courseCode": "0616-1215",
+      "group": "01",
+      "kind": "paper",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "WEDNESDAY",
+          "time": "13:00"
+        }
+      ],
+      "dueDate": "2027-07-21"
+    },
+    {
+      "courseCode": "0616-3227",
+      "group": "01",
+      "kind": "paper",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "MONDAY",
+          "time": "13:00"
+        }
+      ],
+      "dueDate": "2027-03-15"
+    },
+    {
+      "courseCode": "0616-3228",
+      "group": "01",
+      "kind": "paper",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "WEDNESDAY",
+          "time": "13:00"
+        }
+      ],
+      "dueDate": "2027-07-21"
+    },
+    {
+      "courseCode": "0616-6037",
+      "group": "01",
+      "kind": "paper",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "WEDNESDAY",
+          "time": "13:00"
+        }
+      ],
+      "dueDate": "2027-07-21"
+    },
+    {
+      "courseCode": "0616-6043",
+      "group": "01",
+      "kind": "paper",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "WEDNESDAY",
+          "time": "13:00"
+        }
+      ],
+      "dueDate": "2027-07-21"
+    },
+    {
+      "courseCode": "0677-1501",
+      "group": "01",
+      "kind": "exam",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "WEDNESDAY",
+          "time": "09:00"
+        },
+        {
+          "sitting": "B",
+          "dayOfWeek": "SUNDAY",
+          "time": "09:00"
+        }
+      ],
+      "dueDate": null
+    },
+    {
+      "courseCode": "0677-1503",
+      "group": "01",
+      "kind": "exam",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "SUNDAY",
+          "time": "09:00"
+        },
+        {
+          "sitting": "B",
+          "dayOfWeek": "MONDAY",
+          "time": "09:00"
+        }
+      ],
+      "dueDate": null
+    },
+    {
+      "courseCode": "0616-6043",
+      "group": "01",
+      "kind": "paper",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "WEDNESDAY",
+          "time": "13:00"
+        }
+      ],
+      "dueDate": "2027-07-21"
+    },
+    {
+      "courseCode": "0659-2119",
+      "group": "01",
+      "kind": "paper",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "WEDNESDAY",
+          "time": "10:00"
+        },
+        {
+          "sitting": "B",
+          "dayOfWeek": "SUNDAY",
+          "time": "18:00"
+        }
+      ],
+      "dueDate": "2027-06-30"
+    },
+    {
+      "courseCode": "0659-2578",
+      "group": "01",
+      "kind": "unknown",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "SUNDAY",
+          "time": "18:00"
+        }
+      ],
+      "dueDate": null
+    },
+    {
+      "courseCode": "0659-2611",
+      "group": "01",
+      "kind": "paper",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "FRIDAY",
+          "time": "18:00"
+        }
+      ],
+      "dueDate": "2027-08-13"
+    },
+    {
+      "courseCode": "0659-3056",
+      "group": "01",
+      "kind": "paper",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "TUESDAY",
+          "time": "10:00"
+        },
+        {
+          "sitting": "B",
+          "dayOfWeek": "TUESDAY",
+          "time": "18:00"
+        }
+      ],
+      "dueDate": "2027-07-06"
+    },
+    {
+      "courseCode": "0659-5155",
+      "group": "01",
+      "kind": "paper",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "WEDNESDAY",
+          "time": "10:00"
+        },
+        {
+          "sitting": "B",
+          "dayOfWeek": "TUESDAY",
+          "time": "18:00"
+        }
+      ],
+      "dueDate": "2027-01-20"
+    },
+    {
+      "courseCode": "0697-1115",
+      "group": "01",
+      "kind": "paper",
+      "sittings": [],
+      "dueDate": "2027-02-18"
+    },
+    {
+      "courseCode": "0687-2616",
+      "group": "01",
+      "kind": "exam",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "MONDAY",
+          "time": "09:00"
+        },
+        {
+          "sitting": "B",
+          "dayOfWeek": "SUNDAY",
+          "time": "09:00"
+        }
+      ],
+      "dueDate": null
+    },
+    {
+      "courseCode": "0687-2622",
+      "group": "01",
+      "kind": "exam",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "FRIDAY",
+          "time": "09:00"
+        },
+        {
+          "sitting": "B",
+          "dayOfWeek": "SUNDAY",
+          "time": "09:00"
+        }
+      ],
+      "dueDate": null
+    },
+    {
+      "courseCode": "0687-2623",
+      "group": "01",
+      "kind": "exam",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "WEDNESDAY",
+          "time": "09:00"
+        },
+        {
+          "sitting": "B",
+          "dayOfWeek": "THURSDAY",
+          "time": "09:00"
+        }
+      ],
+      "dueDate": null
+    },
+    {
+      "courseCode": "0662-1011",
+      "group": "01",
+      "kind": "paper",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "SUNDAY",
+          "time": "23:00"
+        }
+      ],
+      "dueDate": "2027-02-21"
+    },
+    {
+      "courseCode": "0662-1043",
+      "group": "01",
+      "kind": "paper",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "SUNDAY",
+          "time": "09:00"
+        },
+        {
+          "sitting": "B",
+          "dayOfWeek": "TUESDAY",
+          "time": "13:00"
+        }
+      ],
+      "dueDate": "2027-02-14"
+    },
+    {
+      "courseCode": "0662-2252",
+      "group": "01",
+      "kind": "paper",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "MONDAY",
+          "time": "09:00"
+        },
+        {
+          "sitting": "B",
+          "dayOfWeek": "WEDNESDAY",
+          "time": "13:00"
+        }
+      ],
+      "dueDate": "2027-02-08"
+    },
+    {
+      "courseCode": "0662-2645",
+      "group": "01",
+      "kind": "paper",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "SUNDAY",
+          "time": "23:00"
+        }
+      ],
+      "dueDate": "2027-08-08"
+    },
+    {
+      "courseCode": "0662-2670",
+      "group": "01",
+      "kind": "paper",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "WEDNESDAY",
+          "time": "23:00"
+        }
+      ],
+      "dueDate": "2027-03-03"
+    },
+    {
+      "courseCode": "0662-3229",
+      "group": "01",
+      "kind": "paper",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "WEDNESDAY",
+          "time": "23:00"
+        }
+      ],
+      "dueDate": "2027-03-10"
+    },
+    {
+      "courseCode": "0662-5005",
+      "group": "01",
+      "kind": "exam",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "FRIDAY",
+          "time": "09:00"
+        },
+        {
+          "sitting": "B",
+          "dayOfWeek": "FRIDAY",
+          "time": "09:00"
+        }
+      ],
+      "dueDate": null
+    },
+    {
+      "courseCode": "0662-5008",
+      "group": "01",
+      "kind": "exam",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "MONDAY",
+          "time": "09:00"
+        },
+        {
+          "sitting": "B",
+          "dayOfWeek": "MONDAY",
+          "time": "09:00"
+        }
+      ],
+      "dueDate": null
+    },
+    {
+      "courseCode": "1662-1108",
+      "group": "01",
+      "kind": "exam",
+      "sittings": [],
+      "dueDate": null
+    },
+    {
+      "courseCode": "1662-1118",
+      "group": "01",
+      "kind": "paper",
+      "sittings": [],
+      "dueDate": "2027-03-03"
+    },
+    {
+      "courseCode": "1662-1124",
+      "group": "01",
+      "kind": "paper",
+      "sittings": [],
+      "dueDate": "2027-07-19"
+    },
+    {
+      "courseCode": "1662-1129",
+      "group": "01",
+      "kind": "paper",
+      "sittings": [],
+      "dueDate": "2027-02-16"
+    },
+    {
+      "courseCode": "1662-1158",
+      "group": "01",
+      "kind": "paper",
+      "sittings": [],
+      "dueDate": "2027-08-08"
+    },
+    {
+      "courseCode": "1662-1159",
+      "group": "01",
+      "kind": "exam",
+      "sittings": [],
+      "dueDate": null
+    },
+    {
+      "courseCode": "1662-1163",
+      "group": "01",
+      "kind": "paper",
+      "sittings": [],
+      "dueDate": "2027-07-25"
+    },
+    {
+      "courseCode": "1662-1206",
+      "group": "01",
+      "kind": "paper",
+      "sittings": [],
+      "dueDate": "2027-02-08"
+    },
+    {
+      "courseCode": "1662-1216",
+      "group": "01",
+      "kind": "exam",
+      "sittings": [],
+      "dueDate": null
+    },
+    {
+      "courseCode": "1662-1300",
+      "group": "01",
+      "kind": "paper",
+      "sittings": [],
+      "dueDate": "2027-07-14"
+    },
+    {
+      "courseCode": "1662-1400",
+      "group": "01",
+      "kind": "exam",
+      "sittings": [],
+      "dueDate": null
+    },
+    {
+      "courseCode": "1662-2233",
+      "group": "01",
+      "kind": "paper",
+      "sittings": [],
+      "dueDate": "2027-02-10"
+    },
+    {
+      "courseCode": "0608-1010",
+      "group": "01",
+      "kind": "exam",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "MONDAY",
+          "time": "09:00"
+        },
+        {
+          "sitting": "B",
+          "dayOfWeek": "WEDNESDAY",
+          "time": "09:00"
+        }
+      ],
+      "dueDate": null
+    },
+    {
+      "courseCode": "0608-1177",
+      "group": "01",
+      "kind": "exam",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "SUNDAY",
+          "time": "09:00"
+        },
+        {
+          "sitting": "B",
+          "dayOfWeek": "TUESDAY",
+          "time": "09:00"
+        }
+      ],
+      "dueDate": null
+    },
+    {
+      "courseCode": "1082-4280",
+      "group": "01",
+      "kind": "paper",
+      "sittings": [],
+      "dueDate": "2027-09-02"
+    },
+    {
+      "courseCode": "1082-6424",
+      "group": "01",
+      "kind": "paper",
+      "sittings": [],
+      "dueDate": "2027-03-04"
+    },
+    {
+      "courseCode": "1082-6425",
+      "group": "01",
+      "kind": "paper",
+      "sittings": [],
+      "dueDate": "2027-03-04"
+    },
+    {
+      "courseCode": "1082-6426",
+      "group": "01",
+      "kind": "exam",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "SUNDAY",
+          "time": "14:00"
+        },
+        {
+          "sitting": "B",
+          "dayOfWeek": "MONDAY",
+          "time": "09:00"
+        }
+      ],
+      "dueDate": null
+    },
+    {
+      "courseCode": "1082-6449",
+      "group": "01",
+      "kind": "exam",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "THURSDAY",
+          "time": "09:00"
+        },
+        {
+          "sitting": "B",
+          "dayOfWeek": "FRIDAY",
+          "time": "08:30"
+        }
+      ],
+      "dueDate": null
+    },
+    {
+      "courseCode": "1082-6454",
+      "group": "01",
+      "kind": "paper",
+      "sittings": [],
+      "dueDate": "2027-03-04"
+    },
+    {
+      "courseCode": "1221-3301",
+      "group": "01",
+      "kind": "exam",
+      "sittings": [],
+      "dueDate": null
+    },
+    {
+      "courseCode": "1221-4301",
+      "group": "כל הקבוצות",
+      "kind": "exam",
+      "sittings": [],
+      "dueDate": null
+    },
+    {
+      "courseCode": "0609-1013",
+      "group": "01",
+      "kind": "paper",
+      "sittings": [],
+      "dueDate": "2027-02-18"
+    },
+    {
+      "courseCode": "0609-1020",
+      "group": "01",
+      "kind": "paper",
+      "sittings": [],
+      "dueDate": "2027-08-02"
+    },
+    {
+      "courseCode": "0609-1212",
+      "group": "01",
+      "kind": "exam",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "WEDNESDAY",
+          "time": "09:00"
+        },
+        {
+          "sitting": "B",
+          "dayOfWeek": "SUNDAY",
+          "time": "09:00"
+        }
+      ],
+      "dueDate": null
+    },
+    {
+      "courseCode": "0609-1229",
+      "group": "01",
+      "kind": "paper",
+      "sittings": [],
+      "dueDate": "2027-02-18"
+    },
+    {
+      "courseCode": "0609-1303",
+      "group": "01",
+      "kind": "paper",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "MONDAY",
+          "time": "13:00"
+        },
+        {
+          "sitting": "B",
+          "dayOfWeek": "THURSDAY",
+          "time": "13:00"
+        }
+      ],
+      "dueDate": "2027-02-08"
+    },
+    {
+      "courseCode": "0626-1687",
+      "group": "01",
+      "kind": "exam",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "FRIDAY",
+          "time": "09:00"
+        },
+        {
+          "sitting": "B",
+          "dayOfWeek": "FRIDAY",
+          "time": "09:00"
+        }
+      ],
+      "dueDate": null
+    },
+    {
+      "courseCode": "0672-1542",
+      "group": "01",
+      "kind": "exam",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "TUESDAY",
+          "time": "09:00"
+        },
+        {
+          "sitting": "B",
+          "dayOfWeek": "MONDAY",
+          "time": "09:00"
+        }
+      ],
+      "dueDate": null
+    },
+    {
+      "courseCode": "0680-3242",
+      "group": "01",
+      "kind": "paper",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "SUNDAY",
+          "time": "13:00"
+        }
+      ],
+      "dueDate": "2027-03-14"
+    },
+    {
+      "courseCode": "0910-1000",
+      "group": "01",
+      "kind": "exam",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "SUNDAY",
+          "time": "09:00"
+        },
+        {
+          "sitting": "B",
+          "dayOfWeek": "THURSDAY",
+          "time": "09:00"
+        }
+      ],
+      "dueDate": null
+    },
+    {
+      "courseCode": "0910-2030",
+      "group": "01",
+      "kind": "paper",
+      "sittings": [],
+      "dueDate": "2027-08-01"
+    },
+    {
+      "courseCode": "0910-4002",
+      "group": "01",
+      "kind": "exam",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "THURSDAY",
+          "time": "09:00"
+        },
+        {
+          "sitting": "B",
+          "dayOfWeek": "MONDAY",
+          "time": "09:00"
+        }
+      ],
+      "dueDate": null
+    },
+    {
+      "courseCode": "1041-1108",
+      "group": "01",
+      "kind": "exam",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "SUNDAY",
+          "time": "09:00"
+        },
+        {
+          "sitting": "B",
+          "dayOfWeek": "MONDAY",
+          "time": "09:00"
+        }
+      ],
+      "dueDate": null
+    },
+    {
+      "courseCode": "1041-2611",
+      "group": "01",
+      "kind": "exam",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "MONDAY",
+          "time": "09:00"
+        },
+        {
+          "sitting": "B",
+          "dayOfWeek": "SUNDAY",
+          "time": "09:00"
+        }
+      ],
+      "dueDate": null
+    },
+    {
+      "courseCode": "1051-1102",
+      "group": "01",
+      "kind": "exam",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "TUESDAY",
+          "time": "14:00"
+        },
+        {
+          "sitting": "B",
+          "dayOfWeek": "FRIDAY",
+          "time": "08:30"
+        }
+      ],
+      "dueDate": null
+    },
+    {
+      "courseCode": "1880-0901",
+      "group": "01",
+      "kind": "exam",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "SUNDAY",
+          "time": "16:00"
+        },
+        {
+          "sitting": "B",
+          "dayOfWeek": "THURSDAY",
+          "time": "16:00"
+        }
+      ],
+      "dueDate": null
+    },
+    {
+      "courseCode": "1882-0301",
+      "group": "01",
+      "kind": "exam",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "FRIDAY",
+          "time": "09:30"
+        },
+        {
+          "sitting": "B",
+          "dayOfWeek": "FRIDAY",
+          "time": "09:30"
+        }
+      ],
+      "dueDate": null
+    },
+    {
+      "courseCode": "1882-1002",
+      "group": "01",
+      "kind": "exam",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "FRIDAY",
+          "time": "13:00"
+        }
+      ],
+      "dueDate": null
+    },
+    {
+      "courseCode": "1886-1812",
+      "group": "כל הקבוצות",
+      "kind": "exam",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "WEDNESDAY",
+          "time": "09:00"
+        }
+      ],
+      "dueDate": null
+    },
+    {
+      "courseCode": "1886-1813",
+      "group": "01",
+      "kind": "exam",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "SUNDAY",
+          "time": "13:00"
+        },
+        {
+          "sitting": "B",
+          "dayOfWeek": "SUNDAY",
+          "time": "13:00"
+        }
+      ],
+      "dueDate": null
+    },
+    {
+      "courseCode": "0651-2030",
+      "group": "01",
+      "kind": "paper",
+      "sittings": [],
+      "dueDate": null
+    },
+    {
+      "courseCode": "0651-1014",
+      "group": "01",
+      "kind": "paper",
+      "sittings": [],
+      "dueDate": "2027-02-19"
+    },
+    {
+      "courseCode": "0618-2595",
+      "group": "01",
+      "kind": "paper",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "SUNDAY",
+          "time": "13:00"
+        }
+      ],
+      "dueDate": "2027-03-07"
+    },
+    {
+      "courseCode": "0618-2808",
+      "group": "01",
+      "kind": "paper",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "SUNDAY",
+          "time": "13:00"
+        }
+      ],
+      "dueDate": "2027-08-15"
+    },
+    {
+      "courseCode": "0618-3919",
+      "group": "01",
+      "kind": "unknown",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "SUNDAY",
+          "time": "13:00"
+        }
+      ],
+      "dueDate": null
+    },
+    {
+      "courseCode": "0626-1687",
+      "group": "01",
+      "kind": "exam",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "FRIDAY",
+          "time": "09:00"
+        },
+        {
+          "sitting": "B",
+          "dayOfWeek": "FRIDAY",
+          "time": "09:00"
+        }
+      ],
+      "dueDate": null
+    },
+    {
+      "courseCode": "0910-2030",
+      "group": "01",
+      "kind": "paper",
+      "sittings": [],
+      "dueDate": "2027-08-01"
+    },
+    {
+      "courseCode": "1011-3310",
+      "group": "01",
+      "kind": "exam",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "MONDAY",
+          "time": "14:00"
+        },
+        {
+          "sitting": "B",
+          "dayOfWeek": "MONDAY",
+          "time": "14:00"
+        }
+      ],
+      "dueDate": null
+    },
+    {
+      "courseCode": "1011-3371",
+      "group": "01",
+      "kind": "exam",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "FRIDAY",
+          "time": "08:30"
+        },
+        {
+          "sitting": "B",
+          "dayOfWeek": "SUNDAY",
+          "time": "09:00"
+        }
+      ],
+      "dueDate": null
+    },
+    {
+      "courseCode": "1011-3450",
+      "group": "01",
+      "kind": "paper",
+      "sittings": [],
+      "dueDate": "2027-09-02"
+    },
+    {
+      "courseCode": "1011-3509",
+      "group": "01",
+      "kind": "exam",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "THURSDAY",
+          "time": "09:00"
+        },
+        {
+          "sitting": "B",
+          "dayOfWeek": "WEDNESDAY",
+          "time": "09:00"
+        }
+      ],
+      "dueDate": null
+    },
+    {
+      "courseCode": "1031-0926",
+      "group": "01",
+      "kind": "exam",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "THURSDAY",
+          "time": "09:00"
+        },
+        {
+          "sitting": "B",
+          "dayOfWeek": "FRIDAY",
+          "time": "08:30"
+        }
+      ],
+      "dueDate": null
+    },
+    {
+      "courseCode": "1031-0927",
+      "group": "01",
+      "kind": "exam",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "SUNDAY",
+          "time": "09:00"
+        },
+        {
+          "sitting": "B",
+          "dayOfWeek": "SUNDAY",
+          "time": "09:00"
+        }
+      ],
+      "dueDate": null
+    },
+    {
+      "courseCode": "1031-0928",
+      "group": "01",
+      "kind": "exam",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "SUNDAY",
+          "time": "14:00"
+        },
+        {
+          "sitting": "B",
+          "dayOfWeek": "WEDNESDAY",
+          "time": "09:00"
+        }
+      ],
+      "dueDate": null
+    },
+    {
+      "courseCode": "1031-0989",
+      "group": "01",
+      "kind": "exam",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "MONDAY",
+          "time": "09:00"
+        },
+        {
+          "sitting": "B",
+          "dayOfWeek": "FRIDAY",
+          "time": "08:30"
+        }
+      ],
+      "dueDate": null
+    },
+    {
+      "courseCode": "1031-3982",
+      "group": "01",
+      "kind": "exam",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "FRIDAY",
+          "time": "08:30"
+        },
+        {
+          "sitting": "B",
+          "dayOfWeek": "SUNDAY",
+          "time": "14:00"
+        }
+      ],
+      "dueDate": null
+    },
+    {
+      "courseCode": "1411-6604",
+      "group": "01",
+      "kind": "exam",
+      "sittings": [
+        {
+          "sitting": "A",
+          "dayOfWeek": "TUESDAY",
+          "time": "09:00"
+        },
+        {
+          "sitting": "B",
+          "dayOfWeek": "TUESDAY",
+          "time": "09:00"
+        }
+      ],
+      "dueDate": null
+    },
+    {
+      "courseCode": "1662-1108",
+      "group": "01",
+      "kind": "exam",
+      "sittings": [],
+      "dueDate": null
+    },
+    {
+      "courseCode": "1662-1118",
+      "group": "01",
+      "kind": "paper",
+      "sittings": [],
+      "dueDate": "2027-03-03"
+    },
+    {
+      "courseCode": "1662-1124",
+      "group": "01",
+      "kind": "paper",
+      "sittings": [],
+      "dueDate": "2027-07-19"
+    },
+    {
+      "courseCode": "1662-1129",
+      "group": "01",
+      "kind": "paper",
+      "sittings": [],
+      "dueDate": "2027-02-16"
+    },
+    {
+      "courseCode": "1662-1158",
+      "group": "01",
+      "kind": "paper",
+      "sittings": [],
+      "dueDate": "2027-08-08"
+    },
+    {
+      "courseCode": "1662-1159",
+      "group": "01",
+      "kind": "exam",
+      "sittings": [],
+      "dueDate": null
+    },
+    {
+      "courseCode": "1662-1163",
+      "group": "01",
+      "kind": "paper",
+      "sittings": [],
+      "dueDate": "2027-07-25"
+    },
+    {
+      "courseCode": "1662-1206",
+      "group": "01",
+      "kind": "paper",
+      "sittings": [],
+      "dueDate": "2027-02-08"
+    },
+    {
+      "courseCode": "1662-1216",
+      "group": "01",
+      "kind": "exam",
+      "sittings": [],
+      "dueDate": null
+    },
+    {
+      "courseCode": "1662-1300",
+      "group": "01",
+      "kind": "paper",
+      "sittings": [],
+      "dueDate": "2027-07-14"
+    },
+    {
+      "courseCode": "1662-1400",
+      "group": "01",
+      "kind": "exam",
+      "sittings": [],
+      "dueDate": null
+    },
+    {
+      "courseCode": "1662-2233",
+      "group": "01",
+      "kind": "paper",
+      "sittings": [],
+      "dueDate": "2027-02-10"
+    }
+  ]
+}

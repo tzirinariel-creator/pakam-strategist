@@ -560,6 +560,14 @@ export function ExamPlannerContent() {
           reason={availability.reason ?? "no-plan"}
           plannedCount={availability.plannedCount}
           manualEntry={manualDateRows}
+          // The ידיעון knows the DAY and TIME of each sitting long before the
+          // date. Hand the plan over so the empty state can show that instead
+          // of only saying nothing is published.
+          plannedCourses={plannedCourses.map((c) => ({
+            courseCode: c.code,
+            nameHe: c.name,
+            nameEn: null,
+          }))}
         />
       ) : (
         <div className="space-y-2">
