@@ -139,8 +139,22 @@ export function WhatMovesMyAverage({
 
           {/* The honest counterweight, and the reason this screen exists at
               all: for most students even doing everything moves very little. */}
-          <p className="mt-3 flex items-start gap-1.5 text-xs leading-relaxed text-foreground/55">
+          {/* Ariel, 22.8: "סתכל איך העברית והמלל שבור במסך התכנון של
+              'מה יזיז לכם את הממוצע'".
+              The paragraph itself was `display:flex`, put there to line the
+              icon up with the first line. Under flex, every child of the <p>
+              becomes a FLEX ITEM — and that includes each anonymous run of
+              text between the <b> and <bdi> tags. So the sentence stopped
+              being flowing text and became eight independent boxes laid side
+              by side: "גם" and "אם" landed on different lines, "כל" sat alone,
+              and the numbers stranded mid-air. Measured on the live page — the
+              three atoms sat at x=860, 724, 603 on one row with the prose
+              wrapping around them.
+              The flex belongs on a WRAPPER, with the whole sentence as one
+              item inside it, so the text flows as text again. */}
+          <div className="mt-3 flex items-start gap-1.5">
             <Info className="mt-0.5 size-3.5 shrink-0 text-foreground/35" />
+            <p className="min-w-0 flex-1 text-xs leading-relaxed text-foreground/55">
             {isHe ? (
               <>
                 גם אם <b>כל</b> הקורסים האלה היו מסתיימים ב־
@@ -164,7 +178,8 @@ export function WhatMovesMyAverage({
                   : " And a resit replaces the first sitting, even if it goes worse."}
               </>
             )}
-          </p>
+            </p>
+          </div>
 
           <Link
             href="/exam-planner"
