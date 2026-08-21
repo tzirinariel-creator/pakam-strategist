@@ -723,6 +723,16 @@ export function DashboardContent() {
           <WelcomeHomeCard
             t={t}
             isHe={isHe}
+            // Real account state — the card ticks what the student actually
+            // did, rather than listing the same three chores forever. All of
+            // it comes from queries this page already runs; the checklist
+            // adds no request to the app's hottest screen.
+            progressInput={{
+              courseCount,
+              gradedCount: (planQuery.data?.courses ?? []).filter((uc) => uc.grade != null).length,
+              hasFocusArea,
+              hasRegulationResult: !!regulationSummary,
+            }}
             onDismiss={() => {
               setWelcomeDismissed(true);
               localStorage.setItem("pakamon-welcome-dismissed", "true");
