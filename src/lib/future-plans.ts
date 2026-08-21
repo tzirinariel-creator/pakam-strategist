@@ -40,6 +40,46 @@ export type SignalId =
   | "seminars"       // research writing, which research degrees look for
   | "quantitative";  // the economics/statistics spine
 
+/**
+ * A concrete, SOURCED gate for a direction.
+ *
+ * The rule below is the only one in this file, and it exists because it has a
+ * source: the PPE secretary's email of 21.8.2026, quoted verbatim in the
+ * comment on ECONOMETRICS_GATE. Everything else here reports the student's own
+ * numbers precisely because we hold no other programme requirements. A second
+ * entry may only be added with a citation of the same standing.
+ */
+export interface DirectionGate {
+  courseCode: string;
+  courseNameHe: string;
+  he: string;
+  en: string;
+  /** Where the rule comes from — shown to the student, never omitted. */
+  sourceHe: string;
+  sourceEn: string;
+}
+
+/**
+ * From the PPE secretary, 21.8.2026:
+ *
+ *   "ביה״ס לכלכלה ידרוש כדרישת קדם לקורסים מתקדמים בכלכלה ולסמינרים בביה״ס
+ *    לכלכלה את השלמת הקורס 10112116 אקונומטריקה יישומית בסמסטר ב׳ של שנה ב׳
+ *    או בשנה ג׳. […] הקורס אינו חובה למי שלא מתעתד.ת לקחת קורסים מתקדמים
+ *    בביה״ס ו/או להמשיך לתואר שני בכלכלה."
+ *
+ * Which is why the course stays an ELECTIVE in the catalog — making it
+ * mandatory for everyone would be wrong for most of the cohort — and why the
+ * app raises it only for the two directions it actually gates.
+ */
+export const ECONOMETRICS_GATE: DirectionGate = {
+  courseCode: "1011-2116",
+  courseNameHe: "אקונומטריקה יישומית",
+  he: "ביה״ס לכלכלה דורש את אקונומטריקה יישומית (1011-2116) כדרישת קדם לקורסים מתקדמים בכלכלה ולסמינרים שלו — בסמסטר ב׳ של שנה ב׳ או בשנה ג׳. מי שלא ממשיך לשם לא חייב אותה.",
+  en: "The school of economics requires Applied Econometrics (1011-2116) as a prerequisite for its advanced courses and seminars — in year 2 semester B, or in year 3. It is not required for anyone not continuing there.",
+  sourceHe: "מהודעת מזכירות פכ״מ, אוגוסט 2026",
+  sourceEn: "From the PPE secretariat, August 2026",
+};
+
 export interface Direction {
   id: DirectionId;
   he: string;
@@ -51,6 +91,8 @@ export interface Direction {
   signals: SignalId[];
   /** A focus area that plainly fits. Null when the direction does not imply one. */
   suggestsFocus: "ECONOMICS" | "PHILOSOPHY" | "POLITICAL_SCIENCE" | null;
+  /** A sourced course requirement this direction actually gates on. */
+  gate?: DirectionGate;
 }
 
 export const DIRECTIONS: Direction[] = [
@@ -62,6 +104,7 @@ export const DIRECTIONS: Direction[] = [
     whyEn: "Research programmes in economics typically look at the average and the quantitative background — the two things we can show you from your own data.",
     signals: ["average", "quantitative", "focusArea", "seminars"],
     suggestsFocus: "ECONOMICS",
+    gate: ECONOMETRICS_GATE,
   },
   {
     id: "law",

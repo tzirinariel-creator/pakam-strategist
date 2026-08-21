@@ -132,6 +132,22 @@ export function FuturePlansCard({ facts }: { facts: StudentFacts }) {
                 })}
               </ul>
 
+              {/* The one requirement we DO hold, above the line that says we
+                  hold none of the others — because it is the exception that
+                  makes that line credible rather than a blanket shrug. It
+                  carries its source on screen: a course requirement stated
+                  without one is exactly what this app refuses to print. */}
+              {direction.gate && (
+                <div className="mt-2.5 rounded-lg border border-accent-brand/25 bg-accent-brand/[0.06] p-2.5">
+                  <p className="text-[11px] font-semibold leading-relaxed text-foreground/80">
+                    {isHe ? direction.gate.he : direction.gate.en}
+                  </p>
+                  <p className="mt-1 text-[10px] text-foreground/45">
+                    {isHe ? direction.gate.sourceHe : direction.gate.sourceEn}
+                  </p>
+                </div>
+              )}
+
               {/* The boundary, stated where the reader is forming a plan
                   rather than buried at the bottom of the page. */}
               <p className="mt-2.5 text-[11px] leading-relaxed text-foreground/45">

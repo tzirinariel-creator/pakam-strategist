@@ -299,14 +299,9 @@ export function InsightsBar({
   const locale = useLocale();
   const isHe = locale === "he";
   const [showConflictDetails, setShowConflictDetails] = useState(false);
-  // #8 — the student's own constraints for the combination search. Local and
-  // deliberately unsaved: it is a question asked at the moment of searching,
-  // not a profile setting to maintain.
-  const [prefs, setPrefs] = useState<ComboPreferences>({});
-  const hasPrefs =
-    (prefs.freeDays?.length ?? 0) > 0 ||
-    prefs.earliestHour != null ||
-    prefs.latestHour != null;
+  // #8's constraints state moved out with the search trigger, to
+  // PlannerAssistantCard — the state and the button that reads it belong in
+  // one place. This bar reports the week; it no longer runs the search.
 
   // Arazim gate: difficulty comes ONLY from Arazim. With it off ("בלי ארזים
   // כרגע") null out difficultyLevel so every difficulty-based insight (hard-count
@@ -568,27 +563,14 @@ export function InsightsBar({
                 in exactly the case a student could still improve the week by
                 swapping a group. Now it shows whenever there is a group to
                 swap, and the wording matches what the search can promise. */}
-            {canSwapGroups && onFindCombination && (
-              <>
-                <button
-                  type="button"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    onFindCombination(hasPrefs ? prefs : undefined);
-                  }}
-                  className="mt-1.5 w-full rounded-md bg-accent-brand/10 px-2 py-1 text-[11px] font-semibold text-accent-brand transition-colors hover:bg-accent-brand/20"
-                >
-                  {conflictCount > 0
-                    ? (isHe ? "מצאו לי שילוב בלי התנגשויות" : "Find me a clash-free combo")
-                    : (isHe ? "מצאו לי שילוב עם פחות ימים בקמפוס" : "Find me fewer campus days")}
-                </button>
-                <ComboPreferencesControl
-                  prefs={prefs}
-                  onChange={setPrefs}
-                  isHe={isHe}
-                />
-              </>
-            )}
+            {/* Ariel, 22.8: "למה יש כפילות של עוזר תכנון המערכת".
+                Because I added PlannerAssistantCard above without removing
+                this. The card is the entry point — it names what the search
+                does and offers three framings of it — so the same action
+                appearing again here as an 11px link is the duplicate, not the
+                original. The PREFERENCES control stays: it belongs beside the
+                conflict detail it constrains, and the card does not carry it. */}
+
           </div>
         </div>
 
@@ -821,114 +803,3 @@ export function InsightsBar({
 // credit target is already the planner's own counter, and "I work Tuesdays"
 // IS a free day. Asking the same thing twice in different words is how a
 // questionnaire starts feeling like a form.
-const COMBO_DAYS = ["SUNDAY", "MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY"] as const;
-const COMBO_DAY_SHORT_HE: Record<string, string> = {
-  SUNDAY: "א", MONDAY: "ב", TUESDAY: "ג", WEDNESDAY: "ד", THURSDAY: "ה", FRIDAY: "ו",
-};
-const COMBO_DAY_SHORT_EN: Record<string, string> = {
-  SUNDAY: "Su", MONDAY: "Mo", TUESDAY: "Tu", WEDNESDAY: "We", THURSDAY: "Th", FRIDAY: "Fr",
-};
-
-function ComboPreferencesControl({
-  prefs,
-  onChange,
-  isHe,
-}: {
-  prefs: ComboPreferences;
-  onChange: (next: ComboPreferences) => void;
-  isHe: boolean;
-}) {
-  const [open, setOpen] = useState(false);
-  const free = prefs.freeDays ?? [];
-  const toggleDay = (day: string) =>
-    onChange({
-      ...prefs,
-      freeDays: free.includes(day) ? free.filter((d) => d !== day) : [...free, day],
-    });
-
-  return (
-    <div className="mt-1" onClick={(e) => e.stopPropagation()}>
-      <button
-        type="button"
-        onClick={() => setOpen((v) => !v)}
-        className="w-full rounded-md px-2 py-0.5 text-[10px] font-medium text-foreground/50 transition-colors hover:text-foreground/70"
-        aria-expanded={open}
-      >
-        {isHe ? "יש לי בקשות לשבוע" : "I have constraints"}
-      </button>
-      {open && (
-        <div className="mt-1 space-y-2 rounded-md border border-border/60 bg-card/50 p-2">
-          <div>
-            <p className="text-[10px] text-foreground/50">
-              {isHe ? "ימים שהייתם רוצים לשמור פנויים" : "Days you'd like to keep clear"}
-            </p>
-            <div className="mt-1 flex gap-1">
-              {COMBO_DAYS.map((day) => {
-                const on = free.includes(day);
-                return (
-                  <button
-                    key={day}
-                    type="button"
-                    onClick={() => toggleDay(day)}
-                    aria-pressed={on}
-                    className={cn(
-                      "size-6 rounded-md border text-[10px] font-semibold transition-colors",
-                      on
-                        ? "border-transparent bg-foreground text-background"
-                        : "border-border/60 text-foreground/50 hover:text-foreground/80",
-                    )}
-                  >
-                    {isHe ? COMBO_DAY_SHORT_HE[day] : COMBO_DAY_SHORT_EN[day]}
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-          <div className="flex items-center gap-2">
-            <label className="flex items-center gap-1 text-[10px] text-foreground/50">
-              {isHe ? "לא לפני" : "Not before"}
-              <select
-                value={prefs.earliestHour ?? ""}
-                onChange={(e) =>
-                  onChange({
-                    ...prefs,
-                    earliestHour: e.target.value === "" ? null : Number(e.target.value),
-                  })
-                }
-                className="rounded border border-border/60 bg-transparent px-1 py-0.5 text-[10px] text-foreground/80"
-              >
-                <option value="">{isHe ? "—" : "—"}</option>
-                {[8, 9, 10, 11, 12, 13, 14].map((h) => (
-                  <option key={h} value={h}>{`${h}:00`}</option>
-                ))}
-              </select>
-            </label>
-            <label className="flex items-center gap-1 text-[10px] text-foreground/50">
-              {isHe ? "לא אחרי" : "Not after"}
-              <select
-                value={prefs.latestHour ?? ""}
-                onChange={(e) =>
-                  onChange({
-                    ...prefs,
-                    latestHour: e.target.value === "" ? null : Number(e.target.value),
-                  })
-                }
-                className="rounded border border-border/60 bg-transparent px-1 py-0.5 text-[10px] text-foreground/80"
-              >
-                <option value="">{isHe ? "—" : "—"}</option>
-                {[14, 15, 16, 17, 18, 19, 20, 21].map((h) => (
-                  <option key={h} value={h}>{`${h}:00`}</option>
-                ))}
-              </select>
-            </label>
-          </div>
-          <p className="text-[10px] leading-relaxed text-foreground/40">
-            {isHe
-              ? "אלה בקשות, לא חוקים: אם הדרך היחידה לכבד אותן היא מערכת עם חפיפה — נעדיף מערכת בלי חפיפה, ונגיד לכם מה לא הסתדר."
-              : "These are wishes, not rules: if the only way to honour one is a week with a clash, we'll pick the clash-free week and tell you what we couldn't keep."}
-          </p>
-        </div>
-      )}
-    </div>
-  );
-}

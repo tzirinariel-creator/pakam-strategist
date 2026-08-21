@@ -22,9 +22,10 @@
 
 import { useState } from "react";
 import { useLocale } from "next-intl";
-import { Wand2, CalendarCheck, Sunrise, CheckCircle2 } from "lucide-react";
-import { Bidi } from "@/lib/bidi";
+import { CalendarCheck, Sunrise, CheckCircle2, Sparkle } from "lucide-react";
+import { PhilosopherKingIcon } from "@/components/ui/philosopher-king-icon";
 import { heNoun } from "@/lib/he-count";
+import { ComboPreferencesControl } from "./combo-preferences-control";
 import type { ComboPreferences } from "@/lib/combo-finder";
 
 export function PlannerAssistantCard({
@@ -44,21 +45,26 @@ export function PlannerAssistantCard({
 }) {
   const isHe = useLocale() === "he";
   const [busy, setBusy] = useState<string | null>(null);
+  // #8 — the student's own constraints, asked at the moment of searching
+  // rather than kept as a profile setting. They ride along with whichever
+  // framing the student presses, so "fewer campus days" and "keep Wednesday
+  // clear" compose instead of overriding each other.
+  const [prefs, setPrefs] = useState<ComboPreferences>({});
 
   if (!canSwapGroups) return null;
 
-  const run = (key: string, prefs?: ComboPreferences) => {
+  const run = (key: string, extra?: ComboPreferences) => {
     setBusy(key);
-    onFindCombination(prefs);
+    onFindCombination({ ...prefs, ...extra });
     // The search is synchronous; this only keeps the pressed state visible
     // long enough to read as a response.
     setTimeout(() => setBusy(null), 600);
   };
 
-  const actions: { key: string; icon: typeof Wand2; he: string; en: string; prefs?: ComboPreferences }[] = [
+  const actions: { key: string; icon: typeof CalendarCheck; he: string; en: string; prefs?: ComboPreferences }[] = [
     {
       key: "clash",
-      icon: Wand2,
+      icon: Sparkle,
       he: conflicts > 0 ? "סדרו לי שבוע בלי התנגשויות" : "נסו לשפר לי את השבוע",
       en: conflicts > 0 ? "Build me a clash-free week" : "Try to improve my week",
     },
@@ -81,7 +87,9 @@ export function PlannerAssistantCard({
   return (
     <div className="data-card p-4">
       <div className="flex items-start gap-2.5">
-        <Wand2 className="mt-0.5 size-4 shrink-0 text-accent-brand" />
+        {/* Ariel, 22.8: "למה זה לא המלך?" — a generic wand is the AI
+            icon this project forbids, and the advisor already has a face. */}
+        <PhilosopherKingIcon className="mt-0.5 size-5 shrink-0" />
         <div className="min-w-0 flex-1">
           <h3 className="text-sm font-bold text-foreground/90">
             {isHe ? "עוזר המערכת — שיסדר לכם את השבוע" : "The timetable assistant"}
@@ -94,7 +102,7 @@ export function PlannerAssistantCard({
               <span className="font-semibold text-amber-600 dark:text-amber-400">
                 {isHe ? (
                   <>
-                    <Bidi text={conflicts} /> {heNoun(conflicts, "התנגשות", "התנגשויות")} בשבוע שלכם
+                    {heNoun(conflicts, "התנגשות", "התנגשויות")} בשבוע שלכם
                   </>
                 ) : (
                   <>{conflicts} clashes in your week</>
@@ -111,7 +119,7 @@ export function PlannerAssistantCard({
                 ·{" "}
                 {isHe ? (
                   <>
-                    <Bidi text={campusDays} /> {heNoun(campusDays, "יום", "ימים")} בקמפוס
+                    {heNoun(campusDays, "יום", "ימים")} בקמפוס
                   </>
                 ) : (
                   <>{campusDays} days on campus</>
@@ -145,6 +153,8 @@ export function PlannerAssistantCard({
               );
             })}
           </div>
+
+          <ComboPreferencesControl prefs={prefs} onChange={setPrefs} isHe={isHe} />
         </div>
       </div>
     </div>

@@ -23,6 +23,7 @@ vi.mock("next-intl", () => ({
 }));
 
 import { WeeklyTimetable, type ScheduleSessionData } from "@/components/calendar/weekly-timetable";
+import { PlannerAssistantCard } from "../planner-assistant-card";
 import { InsightsBar } from "@/components/onboarding/semester-planner/insights-bar";
 import { detectPlannerConflicts } from "@/lib/planner-conflicts";
 import type { CourseWithSchedule } from "@/lib/plan-generator";
@@ -134,18 +135,28 @@ describe("F5 — the combination finder is offered when it can help", () => {
   const clean = [course("1011-1111", "כלכלה", [lectureTue])];
 
   it("appears on a clash-free week that still has groups to swap", () => {
+    // F5's property — the finder is offered even when nothing is broken,
+    // because a swap can still cut a campus day — outlived its original home.
+    // The offer moved from an 11px link in this bar to PlannerAssistantCard;
+    // the property is unchanged, so the test follows it rather than dying with
+    // the markup it happened to be written against.
     render(
-      <InsightsBar
-        selectedCourses={clean}
-        totalCreditsPlanned={4}
-        conflicts={[]}
-        canSwapGroups
+      <PlannerAssistantCard conflicts={0} canSwapGroups campusDays={3} onFindCombination={() => {}} />,
+    );
+    expect(screen.getByText(/נסו לשפר לי את השבוע/)).toBeInTheDocument();
+    expect(screen.getByText(/פחות ימים בקמפוס/)).toBeInTheDocument();
+  });
+
+  it("offers nothing when there is no group to swap — no empty promise", () => {
+    const { container } = render(
+      <PlannerAssistantCard
+        conflicts={2}
+        canSwapGroups={false}
+        campusDays={3}
         onFindCombination={() => {}}
       />,
     );
-    // It used to be gated on conflictCount > 0 — hidden in exactly the case
-    // where a swap could still cut a campus day.
-    expect(screen.getByText(/מצאו לי שילוב/)).toBeInTheDocument();
+    expect(container.textContent).toBe("");
   });
 
   it("stays hidden when no course offers a second group", () => {
