@@ -73,3 +73,82 @@ export function computeHonorsDistance(
     gap: yearlyAverage === null ? null : Math.max(0, HONORS_YEARLY_BAR - yearlyAverage),
   };
 }
+
+// =========================================================================
+// 21.8 — what טל actually said, and why 95 is not a bar
+// =========================================================================
+// Everything above models a DISTANCE to a 95 cut-off, which is the right shape
+// for "how far am I" but the wrong shape for "am I in". Ariel's notes from
+// טל, the PPE secretary, and his instruction to treat the whole subject
+// "בערבון מוגבל":
+//
+//   · "סביב מרץ הם בודקות לגבי רשימת המצטיינים … סביב מרץ הם ידעו מה החתך"
+//   · "הצטיינות דקאן — 3% הכי טובים מהתוכנית … תחת מכסה של בערך 5 מצטיינים"
+//   · "הצטיינות דקאן היא לרוב 97"
+//   · "הצטיינות רקטור — בערך 3% מכל הפקולטה … אחד קיבל עם ממוצע מעל 98"
+//   · "ציון גמר בהצטיינות … תוענק ל-15%. כל מי שהיה לו ציון מעל 92"
+//
+// The load-bearing fact: these are PERCENTILES against a cohort, settled after
+// the year closes. 97 and 92 are what the cut-off HAPPENED to be, not rules.
+// 97.4 is not "in" and 96.8 is not "out" — nobody knows until March, including
+// her. HONORS_YEARLY_BAR stays as the app's approximation for the distance
+// meter; what follows is the honest vocabulary for talking about the outcome.
+// Same principle the app already applies to bidding points: where the true
+// number is unpublished, predicting it is harmful.
+
+export interface HonorsBand {
+  id: "dean" | "rector" | "degree-honors";
+  /** Typical historical cut-off. NOT a threshold — see the note above. */
+  typicalAverage: number;
+  /** Roughly what share of the cohort it has gone to. */
+  cohortShare: string;
+}
+
+/** What טל described, recorded as history rather than as rules. */
+export const HONORS_BANDS: HonorsBand[] = [
+  { id: "dean", typicalAverage: 97, cohortShare: "כ-3% מהתוכנית" },
+  { id: "rector", typicalAverage: 98, cohortShare: "כ-3% מהפקולטה" },
+  { id: "degree-honors", typicalAverage: 92, cohortShare: "כ-15% מהמסיימים" },
+];
+
+/** The month the lists are actually decided, per טל. */
+export const HONORS_DECIDED_MONTH = 3; // March
+
+export type HonorsProximity =
+  /** Above every historical cut-off — still not a promise. */
+  | "above-historical"
+  /** Within reach of at least one historical cut-off. */
+  | "near-historical"
+  /** Below the lowest historical cut-off. */
+  | "below-historical"
+  /** Not enough graded credits to say anything at all. */
+  | "unknown";
+
+/**
+ * Where a yearly average sits RELATIVE TO HISTORY — never a verdict.
+ *
+ * `yearlyAverage` must be a YEARLY average: honours is judged per year, and
+ * comparing a whole-degree average to these numbers is a category error the
+ * old copy made.
+ */
+export function honorsProximity(yearlyAverage: number | null): HonorsProximity {
+  if (yearlyAverage == null || !Number.isFinite(yearlyAverage)) return "unknown";
+  const lowest = Math.min(...HONORS_BANDS.map((b) => b.typicalAverage));
+  const highest = Math.max(...HONORS_BANDS.map((b) => b.typicalAverage));
+  if (yearlyAverage >= highest) return "above-historical";
+  if (yearlyAverage >= lowest - 1) return "near-historical";
+  return "below-historical";
+}
+
+/**
+ * Is it worth telling the student to go ASK? טל checks the lists around March,
+ * and that is the only moment the real cut-off exists.
+ *
+ * `month` is 1-12, injected so this stays pure.
+ */
+export function shouldPromptToAskAboutHonors(month: number, proximity: HonorsProximity): boolean {
+  if (proximity === "unknown" || proximity === "below-historical") return false;
+  // From February, so the student hears it BEFORE the lists are drawn and can
+  // still decide about binaries — which is the whole reason the timing matters.
+  return month >= 2 && month <= 4;
+}

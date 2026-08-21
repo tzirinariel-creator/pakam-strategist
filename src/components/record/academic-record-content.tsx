@@ -210,10 +210,10 @@ export function AcademicRecordContent() {
       toast.success(
         discipline === null
           ? isHe
-            ? "ההצהרה הוסרה"
+            ? "השיוך הוסר"
             : "Declaration removed"
           : isHe
-            ? "נרשם. הקורס נספר לפי ההצהרה שלכם"
+            ? "נשמר. הקורס נספר לתחום שבחרתם"
             : "Saved. The course now counts per your declaration",
       );
     },

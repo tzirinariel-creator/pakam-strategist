@@ -1,85 +1,46 @@
-// Note #25 — distance-to-honors math: credit-weighted yearly average with the
-// SAME exclusions as the degree GPA (binary + English out, retakes resolved).
-
+// הצטיינות is a PERCENTILE decided in March, not a bar you clear. The app used
+// to carry a hardcoded 95 and speak as if clearing it meant something.
 import { describe, it, expect } from "vitest";
-import { computeHonorsDistance, HONORS_YEARLY_BAR } from "@/lib/honors";
-import type { UserCourseWithCourse } from "@/types/degree";
+import { honorsProximity, shouldPromptToAskAboutHonors, HONORS_BANDS } from "@/lib/honors";
 
-let seq = 0;
-function uc(over: {
-  plannedYear?: number;
-  status?: string;
-  grade?: number | null;
-  credits?: number;
-  courseType?: string;
-  attemptNumber?: number;
-  isBinary?: boolean;
-  courseId?: string;
-}): UserCourseWithCourse {
-  seq += 1;
-  const courseId = over.courseId ?? `h-${seq}`;
-  return {
-    id: `uch-${seq}`,
-    courseId,
-    plannedYear: over.plannedYear ?? 2,
-    status: over.status ?? "COMPLETED",
-    grade: over.grade ?? null,
-    attemptNumber: over.attemptNumber ?? 1,
-    isBinary: over.isBinary ?? false,
-    course: {
-      id: courseId,
-      courseType: over.courseType ?? "MANDATORY",
-      credits: over.credits ?? 3,
-    },
-  } as unknown as UserCourseWithCourse;
-}
-
-describe("computeHonorsDistance", () => {
-  it("credit-weighted yearly average + gap to the 95 bar", () => {
-    const d = computeHonorsDistance(
-      [
-        uc({ grade: 90, credits: 4 }), // 360
-        uc({ grade: 100, credits: 2 }), // 200
-      ],
-      2,
-    );
-    // (360+200)/6 = 93.33 → gap ≈ 1.67
-    expect(d.yearlyAverage).toBeCloseTo(93.33, 1);
-    expect(d.gap).toBeCloseTo(HONORS_YEARLY_BAR - 93.33, 1);
-    expect(d.credits).toBe(6);
+describe("honorsProximity — position against HISTORY, never a verdict", () => {
+  it("reports above-historical for an average over every past cut-off", () => {
+    expect(honorsProximity(98.5)).toBe("above-historical");
   });
 
-  it("excludes other years, binary, English and ungraded rows", () => {
-    const d = computeHonorsDistance(
-      [
-        uc({ grade: 96, credits: 3 }), // counts
-        uc({ grade: 100, credits: 5, plannedYear: 1 }), // other year
-        uc({ grade: 100, credits: 5, isBinary: true }), // binary out
-        uc({ grade: 100, credits: 5, courseType: "ENGLISH" }), // English out
-        uc({ grade: null, credits: 5 }), // no grade
-      ],
-      2,
-    );
-    expect(d.courseCount).toBe(1);
-    expect(d.yearlyAverage).toBe(96);
-    expect(d.gap).toBe(0); // at/above the bar
+  it("reports near-historical just under a past cut-off", () => {
+    expect(honorsProximity(91.5)).toBe("near-historical"); // 92 band, minus 1
+    expect(honorsProximity(96.9)).toBe("near-historical");
   });
 
-  it("retake: the determining attempt wins, not both", () => {
-    const d = computeHonorsDistance(
-      [
-        uc({ grade: 60, credits: 3, courseId: "R", attemptNumber: 1, status: "FAILED" }),
-        uc({ grade: 95, credits: 3, courseId: "R", attemptNumber: 2 }),
-      ],
-      2,
-    );
-    expect(d.courseCount).toBe(1);
-    expect(d.yearlyAverage).toBe(95);
+  it("reports below-historical well under the lowest", () => {
+    expect(honorsProximity(85)).toBe("below-historical");
   });
 
-  it("no graded courses → honest null, no invented average", () => {
-    const d = computeHonorsDistance([uc({ grade: null })], 2);
-    expect(d.yearlyAverage).toBeNull();
-    expect(d.gap).toBeNull();
+  it("says unknown rather than guessing when there is no average", () => {
+    expect(honorsProximity(null)).toBe("unknown");
+    expect(honorsProximity(Number.NaN)).toBe("unknown");
+  });
+
+  it("keeps the historical numbers טל gave, unrounded and unedited", () => {
+    expect(HONORS_BANDS.map((b) => b.typicalAverage).sort((a, b) => a - b)).toEqual([92, 97, 98]);
+  });
+});
+
+describe("when to tell the student to go ask", () => {
+  it("prompts in Feb–Apr, around when the lists are drawn", () => {
+    expect(shouldPromptToAskAboutHonors(2, "near-historical")).toBe(true);
+    expect(shouldPromptToAskAboutHonors(3, "above-historical")).toBe(true);
+    expect(shouldPromptToAskAboutHonors(4, "near-historical")).toBe(true);
+  });
+
+  it("stays quiet the rest of the year — there is nothing to ask yet", () => {
+    expect(shouldPromptToAskAboutHonors(9, "above-historical")).toBe(false);
+    expect(shouldPromptToAskAboutHonors(12, "near-historical")).toBe(false);
+  });
+
+  it("never prompts a student who is nowhere near, or whom we can't assess", () => {
+    expect(shouldPromptToAskAboutHonors(3, "below-historical")).toBe(false);
+    expect(shouldPromptToAskAboutHonors(3, "unknown")).toBe(false);
   });
 });

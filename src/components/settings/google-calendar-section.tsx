@@ -1,16 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import {
-  Calendar,
-  CalendarClock,
-  Check,
-  Trash2,
-  RefreshCw,
-  Unlink,
-  Link2,
-  Loader2,
-} from "lucide-react";
+import { Calendar, CalendarClock, Check, Link2, Loader2, RefreshCw, ShieldCheck, Trash2, Unlink } from "lucide-react";
 import { useTranslations, useLocale } from "next-intl";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
@@ -367,13 +358,32 @@ export function GoogleCalendarSection() {
               </Button>
             </>
           ) : (
-            <Button
-              onClick={handleConnect}
-              className="self-start"
-            >
-              <Link2 className="size-4" />
-              {t("googleConnect")}
-            </Button>
+            <div className="space-y-3">
+              {/* #31 — Google's consent screen is worded alarmingly, and that
+                  is the moment people abandon. Answer it BEFORE they click,
+                  narrowly and checkably: calendar scope only, write-only, one
+                  click to undo — and say what we do NOT get, which reassures
+                  far more than a promise of "security" ever does. */}
+              <div className="rounded-xl border border-border/60 bg-foreground/[0.02] p-3">
+                <p className="flex items-center gap-1.5 text-xs font-semibold text-foreground/80">
+                  <ShieldCheck className="size-3.5 shrink-0 text-foreground/45" />
+                  {t("googleScopeTitle")}
+                </p>
+                <p className="mt-1.5 text-xs leading-relaxed text-foreground/65">
+                  {t("googleScopeBody")}
+                </p>
+                <p className="mt-1.5 text-xs leading-relaxed text-foreground/65">
+                  {t("googleScopeControl")}
+                </p>
+                <p className="mt-1.5 text-[11px] leading-relaxed text-foreground/40">
+                  {t("googleScopeLegal")}
+                </p>
+              </div>
+              <Button onClick={handleConnect} className="self-start">
+                <Link2 className="size-4" />
+                {t("googleConnect")}
+              </Button>
+            </div>
           )}
         </div>
       </div>

@@ -142,8 +142,8 @@ export function CourseCard({ userCourse, disabled, currentYear }: CourseCardProp
       invalidatePlanData(utils);
       toast.success(
         variables.disciplineOverride == null
-          ? isHe ? "ההצהרה הוסרה" : "Declaration removed"
-          : isHe ? "נרשם. הקורס נספר לפי ההצהרה שלכם" : "Saved. The course now counts per your declaration",
+          ? isHe ? "השיוך הוסר" : "Assignment removed"
+          : isHe ? "נשמר. הקורס נספר לתחום שבחרתם" : "Saved. It now counts toward the field you picked",
       );
     },
     onError: () => toast.error(tPlanner("statusSaveError")),
@@ -393,7 +393,7 @@ export function CourseCard({ userCourse, disabled, currentYear }: CourseCardProp
               <DropdownMenuSeparator />
               <DropdownMenuLabel className="text-[11px] font-normal leading-relaxed text-muted-foreground">
                 {isHe
-                  ? "ההצהרה שלכם: הקורס מאושר לתואר, ונחשב ל…"
+                  ? "שייכתם את הקורס לתחום — הוא נספר שם"
                   : "Your declaration: approved for the degree, counts as…"}
               </DropdownMenuLabel>
               <DropdownMenuItem

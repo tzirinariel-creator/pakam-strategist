@@ -257,15 +257,21 @@ export function DegreeStatus({
                     NOT claim "you're in honors range" off the cumulative number —
                     we attribute it to the overall average and say honors is yearly,
                     pointing to /record where the true per-year check lives. */}
+                {/* Ariel, 21.8: "לגבי כל נושא ההצטיינות - צריך להבהיר שמדובר
+                    במשהו שצריך לקחת בערבון מוגבל … בסוף זה אחוזים ויחסי אז שום
+                    דבר לא מוחלט".
+                    טל, the PPE secretary, describes it as a PERCENTILE decided
+                    around March against that year's cohort — roughly the top 3%
+                    for dean's list, which has *happened* to land near 97, and
+                    ~15% for a degree awarded with honours, near 92. Those are
+                    outcomes, not thresholds: nobody knows the cut-off until the
+                    lists are drawn, including her. So we name the historical
+                    numbers as historical, and never imply a bar was cleared. */}
                 <Bidi
                   text={
-                    gpa >= HONORS_THRESHOLD
-                      ? isHe
-                        ? `הממוצע הכולל שלך גבוה — הצטיינות נקבעת לפי ממוצע שנתי (סביב ${HONORS_THRESHOLD}). בדקו בתיק`
-                        : `Your overall average is high — honors is by yearly average (~${HONORS_THRESHOLD}); check your record`
-                      : isHe
-                        ? `הממוצע הכולל שלך קרוב — הצטיינות לפי ממוצע שנתי (סביב ${HONORS_THRESHOLD})`
-                        : `Your overall average is close — honors is by yearly average (~${HONORS_THRESHOLD})`
+                    isHe
+                      ? `הממוצע הכולל שלך גבוה. הצטיינות נקבעת לפי ממוצע שנתי ולפי אחוזון מול המחזור — לא לפי סף קבוע — ונסגרת סביב מרץ. בשנים קודמות החתך היה בסביבות 97 לדקאן ו-92 לתואר בהצטיינות.`
+                      : `Your overall average is high. Honours goes by yearly average and by percentile against your cohort — not a fixed bar — and is settled around March. In past years the cut-off landed near 97 for dean's list and 92 for a degree with honours.`
                   }
                 />
               </p>
