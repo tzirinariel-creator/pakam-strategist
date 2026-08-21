@@ -1,6 +1,7 @@
 "use client";
 
 import { GradeSimulator } from "@/components/graduation/grade-simulator";
+import { WhatMovesMyAverage } from "@/components/graduation/what-moves-my-average";
 import { useState, useMemo } from "react";
 import { useTranslations } from "next-intl";
 import { useLocale } from "next-intl";
@@ -553,6 +554,20 @@ export function GradeCalculatorContent() {
           most students open this screen at all, and the מועד ב׳ decision has a
           deadline. Everything it computes runs through the same
           `calculateGrades` as the numbers below it. */}
+      {/* Ariel, on the tenth asking: the simulator "לא מספיק מגניב ולא מספיק
+          עוזר ואין בו איזה תובנות או המלצות או חיבור למתי יש מועדי ב׳". This
+          leads with the answer — which courses can actually move the average,
+          ranked, each with its resit date — so it is above the sandbox rather
+          than behind it. */}
+      <div className="animate-stagger-1">
+        <WhatMovesMyAverage
+          courses={allCourses}
+          keepsHigherGrade={prefersHigherGrade(
+            (profileQuery.data?.miluimGroup ?? "NONE") as MiluimGroupKey,
+          )}
+        />
+      </div>
+
       <div className="animate-stagger-2">
         <GradeSimulator
           courses={allCourses}
