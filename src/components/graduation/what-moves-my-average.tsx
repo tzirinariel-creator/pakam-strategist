@@ -117,9 +117,11 @@ export function WhatMovesMyAverage({
                     <div className="mt-1.5 flex items-center gap-1.5 text-[11px] text-foreground/60">
                       <CalendarClock className="size-3 shrink-0 text-foreground/35" />
                       {moedB ? (
+                        // describeSitting already opens with "מועד ב׳" — the
+                        // label was being printed twice ("מועד ב׳ · מועד ב׳ ·
+                        // יום חמישי"). It owns the label; this adds the date.
                         <span>
-                          {isHe ? "מועד ב׳" : "Resit"} · {detail ?? ""} {detail ? "·" : ""}{" "}
-                          <Bidi text={moedB} />
+                          {detail ?? (isHe ? "מועד ב׳" : "Resit")} · <Bidi text={moedB} />
                         </span>
                       ) : (
                         <span>
