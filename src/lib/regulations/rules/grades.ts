@@ -1,6 +1,7 @@
 import type { RuleContext, RegulationRule } from "@/types/regulation";
 import { GRADE_REQUIREMENTS } from "@/lib/constants";
 import { result } from "./_result";
+import { heNoun } from "@/lib/he-count";
 
 // -------------------------------------------------------------------
 // PKM-013: Graduation score >= 60 (passing grade)
@@ -148,7 +149,7 @@ export const ruleFailureRate: RegulationRule = (ctx: RuleContext) => {
     true,
     "INFO",
     `Failure rate is ${ratePercent}% (${failedCount} of ${totalAttempted} courses). Informational — we have no sourced faculty limit for this.`,
-    `שיעור הכישלון שלכם: ${ratePercent}% (${failedCount} מתוך ${totalAttempted} קורסים). זה מידע בלבד — אין לנו מקור רשמי למגבלה על שיעור כישלון. הכלל שכן קיים הוא כישלון שני באותו קורס (ראו מטה).`,
+    `שיעור הכישלון שלכם: ${ratePercent}% (${failedCount} מתוך ${heNoun(totalAttempted, "קורס", "קורסים")}). זה מידע בלבד — אין לנו מקור רשמי למגבלה על שיעור כישלון. הכלל שכן קיים הוא כישלון שני באותו קורס (ראו מטה).`,
     { failedCount, totalAttempted, failureRate: ratePercent },
     failedCourses
   );
@@ -357,7 +358,7 @@ export const ruleRetakeAdvisory: RegulationRule = (ctx: RuleContext) => {
       `${firstFailures.length} failed course(s) not yet retaken (${firstFailures
         .map((e) => e.courseCode)
         .join(", ")}). Re-registering for a failed mandatory course requires teaching-committee approval.`,
-      `${firstFailures.length === 1 ? "קורס אחד שנכשל" : `${firstFailures.length} קורסים שנכשלו`} וטרם נרשמתם אליו מחדש (${firstFailures
+      `${firstFailures.length === 1 ? "קורס אחד שנכשל" : `${heNoun(firstFailures.length, "קורס", "קורסים")} שנכשלו`} וטרם נרשמתם אליו מחדש (${firstFailures
         .map((e) => e.nameHe)
         .join(", ")}). רישום חוזר לקורס חובה שנכשל דורש אישור ועדת-הוראה — פונים למזכירות החוג.`,
       { courses: firstFailures.map((e) => e.courseCode) },

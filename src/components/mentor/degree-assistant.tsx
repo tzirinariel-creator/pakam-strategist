@@ -70,7 +70,7 @@ export function DegreeAssistant() {
         <div>
           <h1 className="font-display text-xl font-bold text-foreground/90">
             {isHe
-              ? `${greetNameForLocale(profileQuery.data, true) ? `${greetNameForLocale(profileQuery.data, true)}, ` : ""}${gendered(normalizeGender(profileQuery.data?.gender), { m: "שאל", f: "שאלי", n: "שאל/י" })} אותי על התואר שלך`
+              ? `${greetNameForLocale(profileQuery.data, true) ? `${greetNameForLocale(profileQuery.data, true)}, ` : ""}${gendered(normalizeGender(profileQuery.data?.gender), { m: "שאל", f: "שאלי", n: "שאלו" })} אותי על התואר שלך`
               : "Ask about your degree"}
           </h1>
           <p className="text-xs text-foreground/50">
@@ -139,7 +139,7 @@ export function DegreeAssistant() {
         <input
           value={input}
           onChange={(e) => setInput(e.target.value)}
-          placeholder={isHe ? gendered(normalizeGender(profileQuery.data?.gender), { m: "כתוב שאלה על התואר…", f: "כתבי שאלה על התואר…", n: "כתוב/כתבי שאלה על התואר…" }) : "Type a question about your degree…"}
+          placeholder={isHe ? gendered(normalizeGender(profileQuery.data?.gender), { m: "כתוב שאלה על התואר…", f: "כתבי שאלה על התואר…", n: "כתבו שאלה על התואר…" }) : "Type a question about your degree…"}
           className="flex-1 rounded-xl border border-border/60 bg-card px-4 py-2.5 text-sm text-foreground placeholder:text-foreground/30 focus:border-foreground/30 focus:outline-none focus:ring-1 focus:ring-foreground/20"
         />
         <button

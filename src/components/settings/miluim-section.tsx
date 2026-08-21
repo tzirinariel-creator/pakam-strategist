@@ -455,7 +455,7 @@ export function MiluimSection() {
         </div>
 
         {/* #27 — the binary/rights playbook, sourced from the domain rules
-            (docs/pakam-domain-rules-2026.md) + the national תשפ"ו outline.
+            (docs/pakam-domain-rules-2026.md) + the national תשפ״ו outline.
             Everything here is policy that changes yearly — hence the tag. */}
         <details className="rounded-lg border border-border/50 bg-foreground/[0.02] p-4">
           <summary className="cursor-pointer text-sm font-semibold text-foreground/75">

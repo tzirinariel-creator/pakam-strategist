@@ -169,7 +169,7 @@ export function BiddingTimeline({ isHe, now = new Date() }: { isHe: boolean; now
             <Bidi
               text={
                 isHe
-                  ? `שנה"ל נפתחת ${shortDate(BIDDING_MILESTONES_5787.yearStarts)} · ביטול רישום עד ${shortDate(BIDDING_MILESTONES_5787.cancelWindowEnd)} · שבוע שינויים ${shortDate(BIDDING_MILESTONES_5787.changesWeekStart)}–${shortDate(BIDDING_MILESTONES_5787.changesWeekEnd)}`
+                  ? `שנה״ל נפתחת ${shortDate(BIDDING_MILESTONES_5787.yearStarts)} · ביטול רישום עד ${shortDate(BIDDING_MILESTONES_5787.cancelWindowEnd)} · שבוע שינויים ${shortDate(BIDDING_MILESTONES_5787.changesWeekStart)}–${shortDate(BIDDING_MILESTONES_5787.changesWeekEnd)}`
                   : `Year starts ${shortDate(BIDDING_MILESTONES_5787.yearStarts)} · cancel until ${shortDate(BIDDING_MILESTONES_5787.cancelWindowEnd)} · changes week ${shortDate(BIDDING_MILESTONES_5787.changesWeekStart)}–${shortDate(BIDDING_MILESTONES_5787.changesWeekEnd)}`
               }
             />

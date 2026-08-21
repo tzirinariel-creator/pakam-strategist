@@ -894,7 +894,7 @@ export function FloatingAssistant() {
           type="button"
           data-tour="king"
           onClick={() => setOpen(true)}
-          aria-label={isHe ? pg(`פתח את ${labels.name}`, `פתחי את ${labels.name}`, `פתח/י את ${labels.name}`) : `Open ${labels.name}`}
+          aria-label={isHe ? pg(`פתח את ${labels.name}`, `פתחי את ${labels.name}`, `פתחו את ${labels.name}`) : `Open ${labels.name}`}
           className={cn(
             "fixed bottom-[calc(5rem+var(--safe-bottom))] end-4 z-[65] flex items-center gap-2 rounded-full py-3 shadow-lg md:bottom-6 md:end-6",
             "bg-accent-brand text-accent-brand-fg ring-1 ring-crown-gold-bright/30 transition-all press-scale",
@@ -1303,7 +1303,7 @@ export function FloatingAssistant() {
                   type="button"
                   onClick={toggleListening}
                   disabled={!ready || streaming}
-                  aria-label={isHe ? pg(`דבר אל ${labels.short}`, `דברי אל ${labels.short}`, `דבר/י אל ${labels.short}`) : `Speak to ${labels.short}`}
+                  aria-label={isHe ? pg(`דבר אל ${labels.short}`, `דברי אל ${labels.short}`, `דברו אל ${labels.short}`) : `Speak to ${labels.short}`}
                   aria-pressed={listening}
                   title={isHe ? "קלט קולי" : "Voice input"}
                   className={cn(

@@ -30,6 +30,7 @@ import { CREDIT_REQUIREMENTS, DISCIPLINE_CONFIG } from "@/lib/constants";
 import { ARAZIM_ENABLED } from "@/lib/arazim/visibility";
 import { conflictDayLabel, type PlannerConflict } from "@/lib/planner-conflicts";
 import type { CourseWithSchedule } from "@/lib/plan-generator";
+import { heNoun } from "@/lib/he-count";
 
 // ─── Constants ────────────────────────────────────────────────────────
 
@@ -141,7 +142,7 @@ function generateScheduleInsights(
     insights.push({
       icon: AlertTriangle,
       text: isHe
-        ? `${hardCourseCount} קורסים קשים: ${hardNames.join(", ")}`
+        ? `${hardCourseCount === 1 ? "קורס אחד קשה" : `${hardCourseCount} קורסים קשים`}: ${hardNames.join(", ")}`
         : `${hardCourseCount} hard courses: ${hardNames.join(", ")}`,
       type: "warning",
     });
@@ -467,7 +468,7 @@ export function InsightsBar({
           className="rounded-xl border border-border/40 bg-card/30 p-2.5"
           title={
             isHe
-              ? `${honestLoad.weeklyHours} שעות לימוד בשבוע · ${honestLoad.credits} ש״ס · ${honestLoad.tightestExamGapDays != null ? `מרווח מבחנים צפוף ביותר ${honestLoad.tightestExamGapDays} ימים` : "מרווח מבחנים עדיין לא ידוע"}`
+              ? `${honestLoad.weeklyHours} שעות לימוד בשבוע · ${honestLoad.credits} ש״ס · ${honestLoad.tightestExamGapDays != null ? `מרווח מבחנים צפוף ביותר ${heNoun(honestLoad.tightestExamGapDays, "יום", "ימים")}` : "מרווח מבחנים עדיין לא ידוע"}`
               : `${honestLoad.weeklyHours} contact hrs · ${honestLoad.credits} cr. · ${honestLoad.tightestExamGapDays != null ? `tightest exam gap ${honestLoad.tightestExamGapDays} days` : "exam gap unknown yet"}`
           }
         >

@@ -1,5 +1,6 @@
 import type { RuleContext, RegulationRule } from "@/types/regulation";
 import { result } from "./_result";
+import { heNoun } from "@/lib/he-count";
 
 // -------------------------------------------------------------------
 // PKM-027: seminars require a passing grade in ALL mandatory courses
@@ -171,8 +172,8 @@ export const ruleReferat: RegulationRule = (ctx: RuleContext) => {
       ? `Referat requirement met: ${current}/${required} referat(s) completed.`
       : `Referat requirement not met: ${current}/${required} completed. Need ${required - current} more.`,
     passed
-      ? `דרישת רפרט מתקיימת: ${current}/${required} רפרט/ים הוגשו.`
-      : `דרישת רפרט לא מתקיימת: ${current}/${required} הוגשו. חסר/ים ${required - current} רפרט/ים.`,
+      ? `דרישת רפרט מתקיימת: ${current}/${heNoun(required, "רפרט", "רפרטים")} הוגשו.`
+      : `דרישת רפרט לא מתקיימת: ${current}/${required} הוגשו. חסרים ${heNoun(required - current, "רפרט", "רפרטים")}.`,
     { current, required, deficit: Math.max(0, required - current) },
     completedReferats.map((s) => s.userCourseId)
   );

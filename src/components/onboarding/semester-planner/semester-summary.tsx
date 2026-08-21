@@ -7,6 +7,7 @@ import { Bidi } from "@/lib/bidi";
 import { calculateHonestLoad, type HonestLoadLabel } from "@/lib/workload-calculator";
 import { SEMESTER_CONFIG, YEAR_CONFIG, CREDIT_REQUIREMENTS } from "@/lib/constants";
 import type { CourseWithSchedule } from "@/lib/plan-generator";
+import { heNoun } from "@/lib/he-count";
 
 // P3′ — the summary speaks the HONEST load language (worst real pain), not a
 // magic 0-100 level. Same vocabulary as the insights bar.
@@ -158,7 +159,7 @@ export function SemesterSummary({
             className="rounded-lg bg-foreground/5 p-3"
             title={
               isHe
-                ? `${honest.weeklyHours} שעות לימוד בשבוע · ${honest.credits} ש״ס${honest.tightestExamGapDays != null ? ` · מרווח מבחנים צפוף ביותר ${honest.tightestExamGapDays} ימים` : ""}`
+                ? `${honest.weeklyHours} שעות לימוד בשבוע · ${honest.credits} ש״ס${honest.tightestExamGapDays != null ? ` · מרווח מבחנים צפוף ביותר ${heNoun(honest.tightestExamGapDays, "יום", "ימים")}` : ""}`
                 : `${honest.weeklyHours} weekly contact hours · ${honest.credits} cr.${honest.tightestExamGapDays != null ? ` · tightest exam gap ${honest.tightestExamGapDays} days` : ""}`
             }
           >
@@ -178,7 +179,7 @@ export function SemesterSummary({
           <p className={cn("text-xs leading-relaxed", LEVEL_COLORS[honest.label])}>
             {isHe
               ? honest.label === "examCrunch"
-                ? `שימו לב: המבחנים בסמסטר הזה יוצאים קרובים זה לזה${honest.tightestExamGapDays != null ? ` (המרווח הצפוף ביותר — ${honest.tightestExamGapDays} ימים)` : ""}. שווה לתכנן את הלמידה מראש — יש לנו כלי בדיוק לזה.`
+                ? `שימו לב: המבחנים בסמסטר הזה יוצאים קרובים זה לזה${honest.tightestExamGapDays != null ? ` (המרווח הצפוף ביותר — ${heNoun(honest.tightestExamGapDays, "יום", "ימים")})` : ""}. שווה לתכנן את הלמידה מראש — יש לנו כלי בדיוק לזה.`
                 : honest.label === "hours"
                   ? `זה שבוע עמוס בשעות (${honest.weeklyHours} שעות-לימוד) — לגמרי אפשרי, רק ודאו שאין יום בלתי-אפשרי.`
                   : `הסמסטר כבד בש״ס — נורמלי לפכ״מ, אבל טוב לדעת את זה מראש.`

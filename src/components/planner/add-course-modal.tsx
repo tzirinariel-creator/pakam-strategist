@@ -40,6 +40,7 @@ import {
 } from "@/lib/batch-course-select";
 import { courseColor } from "@/lib/course-color";
 import { cn } from "@/lib/utils";
+import { heNoun } from "@/lib/he-count";
 
 /**
  * Add courses to one semester — in a BATCH.
@@ -294,7 +295,7 @@ export function AddCourseModal() {
         added.length === 1
           ? t("courseAdded")
           : isHe
-            ? `${added.length} קורסים נוספו לתוכנית`
+            ? `${heNoun(added.length, "קורס", "קורסים")} נוספו לתוכנית`
             : `${added.length} courses added to your plan`,
       );
       closeAddModal();

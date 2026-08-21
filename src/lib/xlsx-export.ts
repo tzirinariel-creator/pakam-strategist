@@ -23,6 +23,7 @@
 import type { ExamPlanResult, StudySession } from "./exam-planner";
 import type { Workbook } from "exceljs";
 import { startOfDay, addDays, dayKey, daysBetween } from "@/lib/local-day";
+import { heNoun } from "@/lib/he-count";
 
 export interface XlsxExportOptions {
   isHe?: boolean;
@@ -290,7 +291,7 @@ export async function buildExamPlanWorkbook(
 
   const sub = table.addRow([
     isHe
-      ? `${exams.length} מבחנים · ${grandTotalHours} שעות לימוד · הופק ${fmtDate(now)} · ${fmtDate(planStart)}–${fmtDate(planEnd)}`
+      ? `${heNoun(exams.length, "מבחן", "מבחנים")} · ${grandTotalHours} שעות לימוד · הופק ${fmtDate(now)} · ${fmtDate(planStart)}–${fmtDate(planEnd)}`
       : `${exams.length} exams · ${grandTotalHours} study hours · generated ${fmtDate(now)} · ${fmtDate(planStart)}–${fmtDate(planEnd)}`,
   ]);
   table.mergeCells(2, 1, 2, COLS);

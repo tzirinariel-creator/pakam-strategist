@@ -11,6 +11,7 @@ import { decodePlan, rememberSharedPlanReturn } from "@/lib/plan-share";
 import { createClient } from "@/lib/supabase/client";
 import { SEMESTER_CONFIG, YEAR_CONFIG } from "@/lib/constants";
 import { ThemedLoader } from "@/components/ui/themed-loader";
+import { heNoun } from "@/lib/he-count";
 
 export function SharedPlanContent() {
   const isHe = useLocale() === "he";
@@ -35,7 +36,7 @@ export function SharedPlanContent() {
   const [confirming, setConfirming] = useState(false);
   const importMutation = api.plan.savePlan.useMutation({
     onSuccess: (r) => {
-      toast.success(isHe ? `הועתקו ${r.savedCount} קורסים לתכנון שלכם` : `Imported ${r.savedCount} courses`);
+      toast.success(isHe ? `הועתקו ${heNoun(r.savedCount, "קורס", "קורסים")} לתכנון שלכם` : `Imported ${r.savedCount} courses`);
       router.push("/planner");
     },
     // Surface the server's message (e.g. the friendly demo read-only text)

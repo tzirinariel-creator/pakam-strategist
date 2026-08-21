@@ -1,5 +1,6 @@
 import type { RuleContext, RegulationRule } from "@/types/regulation";
 import { result } from "./_result";
+import { heNoun } from "@/lib/he-count";
 
 // -------------------------------------------------------------------
 // PKM-010: All mandatory courses completed
@@ -59,7 +60,7 @@ export const ruleMandatoryCourses: RegulationRule = (ctx: RuleContext) => {
     messageHe = `כל קורסי החובה הושלמו (${mandatoryCreditsCurrent}/${mandatoryCreditsRequired} ש״ס).`;
   } else if (!allRowsComplete) {
     messageEn = `${completedCount}/${totalMandatory} added mandatory courses completed. ${incomplete.length} remaining.`;
-    messageHe = `${completedCount}/${totalMandatory} מקורסי החובה שנוספו הושלמו. נותרו ${incomplete.length} קורסים.`;
+    messageHe = `${completedCount}/${totalMandatory} מקורסי החובה שנוספו הושלמו. נותרו ${heNoun(incomplete.length, "קורס", "קורסים")}.`;
   } else {
     messageEn = `Added mandatory courses are complete, but required mandatory courses are still missing: ${mandatoryCreditsCurrent}/${mandatoryCreditsRequired} SH"S (${creditsShort} short).`;
     messageHe = `קורסי החובה שנוספו הושלמו, אך עדיין חסרים קורסי חובה נדרשים: ${mandatoryCreditsCurrent}/${mandatoryCreditsRequired} ש״ס (חסרות ${creditsShort}).`;
@@ -120,8 +121,8 @@ export const ruleLawFoundation: RegulationRule = (ctx: RuleContext) => {
       ? `Law foundation requirement met: ${current}/${required} courses completed.`
       : `Law foundation courses insufficient: ${current}/${required} completed. Need ${required - current} more.`,
     passed
-      ? `דרישת יסודות משפט מתקיימת: ${current}/${required} קורסים הושלמו.`
-      : `דרישת יסודות משפט לא מתקיימת: ${current}/${required} הושלמו. חסרים ${required - current} קורסים.`,
+      ? `דרישת יסודות משפט מתקיימת: ${current}/${heNoun(required, "קורס", "קורסים")} הושלמו.`
+      : `דרישת יסודות משפט לא מתקיימת: ${current}/${required} הושלמו. חסרים ${heNoun(required - current, "קורס", "קורסים")}.`,
     { current, required, deficit: Math.max(0, required - current) },
     // Only flag incomplete law foundation courses, not already-completed ones
     lawFoundationCourses

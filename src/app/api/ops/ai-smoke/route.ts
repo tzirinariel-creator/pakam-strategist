@@ -61,7 +61,7 @@ function demoContext(): MentorContext {
     academicNowLine: (() => {
       const now = new Date();
       const weekday = ["ראשון", "שני", "שלישי", "רביעי", "חמישי", "שישי", "שבת"][now.getDay()];
-      return `היום: יום ${weekday}, ${now.getDate()}.${now.getMonth() + 1}.${now.getFullYear()} · סמסטר ב׳ תשפ"ו`;
+      return `היום: יום ${weekday}, ${now.getDate()}.${now.getMonth() + 1}.${now.getFullYear()} · סמסטר ב׳ תשפ״ו`;
     })(),
   } as unknown as MentorContext;
 }

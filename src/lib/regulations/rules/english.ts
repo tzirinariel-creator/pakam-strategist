@@ -2,6 +2,7 @@ import type { RuleContext, RegulationRule } from "@/types/regulation";
 import { resolveEnglishLevel, ENGLISH_CONFIG } from "@/lib/constants";
 import { resolveEnglishStanding } from "@/lib/english-standing";
 import { result } from "./_result";
+import { heNoun } from "@/lib/he-count";
 
 /** The shape resolveEnglishStanding reads, projected off the rule context. */
 function levelCourseRows(ctx: RuleContext) {
@@ -56,8 +57,8 @@ export const ruleEnglishRequirement: RegulationRule = (ctx: RuleContext) => {
       ? `Requirement met: ${currentCourses} course(s) taught in English, ${currentCredits} credits.`
       : `Need ${minCourses} courses taught in English: have ${currentCourses}/${minCourses}, ${currentCredits}/${minCredits} credits.`,
     passed
-      ? `דרישה מתקיימת: ${currentCourses} קורסים באנגלית, ${currentCredits} ש״ס.`
-      : `נדרשים ${minCourses} קורסים באנגלית: יש ${currentCourses}/${minCourses}, ${currentCredits}/${minCredits} ש״ס.`,
+      ? `דרישה מתקיימת: ${heNoun(currentCourses, "קורס", "קורסים")} באנגלית, ${currentCredits} ש״ס.`
+      : `נדרשים ${heNoun(minCourses, "קורס", "קורסים")} באנגלית: יש ${currentCourses}/${minCourses}, ${currentCredits}/${minCredits} ש״ס.`,
     { currentCourses, minCourses, currentCredits, minCredits }
   );
 };

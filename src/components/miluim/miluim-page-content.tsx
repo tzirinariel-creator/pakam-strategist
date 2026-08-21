@@ -30,6 +30,7 @@ import { MILUIM_CONFIG } from "@/lib/constants";
 import { hebrewYearLabel, getAcademicNow } from "@/lib/academic-calendar";
 import { Bidi } from "@/lib/bidi";
 import { cn } from "@/lib/utils";
+import { heNoun } from "@/lib/he-count";
 
 function groupChip(group: string, isHe: boolean): { label: string; cls: string } {
   const g = MILUIM_CONFIG.GROUPS[group as keyof typeof MILUIM_CONFIG.GROUPS];
@@ -328,7 +329,7 @@ export function MiluimPageContent() {
                 <Bidi
                   text={
                     isHe
-                      ? `${preDegreeRows.length} סמסטרים שנקלטו מלפני תחילת התואר — לא נספרים`
+                      ? `${heNoun(preDegreeRows.length, "סמסטר", "סמסטרים")} שנקלטו מלפני תחילת התואר — לא נספרים`
                       : `${preDegreeRows.length} recorded semester(s) from before your degree began — not counted`
                   }
                 />
@@ -342,7 +343,7 @@ export function MiluimPageContent() {
                     <Bidi
                       text={
                         isHe
-                          ? `${hebrewYearLabel(r.academicYear)} · ${r.semester === "FALL" ? "סמסטר א׳" : "סמסטר ב׳"} — ${r.daysServed} ימים`
+                          ? `${hebrewYearLabel(r.academicYear)} · ${r.semester === "FALL" ? "סמסטר א׳" : "סמסטר ב׳"} — ${heNoun(r.daysServed, "יום", "ימים")}`
                           : `${r.academicYear}/${r.academicYear + 1} · ${r.semester === "FALL" ? "Fall" : "Spring"} — ${r.daysServed} days`
                       }
                     />

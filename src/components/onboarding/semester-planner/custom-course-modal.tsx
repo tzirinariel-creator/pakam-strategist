@@ -236,7 +236,7 @@ export function CustomCourseModal({
               <AlertTriangle className="mt-0.5 size-3 shrink-0 text-amber-500" />
               <span>
                 {isHe
-                  ? "מי שמאשר קורס לתואר זו המזכירות/הידיעון, לא אנחנו — קורס שאינו בקטלוג שלנו אנחנו לא יכולים לבדוק. מה שתסמנו כאן נשמר כהצהרה שלכם, ומוצג ככזו."
+                  ? "מי שמאשר קורס לתואר זו המזכירות או הידיעון, לא אנחנו — קורס שאינו בקטלוג שלנו אנחנו לא יכולים לבדוק. מה שתסמנו כאן נשמר כהצהרה שלכם, ומוצג ככזו."
                   : "The secretariat (not us) is what makes a course count — we can't verify a course outside our catalog. What you tick here is saved as your own declaration, and shown as one."}
               </span>
             </p>

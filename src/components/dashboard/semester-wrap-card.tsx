@@ -12,6 +12,7 @@ import { Link } from "@/i18n/navigation";
 import { getWrapTarget, wrapStorageKey } from "@/lib/semester-clock";
 import { SEMESTER_CONFIG } from "@/lib/constants";
 import { WhereIsMySheet } from "@/components/record/where-is-my-sheet";
+import { heNoun } from "@/lib/he-count";
 
 const SNOOZE_DAYS = 7;
 
@@ -99,7 +100,7 @@ export function SemesterWrapCard({
           </p>
           <p className="text-xs text-foreground/50">
             {isHe
-              ? `${pending.length} קורסים מהסמסטר מחכים לעדכון. סריקה אחת של הגיליון סוגרת הכול.`
+              ? `${heNoun(pending.length, "קורס", "קורסים")} מהסמסטר מחכים לעדכון. סריקה אחת של הגיליון סוגרת הכול.`
               : `${pending.length} courses from the semester await an update. One sheet scan closes them all.`}
           </p>
         </div>

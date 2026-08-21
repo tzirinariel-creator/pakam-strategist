@@ -17,6 +17,7 @@ import { CREDIT_REQUIREMENTS, GRADE_REQUIREMENTS, resolveEnglishLevel } from "@/
 import { hasMiluimBinaryBenefit, type MiluimGroupKey } from "@/lib/miluim";
 import { countPassedEnglishLevelCourses, resolveEnglishStanding } from "@/lib/english-standing";
 import { civilDaysUntilStored } from "@/lib/civil-day";
+import { heNoun } from "@/lib/he-count";
 
 // -------------------------------------------------------------------
 // Types
@@ -185,7 +186,7 @@ export function buildRecommendations(
     const nameHe = courseName(c, true);
     const nameEn = courseName(c, false);
     const whenHe =
-      days === 0 ? "היום" : days === 1 ? "מחר" : `בעוד ${days} ימים`;
+      days === 0 ? "היום" : days === 1 ? "מחר" : `בעוד ${heNoun(days, "יום", "ימים")}`;
     const whenEn = days === 0 ? "today" : days === 1 ? "tomorrow" : `in ${days} days`;
     recs.push({
       // idx keeps two attempts of the same course from colliding on key.
@@ -214,7 +215,7 @@ export function buildRecommendations(
       icon: "languages",
       titleHe: `חסרים ${englishNeeded} קורסי אנגלית`,
       titleEn: `${englishNeeded} English course${englishNeeded > 1 ? "s" : ""} still needed`,
-      bodyHe: `התואר דורש ${CREDIT_REQUIREMENTS.ENGLISH_MIN_COURSES} קורסים באנגלית. אלה ש״ס קלות יחסית — עדיף לסגור אותן מוקדם ולא להישאר איתן לשנה ג׳.`,
+      bodyHe: `התואר דורש ${heNoun(CREDIT_REQUIREMENTS.ENGLISH_MIN_COURSES, "קורס", "קורסים")} באנגלית. אלה ש״ס קלות יחסית — עדיף לסגור אותן מוקדם ולא להישאר איתן לשנה ג׳.`,
       bodyEn: `The degree requires ${CREDIT_REQUIREMENTS.ENGLISH_MIN_COURSES} English courses. They're relatively easy credits — close them early rather than carrying them into Year 3.`,
       href: "/catalog",
       ctaHe: "לקטלוג הקורסים",
@@ -405,7 +406,7 @@ export function buildRecommendations(
         icon: "trendingUp",
         titleHe: `מועמד טוב לבינארי: ${nameHe}`,
         titleEn: `Good binary candidate: ${nameEn}`,
-        bodyHe: `הציון ${candidate.grade} ב${nameHe} (${candidate.credits} ש״ס) מושך את הממוצע למטה. כמילואימניק אפשר להמיר אותו ל"עובר/לא־עובר" — הקורס עדיין נספר, הציון יוצא מהממוצע. נשארו ${input.binaryRemaining} מתוך 5. (מסמנים בכרטיס הקורס במתכנן.)`,
+        bodyHe: `הציון ${candidate.grade} ב${nameHe} (${candidate.credits} ש״ס) מושך את הממוצע למטה. כמילואימניק אפשר להמיר אותו ל״עובר/לא־עובר״ — הקורס עדיין נספר, הציון יוצא מהממוצע. נשארו ${input.binaryRemaining} מתוך 5. (מסמנים בכרטיס הקורס במתכנן.)`,
         bodyEn: `Your ${candidate.grade} in ${nameEn} (${candidate.credits} cr.) drags your average down. As a miluim student you can convert it to pass/fail — the course still counts, the grade leaves your average. ${input.binaryRemaining} of 5 left. (Toggle it on the course card in the planner.)`,
         href: "/planner",
         ctaHe: "למתכנן",

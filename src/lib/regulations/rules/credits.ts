@@ -101,8 +101,8 @@ export const ruleMandatoryCredits: RegulationRule = (ctx: RuleContext) => {
       ? `Mandatory credits met: ${current}/${required} SH"S.`
       : `Mandatory credits insufficient: ${current}/${required} SH"S. Need ${required - current} more.`,
     passed
-      ? `נקודות חובה מתקיימות: ${current}/${required} ש״ס. (נכון לתשפ"ו)`
-      : `נקודות חובה לא מספיקות: ${current}/${required} ש״ס. חסרות ${required - current} ש״ס. (נכון לתשפ"ו)`,
+      ? `נקודות חובה מתקיימות: ${current}/${required} ש״ס. (נכון לתשפ״ו)`
+      : `נקודות חובה לא מספיקות: ${current}/${required} ש״ס. חסרות ${required - current} ש״ס. (נכון לתשפ״ו)`,
     { current, required, deficit: Math.max(0, required - current) }
   );
 };
@@ -141,8 +141,8 @@ export const ruleSeminarCredits: RegulationRule = (ctx: RuleContext) => {
       ? `Seminar credits met: ${current}/${required} SH"S.`
       : `Seminar credits insufficient: ${current}/${required} SH"S. Need ${required - current} more.`,
     passed
-      ? `נקודות סמינריונים מתקיימות: ${current}/${required} ש״ס. (נכון לתשפ"ו)`
-      : `נקודות סמינריונים לא מספיקות: ${current}/${required} ש״ס. חסרות ${required - current} ש״ס. (נכון לתשפ"ו)`,
+      ? `נקודות סמינריונים מתקיימות: ${current}/${required} ש״ס. (נכון לתשפ״ו)`
+      : `נקודות סמינריונים לא מספיקות: ${current}/${required} ש״ס. חסרות ${required - current} ש״ס. (נכון לתשפ״ו)`,
     { current, required, deficit: Math.max(0, required - current) }
   );
 };
@@ -180,8 +180,8 @@ export const ruleElectiveCredits: RegulationRule = (ctx: RuleContext) => {
       ? `Elective credits met: ${current}/${required} SH"S.`
       : `Elective credits insufficient: ${current}/${required} SH"S. Need ${required - current} more.`,
     passed
-      ? `נקודות בחירה מתקיימות: ${current}/${required} ש״ס. (נכון לתשפ"ו)`
-      : `נקודות בחירה לא מספיקות: ${current}/${required} ש״ס. חסרות ${required - current} ש״ס. (נכון לתשפ"ו)`,
+      ? `נקודות בחירה מתקיימות: ${current}/${required} ש״ס. (נכון לתשפ״ו)`
+      : `נקודות בחירה לא מספיקות: ${current}/${required} ש״ס. חסרות ${required - current} ש״ס. (נכון לתשפ״ו)`,
     { current, required, deficit: Math.max(0, required - current) }
   );
 };

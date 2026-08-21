@@ -44,7 +44,7 @@ export const ruleMiluimBinaryCap: RegulationRule = (ctx: RuleContext) => {
       true,
       "INFO",
       "Binary (pass/fail) conversion is a reserve-service benefit — it doesn't apply to your group.",
-      `המרה לבינארי (עובר/לא-עובר) היא הטבת-מילואים — לא רלוונטית לקבוצה שלך. (נכון לתשפ"ו)`,
+      `המרה לבינארי (עובר/לא-עובר) היא הטבת-מילואים — לא רלוונטית לקבוצה שלך. (נכון לתשפ״ו)`,
       { used, cap: 0, remaining: 0, over: false, group, unit: "courses" as const },
     );
   }
@@ -57,7 +57,7 @@ export const ruleMiluimBinaryCap: RegulationRule = (ctx: RuleContext) => {
       true,
       "INFO",
       `Your reserve group's binary benefit is credit-based — up to ${benefit.degreeCap} credits across the degree. See the miluim page for the details.`,
-      `הטבת הבינארי של קבוצת-המילואים שלך היא לפי ש״ס — עד ${benefit.degreeCap} ש״ס בתואר. הפירוט המלא בעמוד המילואים. (נכון לתשפ"ו)`,
+      `הטבת הבינארי של קבוצת-המילואים שלך היא לפי ש״ס — עד ${benefit.degreeCap} ש״ס בתואר. הפירוט המלא בעמוד המילואים. (נכון לתשפ״ו)`,
       { used, cap: benefit.degreeCap, remaining: benefit.degreeCap, over: false, group, unit: "credits" as const },
     );
   }
@@ -78,8 +78,8 @@ export const ruleMiluimBinaryCap: RegulationRule = (ctx: RuleContext) => {
       ? `Binary conversions used (${used}) exceed the BA cap of ${cap}. Extra pass/fail conversions are not allowed across the degree.`
       : `Binary conversions: ${used}/${cap} used across the degree, ${remaining} remaining.`,
     over
-      ? `מספר ההמרות לבינארי (${used}) חורג ממכסת התואר (${cap}). לא ניתן להמיר קורסים נוספים לעובר/לא עובר בתואר. (נכון לתשפ"ו)`
-      : `המרות לבינארי: נוצלו ${used}/${cap} בתואר, נותרו ${remaining}. (נכון לתשפ"ו)`,
+      ? `מספר ההמרות לבינארי (${used}) חורג ממכסת התואר (${cap}). לא ניתן להמיר קורסים נוספים לעובר/לא עובר בתואר. (נכון לתשפ״ו)`
+      : `המרות לבינארי: נוצלו ${used}/${cap} בתואר, נותרו ${remaining}. (נכון לתשפ״ו)`,
     { used, cap, remaining, over, group }
   );
 };
@@ -149,8 +149,8 @@ export const ruleMiluimHonorsBinary: RegulationRule = (ctx: RuleContext) => {
         ? `No courses converted to binary this year — honors eligibility unaffected (cap ${cap}% of course hours).`
         : `Year course hours unknown — cannot evaluate the ${cap}% honors binary cap.`,
       binaryUsed === 0
-        ? `לא הומרו קורסים לבינארי השנה — אין השפעה על זכאות להצטיינות (מגבלה ${cap}% משעות הקורסים). (נכון לתשפ"ו)`
-        : `שעות הקורסים השנתיות אינן ידועות — לא ניתן להעריך את מגבלת ה-${cap}% להצטיינות. (נכון לתשפ"ו)`,
+        ? `לא הומרו קורסים לבינארי השנה — אין השפעה על זכאות להצטיינות (מגבלה ${cap}% משעות הקורסים). (נכון לתשפ״ו)`
+        : `שעות הקורסים השנתיות אינן ידועות — לא ניתן להעריך את מגבלת ה-${cap}% להצטיינות. (נכון לתשפ״ו)`,
       { binaryUsed, percent: pct, cap, over: false, totalHours, binaryHours }
     );
   }
@@ -166,8 +166,8 @@ export const ruleMiluimHonorsBinary: RegulationRule = (ctx: RuleContext) => {
       ? `Binary-converted course hours are ~${pct}% of this year's course hours, above the ${cap}% honors cap — you may lose rector/dean honors eligibility.`
       : `Binary-converted course hours are ~${pct}% of this year's course hours, within the ${cap}% honors cap.`,
     over
-      ? `שעות הקורסים שהומרו לבינארי הן כ-${pct}% משעות הקורסים השנתיות, מעל מגבלת ה-${cap}% להצטיינות — ייתכן אובדן זכאות להצטיינות דיקן/רקטור. (נכון לתשפ"ו)`
-      : `שעות הקורסים שהומרו לבינארי הן כ-${pct}% משעות הקורסים השנתיות, בטווח מגבלת ה-${cap}% להצטיינות. (נכון לתשפ"ו)`,
+      ? `שעות הקורסים שהומרו לבינארי הן כ-${pct}% משעות הקורסים השנתיות, מעל מגבלת ה-${cap}% להצטיינות — ייתכן אובדן זכאות להצטיינות דקאן/רקטור. (נכון לתשפ״ו)`
+      : `שעות הקורסים שהומרו לבינארי הן כ-${pct}% משעות הקורסים השנתיות, בטווח מגבלת ה-${cap}% להצטיינות. (נכון לתשפ״ו)`,
     { binaryUsed, percent: pct, cap, over, totalHours, binaryHours }
   );
 };

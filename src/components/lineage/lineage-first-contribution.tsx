@@ -30,6 +30,7 @@ import { Bidi } from "@/lib/bidi";
 import { cn } from "@/lib/utils";
 import { ContributeReviewSheet } from "@/components/catalog/contribute-review-sheet";
 import { RATING_MIN_N } from "@/lib/k-anonymity";
+import { heNoun } from "@/lib/he-count";
 
 /** How many courses to list before folding the rest behind a toggle. */
 const PREVIEW = 4;
@@ -134,7 +135,7 @@ export function LineageFirstContribution({ className }: { className?: string }) 
               isHe
                 ? unreviewed.length === 1
                   ? "קורס אחד שסיימתם עוד לא דורג"
-                  : `${unreviewed.length} קורסים שסיימתם עוד לא דורגו`
+                  : `${heNoun(unreviewed.length, "קורס", "קורסים")} שסיימתם עוד לא דורגו`
                 : unreviewed.length === 1
                   ? "1 course you finished isn't rated yet"
                   : `${unreviewed.length} courses you finished aren't rated yet`
@@ -145,7 +146,7 @@ export function LineageFirstContribution({ className }: { className?: string }) 
           <Bidi
             text={
               isHe
-                ? `עומס, קושי והמלצה נפתחים לכולם מ-${RATING_MIN_N} מדרגים לאותו קורס. הדירוג אנונימי, ואפשר למשוך אותו בכל רגע.`
+                ? `עומס, קושי והמלצה נפתחים לכולם מ-${heNoun(RATING_MIN_N, "מדרג", "מדרגים")} לאותו קורס. הדירוג אנונימי, ואפשר למשוך אותו בכל רגע.`
                 : `Workload, difficulty and verdict open for everyone from ${RATING_MIN_N} raters on the same course. Rating is anonymous and withdrawable anytime.`
             }
           />

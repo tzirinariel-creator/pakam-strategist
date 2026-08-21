@@ -101,7 +101,7 @@ export const DIRECTIONS: Direction[] = [
   },
   {
     id: "undecided",
-    he: "עוד לא יודע/ת",
+    he: "עוד לא החלטתי",
     en: "Not decided yet",
     whyHe: "זו תשובה לגיטימית. בינתיים נראה לכם את התמונה הכללית — מה שפתוח בפני רוב הכיוונים.",
     whyEn: "A legitimate answer. In the meantime here is the general picture — what most directions have in common.",

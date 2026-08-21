@@ -240,7 +240,7 @@ export const MILUIM_CONFIG = {
   // Per-group exemptions and benefits
   GROUPS: {
     NONE: {
-      nameHe: "לא משרת/ת במילואים",
+      nameHe: "לא משרתים במילואים",
       nameEn: "Not serving in reserves",
       descHe: "",
       descEn: "",
@@ -394,7 +394,7 @@ export const MILUIM_CONFIG = {
   // Combat soldier bonus: fighters get enhanced group mapping
   // Per official doc: לוחמים 14-20 → A, 21+ → C (per semester) or 21+ cumulative in year → B (sem B only)
   COMBAT_UPGRADE: {
-    descHe: "לוחם/ת (ייעוד קדמי) — שיוך לקבוצה מיטיבה יותר",
+    descHe: "לוחמים (ייעוד קדמי) — שיוך לקבוצה מיטיבה יותר",
     descEn: "Combat soldier (front-line designation) — mapped to enhanced group",
     perSemesterRules: [
       { minDays: 14, maxDays: 20, mappedGroup: "GROUP_B" as const, descHe: "14-20 ימים בסמסטר → קבוצה B" },
@@ -407,9 +407,9 @@ export const MILUIM_CONFIG = {
   // 300+ fighters — automatic C through degree completion
   // Per official doc: לוחמים ששירתו 300+ ימים מאז 7.10.23, כולל בני זוגם עם ילדים עד גיל 13
   FIGHTERS_300_PLUS: {
-    nameHe: "לוחם/ת 300+ ימים",
+    nameHe: "לוחמים 300+ ימים",
     nameEn: "Fighter 300+ days since 7.10.23",
-    descHe: "לוחם/ת שביצע/ה 300+ ימי מילואים בייעוד קדמי מאז 7.10.23 (בהיותם סטודנטים) — קבוצה C אוטומטית. כולל בני/ות זוג עם ילדים עד גיל 13",
+    descHe: "לוחמים שביצעו 300+ ימי מילואים בייעוד קדמי מאז 7.10.23 (בהיותם סטודנטים) — קבוצה C אוטומטית. כולל בני זוג עם ילדים עד גיל 13",
     descEn: "Combat fighter with 300+ reserve days since 7.10.23 (while enrolled) — automatic Group C. Includes spouses with children under 13",
     group: "GROUP_C" as const,
     minDaysSince7Oct: 300,
@@ -417,12 +417,12 @@ export const MILUIM_CONFIG = {
   },
   // Spouse eligibility — per official doc section 2
   SPOUSE_RULES: {
-    descHe: "בן/בת זוג של משרת/ת מילואים (הורה לילדים עד גיל 13)",
+    descHe: "בני זוג של משרתי מילואים (הורה לילדים עד גיל 13)",
     descEn: "Spouse of reservist (parent of children under 13)",
     maxChildAge: 13,
     // Spouse mirrors the serving partner's group under these conditions:
-    groupB: "בן/ת זוג שירת 21-34 ימים בסמסטר, או עמד בתנאי שירות ממושך (60+ ימים לפני סמסטר וכו')",
-    groupC: "בן/ת זוג שירת 35+ ימים בסמסטר",
+    groupB: "בני זוג ששירתו 21-34 ימים בסמסטר, או עמד בתנאי שירות ממושך (60+ ימים לפני סמסטר וכו')",
+    groupC: "בני זוג ששירתו 35+ ימים בסמסטר",
   },
   // Retroactive rules — per official doc section 2
   RETROACTIVE: {

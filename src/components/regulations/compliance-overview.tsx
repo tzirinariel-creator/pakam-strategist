@@ -1,6 +1,6 @@
 "use client";
 
-import { heCount } from "@/lib/he-count";
+import { heCount, heNoun } from "@/lib/he-count";
 import { useTranslations, useLocale } from "next-intl";
 import { ShieldCheck, ShieldAlert, CheckCircle2, XCircle, AlertTriangle } from "lucide-react";
 import type { RegulationSummary } from "@/types/regulation";
@@ -131,7 +131,7 @@ export function ComplianceOverview({ summary }: ComplianceOverviewProps) {
                 // heCount takes both phrasings instead of swapping one word.
                 ? heCount(warnings, {
                     one: "יש דבר אחד שכדאי לשים לב אליו — הוא לא חוסם את התואר, אבל שווה לטפל בו.",
-                    many: `יש ${warnings} דברים שכדאי לשים לב אליהם — הם לא חוסמים את התואר, אבל שווה לטפל בהם.`,
+                    many: `יש ${heNoun(warnings, "דבר", "דברים")} שכדאי לשים לב אליהם — הם לא חוסמים את התואר, אבל שווה לטפל בהם.`,
                   })
                 : heCount(warnings, {
                     one: "One thing worth your attention — it doesn't block the degree, but it's worth handling.",

@@ -33,7 +33,7 @@ export function MoedBenefitBanner() {
   if (!MILUIM_CONFIG.GROUPS[group]?.examChoice2of3) return null;
 
   const gender = normalizeGender(profile.gender);
-  const eligible = gendered(gender, { m: "אתה זכאי", f: "את זכאית", n: "את/ה זכאי/ת" });
+  const eligible = gendered(gender, { m: "אתה זכאי", f: "את זכאית", n: "אתם זכאים" });
 
   return (
     <div className="animate-stagger-2 flex items-start gap-3 rounded-xl border border-emerald-500/25 bg-emerald-500/[0.06] p-4">

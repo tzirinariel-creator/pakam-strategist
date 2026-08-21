@@ -308,7 +308,7 @@ export function ProfileSection() {
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="DERIVE">
-                {isHe ? "לא יודע/גזור מהציון" : "Not sure / derive from score"}
+                {isHe ? "לא יודעים — גזרו מהציון" : "Not sure / derive from score"}
               </SelectItem>
               {ENGLISH_CONFIG.LEVELS.map((lvl) => (
                 <SelectItem key={lvl.level} value={lvl.level}>

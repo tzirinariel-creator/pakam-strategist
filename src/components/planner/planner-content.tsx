@@ -7,7 +7,9 @@ import { GraduationCap, AlertTriangle, CalendarDays, Scale, Share2, CheckCircle2
 import { toast } from "sonner";
 import { type SharedCourse } from "@/lib/plan-share";
 import { SharePlanDialog } from "./share-plan-dialog";
+import { invalidatePlanData } from "@/lib/trpc/invalidate-plan";
 import { YearBoard } from "./year-board";
+import { PlacementIssuesCard } from "./placement-issues-card";
 import { YearAtAGlanceCard } from "./year-at-a-glance-card";
 import { AddCourseModal } from "./add-course-modal";
 import { BiddingExplainer } from "./bidding-explainer";
@@ -101,6 +103,28 @@ export function PlannerContent() {
   }
 
   const courses = planData?.courses ?? [];
+
+  // On 21.8 the catalog's semesters were corrected from the ידיעון. Plans built
+  // against the old data kept the old placement — 26 rows across real accounts,
+  // mostly מיקרו כלכלה א׳ left in spring. The fix proposes; it never moves a
+  // course on its own.
+  const placementRows = courses.map((uc) => ({
+    userCourseId: uc.id,
+    code: uc.course.code,
+    nameHe: uc.course.nameHe,
+    semesterOffered: (uc.course.semesterOffered ?? []).map(String),
+    yearOffered: uc.course.yearOffered ?? [],
+    plannedSemester: String(uc.plannedSemester),
+    plannedYear: uc.plannedYear,
+    status: uc.status,
+    isMandatory:
+      uc.course.courseType === "MANDATORY" || uc.course.isMandatory === true,
+  }));
+
+  const placementUtils = api.useUtils();
+  const movePlacement = api.plan.updateCourse.useMutation({
+    onSuccess: () => invalidatePlanData(placementUtils),
+  });
   // Year of study is DERIVED from the calendar (#39/#43) — powers the live
   // "בלימוד" tag on cards of the current semester.
   const currentYear = deriveYearOfStudy(profileQuery.data?.startYear, profileQuery.data?.currentYear ?? 1);
@@ -181,6 +205,13 @@ export function PlannerContent() {
       {/* S1 — hosts the cohort-contribution sheet the grade-lock nudge opens
           (grades lock on the course cards of this board). */}
       <ReviewNudgeHost />
+      <PlacementIssuesCard
+        courses={placementRows}
+        busy={movePlacement.isPending}
+        onMove={(userCourseId, semester) =>
+          movePlacement.mutate({ userCourseId, plannedSemester: semester })
+        }
+      />
       {/* Saved confirmation (#18) — unmissable, dismissible, auto-hides */}
       {showSavedBanner && (
         <div

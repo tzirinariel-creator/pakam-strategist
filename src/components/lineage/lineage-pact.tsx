@@ -20,6 +20,7 @@ import { Gift, Library, ShieldCheck, Undo2 } from "lucide-react";
 import { Bidi } from "@/lib/bidi";
 import { cn } from "@/lib/utils";
 import { GRADE_MIN_N, RATING_MIN_N } from "@/lib/k-anonymity";
+import { heNoun } from "@/lib/he-count";
 
 interface PactBlock {
   icon: typeof Gift;
@@ -80,7 +81,7 @@ export const PACT_BLOCKS: readonly PactBlock[] = [
       // Numbers are phrased to stand ALONE between Hebrew words: the "מ-5"
       // construction puts a neutral hyphen next to a digit and reorders in RTL.
       `ממוצע קורס נחשף רק כשיש ${GRADE_MIN_N} תורמים ומעלה.`,
-      `עומס, קושי והמלצה נחשפים רק כשיש ${RATING_MIN_N} מדרגים ומעלה.`,
+      `עומס, קושי והמלצה נחשפים רק כשיש ${heNoun(RATING_MIN_N, "מדרג", "מדרגים")} ומעלה.`,
       "מתחת לסף לא מוצג כלום — עדיף חור בנתונים מאשר לחשוף אדם אחד.",
     ],
     linesEn: [
@@ -175,7 +176,7 @@ export function LineagePactStrip({ className }: { className?: string }) {
       <Bidi
         text={
           isHe
-            ? `אתם נותנים ציונים וחוות-דעת בלי שם, ומקבלים את מה שכל מי שלפניכם נתן. ממוצע נחשף רק כשיש ${GRADE_MIN_N} תורמים, דירוג רק כשיש ${RATING_MIN_N} מדרגים, ואפשר למשוך הכול בכפתור אחד.`
+            ? `אתם נותנים ציונים וחוות-דעת בלי שם, ומקבלים את מה שכל מי שלפניכם נתן. ממוצע נחשף רק כשיש ${GRADE_MIN_N} תורמים, דירוג רק כשיש ${heNoun(RATING_MIN_N, "מדרג", "מדרגים")}, ואפשר למשוך הכול בכפתור אחד.`
             : `You give grades and reviews without a name, and get everything everyone before you gave. An average appears only from ${GRADE_MIN_N} contributors, a rating only from ${RATING_MIN_N} raters, and one button withdraws it all.`
         }
       />

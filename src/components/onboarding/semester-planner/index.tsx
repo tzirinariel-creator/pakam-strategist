@@ -42,6 +42,7 @@ import { AnchoredTour, PLANNER_STEPS } from "../anchored-tour";
 import { QuietBoundary } from "@/components/shared/query-error";
 import { ExamGantt } from "./exam-gantt";
 import { getAcademicNow } from "@/lib/academic-calendar";
+import { heNoun } from "@/lib/he-count";
 
 /** Seen-once flag for the in-place planner tour (#17). Cleared alongside the
  *  other first-run flags when onboarding completes, so a reset account gets it
@@ -695,7 +696,7 @@ export function SemesterPlanner({
             .join(" · ");
     const headline =
       result.conflicts === 0
-        ? (isHe ? `נמצא שילוב בלי התנגשויות (${result.daysOnCampus} ימים בקמפוס)` : `Found a clash-free combination (${result.daysOnCampus} campus days)`)
+        ? (isHe ? `נמצא שילוב בלי התנגשויות (${heNoun(result.daysOnCampus, "יום", "ימים")} בקמפוס)` : `Found a clash-free combination (${result.daysOnCampus} campus days)`)
         : (isHe ? "אין שילוב בלי חפיפה — זה הקרוב ביותר" : "No clash-free combination exists — this is the closest");
     toast.success(prefNote ? `${headline} · ${prefNote}` : headline, {
       action: { label: isHe ? "בטל" : "Undo", onClick: undo },

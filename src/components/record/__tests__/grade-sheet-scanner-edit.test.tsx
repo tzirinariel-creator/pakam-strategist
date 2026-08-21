@@ -148,7 +148,7 @@ describe("GradeSheetScanner #5 — a corrected row is the row that gets saved", 
     fireEvent.change(gradeInput(0), { target: { value: "86" } });
     expect(gradeInput(0).value).toBe("86");
 
-    fireEvent.click(screen.getByRole("button", { name: /שמרו 1 שורות מסומנות/ }));
+    fireEvent.click(screen.getByRole("button", { name: /שמרו שורה אחת מסומנת/ }));
     await waitFor(() => expect(h.updateCalls).toHaveLength(1));
     expect(h.updateCalls).toEqual([
       { userCourseId: "uc-micro", grade: 86, status: "COMPLETED" },
@@ -165,7 +165,7 @@ describe("GradeSheetScanner #5 — a corrected row is the row that gets saved", 
     // Rejected, not clamped: clamping would invent a grade the sheet never showed.
     expect(gradeInput(0).value).toBe("88");
 
-    fireEvent.click(screen.getByRole("button", { name: /שמרו 1 שורות מסומנות/ }));
+    fireEvent.click(screen.getByRole("button", { name: /שמרו שורה אחת מסומנת/ }));
     await waitFor(() => expect(h.updateCalls).toHaveLength(1));
     expect(h.updateCalls).toEqual([
       { userCourseId: "uc-micro", grade: 88, status: "COMPLETED" },
@@ -180,7 +180,7 @@ describe("GradeSheetScanner #5 — a corrected row is the row that gets saved", 
     // Declared BEFORE applying — a 65 in English is a failure, and says so.
     expect(screen.getByText(/מתחת לרף \(70\) — יירשם כנכשל/)).toBeInTheDocument();
 
-    fireEvent.click(screen.getByRole("button", { name: /שמרו 1 שורות מסומנות/ }));
+    fireEvent.click(screen.getByRole("button", { name: /שמרו שורה אחת מסומנת/ }));
     await waitFor(() => expect(h.updateCalls).toHaveLength(1));
     expect(h.updateCalls).toEqual([{ userCourseId: "uc-eng", grade: 65, status: "FAILED" }]);
   });
@@ -193,7 +193,7 @@ describe("GradeSheetScanner #5 — a corrected row is the row that gets saved", 
     fireEvent.change(matchSelect(0), { target: { value: "uc-philo" } });
     expect(screen.getByText("יעודכן: מבוא לפילוסופיה")).toBeInTheDocument();
 
-    fireEvent.click(screen.getByRole("button", { name: /שמרו 1 שורות מסומנות/ }));
+    fireEvent.click(screen.getByRole("button", { name: /שמרו שורה אחת מסומנת/ }));
     await waitFor(() => expect(h.updateCalls).toHaveLength(1));
     expect(h.updateCalls).toEqual([
       { userCourseId: "uc-philo", grade: 91, status: "COMPLETED" },
@@ -208,7 +208,7 @@ describe("GradeSheetScanner #5 — a corrected row is the row that gets saved", 
     openFix(0);
     fireEvent.change(creditsInput(0), { target: { value: "4" } });
 
-    fireEvent.click(screen.getByRole("button", { name: /שמרו 1 שורות מסומנות/ }));
+    fireEvent.click(screen.getByRole("button", { name: /שמרו שורה אחת מסומנת/ }));
     await waitFor(() => expect(h.addCalls).toHaveLength(1));
     expect(h.addCalls[0]).toMatchObject({ courseName: "דוגרי", credits: 4, grade: 92 });
   });
@@ -220,7 +220,7 @@ describe("GradeSheetScanner #5 — a corrected row is the row that gets saved", 
     fireEvent.change(matchSelect(0), { target: { value: "" } });
     expect(screen.getByText("לא בתוכנית — יתווסף לתיק עם הציון")).toBeInTheDocument();
 
-    fireEvent.click(screen.getByRole("button", { name: /שמרו 1 שורות מסומנות/ }));
+    fireEvent.click(screen.getByRole("button", { name: /שמרו שורה אחת מסומנת/ }));
     await waitFor(() => expect(h.addCalls).toHaveLength(1));
     expect(h.updateCalls).toEqual([]);
   });
@@ -239,7 +239,7 @@ describe("GradeSheetScanner #5 — a corrected row is the row that gets saved", 
     // a fix that silently gets dropped at save.
     expect(screen.getByRole("checkbox")).toHaveAttribute("aria-checked", "true");
 
-    fireEvent.click(screen.getByRole("button", { name: /שמרו 1 שורות מסומנות/ }));
+    fireEvent.click(screen.getByRole("button", { name: /שמרו שורה אחת מסומנת/ }));
     await waitFor(() => expect(h.updateCalls).toHaveLength(1));
     expect(h.updateCalls).toEqual([{ userCourseId: "uc-micro", grade: 77, status: "COMPLETED" }]);
   });
@@ -263,7 +263,7 @@ describe("GradeSheetScanner #5 — a corrected row is the row that gets saved", 
     fireEvent.change(gradeInput(0), { target: { value: "86" } });
     fireEvent.click(screen.getAllByRole("checkbox")[0]!); // changed my mind — leave it out
 
-    fireEvent.click(screen.getByRole("button", { name: /שמרו 1 שורות מסומנות/ }));
+    fireEvent.click(screen.getByRole("button", { name: /שמרו שורה אחת מסומנת/ }));
     await waitFor(() => expect(h.updateCalls).toHaveLength(1));
     expect(h.updateCalls).toEqual([
       { userCourseId: "uc-philo", grade: 90, status: "COMPLETED" },

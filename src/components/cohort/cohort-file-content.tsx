@@ -42,6 +42,7 @@ import { contributorLevel } from "@/lib/contributor-level";
 import { cohortLabel } from "@/lib/cohort-label";
 import { LineagePactStrip } from "@/components/lineage/lineage-pact";
 import { LineageFirstContribution } from "@/components/lineage/lineage-first-contribution";
+import { heNoun, heNounF } from "@/lib/he-count";
 
 export function CohortFileContent() {
   const locale = useLocale();
@@ -134,10 +135,10 @@ export function CohortFileContent() {
               : "No cohort wisdom yet — someone has to go first. One review of yours opens the file for everyone."
             : totals.reviews === 0
               ? isHe
-                ? `נאספו כאן כבר ${totals.gradePoints} תרומות-ציונים אנונימיות, אבל עוד לא נכתבה אף חוות-דעת — ולכן אין עדיין מה להציג. זה לא ריק, זה מתחת לסף.`
+                ? `נאספו כאן כבר ${heNounF(totals.gradePoints, "תרומה", "תרומות")}-ציונים אנונימיות, אבל עוד לא נכתבה אף חוות-דעת — ולכן אין עדיין מה להציג. זה לא ריק, זה מתחת לסף.`
                 : `${totals.gradePoints} anonymous grade contributions are already in, but not one review has been written yet — so there's still nothing to show. This isn't empty, it's below the bar.`
             : isHe
-              ? `עד עכשיו נאספו כאן ${totals.reviews} חוות-דעת ו-${totals.gradePoints} תרומות-ציונים על ${totals.coursesCovered} קורסים.${totals.mostDiscussed ? ` הקורס המדובר ביותר: ${totals.mostDiscussed.nameHe} (${totals.mostDiscussed.count} חוות-דעת).` : ""}`
+              ? `עד עכשיו נאספו כאן ${totals.reviews} חוות-דעת ו-${heNounF(totals.gradePoints, "תרומה", "תרומות")}-ציונים על ${heNoun(totals.coursesCovered, "קורס", "קורסים")}.${totals.mostDiscussed ? ` הקורס המדובר ביותר: ${totals.mostDiscussed.nameHe} (${totals.mostDiscussed.count} חוות-דעת).` : ""}`
               : `${totals.reviews} reviews and ${totals.gradePoints} grade contributions across ${totals.coursesCovered} courses so far.${totals.mostDiscussed ? ` Most discussed: ${totals.mostDiscussed.nameHe} (${totals.mostDiscussed.count} reviews).` : ""}`}
         </p>
       </div>
@@ -588,7 +589,7 @@ function LevelChip({ isHe }: { isHe: boolean }) {
         <p className="text-sm font-semibold text-foreground/80">
           {isHe ? `הדרגה שלכם בתיק: ${lvl.titleHe}` : `Your file rank: ${lvl.titleEn}`}
           <span className="font-normal text-foreground/45">
-            {isHe ? ` (${stats.data.total} תרומות)` : ` (${stats.data.total} contributions)`}
+            {isHe ? ` (${heNounF(stats.data.total, "תרומה", "תרומות")})` : ` (${stats.data.total} contributions)`}
           </span>
         </p>
         {lvl.nextAt !== null ? (
@@ -603,7 +604,7 @@ function LevelChip({ isHe }: { isHe: boolean }) {
               {isHe
                 ? (lvl.nextAt - stats.data.total === 1
                     ? "עוד תרומה אחת לדרגה הבאה — חוות-דעת, תובנה או מסלול."
-                    : `עוד ${lvl.nextAt - stats.data.total} תרומות לדרגה הבאה — חוות-דעת, תובנה או מסלול.`)
+                    : `עוד ${heNounF(lvl.nextAt - stats.data.total, "תרומה", "תרומות")} לדרגה הבאה — חוות-דעת, תובנה או מסלול.`)
                 : `${lvl.nextAt - stats.data.total} more to the next rank — a review, an insight or a plan.`}
             </p>
           </>

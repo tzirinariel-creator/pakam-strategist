@@ -1,4 +1,5 @@
 import { israelDayKeyMs, storedDateKeyMs } from "@/lib/civil-day";
+import { heNoun } from "@/lib/he-count";
 
 /**
  * Grammatical "in N days" countdown for both languages — never the ungrammatical
@@ -11,7 +12,7 @@ export function daysUntilLabel(days: number, isHe: boolean): string {
     if (days <= 0) return "היום";
     if (days === 1) return "בעוד יום";
     if (days === 2) return "בעוד יומיים";
-    return `בעוד ${days} ימים`;
+    return `בעוד ${heNoun(days, "יום", "ימים")}`;
   }
   if (days <= 0) return "today";
   if (days === 1) return "in 1 day";

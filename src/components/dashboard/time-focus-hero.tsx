@@ -11,6 +11,7 @@ import type { TimeFocus } from "@/lib/time-focus";
 import { Bidi } from "@/lib/bidi";
 import { cn } from "@/lib/utils";
 import { daysUntilLabel } from "@/lib/days-until";
+import { heNoun } from "@/lib/he-count";
 
 const META: Record<
   TimeFocus["kind"],
@@ -35,7 +36,7 @@ export function TimeFocusHero({ focus }: { focus: TimeFocus | null }) {
       case "exams":
         return {
           title: isHe
-            ? d <= 0 ? "יום המבחן הגיע" : d === 1 ? "מבחן מחר" : `המבחן הקרוב בעוד ${d} ימים`
+            ? d <= 0 ? "יום המבחן הגיע" : d === 1 ? "מבחן מחר" : `המבחן הקרוב בעוד ${heNoun(d, "יום", "ימים")}`
             : d <= 0 ? "Exam day" : d === 1 ? "Exam tomorrow" : `Nearest exam in ${d} days`,
           body: isHe
             ? "עכשיו הזמן לתכנן את הלמידה — נפרוס לך את הימים עד כל מבחן."

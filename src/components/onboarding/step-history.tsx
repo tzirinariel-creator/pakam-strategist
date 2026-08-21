@@ -13,6 +13,7 @@ import { isEnglishCourse, passBarForName } from "@/lib/english-standing";
 import { fileToBase64, SCANNER_ACCEPT } from "@/lib/upload";
 import { WhereIsMySheet } from "@/components/record/where-is-my-sheet";
 import type { OnboardingData } from "./onboarding-wizard";
+import { heNoun } from "@/lib/he-count";
 
 // ─────────────────────────────────────────────────────────────────────────
 // Past-academic-record step ("מה כבר עשית?" / "Your history").
@@ -304,11 +305,11 @@ export function StepHistory({
         } else {
           const parts: string[] = [];
           if (graded > 0) parts.push(isHe ? `${graded} עם ציון` : `${graded} with a grade`);
-          if (added > 0) parts.push(isHe ? `${added} קורסים שאינם בקטלוג שלנו נוספו` : `${added} courses not in our catalog added`);
-          if (skipped > 0) parts.push(isHe ? `${skipped} נכשלו/פטור — הוסיפו ב"הרשומה" אחרי ההרשמה` : `${skipped} failed/exempt — add them in the record after signup`);
+          if (added > 0) parts.push(isHe ? `${heNoun(added, "קורס", "קורסים")} שאינם בקטלוג שלנו נוספו` : `${added} courses not in our catalog added`);
+          if (skipped > 0) parts.push(isHe ? `${skipped} נכשלו/פטור — הוסיפו ב״הרשומה״ אחרי ההרשמה` : `${skipped} failed/exempt — add them in the record after signup`);
           parts.push(isHe ? "עברו לוודא ולתקן למטה" : "review below");
           toast.success(
-            isHe ? `נמצאו ${hits} קורסים שהושלמו` : `Found ${hits} completed courses`,
+            isHe ? `נמצאו ${heNoun(hits, "קורס", "קורסים")} שהושלמו` : `Found ${hits} completed courses`,
             { description: parts.join(" · ") },
           );
         }

@@ -1,3 +1,4 @@
+import { heNoun } from "@/lib/he-count";
 // =========================================================================
 // THE single source of truth for TAU academic-year dates and "where are we
 // now" (notes #39/#43 — the app used to ASK the student which semester it is,
@@ -261,7 +262,7 @@ export function describeAcademicNow(now: Date = new Date()): AcademicStatus {
       he:
         daysLeft === 1
           ? `אנחנו ביום הלימודים האחרון של ${semesterHe} ${yearLabelHe} (${shortDate(a.dates.teachingEnd)}).`
-          : `אנחנו בתוך ${semesterHe} של ${yearLabelHe} — נשארו ${daysLeft} ימים עד סוף הלימודים (${shortDate(a.dates.teachingEnd)}).`,
+          : `אנחנו בתוך ${semesterHe} של ${yearLabelHe} — נשארו ${heNoun(daysLeft, "יום", "ימים")} עד סוף הלימודים (${shortDate(a.dates.teachingEnd)}).`,
       en:
         daysLeft === 1
           ? `Today is the last teaching day of ${semesterEn} ${yearLabelEn} (${shortDate(a.dates.teachingEnd)}).`

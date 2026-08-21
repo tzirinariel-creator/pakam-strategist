@@ -6,6 +6,7 @@ import { GRADE_REQUIREMENTS } from "@/lib/constants";
 import { cn } from "@/lib/utils";
 import type { CreditBreakdown, GradeBreakdown } from "@/types/degree";
 import { DegreeStatus, type DisciplineProgress } from "./degree-status";
+import { heNoun } from "@/lib/he-count";
 
 // Re-export so the ~existing import sites (dashboard-content) keep resolving here.
 export type { DisciplineProgress };
@@ -92,7 +93,7 @@ export function MyStatusHero({
           {isHe
             ? inProgressCount === 1
               ? "קורס אחד בלימוד עכשיו"
-              : `${inProgressCount} קורסים בלימוד עכשיו`
+              : `${heNoun(inProgressCount, "קורס", "קורסים")} בלימוד עכשיו`
             : `${inProgressCount} ${inProgressCount === 1 ? "course" : "courses"} in progress now`}
         </Link>
       )}

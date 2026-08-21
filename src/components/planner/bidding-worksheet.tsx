@@ -33,6 +33,7 @@ import type { UserCourseWithCourse } from "@/types/degree";
 import type { DayOfWeek } from "@/types/enums";
 import { sessionTypeNameFor } from "@/lib/group-options";
 import { cn } from "@/lib/utils";
+import { heNoun, heNounF } from "@/lib/he-count";
 
 /**
  * Bidding worksheet — the student's OWN numbers, validated, never suggested.
@@ -262,14 +263,14 @@ export function BiddingWorksheet({
           {check.overPool && (
             <p className="flex items-center gap-1.5 rounded-lg border border-red-400/30 bg-red-400/[0.06] px-3 py-2 text-xs text-red-600">
               <AlertTriangle className="size-3.5 shrink-0" />
-              {isHe ? `חילקתם ${check.total} נקודות אבל יש לכם רק ${state.pool}. תורידו ממשהו.` : `You allocated ${check.total} but only have ${state.pool}. Trim something.`}
+              {isHe ? `חילקתם ${heNounF(check.total, "נקודה", "נקודות")} אבל יש לכם רק ${state.pool}. תורידו ממשהו.` : `You allocated ${check.total} but only have ${state.pool}. Trim something.`}
             </p>
           )}
           {state.pool != null && !check.overPool && check.minFloor > state.pool && (
             <p className="flex items-center gap-1.5 rounded-lg border border-amber-400/30 bg-amber-400/[0.06] px-3 py-2 text-xs text-amber-600">
               <AlertTriangle className="size-3.5 shrink-0" />
               {isHe
-                ? `רק המינימום (5 × ${check.minFloor / MIN_BID} קורסים = ${check.minFloor}) כבר עובר את המאגר שלכם — אי אפשר להתמכרז על כולם.`
+                ? `רק המינימום (5 × ${heNoun(check.minFloor / MIN_BID, "קורס", "קורסים")} = ${check.minFloor}) כבר עובר את המאגר שלכם — אי אפשר להתמכרז על כולם.`
                 : `The floor alone (5 × ${check.minFloor / MIN_BID} courses = ${check.minFloor}) exceeds your pool — you can't bid on all of them.`}
             </p>
           )}
@@ -325,7 +326,7 @@ export function BiddingWorksheet({
                   </div>
                   {issue === "below-min" && (
                     <p className="mt-1.5 text-[11px] text-red-500">
-                      {isHe ? `מתחת ל-${MIN_BID} נקודות אי אפשר להיכנס למכרז על הקורס.` : `Below ${MIN_BID} points you can't enter the auction for this course.`}
+                      {isHe ? `מתחת ל-${heNounF(MIN_BID, "נקודה", "נקודות")} אי אפשר להיכנס למכרז על הקורס.` : `Below ${MIN_BID} points you can't enter the auction for this course.`}
                     </p>
                   )}
                   {issue === "not-integer" && (

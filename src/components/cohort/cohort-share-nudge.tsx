@@ -25,6 +25,7 @@ import { Link } from "@/i18n/navigation";
 import { api } from "@/lib/trpc/react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { heNoun } from "@/lib/he-count";
 
 const SHARED_KEY = "pk-cohort-shared"; // set once the student has contributed
 const DISMISS_KEY = "pk-cohort-nudge-dismissed"; // card variant only
@@ -67,7 +68,7 @@ export function CohortShareNudge({
       toast.success(
         isHe
           ? r.imported > 0
-            ? `שותפו ${r.imported} קורסים באופן אנונימי — תודה שאתם בונים את זה לכולם`
+            ? `שותפו ${heNoun(r.imported, "קורס", "קורסים")} באופן אנונימי — תודה שאתם בונים את זה לכולם`
             : "הכול כבר משותף — תודה שאתם חלק מזה"
           : r.imported > 0
             ? `Shared ${r.imported} courses anonymously — thank you for building this for everyone`
@@ -97,7 +98,7 @@ export function CohortShareNudge({
       ? null
       : shared > 0
         ? isHe
-          ? `שיתפתם ${shared} קורסים. אתם עכשיו חלק מחוכמת המחזור.`
+          ? `שיתפתם ${heNoun(shared, "קורס", "קורסים")}. אתם עכשיו חלק מחוכמת המחזור.`
           : `You shared ${shared} courses. You're now part of the cohort's wisdom.`
         : isHe
           ? "הכול כבר משותף — תודה שאתם חלק מזה."

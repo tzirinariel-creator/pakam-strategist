@@ -13,6 +13,7 @@ import { CREDIT_REQUIREMENTS, GRADE_REQUIREMENTS, GRADE_WEIGHTS, SEMINAR_REQUIRE
 import { daysUntilLabel } from "@/lib/days-until";
 import { normalizeHebrewForMatch } from "@/lib/hebrew-normalize";
 import { israelDayKeyMs, storedDateKeyMs } from "@/lib/civil-day";
+import { heNoun } from "@/lib/he-count";
 
 export interface QAContext {
   isHe: boolean;
@@ -95,7 +96,7 @@ function he<T>(c: QAContext, heVal: T, enVal: T): T {
  * Gendered Hebrew fragment for second-person phrasing. Unknown gender → the
  * neutral inclusive form (today's copy), so it's always safe to adopt. English
  * has no grammatical gender, so callers just inline the English separately.
- *   `${gm(c, "אתה פטור", "את פטורה", "את/ה פטור/ה")}`
+ *   `${gm(c, "אתה פטור", "את פטורה", "אתם פטורים")}`
  */
 function gm(c: QAContext, male: string, female: string, neutral: string): string {
   return c.gender === "male" ? male : c.gender === "female" ? female : neutral;
@@ -141,7 +142,7 @@ const HANDLERS: Handler[] = [
         return {
           text: he(
             c,
-            `אין דרישות ${gm(c, "שאתה מפר", "שאת מפרה", "שאת/ה מפר/ה")} כרגע. מה שנשאר זה לצבור את הש״ס שחסרים — ${gm(c, "ראה", "ראי", "ראה/י")} 'המצב שלי' בדשבורד.`,
+            `אין דרישות ${gm(c, "שאתה מפר", "שאת מפרה", "שאתם מפרים")} כרגע. מה שנשאר זה לצבור את הש״ס שחסרים — ${gm(c, "ראה", "ראי", "ראו")} 'המצב שלי' בדשבורד.`,
             "You're not violating any requirement right now. What's left is accumulating the remaining credits — see 'My status' on the dashboard."
           ),
           href: "/regulations",
@@ -266,7 +267,7 @@ const HANDLERS: Handler[] = [
     answer: (c) => {
       if (c.courseAverage === null) {
         return {
-          text: he(c, `עדיין אין לך ציונים שמורים. ${gm(c, "הזן", "הזני", "הזן/י")} ציונים במחשבון הציונים ואראה לך את הממוצע.`, "No grades recorded yet. Enter grades in the calculator and I'll show your average."),
+          text: he(c, `עדיין אין לך ציונים שמורים. ${gm(c, "הזן", "הזני", "הזינו")} ציונים במחשבון הציונים ואראה לך את הממוצע.`, "No grades recorded yet. Enter grades in the calculator and I'll show your average."),
           href: "/graduation",
           cta: he(c, "למחשבון הציונים", "Grade calculator"),
         };
@@ -377,7 +378,7 @@ const HANDLERS: Handler[] = [
       // Civil days too — a raw-ms Math.round labelled TOMORROW's exam "היום"
       // from ~13:00 Israel onward (11h away rounds to 0 days).
       const daysTo = (d: Date) => Math.max(0, Math.round((civilDay(d) - todayUTC) / 86_400_000));
-      const whenHe = (d: Date) => { const n = daysTo(d); return n === 0 ? "היום" : n === 1 ? "מחר" : `בעוד ${n} ימים`; };
+      const whenHe = (d: Date) => { const n = daysTo(d); return n === 0 ? "היום" : n === 1 ? "מחר" : `בעוד ${heNoun(n, "יום", "ימים")}`; };
       const top = list.slice(0, 3);
       const linesHe = top.map((e) => `• ${e.nameHe} (מועד ${e.moed === "B" ? "ב׳" : "א׳"}) — ${whenHe(e.date)}`);
       // daysUntilLabel keeps "today"/"in 1 day" grammatical — "in 0 days" was
@@ -416,7 +417,7 @@ const HANDLERS: Handler[] = [
       return {
         text: he(
           c,
-          `הסמסטר יש לך ${list.length} קורסים, ${credits} ש״ס: ${namesHe}.`,
+          `הסמסטר יש לך ${heNoun(list.length, "קורס", "קורסים")}, ${credits} ש״ס: ${namesHe}.`,
           `This semester you have ${list.length} courses, ${credits} credits: ${namesEn}.`,
         ),
         href: "/planner",
@@ -496,7 +497,7 @@ const HANDLERS: Handler[] = [
       const declared = resolveEnglishLevel(c.englishLevel, null) != null;
       const content = he(
         c,
-        `דרישת-התוכן: ${CREDIT_REQUIREMENTS.ENGLISH_MIN_COURSES} קורסים אקדמיים שנלמדים באנגלית (חובה לכולם, בלי קשר לרמה) — השלמת ${c.englishCourseCount} מתוכם.`,
+        `דרישת-התוכן: ${CREDIT_REQUIREMENTS.ENGLISH_MIN_COURSES === 1 ? "קורס אקדמי אחד שנלמד" : `${CREDIT_REQUIREMENTS.ENGLISH_MIN_COURSES} קורסים אקדמיים שנלמדים`} באנגלית (חובה לכולם, בלי קשר לרמה) — השלמת ${c.englishCourseCount} מתוכם.`,
         `Content requirement: ${CREDIT_REQUIREMENTS.ENGLISH_MIN_COURSES} courses taught in English (everyone needs these, regardless of level) — you've completed ${c.englishCourseCount}.`
       );
       if (!lvl) {
@@ -510,10 +511,10 @@ const HANDLERS: Handler[] = [
       // year 1, so a year-2+ student shouldn't be told to take level courses —
       // they should already be exempt (#11). The CONTENT courses still stand.
       const lvlTxt = lvl.isExempt
-        ? he(c, `${gm(c, "אתה פטור", "את פטורה", "את/ה פטור/ה")} מקורסי רמה (${declared ? "לפי הרמה מהגיליון" : `אמירנט ${c.amiramScore}`}).`, `You're exempt from level courses (${declared ? "per your declared level" : `Amiram ${c.amiramScore}`}).`)
+        ? he(c, `${gm(c, "אתה פטור", "את פטורה", "אתם פטורים")} מקורסי רמה (${declared ? "לפי הרמה מהגיליון" : `אמירנט ${c.amiramScore}`}).`, `You're exempt from level courses (${declared ? "per your declared level" : `Amiram ${c.amiramScore}`}).`)
         : c.currentYear <= 1
-          ? he(c, `דרישת-הרמה: ${declared ? "לפי הרמה מהגיליון" : `לפי האמירנט (${c.amiramScore})`} ${gm(c, "אתה", "את", "את/ה")} ברמת ${lvl.nameHe}, כלומר ${lvl.levelCourses === 1 ? "נשאר קורס-אנגלית אחד" : `נשארו ${lvl.levelCourses} קורסי-אנגלית`} עד הפטור. לפי התקנון מגיעים לפטור (134+) עד סוף שנה א׳.`, `Level requirement: ${declared ? "per your declared level" : `per your Amiram (${c.amiramScore})`} you're at ${lvl.nameEn} — ${lvl.levelCourses === 1 ? "one level course left" : `${lvl.levelCourses} level courses left`} to exemption. Regulations expect exemption (134+) by the end of Year 1.`)
-          : he(c, `${gm(c, "אתה", "את", "את/ה")} ב${lvl.nameHe} (${declared ? "לפי הגיליון" : `אמירנט ${c.amiramScore}`}), אבל הדדליין לפטור היה סוף שנה א׳ — אם עדיין אין לך פטור, ${gm(c, "פנה", "פני", "פנה/י")} לייעוץ אקדמי (קורסי-התוכן באנגלית עדיין נדרשים).`, `You're at ${lvl.nameEn} (${declared ? "per your sheet" : `Amiram ${c.amiramScore}`}), but the exemption deadline was the end of Year 1 — if you're still not exempt, see academic advising (the English content courses are still required).`);
+          ? he(c, `דרישת-הרמה: ${declared ? "לפי הרמה מהגיליון" : `לפי האמירנט (${c.amiramScore})`} ${gm(c, "אתה", "את", "אתם")} ברמת ${lvl.nameHe}, כלומר ${lvl.levelCourses === 1 ? "נשאר קורס-אנגלית אחד" : `נשארו ${lvl.levelCourses} קורסי-אנגלית`} עד הפטור. לפי התקנון מגיעים לפטור (134+) עד סוף שנה א׳.`, `Level requirement: ${declared ? "per your declared level" : `per your Amiram (${c.amiramScore})`} you're at ${lvl.nameEn} — ${lvl.levelCourses === 1 ? "one level course left" : `${lvl.levelCourses} level courses left`} to exemption. Regulations expect exemption (134+) by the end of Year 1.`)
+          : he(c, `${gm(c, "אתה", "את", "אתם")} ב${lvl.nameHe} (${declared ? "לפי הגיליון" : `אמירנט ${c.amiramScore}`}), אבל הדדליין לפטור היה סוף שנה א׳ — אם עדיין אין לך פטור, ${gm(c, "פנה", "פני", "פנו")} לייעוץ אקדמי (קורסי-התוכן באנגלית עדיין נדרשים).`, `You're at ${lvl.nameEn} (${declared ? "per your sheet" : `Amiram ${c.amiramScore}`}), but the exemption deadline was the end of Year 1 — if you're still not exempt, see academic advising (the English content courses are still required).`);
       // #36 (owner-verified 4.7): English grades do NOT count toward the PPE
       // degree average — Ariel confirmed against a real transcript. (Earlier
       // research had inferred the opposite; the owner's check overrides it.)
@@ -593,7 +594,7 @@ const HANDLERS: Handler[] = [
         return {
           text: he(
             c,
-            `${ruleHe} אצלך עוד לא שמורים ציונים, אז אין לי ממוצע להעמיד מול הסף — ${gm(c, "הזן", "הזני", "הזן/י")} את הציונים שכבר קיבלת ואומר לך בדיוק איפה ${gm(c, "אתה עומד", "את עומדת", "את/ה עומד/ת")}.`,
+            `${ruleHe} אצלך עוד לא שמורים ציונים, אז אין לי ממוצע להעמיד מול הסף — ${gm(c, "הזן", "הזני", "הזינו")} את הציונים שכבר קיבלת ואומר לך בדיוק איפה ${gm(c, "אתה עומד", "את עומדת", "אתם עומדים")}.`,
             `${ruleEn} You have no grades recorded yet, so there's no average to hold against the bar — add the grades you already have and I'll tell you exactly where you stand.`
           ),
           href: "/graduation",
@@ -603,7 +604,7 @@ const HANDLERS: Handler[] = [
       const avg = c.courseAverage.toFixed(1);
       const standing =
         c.courseAverage >= overall
-          ? he(c, `זה מעל הסף הכללי — ${gm(c, "אתה בסדר", "את בסדר", "את/ה בסדר")} מהבחינה הזו.`, "That's above the overall bar — you're fine on that count.")
+          ? he(c, `זה מעל הסף הכללי — ${gm(c, "אתה בסדר", "את בסדר", "אתם בסדר")} מהבחינה הזו.`, "That's above the overall bar — you're fine on that count.")
           : he(c, "זה מתחת לסף הכללי — שווה לכוון גבוה בקורסים הקרובים.", "That's below the overall bar — worth aiming high in the coming courses.");
       return {
         text: he(
@@ -690,7 +691,7 @@ const HANDLERS: Handler[] = [
       return {
         text: he(
           c,
-          `נשארו לך ${remaining} ש״ס — בקצב רגיל (~25 לסמסטר) זה עוד כ-${sems} סמסטרים, תלוי בעומס שתיקח.`,
+          `נשארו לך ${remaining} ש״ס — בקצב רגיל (~25 לסמסטר) זה עוד כ-${heNoun(sems, "סמסטר", "סמסטרים")}, תלוי בעומס שתיקח.`,
           `You have ${remaining} credits left — at a normal pace (~25/semester) that's about ${sems} more semesters, depending on your load.`
         ),
         href: "/planner/semester",
@@ -837,7 +838,7 @@ const NORMALIZED_HANDLERS = HANDLERS.map((h) => ({
 export function answerDegreeQuestion(question: string, c: QAContext): QAAnswer {
   const q = normalize(question);
   if (!q) {
-    return { text: he(c, `${gm(c, "שאל", "שאלי", "שאל/י")} אותי כל דבר על התואר שלך`, "Ask me anything about your degree"), matched: false };
+    return { text: he(c, `${gm(c, "שאל", "שאלי", "שאלו")} אותי כל דבר על התואר שלך`, "Ask me anything about your degree"), matched: false };
   }
   // #22 — a human hello must not fall through to the capabilities wall ("לא
   // בטוח שהבנתי…"), which is the coldest sentence in the app. Checked BEFORE

@@ -25,6 +25,7 @@ import { Archive } from "lucide-react";
 import { Bidi } from "@/lib/bidi";
 import { cn } from "@/lib/utils";
 import { GRADE_MIN_N, RATING_MIN_N } from "@/lib/k-anonymity";
+import { heNoun, heNounF } from "@/lib/he-count";
 
 export interface ArchiveTotals {
   reviews: number;
@@ -76,7 +77,7 @@ export function LineageArchiveState({
               <Bidi
                 text={
                   isHe
-                    ? `${gradePoints} תרומות-ציונים אנונימיות כבר נאספו כאן, ועדיין לא מוצג אף ממוצע — ממוצע של קורס נפתח רק כשיש ${GRADE_MIN_N} תורמים לאותו קורס. חוות-דעת עוד לא נכתבה אף אחת, ועומס, קושי והמלצה נפתחים מ-${RATING_MIN_N} מדרגים לקורס. זה לא ריק, זה מתחת לסף.`
+                    ? `${heNounF(gradePoints, "תרומה", "תרומות")}-ציונים אנונימיות כבר נאספו כאן, ועדיין לא מוצג אף ממוצע — ממוצע של קורס נפתח רק כשיש ${GRADE_MIN_N} תורמים לאותו קורס. חוות-דעת עוד לא נכתבה אף אחת, ועומס, קושי והמלצה נפתחים מ-${heNoun(RATING_MIN_N, "מדרג", "מדרגים")} לקורס. זה לא ריק, זה מתחת לסף.`
                     : `${gradePoints} anonymous grade contributions are already here, and no average shows yet — a course average opens only at ${GRADE_MIN_N} contributors for that course. Not one review has been written, and workload, difficulty and verdict open from ${RATING_MIN_N} raters per course. This isn't empty, it's below the bar.`
                 }
               />
@@ -101,7 +102,7 @@ export function LineageArchiveState({
                       isHe
                         ? almostUnlocked.reviewsNeeded === 1
                           ? `עוד חוות-דעת אחת פותחת עוד קורס לכל המחזור.`
-                          : `עוד ${almostUnlocked.reviewsNeeded} חוות-דעת פותחות ${almostUnlocked.courses === 1 ? "עוד קורס אחד" : `עוד ${almostUnlocked.courses} קורסים`} לכל המחזור.`
+                          : `עוד ${almostUnlocked.reviewsNeeded} חוות-דעת פותחות ${almostUnlocked.courses === 1 ? "עוד קורס אחד" : `עוד ${heNoun(almostUnlocked.courses, "קורס", "קורסים")}`} לכל המחזור.`
                         : almostUnlocked.reviewsNeeded === 1
                           ? `One more review opens another course for the whole cohort.`
                           : `${almostUnlocked.reviewsNeeded} more reviews open ${almostUnlocked.courses === 1 ? "another course" : `another ${almostUnlocked.courses} courses`} for the whole cohort.`

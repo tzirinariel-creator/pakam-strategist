@@ -60,7 +60,7 @@ export function MentorsContent() {
         </h1>
         <p className="max-w-2xl text-foreground/55">
           {isHe
-            ? "הזמינו סטודנט/ית שאתם סומכים עליהם לראות את תוכנית-התואר שלכם ולייעץ. הם רואים את הקורסים והסמסטרים בלבד — לעולם לא את הציונים. אתם שולטים: אפשר לנתק בכל רגע."
+            ? "הזמינו סטודנטים שאתם סומכים עליהם לראות את תוכנית-התואר שלכם ולייעץ. הם רואים את הקורסים והסמסטרים בלבד — לעולם לא את הציונים. אתם שולטים: אפשר לנתק בכל רגע."
             : "Invite someone you trust to view your degree plan and advise. They see your courses and semesters only — never your grades. You're in control: end it anytime."}
         </p>
         <p className="max-w-2xl text-sm leading-relaxed text-foreground/45">
@@ -88,7 +88,7 @@ export function MentorsContent() {
               dir="auto"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              placeholder={isHe ? "אימייל של החונך/ת (רשום/ה לפכמון)" : "Mentor's email (a Pakamon user)"}
+              placeholder={isHe ? "אימייל של המנטור (רשומים לפכמון)" : "Mentor's email (a Pakamon user)"}
               className="w-full rounded-lg border border-border bg-card/60 py-2.5 pe-3 ps-9 text-sm text-foreground placeholder:text-foreground/35 focus:border-accent-brand focus:outline-none"
             />
           </div>
@@ -116,7 +116,7 @@ export function MentorsContent() {
                 <p className="text-xs text-foreground/50">
                   {m.status === "ACTIVE"
                     ? (isHe ? "רואה את התוכנית שלכם" : "Can see your plan")
-                    : (isHe ? "ממתין/ה לאישור ההזמנה" : "Invitation pending")}
+                    : (isHe ? "ממתינים לאישור ההזמנה" : "Invitation pending")}
                 </p>
               </div>
               <button
@@ -143,7 +143,7 @@ export function MentorsContent() {
               <li key={inv.linkId} className="flex items-center justify-between gap-3 rounded-lg border border-border/60 bg-card/40 p-3">
                 <p className="min-w-0 truncate text-sm text-foreground/85">
                   <span className="font-medium">{inv.menteeName}</span>{" "}
-                  <span className="text-foreground/55">{isHe ? "מזמינ/ה אתכם לראות את התוכנית ולייעץ" : "invited you to view their plan and advise"}</span>
+                  <span className="text-foreground/55">{isHe ? "מזמינים אתכם לראות את התוכנית ולייעץ" : "invited you to view their plan and advise"}</span>
                 </p>
                 <div className="flex shrink-0 gap-2">
                   <button
@@ -173,7 +173,7 @@ export function MentorsContent() {
       {(myMentees.data ?? []).length > 0 && (
         <section className="data-card animate-stagger-4 p-5">
           <h2 className="font-display text-lg font-bold text-foreground/85">
-            {isHe ? "אני חונך/ת" : "I mentor"}
+            {isHe ? "אני מנטור" : "I mentor"}
           </h2>
           <ul className="mt-4 flex flex-wrap gap-2">
             {(myMentees.data ?? []).map((m) => (

@@ -32,6 +32,7 @@ import { ThemedLoader } from "@/components/ui/themed-loader";
 import { QueryErrorState } from "@/components/shared/query-error";
 import { generationSpan, hasContributed, type GenerationSpan } from "@/lib/lineage";
 import { contributorLevel } from "@/lib/contributor-level";
+import { heNounF } from "@/lib/he-count";
 
 export function LineageContent() {
   const isHe = useLocale() === "he";
@@ -144,7 +145,7 @@ export function LineageContent() {
             stat={
               iContributed && mine && level
                 ? isHe
-                  ? `${mine.total} תרומות שלכם · ${level.titleHe}`
+                  ? `${heNounF(mine.total, "תרומה", "תרומות")} שלכם · ${level.titleHe}`
                   : `${mine.total} contributions · ${level.titleEn}`
                 : isHe
                   ? "עוד לא תרמתם כלום — וזה בסדר, אפשר להתחיל בקורס אחד"
@@ -213,7 +214,7 @@ export function LineageContent() {
             kicker={isHe ? "קשר אישי, בהסכמה, בשם" : "A named link, by consent"}
             body={
               isHe
-                ? "מזמינים סטודנט/ית שסומכים עליהם להסתכל על תוכנית-התואר ולייעץ עליה."
+                ? "מזמינים סטודנטים שסומכים עליהם להסתכל על תוכנית-התואר ולייעץ עליה."
                 : "Invite someone you trust to look at your degree plan and advise on it."
             }
             seeing={

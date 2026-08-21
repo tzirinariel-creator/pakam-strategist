@@ -209,7 +209,7 @@ describe("answerDegreeQuestion", () => {
     const female = answerDegreeQuestion("מה הסטטוס באנגלית?", ctx({ amiramScore: 140, gender: "female" }));
     expect(female.text).toContain("את פטורה");
     const unknown = answerDegreeQuestion("מה הסטטוס באנגלית?", ctx({ amiramScore: 140, gender: null }));
-    expect(unknown.text).toContain("את/ה פטור/ה"); // neutral fallback
+    expect(unknown.text).toContain("אתם פטורים"); // neutral fallback
   });
 
   it("tells an exempt student English does not affect the average", () => {

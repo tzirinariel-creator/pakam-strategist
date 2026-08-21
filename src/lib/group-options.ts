@@ -19,6 +19,7 @@ import { DAY_OF_WEEK_INDEX } from "@/lib/day-of-week";
 import type { ScheduleSessionLike } from "@/lib/plan-generator";
 import type { DayOfWeek } from "@/types/enums";
 import { hhmmToMinutes } from "@/lib/time-of-day";
+import { heNoun } from "@/lib/he-count";
 
 // ─── Types ───────────────────────────────────────────────────────────
 
@@ -408,7 +409,7 @@ export function describeGroupImpact(
       text: isHe
         ? option.addsCampusDays === 1
           ? "מוסיפה יום נוסף בקמפוס"
-          : `מוסיפה ${option.addsCampusDays} ימים בקמפוס`
+          : `מוסיפה ${heNoun(option.addsCampusDays, "יום", "ימים")} בקמפוס`
         : option.addsCampusDays === 1
           ? "Adds another day on campus"
           : `Adds ${option.addsCampusDays} days on campus`,

@@ -882,7 +882,7 @@ export function StepProfile({ data, onUpdate, sheetSeeded = false }: StepProfile
               onChange={(e) => onUpdate({ englishLevel: e.target.value || null })}
               className="w-full max-w-xs rounded-xl border-2 border-border bg-card px-4 py-2.5 text-sm text-foreground focus:border-foreground/30 focus:outline-none transition-colors"
             >
-              <option value="">{isHe ? "לא יודע/לפי הציון" : "Not sure / use score"}</option>
+              <option value="">{isHe ? "לא יודעים — לפי הציון" : "Not sure / use score"}</option>
               {ENGLISH_CONFIG.LEVELS.map((lvl) => (
                 <option key={lvl.level} value={lvl.level}>
                   {isHe ? lvl.nameHe : lvl.nameEn}

@@ -9,6 +9,7 @@
 
 import { planFromStudyTasks, type StudyTaskLike } from "@/lib/plan-from-tasks";
 import { civilDaysBetween } from "@/lib/civil-day";
+import { heNoun } from "@/lib/he-count";
 
 export function buildExamPeriodBlock(
   tasks: StudyTaskLike[],
@@ -28,7 +29,7 @@ export function buildExamPeriodBlock(
   // the King then stated that wrong countdown to the student as fact
   // (audit deferred-2). Exam tasks are stamped at NOON of their day
   // (study-task.ts), so resolving both sides in Israel is exact.
-  const untilLabel = (n: number) => (n === 0 ? "היום!" : n === 1 ? "מחר" : `בעוד ${n} ימים`);
+  const untilLabel = (n: number) => (n === 0 ? "היום!" : n === 1 ? "מחר" : `בעוד ${heNoun(n, "יום", "ימים")}`);
   const exams = plan.exams
     .slice()
     .sort((a, b) => a.examDate.getTime() - b.examDate.getTime())
@@ -51,7 +52,7 @@ export function buildExamPeriodBlock(
 
 ## תקופת המבחנים של הסטודנט (מתוך תוכנית-הלימוד השמורה באפליקציה — מקור-אמת, אל תמציא תאריכים):
 ${exams}
-  סה"כ מפגשי-לימוד מתוכננים: ${plan.sessions.length}${peak ? ` · היום העמוס ביותר: ${peak[0]} (${peak[1]} שעות)` : ""}
+  סה״כ מפגשי-לימוד מתוכננים: ${plan.sessions.length}${peak ? ` · היום העמוס ביותר: ${peak[0]} (${peak[1]} שעות)` : ""}
 
 כלל לשאלות תכנון-מבחנים (גובר על "אל תשאל הבהרות" לנושא הזה בלבד): פתח במשפט אחד שמשקף את המצב מהנתונים שלמעלה, שאל שאלה ממוקדת אחת (יום חסום? עבודה? קורס שמדאיג?) — ורק אחרי התשובה תן המלצה קונקרטית אחת. אם אין כאן תוכנית — הפנה למסך "מבחנים" לבנות אחת.`;
 }

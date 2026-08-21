@@ -1,3 +1,4 @@
+import { heNoun } from "@/lib/he-count";
 // =========================================
 // Plan sharing — encode a degree plan into a shareable URL
 // =========================================
@@ -167,10 +168,10 @@ export function buildPlanShareText(
   const lines: string[] = [];
   if (isHe) {
     lines.push(`*תוכנית התואר שלי — ${label}*`);
-    lines.push(`${courses.length === 1 ? "קורס אחד" : `${courses.length} קורסים`} · ${credits} ש״ס`);
+    lines.push(`${courses.length === 1 ? "קורס אחד" : `${heNoun(courses.length, "קורס", "קורסים")}`} · ${credits} ש״ס`);
     lines.push("");
     for (const n of names) lines.push(`• ${n}`);
-    if (more > 0) lines.push(`• ועוד ${more === 1 ? "קורס אחד" : `${more} קורסים`}`);
+    if (more > 0) lines.push(`• ועוד ${more === 1 ? "קורס אחד" : `${heNoun(more, "קורס", "קורסים")}`}`);
     lines.push("");
     lines.push("אפשר לראות את הכול ולהעתיק לעצמכם:");
   } else {

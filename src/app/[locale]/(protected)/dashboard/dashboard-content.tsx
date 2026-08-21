@@ -815,7 +815,7 @@ export function DashboardContent() {
                   ? pgd(
                       "סמן אותם והזן ציונים כדי לראות את ההתקדמות האמיתית שלך",
                       "סמני אותם והזני ציונים כדי לראות את ההתקדמות האמיתית שלך",
-                      "סמן/י אותם והזן/י ציונים כדי לראות את ההתקדמות האמיתית שלך"
+                      "סמנו אותם והזינו ציונים כדי לראות את ההתקדמות האמיתית שלכם"
                     )
                   : t("pastCoursesDesc")}
               </p>
@@ -967,7 +967,7 @@ export function DashboardContent() {
         if (!hasGrades) {
           actions.push({
             icon: Calculator,
-            label: isHe ? pgd("הזן ציונים", "הזני ציונים", "הזן/י ציונים") : t("actionEnterGrades"),
+            label: isHe ? pgd("הזן ציונים", "הזני ציונים", "הזינו ציונים") : t("actionEnterGrades"),
             description: t("actionEnterGradesDesc"),
             // Grades are entered in the academic record (the calculator is now
             // analysis-only after the #25 grades-door merge), so this CTA must
@@ -981,7 +981,7 @@ export function DashboardContent() {
         if (!hasFocusArea) {
           actions.push({
             icon: Target,
-            label: isHe ? pgd("בחר תחום מיקוד", "בחרי תחום מיקוד", "בחר/י תחום מיקוד") : t("actionPickFocus"),
+            label: isHe ? pgd("בחר תחום מיקוד", "בחרי תחום מיקוד", "בחרו תחום מיקוד") : t("actionPickFocus"),
             description: t("actionPickFocusDesc"),
             href: "/settings",
             color: "bg-violet-500/10 text-violet-400",
@@ -992,7 +992,7 @@ export function DashboardContent() {
         if (currentYear >= 2 && earnedCredits < 20) {
           actions.push({
             icon: GraduationCap,
-            label: isHe ? pgd("הוסף קורסי עבר", "הוסיפי קורסי עבר", "הוסף/י קורסי עבר") : t("actionAddPast"),
+            label: isHe ? pgd("הוסף קורסי עבר", "הוסיפי קורסי עבר", "הוסיפו קורסי עבר") : t("actionAddPast"),
             description: t("actionAddPastDesc"),
             href: "/record",
             color: "bg-amber-500/10 text-amber-400",
@@ -1003,7 +1003,7 @@ export function DashboardContent() {
         if (actions.length === 0) {
           actions.push({
             icon: Pencil,
-            label: isHe ? pgd("ערוך את התוכנית", "ערכי את התוכנית", "ערוך/י את התוכנית") : t("actionEditPlan"),
+            label: isHe ? pgd("ערוך את התוכנית", "ערכי את התוכנית", "ערכו את התוכנית") : t("actionEditPlan"),
             description: t("actionEditPlanDesc"),
             href: "/planner",
             color: "bg-orange-500/10 text-orange-400",

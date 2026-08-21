@@ -109,7 +109,7 @@ describe("Q9 — the mentor context equals plan.getCredits for the same rows", (
     // Label corrected 13.8: this field is `effectiveTotal`, which folds in the
     // miluim exemption as well as planned credits. Calling it "כולל מתוכננות"
     // hid that, and a group-C student with nothing saved read as "8 ש״ס".
-    expect(prompt).toContain(`סה"כ ש״ס (כולל פטור מילואים ומתוכננות): 17`);
+    expect(prompt).toContain(`סה״כ ש״ס (כולל פטור מילואים ומתוכננות): 17`);
     expect(prompt).toContain((1180 / 13).toFixed(1)); // "90.8"
   });
 

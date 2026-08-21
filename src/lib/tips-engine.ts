@@ -93,7 +93,7 @@ const FUN_FACTS: Tip[] = [
   {
     id: "ff-7",
     textEn: "Econ seminar papers are written in pairs. Find a good partner — it makes all the difference.",
-    textHe: "עבודות סמינר בכלכלה נכתבות בזוגות. מצאו שותף/ה טוב/ה — זה עושה את ההבדל.",
+    textHe: "עבודות סמינר בכלכלה נכתבות בזוגות. מצאו שותפים טובים — זה עושה את ההבדל.",
     category: "fun_fact",
     icon: Users,
   },

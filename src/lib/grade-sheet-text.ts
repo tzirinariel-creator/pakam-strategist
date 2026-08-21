@@ -63,7 +63,7 @@ export interface SheetTextParse {
 }
 
 const CODE = /(\d{4}-\d{4})\s*$/;
-const SEMESTER_HEADER = /שנה"ל\s+\S+\s+סמסטר\s+(\d{4}\/\d)/;
+const SEMESTER_HEADER = /שנה"ל\s+\S+\s+סמסטר\s+(\d{4}\/\d)/; // straight quote: matches the PDF, not our copy
 const MODE = /(?:ש'\+ת'|שו"ת|ש'|ת'|שו״ת|ש׳\+ת׳|ש׳|ת׳)/;
 const NOTE = /^(לא\s+לשקלול)\s+/;
 

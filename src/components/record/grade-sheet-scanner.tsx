@@ -22,7 +22,7 @@ import {
 import type { ScanDiagnostics } from "@/lib/grade-sheet";
 import { ScanDiagnosticsPanel } from "@/components/record/scan-diagnostics";
 import { ScanGapBanner } from "@/components/record/scan-gap-banner";
-import { heCount, heNoun } from "@/lib/he-count";
+import { heCount, heNoun, heNounF } from "@/lib/he-count";
 import { getWrapTarget, wrapStorageKey } from "@/lib/semester-clock";
 import { calculateGrades } from "@/lib/grade-calculator";
 import { prefersHigherGrade, type MiluimGroupKey } from "@/lib/miluim";
@@ -262,7 +262,7 @@ export function GradeSheetScanner() {
           isHe
             ? heCount(added, {
                 one: "קורס אחד שלא היה בתוכנית נוסף לתיק",
-                many: `${added} קורסים שלא היו בתוכנית נוספו לתיק`,
+                many: `${heNoun(added, "קורס", "קורסים")} שלא היו בתוכנית נוספו לתיק`,
               })
             : `${added} course${added === 1 ? "" : "s"} that ${added === 1 ? "wasn't" : "weren't"} in the plan ${added === 1 ? "was" : "were"} added to your record`,
         );
@@ -281,7 +281,7 @@ export function GradeSheetScanner() {
         isHe
           ? heCount(ok + added, {
               one: "נקלט קורס אחד מהגיליון",
-              many: `נקלטו ${ok + added} קורסים מהגיליון`,
+              many: `נקלטו ${heNoun(ok + added, "קורס", "קורסים")} מהגיליון`,
             })
           : `${ok + added} course${ok + added === 1 ? "" : "s"} taken from the sheet`,
         parts.length ? { description: parts.join(" · ") } : undefined,
@@ -395,10 +395,10 @@ export function GradeSheetScanner() {
                 {isHe
                   ? `${heCount(scanSummary.updated, {
                       one: "קורס אחד מהתוכנית עודכן",
-                      many: `${scanSummary.updated} קורסים מהתוכנית עודכנו`,
+                      many: `${heNoun(scanSummary.updated, "קורס", "קורסים")} מהתוכנית עודכנו`,
                     })}, ו${heCount(scanSummary.added, {
                       one: "קורס אחד שלא היה בתוכנית (בחירה כללית) נוסף",
-                      many: `-${scanSummary.added} קורסים שלא היו בתוכנית (בחירה כללית) נוספו`,
+                      many: `-${heNoun(scanSummary.added, "קורס", "קורסים")} שלא היו בתוכנית (בחירה כללית) נוספו`,
                     })} לתיק עם הציון מהגיליון.`
                   : `${scanSummary.updated} planned courses updated, and ${scanSummary.added} courses that weren't in the plan were added with the sheet's grade.`}
               </p>
@@ -415,7 +415,7 @@ export function GradeSheetScanner() {
                 {isHe
                   ? `${heCount(scanSummary.failedGrades, {
                       one: "קורס אחד נרשם כנכשל",
-                      many: `${scanSummary.failedGrades} קורסים נרשמו כנכשלים`,
+                      many: `${heNoun(scanSummary.failedGrades, "קורס", "קורסים")} נרשמו כנכשלים`,
                     })} — בבדיקת-המסלול תראו מה זה אומר ומה אפשר לעשות.`
                   : `${scanSummary.failedGrades} courses recorded as failed — the track check shows what that means and what you can do.`}
               </p>
@@ -837,7 +837,7 @@ export function GradeSheetScanner() {
             className="inline-flex items-center gap-1.5 rounded-lg bg-accent-brand px-3 py-2 text-sm font-semibold text-accent-brand-fg transition-colors hover:bg-accent-brand-hover disabled:opacity-40"
           >
             {applying ? <Loader2 className="size-4 animate-spin" /> : <Check className="size-4" />}
-            {isHe ? `שמרו ${checked.size} שורות מסומנות` : `Save ${checked.size} selected`}
+            {isHe ? `${heCount(checked.size, { one: "שמרו שורה אחת מסומנת", many: `שמרו ${checked.size} שורות מסומנות` })}` : `Save ${checked.size} selected`}
           </button>
         </div>
       )}

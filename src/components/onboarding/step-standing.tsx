@@ -16,6 +16,7 @@ import { getPlanningAnchor } from "@/lib/academic-calendar";
 import { WhereIsMySheet } from "@/components/record/where-is-my-sheet";
 import type { CourseWithSchedule } from "@/lib/plan-generator";
 import type { CompletedCourse } from "./step-history";
+import { heNoun, heNounF } from "@/lib/he-count";
 
 // ─────────────────────────────────────────────────────────────────────────
 // #11 + #26 — the FIRST question of onboarding.
@@ -533,7 +534,7 @@ function StandingSummaryCard({
                 ? countPhrase(
                     summary.completed.length,
                     "קראנו קורס אחד שהושלם",
-                    `קראנו ${summary.completed.length} קורסים שהושלמו`,
+                    `קראנו ${heNoun(summary.completed.length, "קורס", "קורסים")} שהושלמו`,
                   )
                 : `We read ${summary.completed.length} completed course${summary.completed.length === 1 ? "" : "s"}`}
             </p>
@@ -692,7 +693,7 @@ function StandingSummaryCard({
                       isHe
                         ? summary.inProgress.length === 1
                           ? "קורס אחד מופיע בגיליון בלי ציון (***), ולכן הוא לא נרשם כהושלם. אם כבר קיבלתם בו ציון — הזינו אותו ברשימה למטה והוא ייחשב כהושלם."
-                          : `${summary.inProgress.length} קורסים מופיעים בגיליון בלי ציון (***), ולכן הם לא נרשמים כהושלמו. אם כבר קיבלתם ציון באחד מהם — הזינו אותו ברשימה למטה והוא ייחשב כהושלם.`
+                          : `${summary.inProgress.length === 1 ? "קורס אחד מופיע" : `${summary.inProgress.length} קורסים מופיעים`} בגיליון בלי ציון (***), ולכן הם לא נרשמים כהושלמו. אם כבר קיבלתם ציון באחד מהם — הזינו אותו ברשימה למטה והוא ייחשב כהושלם.`
                         : `${summary.inProgress.length} appear on the sheet with no grade (***), so they aren't recorded as completed. If one of them is already graded, enter the grade in the list below and it will count.`
                     }
                   />
@@ -711,7 +712,7 @@ function StandingSummaryCard({
                       isHe
                         ? summary.unclear.length === 1
                           ? "שורה אחת הגיעה בלי ציון ובלי סימן מעבר, אז לא קבענו לה שום מצב. היא לא נספרת — הזינו את הציון ברשימה למטה, או הסירו את הסימון שלה."
-                          : `${summary.unclear.length} שורות הגיעו בלי ציון ובלי סימן מעבר, אז לא קבענו להן שום מצב. הן לא נספרות — הזינו את הציונים ברשימה למטה, או הסירו את הסימון שלהן.`
+                          : `${heNounF(summary.unclear.length, "שורה", "שורות")} הגיעו בלי ציון ובלי סימן מעבר, אז לא קבענו להן שום מצב. הן לא נספרות — הזינו את הציונים ברשימה למטה, או הסירו את הסימון שלהן.`
                         : summary.unclear.length === 1
                           ? "One row came back with no grade and no pass mark, so we decided nothing about it. It counts for nothing — enter its grade in the list below, or un-tick it."
                           : `${summary.unclear.length} rows came back with no grade and no pass mark, so we decided nothing about them. They count for nothing — enter their grades in the list below, or un-tick them.`
@@ -729,7 +730,7 @@ function StandingSummaryCard({
                       isHe
                         ? summary.failed.length === 1
                           ? 'קורס אחד לא עבר את סף המעבר — לא נרשם כהושלם. אפשר להוסיף אותו אחרי ההרשמה במסך "התיק".'
-                          : `${summary.failed.length} קורסים לא עברו את סף המעבר — לא נרשמים כהושלמו. אפשר להוסיף אותם אחרי ההרשמה במסך "התיק".`
+                          : `${heNoun(summary.failed.length, "קורס", "קורסים")} לא עברו את סף המעבר — לא נרשמים כהושלמו. אפשר להוסיף אותם אחרי ההרשמה במסך "התיק".`
                         : `${summary.failed.length} didn't reach the pass bar — not recorded as completed. You can add them after signup in the record screen.`
                     }
                   />
@@ -761,7 +762,7 @@ function StandingSummaryCard({
                       isHe
                         ? summary.offCatalogCompleted === 1
                           ? "קורס אחד שאינו ברשימת פכ״מ — שמרנו אותו בשמו מהגיליון."
-                          : `${summary.offCatalogCompleted} קורסים שאינם ברשימת פכ״מ — שמרנו אותם בשמם מהגיליון.`
+                          : `${heNoun(summary.offCatalogCompleted, "קורס", "קורסים")} שאינם ברשימת פכ״מ — שמרנו אותם בשמם מהגיליון.`
                         : `${summary.offCatalogCompleted} outside the PPE list — kept under the name printed on your sheet.`
                     }
                   />
@@ -777,7 +778,7 @@ function StandingSummaryCard({
                       isHe
                         ? summary.uncertain.length === 1
                           ? 'שורה אחת יצאה שונה בין שתי הקריאות שלנו. היא מסומנת "לבדיקה" ברשימה למטה — השוו לגיליון ותקנו שם.'
-                          : `${summary.uncertain.length} שורות יצאו שונה בין שתי הקריאות שלנו. הן מסומנות "לבדיקה" ברשימה למטה — השוו לגיליון ותקנו שם.`
+                          : `${heNounF(summary.uncertain.length, "שורה", "שורות")} יצאו שונה בין שתי הקריאות שלנו. הן מסומנות "לבדיקה" ברשימה למטה — השוו לגיליון ותקנו שם.`
                         : `${summary.uncertain.length} rows came out differently on our two reads. They're marked "Check" in the list below — compare them with your sheet and fix them there.`
                     }
                   />
@@ -844,7 +845,7 @@ function StandingSummaryCard({
             )}
             <span className="ms-auto text-[11px] text-foreground/40">
               {isHe
-                ? countPhrase(group.rows.length, "שורה אחת", `${group.rows.length} שורות`)
+                ? countPhrase(group.rows.length, "שורה אחת", `${heNounF(group.rows.length, "שורה", "שורות")}`)
                 : `${group.rows.length} ${group.rows.length === 1 ? "row" : "rows"}`}
             </span>
           </div>

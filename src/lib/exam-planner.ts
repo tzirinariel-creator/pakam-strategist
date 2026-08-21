@@ -10,6 +10,7 @@
 // never pulls in the Arazim network fetcher.
 import { ARAZIM_ENABLED } from "./arazim/visibility";
 import { startOfDay, addDays, dayKey } from "@/lib/local-day";
+import { heNoun } from "@/lib/he-count";
 
 export interface ExamInput {
   courseCode: string;
@@ -373,7 +374,7 @@ export function analyzeExamPeriod(
   //    counted like a person would — never "בעוד 1 ימים".
   const first = exams[0]!;
   const days = Math.max(0, Math.round((first.examDate.getTime() - startOfDay(now).getTime()) / 86400000));
-  const whenHe = days === 0 ? "היום!" : days === 1 ? "מחר" : days === 2 ? "מחרתיים" : `בעוד ${days} ימים`;
+  const whenHe = days === 0 ? "היום!" : days === 1 ? "מחר" : days === 2 ? "מחרתיים" : `בעוד ${heNoun(days, "יום", "ימים")}`;
   const whenEn = days === 0 ? "today!" : days === 1 ? "tomorrow" : `in ${days} days`;
   recs.push({
     kind: "start",
@@ -387,7 +388,7 @@ export function analyzeExamPeriod(
     if (gap < 3) {
       recs.push({
         kind: "clash",
-        textHe: `${exams[i - 1]!.courseName} ו${exams[i]!.courseName} במרחק ${gap === 1 ? "יום אחד" : `${gap} ימים`} בלבד — צפוף. שקלו לדחות אחד למועד ב׳.`,
+        textHe: `${exams[i - 1]!.courseName} ו${exams[i]!.courseName} במרחק ${gap === 1 ? "יום אחד" : `${heNoun(gap, "יום", "ימים")}`} בלבד — צפוף. שקלו לדחות אחד למועד ב׳.`,
         textEn: `${exams[i - 1]!.courseName} and ${exams[i]!.courseName} are only ${gap} days apart — tight. Consider deferring one to Moed B.`,
       });
     }
@@ -403,7 +404,7 @@ export function analyzeExamPeriod(
     const candidate = exams.slice().sort((a, b) => b.examDate.getTime() - a.examDate.getTime())[0]!;
     recs.push({
       kind: "deferB",
-      textHe: `העומס גבוה (${totalHours} שעות לימוד ב-${span} ימים). אם צריך — ${candidate.courseName} מועמד טוב לדחייה למועד ב׳.${preferHigherGrade ? " ובמילואים שלכם — הציון הגבוה מבין המועדים נשמר, אז מועד ב׳ הוא שדרוג בטוח." : " שימו לב: הציון האחרון קובע, לא הגבוה."}`,
+      textHe: `העומס גבוה (${totalHours} שעות לימוד ב-${heNoun(span, "יום", "ימים")}). אם צריך — ${candidate.courseName} מועמד טוב לדחייה למועד ב׳.${preferHigherGrade ? " ובמילואים שלכם — הציון הגבוה מבין המועדים נשמר, אז מועד ב׳ הוא שדרוג בטוח." : " שימו לב: הציון האחרון קובע, לא הגבוה."}`,
       textEn: `High load (${totalHours} study hours in ${span} days). If needed, ${candidate.courseName} is a good candidate to defer to Moed B.${preferHigherGrade ? " With your miluim benefit the HIGHER of the two sittings is kept, so Moed B is a safe upgrade." : " Note: the last grade counts, not the higher one."}`,
     });
   }
