@@ -308,11 +308,15 @@
   --font-serif: var(--font-display);
   --font-mono: var(--font-mono-stack);
 
-  /* Radii */
-  --radius-sm: 0.25rem;
-  --radius-md: 0.375rem;
-  --radius-lg: 0.5rem;
-  --radius-xl: 0.75rem;
+  /* Radii — the Tailwind scale behind rounded-sm/md/lg/xl.
+     These are what the app actually uses; `--radius` above only feeds a few
+     shadcn primitives, which is why raising it alone left every card at 8px.
+     Lifted toward the Lookit reference, where nothing is squarer than about
+     16px and CTAs are full pills. */
+  --radius-sm: 0.5rem;
+  --radius-md: 0.75rem;
+  --radius-lg: 1rem;
+  --radius-xl: 1.25rem;
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
   --color-sidebar-primary: var(--sidebar-primary);
@@ -515,7 +519,7 @@ h4, h5, h6 {
   .data-card {
     background: var(--card);
     border: 1px solid var(--border);
-    border-radius: var(--radius-lg);
+    border-radius: var(--radius-xl);
     padding: 1rem;
     position: relative;
     overflow: hidden;
