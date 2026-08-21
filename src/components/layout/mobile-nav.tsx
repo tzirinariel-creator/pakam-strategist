@@ -146,7 +146,13 @@ export function MobileNav() {
 
       {/* Bottom nav bar — pads its own height out past the iOS home indicator
           via --safe-bottom, and keeps the tap row a clean 64px above it (#20). */}
-      <nav className="fixed bottom-0 start-0 end-0 z-50 border-t border-border bg-background/80 pb-[var(--safe-bottom)] backdrop-blur-md md:hidden">
+      {/* Lookit reference (21.8): the bottom navigation is a FLOATING pill
+          inset from the edges, not a bar welded to the bottom of the screen.
+          The safe-area padding moves to the wrapper so the pill itself clears
+          the iOS home indicator without growing its own height — the 64px tap
+          row the #20 note fixed is preserved exactly. */}
+      <div className="fixed inset-x-0 bottom-0 z-50 px-3 pb-[calc(var(--safe-bottom)+0.5rem)] pt-2 md:hidden">
+        <nav className="nav-pill">
         {/* min-h, not h: at 320px ("בדיקת מסלול") the labels wrap to two lines
             and the item grows to 70px. With a fixed h-16 the row overflowed the
             bar and the second line was cut off by the bottom of the screen
@@ -194,6 +200,7 @@ export function MobileNav() {
         </button>
         </div>
       </nav>
+      </div>
     </>
   );
 }

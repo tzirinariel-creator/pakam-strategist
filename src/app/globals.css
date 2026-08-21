@@ -29,7 +29,11 @@
   --border-subtle: #E8E8E8;
   --input: oklch(0.922 0 0);
   --ring: oklch(0.708 0 0);
-  --radius: 0.75rem;
+  /* Lookit reference (21.8): cards sit at roughly 20-24px and every CTA is a
+     full pill. Raising the base token moves every card, input and popover at
+     once rather than screen by screen — the same reason the exam-date fix went
+     into the columns. */
+  --radius: 1.15rem;
 
   /* ── One colour per course (light) ──────────────────────────────────
      Consumed ONLY through src/lib/course-color.ts, which hashes the course
@@ -89,6 +93,14 @@
   --accent-brand-fg: #FFFFFF;
   --accent-brand-muted: rgba(91, 91, 214, 0.08);
   --accent-brand-ring: rgba(91, 91, 214, 0.35);
+
+  /* The ambient canvas (Lookit reference, 21.8). Mirrored here for exactly the
+     reason the accent tokens above are: a token defined ONLY inside a theme
+     block resolves to nothing before the pre-paint script stamps a class, and
+     `background-image: var(--canvas-wash)` would silently render flat. */
+  --canvas-wash:
+    radial-gradient(120% 60% at 50% 0%, rgba(255, 246, 235, 0.75) 0%, rgba(255, 246, 235, 0) 60%),
+    radial-gradient(120% 70% at 50% 100%, rgba(129, 128, 226, 0.13) 0%, rgba(129, 128, 226, 0) 65%);
 
   /* The King's gold — EXCLUSIVE to the Philosopher King (crown, FAB ring,
      chat header, landing King strip). Never success/rating/decoration.
@@ -156,7 +168,10 @@
 
   /* Elevation — layered soft shadows (stacked-shadow technique) */
   --shadow-xs: 0 1px 2px rgba(16, 17, 26, 0.04);
-  --shadow-card: 0 1px 2px rgba(16, 17, 26, 0.04), 0 1px 3px rgba(16, 17, 26, 0.03);
+  /* Lookit reference: cards FLOAT on the wash rather than sitting inside a
+     hairline box, so the shadow is wider and softer than a 1px lift and the
+     border does most of its work at very low contrast. */
+  --shadow-card: 0 1px 2px rgba(16, 17, 26, 0.03), 0 6px 20px rgba(16, 17, 26, 0.05);
   --shadow-elevated: 0 2px 4px rgba(16, 17, 26, 0.04), 0 8px 24px rgba(16, 17, 26, 0.07);
   --shadow-float: 0 8px 16px rgba(16, 17, 26, 0.06), 0 24px 48px rgba(16, 17, 26, 0.10);
   --shadow-xl: 0 12px 24px rgba(16, 17, 26, 0.08), 0 32px 64px rgba(16, 17, 26, 0.12);
@@ -198,6 +213,13 @@
   --accent-brand-fg: #FFFFFF;
   --accent-brand-muted: rgba(91, 91, 214, 0.08);
   --accent-brand-ring: rgba(91, 91, 214, 0.35);
+
+  /* The ambient canvas (Lookit reference). Warm at the top, cool at the
+     bottom, both barely there — at these alphas it reads as depth rather than
+     as colour, which is the point. */
+  --canvas-wash:
+    radial-gradient(120% 60% at 50% 0%, rgba(255, 246, 235, 0.75) 0%, rgba(255, 246, 235, 0) 60%),
+    radial-gradient(120% 70% at 50% 100%, rgba(129, 128, 226, 0.13) 0%, rgba(129, 128, 226, 0) 65%);
 
   /* accent-gold retained as the neutral-ink accent (legacy token, ink value) */
   --accent-gold: #18181B;
@@ -328,6 +350,15 @@ body {
      h1-h3 rule for why that distinction is load-bearing. */
   color: var(--foreground);
   background-color: var(--background);
+  /* Lookit reference (21.8): its screens sit on a warm-cream-to-lavender wash
+     rather than flat white, and that single choice is most of what makes them
+     read as soft. Kept very low in saturation — a background that competes
+     with the content is worse than a plain one.
+     `background-attachment: fixed` so it behaves as a canvas the page moves
+     over, not a gradient that scrolls away after one screen. */
+  background-image: var(--canvas-wash);
+  background-attachment: fixed;
+  background-repeat: no-repeat;
   font-family: var(--font-body);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -451,6 +482,36 @@ h4, h5, h6 {
    cause of the ".data-card overrides `fixed`" gotcha). In pakam-ui,
    utilities win — as every call site already assumes. */
 @layer pakam-ui {
+  /* ---------------------------------------------------------------
+     Lookit reference (21.8): every primary CTA is a full pill, and the
+     bottom navigation is a floating white pill rather than a bar welded to
+     the edge of the screen. Opt-in classes rather than a blanket button
+     restyle — a global override would also reshape destructive confirms,
+     icon buttons and the segmented controls, which are not pills in the
+     reference either.
+     --------------------------------------------------------------- */
+  .pill-cta {
+    border-radius: 9999px;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    transition: transform 0.18s var(--ease-out-soft), box-shadow 0.18s var(--ease-out-soft),
+      background-color 0.18s var(--ease-out-soft);
+  }
+
+  .pill-cta:active {
+    transform: scale(0.985);
+  }
+
+  /* The floating nav pill. Kept off the screen edge, like the reference. */
+  .nav-pill {
+    border-radius: 9999px;
+    background: color-mix(in oklab, var(--card) 88%, transparent);
+    -webkit-backdrop-filter: saturate(180%) blur(16px);
+    backdrop-filter: saturate(180%) blur(16px);
+    box-shadow: 0 2px 6px rgba(16, 17, 26, 0.05), 0 12px 32px rgba(16, 17, 26, 0.10);
+    border: 1px solid var(--border-subtle);
+  }
+
   .data-card {
     background: var(--card);
     border: 1px solid var(--border);
@@ -626,6 +687,13 @@ h4, h5, h6 {
    ========================================= */
 
 .dark {
+  /* The dark canvas is NOT the light wash inverted. A cream glow on near-black
+     reads as a smudge; what survives the translation is the cool bottom lift,
+     kept even fainter because contrast against #0B0B0F is cheap. */
+  --canvas-wash:
+    radial-gradient(120% 60% at 50% 0%, rgba(120, 118, 200, 0.10) 0%, rgba(120, 118, 200, 0) 60%),
+    radial-gradient(120% 70% at 50% 100%, rgba(91, 91, 214, 0.09) 0%, rgba(91, 91, 214, 0) 65%);
+
   /* Studio Clarity dark — cool near-black, never flat #000 */
   --background: #0B0B0F;
   --background-secondary: #121217;
