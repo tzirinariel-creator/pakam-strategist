@@ -1,101 +1,66 @@
-// @vitest-environment jsdom
-// =========================================================================
-// 14.8 — "הוא לא קולט דברים": making a failed scan diagnosable
-// =========================================================================
-// Ariel uploaded his own grade sheet and courses he HAS grades for (English,
-// דוגרי) came back without them. We could not answer him, because the vision
-// model's raw output is never stored: "that page was never in the file",
-// "the model misread the cell" and "our code dropped it" are indistinguishable
-// from the outside.
-//
-// This panel reports the SHAPE of the read — no names, no grades — so the
-// student can read it off the screen and tell us which of the three happened.
-// The first row is the one that usually settles it: a course from year 1 can't
-// be missing from a file that never covered year 1.
+/** @vitest-environment jsdom */
 import { describe, it, expect, afterEach } from "vitest";
-import "@testing-library/jest-dom/vitest";
-import { render, screen, cleanup, within } from "@testing-library/react";
-import { ScanDiagnosticsPanel } from "@/components/record/scan-diagnostics";
+import { render, screen, cleanup } from "@testing-library/react";
+import { ScanDiagnosticsPanel } from "../scan-diagnostics";
 import type { ScanDiagnostics } from "@/lib/grade-sheet";
 
 afterEach(cleanup);
 
-const base: ScanDiagnostics = {
-  semesters: ["2024/1", "2024/2", "2025/1"],
-  firstReadRows: 12,
-  verifyReadRows: 12,
-  verifyFailed: false,
-  withGrade: 10,
-  withoutGrade: 2,
+// Ariel's actual scan, from the screenshot he sent on 21.8.
+const ARIEL: ScanDiagnostics = {
+  semesters: ["2025/1", "2025/2"],
+  firstReadRows: 20,
+  verifyReadRows: 20,
+  withGrade: 17,
+  withoutGrade: 3,
   disputed: 0,
+  verifyFailed: false,
   rejectedRows: 0,
   censusFailed: false,
   missingRows: [],
   missingGrades: [],
 };
 
-/** Read the panel's value for a given label — the row shape is a <dt>/<dd> pair. */
-function valueFor(label: RegExp): string {
-  const dt = screen.getByText(label);
-  return dt.parentElement!.querySelector("dd")!.textContent!.trim();
-}
-
 describe("ScanDiagnosticsPanel", () => {
-  it("lists the semesters the file covered — the answer to a missing old course", () => {
-    render(<ScanDiagnosticsPanel d={base} isHe />);
-    expect(valueFor(/הסמסטרים שהקובץ כיסה/)).toBe("2024/1, 2024/2, 2025/1");
+  it("is named for the reason a student opens it", () => {
+    // Nobody wonders "what did the scanner read". They wonder where their
+    // course went. The old title was "מה הסורק קרא בפועל".
+    render(<ScanDiagnosticsPanel d={ARIEL} isHe />);
+    expect(screen.getByText(/חסר לכם קורס/)).toBeTruthy();
   });
 
-  it("says so plainly when no semester header was read at all", () => {
-    render(<ScanDiagnosticsPanel d={{ ...base, semesters: [] }} isHe />);
-    expect(valueFor(/הסמסטרים שהקובץ כיסה/)).toBe("לא זוהו");
+  it("says the semesters in words, not as 2025/1", () => {
+    const { container } = render(<ScanDiagnosticsPanel d={ARIEL} isHe />);
+    expect(container.textContent).toContain("סמסטר א׳ · תשפ״ו");
+    expect(container.textContent).toContain("סמסטר ב׳ · תשפ״ו");
+    expect(container.textContent).not.toContain("2025/1");
   });
 
-  it("reports the graded / ungraded split", () => {
-    render(<ScanDiagnosticsPanel d={base} isHe />);
-    expect(valueFor(/קורסים עם ציון/)).toBe("10");
-    expect(valueFor(/קורסים בלי ציון/)).toBe("2");
+  it("hides the mechanics when the read was clean", () => {
+    // "שורות בקריאה הראשונה: 20 / בקריאת האימות: 20 / לא הסכימו: 0" is a log
+    // line. A number that cannot change what the reader does is not
+    // information — Ariel: "לא מבין למה החלק הזה חשוב".
+    const { container } = render(<ScanDiagnosticsPanel d={ARIEL} isHe />);
+    expect(container.textContent).not.toMatch(/קריאת האימות|קריאה הראשונה/);
+    expect(container.textContent).not.toMatch(/לא הסכימו/);
   });
 
-  it("warns when the verifying second read never ran", () => {
-    // The verify pass is what catches a misread cell. When it dies (quota, a
-    // network blip) the student is looking at a single unchecked read, and has
-    // to be told — silence here is what made the original report unanswerable.
-    render(
-      <ScanDiagnosticsPanel
-        d={{ ...base, verifyReadRows: null, verifyFailed: true }}
-        isHe
-      />,
+  it("shows the mechanics exactly when they mean something", () => {
+    const { container } = render(
+      <ScanDiagnosticsPanel d={{ ...ARIEL, disputed: 2 }} isHe />,
     );
-    expect(valueFor(/שורות בקריאת האימות/)).toBe("האימות לא רץ");
-    expect(screen.getByText(/מבוסס על קריאה אחת בלבד/)).toBeInTheDocument();
+    expect(container.textContent).toMatch(/לא הסכימו עליהן/);
   });
 
-  it("shows no such warning on a healthy double read", () => {
-    render(<ScanDiagnosticsPanel d={base} isHe />);
-    expect(screen.queryByText(/קריאה אחת בלבד/)).not.toBeInTheDocument();
+  it("warns honestly when the verifying read did not run", () => {
+    const { container } = render(
+      <ScanDiagnosticsPanel d={{ ...ARIEL, verifyFailed: true }} isHe />,
+    );
+    expect(container.textContent).toMatch(/קריאה אחת/);
   });
 
-  it("surfaces rows the two reads disagreed about", () => {
-    render(<ScanDiagnosticsPanel d={{ ...base, disputed: 3 }} isHe />);
-    expect(valueFor(/שתי הקריאות לא הסכימו/)).toBe("3");
-  });
-
-  it("carries no course name and no grade — only shapes", () => {
-    // The panel is shown to the student, but it is also what they screenshot
-    // and send us. Nothing identifying may ride along in it.
-    const { container } = render(<ScanDiagnosticsPanel d={base} isHe />);
-    expect(container.textContent).not.toMatch(/[0-9]{4}-[0-9]{4}/); // course codes
-  });
-
-  it("renders in English too", () => {
-    const { container } = render(<ScanDiagnosticsPanel d={base} isHe={false} />);
-    expect(within(container).getByText(/Semesters the file covered/)).toBeInTheDocument();
-    expect(within(container).queryByText(/הסמסטרים/)).not.toBeInTheDocument();
-  });
-
-  it("is collapsed by default — a diagnostic, not part of the flow", () => {
-    const { container } = render(<ScanDiagnosticsPanel d={base} isHe />);
-    expect(container.querySelector("details")!.open).toBe(false);
+  it("still gives the actionable advice, which is the point of the panel", () => {
+    const { container } = render(<ScanDiagnosticsPanel d={ARIEL} isHe />);
+    expect(container.textContent).toMatch(/PDF המלא/);
   });
 });

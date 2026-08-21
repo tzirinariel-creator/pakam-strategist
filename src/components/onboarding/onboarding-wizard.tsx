@@ -557,6 +557,15 @@ export function OnboardingWizard() {
                     isLoadingCourses={coursesQuery.isLoading}
                     onFinish={handlePlanFinish}
                     externalCompletedCourseIds={completedCourseIdList}
+                    // The planner needs the completed rows to say anything
+                    // about English standing — Ariel, 21.8: "לא מובן במסך
+                    // התכנון שעשיתי אנגלית".
+                    completedRows={Object.values(completedCourses).map((c) => ({
+                      nameHe: c.customName ?? allCourses.find((a) => a.code === c.courseCode)?.nameHe ?? c.courseCode,
+                      courseCode: c.courseCode,
+                      grade: c.grade,
+                      status: "COMPLETED" as const,
+                    }))}
                   />
                 )}
               </>

@@ -29,6 +29,8 @@ import { GroupRail } from "./group-rail";
 import { LiveTimetable, type SessionGroupSelections } from "./live-timetable";
 import { InsightsBar } from "./insights-bar";
 import { BiddingProximityNudge } from "./bidding-proximity-nudge";
+import { EnglishStandingChip } from "./english-standing-chip";
+import { englishPlannerSignal } from "@/lib/english-planner-signal";
 import { DegreeInfoCard } from "./degree-info-card";
 import { SemesterSummary } from "./semester-summary";
 import { CustomCourseModal, type CustomCourseDraft } from "./custom-course-modal";
@@ -57,6 +59,8 @@ interface SemesterPlannerProps {
   data: OnboardingData;
   allCourses: CourseWithSchedule[];
   isLoadingCourses: boolean;
+  /** Completed rows, so the planner can state the student's English standing. */
+  completedRows?: { nameHe: string; courseCode?: string | null; grade: number | null; status?: string }[];
   /**
    * Receives the finished plan.
    *
@@ -117,6 +121,7 @@ export function SemesterPlanner({
   data,
   allCourses,
   isLoadingCourses,
+  completedRows,
   onFinish,
   externalCompletedCourseIds,
   initialPlannedSemesters,
@@ -1020,8 +1025,11 @@ export function SemesterPlanner({
       {/* Ariel, 21.8 — bidding was surfaced on the DASHBOARD, a screen a
           student reaches AFTER planning. Said here, while they are choosing,
           and it names the full planner so that screen is discoverable at all. */}
-      <div className="animate-stagger-1 w-full max-w-7xl">
+      <div className="animate-stagger-1 flex w-full max-w-7xl flex-col gap-3">
         <BiddingProximityNudge />
+        <EnglishStandingChip
+          signal={englishPlannerSignal(data.englishLevel, data.amirantScore, completedRows ?? [])}
+        />
       </div>
 
       {/* Insights bar */}
