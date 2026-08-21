@@ -62,6 +62,17 @@ export function PlannerContent() {
   const searchParams = useSearchParams();
   const [showSavedBanner, setShowSavedBanner] = useState(false);
   const [shareOpen, setShareOpen] = useState(false);
+
+  // Moving a mis-placed course. These two MUST stay above the early returns
+  // below (`isLoading`, `error`, empty-plan): a hook that runs only once the
+  // data has arrived changes the hook count between renders, which is React
+  // #310 — and #310 here is not a warning, it is a blank error screen on the
+  // planner. Unit tests, tsc and lint were all green; only opening the page
+  // showed it.
+  const placementUtils = api.useUtils();
+  const movePlacement = api.plan.updateCourse.useMutation({
+    onSuccess: () => invalidatePlanData(placementUtils),
+  });
   useEffect(() => {
     if (searchParams.get("saved") === "1") {
       setShowSavedBanner(true);
@@ -121,10 +132,6 @@ export function PlannerContent() {
       uc.course.courseType === "MANDATORY" || uc.course.isMandatory === true,
   }));
 
-  const placementUtils = api.useUtils();
-  const movePlacement = api.plan.updateCourse.useMutation({
-    onSuccess: () => invalidatePlanData(placementUtils),
-  });
   // Year of study is DERIVED from the calendar (#39/#43) — powers the live
   // "בלימוד" tag on cards of the current semester.
   const currentYear = deriveYearOfStudy(profileQuery.data?.startYear, profileQuery.data?.currentYear ?? 1);
