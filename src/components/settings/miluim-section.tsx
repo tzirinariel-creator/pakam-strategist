@@ -242,6 +242,11 @@ export function MiluimSection() {
           existing={semestersQuery.data ?? []}
           pending={upsertMutation.isPending}
           startYear={startYear}
+          // The 3010 can only refuse everything when the degree anchor is
+          // wrong, so the correction belongs on that same panel rather than
+          // three screens away (Ariel, 21.8 — his only recoverable move was
+          // deleting the account).
+          onSetStartYear={(y) => updateProfileMutation.mutate({ startYear: y })}
           onApply={(academicYearApply, semesterApply, daysApply) => {
             const prior = snapshotOf(academicYearApply, semesterApply);
             upsertMutation.mutate(

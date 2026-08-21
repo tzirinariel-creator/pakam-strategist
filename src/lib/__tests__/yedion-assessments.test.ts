@@ -130,3 +130,22 @@ describe("describeSitting", () => {
       .toBe("מועד ב׳");
   });
 });
+
+describe("a sitting we did not really read", () => {
+  it("never reports מועד ב׳ on the same day as מועד א׳", () => {
+    // 1882-0301 parses with both sittings at 25.12.2026 09:30 — which means
+    // the second cell was not read, not that both happen that morning.
+    // Telling a student their resit is the same morning as the exam is worse
+    // than telling them nothing.
+    const r = yedionExamDates("1882-0301");
+    expect(r.examDateA).not.toBeNull();
+    expect(r.examDateB).toBeNull();
+  });
+
+  it("still returns both when they genuinely differ", () => {
+    const r = yedionExamDates("0618-1012");
+    expect(r.examDateA).not.toBeNull();
+    expect(r.examDateB).not.toBeNull();
+    expect(r.examDateA!.getTime()).not.toBe(r.examDateB!.getTime());
+  });
+});

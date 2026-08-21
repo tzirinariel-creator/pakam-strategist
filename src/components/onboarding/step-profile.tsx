@@ -458,6 +458,15 @@ export function StepProfile({ data, onUpdate, sheetSeeded = false }: StepProfile
                 // degree-start anchor is derived here from the declared year —
                 // the same formula updateProfile uses (#7/#37).
                 startYear={onboardingStartYear}
+                // Onboarding has no profile row yet, so "my degree started in
+                // תשפ״ו" is expressed the only way this wizard can hold it:
+                // as the year of study it implies. Clamped to the three years
+                // PPE has, like every other reader of this anchor.
+                onSetStartYear={(y) =>
+                  onUpdate({
+                    year: Math.min(3, Math.max(1, getPlanningAnchor().startYear - y + 1)),
+                  })
+                }
                 onApply={(academicYear, semester, appliedDays) => {
                   upsert3010.mutate({ academicYear, semester, daysServed: appliedDays, isCombat });
                   const appliedGroup = deriveGroup(appliedDays, isCombat);

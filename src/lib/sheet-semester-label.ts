@@ -35,7 +35,7 @@ export interface SheetSemesterLabel {
  * start plus 3760, and PPE students only ever see years in a narrow window, so
  * a formula with a guarded range beats a table that silently runs out.
  */
-function hebrewYear(academicYear: number): string | null {
+export function hebrewAcademicYear(academicYear: number): string | null {
   const h = academicYear + 3761; // autumn 2025 falls in Hebrew year 5786
   if (h < 5780 || h > 5799) return null; // outside what we can spell safely
   const tens = h - 5780; // 0..19
@@ -68,7 +68,7 @@ export function sheetSemesterLabel(
     return { text: `${sem.en} ${year}/${String((year + 1) % 100).padStart(2, "0")}`, raw };
   }
 
-  const heb = hebrewYear(year);
+  const heb = hebrewAcademicYear(year);
   // Without a Hebrew year we still say the semester rather than nothing — the
   // useful half of the label does not depend on the half we could not derive.
   return { text: heb ? `${sem.he} · ${heb}` : sem.he, raw };

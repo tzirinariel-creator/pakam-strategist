@@ -94,7 +94,18 @@ export function yedionExamDates(
     const d = new Date(`${hit.date}T00:00:00Z`);
     return Number.isNaN(d.getTime()) ? null : d;
   };
-  return { examDateA: pick("A"), examDateB: pick("B") };
+  const examDateA = pick("A");
+  const examDateB = pick("B");
+  // A course cannot sit both mועדים on the same day. Exactly one row in the
+  // board parses that way (1882-0301, both sittings 25.12.2026 09:30), which
+  // means the second sitting's cell was not read — not that it happens then.
+  // Keeping the first and dropping the second is the honest reading: we know
+  // one date and we do not know the other, and telling a student their מועד ב׳
+  // is the same morning as their מועד א׳ is worse than telling them nothing.
+  if (examDateA && examDateB && examDateA.getTime() === examDateB.getTime()) {
+    return { examDateA, examDateB: null };
+  }
+  return { examDateA, examDateB };
 }
 
 /** The paper/assignment deadline the ידיעון prints, as ISO, or null. */

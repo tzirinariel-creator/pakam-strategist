@@ -8,6 +8,7 @@ import { advisorError } from "@/lib/advisor-toast";
 import { Bidi } from "@/lib/bidi";
 import { fileToBase64, SCANNER_ACCEPT } from "@/lib/upload";
 import type { Form3010Summary } from "@/lib/form-3010";
+import { hebrewAcademicYear } from "@/lib/sheet-semester-label";
 import { Button } from "@/components/ui/button";
 
 // ---------------------------------------------------------------
@@ -21,6 +22,7 @@ export function Form3010Uploader({
   startYear,
   onApply,
   onApplyAll,
+  onSetStartYear,
 }: {
   isHe: boolean;
   existing: Array<{ academicYear: number; semester: string; daysServed: number }>;
@@ -29,6 +31,12 @@ export function Form3010Uploader({
    *  has it in wizard state before the profile row exists. The server prefers
    *  the stored anchor; this only covers that window. */
   startYear?: number | null;
+  /**
+   * Correct the degree-start anchor from here. Supplied by callers that can
+   * write it; without it the panel still explains the mismatch, it just cannot
+   * offer the one-click fix.
+   */
+  onSetStartYear?: (startYear: number) => void;
   onApply: (academicYear: number, semester: "FALL" | "SPRING", days: number) => void;
   /** Batch apply — lets the parent snapshot BEFORE the whole import and offer
    *  ONE undo for all of it (the last irreversible bulk-write, 12.7 #26). */
@@ -38,6 +46,17 @@ export function Form3010Uploader({
   const [scanning, setScanning] = useState(false);
   const [summary, setSummary] = useState<Form3010Summary | null>(null);
   const [edited, setEdited] = useState<Record<string, number>>({});
+
+  // The two years this panel must be able to name when it refuses to import
+  // anything: what we believe, and what the form actually shows.
+  const earliestPreDegreeYear =
+    summary && (summary.preDegree?.length ?? 0) > 0
+      ? Math.min(...summary.preDegree.map((p) => p.academicYear))
+      : null;
+  const startYearLabel =
+    summary?.startYear != null ? hebrewAcademicYear(summary.startYear) : null;
+  const earliestPreDegreeLabel =
+    earliestPreDegreeYear != null ? hebrewAcademicYear(earliestPreDegreeYear) : null;
 
   const handleFile = async (file: File) => {
     setScanning(true);
@@ -131,15 +150,64 @@ export function Form3010Uploader({
             </button>
           )}
           {summary.suggestions.length === 0 && (
-            <p className="text-xs text-foreground/50">
-              {(summary.preDegree?.length ?? 0) > 0
-                ? isHe
-                  ? "כל השירות שבטופס קדם לתחילת התואר שלכם — אין מה לייבא. הפירוט למטה."
-                  : "All service on the form predates your degree — there's nothing to import. Details below."
-                : isHe
+            (summary.preDegree?.length ?? 0) > 0 ? (
+              // Ariel, 21.8: "משהו נשבר בקורא של הטופס 3010". Nothing was
+              // broken in the reader — it read his form correctly and then hit
+              // this branch, which said "there is nothing to import" and
+              // stopped. He had declared "שנה א׳" while his grade sheet showed
+              // a full year already done, so the degree was anchored a year
+              // late and ALL his service fell before it.
+              //
+              // The old copy named neither the anchor it used nor a way to
+              // change it, so the only recoverable move was the one he found:
+              // delete the account and start again. A dead end that hides the
+              // number it is reasoning from is worse than an error.
+              <div className="rounded-lg border border-amber-500/25 bg-amber-500/5 px-3 py-2.5">
+                <p className="text-[11px] font-semibold leading-relaxed text-amber-700 dark:text-amber-400">
+                  {isHe
+                    ? `כל השירות שבטופס קדם לתחילת התואר, אז אין מה לייבא.`
+                    : "All service on the form predates the start of your degree, so there is nothing to import."}
+                </p>
+                <p className="mt-1 text-[11px] leading-relaxed text-foreground/60">
+                  {isHe ? (
+                    <>
+                      אנחנו מניחים שהתואר שלכם התחיל ב־
+                      <b>{startYearLabel ?? "—"}</b>, והשירות המוקדם ביותר בטופס הוא מ־
+                      <b>{earliestPreDegreeLabel ?? "—"}</b>.{" "}
+                      {onSetStartYear
+                        ? "אם התחלתם ללמוד קודם — עדכנו כאן ונחשב מחדש."
+                        : "אם התחלתם ללמוד קודם, עדכנו את שנת הפתיחה בהגדרות ונחשב מחדש."}
+                    </>
+                  ) : (
+                    <>
+                      We are assuming your degree began in <b>{startYearLabel ?? "—"}</b>, and the
+                      earliest service on the form is from <b>{earliestPreDegreeLabel ?? "—"}</b>.{" "}
+                      {onSetStartYear
+                        ? "If you started earlier, correct it here and we'll recalculate."
+                        : "If you started earlier, set your start year in settings and we'll recalculate."}
+                    </>
+                  )}
+                </p>
+                {onSetStartYear && earliestPreDegreeYear != null && (
+                  <button
+                    type="button"
+                    onClick={() => onSetStartYear(earliestPreDegreeYear)}
+                    className="mt-2 inline-flex items-center gap-1.5 rounded-lg border border-amber-500/40 bg-background px-2.5 py-1.5 text-[11px] font-semibold text-amber-700 transition-colors hover:bg-amber-500/10 dark:text-amber-400"
+                  >
+                    <Check className="size-3" />
+                    {isHe
+                      ? `התחלתי ב־${earliestPreDegreeLabel} — עדכנו וחשבו מחדש`
+                      : `I started in ${earliestPreDegreeLabel} — update and recalculate`}
+                  </button>
+                )}
+              </div>
+            ) : (
+              <p className="text-xs text-foreground/50">
+                {isHe
                   ? "לא נמצאו תקופות בטווח הלוחות המוכרים — אפשר להזין ידנית למטה."
                   : "No periods within the known calendars — enter manually below."}
-            </p>
+              </p>
+            )
           )}
           {summary.suggestions.map((s) => {
             const key = `${s.academicYear}-${s.semester}`;
