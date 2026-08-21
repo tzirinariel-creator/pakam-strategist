@@ -32,8 +32,17 @@ describe("tidyYedionName", () => {
     expect(tidyYedionName("במאות ה - 19")).toBe("במאות ה-19");
   });
 
+  it("drops the שנתי column-bleed", () => {
+    // Not part of any course's name — it leaks in from the adjacent column,
+    // and all four courses that carry it report an ordinary semester of "א".
+    expect(tidyYedionName("הלכה כפילוסופיה יהודית שנתי")).toBe("הלכה כפילוסופיה יהודית");
+    expect(tidyYedionName('סמינר פכ" מ שנתי')).toBe('סמינר פכ"מ');
+    // ...but only at the end, and only as its own word.
+    expect(tidyYedionName("הקורס השנתי של המחלקה")).toBe("הקורס השנתי של המחלקה");
+  });
+
   it("adds and removes no words", () => {
-    const raw = "מדע, מטפיזיקה וטכנולוגיה : צמיחת עקרון שימור האנרגיה";
+    const raw = "מדע, מטפיזיקה וטכנולוגיה : צמיחת עקרון שימור האנרגיה"; // no שנתי
     const words = (s: string) => s.replace(/[^֐-׿\s]/g, " ").split(/\s+/).filter(Boolean);
     expect(words(tidyYedionName(raw))).toEqual(words(raw));
   });

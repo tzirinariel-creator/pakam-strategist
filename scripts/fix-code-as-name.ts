@@ -57,6 +57,11 @@ export function tidyYedionName(raw: string): string {
     .replace(/([״"׳'])\s+(?=\S)/g, "$1")   // גרשיים glued back to the next letter
     .replace(/\s+([:,.?!])/g, "$1")         // no space BEFORE punctuation
     .replace(/\(\s+/g, "(").replace(/\s+\)/g, ")")
+    // "שנתי" is a yearly-course marker that bleeds in from the neighbouring
+    // column, not part of the title — all four courses carrying it also have
+    // an ordinary semester value of "א". Caught after it had already been
+    // written once, as "הלכה כפילוסופיה יהודית שנתי".
+    .replace(/\s+שנתי\s*$/, "")
     // A spaced hyphen is ambiguous in the ידיעון, because it pads BOTH the
     // compound hyphen of "הניאו-ליברלי" and the clause dash of "ועירוניות -
     // סמינר מעשי". Gluing indiscriminately produced "לחשוב מקום-לחשוב שפה",
@@ -117,4 +122,8 @@ async function main() {
   await prisma.$disconnect();
 }
 
-main().catch(async (e) => { console.error(e); await prisma.$disconnect(); process.exit(1); });
+// Only run when invoked directly — audit-catalog-vs-yedion.ts imports
+// tidyYedionName/looksTruncated from here, and must not trigger a DB pass.
+if (require.main === module) {
+  main().catch(async (e) => { console.error(e); await prisma.$disconnect(); process.exit(1); });
+}

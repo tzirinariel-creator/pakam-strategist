@@ -21,6 +21,7 @@ import { PrismaPg } from "@prisma/adapter-pg";
 import fs from "node:fs";
 import path from "node:path";
 import data from "../src/data/yedion-5787-assessments.json";
+import { tidyYedionName } from "./fix-code-as-name";
 
 for (const envFile of [".env.local", ".env"]) {
   const envPath = path.join(__dirname, "..", envFile);
@@ -62,7 +63,10 @@ async function main() {
   const byCode = new Map(courses.map((c) => [c.code, c]));
 
   const yedion = new Map<string, string>();
-  for (const r of data.records) if (!yedion.has(r.courseCode)) yedion.set(r.courseCode, r.courseName);
+  // Tidy first, so the ידיעון's own typesetting artefacts — padded
+  // punctuation, and the "שנתי" that bleeds in from the next column — do not
+  // get reported as disagreements about the name.
+  for (const r of data.records) if (!yedion.has(r.courseCode)) yedion.set(r.courseCode, tidyYedionName(r.courseName));
 
   // A catalog row whose name IS its own course code is a scrape that failed
   // and got saved anyway. The student sees "1221-4326" where a name belongs.
@@ -70,23 +74,34 @@ async function main() {
 
   let exact = 0;
   const differ: string[] = [];
+  const oursClipped: string[] = [];
   const notInCatalog: string[] = [];
 
   for (const [code, yName] of yedion) {
     const ours = byCode.get(code);
     if (!ours) { notInCatalog.push(`${code}  ${yName}`); continue; }
-    if (norm(ours.nameHe) === norm(yName)) exact++;
-    // A truncated ידיעון name that PREFIXES ours is agreement, not conflict.
-    else if (norm(ours.nameHe).startsWith(norm(yName))) exact++;
-    else differ.push(`${code}\n     ידיעון: ${yName}\n     שלנו:   ${ours.nameHe}`);
+    const a = norm(ours.nameHe), b = norm(yName);
+    if (a === b) { exact++; continue; }
+    // A ידיעון name that our name STARTS WITH is the ידיעון's own truncation —
+    // agreement, not conflict. Ours is the fuller title.
+    if (a.startsWith(b)) { exact++; continue; }
+    // The reverse is the interesting one: the ידיעון has MORE than we do, so
+    // OUR name is the clipped one. That is our bug, not a difference of taste.
+    if (b.startsWith(a)) {
+      oursClipped.push(`${code}\n     ידיעון (מלא):  ${yName}\n     שלנו (קטוע):  ${ours.nameHe}`);
+      continue;
+    }
+    differ.push(`${code}\n     ידיעון: ${yName}\n     שלנו:   ${ours.nameHe}`);
   }
 
   console.log(`catalog: ${courses.length} courses · ידיעון: ${yedion.size} courses`);
   console.log(`\n  !! name is just the course code: ${codeAsName.length}`);
   codeAsName.forEach((c) => console.log(`     ${c.code}  → ידיעון says: ${yedion.get(c.code) ?? "(not in ידיעון)"}`));
   console.log(`\n  confirmed by the ידיעון:  ${exact}`);
-  console.log(`  names differ:             ${differ.length}`);
+  console.log(`  OUR name is clipped:      ${oursClipped.length}`);
+  console.log(`  names differ (owner call):${differ.length}`);
   console.log(`  in ידיעון, not in catalog: ${notInCatalog.length}`);
+  if (oursClipped.length) { console.log("\n--- our name is the shorter one (our bug) ---"); oursClipped.forEach((s) => console.log("  " + s)); }
   if (differ.length) { console.log("\n--- differing (first 30) ---"); differ.slice(0, 30).forEach((s) => console.log("  " + s)); }
   if (notInCatalog.length) { console.log("\n--- in ידיעון only (first 30) ---"); notInCatalog.slice(0, 30).forEach((s) => console.log("  " + s)); }
 
