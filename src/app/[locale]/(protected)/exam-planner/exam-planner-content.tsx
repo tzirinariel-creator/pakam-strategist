@@ -1,6 +1,7 @@
 "use client";
 
 import { KnownSittings } from "@/components/exam-planner/known-sittings";
+import { resolveExamDates } from "@/lib/exam-date-source";
 import { yedionExamDates } from "@/lib/yedion-assessments";
 import { useEffect, useMemo, useRef, useState } from "react";
 import {
@@ -152,23 +153,37 @@ export function ExamPlannerContent() {
   const examCourses = useMemo(() => {
     const now = new Date();
     now.setHours(0, 0, 0, 0);
-    const futureOnly = (d: Date | null): Date | null => (d && d.getTime() >= now.getTime() ? d : null);
     const out: { code: string; name: string; credits: number; examDateA: Date | null; examDateB: Date | null; averageGrade: number | null; failRate: number | null; manual: boolean }[] = [];
     for (const c of plannedCourses) {
       if (c.status === "COMPLETED" && c.grade != null) continue;
-      const catalogA = futureOnly(c.examDateA);
-      const catalogB = futureOnly(c.examDateB);
-      // The ידיעון's own board (תשפ״ז) as a SECONDARY source, used only where
-      // our catalog has nothing. The scraped catalog stays authoritative and a
-      // date the student typed still wins over both — this only fills silence.
-      // 269 courses, 538 dated sittings, verified against the page itself and
-      // against bid-it. See src/lib/yedion-assessments.ts.
+      // Ariel, 21.8: "לדעתי לא כל המבחנים שובצו.. אני רואה שאין מבחנים
+      // בסמסטר א׳ שנה ב׳". He was right, and the cause was the precedence
+      // below being the wrong way round.
+      //
+      // Our scraped catalog holds תשפ״ו's exam board — EVERY one of its dates
+      // is now in the past. Preferring it meant `futureOnly` nulled the date
+      // and the course dropped out of the planner entirely, silently. A count
+      // over a real 32-course plan: 22 of the 23 exam courses had a catalog
+      // date, all of them stale, so only the single course whose date came
+      // from the ידיעון survived. Whole semesters looked exam-free.
+      //
+      // The ידיעון board is תשפ״ז — the year now being planned — so it leads.
+      // The catalog is consulted only where the ידיעון is silent, and even
+      // then only if its date is still ahead. A date the student typed
+      // themselves still beats both.
       const yedion = yedionExamDates(c.code);
-      const manual = !catalogA && !catalogB ? futureOnly(parseManual(manualDates[c.code])) : null;
-      const examDateA = catalogA ?? manual ?? futureOnly(yedion.examDateA);
-      const examDateB = catalogB ?? futureOnly(yedion.examDateB);
+      const { examDateA, examDateB, sourceA } = resolveExamDates(
+        {
+          catalogA: c.examDateA,
+          catalogB: c.examDateB,
+          yedionA: yedion.examDateA,
+          yedionB: yedion.examDateB,
+          manual: parseManual(manualDates[c.code]),
+        },
+        now,
+      );
       if (!examDateA && !examDateB) continue;
-      out.push({ code: c.code, name: c.name, credits: c.credits, examDateA, examDateB, averageGrade: c.averageGrade, failRate: c.failRate, manual: manual != null });
+      out.push({ code: c.code, name: c.name, credits: c.credits, examDateA, examDateB, averageGrade: c.averageGrade, failRate: c.failRate, manual: sourceA === "manual" });
     }
     // #37 (12.7) — the picker lists exams in CHRONOLOGICAL order (earliest
     // upcoming sitting first), not catalog order.
