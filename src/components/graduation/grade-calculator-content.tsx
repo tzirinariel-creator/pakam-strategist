@@ -2,6 +2,9 @@
 
 import { GradeSimulator } from "@/components/graduation/grade-simulator";
 import { WhatMovesMyAverage } from "@/components/graduation/what-moves-my-average";
+import { FuturePlansCard } from "@/components/graduation/future-plans-card";
+import { resolveEnglishLevel } from "@/lib/constants";
+import { resolveEnglishStanding } from "@/lib/english-standing";
 import { useState, useMemo } from "react";
 import { useTranslations } from "next-intl";
 import { useLocale } from "next-intl";
@@ -496,6 +499,55 @@ export function GradeCalculatorContent() {
 
   const allCourses = planQuery.data?.courses ?? [];
 
+  // Facts the "after the degree" card reports. Every one of these is already
+  // shown elsewhere in the app — the card organises them around a direction,
+  // it does not compute anything new about the student.
+  const futureFacts = useMemo(() => {
+    const graded = allCourses.filter(
+      (uc) => uc.status === "COMPLETED" && uc.grade != null && countsTowardAverage(uc),
+    );
+    const totalCredits = graded.reduce((s2, uc) => s2 + (uc.course.credits ?? 0), 0);
+    const average =
+      totalCredits > 0
+        ? Math.round(
+            (graded.reduce((s2, uc) => s2 + (uc.grade as number) * (uc.course.credits ?? 0), 0) /
+              totalCredits) * 10,
+          ) / 10
+        : null;
+
+    const completed = allCourses.filter((uc) => uc.status === "COMPLETED");
+    const englishInfo = resolveEnglishLevel(
+      profileQuery.data?.englishLevel ?? null,
+      profileQuery.data?.amiramScore ?? null,
+    );
+    const standing = englishInfo
+      ? resolveEnglishStanding(
+          englishInfo,
+          completed.map((uc) => ({
+            nameHe: uc.course.nameHe,
+            courseCode: uc.course.code,
+            grade: uc.grade,
+            isBinary: uc.isBinary,
+            status: uc.status,
+          })),
+        )
+      : null;
+
+    return {
+      average,
+      focusArea: profileQuery.data?.focusArea ?? null,
+      englishRemaining: englishInfo
+        ? (standing?.levelCoursesRemaining ?? englishInfo.levelCourses)
+        : null,
+      englishExempt: englishInfo?.isExempt ?? false,
+      seminarsCompleted: completed.filter((uc) => uc.course.courseType === "SEMINAR").length,
+      quantitativeCredits: completed
+        .filter((uc) => uc.course.discipline === "ECONOMICS")
+        .reduce((s2, uc) => s2 + (uc.course.credits ?? 0), 0),
+      creditsCompleted: completed.reduce((s2, uc) => s2 + (uc.course.credits ?? 0), 0),
+    };
+  }, [allCourses, profileQuery.data]);
+
   // Loading state
   const isLoading = planQuery.isLoading || gradeQuery.isLoading;
 
@@ -566,6 +618,13 @@ export function GradeCalculatorContent() {
             (profileQuery.data?.miluimGroup ?? "NONE") as MiluimGroupKey,
           )}
         />
+      </div>
+
+      {/* Ariel, 21.8 — "מה אחרי התואר". A first version: it reports what the
+          app holds about the student for the direction they pick, and states
+          that the programme's own bar is not something we hold. */}
+      <div className="animate-stagger-1">
+        <FuturePlansCard facts={futureFacts} />
       </div>
 
       <div className="animate-stagger-2">
