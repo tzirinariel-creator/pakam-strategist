@@ -159,7 +159,7 @@ export function MoedBDecisionCard({
             <p className="mt-1.5 text-xs leading-relaxed text-foreground/45">
               {isHe ? (
                 <>
-                  הקורס הזה הוא <Bidi text={weight} />% מהממוצע שלכם — קורס בודד מזיז
+                  הקורס הזה הוא <Bidi text={`${weight}%`} /> מהממוצע שלכם — קורס בודד מזיז
                   פחות ממה שנדמה.
                 </>
               ) : (

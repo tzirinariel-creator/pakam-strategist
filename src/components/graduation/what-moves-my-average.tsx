@@ -105,7 +105,11 @@ export function WhatMovesMyAverage({
                       </span>
                     )}
                     <span>
-                      <Bidi text={l.weightPct} />% {isHe ? "מהממוצע" : "of your average"}
+                      {/* The % has to be INSIDE the isolate. Left outside it, it is a
+                          bidi-neutral between an isolate and Hebrew text, so it resolves
+                          RTL and renders on the wrong side of the digits — "%8.6" where a
+                          person writes "8.6%". Seen on the live page, not deduced. */}
+                      <Bidi text={`${l.weightPct}%`} /> {isHe ? "מהממוצע" : "of your average"}
                     </span>
                     {l.kind === "upcoming" && (
                       <span>{isHe ? "עוד לא נלמד" : "not taken yet"}</span>

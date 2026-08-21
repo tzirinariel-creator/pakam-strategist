@@ -63,6 +63,28 @@ function hebrewStrings(): { file: string; line: number; text: string; context: s
 
 const STRINGS = hebrewStrings();
 
+/** Every source file, for rules that read markup rather than string contents. */
+function sourceFiles(): { file: string; lines: string[] }[] {
+  const out: { file: string; lines: string[] }[] = [];
+  const walk = (dir: string) => {
+    for (const e of fs.readdirSync(dir, { withFileTypes: true })) {
+      const full = path.join(dir, e.name);
+      if (e.isDirectory()) {
+        if (e.name === "__tests__" || e.name === "node_modules") continue;
+        walk(full);
+        continue;
+      }
+      if (!/\.tsx?$/.test(e.name)) continue;
+      out.push({
+        file: path.relative(process.cwd(), full),
+        lines: fs.readFileSync(full, "utf-8").split("\n"),
+      });
+    }
+  };
+  walk(path.join(process.cwd(), "src"));
+  return out;
+}
+
 /** Real compound terms and units — a slash here is not a gender hedge. */
 const REAL_SLASH =
   /עובר\/לא עובר|עובר\/לא־עובר|עובר\/לא-עובר|עובר\/נכשל|עובר\/לא|שעות\/שבוע|שע׳\/שבוע|ספאם\/קידום מכירות|פטור\/שנה|ש״ס\/קורסים|נכשלו\/פטור|אישי\/עבודה|ימים\/סמסטר|הגשות\/עבודות\/בחנים|דקאן\/רקטור|אנגלית\/אמירנט|המזכירות\/הידיעון|נכשלו\/פטור|עובר\/לא[-־]עובר/g;
@@ -140,6 +162,23 @@ describe("Hebrew copy, mechanically", () => {
       return false;
     });
     expect(bad.map((b) => `${b.file}:${b.line} — ${b.text}`)).toEqual([]);
+  });
+
+  it("keeps a trailing unit inside the number's isolate", () => {
+    // `<Bidi text={pct} />% מהממוצע` renders "%8.6" — the % is a bidi-neutral
+    // sitting between an isolate and Hebrew text, so it resolves right-to-left
+    // and lands on the wrong side of the digits. Seen on the live page.
+    // The unit belongs INSIDE the isolate: <Bidi text={`${pct}%`} />.
+    const files = sourceFiles();
+    const bad: string[] = [];
+    for (const { file, lines } of files) {
+      lines.forEach((line, i) => {
+        const t = line.trim();
+        if (t.startsWith("//") || t.startsWith("*")) return;
+        if (/<Bidi[^>]*\/>\s*[%₪°]/.test(line)) bad.push(`${file}:${i + 1} — ${t}`);
+      });
+    }
+    expect(bad).toEqual([]);
   });
 
   it("uses gershayim, not a straight quote, inside a Hebrew word", () => {
