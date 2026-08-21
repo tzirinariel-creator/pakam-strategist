@@ -8,6 +8,7 @@ import { toast } from "sonner";
 import { type SharedCourse } from "@/lib/plan-share";
 import { SharePlanDialog } from "./share-plan-dialog";
 import { YearBoard } from "./year-board";
+import { YearAtAGlanceCard } from "./year-at-a-glance-card";
 import { AddCourseModal } from "./add-course-modal";
 import { BiddingExplainer } from "./bidding-explainer";
 import { BiddingTimeline } from "./bidding-timeline";
@@ -295,6 +296,11 @@ export function PlannerContent() {
                   while knowing no dates at all. Shown regardless of whether
                   courses are planned yet — the deadline is real either way. */}
               <BiddingTimeline isHe={isHe} />
+              {/* Ariel, 21.8 — the toolkit below is scoped to the NEXT
+                  semester, which is the wrong scope for PPE: part of semester
+                  ב׳ is registered in this same round. Both terms together,
+                  above the per-semester tools. */}
+              <YearAtAGlanceCard courses={courses} yearOfStudy={biddingTarget.yearOfStudy} />
               {biddingCourseCount > 0 ? (
                 <>
                   <BiddingOverlapAlert
