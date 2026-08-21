@@ -86,7 +86,14 @@ export function LineageContent() {
 
   if (lineageLoading) {
     return (
-      <div className="bg-mesh p-4 md:p-6">
+      // Ariel, 21.8: "העיצוב חתוך במסך טעינה".
+      //
+      // The wrapper carried .bg-mesh — three tinted radial gradients — while
+      // the loader inside it is only min-h-[50vh]. So the coloured panel ended
+      // abruptly a little past halfway down, with plain background beneath it:
+      // a rectangle of design, cut off. Filling the viewport makes the mesh a
+      // background instead of a box, which is what it was always meant to be.
+      <div className="bg-mesh flex min-h-[calc(100vh-4rem)] flex-col justify-center p-4 md:p-6">
         <ThemedLoader />
       </div>
     );
