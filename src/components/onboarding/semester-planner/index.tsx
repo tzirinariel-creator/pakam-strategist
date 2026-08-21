@@ -30,6 +30,7 @@ import { LiveTimetable, type SessionGroupSelections } from "./live-timetable";
 import { InsightsBar } from "./insights-bar";
 import { BiddingProximityNudge } from "./bidding-proximity-nudge";
 import { EnglishStandingChip } from "./english-standing-chip";
+import { PlannerAssistantCard } from "./planner-assistant-card";
 import { englishPlannerSignal } from "@/lib/english-planner-signal";
 import { DegreeInfoCard } from "./degree-info-card";
 import { SemesterSummary } from "./semester-summary";
@@ -473,6 +474,18 @@ export function SemesterPlanner({
     () => detectPlannerConflicts(groupFilteredCourses, isHe),
     [groupFilteredCourses, isHe],
   );
+
+  /** Distinct weekdays the student has any session on — the "fewer days on
+   *  campus" pitch has to be able to say what the current number IS. */
+  const campusDayCount = useMemo(() => {
+    const days = new Set<string>();
+    for (const c of groupFilteredCourses) {
+      for (const s of c.scheduleSessions ?? []) {
+        if (s.dayOfWeek) days.add(s.dayOfWeek);
+      }
+    }
+    return days.size;
+  }, [groupFilteredCourses]);
 
   // Courses in this semester whose catalog rows carry no meeting times at all —
   // every statement about the week ("0 conflicts", weekly hours) is true only of
@@ -1029,6 +1042,17 @@ export function SemesterPlanner({
         <BiddingProximityNudge />
         <EnglishStandingChip
           signal={englishPlannerSignal(data.englishLevel, data.amirantScore, completedRows ?? [])}
+        />
+        {/* Ariel, twice: "כל פיצר סיוע תכנון המערכת שעות לא מספיק מוטמע ומורגש"
+            / "אמרנו להנגיש יותר את עוזר המתכנן". The combination finder was an
+            11px link inside the conflicts card, shown only once a clash
+            existed — so the students who most needed it were the least likely
+            to find it. This is its entry point. */}
+        <PlannerAssistantCard
+          conflicts={conflicts.length}
+          canSwapGroups={multiGroupCourseCodes.size > 0}
+          campusDays={campusDayCount}
+          onFindCombination={handleFindCombination}
         />
       </div>
 
