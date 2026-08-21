@@ -329,7 +329,11 @@ export function MiluimPageContent() {
                 <Bidi
                   text={
                     isHe
-                      ? `${heNoun(preDegreeRows.length, "סמסטר", "סמסטרים")} שנקלטו מלפני תחילת התואר — לא נספרים`
+                      ? `${heNoun(preDegreeRows.length, "סמסטר", "סמסטרים")} ${
+                          preDegreeRows.length === 1
+                            ? "שנקלט מלפני תחילת התואר — לא נספר"
+                            : "שנקלטו מלפני תחילת התואר — לא נספרים"
+                        }`
                       : `${preDegreeRows.length} recorded semester(s) from before your degree began — not counted`
                   }
                 />
@@ -415,7 +419,11 @@ export function MiluimPageContent() {
                 <Bidi
                   text={
                     isHe
-                      ? `${entitlement.total} ש״ס נצברו לכם עד היום`
+                      ? entitlement.total === 0
+                        ? "עוד לא נצברו לכם ש״ס"
+                        : entitlement.total === 1
+                          ? "ש״ס אחד נצבר לכם עד היום"
+                          : `${entitlement.total} ש״ס נצברו לכם עד היום`
                       : `${entitlement.total} credits accrued so far`
                   }
                 />
@@ -424,7 +432,13 @@ export function MiluimPageContent() {
                 <Bidi
                   text={
                     isHe
-                      ? `מתוך תקרה של ${MILUIM_CONFIG.MAX_CREDIT_EXEMPTIONS_DEGREE} ש״ס לכל התואר · מימשתם בפועל ${creditsUsed} ש״ס`
+                      ? `מתוך תקרה של ${MILUIM_CONFIG.MAX_CREDIT_EXEMPTIONS_DEGREE} ש״ס לכל התואר · ${
+                          creditsUsed === 0
+                            ? "טרם מימשתם"
+                            : creditsUsed === 1
+                              ? "מימשתם בפועל ש״ס אחד"
+                              : `מימשתם בפועל ${creditsUsed} ש״ס`
+                        }`
                       : `of a ${MILUIM_CONFIG.MAX_CREDIT_EXEMPTIONS_DEGREE}-credit degree cap · actually redeemed: ${creditsUsed}`
                   }
                 />
@@ -476,7 +490,11 @@ export function MiluimPageContent() {
                     {isHe ? (
                       <>
                         קבוצה G: המתווה מעניק המרה של עד {binaryBenefit.degreeCap} ש״ס לעובר/לא־עובר. נסכם מהקורסים שסימנתם כבינארי בתיק
-                        {binaryExternal > 0 ? ` (+ ${binaryExternal} שדווחו מחוץ לאפליקציה, נספרו לפי 2 ש״ס כל אחת)` : ""}.{" "}
+                        {binaryExternal === 0
+                          ? ""
+                          : binaryExternal === 1
+                            ? " (+ המרה אחת שדווחה מחוץ לאפליקציה, נספרה לפי 2 ש״ס)"
+                            : ` (+ ${binaryExternal} המרות שדווחו מחוץ לאפליקציה, נספרו לפי 2 ש״ס כל אחת)`}.{" "}
                         <Link href="/record" className="text-accent-brand hover:underline">
                           לסימון קורס בינארי ←
                         </Link>
@@ -496,8 +514,12 @@ export function MiluimPageContent() {
                   <p className="mt-1.5 text-[11px] leading-relaxed text-foreground/45">
                     {isHe ? (
                       <>
-                        נספר אוטומטית מהקורסים שסימנתם כבינארי בתיק האקדמי ({binaryFromPlan})
-                        {binaryExternal > 0 ? ` + ${binaryExternal} שדיווחתם שבוצעו מחוץ לאפליקציה` : ""}.
+                        נספר אוטומטית מהקורסים שסימנתם כבינארי בתיק האקדמי ({heNoun(binaryFromPlan, "קורס", "קורסים")})
+                        {binaryExternal === 0
+                          ? ""
+                          : binaryExternal === 1
+                            ? " + המרה אחת שדיווחתם שבוצעה מחוץ לאפליקציה"
+                            : ` + ${binaryExternal} המרות שדיווחתם שבוצעו מחוץ לאפליקציה`}.
                         {" "}
                         <Link href="/record" className="text-accent-brand hover:underline">
                           לסימון קורס בינארי ←

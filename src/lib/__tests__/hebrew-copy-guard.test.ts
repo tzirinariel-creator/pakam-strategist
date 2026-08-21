@@ -15,11 +15,23 @@ import fs from "node:fs";
 import path from "node:path";
 
 const HEBREW = /[֐-׿]/;
-/** Hebrew string literals, skipping comment lines. */
-const STRING = /"([^"\n]*[֐-׿][^"\n]*)"|`([^`\n]*[֐-׿][^`\n]*)`/g;
+/**
+ * Hebrew string literals, skipping comment lines.
+ *
+ * The BACKTICK alternative has to come first, and that ordering is the whole
+ * correctness of this file. With the quoted alternative first, a line like
+ *
+ *   `${heNoun(n, "סמסטר", "סמסטרים")} שנקלטו … לא נספרים`
+ *
+ * matched "סמסטר" and then "סמסטרים" — two harmless nouns — and the outer
+ * template, which is where the broken sentence actually lives, was never
+ * extracted at all. Every heNoun call passes its forms as quoted strings, so
+ * the guard was blind over precisely the construct it exists to police.
+ */
+const STRING = /`([^`\n]*[֐-׿][^`\n]*)`|"([^"\n]*[֐-׿][^"\n]*)"/g;
 
-function hebrewStrings(): { file: string; line: number; text: string }[] {
-  const out: { file: string; line: number; text: string }[] = [];
+function hebrewStrings(): { file: string; line: number; text: string; context: string }[] {
+  const out: { file: string; line: number; text: string; context: string }[] = [];
   const walk = (dir: string) => {
     for (const e of fs.readdirSync(dir, { withFileTypes: true })) {
       const full = path.join(dir, e.name);
@@ -30,13 +42,17 @@ function hebrewStrings(): { file: string; line: number; text: string }[] {
       }
       if (!/\.tsx?$/.test(e.name)) continue;
       const rel = path.relative(process.cwd(), full);
-      fs.readFileSync(full, "utf-8").split("\n").forEach((line, i) => {
+      const lines = fs.readFileSync(full, "utf-8").split("\n");
+      lines.forEach((line, i) => {
         const t = line.trim();
         // Comments carry Hebrew explanations for developers, not for readers.
         if (t.startsWith("//") || t.startsWith("*") || t.startsWith("/*")) return;
         if (!HEBREW.test(line)) return;
+        // The three lines above travel with the string: whether a count is
+        // branched on `=== 1` is decided there, not inside the literal.
+        const context = lines.slice(Math.max(0, i - 3), i + 1).join("\n");
         for (const m of line.matchAll(STRING)) {
-          out.push({ file: rel, line: i + 1, text: m[1] ?? m[2] ?? "" });
+          out.push({ file: rel, line: i + 1, text: m[1] ?? m[2] ?? "", context });
         }
       });
     }
@@ -50,6 +66,18 @@ const STRINGS = hebrewStrings();
 /** Real compound terms and units — a slash here is not a gender hedge. */
 const REAL_SLASH =
   /עובר\/לא עובר|עובר\/לא־עובר|עובר\/לא-עובר|עובר\/נכשל|עובר\/לא|שעות\/שבוע|שע׳\/שבוע|ספאם\/קידום מכירות|פטור\/שנה|ש״ס\/קורסים|נכשלו\/פטור|אישי\/עבודה|ימים\/סמסטר|הגשות\/עבודות\/בחנים|דקאן\/רקטור|אנגלית\/אמירנט|המזכירות\/הידיעון|נכשלו\/פטור|עובר\/לא[-־]עובר/g;
+
+/**
+ * Is this string the PLURAL ARM of a branch that already handles one?
+ *
+ * `${n} קורסים` is wrong on its own and right inside `n === 1 ? … : …`. The
+ * literal cannot tell you which, because the guard lives three lines up. Both
+ * counting rules below consult this, or they would fire on every correctly
+ * written ternary in the app — and a guard that cries wolf gets muted, which
+ * costs more than the bug it was added for.
+ */
+const isPluralArm = (context: string) =>
+  /===\s*1|length\s*>\s*1|heCount\(|countPhrase\(/.test(context);
 
 describe("Hebrew copy, mechanically", () => {
   it("finds enough Hebrew to be a real check", () => {
@@ -68,7 +96,49 @@ describe("Hebrew copy, mechanically", () => {
   it("never puts a bare placeholder in front of a counted noun", () => {
     // `${n} קורסים` renders "1 קורסים". Fixed units (ש״ס, שעות) do not inflate.
     const COUNTED = /\$\{[^}]+\}\s*(קורסים|ימים|סמסטרים|דברים|מבחנים|תרומות|מדרגים|נקודות)/;
-    const bad = STRINGS.filter((s) => COUNTED.test(s.text));
+    const bad = STRINGS.filter((s) => COUNTED.test(s.text) && !isPluralArm(s.context));
+    expect(bad.map((b) => `${b.file}:${b.line} — ${b.text}`)).toEqual([]);
+  });
+
+  it("does not leave a plural verb hanging off a heNoun call", () => {
+    // The fifth occurrence of this exact class, and the reason the rule now
+    // exists mechanically rather than as a habit:
+    //
+    //   heNoun(n, "סמסטר", "סמסטרים") + " שנקלטו … לא נספרים"
+    //   → at one: "סמסטר אחד שנקלטו מלפני תחילת התואר — לא נספר\u05d9\u05dd"
+    //
+    // heNoun fixes the NOUN. Every verb and adjective agreeing with that noun
+    // is still written once, in the plural, by whoever wrote the line — and
+    // he-count.ts says so in its own header ("the singular is usually a
+    // different sentence, not the plural with a letter removed"). The helper
+    // cannot reach past its own return value, so the check has to.
+    //
+    // Curated rather than morphological: a general Hebrew plural-verb detector
+    // would fire on every correct plural in the app. These are the words that
+    // have actually shipped broken.
+    const PLURAL_TAIL =
+      // No `\b` here, deliberately. JavaScript's word boundary is defined on
+      // [A-Za-z0-9_], so a Hebrew letter is a NON-word character on both sides
+      // and `\b` after "נספרים" can never match. The first version of this rule
+      // carried one and was therefore inert — it passed on the exact line it
+      // was written to catch, which is the worst way for a guard to fail.
+      /נספרים|נספרו|נקלטו|שנקלטו|נצברו|מסומנות|מסומנים|נבחרו|נמצאים|נמצאות|הושלמו|מתוכננים|מתוכננות|זמינים|זמינות|חסרים|חסרות|שדווחו|שבוצעו|שנותרו|פתוחים|פתוחות/;
+    // Positional, not merely co-occurring: the plural word has to follow the
+    // heNoun call with NOTHING BRANCHED in between. A line that correctly
+    // branches its verb puts that verb inside its own `${…}`, so the plain
+    // text right after the count is where an unbranched plural hides.
+    const bad = STRINGS.filter((s) => {
+      // A plural verb is CORRECT in the plural arm of a branch that already
+      // handles one. Without this the rule fires on every properly written
+      // ternary and gets muted — which is how a guard stops being read.
+      if (isPluralArm(s.context)) return false;
+      for (const m of s.text.matchAll(/heNounF?\([^)]*\)\s*\}/g)) {
+        const after = s.text.slice(m.index + m[0].length);
+        const untilNextBranch = after.split("${")[0] ?? "";
+        if (PLURAL_TAIL.test(untilNextBranch)) return true;
+      }
+      return false;
+    });
     expect(bad.map((b) => `${b.file}:${b.line} — ${b.text}`)).toEqual([]);
   });
 

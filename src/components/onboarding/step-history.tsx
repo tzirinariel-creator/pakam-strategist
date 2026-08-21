@@ -309,7 +309,14 @@ export function StepHistory({
           if (skipped > 0) parts.push(isHe ? `${skipped} נכשלו/פטור — הוסיפו ב״הרשומה״ אחרי ההרשמה` : `${skipped} failed/exempt — add them in the record after signup`);
           parts.push(isHe ? "עברו לוודא ולתקן למטה" : "review below");
           toast.success(
-            isHe ? `נמצאו ${heNoun(hits, "קורס", "קורסים")} שהושלמו` : `Found ${hits} completed courses`,
+            // "נמצאו קורס אחד שהושלמו" — heNoun fixed the noun and left both
+            // verbs around it in the plural. This is the first toast a student
+            // sees after a scan, so it is also the app's first sentence.
+            isHe
+              ? hits === 1
+                ? "נמצא קורס אחד שהושלם"
+                : `נמצאו ${hits} קורסים שהושלמו`
+              : `Found ${hits} completed course${hits === 1 ? "" : "s"}`,
             { description: parts.join(" · ") },
           );
         }

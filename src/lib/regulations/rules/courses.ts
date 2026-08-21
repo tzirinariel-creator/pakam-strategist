@@ -120,9 +120,15 @@ export const ruleLawFoundation: RegulationRule = (ctx: RuleContext) => {
     passed
       ? `Law foundation requirement met: ${current}/${required} courses completed.`
       : `Law foundation courses insufficient: ${current}/${required} completed. Need ${required - current} more.`,
+    // "2/קורס אחד הושלמו" is what the count helper produced inside a FRACTION:
+    // the numerator and denominator are two halves of one number, and a word
+    // cannot stand in for one of them. Said as a sentence instead — and the
+    // deficit verb agrees with its own count ("חסר קורס אחד", not "חסרים").
     passed
-      ? `דרישת יסודות משפט מתקיימת: ${current}/${heNoun(required, "קורס", "קורסים")} הושלמו.`
-      : `דרישת יסודות משפט לא מתקיימת: ${current}/${required} הושלמו. חסרים ${heNoun(required - current, "קורס", "קורסים")}.`,
+      ? `דרישת יסודות משפט מתקיימת: ${current} מתוך ${required} הושלמו.`
+      : `דרישת יסודות משפט לא מתקיימת: ${current} מתוך ${required} הושלמו. ${
+          required - current === 1 ? "חסר קורס אחד" : `חסרים ${required - current} קורסים`
+        }.`,
     { current, required, deficit: Math.max(0, required - current) },
     // Only flag incomplete law foundation courses, not already-completed ones
     lawFoundationCourses
