@@ -1,5 +1,7 @@
+import type { Prisma } from "@prisma/client";
 import { z } from "zod/v4";
 import { createTRPCRouter, publicProcedure } from "../trpc/init";
+import { codesMatchingHebrewAlias } from "@/lib/english-taught-courses";
 
 export const courseRouter = createTRPCRouter({
   /**
@@ -40,11 +42,17 @@ export const courseRouter = createTRPCRouter({
         where.yearOffered = { has: input.year };
       }
       if (input?.search) {
-        where.OR = [
+        const or: Prisma.CourseWhereInput[] = [
           { nameHe: { contains: input.search, mode: "insensitive" } },
           { nameEn: { contains: input.search, mode: "insensitive" } },
           { code: { contains: input.search, mode: "insensitive" } },
         ];
+        // Ten courses are taught in English and are named in English, per the
+        // ידיעון. A student still thinks of them in Hebrew, so their Hebrew
+        // gloss stays searchable even though it is no longer their name.
+        const aliasCodes = codesMatchingHebrewAlias(input.search);
+        if (aliasCodes.length > 0) or.push({ code: { in: aliasCodes } });
+        where.OR = or;
       }
 
       const courses = await ctx.db.course.findMany({

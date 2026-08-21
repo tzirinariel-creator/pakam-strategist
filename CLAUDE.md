@@ -13,7 +13,8 @@
 - מסד־נתונים אחד = פרודקשן (Supabase). מיגרציות: תוספות בלבד, `npx prisma migrate deploy --config prisma/prisma.config.ts`, לפני קוד שתלוי בהן.
 - חשבון הדמו קריאה־בלבד. בדיקות־כתיבה רק ב־vitest.
 - פריסה: `npx vercel --prod --yes` (על "Not authorized" — נסה שוב פעם אחת). אמת Ready + עמוד 200.
-- שער איכות לפני כל commit: `npx tsc --noEmit` + `npx vitest run` ירוקים + אימות דפדפן + סקירת־דיף עצמית.
+- שער איכות לפני כל commit: **`npm run lint` (0 errors)** + `npx tsc --noEmit` + `npx vitest run` ירוקים + אימות דפדפן + סקירת־דיף עצמית.
+  ה־CI ב־GitHub מריץ **lint, tsc, test** — שער שמדלג על lint הוא שער שנכשל ב־CI בלי שנדע. אחרי push: `gh run list --limit 1`.
 - **לעולם לא**: לנבא נקודות בידינג / להמציא תאריך או ציון או נתון / להציג נתון בלי מקור.
 - אנגלית לא בממוצע התואר; `englishLevel` מוצהר גובר על אמירם (דרך `resolveEnglishLevel`).
 - RTL: לעולם לא `dir="ltr"` על טקסט עם מילה עברית — רק `<bdi dir="ltr">` על המספר/תאריך.

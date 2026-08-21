@@ -443,7 +443,10 @@ export function CourseTable({ courses, allCourses, focusArea }: CourseTableProps
                       one with only a CSS margin between them, so the two names
                       ran together in textContent (the #27 family). */}
                   {locale === "he" ? (
-                    course.nameEn && (
+                    // For the ten courses taught in English, both names ARE the
+                    // English one, and "International Economics (International
+                    // Economics)" helps nobody.
+                    course.nameEn && course.nameEn !== course.nameHe && (
                       <span className="text-xs text-muted-foreground hidden sm:inline">
                         {" "}({course.nameEn})
                       </span>

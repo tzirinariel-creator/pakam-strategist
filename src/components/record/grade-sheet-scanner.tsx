@@ -22,7 +22,7 @@ import {
 import type { ScanDiagnostics } from "@/lib/grade-sheet";
 import { ScanDiagnosticsPanel } from "@/components/record/scan-diagnostics";
 import { ScanGapBanner } from "@/components/record/scan-gap-banner";
-import { heCount, heNoun, heNounF } from "@/lib/he-count";
+import { heCount, heNoun } from "@/lib/he-count";
 import { getWrapTarget, wrapStorageKey } from "@/lib/semester-clock";
 import { calculateGrades } from "@/lib/grade-calculator";
 import { prefersHigherGrade, type MiluimGroupKey } from "@/lib/miluim";

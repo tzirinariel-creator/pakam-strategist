@@ -62,7 +62,7 @@ export function WhereIsMySheet() {
           (Grades) in the sidebar.
         </>,
         <>
-          Above the grade list there's a small link with an envelope icon —{" "}
+          Above the grade list there is a small link with an envelope icon —{" "}
           <b className="font-semibold text-foreground/75">גליון ציונים</b>. Click it.
         </>,
         <>
