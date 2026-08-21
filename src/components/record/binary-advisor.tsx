@@ -1,5 +1,7 @@
 "use client";
 
+import { binaryTimingAdvice } from "@/lib/end-of-degree-advice";
+import { CREDIT_REQUIREMENTS } from "@/lib/constants";
 import { useMemo, useState } from "react";
 import { useLocale } from "next-intl";
 import { Scale, TrendingUp, Loader2 } from "lucide-react";
@@ -88,6 +90,22 @@ export function BinaryAdvisor() {
     binaryCourses.reduce((s, uc) => s + ((uc as { course?: { credits?: number } }).course?.credits ?? 0), 0) +
     (profile.miluimBinaryUsed ?? 0) * 2;
   const creditsLeft = benefit.unit === "credits" ? Math.max(0, benefit.degreeCap - creditsUsed) : null;
+
+  // #23 — where the student is in the degree decides whether now is the moment
+  // to spend a conversion. Credits earned come from the plan we already loaded;
+  // the year from the profile. Both are already on this screen.
+  const creditsEarned = (planQuery.data?.courses ?? []).reduce(
+    (sum, uc) => sum + (uc.status === "COMPLETED" ? (uc.course?.credits ?? 0) : 0),
+    0,
+  );
+  const binaryTiming = binaryTimingAdvice(
+    {
+      currentYear: profile.currentYear ?? 1,
+      creditsEarned,
+      creditsRequired: CREDIT_REQUIREMENTS.TOTAL,
+    },
+    { remaining: 1 }, // "is now the moment", not "how many are left"
+  );
   const quotaLeft =
     benefit.unit === "credits"
       ? (creditsLeft! > 0 ? Number.MAX_SAFE_INTEGER : 0) // ranked list is credit-filtered below
@@ -191,6 +209,19 @@ export function BinaryAdvisor() {
           </li>
         ))}
       </ul>
+
+      {/* טל, מזכירת פכ״מ: "עדיף לשים בינאריים רק בסוף התואר כי יש איזושהי
+          מכסה". The quota is finite and the end of the degree is when you
+          actually know which course needs it. Advice with its source named —
+          the button below still works, because this is her judgement, not a
+          rule we can cite a clause for. */}
+      {binaryTiming === "hold" && (
+        <p className="mt-2.5 rounded-lg border border-amber-500/30 bg-amber-500/[0.06] p-2.5 text-[11px] leading-relaxed text-foreground/70">
+          {isHe
+            ? "טל, מזכירת פכ״מ, ממליצה לשמור את ההמרות לסוף התואר: המכסה מוגבלת, ורק בשנה ג׳ באמת יודעים איזה קורס הכי צריך אותה. אפשר להמיר גם עכשיו — רק שווה לדעת מה מוותרים עליו."
+            : "טל, the PPE secretary, suggests saving conversions for the end of the degree: the quota is limited, and only in year 3 do you really know which course needs it. You can still convert now — just worth knowing what you're spending."}
+        </p>
+      )}
 
       <p className="mt-2.5 text-[11px] leading-snug text-foreground/45">
         {isHe

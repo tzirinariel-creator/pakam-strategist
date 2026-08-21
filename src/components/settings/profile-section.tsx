@@ -62,8 +62,23 @@ export function ProfileSection() {
   // Populate from query data
   useEffect(() => {
     if (profileQuery.data) {
-      setFirstName(profileQuery.data.firstName ?? "");
-      setLastName(profileQuery.data.lastName ?? "");
+      // #28 — "נרשמתי עם שם פרטי ושם משפחה וזה נמחק בהגדרות".
+      //
+      // Real, and it was my own doing. Signing in with Google stores the
+      // provider's name in `displayName` and leaves firstName/lastName null.
+      // That was invisible while settings still had a "שם תצוגה" field — and
+      // then #29a removed that field as redundant. From that moment a Google
+      // signup opened settings and saw two EMPTY name boxes, which reads
+      // exactly like the app deleted the name it greeted them with.
+      //
+      // No data was ever lost (firstNameOf still falls back to displayName for
+      // the greeting), but "the app lost my name" is what it looked like, and
+      // looking wrong is enough. Seed the boxes from the provider name so the
+      // student sees what they signed up with, and saving keeps it.
+      const provider = (profileQuery.data.displayName ?? "").trim();
+      const [providerFirst = "", ...providerRest] = provider ? provider.split(/\s+/) : [];
+      setFirstName(profileQuery.data.firstName ?? providerFirst);
+      setLastName(profileQuery.data.lastName ?? providerRest.join(" "));
       setGender(profileQuery.data.gender ?? "");
       setAmirantScore(
         profileQuery.data.amiramScore != null
@@ -83,7 +98,22 @@ export function ProfileSection() {
     }
   }, [profileQuery.data]);
 
+  // #28 — "נרשמתי עם שם פרטי ושם משפחה וזה נמחק בהגדרות".
+  //
+  // Reproduced as a race, and it is far likelier on a phone: every field starts
+  // as "" and is filled by an effect once `profileQuery` resolves. The Save
+  // button was disabled only while the MUTATION was in flight, never while the
+  // QUERY was still loading. So on a slow connection you could open settings,
+  // tap Save before the data landed, and send firstName: "" — which the payload
+  // builder turns into null. The name wasn't overwritten by another value; it
+  // was erased by an empty form the student never actually saw.
+  //
+  // A form that has not loaded cannot be saved. Nothing else here is worth
+  // guarding individually — the whole payload is built from that same state.
+  const profileLoaded = profileQuery.data != null;
+
   const handleSaveProfile = () => {
+    if (!profileLoaded) return; // belt to the disabled button's braces
     const input: Record<string, unknown> = {};
     // #29a — displayName is no longer editable here (see the comment in the
     // form below). It is deliberately not sent: leaving it out means an
@@ -355,7 +385,7 @@ export function ProfileSection() {
         {/* Save button */}
         <Button
           onClick={handleSaveProfile}
-          disabled={updateMutation.isPending}
+          disabled={updateMutation.isPending || !profileLoaded}
           className="self-start"
         >
           {updateMutation.isPending ? (
