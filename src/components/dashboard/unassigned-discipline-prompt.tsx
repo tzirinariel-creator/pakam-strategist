@@ -93,10 +93,17 @@ export function UnassignedDisciplinePrompt({
             {more > 0 && (isHe ? ` ועוד ${more}` : ` and ${more} more`)}
           </p>
 
+          {/* N5 — Ariel asked "לפי מה אתה מחליט בשלב הראשוני באיזה תחום מיקוד
+              כל קורס?". The honest answer is worth showing HERE, because it
+              explains why we're asking at all: the classification comes from
+              the ידיעון's own section header, and 66 of the 68 seminars sit
+              under headers like "סמינר בתחום המיקוד בו תוגש עבודה סמינריונית"
+              — which says a seminar HAS a field but never says which. We are
+              not being lazy; the source genuinely doesn't say. */}
           <p className="mt-2 text-xs leading-relaxed text-foreground/60">
             {isHe
-              ? "רק אתם יודעים לאיזה תחום כל קורס נספר אצלכם — אנחנו לא מנחשים במקומכם."
-              : "Only you know which field each course counts toward for you — we won't guess on your behalf."}
+              ? "התחום של כל קורס נלקח מהכותרת שמתחתיה הוא מופיע בידיעון. חלק מהקורסים — בעיקר סמינרים — יושבים תחת כותרת שאומרת שיש להם תחום, אבל לא אומרת איזה. שם אנחנו נעצרים: רק אתם יודעים לאיזה תחום הקורס נספר אצלכם, ואנחנו לא מנחשים במקומכם."
+              : "Each course's field comes from the ידיעון section header it appears under. Some courses — seminars especially — sit under a header that says they have a field but never says which. That's where we stop: only you know which field the course counts toward for you, and we won't guess for you."}
           </p>
 
           <Link

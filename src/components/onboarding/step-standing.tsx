@@ -10,16 +10,7 @@ import { matchExtractedToCatalog } from "@/lib/grade-sheet";
 import type { ExtractedRow, ScanDiagnostics } from "@/lib/grade-sheet";
 import { ScanDiagnosticsPanel } from "@/components/record/scan-diagnostics";
 import { ScanGapBanner } from "@/components/record/scan-gap-banner";
-import {
-  summarizeStanding,
-  buildCompletedSeed,
-  aggregateStanding,
-  reviseStandingRow,
-  manualStandingRow,
-  groupRowsBySemester,
-  type StandingSummary,
-  type StandingRowEdit,
-} from "@/lib/onboarding-standing";
+import { aggregateStanding, buildCompletedSeed, formatSheetSemester, groupRowsBySemester, manualStandingRow, reviseStandingRow, summarizeStanding, type StandingRowEdit, type StandingSummary } from "@/lib/onboarding-standing";
 import { DISCIPLINE_CONFIG, FOCUS_DISCIPLINE_IDS, YEAR_CONFIG, SEMESTER_CONFIG } from "@/lib/constants";
 import { getPlanningAnchor } from "@/lib/academic-calendar";
 import { WhereIsMySheet } from "@/components/record/where-is-my-sheet";
@@ -579,16 +570,16 @@ function StandingSummaryCard({
                 <Bidi
                   text={
                     isHe
-                      ? `הסמסטר האחרון בגיליון שלכם הוא ${p.lastSheetSemester}.`
-                      : `The last semester on your sheet is ${p.lastSheetSemester}.`
+                      ? `הסמסטר האחרון שמופיע בגיליון שלכם הוא ${formatSheetSemester(p.lastSheetSemester) ?? ""}.`
+                      : `The last semester on your sheet is ${formatSheetSemester(p.lastSheetSemester, false) ?? ""}.`
                   }
                 />
               ) : p.basis === "gap" ? (
                 <Bidi
                   text={
                     isHe
-                      ? `יש רווח בין הסמסטר האחרון בגיליון (${p.lastSheetSemester ?? ""}) לסמסטר הקרוב — אולי סמסטר שלא למדתם בו. שווה לוודא שהשנה נכונה, ואפשר לתקן במסך הבא.`
-                      : `There's a gap between the last semester on your sheet (${p.lastSheetSemester ?? ""}) and the upcoming one — perhaps a semester you sat out. Worth checking the year is right; you can correct it on the next screen.`
+                      ? `יש רווח בין הסמסטר האחרון בגיליון (${formatSheetSemester(p.lastSheetSemester) ?? ""}) לסמסטר הקרוב — אולי סמסטר שלא למדתם בו. שווה לוודא שהשנה נכונה, ואפשר לתקן במסך הבא.`
+                      : `There's a gap between the last semester on your sheet (${formatSheetSemester(p.lastSheetSemester, false) ?? ""}) and the upcoming one — perhaps a semester you sat out. Worth checking the year is right; you can correct it on the next screen.`
                   }
                 />
               ) : (

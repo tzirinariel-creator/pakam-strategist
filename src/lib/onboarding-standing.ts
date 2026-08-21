@@ -682,3 +682,33 @@ export function buildCompletedSeed(
   }
   return seed;
 }
+
+/**
+ * "2025/2" → "סמסטר ב׳, שנה״ל תשפ״ו" — never show the raw code to a student.
+ *
+ * Ariel, 21.8: "לדעתי נשבר פה התאריך - שנה לפני חודש", quoting a sentence that
+ * ended with `2025/2`. It is not a broken date; it is not a date at all. It is
+ * the sheet's internal academic-year/semester key, and it leaked into a sentence
+ * a person reads — where it looks exactly like a mangled 2/2025.
+ *
+ * That is the same family as the meta text he flagged in the same breath: the
+ * app narrating its own internals. A student knows "סמסטר ב׳"; nobody knows
+ * "2025/2".
+ *
+ * The Hebrew year: TAU's academic year 2025/x runs תשפ״ו. Rather than compute
+ * Hebrew years (which needs a calendar we do not carry), we print the Gregorian
+ * academic year the sheet itself uses — "סמסטר ב׳ של שנת הלימודים 2025" — which
+ * is true, readable, and needs no new source.
+ */
+export function formatSheetSemester(code: string | null | undefined, isHe = true): string | null {
+  if (!code) return null;
+  const m = /^(\d{4})\/(\d)$/.exec(code.trim());
+  if (!m) return code; // an unexpected shape is shown as-is rather than hidden
+  const [, year, sitting] = m;
+  if (!isHe) {
+    const label = sitting === "1" ? "semester A" : sitting === "2" ? "semester B" : "summer term";
+    return `${label} of ${year}`;
+  }
+  const label = sitting === "1" ? "סמסטר א׳" : sitting === "2" ? "סמסטר ב׳" : "סמסטר קיץ";
+  return `${label} של שנת הלימודים ${year}`;
+}
