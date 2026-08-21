@@ -642,6 +642,10 @@ function HonorsDistanceCard({
               ? t("honorsAtBar")
               : t("honorsGapText", { gap: d.gap!.toFixed(1) })}
           </p>
+          {/* The three real distinctions, with the numbers Ariel corrected on
+              21.8, stated as where the cut HAS fallen rather than as bars. */}
+          <p className="text-xs leading-relaxed text-foreground/45">{t("honorsBands")}</p>
+          <p className="text-xs leading-relaxed text-foreground/40">{t("honorsWhenDecided")}</p>
           <p className="text-xs text-foreground/40">
             {t("honorsBasis", { count: d.courseCount, credits: d.credits })} · {t("honorsBinaryNote")}
           </p>

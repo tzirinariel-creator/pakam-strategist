@@ -834,6 +834,7 @@ export function DashboardContent() {
                 credits: uc.course.credits,
                 discipline: uc.course.discipline,
                 disciplineOverride: uc.disciplineOverride,
+                courseType: uc.course.courseType,
                 status: uc.status,
                 isSeminar: /סמינר/.test(uc.course.nameHe),
               }))}

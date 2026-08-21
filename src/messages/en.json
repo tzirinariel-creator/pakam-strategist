@@ -497,14 +497,16 @@
     "exempt": "Exempt",
     "gradeSaveError": "Couldn't save the grade — try again",
     "gradeSaved": "Grade saved",
-    "honorsTitle": "Distance to honors",
-    "honorsTag": "As of 2025-26",
+    "honorsTitle": "Where you stand relative to honours",
+    "honorsTag": "an estimate, not a bar",
     "honorsYearAvg": "Your weighted average for year-{year} courses",
-    "honorsAtBar": "You're at or above the honors bar — keep it up. The official bar is roughly the top 3%, so 95 is an approximation, not a promise.",
-    "honorsGapText": "{gap} more points of yearly average to the dean's-list 95 bar (roughly the top 3% — the real cutoff shifts yearly).",
-    "honorsNoData": "Not enough year-{year} grades yet to compute a yearly average.",
+    "honorsAtBar": "Your yearly average is in the range where the cut has fallen in past years. That is not a promise: dean's list is roughly the top 3% in PPE, and the lists are settled around March against your own cohort.",
+    "honorsGapText": "{gap} points of yearly average from the range where the cut has fallen in past years (around 97 for dean's list). It moves every year — it's the top 3% in PPE, not a fixed number.",
+    "honorsNoData": "Not enough grades from year {year} yet to compute a yearly average.",
     "honorsBinaryNote": "Note: converting more than 25% of a year's hours to binary forfeits honors.",
-    "honorsBasis": "Based on {count} courses · {credits} credits"
+    "honorsBasis": "Based on {count} courses · {credits} credits",
+    "honorsBands": "In past years: dean's list around 97 (top ~3% in PPE) · rector's list around 98 (top ~3% of the whole faculty) · degree with honours around 92 (~15% of those finishing).",
+    "honorsWhenDecided": "The lists are settled around March. Until then nobody knows the cut — not even the secretariat."
   },
   "record": {
     "title": "My Academic Record",

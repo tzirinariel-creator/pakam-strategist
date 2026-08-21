@@ -27,8 +27,11 @@ export function UnofficialNotice({ variant = "full" }: { variant?: "compact" | "
     return (
       <p className="px-2 text-[10px] leading-tight text-foreground/30">
         {isHe
-          ? "פכמון הוא כלי עזר של סטודנטים — לא אתר רשמי של האוניברסיטה. תמיד לאמת מול הידיעון והמזכירות."
-          : "Pakamon is a student-built helper — not an official university site. Always verify against the ידיעון and the secretariat."}
+          // 21.8 — the first version said "תמיד לאמת מול הידיעון והמזכירות",
+          // which is an instruction manual talking, not a person. Same content,
+          // said the way you'd say it to a friend.
+          ? "בניתי את פכמון כסטודנט — זה לא אתר רשמי של האוניברסיטה, אז שווה להציץ בידיעון לפני החלטות גדולות."
+          : "I built Pakamon as a student — it isn't an official university site, so it's worth a look at the ידיעון before any big decision."}
       </p>
     );
   }
@@ -38,17 +41,17 @@ export function UnofficialNotice({ variant = "full" }: { variant?: "compact" | "
       <Info className="mt-0.5 size-4 shrink-0 text-foreground/40" />
       <div className="text-xs leading-relaxed text-foreground/60">
         <p className="font-semibold text-foreground/75">
-          {isHe ? "פכמון הוא כלי עזר, לא מקור רשמי" : "Pakamon is a helper, not an official source"}
+          {isHe ? "כדאי שתדעו — זה לא אתר רשמי" : "Worth knowing — this isn't an official site"}
         </p>
         <p className="mt-1">
           {isHe
-            ? "האפליקציה נבנתה על ידי סטודנט ומבוססת על הידיעון, אבל היא לא אתר רשמי של אוניברסיטת תל אביב ולא מחליפה אותו. קורסים, שעות, מועדי בחינה ודרישות משתנים במהלך השנה."
-            : "This app was built by a student and is based on the ידיעון, but it is not an official Tel Aviv University site and does not replace one. Courses, hours, exam dates and requirements change during the year."}
+            ? "פכמון נבנה על ידי סטודנט, ומבוסס על הידיעון — אבל הוא לא האתר של האוניברסיטה ולא בא במקומו. קורסים, שעות ומועדי בחינה משתנים במהלך השנה, ולפעמים אנחנו לא מעודכנים."
+            : "Pakamon was built by a student, based on the ידיעון — but it isn't the university's site and doesn't stand in for it. Courses, hours and exam dates change during the year, and sometimes we're behind."}
         </p>
         <p className="mt-1">
           {isHe
-            ? "לפני כל החלטה שמשפיעה על התואר — רישום, ביטול, הגשה — אמתו מול הידיעון הרשמי ומול המזכירות."
-            : "Before any decision that affects your degree — registering, withdrawing, submitting — verify against the official ידיעון and the secretariat."}
+            ? "אז לפני שנרשמים, מבטלים או מגישים משהו — שווה לבדוק בידיעון או לשאול במזכירות. הם המקור."
+            : "So before you register, withdraw or submit anything — check the ידיעון or ask the secretariat. They're the source."}
         </p>
       </div>
     </div>

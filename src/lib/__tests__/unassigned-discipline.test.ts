@@ -78,3 +78,44 @@ describe("summarizeUnassigned", () => {
     expect(s.credits).toBe(0);
   });
 });
+
+// =========================================================================
+// 21.8 — English is not an "unassigned" course, it is outside the system
+// =========================================================================
+// Ariel's prompt was listing "מתקדמים ב' חוצה דיצפלינות בין תחומי" among the
+// credits that "don't count toward any focus area" and asking him to assign it
+// to one. There is nothing to assign: English is a university-wide requirement,
+// not a field of the degree — and it doesn't enter the average either. Asking
+// was a question with no correct answer.
+describe("English never appears in the focus-area prompt", () => {
+  it("excludes Ariel's actual English row, which is tagged GENERAL", () => {
+    const s = summarizeUnassigned([
+      c({ courseCode: "2171-9201", nameHe: "מתקדמים ב' חוצה דיצפלינות בין תחומי", credits: 4 }),
+    ]);
+    expect(s.courses).toEqual([]);
+    expect(s.credits).toBe(0);
+  });
+
+  it("excludes a course typed ENGLISH whatever its name", () => {
+    const s = summarizeUnassigned([
+      c({ courseCode: "9999-9999", nameHe: "קורס כלשהו", courseType: "ENGLISH", credits: 4 }),
+    ]);
+    expect(s.credits).toBe(0);
+  });
+
+  it("excludes a course named in English by word", () => {
+    const s = summarizeUnassigned([c({ courseCode: "x", nameHe: "אנגלית לכלכלנים", credits: 2 })]);
+    expect(s.credits).toBe(0);
+  });
+
+  it("STILL asks about the real ones — דוגרי and משבר האקלים", () => {
+    const s = summarizeUnassigned([
+      c({ courseCode: "1031-4015", nameHe: "דוגרי: אמת, אמון ואמנות בסכסוך הישראלי-פלסטיני", credits: 2 }),
+      c({ courseCode: "1880-0901", nameHe: "משבר האקלים וקיימות: מבט רב-תחומי", credits: 2 }),
+      c({ courseCode: "2171-9201", nameHe: "מתקדמים ב' חוצה דיצפלינות בין תחומי", credits: 4 }),
+    ]);
+    // 4 ש״ס of English drop out; the two real electives remain.
+    expect(s.credits).toBe(4);
+    expect(s.courses.map((x) => x.courseCode).sort()).toEqual(["1031-4015", "1880-0901"]);
+  });
+});

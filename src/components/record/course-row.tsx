@@ -1,5 +1,6 @@
 "use client";
 
+import { isEnglishLevelCourseName } from "@/lib/english-standing";
 import { useTranslations } from "next-intl";
 import { Star, Languages, Trash2 } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -46,6 +47,25 @@ export function CourseRow({
   // it (דוגרי is approved and was never in our list). The only honest thing we
   // can show is the student's own declaration (#8).
   const offCatalog = isOffCatalogCourse(course);
+  // 21.8 — Ariel: "הוא שולח אותי לבחור ולשייך לתחומי מיקוד את קורסי הבחירה
+  // ולא נותן לי לערוך אותם במסך".
+  //
+  // Exactly right, and the two halves had drifted apart: the dashboard prompt
+  // asks about EVERY course whose discipline is GENERAL, but this selector only
+  // appeared for courses OUTSIDE our catalog. משבר האקלים and צעדים ראשונים are
+  // both in the catalog and both tagged GENERAL — so he was told to assign three
+  // courses and given the control for one of them.
+  //
+  // A course needs the selector whenever it counts toward no focus area, and
+  // English never does (it is a university requirement, not a field) — so it is
+  // excluded here for the same reason it was excluded from the prompt.
+  const unassignedDiscipline = !discipline || discipline === "GENERAL";
+  // Reuse the app's one English predicate rather than writing a second — that
+  // duplication is exactly what produced four disagreeing variants before.
+  // The level-name check is added because TAU titles these without "אנגלית".
+  const englishCourse =
+    isEnglishCourse(course) || isEnglishLevelCourseName(course.nameHe, course.code);
+  const canAssignDiscipline = (offCatalog || unassignedDiscipline) && !englishCourse;
   const studentAdded = isStudentAddedCourse(course);
   const declared = isDeclaredApproved(uc);
   const isElective = !(course.courseType === "MANDATORY" || course.isMandatory);
@@ -134,7 +154,7 @@ export function CourseRow({
               toward our degree" and "it counts as this". Sits in the always-
               visible name cell, because the discipline column is hidden on
               mobile and a declaration you can't reach is no declaration. */}
-          {offCatalog && (
+          {canAssignDiscipline && (
             <div className="flex flex-wrap items-center gap-1.5 pt-0.5">
               <label
                 htmlFor={`declare-${uc.id}`}

@@ -567,20 +567,28 @@ function StandingSummaryCard({
                 : `That puts you in ${yearLabel} — and we'll build ${semLabel} together`}
             </p>
             <p className="mt-1 text-xs leading-relaxed text-foreground/50">
+              {/* Ariel, 21.8: "אני לא אוהב את המטא טקסט הזה. המשתמש לא צריך
+                  לדעת את התהליכים מאחורי הקלעים ברוב המקרים".
+                  He is right. "הסקנו את זה מכותרות-הסמסטר שבגיליון" describes
+                  OUR procedure, not his situation — it is the app narrating its
+                  own plumbing. What he needs to know is what we concluded and
+                  how to fix it if we got it wrong. The one case worth
+                  explaining is the GAP, because there the conclusion is
+                  genuinely uncertain and he has to check it. */}
               {p.basis === "sheet" && p.lastSheetSemester ? (
                 <Bidi
                   text={
                     isHe
-                      ? `הסקנו את זה מכותרות-הסמסטר שבגיליון עצמו; האחרונה שקראנו היא ${p.lastSheetSemester}.`
-                      : `We derived this from the semester headers printed on the sheet; the last one we read is ${p.lastSheetSemester}.`
+                      ? `הסמסטר האחרון בגיליון שלכם הוא ${p.lastSheetSemester}.`
+                      : `The last semester on your sheet is ${p.lastSheetSemester}.`
                   }
                 />
               ) : p.basis === "gap" ? (
                 <Bidi
                   text={
                     isHe
-                      ? `בגיליון יש כותרות-סמסטר, אבל הסמסטר הקרוב לא בא מיד אחרי האחרון שקראנו (${p.lastSheetSemester ?? ""}). ייתכן שהיה סמסטר שלא למדתם בו. בדקו את השנה ותקנו במסך הבא אם צריך.`
-                      : `The sheet has semester headers, but the upcoming semester doesn't directly follow the last one we read (${p.lastSheetSemester ?? ""}). You may have sat a semester out. Check the year and correct it on the next screen if needed.`
+                      ? `יש רווח בין הסמסטר האחרון בגיליון (${p.lastSheetSemester ?? ""}) לסמסטר הקרוב — אולי סמסטר שלא למדתם בו. שווה לוודא שהשנה נכונה, ואפשר לתקן במסך הבא.`
+                      : `There's a gap between the last semester on your sheet (${p.lastSheetSemester ?? ""}) and the upcoming one — perhaps a semester you sat out. Worth checking the year is right; you can correct it on the next screen.`
                   }
                 />
               ) : (

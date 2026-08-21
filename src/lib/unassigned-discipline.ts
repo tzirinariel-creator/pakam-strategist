@@ -20,12 +20,16 @@
 // This module decides who to ask about, and what it is costing them — so the
 // prompt can state a real number instead of nagging.
 
+import { isEnglishLevelCourseName, looksEnglishByName } from "@/lib/english-standing";
+
 /** GENERAL is the catalog's "counts toward no focus area" bucket. */
 export const UNASSIGNED_DISCIPLINE = "GENERAL";
 
 export interface AssignableCourse {
   userCourseId: string;
   courseCode: string;
+  /** Needed to recognise an English course, which is never a focus-area course. */
+  courseType?: string | null;
   nameHe: string;
   nameEn?: string | null;
   credits: number;
@@ -47,8 +51,26 @@ export function effectiveDiscipline(c: AssignableCourse): string | null {
   return c.disciplineOverride ?? c.discipline ?? null;
 }
 
-/** True when this course counts toward no focus area at all. */
+/**
+ * English is NOT an unassigned course — it is outside the focus-area system.
+ *
+ * Ariel, 21.8: his prompt was listing "מתקדמים ב' חוצה דיצפלינות בין תחומי"
+ * among the courses whose credits "don't count toward any focus area", and
+ * asking him to assign it to one. There is nothing to assign: English is a
+ * university-wide requirement (דרישות כלל אוניברסיטאיות), it is not part of
+ * philosophy / economics / political science, and — his standing reminder —
+ * it does not enter the degree average either. Asking about it was a question
+ * with no correct answer, which is worse than not asking.
+ */
+function isEnglish(c: AssignableCourse): boolean {
+  if (c.courseType === "ENGLISH") return true;
+  return isEnglishLevelCourseName(c.nameHe, c.courseCode) ||
+    looksEnglishByName(`${c.nameHe} ${c.nameEn ?? ""}`);
+}
+
+/** True when this course counts toward no focus area AND could sensibly have one. */
 export function isUnassigned(c: AssignableCourse): boolean {
+  if (isEnglish(c)) return false; // outside the focus-area system entirely
   const d = effectiveDiscipline(c);
   return !d || d === UNASSIGNED_DISCIPLINE;
 }

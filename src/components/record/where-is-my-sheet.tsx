@@ -17,10 +17,18 @@ import { useLocale } from "next-intl";
  *   · a photo/screenshot of the grades table works, and a heavy PDF may need to
  *     be photographed instead — both are enforced by the upload path itself.
  * TAU's own menu labels are NOT reproduced here. They differ per faculty and
- * change between years, so inventing a click-path ("Studies → Confirmations")
- * would send students hunting for a menu that may not exist. Step 1 therefore
- * tells them WHERE to look and WHAT to search for, and says so plainly.
- * If you ever verify the exact path first-hand, add it here — not anywhere else.
+ * change between years, so inventing a click-path would send students hunting
+ * for a menu that may not exist. The old version therefore described a vague
+ * "confirmations" section — and was WRONG.
+ *
+ * CORRECTED 21.8 from Ariel's own screenshots of my.tau.ac.il, which is the
+ * first-hand verification this comment used to ask for. The sheet is not
+ * downloaded from a documents area at all: ציונים → the "גליון ציונים" link
+ * with the envelope icon → a dialog (degree / language / email) → and TAU
+ * EMAILS you the PDF. Students were being sent to look for a download button
+ * that does not exist.
+ *
+ * If the path changes again, correct it HERE — not anywhere else.
  */
 export function WhereIsMySheet() {
   const isHe = useLocale() === "he";
@@ -28,36 +36,45 @@ export function WhereIsMySheet() {
   const steps = isHe
     ? [
         <>
-          מתחברים לאזור האישי לתלמיד באתר אוניברסיטת תל אביב, ומחפשים את החלק של
-          האישורים והמסמכים. השם המדויק של התפריט משתנה בין פקולטות ובין שנים, אז
-          לכו לפי המילה <b className="font-semibold text-foreground/75">אישורים</b>.
+          נכנסים ל<b className="font-semibold text-foreground/75">אזור האישי</b> של
+          ת״א (my.tau.ac.il), ובתפריט הצד לוחצים על{" "}
+          <b className="font-semibold text-foreground/75">ציונים</b>.
         </>,
         <>
-          מוציאים משם את המסמך{" "}
-          <b className="font-semibold text-foreground/75">אישור קורסים וציונים</b> —
-          זה הגיליון הרשמי, עם טבלה של מספר-קורס, שם, ציון ומשקל.
+          מעל רשימת הציונים יש קישור קטן עם אייקון מעטפה —{" "}
+          <b className="font-semibold text-foreground/75">גליון ציונים</b>. לוחצים
+          עליו.
         </>,
         <>
-          מורידים אותו כ־PDF ומעלים כאן. גם צילום-מסך או תמונה חדה של טבלת
-          הציונים עובדים בדיוק אותו דבר.
+          נפתח חלון: בוחרים <b className="font-semibold text-foreground/75">תואר ראשון</b>,
+          בוחרים <b className="font-semibold text-foreground/75">עברית</b>, ומוודאים
+          שהמייל שמופיע הוא שלכם. לוחצים <b className="font-semibold text-foreground/75">שליחה</b>.
+        </>,
+        <>
+          הגיליון מגיע אליכם <b className="font-semibold text-foreground/75">במייל</b> תוך
+          כמה דקות, כקובץ PDF. שומרים אותו ומעלים כאן — או פשוט גוררים אותו ישר מהמייל.
         </>,
       ]
     : [
         <>
-          Sign in to the personal student area on the Tel Aviv University site and
-          look for the confirmations / documents section. The exact menu wording
-          differs between faculties and years, so search for the word{" "}
-          <b className="font-semibold text-foreground/75">confirmations</b>.
+          Sign in to the TAU <b className="font-semibold text-foreground/75">personal area</b>{" "}
+          (my.tau.ac.il) and click <b className="font-semibold text-foreground/75">ציונים</b>{" "}
+          (Grades) in the sidebar.
         </>,
         <>
-          Get the document called{" "}
-          <b className="font-semibold text-foreground/75">אישור קורסים וציונים</b>{" "}
-          (record of courses and grades) — the official sheet, with a table of
-          course number, name, grade and weight.
+          Above the grade list there's a small link with an envelope icon —{" "}
+          <b className="font-semibold text-foreground/75">גליון ציונים</b>. Click it.
         </>,
         <>
-          Download it as a PDF and upload it here. A screenshot or a sharp photo
-          of the grades table works exactly the same.
+          A dialog opens: choose{" "}
+          <b className="font-semibold text-foreground/75">תואר ראשון</b>, choose{" "}
+          <b className="font-semibold text-foreground/75">עברית</b>, check the email
+          shown is yours, and press <b className="font-semibold text-foreground/75">שליחה</b>.
+        </>,
+        <>
+          The sheet arrives <b className="font-semibold text-foreground/75">by email</b>{" "}
+          within a few minutes, as a PDF. Save it and upload it here — or drag it
+          straight out of the email.
         </>,
       ];
 

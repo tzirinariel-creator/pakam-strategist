@@ -15,8 +15,26 @@ import { countsTowardAverage, canonicalAttempts } from "@/lib/grade-calculator";
 import { prefersHigherGrade, type MiluimGroupKey } from "@/lib/miluim";
 import type { UserCourseWithCourse } from "@/types/degree";
 
-/** The dean's-list yearly weighted-average bar — נכון לתשפ"ו, yearly policy. */
-export const HONORS_YEARLY_BAR = 95;
+/**
+ * CORRECTED 21.8. This was 95 and it was simply wrong.
+ *
+ * Ariel: "יש פה טעות על ההצטיינות. מצטיין דקאן זה לרוב 97 ומעלה. מצטיין רקטור
+ * זה 98 ומעלה. והכול הערכות. 97 ומעלה - 3 אחוז הכי טובים בפכ״מ. ורקטור זה
+ * לדעתי 98 ומעלה וזה ה-3 אחוז הכי טובים בפקולטה."
+ *
+ * Two separate mistakes were bundled into that 95:
+ *   1. The NUMBER was too low, so the app told students they were "at or above
+ *      the honours bar" when they were nearly two points below where the cut
+ *      has actually landed. That is the worst direction to be wrong in.
+ *   2. Modelling it as A BAR AT ALL. Both distinctions are the top ~3% of a
+ *      cohort, decided after the year closes. 97 and 98 are where the cut has
+ *      HAPPENED to fall — they are outcomes, not thresholds.
+ *
+ * The constant survives only as the yardstick for the distance meter, so the
+ * bar graph has something to draw against. Every sentence around it must say
+ * "roughly where it has landed", never "the bar".
+ */
+export const HONORS_YEARLY_BAR = 97;
 
 /** Converting >25% of a year's hours to binary forfeits honors (domain §6). */
 export const HONORS_BINARY_SHARE_CAP = 0.25;
@@ -106,8 +124,12 @@ export interface HonorsBand {
 
 /** What טל described, recorded as history rather than as rules. */
 export const HONORS_BANDS: HonorsBand[] = [
-  { id: "dean", typicalAverage: 97, cohortShare: "כ-3% מהתוכנית" },
-  { id: "rector", typicalAverage: 98, cohortShare: "כ-3% מהפקולטה" },
+  // Dean's list: top ~3% OF THE פכ״מ PROGRAM. Has landed around 97.
+  { id: "dean", typicalAverage: 97, cohortShare: "כ-3% מתוכנית פכ״מ" },
+  // Rector's list: top ~3% OF THE WHOLE FACULTY — a much larger pool, which is
+  // why Ariel notes it is "קצת חסר סיכוי" for a PPE student. Around 98.
+  { id: "rector", typicalAverage: 98, cohortShare: "כ-3% מכל הפקולטה" },
+  // A degree awarded with honours: ~15% of those finishing, around 92.
   { id: "degree-honors", typicalAverage: 92, cohortShare: "כ-15% מהמסיימים" },
 ];
 
