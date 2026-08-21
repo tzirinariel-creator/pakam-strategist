@@ -83,6 +83,13 @@ export const courseKnowledgeRouter = createTRPCRouter({
             cohortYear: true,
             workload: true,
             difficulty: true,
+            // Ariel's "ציון מנהלים מול קהילה": an admin-authored note is not a
+            // data point in a crowd, it is the app speaking. Averaging it into
+            // the cohort figures would both distort them and hide which is
+            // which, so the author's role travels with the row and the two are
+            // separated below. Only the ROLE is selected — never a name or an
+            // id, so this cannot become a way to identify a reviewer.
+            user: { select: { role: true } },
           },
         }),
       ]);
@@ -104,7 +111,14 @@ export const courseKnowledgeRouter = createTRPCRouter({
       graded.sort((a, b) => a - b);
       const gradeRevealed = graded.length >= GRADE_MIN_N;
 
-      const ratingRows = reviews.filter((r) => r.workload != null || r.difficulty != null || r.verdict != null);
+      // Split before anything is counted. An official note must never enter a
+      // community average, and a community review must never be presented with
+      // the app's authority behind it.
+      const isOfficial = (r: { user?: { role: string } | null }) => r.user?.role === "admin";
+      const officialReviews = reviews.filter(isOfficial);
+      const communityReviews = reviews.filter((r) => !isOfficial(r));
+
+      const ratingRows = communityReviews.filter((r) => r.workload != null || r.difficulty != null || r.verdict != null);
       const ratingRevealed = ratingRows.length >= RATING_MIN_N;
       const avg = (xs: number[]) => (xs.length ? xs.reduce((a, b) => a + b, 0) / xs.length : null);
       const workloadVals = ratingRows.map((r) => r.workload).filter((x): x is number => x != null);
@@ -115,7 +129,7 @@ export const courseKnowledgeRouter = createTRPCRouter({
         : null;
 
       // Cohort label per review — only when that cohort has enough reviews.
-      const cohortCounts = countByCohortYear(reviews);
+      const cohortCounts = countByCohortYear(communityReviews);
 
       const cohortsAvailable = [...new Set(allPoints.map((p) => p.cohortYear).filter((y): y is number => y != null))]
         .filter((y) => allPoints.filter((p) => p.cohortYear === y && !p.isBinary && p.grade != null).length >= GRADE_MIN_N)
@@ -173,8 +187,10 @@ export const courseKnowledgeRouter = createTRPCRouter({
         // one person known to have taken it. Gated on the count of tip-bearing
         // reviews specifically, not the row total: four ratings and one tip is
         // still one identifiable author.
-        reviews: (reviews.filter((r) => r.tip && r.tip.trim().length > 0).length >= TIP_MIN_N
-          ? reviews.filter((r) => r.tip && r.tip.trim().length > 0)
+        // Community prose only. The official note has its own field below and
+        // must not be gated on a crowd threshold it is not part of.
+        reviews: (communityReviews.filter((r) => r.tip && r.tip.trim().length > 0).length >= TIP_MIN_N
+          ? communityReviews.filter((r) => r.tip && r.tip.trim().length > 0)
           : []
         )
           .slice(0, 5)
@@ -190,6 +206,31 @@ export const courseKnowledgeRouter = createTRPCRouter({
             })(),
           })),
         cohortsAvailable,
+        /**
+         * The app's own note on this course, when one exists.
+         *
+         * Ariel's "ציון מנהלים מול קהילה". Kept OUT of every community figure
+         * above and returned on its own so the screen can label it for what it
+         * is. It has no k-anonymity gate, and that is deliberate rather than an
+         * oversight: the thresholds exist to stop a single student's opinion
+         * being traceable back to them, and an admin note is published on
+         * purpose by the person who runs the app. Still no name and no id — the
+         * note is attributed to Pakamon, not to a person.
+         */
+        official:
+          officialReviews.length > 0
+            ? (() => {
+                const o = officialReviews[0]!;
+                return {
+                  tip: o.tip,
+                  tags: o.tags,
+                  verdict: o.verdict,
+                  workload: o.workload,
+                  difficulty: o.difficulty,
+                  createdAt: o.createdAt,
+                };
+              })()
+            : null,
       };
     }),
 

@@ -293,6 +293,11 @@ function CommunityKnowledge({
   const ratings = data?.ratings;
   const grade = data?.grade;
   const reviews = data?.reviews ?? [];
+  // Ariel's "ציון מנהלים מול קהילה": the app's own note, kept out of every
+  // community figure and labelled as coming from Pakamon rather than from the
+  // cohort. Rendered even when there is no community data at all — it is not
+  // a crowd statistic and does not wait for a crowd.
+  const official = data?.official ?? null;
 
   const hasAnything =
     !!data &&
@@ -300,10 +305,36 @@ function CommunityKnowledge({
       (grade?.revealed ?? false) ||
       (grade?.nGraded ?? 0) > 0 ||
       (ratings?.n ?? 0) > 0 ||
-      reviews.length > 0);
+      reviews.length > 0 ||
+      !!official);
 
   // Total app-community sample size for the header.
   const communityN = Math.max(grade?.n ?? 0, ratings?.n ?? 0, reviews.length);
+
+  const officialBlock = official ? (
+    <div className="rounded-xl border border-accent-brand/30 bg-accent-brand/[0.06] p-3">
+      <div className="mb-1 flex items-center gap-1.5">
+        <span className="text-[10px] font-bold uppercase tracking-wider text-accent-brand">
+          {isHe ? "מפכמון" : "From Pakamon"}
+        </span>
+        <span className="text-[10px] text-foreground/40">
+          {isHe ? "· לא ממוצע של המחזור" : "· not a cohort average"}
+        </span>
+      </div>
+      {official.tip && (
+        <p className="text-xs leading-relaxed text-foreground/75">{official.tip}</p>
+      )}
+      {official.tags.length > 0 && (
+        <div className="mt-1.5 flex flex-wrap gap-1">
+          {official.tags.map((tg) => (
+            <span key={tg} className="rounded-full bg-foreground/[0.06] px-2 py-0.5 text-[10px] text-foreground/60">
+              {tg}
+            </span>
+          ))}
+        </div>
+      )}
+    </div>
+  ) : null;
 
   // Empty / errored: a single honest invitation, no empty numbers.
   if (errored || !hasAnything) {
@@ -332,6 +363,10 @@ function CommunityKnowledge({
   const binaryHigh = grade?.binaryShare != null && grade.binaryShare >= 0.25;
 
   return (
+    <div className="flex flex-col gap-2">
+      {/* The app's own note sits ABOVE the cohort figures and in its own
+          container — two different kinds of claim should not share a frame. */}
+      {officialBlock}
     <div className="rounded-xl border border-accent-brand/25 bg-accent-brand/[0.04] p-3">
       {/* Header — explicitly a DIFFERENT source than the Arazim block above. */}
       <div className="mb-2 flex items-baseline justify-between gap-2">
@@ -464,6 +499,7 @@ function CommunityKnowledge({
         <MessageSquarePlus className="size-3.5" />
         {isHe ? "הוסיפו טיפ / דרגו את הקורס" : "Add a tip / rate this course"}
       </button>
+    </div>
     </div>
   );
 }
