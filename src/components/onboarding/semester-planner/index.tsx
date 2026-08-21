@@ -28,6 +28,7 @@ import { MySemester } from "./my-semester";
 import { GroupRail } from "./group-rail";
 import { LiveTimetable, type SessionGroupSelections } from "./live-timetable";
 import { InsightsBar } from "./insights-bar";
+import { BiddingProximityNudge } from "./bidding-proximity-nudge";
 import { DegreeInfoCard } from "./degree-info-card";
 import { SemesterSummary } from "./semester-summary";
 import { CustomCourseModal, type CustomCourseDraft } from "./custom-course-modal";
@@ -1014,6 +1015,13 @@ export function SemesterPlanner({
           year={currentYear}
           semester={currentSemester}
         />
+      </div>
+
+      {/* Ariel, 21.8 — bidding was surfaced on the DASHBOARD, a screen a
+          student reaches AFTER planning. Said here, while they are choosing,
+          and it names the full planner so that screen is discoverable at all. */}
+      <div className="animate-stagger-1 w-full max-w-7xl">
+        <BiddingProximityNudge />
       </div>
 
       {/* Insights bar */}
