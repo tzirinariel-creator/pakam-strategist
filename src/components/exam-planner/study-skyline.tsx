@@ -20,6 +20,7 @@ import type {
 } from "@/lib/exam-planner";
 import { cn } from "@/lib/utils";
 import { AskAdvisorButton } from "@/components/ui/ask-advisor-button";
+import { Bidi } from "@/lib/bidi";
 
 // ─────────────────────────────────────────────────────────────────────
 // Study Skyline — a study-spread timeline for the exam planner.
@@ -113,6 +114,14 @@ export interface SkylineModel {
   firstExam: { courseName: string; color: string; days: number; moed: "A" | "B" } | null;
   hasOverload: boolean;
   courses: { courseCode: string; courseName: string; color: string; totalHours: number; examDate: Date; moed: "A" | "B" }[];
+  /**
+   * How many days from today the chart's FIRST column sits. 0 ⇒ it opens
+   * today. A plan for a January exam does not begin for months, and the chart
+   * has to say so rather than render an empty span (Ariel, 21.8: "למה הוא לא
+   * בונה תוכנית לימוד" — it was, off the right-hand edge of the window).
+   */
+  startsInDays: number;
+  windowStart: Date | null;
 }
 
 /** Pure, testable: turn an ExamPlanResult into the day-by-day skyline model. */
@@ -129,6 +138,7 @@ export function buildSkylineModel(
     return {
       items: [], maxDayHours: 0, todayHours: 0, todayCourses: 0,
       peak: null, firstExam: null, hasOverload: false, courses: [],
+      startsInDays: 0, windowStart: null,
     };
   }
 
@@ -159,17 +169,43 @@ export function buildSkylineModel(
     examsByDay.set(k, list);
   }
 
-  // Walk today → last exam, collapsing runs of ≥3 empty days. Cap generously
-  // (90d covers a full exam period incl. a far Moed-B) so a distant exam's
-  // study window + pennant are never silently dropped; rest-collapse keeps a
-  // long span visually compact.
+  // Ariel, 21.8: "למה הוא לא בונה תוכנית לימוד?"
+  //
+  // It was building one. The chart could not show it. This walk started at
+  // TODAY and capped at 90 days, while a plan for a January exam does not
+  // begin until about four weeks before it — 127 days out when he looked. The
+  // entire plan therefore fell past the end of the window, and what he saw was
+  // an empty chart with one "90 ימים חופשיים" rest cell across it. From the
+  // outside that is indistinguishable from a generator that produced nothing.
+  //
+  // So the window is anchored on the PLAN rather than on the calendar: it
+  // opens on the first day that actually carries something (a study block or
+  // an exam), and the lead-in below names how far away that is instead of
+  // rendering months of blank.
   const lastExam = exams[exams.length - 1]!.examDate;
-  const span = Math.min(90, Math.max(0, daysBetween(today, lastExam)));
+  const firstBusyDate = (() => {
+    const firstSession = plan.sessions.length > 0
+      ? plan.sessions.reduce((a, b) => (a.date < b.date ? a : b)).date
+      : null;
+    const firstExamDate = exams[0]!.examDate;
+    const earliest = firstSession && firstSession < firstExamDate ? firstSession : firstExamDate;
+    return startOfDay(earliest);
+  })();
+  // Keep a few days of run-up so the chart never opens flush against the first
+  // block, but never start before today.
+  const LEAD_IN_DAYS = 3;
+  const windowStart = (() => {
+    const wanted = addDays(firstBusyDate, -LEAD_IN_DAYS);
+    return wanted > today ? wanted : today;
+  })();
+  /** Days between today and where the chart opens. 0 when it opens today. */
+  const startsInDays = Math.max(0, daysBetween(today, windowStart));
+  const span = Math.min(90, Math.max(0, daysBetween(windowStart, lastExam)));
 
   const dayItems: DayItem[] = [];
   let firstStudyMarked = false;
   for (let i = 0; i <= span; i++) {
-    const date = addDays(today, i);
+    const date = addDays(windowStart, i);
     const k = dayKey(date);
     const barMap = sessionsByDay.get(k);
     const bars = barMap ? Array.from(barMap.values()) : [];
@@ -183,7 +219,8 @@ export function buildSkylineModel(
       bars,
       sumHours,
       isWeekend: date.getDay() === 5 || date.getDay() === 6,
-      isToday: i === 0,
+      // i === 0 is where the CHART opens, which is no longer necessarily today.
+      isToday: dayKey(date) === dayKey(today),
       exams: examsByDay.get(k) ?? [],
       isFirstStudy,
     });
@@ -208,15 +245,20 @@ export function buildSkylineModel(
   flush();
 
   const maxDayHours = Math.max(2.5, ...dayItems.map((d) => d.sumHours));
-  const todayItem = dayItems[0]!;
+  // Today may sit before the window when the plan starts months out; then
+  // there is genuinely nothing scheduled today, which is the honest answer.
+  const todayItem = dayItems.find((d) => d.isToday) ?? null;
   const peakItem = dayItems.filter((d) => d.sumHours > 0).sort((a, b) => b.sumHours - a.sumHours)[0] ?? null;
   const first = exams[0]!;
 
   return {
     items,
     maxDayHours,
-    todayHours: todayItem.sumHours,
-    todayCourses: todayItem.bars.length,
+    todayHours: todayItem?.sumHours ?? 0,
+    todayCourses: todayItem?.bars.length ?? 0,
+    /** How far off the chart's first day is. 0 ⇒ it opens today. */
+    startsInDays,
+    windowStart,
     peak: peakItem ? { weekday: peakItem.date.getDay(), date: peakItem.date, hours: peakItem.sumHours } : null,
     firstExam: { courseName: first.courseName, color: first.color, days: Math.max(0, daysBetween(today, first.examDate)), moed: first.moed },
     hasOverload: false, // set by caller from recommendations
@@ -417,6 +459,29 @@ export function StudySkyline({ plan, recommendations, isHe, now, onDayClick, onM
     // DndContext is inert unless onMoveCourseDay armed the sensors (E2′).
     <DndContext sensors={sensors} onDragEnd={handleDragEnd}>
     <div className="data-card overflow-clip p-0">
+      {/* The plan starts months out — say so, rather than let the reader
+          conclude nothing was built. Threshold at a week: inside that, "the
+          chart opens in 3 days" is noise. */}
+      {model.startsInDays > 7 && model.windowStart && (
+        <div className="border-b border-accent-brand/25 bg-accent-brand/[0.06] px-3 py-2.5 text-xs leading-relaxed text-foreground/70">
+          {isHe ? (
+            <>
+              <b>התוכנית בנויה</b> — היא פשוט מתחילה רק ב־
+              <Bidi text={`${model.windowStart.getDate()}.${model.windowStart.getMonth() + 1}`} />,{" "}
+              {hebCountdown(model.startsInDays)}. עד אז אין מה ללמוד למבחנים האלה, אז הלוח
+              נפתח שם ולא היום.
+            </>
+          ) : (
+            <>
+              <b>The plan is built</b> — it simply does not begin until{" "}
+              {model.windowStart.getDate()}.{model.windowStart.getMonth() + 1}, in{" "}
+              {model.startsInDays} days. There is nothing to study for these exams before
+              then, so the chart opens there rather than today.
+            </>
+          )}
+        </div>
+      )}
+
       {/* ── Band 1 · Verdict rail (sticky, never scrolls) ── */}
       <div className="sticky top-0 z-10 flex flex-col gap-2 border-b border-border/60 bg-card/95 p-3 backdrop-blur sm:flex-row sm:items-stretch sm:gap-0">
         {/* Start */}
