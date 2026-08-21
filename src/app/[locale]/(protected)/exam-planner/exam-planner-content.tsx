@@ -1,5 +1,6 @@
 "use client";
 
+import { KnownSittings } from "@/components/exam-planner/known-sittings";
 import { useEffect, useMemo, useRef, useState } from "react";
 import {
   CalendarClock,
@@ -554,20 +555,30 @@ export function ExamPlannerContent() {
         <h2 className="font-display text-base font-bold text-foreground/85">{isHe ? "בחרו מבחנים" : "Pick exams"}</h2>
         {selectedCount > 0 && <span className="ms-auto text-xs text-foreground/50">{selectedCount} {isHe ? "נבחרו" : "selected"}</span>}
       </div>
+      {/* The ידיעון publishes each sitting's DAY and TIME long before its date.
+          This sits OUTSIDE the empty/non-empty branch on purpose: my first
+          version put it only in the empty state, so the moment ONE course got a
+          date the day/time for every other course vanished — which is backwards,
+          since a partly-published timetable is the normal case. Here it shows
+          for exactly the courses that still have no date, in both states. */}
+      {(() => {
+        const dated = new Set(examCourses.map((c) => c.code));
+        const undated = plannedCourses
+          .filter((c) => !dated.has(c.code))
+          .map((c) => ({ courseCode: c.code, nameHe: c.name, nameEn: null }));
+        return undated.length > 0 ? (
+          <div className="mb-3">
+            <KnownSittings courses={undated} />
+          </div>
+        ) : null;
+      })()}
+
       {examCourses.length === 0 ? (
         <ExamsEmptyState
           isHe={isHe}
           reason={availability.reason ?? "no-plan"}
           plannedCount={availability.plannedCount}
           manualEntry={manualDateRows}
-          // The ידיעון knows the DAY and TIME of each sitting long before the
-          // date. Hand the plan over so the empty state can show that instead
-          // of only saying nothing is published.
-          plannedCourses={plannedCourses.map((c) => ({
-            courseCode: c.code,
-            nameHe: c.name,
-            nameEn: null,
-          }))}
         />
       ) : (
         <div className="space-y-2">

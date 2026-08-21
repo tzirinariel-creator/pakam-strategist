@@ -14,7 +14,6 @@
 // were this year's.
 // =========================================================================
 
-import { KnownSittings, type PlannedCourseLite } from "@/components/exam-planner/known-sittings";
 import { heNoun } from "@/lib/he-count";
 import { CalendarClock, CalendarX2, FileText, GraduationCap } from "lucide-react";
 import { Link } from "@/i18n/navigation";
@@ -40,7 +39,6 @@ export function ExamsEmptyState({
   plannedCount,
   now,
   manualEntry,
-  plannedCourses,
 }: {
   isHe: boolean;
   reason: ExamPlannerEmptyReason;
@@ -49,8 +47,6 @@ export function ExamsEmptyState({
   now?: Date;
   /** The per-course manual-date rows — rendered only when they exist. */
   manualEntry?: React.ReactNode;
-  /** The plan's courses, so we can show the ידיעון's day/time for each. */
-  plannedCourses?: PlannedCourseLite[];
 }) {
   // The year whose timetable a student would be planning against right now.
   const yearLabelHe = hebrewYearLabel(getPlanningAnchor(now).startYear);
@@ -129,13 +125,6 @@ export function ExamsEmptyState({
             : "Know the date? Enter it here and we'll plan around it — your date always wins."}
         </p>
       </div>
-      {/* The ידיעון publishes the SLOT — day of week and time — long before it
-          publishes a date. Showing that turns this screen from "we know
-          nothing" into "here is exactly what is known, and what isn't", which
-          is what makes planning possible months before the timetable exists. */}
-      {isUnpublished && plannedCourses && plannedCourses.length > 0 && (
-        <KnownSittings courses={plannedCourses} />
-      )}
       {manualEntry}
     </div>
   );
