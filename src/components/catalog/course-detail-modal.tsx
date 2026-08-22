@@ -14,6 +14,8 @@ import {
 import { DISCIPLINE_CONFIG } from "@/lib/constants";
 import { courseColor } from "@/lib/course-color";
 import { sessionTypeNameFor } from "@/lib/group-options";
+import { courseScheduleOutline, isChoice } from "@/lib/course-schedule-outline";
+import { heNoun } from "@/lib/he-count";
 import { dayShortFor } from "@/lib/day-of-week";
 import { Bidi } from "@/lib/bidi";
 import { cn } from "@/lib/utils";
@@ -72,6 +74,7 @@ export function CourseDetailModal({
   const diff = av.difficultyLevel ? DIFFICULTY_META[av.difficultyLevel as keyof typeof DIFFICULTY_META] : null;
   const fromYear = formatGradeYear(av.gradeDataYear, isHe);
   const sessions = course.scheduleSessions ?? [];
+  const scheduleOutline = courseScheduleOutline(sessions);
   const byCode = (code: string) => courses.find((c) => c.code === code) ?? null;
   const hasGrade = av.averageGrade != null || av.medianGrade != null || (av.failRate != null && av.failRate >= 1);
 
@@ -148,19 +151,53 @@ export function CourseDetailModal({
             onClose={() => setContributeOpen(false)}
           />
 
-          {/* Schedule */}
-          {sessions.length > 0 && (
+          {/* Schedule — Ariel, 22.8: "מה זה החלון לוז המטורף הזה שקופץ כשלחצתי
+              על אקונומטריקה?". This used to map `sessions` straight to rows, so
+              a course with three lecture groups and eight tutorial groups came
+              out as twenty near-identical lines with nothing saying which group
+              each belonged to. Read as a schedule rather than as a menu, it
+              says "this course eats your whole week" — which is false, and
+              false in the direction that changes what someone bids on.
+              Grouped by type, then by group, with the choice stated. */}
+          {scheduleOutline.length > 0 && (
             <div>
               <div className="mb-1.5 text-[10px] font-medium uppercase tracking-wider text-foreground/40">{isHe ? "מערכת שעות" : "Schedule"}</div>
-              <div className="flex flex-col gap-1">
-                {sessions.map((s, i) => (
-                  <div key={i} className="flex items-center gap-2 text-xs text-foreground/60">
-                    <Clock className="size-3 text-foreground/30" />
-                    <span className="font-medium">{dayShortFor(s.dayOfWeek, isHe)}</span>
-                    <span dir="ltr" className="font-mono text-[10px]">{s.startTime}–{s.endTime}</span>
-                    <span className="text-[10px] text-foreground/35">
-                      {sessionTypeNameFor(s.sessionType, isHe)}
-                    </span>
+              <div className="flex flex-col gap-2.5">
+                {scheduleOutline.map((section) => (
+                  <div key={section.sessionType}>
+                    <div className="flex flex-wrap items-baseline gap-x-1.5 text-[11px]">
+                      <span className="font-semibold text-foreground/70">
+                        {sessionTypeNameFor(section.sessionType, isHe)}
+                      </span>
+                      {isChoice(section) && (
+                        <span className="text-[10px] text-foreground/40">
+                          {isHe
+                            ? `${heNoun(section.groups.length, "קבוצה", "קבוצות")} — בוחרים אחת`
+                            : `${section.groups.length} groups — pick one`}
+                        </span>
+                      )}
+                    </div>
+                    <div className="mt-1 flex flex-col gap-1">
+                      {section.groups.map((g, gi) => (
+                        <div
+                          key={g.groupCode ?? gi}
+                          className="flex flex-wrap items-center gap-x-2 gap-y-0.5 text-xs text-foreground/60"
+                        >
+                          <Clock className="size-3 shrink-0 text-foreground/30" />
+                          {g.groupCode && (
+                            <span className="shrink-0 rounded bg-foreground/[0.06] px-1.5 py-px text-[10px] font-medium text-foreground/55">
+                              <Bidi text={isHe ? `קבוצה ${g.groupCode}` : `Group ${g.groupCode}`} />
+                            </span>
+                          )}
+                          {g.meetings.map((m, mi) => (
+                            <span key={mi} className="flex items-center gap-1">
+                              <span className="font-medium">{dayShortFor(m.dayOfWeek, isHe)}</span>
+                              <span dir="ltr" className="font-mono text-[10px]">{m.startTime}–{m.endTime}</span>
+                            </span>
+                          ))}
+                        </div>
+                      ))}
+                    </div>
                   </div>
                 ))}
               </div>
