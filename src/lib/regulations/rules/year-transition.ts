@@ -2,6 +2,7 @@ import type { RuleContext, RegulationRule } from "@/types/regulation";
 import { result } from "./_result";
 import { canonicalAttempts } from "@/lib/grade-calculator";
 import { prefersHigherGrade, type MiluimGroupKey } from "@/lib/miluim";
+import { isEnglishCourse } from "@/lib/english-standing";
 
 // -------------------------------------------------------------------
 // Year 1→2 transition gate helper
@@ -28,10 +29,21 @@ function year1WeightedAverage(
       // otherwise be misled by a gate that still counts that grade.
       !uc.isBinary &&
       // English is excluded from EVERY degree average (owner-verified iron rule)
-      // — it must not pollute this BLOCKING gate either. A year-1 English content
-      // course's grade was leaking in and could falsely block (or mask a block)
-      // the 75/80 continuation (King/data-audit 22.7).
-      uc.course.courseType !== "ENGLISH" &&
+      // — it must not pollute this BLOCKING gate either.
+      //
+      // The intent above was right since 22.7; the test was the narrow one.
+      // `courseType === "ENGLISH"` is a CATALOG flag, and no row a real student
+      // owns carries it: the scanner and manual entry both write ELECTIVE
+      // (plan.ts:443, 559, 665), and מתקדמים ב׳ — code 2171-9201, the row Ariel
+      // reported four times — sits in the catalog as ELECTIVE too. So this
+      // clause never fired for the people it was written for, and an English
+      // grade was being averaged into a gate that BLOCKS continuation to year 2.
+      //
+      // `isEnglishCourse` is the one question the rest of the app asks, and it
+      // is what grade-calculator.ts:88 was moved to on 21.8. This site was
+      // missed then — the same "two functions, one question" miss, one file
+      // over.
+      !isEnglishCourse(uc.course) &&
       match(uc)
   );
   // Collapse a grade-improvement retake to the DETERMINING (last) sitting, so a

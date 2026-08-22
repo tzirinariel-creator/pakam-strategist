@@ -18,6 +18,7 @@ import type {
 import { getActiveProgram, type ProgramDefinition } from "@/lib/programs/registry";
 import { passBarFor } from "@/lib/constants";
 import { canonicalAttempts } from "@/lib/grade-calculator";
+import { isEnglishLevelCourseName } from "@/lib/english-standing";
 
 // Practice ("משלב עשייה") credit caps (domain rules §1):
 // each practice course grants at most PRACTICE_COURSE_MAX_CREDITS regardless of
@@ -227,6 +228,24 @@ export function calculateCredits(
     // totals; PKM-012 still reports the English requirement unmet (#audit-r2).
     // On-track English (planned / in-progress / ungraded / passed) is unaffected.
     if (course.courseType === "ENGLISH" && !englishContentCourseCounts(uc)) {
+      credits = 0;
+    }
+
+    // A LEVEL course never counts toward the 150, passed or not — and this
+    // engine was the only place that did not know it.
+    //
+    // `src/lib/regulations/rules/english.ts:140` tells the student, in these
+    // words, "נדרשים עוד N קורסי רמה (לא נספרים ב-150 ש״ס)". Meanwhile the
+    // count that sentence appears next to was adding them, because the only
+    // English test in this file is the CATALOG flag and a level course reaches
+    // us as ELECTIVE — the scanner writes ELECTIVE, and 2171-9201 is ELECTIVE
+    // in the catalog itself. Two screens, contradicting each other, about the
+    // one number the whole degree is measured by.
+    //
+    // Level courses only. A CONTENT course taught in English is an ordinary
+    // course that happens to be in English: it stays out of the average and
+    // stays inside the 150.
+    if (isEnglishLevelCourseName(course.nameHe, course.code)) {
       credits = 0;
     }
 
