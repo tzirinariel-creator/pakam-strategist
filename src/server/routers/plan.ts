@@ -127,6 +127,17 @@ export const planRouter = createTRPCRouter({
         isBinary: z.boolean().optional(), // miluim pass/fail conversion
         disciplineOverride: disciplineEnum.nullable().optional(), // null clears a mis-assigned discipline
         attempt: z.number().int().min(1).optional(),
+        // The degree score is 78% courses + 18% seminar papers + 4% referat
+        // (grade-calculator.ts:56). The two fields the last 22% is built from
+        // existed in the schema and were read in four places — and NOTHING in
+        // the app could ever write them. Verified against production: 220
+        // userCourse rows, 0 with submissionGrade, 0 with submissionType. So
+        // `weightedScore` returned null for every user, always, and the screen
+        // called "מחשבון ציון הגמר" could not produce its number for anyone
+        // while telling them "את הציונים עצמם מזינים בתיק האקדמי" — a place
+        // that had no such field.
+        submissionType: z.enum(["PAPER", "REFERAT", "EXAM", "NONE"]).nullable().optional(),
+        submissionGrade: z.number().min(0).max(100).nullable().optional(),
         selectedGroups: z
           .record(z.string().max(30), z.string().max(30))
           .refine((o) => Object.keys(o).length <= 30, "too many groups")
@@ -275,8 +286,13 @@ export const planRouter = createTRPCRouter({
     // COMPLETED-with-grade subset is tiny relative to a second round-trip.
     const loaders = ctx.loaders ?? createRequestLoaders(ctx.db);
     const all = await loaders.userCoursesWithCourse(user.id);
+    // A seminar paper carries its mark in `submissionGrade`, and often has no
+    // numeric `grade` at all — so filtering on `grade !== null` threw away the
+    // 18% before it could be counted. Keep a completed row if it carries
+    // EITHER mark; the calculator already ignores the one that is missing.
     const userCourses = all.filter(
-      (uc) => uc.status === "COMPLETED" && uc.grade !== null,
+      (uc) =>
+        uc.status === "COMPLETED" && (uc.grade !== null || uc.submissionGrade !== null),
     );
 
     // B/C/G reservists' higher exam grade counts (Ariel 23.7) — the headline

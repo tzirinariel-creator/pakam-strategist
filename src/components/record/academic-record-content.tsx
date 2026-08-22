@@ -193,6 +193,16 @@ export function AcademicRecordContent() {
     [updateCourseMutation, isHe]
   );
 
+  // The seminar paper's own mark. Kept separate from handleSaveGrade because
+  // it writes different columns and carries a different meaning: an exam grade
+  // is 78% of the degree score, this is the 18% (paper) or 4% (referat).
+  const handleSaveSubmission = useCallback(
+    (userCourseId: string, submissionGrade: number | null, submissionType: "PAPER" | "REFERAT") => {
+      updateCourseMutation.mutate({ userCourseId, submissionGrade, submissionType });
+    },
+    [updateCourseMutation]
+  );
+
   // #8 — the student declares that a course outside OUR catalog is approved for
   // THEIR degree, and says what it counts toward. Persisted on the existing
   // UserCourse.disciplineOverride, which the credit engine already honors — so
@@ -507,6 +517,7 @@ export function AcademicRecordContent() {
                           locale={locale}
                           isHe={isHe}
                           onSaveGrade={handleSaveGrade}
+                          onSaveSubmission={handleSaveSubmission}
                           onDeclare={handleDeclare}
                           onRemove={handleRemove}
                           savedSignal={savedSignals[uc.id] ?? 0}

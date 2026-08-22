@@ -9,6 +9,7 @@ import { isOffCatalogCourse, isStudentAddedCourse, isDeclaredApproved } from "@/
 import type { UserCourseWithCourse } from "@/types/degree";
 import type { CourseStatus } from "@/types/enums";
 import { GradeInput } from "./grade-input";
+import { SubmissionGradeInput, type SubmissionKind } from "./submission-grade-input";
 import { DisciplineBadge } from "./discipline-badge";
 import { isEnglishCourse } from "@/lib/english-standing";
 
@@ -24,6 +25,7 @@ export function CourseRow({
   onSaveGrade,
   onDeclare,
   onRemove,
+  onSaveSubmission,
   savedSignal,
   t,
 }: {
@@ -37,6 +39,8 @@ export function CourseRow({
    *  null = no declaration. */
   onDeclare: (id: string, discipline: string | null) => void;
   onRemove: (id: string) => void;
+  /** The seminar paper's own mark — the 18%+4% of the degree score. */
+  onSaveSubmission: (id: string, grade: number | null, type: SubmissionKind) => void;
   /** Per-course success counter, bumped on a confirmed save. */
   savedSignal: number;
   t: ReturnType<typeof useTranslations<"record">>;
@@ -160,6 +164,26 @@ export function CourseRow({
               </span>
             )}
           </div>
+
+          {/* A seminar's mark lives in submissionGrade, not in the exam-grade
+              column — and until now nothing in the app could write it, so the
+              degree score was null for everyone. Shown in the always-visible
+              name cell for the same reason the declaration is. */}
+          {course.courseType === "SEMINAR" && (
+            <SubmissionGradeInput
+              userCourseId={uc.id}
+              initialGrade={uc.submissionGrade ?? null}
+              initialType={
+                uc.submissionType === "PAPER" || uc.submissionType === "REFERAT"
+                  ? uc.submissionType
+                  : null
+              }
+              onSave={onSaveSubmission}
+              savedSignal={savedSignal}
+              isHe={isHe}
+              courseName={courseName}
+            />
+          )}
 
           {/* The declaration itself — one control that says both "this counts
               toward our degree" and "it counts as this". Sits in the always-
