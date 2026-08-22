@@ -1,17 +1,41 @@
 # =============================================================================
 # Free scheduled DB backup (no paid Supabase plan needed).
 #
-# DORMANT until the owner adds a repository secret — DIRECT_URL (preferred, a
-# non-pooled connection) or DATABASE_URL — in Settings → Secrets and variables
-# → Actions. Until then the job runs, sees no secret, prints a notice, exits 0.
+# ── READ THIS BEFORE ADDING THE SECRET ───────────────────────────────────────
+# The previous version of this file said the dump was stored as a "PRIVATE
+# workflow artifact (downloadable only by people with repo access)". That
+# sentence was wrong here, and dangerously so: THIS REPOSITORY IS PUBLIC, so
+# "people with repo access" is everyone on the internet. GitHub serves Actions
+# artifacts of a public repo to any visitor.
 #
-# Once active it dumps the DB daily with an exact-version pg_dump (run via the
-# official postgres:17 image, since GitHub runners have Docker and pg17 can dump
-# any server <= 17 — Supabase runs 15/17), and stores it as a PRIVATE workflow
-# artifact (downloadable only by people with repo access, kept 30 days).
-# NOTE for the owner: the artifact contains real student data. Artifacts are
-# private to the repo; if you prefer another destination (a private backup repo
-# or external object storage) say so and it can be repointed.
+# The job was dormant, so nothing leaked. But the file was actively instructing
+# the owner to add DIRECT_URL — and the moment he did, every night would have
+# published a full pg_dump of ~24 real students (names, emails, grades, whole
+# transcripts, miluim service days, encrypted Google/AI keys) for anyone to
+# download, for 30 days.
+#
+# Two independent guards now stand between the secret and that outcome:
+#
+#   1. VISIBILITY GATE — the job asks the API whether the repo is private and
+#      REFUSES to dump anything if it is not. Failing loudly is the point: a
+#      backup that silently declines is how we got here.
+#   2. ENCRYPTION — the dump is symmetrically encrypted with BACKUP_PASSPHRASE
+#      before it is ever written where the upload step can see it. No
+#      passphrase, no dump. So even a future visibility change, or an artifact
+#      shared by mistake, leaks ciphertext rather than a class list.
+#
+# Restore:  gpg --decrypt pakam-<stamp>.sql.gpg > restore.sql
+#           psql "$DIRECT_URL" -f restore.sql
+#
+# TO ACTIVATE, both secrets are required (Settings → Secrets and variables →
+# Actions):
+#   · DIRECT_URL         a non-pooled Postgres connection string
+#   · BACKUP_PASSPHRASE  a long random string — STORE IT SOMEWHERE ELSE TOO,
+#                        a backup you cannot decrypt is not a backup
+#
+# If you would rather keep this repo public AND have plaintext backups, point
+# the upload at a private destination (a private backup repo, or object
+# storage) instead of an artifact — say so and it can be repointed.
 # =============================================================================
 name: DB Backup (free)
 
@@ -25,24 +49,49 @@ jobs:
     runs-on: ubuntu-latest
     env:
       DUMP_URL: ${{ secrets.DIRECT_URL != '' && secrets.DIRECT_URL || secrets.DATABASE_URL }}
+      PASSPHRASE: ${{ secrets.BACKUP_PASSPHRASE }}
     steps:
-      - name: Dump database (skips cleanly if no secret is set)
+      # Guard 1. Asked of the API rather than read from the event payload, so it
+      # is the same answer whether the run came from cron or a button.
+      - name: Refuse to back up into a public repository
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
           if [ -z "${DUMP_URL}" ]; then
-            echo "No DIRECT_URL/DATABASE_URL secret set — backups are inactive."
-            echo "Owner: add DIRECT_URL (preferred) or DATABASE_URL in Settings → Secrets and variables → Actions to activate."
+            echo "::notice::No DIRECT_URL/DATABASE_URL secret set — backups are INACTIVE. No restore point exists."
+            echo "SKIP=1" >> "$GITHUB_ENV"
             exit 0
           fi
-          STAMP="$(date +%Y-%m-%d-%H%M%S)"
-          docker run --rm -i postgres:17 pg_dump "${DUMP_URL}" --no-owner --no-privileges > "pakam-${STAMP}.sql"
-          echo "STAMP=${STAMP}" >> "$GITHUB_ENV"
-          echo "Backup size: $(du -h "pakam-${STAMP}.sql" | cut -f1)"
+          VIS="$(gh api "repos/${GITHUB_REPOSITORY}" --jq .visibility)"
+          echo "Repository visibility: ${VIS}"
+          if [ "${VIS}" != "private" ]; then
+            echo "::error::This repository is ${VIS}. Actions artifacts of a non-private repo are downloadable by anyone, and this artifact would contain every student's personal data. Refusing to dump."
+            echo "Fix one of these, then re-run: make the repository private, or repoint the upload at a private destination."
+            exit 1
+          fi
+          if [ -z "${PASSPHRASE}" ]; then
+            echo "::error::BACKUP_PASSPHRASE is not set. Refusing to write an unencrypted dump of real student data."
+            exit 1
+          fi
 
-      - name: Upload backup artifact
+      # Guard 2. pg_dump's output is piped straight into gpg, so the plaintext
+      # never lands on the runner's disk for the upload step to pick up.
+      - name: Dump and encrypt
+        if: ${{ env.SKIP != '1' }}
+        run: |
+          STAMP="$(date +%Y-%m-%d-%H%M%S)"
+          docker run --rm -i postgres:17 pg_dump "${DUMP_URL}" --no-owner --no-privileges \
+            | gpg --batch --yes --symmetric --cipher-algo AES256 \
+                  --passphrase "${PASSPHRASE}" \
+                  --output "pakam-${STAMP}.sql.gpg"
+          echo "STAMP=${STAMP}" >> "$GITHUB_ENV"
+          echo "Encrypted backup size: $(du -h "pakam-${STAMP}.sql.gpg" | cut -f1)"
+
+      - name: Upload encrypted backup
         if: ${{ env.STAMP != '' }}
         uses: actions/upload-artifact@v4
         with:
           name: db-backup-${{ env.STAMP }}
-          path: "pakam-*.sql"
+          path: "pakam-*.sql.gpg"
           retention-days: 30
-          if-no-files-found: ignore
+          if-no-files-found: error
