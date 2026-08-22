@@ -29,17 +29,27 @@ export function PhilosopherKingCharacter({
       <circle cx="32" cy="32" r="31" fill="#312E81" />
       <circle cx="32" cy="32" r="31" fill="url(#pkc-glow)" />
 
-      {/* robe (bust) */}
-      <path
-        d="M12 64c1-12 9-18 20-18s19 6 20 18Z"
-        fill="#4338CA"
-      />
-      {/* gold trim on the robe collar */}
-      <path
-        d="M22 50c3-2.5 6.5-4 10-4s7 1.5 10 4c-3 1.8-6.5 2.8-10 2.8S25 51.8 22 50Z"
-        fill="#F59E0B"
-        opacity="0.9"
-      />
+      {/* Ariel, twice: "הצבעים האלו מסביב למלך כמסגרת מלבנית חתוכים למטה
+          במסך טעינה" — and then "עדיין חתוך למטה".
+          The medallion circle ends at y=63; the robe below ran to y=64, the
+          viewBox floor. So the indigo bust spilled past the circle and the
+          viewport sliced it flat — an indigo band with a straight bottom edge
+          sitting under a round badge, which is exactly what reads as a cut-off
+          rectangle. Clipping the bust to the medallion lets it end on the
+          circle's own curve instead of on the frame. */}
+      <g clipPath="url(#pkc-medallion)">
+        {/* robe (bust) */}
+        <path
+          d="M12 64c1-12 9-18 20-18s19 6 20 18Z"
+          fill="#4338CA"
+        />
+        {/* gold trim on the robe collar */}
+        <path
+          d="M22 50c3-2.5 6.5-4 10-4s7 1.5 10 4c-3 1.8-6.5 2.8-10 2.8S25 51.8 22 50Z"
+          fill="#F59E0B"
+          opacity="0.9"
+        />
+      </g>
 
       {/* neck */}
       <rect x="28.5" y="38" width="7" height="8" rx="3" fill="#E8B98B" />
@@ -92,6 +102,9 @@ export function PhilosopherKingCharacter({
       <rect x="30.6" y="19.2" width="2.8" height="2.8" rx="0.7" transform="rotate(45 32 20.6)" fill="#4338CA" />
 
       <defs>
+        <clipPath id="pkc-medallion">
+          <circle cx="32" cy="32" r="31" />
+        </clipPath>
         <radialGradient id="pkc-glow" cx="0.5" cy="0.35" r="0.75">
           <stop offset="0%" stopColor="#818CF8" stopOpacity="0.35" />
           <stop offset="100%" stopColor="#312E81" stopOpacity="0" />

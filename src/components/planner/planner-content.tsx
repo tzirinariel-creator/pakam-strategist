@@ -10,6 +10,7 @@ import { SharePlanDialog } from "./share-plan-dialog";
 import { invalidatePlanData } from "@/lib/trpc/invalidate-plan";
 import { YearBoard } from "./year-board";
 import { PlacementIssuesCard } from "./placement-issues-card";
+import { EconometricsNoteCard } from "./econometrics-note-card";
 import { YearAtAGlanceCard } from "./year-at-a-glance-card";
 import { AddCourseModal } from "./add-course-modal";
 import { BiddingExplainer } from "./bidding-explainer";
@@ -212,6 +213,18 @@ export function PlannerContent() {
       {/* S1 — hosts the cohort-contribution sheet the grade-lock nudge opens
           (grades lock on the course cards of this board). */}
       <ReviewNudgeHost />
+      {/* Ariel, 22.8: "לא התייחסת במתכנן לסיפור של האקונומטריקה היישומית".
+          The secretariat's rule was on the graduation screen — reached after
+          planning. It belongs where a course still gets added. */}
+      <EconometricsNoteCard
+        rows={courses.map((uc) => ({
+          code: uc.course.code,
+          status: uc.status,
+          plannedYear: uc.plannedYear,
+        }))}
+        currentYear={currentYear}
+      />
+
       <PlacementIssuesCard
         courses={placementRows}
         busy={movePlacement.isPending}
