@@ -15,7 +15,7 @@
 - `git` ממופה ל־`true` — תמיד `command git`, ואמת HEAD מול origin אחרי push.
 - מסד־נתונים אחד = פרודקשן (Supabase). מיגרציות: תוספות בלבד, `npx prisma migrate deploy --config prisma/prisma.config.ts`, לפני קוד שתלוי בהן.
 - חשבון הדמו קריאה־בלבד. בדיקות־כתיבה רק ב־vitest.
-- פריסה: `npx vercel --prod --yes` (על "Not authorized" — נסה שוב פעם אחת). אמת Ready + עמוד 200.
+- פריסה: **`npx -y vercel@48 --prod --yes`**. ה-CLI הלא-מוצמד (`npx vercel`) נשבר על `@vercel/fastify@6.0.0` שלא קיים ברג׳יסטרי, ו-`vercel@46` נכשל על טוקן. על "Not authorized" — נסה שוב פעם אחת. אמת Ready + עמוד 200.
 - שער איכות לפני כל commit: **`npm run lint` (0 errors)** + `npx tsc --noEmit` + `npx vitest run` ירוקים + אימות דפדפן + סקירת־דיף עצמית.
   ה־CI ב־GitHub מריץ **lint, tsc, test** — שער שמדלג על lint הוא שער שנכשל ב־CI בלי שנדע. אחרי push: `gh run list --limit 1`.
 - **לעולם לא**: לנבא נקודות בידינג / להמציא תאריך או ציון או נתון / להציג נתון בלי מקור.
