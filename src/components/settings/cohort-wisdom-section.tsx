@@ -17,10 +17,14 @@ import { SectionCard } from "./section-card";
 
 export function CohortWisdomSection() {
   const isHe = useLocale() === "he";
+  const utils = api.useUtils();
   const [imported, setImported] = useState<number | null>(null);
   const importGrades = api.courseKnowledge.importMyGrades.useMutation({
     onSuccess: (r) => {
       setImported(r.imported);
+      // Sharing grades changes the public aggregates this student is now part
+      // of; the catalog must not keep serving the pre-import numbers.
+      void utils.courseKnowledge.invalidate();
       toast.success(
         isHe
           ? r.imported > 0
@@ -36,6 +40,17 @@ export function CohortWisdomSection() {
   const withdraw = api.courseKnowledge.withdrawMyContributions.useMutation({
     onSuccess: () => {
       setImported(null);
+      // Ariel's 22-19 ("תרמתי עוד וזה לא מעלה אותי בדרגה") was fixed on the
+      // contributing side. This is the same defect running the other way, and
+      // it was still here: withdrawing deletes every review the student wrote,
+      // so the tally that counts them drops — but the mutation told nobody.
+      // The lineage went on printing "40 תרומות שלכם · <rank>" for someone who
+      // had just asked to be forgotten, until they happened to hard-reload.
+      //
+      // A stale number is bad anywhere. On the screen where a person exercises
+      // the right to withdraw, it reads as though the withdrawal did not take.
+      void utils.cohort.myContributionStats.invalidate();
+      void utils.courseKnowledge.invalidate();
       toast.success(isHe ? "כל התרומות שלכם נמשכו ונמחקו" : "All your contributions were withdrawn");
     },
     onError: (e) => toast.error(e.message),

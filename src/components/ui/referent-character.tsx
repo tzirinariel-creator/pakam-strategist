@@ -26,13 +26,26 @@ export function ReferentCharacter({
       <circle cx="32" cy="32" r="31" fill="#134E4A" />
       <circle cx="32" cy="32" r="31" fill="url(#rfc-glow)" />
 
-      {/* hoodie (bust) */}
-      <path d="M12 64c1-12 9-18 20-18s19 6 20 18Z" fill="#0D9488" />
-      {/* hood behind the head */}
-      <path
-        d="M18 40c-1.5-9 4-17 14-17s15.5 8 14 17c-2-3-4.5-4.6-6.5-5.2 1-6-2.5-9.8-7.5-9.8s-8.5 3.8-7.5 9.8c-2 .6-4.5 2.2-6.5 5.2Z"
-        fill="#0F766E"
-      />
+      {/* Ariel, twice: "הצבעים האלו מסביב למלך כמסגרת מלבנית חתוכים למטה
+          במסך טעינה" — and then, after the King was fixed, "עדיין חתוך למטה".
+          This is why it was still there. The King's bust was clipped to the
+          medallion; the Referent carries the IDENTICAL path — M12 64 … Z,
+          ending on the viewBox floor at y=64 — and never got the clip. So the
+          teal bust ran past the round badge and the viewport sliced it flat: a
+          coloured shape with a straight bottom edge under a circle, which is
+          exactly "a rectangular frame cut off at the bottom".
+          Whoever is watching a loading screen sees their OWN advisor, so
+          fixing one of the two portraits fixed it for half the users and left
+          the report standing. Clipped to the same medallion now. */}
+      <g clipPath="url(#rfc-medallion)">
+        {/* hoodie (bust) */}
+        <path d="M12 64c1-12 9-18 20-18s19 6 20 18Z" fill="#0D9488" />
+        {/* hood behind the head */}
+        <path
+          d="M18 40c-1.5-9 4-17 14-17s15.5 8 14 17c-2-3-4.5-4.6-6.5-5.2 1-6-2.5-9.8-7.5-9.8s-8.5 3.8-7.5 9.8c-2 .6-4.5 2.2-6.5 5.2Z"
+          fill="#0F766E"
+        />
+      </g>
       {/* hoodie strings */}
       <path d="M27 48v6M37 48v6" stroke="#F0FDFA" strokeWidth="1.6" strokeLinecap="round" />
 
@@ -72,6 +85,9 @@ export function ReferentCharacter({
       <path d="M26.5 34.5c1.5 1.8 3.4 2.8 5.5 2.8s4-1 5.5-2.8" stroke="#D9A16E" strokeWidth="0.5" strokeDasharray="0.8 1.4" fill="none" opacity="0.7" />
 
       <defs>
+        <clipPath id="rfc-medallion">
+          <circle cx="32" cy="32" r="31" />
+        </clipPath>
         <radialGradient id="rfc-glow" cx="0.5" cy="0.35" r="0.75">
           <stop offset="0%" stopColor="#5EEAD4" stopOpacity="0.3" />
           <stop offset="100%" stopColor="#134E4A" stopOpacity="0" />
