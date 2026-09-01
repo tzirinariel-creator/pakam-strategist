@@ -5,6 +5,7 @@ import { useState, useCallback } from "react";
 import { useTranslations } from "next-intl";
 import { usePathname, Link } from "@/i18n/navigation";
 import {
+  Gavel,
   LayoutDashboard,
   GraduationCap,
   Scale,
@@ -31,6 +32,9 @@ const MOBILE_NAV_ITEMS = [
 ] as const;
 
 const MORE_MENU_ITEMS = [
+  // First in the drawer while the round is near — it is the one screen with a
+  // deadline on it.
+  { key: "bidding", href: "/bidding", icon: Gavel },
   { key: "examPlanner", href: "/exam-planner", icon: CalendarClock },
   { key: "catalog", href: "/catalog", icon: BookOpen },
   // #41 — the social layer gets ONE door on a phone too. Before this, /cohort

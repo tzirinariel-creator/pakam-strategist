@@ -4,6 +4,7 @@ import { UnofficialNotice } from "@/components/layout/unofficial-notice";
 import { useTranslations, useLocale } from "next-intl";
 import { usePathname, Link } from "@/i18n/navigation";
 import {
+  Gavel,
   LayoutDashboard,
   GraduationCap,
   Scale,
@@ -38,6 +39,7 @@ const NAV_ICONS = {
   graduation: Calculator,
   miluim: Shield,
   regulations: Scale,
+  bidding: Gavel,
   settings: Settings,
   mentor: PhilosopherKingIcon,
   guide: Compass,
@@ -63,6 +65,10 @@ const NAV_GROUPS: readonly (readonly { key: keyof typeof NAV_ICONS; href: string
   [
     { key: "dashboard", href: "/dashboard" },
     { key: "planner", href: "/planner" },
+    // Ariel: "אין איזה מסך ייעודי וזה גרוע". The round submits both semesters
+    // at once and it is days away — it belongs in the primary loop, beside
+    // planning, not behind it.
+    { key: "bidding", href: "/bidding" },
     { key: "regulations", href: "/regulations" },
   ],
   // The academic file — log completed grades + forecast the final score.
