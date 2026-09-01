@@ -126,7 +126,7 @@ export function TimeFocusHero({ focus }: { focus: TimeFocus | null }) {
       <div className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-foreground/8 text-foreground/70">
         <Icon className="size-5" />
       </div>
-      <div className="min-w-0 flex-1">
+      <div className="min-w-0 flex-1 basis-48">
         {/* The title now carries round numbers and countdowns inside Hebrew
             ("מקצה 1 נסגר — התוצאות בעוד 2 ימים"); isolate the LTR runs so the
             bidi algorithm can't reorder them. */}

@@ -347,7 +347,7 @@ export function GradeSheetScanner() {
         <div className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-accent-brand/10 text-accent-brand">
           <ScanLine className="size-4.5" />
         </div>
-        <div className="min-w-0 flex-1">
+        <div className="min-w-0 flex-1 basis-48">
           <p className="text-sm font-semibold text-foreground/85">
             {isHe ? "סריקת גיליון ציונים" : "Scan your grade sheet"}
           </p>
@@ -487,7 +487,7 @@ export function GradeSheetScanner() {
             return (
               <div className="flex flex-wrap items-center gap-2 rounded-lg border border-accent-brand/30 bg-accent-brand/5 p-2.5 text-xs">
                 <Languages className="size-4 shrink-0 text-accent-brand" />
-                <span className="min-w-0 flex-1 text-foreground/75">
+                <span className="min-w-0 flex-1 basis-48 text-foreground/75">
                   {isHe
                     ? <>מהגיליון עולה שרמת האנגלית שלכם היא <b className="font-semibold text-foreground">{info.nameHe}</b>. לעדכן בפרופיל?</>
                     : <>The sheet shows your English level is <b className="font-semibold text-foreground">{info.nameEn}</b>. Update your profile?</>}
@@ -577,7 +577,7 @@ export function GradeSheetScanner() {
                       readers) and reads as glued at small sizes. Every part is
                       now its own element with a REAL "·" separator between. */}
                   <span
-                    className={cn("min-w-0 flex-1 self-stretch flex items-center gap-1.5 text-foreground/80", applicable && "cursor-pointer")}
+                    className={cn("min-w-0 flex-1 basis-48 self-stretch flex items-center gap-1.5 text-foreground/80", applicable && "cursor-pointer")}
                     dir="auto"
                     onClick={toggleRow}
                   >

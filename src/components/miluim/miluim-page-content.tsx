@@ -541,7 +541,7 @@ export function MiluimPageContent() {
         {/* ── Alternative assessment pointer (#34) ── */}
         <div className="data-card flex flex-wrap items-center gap-3 p-4">
           <CalendarClock className="size-5 shrink-0 text-foreground/50" />
-          <p className="min-w-0 flex-1 text-xs leading-relaxed text-foreground/60">
+          <p className="min-w-0 flex-1 basis-48 text-xs leading-relaxed text-foreground/60">
             {isHe
               ? "יש לכם קורס עם הערכה חלופית במקום מבחן (לפי מתווה תשפ״ו)? בתכנון-המבחנים אפשר לסמן את זה — והקורס יֵצא מציר-המבחנים ויקבל שורת-הגשה משלו."
               : "Have a course with alternative assessment instead of an exam (per the 2025-26 outline)? Mark it in the exam planner — it leaves the exam timeline and gets its own submission row."}

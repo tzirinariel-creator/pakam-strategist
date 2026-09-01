@@ -66,7 +66,7 @@ export function BiddingSeasonCard({
       <div className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-accent-brand/15 text-accent-brand">
         <Gavel className="size-4.5" />
       </div>
-      <div className="min-w-0 flex-1">
+      <div className="min-w-0 flex-1 basis-48">
         <p className="text-sm font-semibold text-foreground/85">
           {isHe
             ? `המכרז ל${target.labelHe} מתקרב`

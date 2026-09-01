@@ -75,7 +75,7 @@ export function PlacementIssuesCard({
                   key={it.userCourseId}
                   className="flex flex-wrap items-center gap-2 rounded-lg border border-foreground/10 bg-card/70 px-3 py-2"
                 >
-                  <span className="min-w-0 flex-1 text-xs">
+                  <span className="min-w-0 flex-1 basis-48 text-xs">
                     <span className="font-semibold text-foreground/85">{it.nameHe}</span>
                     {it.isMandatory && (
                       <span className="ms-1.5 rounded bg-foreground/[0.07] px-1.5 py-px text-[10px] text-foreground/55">

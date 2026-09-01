@@ -94,7 +94,7 @@ export function SemesterWrapCard({
         <div className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-accent-brand-muted text-accent-brand">
           <ScanLine className="size-5" />
         </div>
-        <div className="min-w-0 flex-1">
+        <div className="min-w-0 flex-1 basis-48">
           <p className="text-sm font-semibold text-foreground/85">
             {isHe ? `${semName} הסתיים — יש כבר ציונים?` : `${semName} is over — got grades yet?`}
           </p>

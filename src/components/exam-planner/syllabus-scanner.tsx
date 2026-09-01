@@ -145,7 +145,7 @@ export function SyllabusScanner() {
         <div className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-accent-brand/10 text-accent-brand">
           <FileScan className="size-4.5" />
         </div>
-        <div className="min-w-0 flex-1">
+        <div className="min-w-0 flex-1 basis-48">
           <p className="text-sm font-semibold text-foreground/85">
             {isHe ? "סריקת סילבוס" : "Scan a syllabus"}
           </p>
@@ -226,7 +226,7 @@ export function SyllabusScanner() {
                     {checked.has(i) && <Check className="size-3" />}
                   </button>
                   <Icon className="size-3.5 shrink-0 text-foreground/40" />
-                  <span className="min-w-0 flex-1 truncate text-foreground/80">
+                  <span className="min-w-0 flex-1 basis-48 truncate text-foreground/80">
                     {item.title}
                     {item.kind === "exam" && item.moed && (
                       // Real separator in the markup — a CSS margin alone glues

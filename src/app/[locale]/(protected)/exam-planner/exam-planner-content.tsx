@@ -729,7 +729,7 @@ export function ExamPlannerContent() {
                 <button type="button" onClick={() => setSelected((s) => ({ ...s, [c.code]: sel ? undefined : (recommended ?? "A") }))} className={cn("flex size-5 shrink-0 items-center justify-center rounded-md border transition-colors", sel ? "border-accent-brand bg-accent-brand text-accent-brand-fg" : "border-foreground/30")} aria-pressed={!!sel} aria-label={isHe ? (sel ? `הסירו את ${c.name} מלוח המבחנים` : `הוסיפו את ${c.name} ללוח המבחנים`) : (sel ? `Remove ${c.name} from the exam board` : `Add ${c.name} to the exam board`)}>
                   {sel && <Check className="size-3.5" />}
                 </button>
-                <span className="min-w-0 flex-1 truncate text-sm text-foreground/80">{c.name}</span>
+                <span className="min-w-0 flex-1 basis-48 truncate text-sm text-foreground/80">{c.name}</span>
                 {/* Never let a student's own date pass for a published one. */}
                 {c.manual && (
                   <span className="rounded-full border border-border/60 px-1.5 py-0.5 text-[10px] text-foreground/50">
