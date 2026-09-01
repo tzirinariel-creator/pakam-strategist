@@ -41,6 +41,38 @@ export const TIP_MIN_N = RATING_MIN_N;
  */
 export const COHORT_LABEL_MIN_N = 5;
 
+/**
+ * ORDER STATISTICS need a higher bar than an average, because they are not
+ * aggregates at all.
+ *
+ * `percentile()` returns a raw array element — it does not interpolate. At
+ * GRADE_MIN_N = 5 the indices land on 1, 2 and 3 of 5, so "median", "p25" and
+ * "p75" were the 2nd, 3rd and 4th contributors' VERBATIM grades, published
+ * together with the mean on a public (unauthenticated) procedure. Three real
+ * rows, plus a figure that lets a reader solve for the sum of the other two.
+ *
+ * The rest of this file reasons carefully about prose and cohort labels and
+ * never distinguished an order statistic from an aggregate — so an average and
+ * a median were treated as the same kind of claim. They are not: a mean of five
+ * numbers is nobody's grade, and a median of five numbers is exactly one
+ * person's.
+ *
+ * Double the grade bar, so a quantile sits several rows away from any endpoint
+ * and no single index is recoverable. Quantiles are ALSO bucketed to the
+ * nearest 5 (see `bucketGrade`) so that even above this bar the published value
+ * is a band and not a lookup.
+ */
+export const QUANTILE_MIN_N = GRADE_MIN_N * 2;
+
+/**
+ * Round a published quantile to the nearest 5, so it names a band rather than a
+ * person. 81 → 80, 88 → 90. The average is NOT bucketed — it is a genuine
+ * aggregate and its precision is what makes it useful.
+ */
+export function bucketGrade(value: number | null): number | null {
+  return value == null ? null : Math.round(value / 5) * 5;
+}
+
 /** Distinct reporters that auto-hide content pending admin review. */
 export const REPORT_HIDE_THRESHOLD = 3;
 

@@ -9,6 +9,8 @@ import {
   RATING_MIN_N,
   TIP_MIN_N,
   COHORT_LABEL_MIN_N,
+  QUANTILE_MIN_N,
+  bucketGrade,
   REPORT_HIDE_THRESHOLD,
   countByCohortYear,
   safeCohortYear,
@@ -135,15 +137,27 @@ export const courseKnowledgeRouter = createTRPCRouter({
         .filter((y) => allPoints.filter((p) => p.cohortYear === y && !p.isBinary && p.grade != null).length >= GRADE_MIN_N)
         .sort((a, b) => b - a);
 
+      // See QUANTILE_MIN_N: a median of five numbers IS one person's grade.
+      const quantilesRevealed = graded.length >= QUANTILE_MIN_N;
+
       return {
         grade: {
-          n: points.length,
-          nGraded: graded.length,
+          // Bucketed like the ratings block beside it, which already refuses to
+          // ship a raw count below 2 "so a single contributor is never
+          // exposed". The grade block shipped the literal number through the
+          // same public procedure, so a niche elective rendered "יש 1" —
+          // stating that exactly one person in a 24-person programme took it.
+          n: points.length >= 2 ? points.length : null,
+          nGraded: graded.length >= 2 ? graded.length : null,
           revealed: gradeRevealed,
           average: gradeRevealed ? round1(avg(graded) as number) : null,
-          median: gradeRevealed ? percentile(graded, 50) : null,
-          p25: gradeRevealed ? percentile(graded, 25) : null,
-          p75: gradeRevealed ? percentile(graded, 75) : null,
+          // Quantiles are ORDER STATISTICS, not aggregates: percentile() returns
+          // a raw element, so at N=5 these were the 2nd, 3rd and 4th students'
+          // exact grades. Higher bar AND bucketed to the nearest 5, so what
+          // ships is a band rather than a lookup of one person's row.
+          median: quantilesRevealed ? bucketGrade(percentile(graded, 50)) : null,
+          p25: quantilesRevealed ? bucketGrade(percentile(graded, 25)) : null,
+          p75: quantilesRevealed ? bucketGrade(percentile(graded, 75)) : null,
           // Gate on the SAME grade-reveal threshold as the other grade fields —
           // binaryShare is derived from the grade points and must not leak below
           // the N≥5 anonymity bar (audit 22.7).
@@ -329,8 +343,29 @@ export const courseKnowledgeRouter = createTRPCRouter({
     // to content from a thin cohort stops being context and starts being a
     // pointer at one person.
     const reviewCohortCounts = countByCohortYear(reviews);
+
+    // #48. getForCourse gates free-text prose behind TIP_MIN_N — "with ~24
+    // students, a single-reviewer course makes its tip attributable to the one
+    // person known to have taken it" — and that gate never reached this
+    // endpoint. So a lone tip on a niche course was published cohort-wide WITH
+    // the course name, while the course's own page suppressed that same tip as
+    // identifying. The app protecting a sentence in one place and publishing it
+    // in another is worse than either policy alone.
+    //
+    // The wrapper on the client does not help: it decides whether the wall
+    // exists (one course at ≥3 reviews), not which tips go on it — so course A
+    // clearing the bar published course B's only tip.
+    //
+    // Counted per COURSE and on tip-bearing reviews specifically, exactly as
+    // getForCourse does it.
+    const tipCountByCourse = new Map<string, number>();
+    for (const r of reviews) {
+      if (!r.tip || r.tip.trim().length === 0) continue;
+      tipCountByCourse.set(r.courseCode, (tipCountByCourse.get(r.courseCode) ?? 0) + 1);
+    }
     const tips = reviews
       .filter((r) => r.tip && r.tip.trim().length > 0)
+      .filter((r) => (tipCountByCourse.get(r.courseCode) ?? 0) >= TIP_MIN_N)
       .slice(0, 12)
       .map((r) => ({
         courseCode: r.courseCode,

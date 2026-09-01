@@ -491,9 +491,18 @@ function CommunityKnowledge({
           </>
         ) : (
           <p className="text-[11px] text-foreground/50">
-            {isHe
-              ? `ציון קהילתי נחשף מ-5 תורמים. יש ${grade?.nGraded ?? 0}.`
-              : `Community grade unlocks at 5 contributors. Have ${grade?.nGraded ?? 0}.`}
+            {/* The server now withholds the count below 2, the same way the
+                ratings block beside it always has — "so a single contributor is
+                never exposed". Printing "יש 1" for a niche elective states that
+                exactly one person in a 24-person programme took it. Null means
+                "too few to say", and that is what it says. */}
+            {grade?.nGraded == null
+              ? isHe
+                ? "עוד לא נאספו מספיק ציונים לקורס הזה."
+                : "Not enough grades collected for this course yet."
+              : isHe
+                ? `ציון קהילתי נחשף מ-5 תורמים. יש ${grade.nGraded}.`
+                : `Community grade unlocks at 5 contributors. Have ${grade.nGraded}.`}
           </p>
         )}
       </div>
