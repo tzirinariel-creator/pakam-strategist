@@ -24,7 +24,17 @@ export function CountUp({ value, duration = 1000, decimals, className }: CountUp
   useEffect(() => {
     if (typeof window === "undefined") return;
     const reduce = window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
-    if (reduce || !Number.isFinite(value)) {
+    // A hidden tab never gets a rAF callback, so the count never advances and
+    // the number stays frozen at its starting 0. Caught while auditing the
+    // planner: "0% מהתואר הושלמו" sat directly above "73 הושלמו" for over a
+    // minute — the same card contradicting itself.
+    //
+    // It self-heals the moment the tab is focused, so no student stares at it
+    // for long. It is fixed anyway because the failure mode is a WRONG NUMBER,
+    // and a number that is only true once an animation has run is not a number
+    // this app is allowed to print. Decoration must never gate a fact.
+    const hidden = typeof document !== "undefined" && document.hidden;
+    if (reduce || hidden || !Number.isFinite(value)) {
       setDisplay(value);
       fromRef.current = value;
       return;
@@ -45,6 +55,21 @@ export function CountUp({ value, duration = 1000, decimals, className }: CountUp
     raf = requestAnimationFrame(tick);
     return () => cancelAnimationFrame(raf);
   }, [value, duration]);
+
+  // If the tab is hidden when this mounts and shown later, the effect above has
+  // already snapped to the value — but a tab that is hidden AFTER mounting can
+  // freeze mid-count, so the final value is restored on the way back.
+  useEffect(() => {
+    if (typeof document === "undefined") return;
+    const onShow = () => {
+      if (!document.hidden) {
+        setDisplay(value);
+        fromRef.current = value;
+      }
+    };
+    document.addEventListener("visibilitychange", onShow);
+    return () => document.removeEventListener("visibilitychange", onShow);
+  }, [value]);
 
   return (
     <span className={className} style={{ fontVariantNumeric: "tabular-nums lining-nums" }}>

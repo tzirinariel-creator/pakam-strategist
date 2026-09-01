@@ -47,7 +47,11 @@ export function StepReady({ data, plannedSemesters, completedCourses, allCourses
   const [hasSaved, setHasSaved] = useState(false);
   // null = no failure yet · "demo" = refused by the read-only demo guard ·
   // "network" = anything else, where "try again" is honest advice.
-  const [saveError, setSaveError] = useState<null | "demo" | "network">(null);
+  // "history" is its own outcome, not a flavour of "network": losing the
+  // scanned transcript is the one failure the student must be told about
+  // precisely, because it is the one they cannot cheaply redo and the one that
+  // makes the app look like it threw their sheet away (#34).
+  const [saveError, setSaveError] = useState<null | "demo" | "network" | "history" | "plan">(null);
   const didSave = useRef(false);
 
   const updateProfile = api.user.updateProfile.useMutation();
@@ -272,23 +276,33 @@ export function StepReady({ data, plannedSemesters, completedCourses, allCourses
       //     days were entered, so non-serving students write no per-semester row.
 
 
-      setSaveStage(1);
-      // 2. Bulk save all planned courses in a single request — 20s timeout.
-      //    NOTE: savePlan replaces all UserCourses, so it MUST run before the
-      //    completed-history save below (which upserts COMPLETED courses on top).
-      await withTimeout(
-        savePlanMutation.mutateAsync({
-          courses: flattenedRef.current,
-        }),
-        20000,
-      );
+      // Ariel, #34: "לא הבנתי… העליתי בהתחלה סילבוס וזה פשוט לא עבר לכאן."
+      // And #27: the dashboard said 5% complete for a student who had just
+      // handed it a grade sheet full of finished courses.
+      //
+      // ONE cause, and it was the ORDER. The plan was saved first and the
+      // scanned history second, on a comment claiming "savePlan replaces all
+      // UserCourses, so it MUST run before" — which stopped being true when
+      // savePlan became a reconcile that only touches PLANNED/IN_PROGRESS
+      // FALL/SPRING rows. A COMPLETED row is now never in its way.
+      //
+      // Meanwhile the history save had no isolation of its own: a 20s timeout
+      // there threw out of the whole block, so the plan was already written and
+      // the grades were not. The student landed on a populated planner with an
+      // empty academic record and a percentage that ignored everything they had
+      // just uploaded — which reads exactly like the app lost their sheet.
+      //
+      // So the irreplaceable data goes FIRST. A plan can be rebuilt in a minute;
+      // a scanned transcript is the one thing here the student cannot cheaply
+      // redo, and it is the thing they waited on an OCR pass for. Each step is
+      // isolated, and what did not save is reported rather than swallowed.
+      const failures: string[] = [];
 
-      setSaveStage(2);
-      // 2b. Save the past academic record as COMPLETED courses (with grades).
-      //     Runs after savePlan so it isn't wiped by savePlan's delete-replace.
-      //     Catalog courses go through saveCompletedCourses; CUSTOM courses (a
-      //     real elective outside the PPE list, like דוגרי — 18:19 #10) go
-      //     through addScannedCourse, which CREATES the Course row first.
+      setSaveStage(1);
+      // 2. The past academic record FIRST — COMPLETED courses with their grades.
+      //    Catalog courses go through saveCompletedCourses; CUSTOM courses (a
+      //    real elective outside the PPE list, like דוגרי — 18:19 #10) go
+      //    through addScannedCourse, which CREATES the Course row first.
       const catalogCompleted = (completedCourses ?? []).filter((c) => !c.customName);
       const customCompleted = (completedCourses ?? []).filter((c) => c.customName);
       const completedPayload = catalogCompleted.map((c) => ({
@@ -298,10 +312,32 @@ export function StepReady({ data, plannedSemesters, completedCourses, allCourses
         grade: c.grade,
       }));
       if (completedPayload.length > 0) {
+        try {
+          await withTimeout(
+            saveCompletedMutation.mutateAsync({ courses: completedPayload }),
+            20000,
+          );
+        } catch (e) {
+          // Isolated, but NOT silent: a lost transcript is the worst outcome
+          // here, so it is named and surfaced rather than passed over.
+          console.error("[onboarding] completed-history save failed", e);
+          failures.push("history");
+        }
+      }
+
+      setSaveStage(2);
+      // 2b. Then the plan. Losing this costs a minute of re-planning, not a
+      //     transcript, so it is the one that yields if something has to.
+      try {
         await withTimeout(
-          saveCompletedMutation.mutateAsync({ courses: completedPayload }),
+          savePlanMutation.mutateAsync({
+            courses: flattenedRef.current,
+          }),
           20000,
         );
+      } catch (e) {
+        console.error("[onboarding] plan save failed", e);
+        failures.push("plan");
       }
       // Custom courses — ONE request for all of them.
       //
@@ -331,9 +367,21 @@ export function StepReady({ data, plannedSemesters, completedCourses, allCourses
             }),
             25000,
           );
-        } catch {
-          /* the custom-course batch failing must not abort the whole save */
+        } catch (e) {
+          // Isolated for the same reason, and reported for the same reason.
+          console.error("[onboarding] custom-course batch failed", e);
+          failures.push("history");
         }
+      }
+
+      // A partial save is not a success. If the transcript did not land, say so
+      // where the student can act on it, instead of letting them discover an
+      // empty academic record days later and conclude the app lost it.
+      if (failures.includes("history")) {
+        throw new Error("PARTIAL_SAVE_HISTORY");
+      }
+      if (failures.includes("plan")) {
+        throw new Error("PARTIAL_SAVE_PLAN");
       }
 
       setSaveStage(3);
@@ -391,7 +439,16 @@ export function StepReady({ data, plannedSemesters, completedCourses, allCourses
       // amount of refreshing will ever change that. Ariel hit exactly this and
       // reported it as "משהו מוזר" — because the screen blamed his internet
       // for a rule we set.
-      setSaveError(isDemoRefusal(error) ? "demo" : "network");
+      const msg = error instanceof Error ? error.message : "";
+      setSaveError(
+        isDemoRefusal(error)
+          ? "demo"
+          : msg === "PARTIAL_SAVE_HISTORY"
+            ? "history"
+            : msg === "PARTIAL_SAVE_PLAN"
+              ? "plan"
+              : "network",
+      );
     } finally {
       setIsSaving(false);
     }
@@ -535,18 +592,30 @@ export function StepReady({ data, plannedSemesters, completedCourses, allCourses
           ? t("allDoneReadyTitle")
           : saveError === "demo"
             ? t("demoNotSavedTitle")
-            : saveError
-              ? t("saveFailedTitle")
-              : t("allDone")}
+            : saveError === "history"
+              ? (isHe ? "הציונים לא נשמרו" : "Your grades didn't save")
+              : saveError === "plan"
+                ? (isHe ? "התוכנית לא נשמרה" : "Your plan didn't save")
+                : saveError
+                  ? t("saveFailedTitle")
+                  : t("allDone")}
       </h2>
       <p className="animate-stagger-2 mt-2 text-foreground/50">
         {hasSaved
           ? t("allDoneReadyDesc")
           : saveError === "demo"
             ? t("demoNotSavedDesc")
-            : saveError
-              ? t("saveFailedDesc")
-              : t("allDoneDesc")}
+            : saveError === "history"
+              ? (isHe
+                  ? "הפרופיל שלכם נשמר, אבל הקורסים שכבר עברתם לא נקלטו — ובלעדיהם הממוצע ובדיקת-המסלול לא יהיו נכונים. נסו שוב; אם זה חוזר, אפשר להזין אותם בתיק האקדמי."
+                  : "Your profile was saved, but the courses you already completed did not go in — without them your average and track check will be wrong. Try again; if it repeats you can enter them in the academic record.")
+              : saveError === "plan"
+                ? (isHe
+                    ? "הציונים שלכם נשמרו. מה שלא נשמר זה תכנון הסמסטר — אפשר לבנות אותו שוב במסך התכנון, זה לוקח דקה."
+                    : "Your grades were saved. What didn't save is the semester plan — you can rebuild it in the planner, it takes a minute.")
+                : saveError
+                  ? t("saveFailedDesc")
+                  : t("allDoneDesc")}
       </p>
 
       {/* Summary card */}
