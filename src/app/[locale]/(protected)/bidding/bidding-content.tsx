@@ -32,16 +32,17 @@
 // number here would be the single most damaging thing this app could print.
 // It shows what is true: the dates, your plan, and where it collides.
 
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import Link from "next/link";
 import { useLocale } from "next-intl";
-import { CalendarClock, ExternalLink, ArrowLeft, TriangleAlert } from "lucide-react";
+import { CalendarClock, ExternalLink, ArrowLeft, TriangleAlert, Copy, Check } from "lucide-react";
 import { api } from "@/lib/trpc/react";
 import { ThemedLoader } from "@/components/ui/themed-loader";
 import { BiddingTimeline } from "@/components/planner/bidding-timeline";
 import { BiddingExplainer } from "@/components/planner/bidding-explainer";
+import { BiddingOverlapAlert } from "@/components/planner/bidding-overlap-alert";
 import { BiddingWorksheet } from "@/components/planner/bidding-worksheet";
-import { yearAtAGlance, type TermPlan } from "@/lib/year-at-a-glance";
+import { yearAtAGlance, yearPlanAsText, type TermPlan } from "@/lib/year-at-a-glance";
 import { getBiddingPhase, BIDDING_LINKS } from "@/lib/bidding-calendar";
 import { getPlanningAnchor, deriveYearOfStudy } from "@/lib/academic-calendar";
 import { heNoun } from "@/lib/he-count";
@@ -150,6 +151,7 @@ function TermColumn({
 
 export function BiddingContent() {
   const isHe = useLocale() === "he";
+  const [copiedBoth, setCopiedBoth] = useState(false);
 
   const planQuery = api.plan.getUserPlan.useQuery(undefined, { retry: 1 });
   const profileQuery = api.user.getProfile.useQuery(undefined, { retry: 1 });
@@ -236,14 +238,71 @@ export function BiddingContent() {
           </div>
         )}
 
-        <Link
-          href="/planner/semester"
-          className="inline-flex w-fit items-center gap-1.5 text-sm font-semibold text-accent-brand transition-colors hover:underline"
-        >
-          <ArrowLeft className="size-4" />
-          {isHe ? "לעריכת התכנון ולבחירת קבוצות" : "Edit the plan and pick groups"}
-        </Link>
+        {/* #14: "למה אנחנו לא מאפשרים לסטודנט רגע לתכנן את שני הסמסטרים…"
+            
+            The screen SHOWS both terms and every actionable tool on it was
+            handed one: the worksheet and its copy-out are scoped to the anchor
+            semester, so a student looking at autumn and spring side by side
+            could only export autumn. A PPE round registers part of semester ב׳
+            in the same submission — so the list you copy into the TAU system
+            has to carry both, or the half you cannot copy is the half that
+            fills up.
+            
+            The both-term text already existed (`yearPlanAsText`) and was
+            reachable only from /planner. It is one button, not a second card:
+            the columns above already show what it copies. */}
+        <div className="flex flex-wrap items-center gap-3">
+          <button
+            type="button"
+            onClick={async () => {
+              try {
+                await navigator.clipboard.writeText(yearPlanAsText(plan, isHe));
+                setCopiedBoth(true);
+                setTimeout(() => setCopiedBoth(false), 2000);
+              } catch {
+                /* clipboard blocked — the columns above are still readable */
+              }
+            }}
+            className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-card px-3 py-2 text-sm font-medium text-foreground/75 transition-colors hover:border-foreground/30"
+          >
+            {copiedBoth ? <Check className="size-4" /> : <Copy className="size-4" />}
+            {copiedBoth
+              ? isHe ? "הועתק" : "Copied"
+              : isHe ? "העתקת שני הסמסטרים" : "Copy both semesters"}
+          </button>
+          <Link
+            href="/planner/semester"
+            className="inline-flex w-fit items-center gap-1.5 text-sm font-semibold text-accent-brand transition-colors hover:underline"
+          >
+            <ArrowLeft className="size-4" />
+            {isHe ? "לעריכת התכנון ולבחירת קבוצות" : "Edit the plan and pick groups"}
+          </Link>
+        </div>
       </section>
+
+      {/* #17/#14. This page's own header promises "איפה יש התנגשות", and both
+          buttons that lead here are labelled "לבדיקת חפיפות" — and the
+          component that actually runs the clash detection was mounted only on
+          /planner. The dedicated bidding screen showed no clash signal at all
+          at first paint; the only one it had was a per-row badge inside the
+          worksheet, collapsed by default, whose tooltip pointed at "ההתראה
+          למעלה" — an alert that did not exist on this route.
+          
+          Both terms, because a PPE round registers part of semester ב׳ too, and
+          a clash between an autumn course and a spring one is exactly what a
+          student cannot see anywhere else. */}
+      <div className="flex flex-col gap-3">
+        <BiddingOverlapAlert
+          courses={courses}
+          targetYear={yearOfStudy}
+          targetSemester="FALL"
+        />
+        <BiddingOverlapAlert
+          courses={courses}
+          targetYear={yearOfStudy}
+          targetSemester="SPRING"
+        />
+      </div>
 
       {/* The copy-out sheet for the round itself. */}
       <BiddingWorksheet
