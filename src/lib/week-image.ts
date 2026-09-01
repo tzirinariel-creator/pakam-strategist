@@ -173,19 +173,21 @@ export function drawWeekImage(
     ctx.moveTo(PAD, y + 0.5);
     ctx.lineTo(W - PAD, y + 0.5);
     ctx.stroke();
-    if (h < hours) {
-      // The hour gutter is on the side the week STARTS from: in RTL the day
-      // columns are laid out from the right edge inward, so the gutter is the
-      // strip left over on the right. The first version drew these labels at
-      // PAD + 4 — the far LEFT — which in RTL is inside the first day column,
-      // so every hour label was painted over by the blocks drawn on top of it.
-      // The card came out with no hour axis at all: a timetable that cannot
-      // say when anything happens.
-      ctx.fillStyle = MUTED;
-      ctx.textAlign = isHe ? "left" : "right";
-      const label = `${String(Math.floor((from + h * 60) / 60)).padStart(2, "0")}:00`;
-      ctx.fillText(label, isHe ? W - PAD - TIME_W + 6 : PAD + TIME_W - 8, y + 12);
-    }
+    // The hour gutter is on the side the week STARTS from: in RTL the day
+    // columns are laid out from the right edge inward, so the gutter is the
+    // strip left over on the right. The first version drew these labels at
+    // PAD + 4 — the far LEFT — which in RTL is inside the first day column,
+    // so every hour label was painted over by the blocks drawn on top of it.
+    // The card came out with no hour axis at all: a timetable that cannot say
+    // when anything happens.
+    //
+    // Each label names the row BELOW its line, so the last line gets its own
+    // label sitting ON it — otherwise the card tells you when your last class
+    // starts and never when it ends.
+    ctx.fillStyle = MUTED;
+    ctx.textAlign = isHe ? "left" : "right";
+    const label = `${String(Math.floor((from + h * 60) / 60)).padStart(2, "0")}:00`;
+    ctx.fillText(label, isHe ? W - PAD - TIME_W + 6 : PAD + TIME_W - 8, h < hours ? y + 12 : y);
   }
 
   // Blocks
@@ -223,9 +225,16 @@ export function drawWeekImage(
     if (below + 10 < top + height) {
       ctx.fillStyle = MUTED;
       ctx.font = `400 10px ${FONT}`;
-      const meta = [`${s.startTime}–${s.endTime}`, s.sessionTypeLabel, s.room]
-        .filter(Boolean)
-        .join(" · ");
+      // Drop the least important part rather than ellipsising the whole line.
+      // The first card printed "12:00–14:00 · …", which spends the space on
+      // punctuation and tells you nothing — the hours are what a person reads
+      // here, the room is what they can live without.
+      const parts = [`${s.startTime}–${s.endTime}`, s.sessionTypeLabel, s.room].filter(Boolean) as string[];
+      let meta = parts.join(" · ");
+      while (parts.length > 1 && ctx.measureText(meta).width > w - 16) {
+        parts.pop();
+        meta = parts.join(" · ");
+      }
       ctx.fillText(wrapToWidth(ctx, meta, w - 16, 1)[0] ?? "", textX, below + 2);
     }
   }
