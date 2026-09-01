@@ -110,7 +110,14 @@ function TermColumn({ tp, isHe }: { tp: TermPlan; isHe: boolean }) {
     : tp.term === "FALL" ? "Semester A" : "Semester B";
 
   return (
-    <div className="rounded-xl border border-foreground/10 bg-foreground/[0.02] p-3">
+    // min-w-0: a grid item defaults to `min-width: auto`, so it refuses to
+    // shrink below its content and pushes the track wider than the card. The
+    // card is a .data-card (overflow: hidden, no scroll), so the excess is not
+    // merely scrolled past — it is GONE. Measured at 375px: this column came
+    // out 352px wide inside a 327px card at left -48, which put "10 ש״ס" for
+    // סמסטר א׳ off the edge with no way to reach it, on the card built for
+    // reading your year before the registration round.
+    <div className="min-w-0 rounded-xl border border-foreground/10 bg-foreground/[0.02] p-3">
       <div className="flex items-baseline justify-between gap-2">
         <span className="text-sm font-bold text-foreground/85">{title}</span>
         <span className="text-xs font-semibold tabular-nums text-foreground/50">
@@ -141,7 +148,7 @@ function TermColumn({ tp, isHe }: { tp: TermPlan; isHe: boolean }) {
               <span className="shrink-0 font-data text-[10px] text-foreground/35" dir="ltr">
                 {c.code}
               </span>
-              <span className="min-w-0 flex-1 truncate text-foreground/75">{c.name}</span>
+              <span className="min-w-0 flex-1 text-balance text-foreground/75">{c.name}</span>
               <span className="shrink-0 tabular-nums text-foreground/45">
                 <Bidi text={c.credits} />
               </span>

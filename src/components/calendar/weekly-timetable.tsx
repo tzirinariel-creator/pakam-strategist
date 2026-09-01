@@ -481,7 +481,7 @@ export function WeeklyTimetable({
                         </bdi>
                         <div className="flex min-w-0 flex-1 flex-col">
                           <div className="flex items-center gap-2">
-                            <span className="truncate text-sm font-semibold text-foreground/90">
+                            <span className="text-balance text-sm font-semibold leading-tight text-foreground/90">
                               {slot.courseName}
                             </span>
                             {canPick && (

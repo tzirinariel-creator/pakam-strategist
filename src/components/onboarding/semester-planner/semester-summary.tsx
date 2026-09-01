@@ -198,7 +198,7 @@ export function SemesterSummary({
             <ul className="space-y-1">
               {courses.map((c) => (
                 <li key={c.id} className="flex items-center justify-between gap-2 text-xs">
-                  <span className="min-w-0 flex-1 truncate text-foreground/75">
+                  <span className="min-w-0 flex-1 text-balance text-foreground/75">
                     {isHe ? c.nameHe : (c.nameEn ?? c.nameHe)}
                   </span>
                   <span className="shrink-0 font-mono text-[10px] text-foreground/40">

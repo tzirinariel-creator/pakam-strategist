@@ -128,7 +128,12 @@ export function CourseBubble({
         {/* Course name */}
         <span
           className={cn(
-            "flex-1 truncate text-xs leading-tight",
+            // Names wrap to at most two lines instead of being cut. Measured at
+            // 375px: "כלכלה התנהגותית לניהול" had 77px of the 124 it needs, on
+            // the very screen where a student picks what to bid on. Two courses
+            // sharing a prefix truncate to the same string, so a cut here is
+            // ambiguous, not just tight.
+            "line-clamp-2 flex-1 text-xs leading-tight",
             state === "selected" ? "text-foreground/90 font-medium" : "text-foreground/70"
           )}
         >

@@ -622,7 +622,7 @@ export function InsightsBar({
                     and names the area without implying it belongs to the
                     semester. (An earlier pass already fixed a "17/60" here that
                     divided one semester by the whole degree's requirement.) */}
-                <span className="text-[11px] text-foreground/30 truncate">
+                <span className="text-[11px] leading-tight text-foreground/30">
                   {isHe
                     ? `נספר ל${focusAreaCfg.nameHe} — תחום המיקוד שלכם`
                     : `Counts toward ${focusAreaCfg.nameEn} — your focus area`}
