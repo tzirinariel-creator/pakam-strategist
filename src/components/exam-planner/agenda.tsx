@@ -153,7 +153,10 @@ export function Agenda({
                   </button>
                 )}
                 <Icon className={cn("size-3.5 shrink-0", isExam ? "text-accent-brand" : "text-foreground/40")} />
-                <span className={cn("min-w-0 flex-1 truncate text-sm", t.completed ? "text-foreground/40 line-through" : "text-foreground/80")}>{t.title}</span>
+                {/* Not truncated: "לימוד: מיקרו כלכלה ב׳ + תרגיל" needs 174px
+                    of the 124 a phone leaves it, and which course you are
+                    meant to study is the entire content of the row. */}
+                <span className={cn("min-w-0 flex-1 text-balance text-sm leading-snug", t.completed ? "text-foreground/40 line-through" : "text-foreground/80")}>{t.title}</span>
                 {/* The unit was glued to the number ("3שע׳") — the same defect
                     class as the miluim "10ש״ס" fix. A real space, always. */}
                 {h != null && <span className="shrink-0 font-mono text-[11px] tabular-nums text-foreground/45"><bdi dir="ltr">{h}</bdi> {isHe ? "שע׳" : "h"}</span>}

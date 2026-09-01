@@ -729,7 +729,11 @@ export function StudySkyline({ plan, recommendations, isHe, now, onDayClick, onM
             className={cn("flex items-center gap-1.5 rounded-md px-1.5 py-1 text-start transition-opacity", hoveredCourse && hoveredCourse !== c.courseCode ? "opacity-40" : "")}
           >
             <span className="size-2.5 shrink-0 rounded-full" style={{ backgroundColor: c.color }} />
-            <span className="max-w-[130px] truncate text-xs text-foreground/70">{c.courseName}</span>
+            {/* The legend name is the key to reading the chart, so it wraps
+                rather than truncates. Measured at 375px: "כלכלה פוליטית
+                בינלאומית (קורס אינטגרטיבי)" needs 217px of the 130 this cap
+                gave it, which left a legend you cannot match to a bar. */}
+            <span className="max-w-[190px] text-balance text-xs leading-tight text-foreground/70">{c.courseName}</span>
             <span className="text-[11px] text-foreground/40" dir={isHe ? "rtl" : "ltr"}>{c.totalHours} {isHe ? "שע׳" : "h"} · {moedLabel(c.moed, isHe)}</span>
           </button>
         ))}
