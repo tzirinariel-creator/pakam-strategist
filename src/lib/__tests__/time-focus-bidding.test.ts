@@ -40,7 +40,9 @@ describe("getTimeFocus — registration is driven by the PUBLISHED round dates",
     expect(focus?.bidding?.kind).toBe("before");
     expect(focus?.bidding?.round).toBe(1);
     expect(focus?.days).toBe(25);
-    expect(focus?.href).toBe("/planner#bidding");
+    // Ariel clicked this link and landed on a section inside /planner that
+    // "לא באמת עובד". There is a dedicated screen now.
+    expect(focus?.href).toBe("/bidding");
   });
 
   it("names the live round while it is open, counting to its CLOSE", () => {

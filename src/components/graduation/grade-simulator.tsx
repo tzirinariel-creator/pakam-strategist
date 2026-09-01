@@ -211,10 +211,17 @@ export function GradeSimulator({
             >
               <div className="flex items-baseline justify-between gap-2">
                 <span className="min-w-0 truncate text-sm text-foreground/85">{uc.course.nameHe}</span>
+                {/* Ariel, 1.9: "הציונים מימין לשמאל במצב סימולציה. לא כמו
+                    מספרים טבעיים משמאל לימין."
+                    Each number was isolated on its own and the "/100 · "
+                    between them was left bare — a run of neutrals inside an
+                    RTL paragraph, which the bidi algorithm resolves
+                    right-to-left and lays out backwards. The whole numeric run
+                    belongs in ONE isolate; only the Hebrew unit stays outside.
+                    Same family as the "%8.6" fix on the levers card. */}
                 <span className="shrink-0 font-mono text-xs text-foreground/55 tabular-nums">
-                  <Bidi text={g ?? "—"} />
-                  {"/100 · "}
-                  <Bidi text={uc.course.credits} /> {isHe ? "ש״ס" : "cr"}
+                  <Bidi text={`${g ?? "—"}/100 · ${uc.course.credits}`} />{" "}
+                  {isHe ? "ש״ס" : "cr"}
                 </span>
               </div>
               <div className="mt-2 flex items-center gap-1.5">

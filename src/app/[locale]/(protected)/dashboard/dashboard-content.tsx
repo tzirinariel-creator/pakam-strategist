@@ -53,6 +53,8 @@ import { PostOnboardingTransition } from "@/components/dashboard/post-onboarding
 import { QuickActionCard } from "@/components/dashboard/quick-action-card";
 import { GoogleCalendarBanner } from "@/components/dashboard/google-calendar-banner";
 import { WelcomeHomeCard } from "@/components/dashboard/welcome-home-card";
+import { FeatureDiscoveryCard } from "@/components/dashboard/feature-discovery-card";
+import { getBiddingPhase } from "@/lib/bidding-calendar";
 import { BiddingSeasonCard } from "@/components/dashboard/bidding-season-card";
 import { NextSemesterCard } from "@/components/dashboard/next-semester-card";
 import { CohortWisdomTeaser } from "@/components/dashboard/cohort-wisdom-teaser";
@@ -181,6 +183,13 @@ export function DashboardContent() {
   const { g: pgd } = usePersonalAddress();
 
   // Google Calendar status — check if connected
+  // Whether the exam planner has ever produced a plan — the one trace that
+  // says the feature was really used, rather than merely visited.
+  const studyTasksQuery = api.studyTask.list.useQuery(undefined, {
+    staleTime: 5 * 60 * 1000,
+    retry: 1,
+  });
+
   const googleStatus = api.schedule.getGoogleStatus.useQuery(undefined, {
     retry: 1,
     enabled: demoResetDone,
@@ -756,6 +765,27 @@ export function DashboardContent() {
           enter; bidding → check clashes; teaching → your week). Dedupes the
           wrap/bidding cards below so the same ask never appears twice. */}
       {!tourOpen && !isTransitioning && <TimeFocusHero focus={timeFocus} />}
+
+      {/* Ariel, "עשרות פעמים": a student finishes signup and has still never
+          seen the exam planner, the King or the simulator. This says what else
+          is here, ordered by the academic calendar, and removes itself once
+          everything trackable has been used. */}
+      {!tourOpen && !isTransitioning && (
+        <FeatureDiscoveryCard
+          daysToBidding={(() => {
+            const phase = getBiddingPhase();
+            return phase.kind === "before" || phase.kind === "between-rounds"
+              ? (phase.daysUntil ?? null)
+              : null;
+          })()}
+          daysToNearestExam={nearestUpcomingExam(planQuery.data?.courses ?? [])?.days ?? null}
+          hasStudyPlan={(studyTasksQuery.data?.tasks?.length ?? 0) > 0}
+          hasCohortContribution={false}
+          calendarConnected={googleStatus.data?.connected === true}
+          hasAnyGrade={(planQuery.data?.courses ?? []).some((uc) => uc.grade != null)}
+          isReservist={(profileQuery.data?.miluimGroup ?? "NONE") !== "NONE"}
+        />
+      )}
 
       {/* End-of-semester rite (#22) — the app asks for grades once the semester
           ends. Suppressed when the TimeFocus hero already owns the grades ask. */}

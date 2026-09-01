@@ -164,7 +164,7 @@ describe("Hebrew copy, mechanically", () => {
     expect(bad.map((b) => `${b.file}:${b.line} — ${b.text}`)).toEqual([]);
   });
 
-  it("keeps a trailing unit inside the number's isolate", () => {
+  it("keeps a unit or separator inside the number's isolate", () => {
     // `<Bidi text={pct} />% מהממוצע` renders "%8.6" — the % is a bidi-neutral
     // sitting between an isolate and Hebrew text, so it resolves right-to-left
     // and lands on the wrong side of the digits. Seen on the live page.
@@ -175,7 +175,14 @@ describe("Hebrew copy, mechanically", () => {
       lines.forEach((line, i) => {
         const t = line.trim();
         if (t.startsWith("//") || t.startsWith("*")) return;
-        if (/<Bidi[^>]*\/>\s*[%₪°]/.test(line)) bad.push(`${file}:${i + 1} — ${t}`);
+        // A trailing unit OR a bare separator between two isolated numbers.
+        // Both are neutrals: inside an RTL paragraph they resolve
+        // right-to-left and land on the wrong side, or scramble the run.
+        //   <Bidi text={pct} />%           → "%8.6"
+        //   <Bidi text={g} />{"/100 · "}   → the grade line, laid out backwards
+        if (/<Bidi[^>]*\/>\s*(?:[%₪°]|\{"\s*[/·×–-])/.test(line)) {
+          bad.push(`${file}:${i + 1} — ${t}`);
+        }
       });
     }
     expect(bad).toEqual([]);

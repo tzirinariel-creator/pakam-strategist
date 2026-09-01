@@ -76,7 +76,7 @@ export function getTimeFocus(input: TimeFocusInput): TimeFocus | null {
     const phase = getBiddingPhase(now);
     return {
       kind: "bidding",
-      href: "/planner#bidding",
+      href: "/bidding",
       days: phase.daysUntil ?? undefined,
       bidding: phase,
     };
@@ -86,7 +86,7 @@ export function getTimeFocus(input: TimeFocusInput): TimeFocus | null {
   // resurrect the ask — it would keep saying "bidding is near" for the twelve
   // days between round 2's results (6.10) and the year opening (18.10).
   if (isBiddingSeason(biddingTarget) && biddingTarget && !hasCurrentBiddingCycle(now)) {
-    return { kind: "bidding", href: "/planner#bidding", days: biddingTarget.daysUntilStart };
+    return { kind: "bidding", href: "/bidding", days: biddingTarget.daysUntilStart };
   }
   if (acad.phase === "teaching") {
     return { kind: "teaching", href: "/calendar" };

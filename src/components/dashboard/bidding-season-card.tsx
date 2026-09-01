@@ -76,7 +76,7 @@ export function BiddingSeasonCard({
         </p>
       </div>
       <Link
-        href="/planner#bidding"
+        href="/bidding"
         className="shrink-0 rounded-lg bg-accent-brand px-3 py-2 text-xs font-semibold text-accent-brand-fg transition-colors hover:bg-accent-brand-hover"
       >
         {isHe ? "לבדיקת חפיפות" : "Check clashes"}
