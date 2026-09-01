@@ -165,7 +165,7 @@ export function filterSessionsByGroups<T extends GroupedSessionLike>(
     keepByType.set(r.sessionType, r.groupCode);
   }
 
-  return sessions.filter((s) => {
+  const kept = sessions.filter((s) => {
     const code = groupCodeOf(s);
     if (code === SHARED_GROUP_CODE) return true; // rule 1
     const type = normalizeSessionType(s.sessionType);
@@ -173,4 +173,37 @@ export function filterSessionsByGroups<T extends GroupedSessionLike>(
     if (!options || options.length <= 1) return true; // rule 2
     return code === keepByType.get(type); // rules 3 + 4
   });
+
+  // Rule 5 — one block per time slot.
+  //
+  // The ידיעון sometimes publishes the SAME meeting twice because it is held
+  // in two rooms: 0616-6037 is listed in rooms 102 and 106 at Monday 16:00,
+  // and 0651-2030 in rooms 305 and 317. Those are one class, and the reliability
+  // audit turned up 190 further rows that were outright duplicates before they
+  // were cleaned out of the database.
+  //
+  // Anything downstream of this — the weekly grid, the clash detector, the
+  // campus-day count — treats each row as a separate commitment, so a
+  // duplicated row draws twice, collides with itself, and inflates the week.
+  // Collapsing here means every one of those surfaces is protected at once,
+  // and stays protected the next time the source repeats itself.
+  //
+  // Keyed on what makes a meeting a meeting: when it is and which group it
+  // belongs to. Room is deliberately not part of the key — it is the column
+  // that differs in exactly the case being collapsed.
+  const seen = new Set<string>();
+  const out: T[] = [];
+  for (const s of kept) {
+    const key = [
+      normalizeSessionType(s.sessionType),
+      groupCodeOf(s),
+      String((s as { dayOfWeek?: unknown }).dayOfWeek ?? ""),
+      String((s as { startTime?: unknown }).startTime ?? ""),
+      String((s as { endTime?: unknown }).endTime ?? ""),
+    ].join("|");
+    if (seen.has(key)) continue;
+    seen.add(key);
+    out.push(s);
+  }
+  return out;
 }
