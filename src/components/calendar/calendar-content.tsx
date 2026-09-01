@@ -11,6 +11,7 @@ import {
   BookOpen,
   ClipboardCheck,
   Download,
+  Image as ImageIcon,
   RefreshCw,
   Share2,
 } from "lucide-react";
@@ -25,6 +26,8 @@ import { heNoun } from "@/lib/he-count";
 import { ExamSchedule } from "@/components/exam/exam-schedule";
 import { downloadICSFromSessions } from "@/lib/ics-export";
 import { buildWeekShareText } from "@/lib/week-share";
+import { shareWeekImage, type WeekImageSession } from "@/lib/week-image";
+import { courseColor } from "@/lib/course-color";
 import { getAcademicNow, deriveYearOfStudy, getPlanningAnchor , hebrewYearLabel } from "@/lib/academic-calendar";
 import { groupCoursesBySemester } from "@/lib/plan-grouping";
 import { sessionTypeNameFor } from "@/lib/group-options";
@@ -300,6 +303,47 @@ export function CalendarContent() {
     window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, "_blank", "noopener");
   };
 
+  // 22-15 — "איך אפשר להבין משהו בוואטסאפ ככה. מצידי שזה יהיה צילום מסך."
+  //
+  // The text share was rewritten once and it is as good as text gets, but a
+  // timetable is a GRID; flattened into twenty bullet lines it stops being one.
+  // This draws the week and hands it to the OS share sheet — which on a phone
+  // puts the picture straight into the chat.
+  const [sharingImage, setSharingImage] = useState(false);
+  const handleImageShare = async () => {
+    const sessions = scheduleData?.sessions;
+    if (!sessions || sessions.length === 0) {
+      toast.error(t("exportEmpty"));
+      return;
+    }
+    const label = semesterOptions.find((o) => o.key === activeSemester)?.label ?? activeSemester;
+    const payload: WeekImageSession[] = sessions.map((sn) => ({
+      dayOfWeek: sn.dayOfWeek,
+      startTime: sn.startTime,
+      endTime: sn.endTime,
+      courseName: isHe ? sn.course.nameHe : (sn.course.nameEn ?? sn.course.nameHe),
+      sessionTypeLabel: sessionTypeNameFor(sn.sessionType, isHe),
+      color: courseColor(sn.course.code),
+      room: sn.room ?? null,
+    }));
+    setSharingImage(true);
+    try {
+      const outcome = await shareWeekImage(payload, { semesterLabel: label, isHe });
+      // Each outcome gets its own sentence. Saying "shared" when a file landed
+      // in Downloads is the kind of small lie that makes someone stop trusting
+      // every other message the app shows.
+      if (outcome === "downloaded") {
+        toast.success(isHe ? "התמונה ירדה — אפשר לצרף אותה לצ׳אט" : "Image saved — attach it to your chat");
+      } else if (outcome === "failed") {
+        toast.error(isHe ? "לא הצלחנו ליצור את התמונה" : "Couldn't create the image");
+      }
+      // "shared" needs no toast (the OS already showed one) and "cancelled" is
+      // an answer, not an error.
+    } finally {
+      setSharingImage(false);
+    }
+  };
+
   // ─── Loading state ───────────────────────────────────────────────
 
   if (isLoading) {
@@ -403,15 +447,32 @@ export function CalendarContent() {
 
           {/* Share the week on WhatsApp — same dress as the ICS button */}
           {semesterCourses.length > 0 && viewMode !== "exams" && (
-            <button
-              type="button"
-              onClick={handleWhatsAppShare}
-              className="flex items-center gap-1.5 rounded-lg border border-border bg-card px-3 py-1.5 text-sm font-medium text-foreground/70 transition-colors hover:bg-foreground/5 hover:text-foreground"
-              title={locale === "he" ? "שיתוף השבוע בוואטסאפ" : "Share week on WhatsApp"}
-            >
-              <Share2 className="size-3.5" />
-              <span className="hidden sm:inline">{locale === "he" ? "שיתוף בוואטסאפ" : "Share on WhatsApp"}</span>
-            </button>
+            <>
+              {/* The picture leads. Text stays because it is searchable, it
+                  survives a screenshot-blocking chat, and someone reading with
+                  a screen reader gets nothing from a PNG. */}
+              <button
+                type="button"
+                onClick={() => void handleImageShare()}
+                disabled={sharingImage}
+                className="flex items-center gap-1.5 rounded-lg border border-border bg-card px-3 py-1.5 text-sm font-medium text-foreground/70 transition-colors hover:bg-foreground/5 hover:text-foreground disabled:opacity-60"
+                title={locale === "he" ? "שיתוף המערכת כתמונה" : "Share timetable as an image"}
+              >
+                <ImageIcon className="size-3.5" />
+                <span className="hidden sm:inline">
+                  {locale === "he" ? (sharingImage ? "מכינים…" : "שיתוף כתמונה") : (sharingImage ? "Preparing…" : "Share as image")}
+                </span>
+              </button>
+              <button
+                type="button"
+                onClick={handleWhatsAppShare}
+                className="flex items-center gap-1.5 rounded-lg border border-border bg-card px-3 py-1.5 text-sm font-medium text-foreground/70 transition-colors hover:bg-foreground/5 hover:text-foreground"
+                title={locale === "he" ? "שיתוף השבוע כטקסט בוואטסאפ" : "Share week as text on WhatsApp"}
+              >
+                <Share2 className="size-3.5" />
+                <span className="hidden sm:inline">{locale === "he" ? "כטקסט" : "As text"}</span>
+              </button>
+            </>
           )}
 
           {/* Google Calendar — connected: sync now. NOT connected: offer to
