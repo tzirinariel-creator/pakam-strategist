@@ -1,6 +1,8 @@
 "use client";
 
 import { Link } from "@/i18n/navigation";
+import { api } from "@/lib/trpc/react";
+import { binaryBenefitOf, type MiluimGroupKey } from "@/lib/miluim";
 import { ArrowLeft, ArrowRight, RotateCcw, ToggleLeft, Calculator } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -28,6 +30,15 @@ import { cn } from "@/lib/utils";
 //
 // The row for the screen you are on is not a link — it is the "you are here",
 // which is what makes this a map rather than three more buttons.
+//
+// AND: binary conversion is a MILUIM benefit — groups B/C/G only, A and NONE
+// never get it. Caught on the live page right after this component first
+// shipped: mounted unconditionally on /record it offered every student a tool
+// most of them do not have, which is inventing an entitlement. It is gated on
+// the same predicate the advisor itself uses, resolved HERE from the profile
+// rather than passed in by each of the three mounts — the version where one
+// screen gets the gate right and another does not is the bug this whole
+// component was written to fix.
 
 type Tool = "moed-b" | "binary" | "simulator";
 
@@ -85,14 +96,32 @@ export function GradeRecourseNav({
   className?: string;
 }) {
   const Arrow = isHe ? ArrowLeft : ArrowRight;
+  const profile = api.user.getProfile.useQuery();
+  const hasBinary =
+    binaryBenefitOf((profile.data?.miluimGroup ?? "NONE") as MiluimGroupKey) != null;
+
+  // Say nothing until we know: a row that appears and then disappears is worse
+  // than one that arrives a beat late.
+  if (!profile.isSuccess) return null;
+  // On /record with no binary benefit there is no "here" to be — and nothing
+  // on that screen for this map to connect from.
+  if (!hasBinary && current === "binary") return null;
+
+  const tools = hasBinary ? TOOLS : TOOLS.filter((t) => t.id !== "binary");
 
   return (
     <div className={cn("rounded-xl border border-border/50 bg-foreground/[0.02] p-3", className)}>
       <p className="mb-2.5 text-xs font-medium text-foreground/70">
-        {isHe ? "שלוש דרכים לטפל בציון שלא מרוצים ממנו" : "Three ways to deal with a grade you're not happy with"}
+        {hasBinary
+          ? isHe
+            ? "שלוש דרכים לטפל בציון שלא מרוצים ממנו"
+            : "Three ways to deal with a grade you're not happy with"
+          : isHe
+            ? "שתי דרכים לטפל בציון שלא מרוצים ממנו"
+            : "Two ways to deal with a grade you're not happy with"}
       </p>
       <ul className="flex flex-col gap-1.5">
-        {TOOLS.map((tool) => {
+        {tools.map((tool) => {
           const here = tool.id === current;
           const Icon = tool.icon;
           const body = (
