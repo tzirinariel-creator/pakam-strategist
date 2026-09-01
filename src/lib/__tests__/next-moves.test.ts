@@ -97,3 +97,35 @@ describe("the calendar orders it", () => {
     expect(firstDone).toBeGreaterThan(lastUndone);
   });
 });
+
+// -------------------------------------------------------------------------
+// Every destination is a real route
+// -------------------------------------------------------------------------
+// The nudge that told a student "המכרז בעוד 8 ימים" pointed at /planner, which
+// falls into a zero-courses branch and renders a "back to home" screen. The
+// href was never wrong in the sense a type-checker could see — it was wrong in
+// the sense that nobody arriving there found the thing they were promised.
+// Seven rows, seven links, on the one card a new student is meant to follow.
+import { existsSync } from "node:fs";
+import { join } from "node:path";
+
+describe("every move points somewhere that exists", () => {
+  it("has a page.tsx behind each href", () => {
+    const { moves } = nextMoves(fresh);
+    expect(moves).toHaveLength(7);
+    for (const m of moves) {
+      const route = m.href.replace(/^\//, "");
+      const page = join(process.cwd(), "src/app/[locale]/(protected)", route, "page.tsx");
+      expect(existsSync(page), `${m.id} → ${m.href}`).toBe(true);
+    }
+  });
+
+  it("sends 'choose a focus area' to the screen that has the selector", () => {
+    // /record shows the academic file; the focus-area control lives in
+    // settings/profile-section.tsx. This was worth an explicit assertion
+    // because the two screens are easy to confuse and only one can set it.
+    const { moves } = nextMoves(fresh);
+    expect(moves.find((m) => m.id === "focus")!.href).toBe("/settings");
+    expect(moves.find((m) => m.id === "calendarSync")!.href).toBe("/settings");
+  });
+});

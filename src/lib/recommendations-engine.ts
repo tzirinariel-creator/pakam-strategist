@@ -309,7 +309,8 @@ export function buildRecommendations(
       id: "focus-area",
       severity: "info",
       icon: "target",
-      titleHe: "עוד לא בחרת תחום מיקוד",
+      // Plural, like the rest of the product copy. This one card was singular.
+      titleHe: "עוד לא בחרתם תחום מיקוד",
       titleEn: "No focus area chosen yet",
       bodyHe: `תחום המיקוד קובע ${CREDIT_REQUIREMENTS.FOCUS_AREA_MIN} ש״ס מהתואר — וגם את הסיווג שלכם בשירות המדינה. כדאי לבחור מוקדם כדי לתכנן נכון.`,
       bodyEn: `Your focus area determines ${CREDIT_REQUIREMENTS.FOCUS_AREA_MIN} credits of the degree — and your civil-service classification. Pick early to plan well.`,

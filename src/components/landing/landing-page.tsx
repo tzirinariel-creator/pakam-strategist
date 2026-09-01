@@ -17,20 +17,29 @@ import { Button } from "@/components/ui/button";
 import { PhilosopherKingIcon } from "@/components/ui/philosopher-king-icon";
 import { PhilosopherKingCharacter } from "@/components/ui/philosopher-king-character";
 import { cn } from "@/lib/utils";
-import { CATALOG_COURSE_COUNT, CONTACT_EMAIL } from "@/lib/constants";
+import { CATALOG_COURSE_COUNT, CONTACT_EMAIL, CREDIT_REQUIREMENTS, FOCUS_DISCIPLINE_IDS } from "@/lib/constants";
 
 // ─── Feature Card Data ──────────────────────────────────────────────
 // The King has his own dedicated dark band above the grid; the grid holds the
 // six concrete tools. Colors are the harmonized discipline hues — never a lone
 // acid accent.
 
+// Ariel note #1, the landing page reading as a student project. Six feature
+// icons in five hardcoded hex colours — blue, purple, blue, green, red, teal —
+// none of which meant anything: two features shared a blue for no reason, and
+// nothing anywhere else in the product maps a feature to a hue. Colour that
+// encodes nothing is the loudest signal on a page trying to look serious.
+//
+// The course chips further down KEEP their colours, because those are
+// discipline colours and they do carry information. One accent, used where it
+// means something.
 const FEATURES = [
-  { key: "planner", icon: GraduationCap, color: "#4A90D9" },
-  { key: "catalog", icon: BookOpen, color: "#8B5CF6" },
-  { key: "calendar", icon: Calendar, color: "#4A90D9" },
-  { key: "grades", icon: BarChart3, color: "#2ECC71" },
-  { key: "regulations", icon: Scale, color: "#E74C3C" },
-  { key: "syllabus", icon: FileText, color: "#0D9488" },
+  { key: "planner", icon: GraduationCap },
+  { key: "catalog", icon: BookOpen },
+  { key: "calendar", icon: Calendar },
+  { key: "grades", icon: BarChart3 },
+  { key: "regulations", icon: Scale },
+  { key: "syllabus", icon: FileText },
 ] as const;
 
 // ─── Product Preview (a styled mini-planner — "show, don't tell") ────
@@ -62,17 +71,6 @@ const PREVIEW_SEMESTERS = [
   },
 ] as const;
 
-// Window chrome traffic-lights — the mac-window motif reused across the page.
-function WindowDots() {
-  return (
-    <div className="flex items-center gap-1.5">
-      <span className="size-2.5 rounded-full bg-[#ff5f57]" />
-      <span className="size-2.5 rounded-full bg-[#febc2e]" />
-      <span className="size-2.5 rounded-full bg-[#28c840]" />
-    </div>
-  );
-}
-
 function PlannerPreview({ isRTL }: { isRTL: boolean }) {
   return (
     <div
@@ -81,7 +79,6 @@ function PlannerPreview({ isRTL }: { isRTL: boolean }) {
     >
       {/* Window chrome */}
       <div className="flex items-center gap-1.5 border-b border-border/60 bg-muted/40 px-4 py-3">
-        <WindowDots />
         <div className="mx-auto flex items-center gap-1.5 text-xs text-muted-foreground">
           <GraduationCap className="size-3" />
           <span>{isRTL ? "תכנון התואר" : "Degree planner"}</span>
@@ -162,8 +159,12 @@ export function LandingPage() {
     // Pinned to the real תשפ״ז catalog by a guard test — it read "110+" for
     // months after the migration took the catalog to 302.
     { value: String(CATALOG_COURSE_COUNT), label: t("stats.courses") },
-    { value: "3", label: t("stats.disciplines") },
-    { value: "150", label: t("stats.credits") },
+    // "3" and "150" were string literals sitting next to a number that is
+    // pinned — the same bug the comment above warns about, two lines below it.
+    // Both now read off the active program definition, so the front page cannot
+    // disagree with the planner behind it (tau-law-2025, for one, is 141 ש״ס).
+    { value: String(FOCUS_DISCIPLINE_IDS.length), label: t("stats.disciplines") },
+    { value: String(CREDIT_REQUIREMENTS.TOTAL), label: t("stats.credits") },
   ];
 
   return (
@@ -291,17 +292,20 @@ export function LandingPage() {
             {/* The mess — four tilted, dashed chips */}
             <div className="flex max-w-md flex-wrap items-start justify-center gap-3">
               {([
-                { title: t("proof.chip1Title"), body: t("proof.chip1Body"), rotate: "-rotate-2", mono: false },
-                { title: t("proof.chip2Title"), body: t("proof.chip2Body"), rotate: "rotate-1", mono: false },
-                { title: t("proof.chip3Title"), body: t("proof.chip3Body"), rotate: "rotate-2", mono: true },
-                { title: t("proof.chip4Title"), body: t("proof.chip4Body"), rotate: "-rotate-1", mono: false },
+                { title: t("proof.chip1Title"), body: t("proof.chip1Body"), mono: false },
+                { title: t("proof.chip2Title"), body: t("proof.chip2Body"), mono: false },
+                { title: t("proof.chip3Title"), body: t("proof.chip3Body"), mono: true },
+                { title: t("proof.chip4Title"), body: t("proof.chip4Body"), mono: false },
               ] as const).map((chip) => (
+                // Note #1, "childish elements". These were rotated ±1–2° and
+                // sprang straight on hover — a scrapbook effect, and a hover
+                // behaviour on a decorative chip nobody hovers. The dashed
+                // border and muted fill already say "scraps"; the solid,
+                // shadowed card after the arrow already says "the answer". The
+                // tilt was carrying none of the argument.
                 <div
                   key={chip.title}
-                  className={cn(
-                    "w-[calc(50%-0.375rem)] max-w-[220px] rounded-lg border border-dashed border-foreground/25 bg-muted/40 px-3.5 py-3 transition-transform duration-300 hover:rotate-0 sm:w-auto",
-                    chip.rotate,
-                  )}
+                  className="w-[calc(50%-0.375rem)] max-w-[220px] rounded-lg border border-dashed border-foreground/25 bg-muted/40 px-3.5 py-3 sm:w-auto"
                 >
                   <p className="text-sm font-bold text-foreground/75">{chip.title}</p>
                   {/* No dir="ltr" here: bodies mix Hebrew words with latin/numbers,
@@ -324,7 +328,6 @@ export function LandingPage() {
             {/* The answer — one straight card with the app's window chrome */}
             <div className="w-full max-w-sm overflow-hidden rounded-2xl border border-border bg-card shadow-elevated">
               <div className="flex items-center gap-1.5 border-b border-border/60 bg-muted/40 px-4 py-2.5">
-                <WindowDots />
                 <div className="mx-auto flex items-center gap-1.5 text-xs text-muted-foreground">
                   <PhilosopherKingIcon className="size-3 text-crown-gold" />
                   <span>{t("proof.afterTitle")}</span>
@@ -387,7 +390,6 @@ export function LandingPage() {
               Window chrome matches the rest of the page; tuned for the dark band. */}
           <div className="mx-auto w-full max-w-md overflow-hidden rounded-2xl border border-white/15 bg-white/[0.06] shadow-2xl backdrop-blur-sm">
             <div className="flex items-center gap-1.5 border-b border-white/10 bg-white/[0.04] px-4 py-2.5">
-              <WindowDots />
               <div className="mx-auto flex items-center gap-1.5 text-xs text-white/70">
                 <PhilosopherKingIcon className="size-3 text-crown-gold-bright" />
                 <span>{t("brand")}</span>
@@ -439,16 +441,8 @@ export function LandingPage() {
                   key={feature.key}
                   className="group rounded-2xl border border-border/60 bg-card p-6 transition-all duration-200 hover:-translate-y-0.5 hover:border-border hover:shadow-elevated"
                 >
-                  <div
-                    className="mb-4 flex size-11 items-center justify-center rounded-xl"
-                    style={{
-                      backgroundColor: `color-mix(in srgb, ${feature.color} 14%, transparent)`,
-                    }}
-                  >
-                    <Icon
-                      className="size-5 transition-transform group-hover:scale-110"
-                      style={{ color: feature.color }}
-                    />
+                  <div className="mb-4 flex size-11 items-center justify-center rounded-xl bg-accent-brand/10">
+                    <Icon className="size-5 text-accent-brand" />
                   </div>
                   <h3 className="mb-2 font-semibold text-lg text-foreground">
                     {t(`features.${feature.key}.title`)}

@@ -12,6 +12,11 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // Claude Code skills vendored into the repo (.claude is gitignored). Their
+    // asset files are third-party sample code — react-three-fiber components
+    // that mutate a memoized material — and they are not part of the app or of
+    // any build. Linting them turns CI red over code we do not ship.
+    ".claude/**",
   ]),
   {
     // React Compiler diagnostics (enabled by default in Next 16) are surfaced as
