@@ -1147,7 +1147,8 @@
     "search": "Search",
     "filter": "Filter",
     "noResults": "No results found",
-    "back": "Back"
+    "back": "Back",
+    "errorRetry": "Something went wrong on our side. Please try again."
   },
   "degreeInfo": {
     "overviewTitle": "Overview",

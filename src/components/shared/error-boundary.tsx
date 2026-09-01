@@ -25,8 +25,10 @@ export function ErrorBoundaryFallback({
         <h2 className="mb-2 font-bold text-xl text-foreground">
           {t("error")}
         </h2>
+        {/* The same English fallback lived here too. `t("error")` above is
+            already localized; this line under it was not. */}
         <p className="max-w-md text-sm text-muted-foreground">
-          {error.message || "Something went wrong. Please try again."}
+          {error.message || t("errorRetry")}
         </p>
         {error.digest && (
           <p className="mt-1 font-data text-xs text-muted-foreground/60">

@@ -118,17 +118,35 @@ export type TRPCContext = Awaited<ReturnType<typeof createTRPCContext>>;
  */
 const t = initTRPC.context<TRPCContext>().create({
   transformer: superjson,
-  errorFormatter({ shape, error }) {
+  errorFormatter({ shape, error, ctx }) {
     // SEC1 — never leak internals to the client. tRPC already strips the stack
     // outside dev, but an UNEXPECTED exception (Prisma/network/library) surfaces
     // its raw message as-is. Mask 500s with a generic message in production;
     // deliberate TRPCErrors (FORBIDDEN demo guard, NOT_FOUND, BAD_REQUEST
     // validation) keep their intentional, user-facing messages.
+    //
+    // 2.9 — the mask was right and the LANGUAGE was wrong. This one string is
+    // the fallback for every unexpected server error in the product, and it was
+    // English. Ariel hit it on the Hebrew settings screen trying to delete his
+    // account: "Something went wrong. Please try again." in the middle of an
+    // otherwise Hebrew page. Every 500 anywhere in the app looked like that.
+    //
+    // Hebrew is the DEFAULT, not the fallback: the product is Hebrew, /en
+    // redirects to it, and a context that failed to build (no ctx, no cookie)
+    // must still answer in the language the user is actually reading.
     if (
       process.env.NODE_ENV === "production" &&
       error.code === "INTERNAL_SERVER_ERROR"
     ) {
-      return { ...shape, message: "Something went wrong. Please try again." };
+      const isEn = /(?:^|;\s*)NEXT_LOCALE=en(?:;|$)/.test(
+        ctx?.headers?.get("cookie") ?? "",
+      );
+      return {
+        ...shape,
+        message: isEn
+          ? "Something went wrong on our side. Please try again."
+          : "משהו השתבש אצלנו. נסו שוב.",
+      };
     }
     return shape;
   },
