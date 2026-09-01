@@ -63,6 +63,10 @@ export function LineageContent() {
   // start of the lineage" whenever the fetch failed. The lineage's whole promise
   // is that what you give stays — so it must never claim you gave nothing
   // because a request timed out (audit 13.8).
+  // The whole page only gives up when everything is gone. A SINGLE failed
+  // query is handled where its claim is made — see the "אתם" card below —
+  // because degrading one number into a confident zero is how this page ends
+  // up asserting something about a student that is not true.
   const lineageFailed =
     digest.isError && insights.isError && gallery.isError && stats.isError;
   const lineageLoading =
@@ -143,13 +147,24 @@ export function LineageContent() {
                 : "Every course you finish is a data point someone is missing. One review takes a minute and stays useful for years."
             }
             stat={
-              iContributed && mine && level
+              // The three states are genuinely different and were collapsed
+              // into two. `mine = stats.data ?? null` degrades a FAILED fetch
+              // into "no contributions", and the page-level guard above only
+              // fires when all four queries fail — so a student with forty
+              // contributions was told "עוד לא תרמתם כלום" whenever this one
+              // request timed out. On a page whose entire promise is that what
+              // you give is kept, that is the worst sentence it can produce.
+              stats.isError
                 ? isHe
-                  ? `${heNounF(mine.total, "תרומה", "תרומות")} שלכם · ${level.titleHe}`
-                  : `${mine.total} contributions · ${level.titleEn}`
-                : isHe
-                  ? "עוד לא תרמתם כלום — וזה בסדר, אפשר להתחיל בקורס אחד"
-                  : "You haven't contributed yet — one course is enough to start"
+                  ? "לא הצלחנו לטעון את התרומות שלכם כרגע"
+                  : "We couldn't load your contributions right now"
+                : iContributed && mine && level
+                  ? isHe
+                    ? `${heNounF(mine.total, "תרומה", "תרומות")} שלכם · ${level.titleHe}`
+                    : `${mine.total} contributions · ${level.titleEn}`
+                  : isHe
+                    ? "עוד לא תרמתם כלום — וזה בסדר, אפשר להתחיל בקורס אחד"
+                    : "You haven't contributed yet — one course is enough to start"
             }
           />
           <GenerationCard

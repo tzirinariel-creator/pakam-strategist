@@ -59,7 +59,7 @@ const GAIN = "text-emerald-600";
 describe("the optimistic cell never renders a drop as a gain", () => {
   it("does not go green when the slider sits below the course's own grade", () => {
     const { container } = render(
-      <MoedBDecisionCard courses={COURSES} preferHigherGrade={false} />,
+      <MoedBDecisionCard courses={COURSES} keepsHigherGrade={false} />,
     );
 
     // Move the optimistic slider down while the low course is selected.
@@ -88,7 +88,7 @@ describe("the optimistic cell never renders a drop as a gain", () => {
   it("still renders the card at all", () => {
     // A guard on the guard: if the card stops rendering, the loop above passes
     // vacuously and this file would stop meaning anything.
-    render(<MoedBDecisionCard courses={COURSES} preferHigherGrade={false} />);
+    render(<MoedBDecisionCard courses={COURSES} keepsHigherGrade={false} />);
     expect(screen.getAllByText(/מועד ב׳/).length).toBeGreaterThan(0);
   });
 });
