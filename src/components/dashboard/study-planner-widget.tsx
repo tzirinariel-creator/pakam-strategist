@@ -61,6 +61,7 @@ export function StudyPlannerWidget({
 }) {
   const t = useTranslations("studyPlanner");
   const Arrow = isHe ? ArrowLeft : ArrowRight;
+  const heDays = (n: number) => (n === 1 ? "בעוד יום" : n === 2 ? "בעוד יומיים" : `בעוד ${n} ימים`);
   const utils = api.useUtils();
 
   const [showAddModal, setShowAddModal] = useState(false);
@@ -97,7 +98,7 @@ export function StudyPlannerWidget({
   });
 
   // Process tasks — group into active and completed
-  const { activeTasks, completedCount, totalCount } = useMemo(() => {
+  const { activeTasks, completedCount, totalCount, planStartsInDays, planStartDate } = useMemo(() => {
     const tasks = tasksQuery.data?.tasks ?? [];
     const now = new Date();
 
@@ -114,12 +115,31 @@ export function StudyPlannerWidget({
         return new Date(a.startDate).getTime() - new Date(b.startDate).getTime();
       });
 
+    // How far off the FIRST piece of work is. Null once the plan is close
+    // enough that the rows are the answer to "what now" — three weeks, the
+    // same horizon the revision engine itself starts scheduling at, so the
+    // card switches to the list exactly when there is something to do.
+    const first = active[0];
+    const daysToStart = first ? daysBetween(now, new Date(first.startDate)) : null;
+    const notYet = daysToStart != null && daysToStart > 21 ? daysToStart : null;
+
     return {
       activeTasks: active,
       completedCount: tasks.filter((t) => t.completed).length,
       totalCount: tasks.length,
+      planStartsInDays: notYet,
+      planStartDate: notYet != null && first ? new Date(first.startDate) : null,
     };
   }, [tasksQuery.data]);
+
+  // The date AND the distance: a date alone makes you count, a countdown alone
+  // makes you check the calendar. Both, once.
+  const planStartLabel =
+    planStartsInDays != null && planStartDate
+      ? isHe
+        ? `ב-${planStartDate.toLocaleDateString("he-IL", { day: "numeric", month: "long" })}, ${heDays(planStartsInDays)}`
+        : `on ${planStartDate.toLocaleDateString("en-GB", { day: "numeric", month: "long" })}, in ${planStartsInDays} days`
+      : "";
 
   // Get course codes for the modal
   const planQuery = api.plan.getUserPlan.useQuery(undefined, { retry: 1 });
@@ -202,8 +222,44 @@ export function StudyPlannerWidget({
           </div>
         )}
 
+        {/* Ariel, 22-20, applied where it bites a second time. Measured on the
+            live home screen on 1.9.2026: this card showed six rows, all
+            "לימוד: מיקרו כלכלה ב׳ + תרגיל", each labelled 125 / 126 / 127 /
+            128 / 129 days away, under a heading reading "0/50".
+
+            They were not duplicates — they are six consecutive January revision
+            days, and the plan is correct. The card was simply answering "what
+            is next" on a screen that is read as "what now". A student six days
+            before the registration round sees a to-do list with nothing ticked
+            and reads it as being behind, when in truth there is nothing to do
+            for four months.
+
+            So when the plan has not started, the card says that in one line
+            instead of six. Nothing is hidden: the count, the date and the way
+            through to the planner are all here. */}
+        {activeTasks.length > 0 && planStartsInDays != null && (
+          <Link
+            href="/exam-planner"
+            className="flex items-center justify-between gap-3 rounded-lg border border-border/50 bg-foreground/[0.02] px-3 py-2.5 transition-colors hover:bg-foreground/[0.04]"
+          >
+            <div className="min-w-0">
+              <p className="text-sm text-foreground/75">
+                {isHe
+                  ? `התוכנית מתחילה ${planStartLabel}`
+                  : `Your plan starts ${planStartLabel}`}
+              </p>
+              <p className="mt-0.5 text-xs text-foreground/45">
+                {isHe
+                  ? `${activeTasks.length} מטלות מחכות שם — אין מה לעשות איתן היום.`
+                  : `${activeTasks.length} tasks waiting there — nothing to do about them today.`}
+              </p>
+            </div>
+            <Arrow className="size-4 shrink-0 text-foreground/30" />
+          </Link>
+        )}
+
         {/* Task list */}
-        {activeTasks.length > 0 && (
+        {activeTasks.length > 0 && planStartsInDays == null && (
           <div className="space-y-1.5">
             {activeTasks.slice(0, 6).map((task) => {
               const endDate = new Date(task.endDate);
