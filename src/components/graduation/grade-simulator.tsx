@@ -91,6 +91,19 @@ export function GradeSimulator({
     return !!o && (o.included === false || (o.grade !== undefined && o.grade !== uc.grade));
   };
 
+  // Hoisted out of the rows (#38), and placed ABOVE the entry return so the
+  // hook order is identical on every render. The target is the next whole point
+  // above the CURRENT average, so it is the same for every course — computing
+  // it inside the row is what made the sentence repeat on all of them.
+  const curAvg = result.current.courseAverage;
+  const targetPoint = curAvg != null ? Math.floor(curAvg) + 1 : null;
+  const noSingleCourseReaches = useMemo(() => {
+    if (curAvg == null || targetPoint == null || simulatable.length === 0) return false;
+    return simulatable.every(
+      (uc) => gradeNeededForTarget(courses, uc.id, targetPoint, opts) == null,
+    );
+  }, [curAvg, targetPoint, simulatable, courses, opts]);
+
   // ── Entry ───────────────────────────────────────────────────────────────
   if (!active) {
     return (
@@ -146,13 +159,25 @@ export function GradeSimulator({
 
   // ── Active ──────────────────────────────────────────────────────────────
   const cur = result.current.courseAverage;
+
+
   const sim = result.simulated.courseAverage;
   const moved = result.changedCount > 0 && result.averageDelta !== 0;
 
   return (
     <div className="rounded-2xl border border-border bg-card/40 p-4">
-      {/* Headline: the new number, and the one it replaced */}
-      <div className="flex items-start justify-between gap-3">
+      {/* Ariel, #41: "כשאני לוחץ על שינוי ציון בסימולציה, אם הציון יחסית למטה —
+          אין לי דרך לראות את ההשפעה שלו על הממוצע אז מה זה עוזר?"
+          
+          The answer was computed and thrown away: `averageDelta` is returned by
+          the engine and read exactly once in this file, as a boolean, to pick a
+          text colour. The number itself was never printed. And the headline sat
+          at the top of a long list — one ~3-line row per course — so a student
+          nudging a course far down the page could not see the average at all.
+          
+          The delta is printed, and the block sticks to the top of the viewport
+          while the list scrolls under it. */}
+      <div className="sticky top-0 z-10 -mx-4 -mt-4 flex items-start justify-between gap-3 rounded-t-2xl bg-card/95 px-4 pb-3 pt-4 backdrop-blur">
         <div>
           <p className="text-xs text-foreground/50">
             {isHe ? "ממוצע בסימולציה" : "Simulated average"}
@@ -160,6 +185,23 @@ export function GradeSimulator({
           <p className={cn("font-mono text-3xl font-bold tabular-nums",
             moved ? "text-accent-brand" : "text-foreground")}>
             <Bidi text={sim != null ? sim.toFixed(2) : "—"} />
+            {result.averageDelta != null && result.averageDelta !== 0 && (
+              <span
+                className={cn(
+                  "ms-2 font-mono text-base font-semibold",
+                  result.averageDelta > 0
+                    ? "text-emerald-600 dark:text-emerald-400"
+                    : "text-red-600 dark:text-red-400",
+                )}
+              >
+                {/* Sign INSIDE the isolate — a "+" left outside it is a
+                    bidi-neutral in a Hebrew paragraph and lands on the wrong
+                    side of the digits, the same way "%8.6" did. */}
+                <Bidi
+                  text={`${result.averageDelta > 0 ? "+" : ""}${result.averageDelta.toFixed(2)}`}
+                />
+              </span>
+            )}
           </p>
           <p className="mt-0.5 text-xs text-foreground/45">
             {isHe ? "נוכחי " : "current "}
@@ -191,7 +233,22 @@ export function GradeSimulator({
         <p className="text-[11px] text-foreground/40">
           {isHe ? "התפלגות הציונים שלכם" : "Your grade distribution"}
         </p>
-        <div className="mt-1.5 flex gap-1">
+        {/* Ariel, #39: "הציונים מימין לשמאל במצב סימולציה. לא כמו מספרים
+            טבעיים משמאל לימין."
+            
+            TWO faults, one attribute. The band labels are "<60", "60–69",
+            "90+" — the en dash, the "<" and the "+" are bidi-NEUTRALS between
+            European numbers, so inside an RTL page they resolve RTL and the two
+            digit groups swap ("69–60"), with "<" mirrored on top. And the row
+            itself is a plain flex in an RTL container, so the five bands lay
+            out right-to-left and the axis DESCENDS as you read: +90 89–80
+            79–70 … Rendered in a browser at dir=rtl, that is exactly what came
+            out.
+            
+            dir="ltr" here fixes both at once. Wrapping each label in <Bidi>
+            would straighten the digits and leave the axis running backwards —
+            a numeric scale reads low-to-high in every locale. */}
+        <div className="mt-1.5 flex gap-1" dir="ltr">
           {distribution.map((b) => (
             <div key={b.band} className="flex-1 text-center">
               <div
@@ -209,6 +266,34 @@ export function GradeSimulator({
       </div>
 
       {/* The courses */}
+      {/* Ariel, #38: "המשפט החוזר הזה קצת טיפשי ומוזר — גם ציון 100 בקורס הזה
+          לא יביא את הממוצע ל-97."
+          
+          It repeated because it was computed PER ROW from the same average: for
+          a student at 96.29 the target is 97 for every course, and when no
+          single course can carry a whole point, all 24 rows printed the same
+          sentence. It also never said where 97 came from, so it read as a bar
+          the app had invented.
+          
+          Said once, above the list, with BOTH numbers — so the target has a
+          visible source — and only when it is true of every course. Rows keep
+          their own line only when they have something specific to say. */}
+      {noSingleCourseReaches && targetPoint != null && curAvg != null && (
+        <p className="mt-3 rounded-lg bg-foreground/[0.03] px-3 py-2 text-[11px] leading-relaxed text-foreground/50">
+          {isHe ? (
+            <>
+              אף קורס בודד לא יכול להעלות את הממוצע מ־<Bidi text={curAvg.toFixed(2)} /> ל־
+              <Bidi text={targetPoint} />. שינוי אמיתי יבוא מכמה קורסים יחד.
+            </>
+          ) : (
+            <>
+              No single course can lift the average from <Bidi text={curAvg.toFixed(2)} /> to{" "}
+              <Bidi text={targetPoint} />. Moving it takes several together.
+            </>
+          )}
+        </p>
+      )}
+
       <ul className="mt-4 space-y-2">
         {simulatable.map((uc) => {
           const g = gradeOf(uc);
@@ -307,15 +392,10 @@ function TargetHint({
     () => gradeNeededForTarget(courses, course.id, target, opts),
     [courses, course.id, target, opts],
   );
-  if (needed == null) {
-    return (
-      <p className="mt-1.5 text-[11px] text-foreground/35">
-        {isHe
-          ? `הקורס הזה לבדו לא יכול להביא אתכם ל-${target}`
-          : `Even a 100 here wouldn't bring the average to ${target}`}
-      </p>
-    );
-  }
+  // The "not reachable" case is now stated ONCE above the list, because it is a
+  // fact about the whole plan and not about this row (#38). Printing it here
+  // put the same sentence on every course.
+  if (needed == null) return null;
   if (needed <= (course.grade ?? 0)) return null;
   return (
     <p className="mt-1.5 text-[11px] text-foreground/45">

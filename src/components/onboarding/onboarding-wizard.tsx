@@ -115,6 +115,9 @@ function loadOnboardingState(userId: string | null | undefined): {
   sessionGroupSelections?: SessionGroupSelections;
   completedCourses?: Record<string, CompletedCourse>;
   removedCourseCodes?: string[];
+  /** Codes read off the grade sheet — the exemption that keeps them from being
+   *  pruned on restore. Its absence was the whole of #34. */
+  sheetCourseCodes?: string[];
   sheetSeeded?: boolean;
   manualHistory?: boolean;
 } | null {
@@ -278,6 +281,9 @@ export function OnboardingWizard() {
         if (Object.keys(s.completedCourses).length > 0) historySeeded.current = true;
       }
       if (s.removedCourseCodes) removedCodes.current = new Set(s.removedCourseCodes);
+      // Restored BEFORE sheetSeeded below, so the prune never runs a frame with
+      // the flag set and the set empty. (#34)
+      if (s.sheetCourseCodes) sheetCodes.current = new Set(s.sheetCourseCodes);
       if (s.sheetSeeded) setSheetSeeded(true);
       if (s.manualHistory) setManualHistory(true);
     }
@@ -291,7 +297,21 @@ export function OnboardingWizard() {
     try {
       localStorage.setItem(
         onboardingStateKey(profileQuery.data?.supabaseId),
-        JSON.stringify({ step, data, plannedSemesters, sessionGroupSelections, completedCourses, removedCourseCodes: [...removedCodes.current], sheetSeeded, manualHistory })
+        // #34. sheetCourseCodes was the ONE thing this snapshot left out, and it
+        // is the thing that protects the scanned grade sheet.
+        //
+        // The reconcile effect below keeps a completed row only if its code is
+        // in `sheetCodes` or it sits in a past semester. `sheetCodes` is a ref
+        // and was never persisted — so a refresh (or one failed plan refetch)
+        // restored `sheetSeeded: true` with an EMPTY set: every scanned row lost
+        // its exemption and was pruned, and because sheetSeeded was true the
+        // re-seed that would have replaced them was skipped. Zero COMPLETED rows
+        // reached the database.
+        //
+        // That is precisely the state the comment on that effect says it exists
+        // to prevent, and it is the mechanism behind "העליתי בהתחלה סילבוס וזה
+        // פשוט לא עבר לכאן".
+        JSON.stringify({ step, data, plannedSemesters, sessionGroupSelections, completedCourses, removedCourseCodes: [...removedCodes.current], sheetCourseCodes: [...sheetCodes.current], sheetSeeded, manualHistory })
       );
     } catch {
       /* storage full / disabled — non-fatal */

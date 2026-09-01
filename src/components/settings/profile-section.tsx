@@ -424,16 +424,37 @@ export function ProfileSection() {
               ))}
             </SelectContent>
           </Select>
+          {/* Ariel, #51: "מה זה השנות תחילת תואר המוזרות האלו?"
+              
+              Two separate faults met here. The LIST is built from the planning
+              anchor (2026 today), while deriveYearOfStudy measured against the
+              academic now (2025, because the תשפ״ז window opens 18.10). So
+              picking תשפ״ז and picking תשפ״ו both answered "שנה א׳" — two
+              different answers to "when did you start" producing one identical
+              result, which is exactly what makes a picker feel broken.
+              
+              And the helper line named `acadNow.semester` as the present. Through
+              the whole summer break — 25.7 to 17.9, which includes today and the
+              entire bidding window — that asserts the student is currently in a
+              semester whose teaching ended on 9.7. Saying what is NEXT is both
+              true and the thing they are here to plan. */}
           {startYear && (() => {
             const acadNow = getAcademicNow();
-            const y = deriveYearOfStudy(Number(startYear), 1);
+            const anchor = getPlanningAnchor();
+            const y = deriveYearOfStudy(Number(startYear), 1, anchor.startYear);
             const yearName = YEAR_CONFIG[y as 1 | 2 | 3]?.[isHe ? "nameHe" : "nameEn"] ?? String(y);
-            const semName = acadNow.semester === "FALL" ? (isHe ? "סמסטר א׳" : "Semester A") : (isHe ? "סמסטר ב׳" : "Semester B");
+            const onBreak = acadNow.phase === "break";
+            const sem = onBreak ? anchor.semester : acadNow.semester;
+            const semName = sem === "FALL" ? (isHe ? "סמסטר א׳" : "Semester A") : (isHe ? "סמסטר ב׳" : "Semester B");
             return (
               <p className="text-sm text-foreground/55">
                 {isHe
-                  ? `לפי הלוח האקדמי: ${yearName} · ${semName} ${acadNow.labelHe}`
-                  : `By the academic calendar: ${yearName} · ${semName}`}
+                  ? onBreak
+                    ? `לפי הלוח האקדמי, הסמסטר הקרוב: ${yearName} · ${semName}`
+                    : `לפי הלוח האקדמי: ${yearName} · ${semName} ${acadNow.labelHe}`
+                  : onBreak
+                    ? `By the academic calendar, coming semester: ${yearName} · ${semName}`
+                    : `By the academic calendar: ${yearName} · ${semName}`}
               </p>
             );
           })()}
