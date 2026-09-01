@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef, useCallback } from "react";
-import { GraduationCap, Scale, Pencil, Target, ArrowRight, ArrowLeft, Calendar, X, Calculator, CheckCircle2 } from "lucide-react";
+import { GraduationCap, Scale, ArrowRight, ArrowLeft, Calendar, X, CheckCircle2 } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 import { useSearchParams } from "next/navigation";
 import { Link, useRouter } from "@/i18n/navigation";
@@ -33,7 +33,6 @@ const OnboardingWizard = dynamic(
 );
 import { AnchoredTour, TourReopenButton, TOUR_DONE_KEY } from "@/components/onboarding/anchored-tour";
 import { QuietBoundary } from "@/components/shared/query-error";
-import { cn } from "@/lib/utils";
 import { TodaysClasses } from "@/components/dashboard/todays-classes";
 import { SemesterWrapCard } from "@/components/dashboard/semester-wrap-card";
 import { PhilosopherKingIcon } from "@/components/ui/philosopher-king-icon";
@@ -50,10 +49,7 @@ import type { GradeBreakdown, CreditBreakdown } from "@/types/degree";
 import { diffBreakdown } from "@/lib/degree-delta";
 import { Bidi } from "@/lib/bidi";
 import { PostOnboardingTransition } from "@/components/dashboard/post-onboarding-transition";
-import { QuickActionCard } from "@/components/dashboard/quick-action-card";
-import { GoogleCalendarBanner } from "@/components/dashboard/google-calendar-banner";
-import { WelcomeHomeCard } from "@/components/dashboard/welcome-home-card";
-import { FeatureDiscoveryCard } from "@/components/dashboard/feature-discovery-card";
+import { NextMovesCard } from "@/components/dashboard/next-moves-card";
 import { getBiddingPhase } from "@/lib/bidding-calendar";
 import { BiddingSeasonCard } from "@/components/dashboard/bidding-season-card";
 import { NextSemesterCard } from "@/components/dashboard/next-semester-card";
@@ -222,27 +218,6 @@ export function DashboardContent() {
     enabled: demoResetDone,
     staleTime: 60 * 1000,
   });
-  const [googleBannerDismissed, setGoogleBannerDismissed] = useState(false);
-
-  useEffect(() => {
-    if (typeof window !== "undefined") {
-      setGoogleBannerDismissed(
-        localStorage.getItem("pakamon-google-banner-dismissed") === "true"
-      );
-    }
-  }, []);
-
-  // Welcome card — shown to brand-new users (just onboarded / few courses),
-  // dismissible and persisted so it never nags established students.
-  const [welcomeDismissed, setWelcomeDismissed] = useState(true);
-  useEffect(() => {
-    if (typeof window !== "undefined") {
-      setWelcomeDismissed(
-        localStorage.getItem("pakamon-welcome-dismissed") === "true"
-      );
-    }
-  }, []);
-
   // Product tour — a short, fully-skippable guided walkthrough shown ONCE the
   // first time a brand-new student lands on the dashboard. Sequencing decision:
   // the tour runs FIRST (it explains the whole app at a glance); the welcome
@@ -344,11 +319,10 @@ export function DashboardContent() {
   const plannedCredits = credits?.planned ?? 0;
   const hasAnyCourses = courseCount > 0 || earnedCredits + plannedCredits > 0;
 
-  // "Established" users have a meaningful plan; new/near-empty users get the
-  // welcome card and a lighter, contextual quick-actions row.
+  // "Established" users have a meaningful plan; near-empty new users still get
+  // the one-time advisor introduction.
   const isNewUser = courseCount < 4;
   const hasFocusArea = !!profileQuery.data?.focusArea;
-  const hasGrades = gradeBreakdown.totalGradedCourses > 0;
   // Year + semester are DERIVED from the calendar (single source of truth,
   // #39/#43) — the stored profile pair is only a legacy fallback. currentYear +
   // acadNow.semester = the student's CURRENT STANDING, rendered identically in
@@ -748,35 +722,6 @@ export function DashboardContent() {
             need to duplicate it in the header. */}
       </div>
 
-      {/* Welcome card — first-time guidance for fresh / just-onboarded users.
-          Shows once (until dismissed), only for new users, never for established
-          students with a full plan. Suppressed while the product tour is open so
-          the two never stack — the tour runs first, the card remains after.
-          Gated on tourChecked so the card can't flash for one frame before the
-          tour-decision effect has run and (potentially) opened the tour. */}
-      {tourChecked && !welcomeDismissed && !tourOpen && hasPlanData && (fromOnboarding || onboardingFlag || isNewUser) && (
-        <div className="animate-stagger-1">
-          <WelcomeHomeCard
-            t={t}
-            isHe={isHe}
-            // Real account state — the card ticks what the student actually
-            // did, rather than listing the same three chores forever. All of
-            // it comes from queries this page already runs; the checklist
-            // adds no request to the app's hottest screen.
-            progressInput={{
-              courseCount,
-              gradedCount: (planQuery.data?.courses ?? []).filter((uc) => uc.grade != null).length,
-              hasFocusArea,
-              hasRegulationResult: !!regulationSummary,
-            }}
-            onDismiss={() => {
-              setWelcomeDismissed(true);
-              localStorage.setItem("pakamon-welcome-dismissed", "true");
-            }}
-          />
-        </div>
-      )}
-
       {/* Meet your advisor (#13/#14/#26) — introduces the assistant to a
           first-timer and hands interactive starters (incl. one that teaches it
           can be COMMANDED). Follows the chosen persona. Own dismiss; suppressed
@@ -793,12 +738,28 @@ export function DashboardContent() {
           wrap/bidding cards below so the same ask never appears twice. */}
       {!tourOpen && hasPlanData && <TimeFocusHero focus={timeFocus} />}
 
-      {/* Ariel, "עשרות פעמים": a student finishes signup and has still never
-          seen the exam planner, the King or the simulator. This says what else
-          is here, ordered by the academic calendar, and removes itself once
-          everything trackable has been used. */}
+      {/* THE list (#5/#19/#21/#35). Ariel, more often than any other note:
+          "מפריע לי מאוד מאוד מאוד מאוד וביקשתי את זה עשרות פעמים" — a student
+          finishes signing up and has still never seen the exam planner, never
+          spoken to the advisor, never learned what the calendar sync is for.
+
+          There used to be THREE answers on this screen: the welcome checklist
+          (four chores, shown only to `courseCount < 4`), the feature-discovery
+          card (a counter over rows it never rendered, and one tick hardcoded
+          `false` here at the call site so it could never retire), and the
+          "הצעד הבא שלכם" quick-action row at the foot of the page, which always
+          rendered because it had a fallback action. Three lists, three gates,
+          three different ideas of what the student still owes. This is the one
+          that replaced them: every row ticks from a real trace, the count
+          counts exactly the rows on screen, it is dismissible, and it returns
+          null the moment the last row ticks. See src/lib/next-moves.ts. */}
       {!tourOpen && hasPlanData && (
-        <FeatureDiscoveryCard
+        <NextMovesCard
+          courseCount={courseCount}
+          gradedCount={(planQuery.data?.courses ?? []).filter((uc) => uc.grade != null).length}
+          hasFocusArea={hasFocusArea}
+          studyTaskCount={studyTasksQuery.data?.tasks?.length ?? 0}
+          calendarConnected={googleStatus.data?.connected === true}
           daysToBidding={(() => {
             const phase = getBiddingPhase();
             return phase.kind === "before" || phase.kind === "between-rounds"
@@ -806,11 +767,6 @@ export function DashboardContent() {
               : null;
           })()}
           daysToNearestExam={nearestUpcomingExam(planQuery.data?.courses ?? [])?.days ?? null}
-          hasStudyPlan={(studyTasksQuery.data?.tasks?.length ?? 0) > 0}
-          hasCohortContribution={false}
-          calendarConnected={googleStatus.data?.connected === true}
-          hasAnyGrade={(planQuery.data?.courses ?? []).some((uc) => uc.grade != null)}
-          isReservist={(profileQuery.data?.miluimGroup ?? "NONE") !== "NONE"}
         />
       )}
 
@@ -991,110 +947,6 @@ export function DashboardContent() {
           exam board lives at /exam ("all exams" link in "My week"), the calendar
           at /calendar, and study tasks at /exam-planner (all in the sidebar). */}
 
-      {/* Google Calendar banner. #40: gated on `configured` — with Google OAuth
-          off on the server the Settings section renders nothing, so this banner
-          was inviting students to a page with no calendar card on it, which
-          reads exactly like "the app never offered to sync my calendar". */}
-      {!googleBannerDismissed && hasPlanData && googleStatus.data?.configured !== false && (
-        <div className="animate-stagger-6">
-          <GoogleCalendarBanner
-            isConnected={googleStatus.data?.connected ?? false}
-            isHe={isHe}
-            t={t}
-            onDismiss={() => {
-              setGoogleBannerDismissed(true);
-              localStorage.setItem("pakamon-google-banner-dismissed", "true");
-            }}
-          />
-        </div>
-      )}
-
-      {/* Quick actions — contextual: surface the student's actual next step
-          rather than duplicating the sidebar nav. */}
-      {(() => {
-        const actions: {
-          icon: React.ComponentType<{ className?: string }>;
-          label: string;
-          description: string;
-          href: string;
-          color: string;
-        }[] = [];
-
-        // 1. No grades yet → enter grades
-        if (!hasGrades) {
-          actions.push({
-            icon: Calculator,
-            label: isHe ? pgd("הזן ציונים", "הזני ציונים", "הזינו ציונים") : t("actionEnterGrades"),
-            description: t("actionEnterGradesDesc"),
-            // Grades are entered in the academic record (the calculator is now
-            // analysis-only after the #25 grades-door merge), so this CTA must
-            // land on the actual grade-entry surface, not /graduation.
-            href: "/record",
-            color: "bg-emerald-500/10 text-emerald-400",
-          });
-        }
-
-        // 2. No focus area chosen → pick one (in settings, where the selector lives)
-        if (!hasFocusArea) {
-          actions.push({
-            icon: Target,
-            label: isHe ? pgd("בחר תחום מיקוד", "בחרי תחום מיקוד", "בחרו תחום מיקוד") : t("actionPickFocus"),
-            description: t("actionPickFocusDesc"),
-            href: "/settings",
-            color: "bg-violet-500/10 text-violet-400",
-          });
-        }
-
-        // 3. Likely missing past courses (year ≥ 2 but few earned credits)
-        if (currentYear >= 2 && earnedCredits < 20) {
-          actions.push({
-            icon: GraduationCap,
-            label: isHe ? pgd("הוסף קורסי עבר", "הוסיפי קורסי עבר", "הוסיפו קורסי עבר") : t("actionAddPast"),
-            description: t("actionAddPastDesc"),
-            href: "/record",
-            color: "bg-amber-500/10 text-amber-400",
-          });
-        }
-
-        // Fallback / established users → a single edit-plan action
-        if (actions.length === 0) {
-          actions.push({
-            icon: Pencil,
-            label: isHe ? pgd("ערוך את התוכנית", "ערכי את התוכנית", "ערכו את התוכנית") : t("actionEditPlan"),
-            description: t("actionEditPlanDesc"),
-            href: "/planner",
-            color: "bg-orange-500/10 text-orange-400",
-          });
-        }
-
-        // Cap at 3 to keep the row tight
-        const shown = actions.slice(0, 3);
-
-        return (
-          <div className="animate-stagger-6">
-            <h2 className="font-display mb-4 text-lg font-semibold text-foreground/80">
-              {t("nextStep")}
-            </h2>
-            <div
-              className={cn(
-                "grid gap-3 sm:grid-cols-2",
-                shown.length >= 3 && "lg:grid-cols-3"
-              )}
-            >
-              {shown.map((a) => (
-                <QuickActionCard
-                  key={a.href + a.label}
-                  icon={a.icon}
-                  label={a.label}
-                  description={a.description}
-                  href={a.href}
-                  color={a.color}
-                />
-              ))}
-            </div>
-          </div>
-        );
-      })()}
     </div>
   );
 }

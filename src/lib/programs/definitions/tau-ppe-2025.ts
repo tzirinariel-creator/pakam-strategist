@@ -117,11 +117,13 @@ export const TAU_PPE_2025: ProgramDefinition = {
     // to register for a seminar they were eligible for, and the advisor
     // repeating it. A gate above the supply is a gate no one can pass.
     //
-    // OWNER DECISION PENDING (Ariel): whether those two courses are still
-    // mandatory in תשפ״ז. If they are, reactivate them and this returns to 101.
-    // Until that is checked against the ידיעון, the gate must not exceed what a
-    // student can earn.
-    mandatoryCredits: 97,
+    // RESOLVED by Ariel's own data. His degree-planning sheet — built with the
+    // PPE secretary — lists "1411924010 משפט וכלכלה, שיעור 10", i.e. the course
+    // with a live תשפ״ז group, and "שיעור קריאה או שיעור יסוד בפילוסופיה"
+    // alongside it. Both were marked isActive:false by the תשפ״ז migration.
+    // Reactivated; the catalog now supplies 101 again and the guard in
+    // scripts/verify-catalog-facts.ts confirms it.
+    mandatoryCredits: 101,
     // What the ידיעון SAYS (the published figure). Ariel, #49: "זה לא מגיע ל-150
     // אפילו.. אתה סגור על מה שכתוב כאן?" He is right — the overview card printed
     // 150 as a headline over 101 + 35 + 12, which is 148, and an app that cannot
@@ -134,8 +136,9 @@ export const TAU_PPE_2025: ProgramDefinition = {
     officialMandatoryCredits: 103,
     /** The published figure minus what the active catalog can supply. Shown to
      *  the student so 103 / 35 / 12 still sums to 150 and the gap is explained
-     *  rather than silently dropped. */
-    unpublishedMandatoryCredits: 6,
+     *  rather than silently dropped. Back to 2 — the genuinely unpublished
+     *  future PPE course — now that the two deactivated courses are live. */
+    unpublishedMandatoryCredits: 2,
     seminarCredits: 12,
     electiveCredits: 35,
     focusAreaMin: 60,
