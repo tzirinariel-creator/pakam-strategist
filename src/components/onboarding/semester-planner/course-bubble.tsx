@@ -5,6 +5,7 @@ import { useLocale } from "next-intl";
 import { Lock, Check, AlertTriangle, Star, Info, GitBranch } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { courseColor } from "@/lib/course-color";
+import { courseScheduleOutline, isChoice } from "@/lib/course-schedule-outline";
 import { CourseDetailPopover } from "../step-plan/course-detail-popover";
 import type { CourseWithSchedule } from "@/lib/plan-generator";
 
@@ -59,13 +60,27 @@ export function CourseBubble({
 
   const isClickable = state === "default" || state === "selected";
 
-  // Extract unique session days as compact label
-  const daysLabel = useMemo(() => {
+  // The days this course would actually cost you — and whether that is settled.
+  //
+  // This used to list the union of every row's day. For a course with three
+  // lecture groups on three different days that printed "א׳ ב׳ ג׳", which
+  // reads as "three days a week" when the truth is "one of these three".
+  // During bidding that is the difference between a course that fits your week
+  // and one that does not, and the bubble is where the decision gets made.
+  //
+  // Same grouping the popover and the catalog use, so the three cannot
+  // disagree about what a course costs.
+  const { daysLabel, isPickable } = useMemo(() => {
     const sessions = course.scheduleSessions ?? [];
-    if (sessions.length === 0) return null;
-    const uniqueDays = [...new Set(sessions.map((s) => s.dayOfWeek))];
+    if (sessions.length === 0) return { daysLabel: null, isPickable: false };
+    const outline = courseScheduleOutline(sessions);
+    const pickable = outline.some(isChoice);
     const labels = isHe ? DAY_SHORT_HE : DAY_SHORT_EN;
-    return uniqueDays.map((d) => labels[d] ?? d).join(" ");
+    const uniqueDays = [...new Set(sessions.map((s) => s.dayOfWeek))];
+    return {
+      daysLabel: uniqueDays.map((d) => labels[d] ?? d).join(" "),
+      isPickable: pickable,
+    };
   }, [course.scheduleSessions, isHe]);
 
   return (
@@ -174,10 +189,21 @@ export function CourseBubble({
           </span>
         )}
 
-        {/* Session days — compact */}
+        {/* Session days — compact. When the course offers a choice of groups
+            these days are OPTIONS, not a commitment, and the chip says so
+            rather than quietly overstating the week. */}
         {daysLabel && (
-          <span className="shrink-0 text-[10px] text-foreground/25 font-mono">
-            {daysLabel}
+          <span
+            className="shrink-0 font-mono text-[10px] text-foreground/25"
+            title={
+              isPickable
+                ? isHe
+                  ? "לקורס הזה יש כמה קבוצות — בוחרים אחת. הימים כאן הם האפשרויות."
+                  : "This course has several groups — you pick one. These days are the options."
+                : undefined
+            }
+          >
+            {isPickable ? (isHe ? `מתוך ${daysLabel}` : `of ${daysLabel}`) : daysLabel}
           </span>
         )}
 
