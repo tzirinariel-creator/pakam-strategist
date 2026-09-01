@@ -190,8 +190,22 @@ const PLANNING_TIPS: Tip[] = [
   },
   {
     id: "pt-5",
-    textEn: "Don't put 3 heavy courses (Math for PPE, Macro, Statistics) in the same semester.",
-    textHe: "אל תשימו 3 קורסים כבדים (מתמטיקה לפכ״מ, מאקרו, סטטיסטיקה) באותו סמסטר.",
+    // Ariel, #53: "זאת אמירה כל כך גרועה… כי זה קורסי חובה בכל מיני סמסטרים אז
+    // זה מראה שאתה מחשב ומנותק."
+    //
+    // He is right, and it is checkable: the three courses this named are placed
+    // by the curriculum in three different semesters — מתמטיקה לפכ״מ in year 1
+    // fall, סטטיסטיקה לפכ״מ in year 1 spring, מאקרו כלכלה in year 2 fall. They
+    // cannot be stacked. The app was warning a student against a collision its
+    // own catalog makes impossible, about courses it places for them and the
+    // planner locks.
+    //
+    // Advice a student cannot act on is worse than no advice: it is the app
+    // demonstrating it does not know what it just did. What IS in their hands is
+    // how much elective load they add on top of a mandatory semester — so that
+    // is what this now says, with no invented threshold.
+    textEn: "Mandatory courses are already placed in their semesters — what you control is how many electives you add on top. Check the recommended credit range for the semester before adding more.",
+    textHe: "קורסי החובה כבר משובצים לסמסטרים שלהם — מה שבידיים שלכם זה כמה בחירה להוסיף מעליהם. שווה להציץ בטווח הש״ס המומלץ לסמסטר לפני שמוסיפים עוד.",
     category: "planning_tip",
     icon: Scale,
   },

@@ -510,7 +510,7 @@ function GallerySection({ isHe }: { isHe: boolean }) {
     <div className="data-card space-y-3 p-5">
       <h3 className="flex items-center gap-2 font-semibold text-foreground/80">
         <Share2 className="size-4 text-accent-brand" />
-        {isHe ? "מסלולים מנוצחים" : "Winning plans"}
+        {isHe ? "מסלולים שעבדו" : "Plans that worked"}
       </h3>
 
       {(galleryQuery.data?.length ?? 0) > 0 ? (

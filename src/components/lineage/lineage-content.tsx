@@ -214,7 +214,7 @@ export function LineageContent() {
             kicker={isHe ? "ידע אנונימי, חוצה מחזורים" : "Anonymous knowledge, across cohorts"}
             body={
               isHe
-                ? "ממוצעים אמיתיים, עומס וקושי, טיפים לפי קורס, תובנות ומסלולים מנוצחים."
+                ? "ממוצעים אמיתיים, עומס וקושי, טיפים לפי קורס, תובנות ומסלולים שעבדו."
                 : "Real averages, workload and difficulty, tips per course, insights and winning plans."
             }
             seeing={
