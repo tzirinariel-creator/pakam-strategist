@@ -124,15 +124,15 @@ const FUN_FACTS: Tip[] = [
   // it is the standard every card on this surface has to meet.
   {
     id: "ff-11",
-    textEn: "Only 10 of the 344 courses in the catalog have prerequisites. The degree is far less locked-in than it feels.",
-    textHe: "רק 10 מתוך 344 הקורסים בקטלוג דורשים קדם. התואר הרבה פחות נעול ממה שהוא מרגיש.",
+    textEn: "Only 9 of the 302 courses on offer have prerequisites. The degree is far less locked-in than it feels.",
+    textHe: "רק 9 מתוך 302 הקורסים שנלמדים דורשים קדם. התואר הרבה פחות נעול ממה שהוא מרגיש.",
     category: "fun_fact",
     icon: Compass,
   },
   {
     id: "ff-12",
-    textEn: "72 of the catalog's courses are seminars — you need 3. There is a lot of room to pick ones you actually want.",
-    textHe: "72 מהקורסים בקטלוג הם סמינרים — ואתם צריכים 3. יש הרבה מקום לבחור משהו שבאמת מעניין אתכם.",
+    textEn: "67 of the courses on offer are seminars — you need 3. There is a lot of room to pick ones you actually want.",
+    textHe: "67 מהקורסים שנלמדים הם סמינרים — ואתם צריכים 3. יש הרבה מקום לבחור משהו שבאמת מעניין אתכם.",
     category: "fun_fact",
     icon: PenTool,
   },
@@ -264,11 +264,15 @@ const MOTIVATION_TIPS: Tip[] = [
     //
     // What this app CAN say truthfully about the degree is what its own
     // catalog holds, and it turns out to be more interesting than the
-    // invented version: only 27 of the 344 courses are required.
+    // invented version: only 25 of the 302 courses on offer are required.
+    //
+    // Counted over ACTIVE courses, which is also the set the landing page
+    // means by "כל 302 הקורסים" — two different totals for the same idea in
+    // one product is its own small breach of trust.
     textEn:
-      "Of the 344 courses in the PPE catalog, 27 are required — 93 credits. The other 57 credits toward the 150 are yours to choose.",
+      "Of the 302 courses on offer in PPE, 25 are required — 89 credits. The other 61 credits toward the 150 are yours to choose.",
     textHe:
-      "מתוך 344 הקורסים בקטלוג של פכ״מ, 27 הם חובה — 93 ש״ס. שאר 57 הש״ס עד ה-150 הם בחירה שלכם.",
+      "מתוך 302 הקורסים שנלמדים בפכ״מ, 25 הם חובה — 89 ש״ס. שאר 61 הש״ס עד ה-150 הם בחירה שלכם.",
     category: "motivation",
     icon: Briefcase,
   },

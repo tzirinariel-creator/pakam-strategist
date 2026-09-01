@@ -40,7 +40,11 @@ if (!connectionString) throw new Error("DATABASE_URL not set");
 const prisma = new PrismaClient({ adapter: new PrismaPg({ connectionString }) });
 
 async function main() {
+  // ACTIVE only — the same set the landing page counts when it says
+  // "כל 302 הקורסים". Counting a different set here is how one product ends
+  // up printing two totals for the same thing.
   const all = await prisma.course.findMany({
+    where: { isActive: true },
     select: {
       code: true, nameHe: true, credits: true, discipline: true,
       courseType: true, isMandatory: true, prerequisites: true,
@@ -55,11 +59,11 @@ async function main() {
 
   /** Each claim, the value it asserts, and the value the catalog gives now. */
   const claims: { where: string; claim: string; asserted: number; actual: number }[] = [
-    { where: "tips-engine ff-11 / ff-12 / m-1", claim: "קורסים בקטלוג", asserted: 344, actual: all.length },
-    { where: "tips-engine m-1", claim: "קורסי חובה", asserted: 27, actual: mandatory.length },
-    { where: "tips-engine m-1", claim: "ש״ס חובה", asserted: 93, actual: mandatory.reduce((s, c) => s + c.credits, 0) },
-    { where: "tips-engine ff-11", claim: "קורסים עם דרישת קדם", asserted: 10, actual: withPrereq.length },
-    { where: "tips-engine ff-12", claim: "סמינרים בקטלוג", asserted: 72, actual: seminars.length },
+    { where: "tips-engine + landing heroSubtitle", claim: "קורסים פעילים", asserted: 302, actual: all.length },
+    { where: "tips-engine m-1", claim: "קורסי חובה", asserted: 25, actual: mandatory.length },
+    { where: "tips-engine m-1", claim: "ש״ס חובה", asserted: 89, actual: mandatory.reduce((s, c) => s + c.credits, 0) },
+    { where: "tips-engine ff-11", claim: "קורסים עם דרישת קדם", asserted: 9, actual: withPrereq.length },
+    { where: "tips-engine ff-12", claim: "סמינרים בקטלוג", asserted: 67, actual: seminars.length },
     { where: "tips-engine ff-13", claim: "ש״ס בקורס הכבד ביותר", asserted: 6, actual: maxCredits },
     { where: "tips-engine ff-14", claim: "תחומים בקטלוג", asserted: 6, actual: disciplines.size },
   ];
