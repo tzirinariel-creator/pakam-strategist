@@ -16,6 +16,20 @@ import type { ProgramDefinition } from "@/lib/programs/types";
 // -------------------------------------------------------------------
 
 export interface MentorContext {
+  /**
+   * The term the planning list was filtered for. Ariel, #22/#55.
+   *
+   * The context already computed this to do the filtering and then threw it
+   * away, so the prompt printed the student's CURRENT term from the live
+   * calendar ("שנה 1, סמסטר ב׳") a few lines above a static, unanchored
+   * heading "קורסים זמינים לסמסטר הבא" whose list had been filtered for year 2
+   * FALL. Two different years in one prompt, neither of them labelled, and a
+   * working rule telling the King to answer according to the year he was given.
+   * The model resolved that by guessing — which is what "קורסים לא מהסמסטר
+   * שלי" looks like from the outside. Every user, every day, from mid-July to
+   * 18.10 — the launch window.
+   */
+  nextSemester?: PlanningTerm | null;
   /** Student's first name for a personal address, or null. */
   firstName?: string | null;
   /** "male" | "female" | null — for gendered Hebrew phrasing. */
@@ -81,12 +95,31 @@ export interface CourseInfo {
   /** Mandatory this semester — so the King can lead with the required courses. */
   isMandatory?: boolean;
   /**
+   * WHEN the student has this course in their own plan. Ariel, #22/#55: "למה
+   * המלך ממליץ לי על קורסים לא מהסמסטר שלי?"
+   *
+   * savePlan writes PLANNED rows across the whole degree, and the context
+   * selected every one of them with no term filter and then dropped the term
+   * on the way to the model. So "התוכנית ששמר הסטודנט" arrived as one flat
+   * list mixing year 1 fall, year 1 spring and year 2 — and the only honest
+   * answer the model could give to "מה יש לי בסמסטר הבא?" was to read the
+   * whole degree back. Which is exactly what the screenshot shows.
+   */
+  plannedYear?: number | null;
+  plannedSemester?: string | null;
+  /**
    * Prerequisite course codes not yet completed — an ORDERING HINT ONLY.
    * PPE students are exempt from prerequisites (docs §9b), so this never
    * removes a course from the list; it only lets the King say "worth taking X
    * first". Undefined when nothing is outstanding.
    */
   recommendedAfter?: string[];
+}
+
+/** The term the "available courses" list was actually filtered for. */
+export interface PlanningTerm {
+  year: number;
+  semester: string;
 }
 
 export interface RegulationIssue {
@@ -171,7 +204,15 @@ function formatCourseList(courses: CourseInfo[], includeGrade: boolean): string 
         c.recommendedAfter && c.recommendedAfter.length > 0
           ? ` | מומלץ לקחת קודם: ${c.recommendedAfter.join(", ")} (המלצה בלבד — פכ״מ פטור מדרישות-קדם)`
           : "";
-      return `  • ${c.nameHe} (${c.code})${mand} | ${disc} | ${c.credits} ש״ס${diffTag}${after}${grade}`;
+      // The term the student filed this course under. Without it the saved plan
+      // reached the model as one flat list spanning the whole degree, and the
+      // only honest answer to "מה יש לי בסמסטר הבא?" was to read all of it
+      // back — Ariel's "קורסים לא מהסמסטר שלי" (#22/#55).
+      const term =
+        c.plannedYear != null && c.plannedSemester
+          ? ` | שנה ${c.plannedYear}, ${semesterNameHe(c.plannedSemester)}`
+          : "";
+      return `  • ${c.nameHe} (${c.code})${mand} | ${disc} | ${c.credits} ש״ס${term}${diffTag}${after}${grade}`;
     })
     .join("\n");
 }
@@ -409,7 +450,11 @@ ${personalAddress}
 > כל המספרים כאן (ש״ס, ממוצע, פערים, מצב רגולטורי) חושבו על-ידי מנוע-הבקרה של האפליקציה מהנתונים האמיתיים של הסטודנט. הם מקור-האמת. השתמש בהם כלשונם. לעולם אל תחשב מחדש נקודות/ממוצע/דרישות בעצמך, ואל תמציא מספר שלא מופיע כאן — אם חסר לך נתון מספרי, הפנה את הסטודנט ל"המצב שלי" בדשבורד במקום לנחש.
 
   תוכנית: ${program.nameHe} (${program.nameEn}) — ${disciplineNames}
-  שנה נוכחית: שנה ${context.currentYear}, ${semesterLabel}
+  שנה נוכחית: שנה ${context.currentYear}, ${semesterLabel}${
+    context.nextSemester
+      ? `\n  התכנון הבא הוא ל${semesterNameHe(context.nextSemester.semester)} של שנה ${context.nextSemester.year} — כל רשימת "קורסים זמינים" למטה מסוננת לטרם הזה, ולא לסמסטר הנוכחי.`
+      : ""
+  }
   תחום מיקוד: ${focusLabel}${
     // #13/#14 (13.8) — the advisor is mounted on the protected layout, so it is
     // live while the onboarding wizard is still running and the student's
@@ -460,7 +505,11 @@ ${plannedBlock}
 `
     : ""
 }
-## קורסים זמינים לסמסטר הבא (פכ״מ פטור מדרישות-קדם — הרשימה לא מסוננת):
+## קורסים זמינים ל${
+  context.nextSemester
+    ? `${semesterNameHe(context.nextSemester.semester)} של שנה ${context.nextSemester.year}`
+    : "סמסטר הבא"
+} (פכ״מ פטור מדרישות-קדם — הרשימה לא מסוננת):
 ${availableBlock}
 
 ## מצב רגולטורי:

@@ -128,6 +128,11 @@ function mapToCourseInfo(
     nameHe: uc.course.nameHe,
     discipline: uc.disciplineOverride ?? uc.course.discipline,
     credits: uc.course.credits,
+    // WHEN the student filed it. These are already on the row and were being
+    // dropped here, which is how the saved plan reached the model as one flat
+    // list spanning the whole degree. (#22/#55)
+    plannedYear: uc.plannedYear,
+    plannedSemester: uc.plannedSemester,
     ...(includeGrade && { grade: uc.grade }),
     // Arazim gate: the King never cites external historical averages/difficulty
     // when Arazim is off ("בלי ארזים כרגע"). arazimView returns nulls, so these
@@ -356,6 +361,11 @@ export async function buildUserContext(
     });
 
   return {
+    // The term the availableNextSemester list below was filtered for. It was
+    // computed a hundred lines up to DO that filtering and then discarded, so
+    // the prompt named the student's current term and printed a list for a
+    // different one. (#22/#55)
+    nextSemester: { year: nextSemesterInfo.year, semester: nextSemesterInfo.semester },
     plannedCourses,
     // The mentor prompt is Hebrew, so guard the greeting name by script: a
     // Google-auth user whose only name is a Latin displayName ("Ariel") returns
