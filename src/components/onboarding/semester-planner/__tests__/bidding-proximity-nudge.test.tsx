@@ -19,10 +19,19 @@ describe("BiddingProximityNudge", () => {
     expect(screen.getByText(/הבידינג נפתח בעוד/)).toBeTruthy();
   });
 
-  it("names the full planner, which is the only way to discover it", () => {
+  it("points at the screen that answers the countdown it just printed", () => {
+    // This asserted `/planner`, and that was the defect (#17). Ariel clicked
+    // this very headline and landed on /planner's zero-course branch — the
+    // onboarding welcome copy and a single "לדף הבית" button: "וגם תכלס זה לא
+    // באמת עובד ואין איזה מסך ייעודי וזה גרוע".
+    //
+    // A green test held it there, because it asserted the DESTINATION rather
+    // than the promise. A card headlined "הבידינג נפתח בעוד N ימים" owes the
+    // student the screen about the round — the dates and both semesters — not
+    // a planner that may greet them as though they had never signed up.
     render(<BiddingProximityNudge now={new Date("2026-08-21T09:00:00+03:00")} />);
     const link = screen.getByRole("link");
-    expect(link.getAttribute("href")).toBe("/planner");
+    expect(link.getAttribute("href")).toBe("/bidding");
   });
 
   it("says nothing once bidding is over", () => {
