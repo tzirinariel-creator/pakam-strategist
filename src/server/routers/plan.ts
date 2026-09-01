@@ -357,44 +357,118 @@ export const planRouter = createTRPCRouter({
       // legitimately clears the plan to zero (the planner's Done button is
       // disabled at 0 courses), so treat an empty save as a NO-OP.
       if (deduped.length === 0) {
-        return { savedCount: 0, skippedEmpty: true };
+        return { savedCount: 0, removedCount: 0, requested: 0, skippedEmpty: true };
       }
 
-      // Atomic: delete + create inside a single transaction so the user
-      // never ends up with zero courses if createMany fails.
-      const savedCount = await ctx.db.$transaction(async (tx) => {
-        // Replace only the PLAN (PLANNED + IN_PROGRESS). COMPLETED / EXEMPT /
-        // FAILED rows are the student's earned RECORD — never wiped by a plan
-        // edit. This is what makes editing the plan non-destructive: the
-        // standalone planner (and onboarding) no longer needs to re-write
-        // history after this delete, which previously risked losing it (and
-        // stripped isBinary/disciplineOverride/grades on the re-write).
-        await tx.userCourse.deleteMany({
-          where: { userId: user.id, status: { in: ["PLANNED", "IN_PROGRESS"] } },
+      // Ariel, 1.9: "לדעתי תכננתי את הקורסים וזה נמחק משום מה" ·
+      // "נראה שיש פה איזה באג רציני עם הסנכרון של התכנן".
+      //
+      // This used to be delete-everything-then-recreate. The delete had no
+      // filter beyond the status, but the re-create could only write back what
+      // ONE screen happened to send — so every gap between the two was a
+      // silent deletion:
+      //
+      //   · SUMMER rows. The semester board loads only FALL/SPRING, so it
+      //     never sent them back, and the delete took them anyway. year-board
+      //     already carries a rescue path for these, which is how we know real
+      //     accounts have them.
+      //   · Second-sitting rows (attemptNumber ≥ 2). addCourse creates them,
+      //     the floating assistant recommends creating them — and the re-create
+      //     was hardcoded to attemptNumber: 1, so they were deleted and never
+      //     came back.
+      //   · Anything added after the board mounted. The board seeds its state
+      //     once, in a useState initializer, and never re-reads. The assistant
+      //     runs on that same screen and can add or drop a course underneath
+      //     it; pressing "finished" then wrote the stale snapshot over the top.
+      //
+      // And skipDuplicates turned the remaining collisions into silence: a
+      // course with an existing COMPLETED/FAILED row at attempt 1 collided
+      // with the unique key and was simply dropped, with the mutation still
+      // reporting success.
+      //
+      // So this reconciles instead of replacing. It matches the payload only
+      // against rows the board actually manages, updates those in place, and
+      // creates a genuinely new attempt for the rest. Nothing outside that set
+      // is touched.
+      const result = await ctx.db.$transaction(async (tx) => {
+        const existing = await tx.userCourse.findMany({
+          where: { userId: user.id },
+          select: {
+            id: true, courseId: true, status: true, attemptNumber: true,
+            plannedSemester: true,
+          },
         });
 
-        // Bulk create all courses. Return the REAL number of rows written
-        // (createMany result.count), never the raw payload length.
-        if (deduped.length > 0) {
-          const result = await tx.userCourse.createMany({
-            data: deduped.map((c) => ({
+        // Only these rows are the board's to move. A COMPLETED / FAILED /
+        // EXEMPT row is the student's earned record, and a SUMMER row is not
+        // on the board at all.
+        const managed = existing.filter(
+          (r) =>
+            (r.status === "PLANNED" || r.status === "IN_PROGRESS") &&
+            (r.plannedSemester === "FALL" || r.plannedSemester === "SPRING"),
+        );
+        const managedByCourse = new Map(managed.map((r) => [r.courseId, r]));
+        const incoming = new Set(deduped.map((c) => c.courseId));
+
+        // Remove only what the student actually took OFF the board.
+        const toRemove = managed.filter((r) => !incoming.has(r.courseId));
+        if (toRemove.length > 0) {
+          await tx.userCourse.deleteMany({
+            where: { id: { in: toRemove.map((r) => r.id) } },
+          });
+        }
+
+        // The highest attempt per course, so a genuinely new row does not
+        // collide with a finished one on @@unique([userId, courseId, attempt]).
+        const maxAttempt = new Map<string, number>();
+        for (const r of existing) {
+          maxAttempt.set(r.courseId, Math.max(maxAttempt.get(r.courseId) ?? 0, r.attemptNumber));
+        }
+
+        let written = 0;
+
+        for (const c of deduped) {
+          const row = managedByCourse.get(c.courseId);
+          if (row) {
+            // In place: placement and group choices are the board's business.
+            // status, grade, isBinary and attemptNumber are NOT — rewriting a
+            // row is what used to turn "בלימוד" back into "מתוכנן".
+            await tx.userCourse.update({
+              where: { id: row.id },
+              data: {
+                plannedYear: c.plannedYear,
+                plannedSemester: c.plannedSemester,
+                selectedGroups: c.selectedGroups ?? undefined,
+                ...(c.disciplineOverride !== undefined
+                  ? { disciplineOverride: c.disciplineOverride ?? null }
+                  : {}),
+              },
+            });
+            written += 1;
+            continue;
+          }
+
+          await tx.userCourse.create({
+            data: {
               userId: user.id,
               courseId: c.courseId,
               plannedYear: c.plannedYear,
               plannedSemester: c.plannedSemester,
               selectedGroups: c.selectedGroups ?? undefined,
               disciplineOverride: c.disciplineOverride ?? null,
-              attemptNumber: 1,
-            })),
-            skipDuplicates: true,
+              attemptNumber: (maxAttempt.get(c.courseId) ?? 0) + 1,
+            },
           });
-          return result.count;
+          written += 1;
         }
 
-        return 0;
+        return { savedCount: written, removedCount: toRemove.length };
       }, { timeout: 15000, maxWait: 8000 });
 
-      return { savedCount };
+      // `requested` lets the caller notice a partial write instead of showing
+      // "נשמר" over one. The old shape returned only savedCount and every
+      // caller ignored it.
+      return { ...result, requested: deduped.length, skippedEmpty: false };
     }),
 
   /**

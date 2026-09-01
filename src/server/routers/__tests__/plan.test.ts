@@ -43,15 +43,42 @@ function makeFakeDb() {
         )
       ) ?? null,
 
+    // savePlan reconciles now, so it reads before it writes (1.9 — the
+    // delete-and-recreate shape was deleting summer rows, second sittings, and
+    // anything added after the board mounted).
+    findMany: async ({ where }: { where?: { userId?: string; id?: { in: string[] } } } = {}) => {
+      const ids = where?.id?.in ? new Set(where.id.in) : null;
+      return userCourses
+        .filter((uc) => (where?.userId ? uc.userId === where.userId : true))
+        .filter((uc) => (ids ? ids.has(uc.id) : true))
+        .map((uc) => ({ ...uc, status: uc.status ?? "PLANNED" }));
+    },
+
+    create: async ({ data }: { data: FakeUserCourse }) => {
+      const collides = userCourses.some(
+        (uc) =>
+          uc.userId === data.userId &&
+          uc.courseId === data.courseId &&
+          uc.attemptNumber === data.attemptNumber
+      );
+      if (collides) throw new Error("Unique constraint failed");
+      seq += 1;
+      const row = { ...data, id: `uc-${seq}` };
+      userCourses.push(row);
+      return row;
+    },
+
     deleteMany: async ({
       where,
     }: {
-      where: { userId: string; status?: { in: string[] } };
+      where: { userId?: string; status?: { in: string[] }; id?: { in: string[] } };
     }) => {
+      const ids = where.id?.in ? new Set(where.id.in) : null;
       let count = 0;
       for (let i = userCourses.length - 1; i >= 0; i--) {
         const uc = userCourses[i]!;
-        if (uc.userId !== where.userId) continue;
+        if (where.userId && uc.userId !== where.userId) continue;
+        if (ids && !ids.has(uc.id)) continue;
         // Honor the status filter the data-loss fix relies on: savePlan only
         // deletes PLANNED/IN_PROGRESS, never COMPLETED/EXEMPT/FAILED. A row with
         // no explicit status defaults to PLANNED (the schema default).
@@ -276,10 +303,17 @@ describe("plan.savePlan — preserves COMPLETED history on a plan edit", () => {
 
   it("a COMPLETED course that slips into the planned payload is NOT corrupted (stays COMPLETED, not duplicated)", async () => {
     const db = makeFakeDb();
-    // Defense-in-depth: even if a completed course leaks into the plan payload
-    // (the callers try to exclude it), savePlan must not flip it to PLANNED or
-    // duplicate it. The surviving COMPLETED row (attempt 1) collides with the new
-    // attempt-1 planned row → skipDuplicates drops the planned one.
+    // Defense-in-depth: even if a completed course reaches the plan payload
+    // (the board filters COMPLETED out at semester-planner-page.tsx:94),
+    // savePlan must never flip the earned row to PLANNED or lose its grade.
+    //
+    // What CHANGED on 1.9 is the second half. The old code wrote the incoming
+    // row at attemptNumber 1, collided with the COMPLETED row on the unique
+    // key, and let skipDuplicates drop it — returning savedCount 0 while the
+    // mutation reported success. That silent swallow is the same mechanism
+    // that was losing real re-sits, so it is gone: a course that already has a
+    // finished attempt gets a NEW attempt, which is what a student re-planning
+    // a course they failed (or want to improve) actually means.
     db._userCourses.push({
       id: "keep", userId: USER.id, courseId: VALID_UUID_1,
       plannedYear: 1, plannedSemester: "FALL", attemptNumber: 1, status: "COMPLETED", grade: 90,
@@ -289,10 +323,17 @@ describe("plan.savePlan — preserves COMPLETED history on a plan edit", () => {
       courses: [{ courseId: VALID_UUID_1, plannedYear: 2, plannedSemester: "SPRING" }],
     });
     const rows = db._userCourses.filter((uc) => uc.courseId === VALID_UUID_1);
-    expect(rows).toHaveLength(1); // not duplicated
-    expect(rows[0]!.status).toBe("COMPLETED"); // not flipped to PLANNED
-    expect(rows[0]!.grade).toBe(90); // grade intact
-    expect(res.savedCount).toBe(0); // the colliding planned row was dropped
+    const earned = rows.find((uc) => uc.id === "keep")!;
+    expect(earned.status).toBe("COMPLETED"); // never flipped to PLANNED
+    expect(earned.grade).toBe(90); // grade intact
+
+    // The new row is a SECOND attempt, not a rewrite of the first.
+    const fresh = rows.find((uc) => uc.id !== "keep")!;
+    expect(fresh.attemptNumber).toBe(2);
+    expect(fresh.plannedSemester).toBe("SPRING");
+    // And the count is honest about it rather than reporting a swallowed write.
+    expect(res.savedCount).toBe(1);
+    expect(res.requested).toBe(1);
   });
 });
 

@@ -126,6 +126,10 @@ export function OnboardingWizard() {
   // reconcile effect must never re-seed one of these — otherwise a course they
   // said they didn't take reappears checked and is saved as COMPLETED (#audit-r4).
   const removedCodes = useRef<Set<string>>(new Set());
+  // Codes that came from a real grade sheet rather than from our assumption
+  // about what a student in year N "must have" finished. The distinction
+  // matters at prune time — see the effect below.
+  const sheetCodes = useRef<Set<string>>(new Set());
   // #26 — TRUE once the history map came from a real grade sheet. From then on
   // the sheet is the source of truth about what the student passed, so the
   // "pre-check every past mandatory course" assumption (buildDefaultCompleted,
@@ -278,7 +282,24 @@ export function OnboardingWizard() {
     setCompletedCourses((prev) => {
       const kept: typeof prev = {};
       for (const [code, cc] of Object.entries(prev)) {
-        if (pastKeys.has(`${cc.plannedYear}-${cc.plannedSemester}`)) kept[code] = cc;
+        // Ariel, 1.9: "העליתי בהתחלה סילבוס וזה פשוט לא עבר לכאן… הוא גם אומר
+        // שהשלמתי 5 אחוז".
+        //
+        // This prune exists so that a student who LOWERS their declared year
+        // stops carrying completions we merely assumed for them. It was also
+        // eating the rows read off their actual grade sheet, and for a first
+        // year it ate all of them: getPastSemesters(1, "FALL") is empty — there
+        // is no semester before the first — so pastKeys was empty and every
+        // scanned row failed this test. Zero COMPLETED rows reached the
+        // database, and the progress bar showed only the miluim exemption: 5%.
+        //
+        // The rule the comment below already states — "a real grade sheet
+        // OUTRANKS the assumption" — was applied to the ADD half and not to
+        // this one. A row the university printed is not ours to discard
+        // because it does not fit a semester the student typed.
+        if (sheetCodes.current.has(code) || pastKeys.has(`${cc.plannedYear}-${cc.plannedSemester}`)) {
+          kept[code] = cc;
+        }
       }
       // #26 — a real grade sheet OUTRANKS the assumption. When the map was
       // seeded from a scan, we add nothing: the sheet lists what was passed,
@@ -333,6 +354,7 @@ export function OnboardingWizard() {
     if (result.choice === "fresh") {
       updateData({ year: 1, semester: "FALL", semesterExplicit: false });
       setSheetSeeded(false);
+      sheetCodes.current = new Set();
       setManualHistory(false);
       setStep(STEP_PROFILE);
       return;
@@ -354,6 +376,12 @@ export function OnboardingWizard() {
       // Anything the sheet did NOT list is, by the sheet's own account, not
       // done — so clear stale removals and let the sheet stand on its own.
       removedCodes.current = new Set();
+      // Remember WHICH rows the sheet produced. The year/semester prune below
+      // spares exactly these: the university printed them, so they are not
+      // ours to drop because they do not fit a semester the student typed.
+      sheetCodes.current = result.fromSheet
+        ? new Set(Object.keys(result.completedSeed))
+        : new Set();
       setSheetSeeded(Boolean(result.fromSheet));
     }
     setStep(STEP_PROFILE);

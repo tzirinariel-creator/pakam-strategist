@@ -26,6 +26,7 @@ import { getPlanningAnchor, deriveYearOfStudy } from "@/lib/academic-calendar";
 import { buildSavePlanPayload } from "@/lib/plan-save-payload";
 import type { OnboardingData } from "@/components/onboarding/onboarding-wizard";
 import type { SessionGroupSelections } from "@/components/onboarding/semester-planner/live-timetable";
+import { heNoun } from "@/lib/he-count";
 
 export function SemesterPlannerPage() {
   const t = useTranslations("planner");
@@ -229,10 +230,10 @@ export function SemesterPlannerPage() {
     const droppedCustomCourse = droppedIds.length > 0;
 
     try {
-      // savePlan now replaces only PLANNED/IN_PROGRESS rows; COMPLETED history
-      // (with its grades, isBinary, disciplineOverride…) is left untouched, so
-      // no re-write is needed and nothing can be lost or stripped on a plan edit.
-      await savePlan.mutateAsync({ courses });
+      // savePlan reconciles: it moves the rows the board manages, removes only
+      // what was taken off it, and never touches COMPLETED history, summer
+      // rows, or a second sitting.
+      const saveResult = await savePlan.mutateAsync({ courses });
 
       // Invalidate all plan-related caches so other screens see the updated data
       await Promise.all([
@@ -269,6 +270,20 @@ export function SemesterPlannerPage() {
           ? "קורס שהוספתם ידנית לא נשמר הפעם — שאר התוכנית נשמרה. נסו להוסיף אותו שוב."
           : "A course you added manually didn't save this time — the rest of the plan did. Try adding it again.");
       }
+      // A partial write must not read as success. The server has always
+      // returned the real number of rows it wrote; every caller threw it away
+      // and showed "נשמר" regardless, which is how a save that lost courses
+      // still felt like it had worked.
+      const missing = saveResult.requested - saveResult.savedCount;
+      if (missing > 0) {
+        toast.error(
+          isHe
+            ? `${heNoun(missing, "קורס לא נשמר", "קורסים לא נשמרו")} מתוך ${saveResult.requested}. התוכנית לא הושלמה — נסו שוב.`
+            : `${missing} of ${saveResult.requested} courses did not save. Try again.`,
+        );
+        return;
+      }
+
       toast.success(t("planSaved"));
       router.push("/dashboard?saved=1");
     } catch {
