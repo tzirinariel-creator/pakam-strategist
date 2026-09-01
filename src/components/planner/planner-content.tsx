@@ -194,12 +194,25 @@ export function PlannerContent() {
             {tOnboarding("welcomeSubtitle")}
           </p>
         </div>
-        <Link
-          href="/dashboard"
-          className="inline-flex items-center gap-2 rounded-lg bg-foreground px-5 py-2.5 text-sm font-medium text-primary-foreground transition-colors hover:bg-foreground/90"
-        >
-          {tOnboarding("goToDashboard")}
-        </Link>
+        {/* Ariel, #17: he clicked "הבידינג נפתח בעוד 8 ימים" and landed HERE,
+            on a screen whose only way out was "לדף הבית" — "וגם תכלס זה לא
+            באמת עובד ואין איזה מסך ייעודי וזה גרוע".
+            A student with no plan, six days before registration, needs the
+            door that BUILDS one. Going home is the thing they can already do. */}
+        <div className="flex flex-wrap items-center justify-center gap-2">
+          <Link
+            href="/planner/semester"
+            className="inline-flex items-center gap-2 rounded-lg bg-foreground px-5 py-2.5 text-sm font-medium text-primary-foreground transition-colors hover:bg-foreground/90"
+          >
+            {isHe ? "בואו נבנה את הסמסטר" : "Build your semester"}
+          </Link>
+          <Link
+            href="/dashboard"
+            className="inline-flex items-center gap-2 rounded-lg border border-border px-5 py-2.5 text-sm font-medium text-foreground/70 transition-colors hover:bg-foreground/5"
+          >
+            {tOnboarding("goToDashboard")}
+          </Link>
+        </div>
       </div>
     );
   }

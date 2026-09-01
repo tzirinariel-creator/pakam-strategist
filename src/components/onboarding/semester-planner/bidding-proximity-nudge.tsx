@@ -73,12 +73,21 @@ export function BiddingProximityNudge({ now = new Date() }: { now?: Date }) {
               : "PPE registration runs through several departments, and some of them register for a whole year rather than a semester — meaning semester B courses are chosen now. Worth planning both semesters before it opens, not only the near one."}
           </p>
 
-          {/* The answer to "how would I know there is a better planning screen" */}
+          {/* #17. This pointed at /planner, which for a student with nothing
+              saved renders the onboarding welcome copy and a single "go home"
+              button — exactly the dead end in Ariel's screenshot. The screen
+              that answers "the round opens in N days" is /bidding: both
+              semesters, the real dates, and a list to copy into the TAU system.
+
+              Kept as a link and not a button: this sits inside the semester
+              board, whose unsaved selection lives in React state until Finish
+              writes it. Leaving mid-edit is the student's call to make
+              deliberately, so the label says where it goes. */}
           <Link
-            href="/planner"
+            href="/bidding"
             className="mt-2.5 inline-flex items-center gap-1.5 text-xs font-semibold text-accent-brand hover:underline"
           >
-            {isHe ? "לתכנון כל התואר — מסך התכנון המלא" : "Plan the whole degree — the full planner"}
+            {isHe ? "למסך המכרז — התאריכים ושני הסמסטרים" : "To the bidding screen — dates and both semesters"}
             <Arrow className="size-3.5" />
           </Link>
         </div>
