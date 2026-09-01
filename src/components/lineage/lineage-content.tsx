@@ -56,6 +56,11 @@ export function LineageContent() {
     ...(gallery.data ?? []).map((g) => g.cohortYear),
   ];
   const span = generationSpan(years, profile.data?.startYear ?? null);
+  // Whether the archive holds anything AT ALL, as opposed to whether any cohort
+  // is crowded enough to have its year named. The generations cards were
+  // deriving "empty" from the second and printing it as the first. (#48)
+  const archiveHasContent =
+    (digest.data?.totals?.reviews ?? 0) + (digest.data?.totals?.gradePoints ?? 0) > 0;
   const mine = stats.data ?? null;
   const iContributed = hasContributed(mine);
   const level = mine ? contributorLevel(mine.total) : null;
@@ -138,7 +143,7 @@ export function LineageContent() {
                 ? "המחזורים שכבר עברו את הקורסים שאתם מתלבטים עליהם. הדירוגים, הטיפים והמסלולים שלהם כבר בפנים."
                 : "The cohorts that already took the courses you're weighing. Their ratings, tips and plans are already inside."
             }
-            stat={beforeStat(span, isHe)}
+            stat={beforeStat(span, isHe, archiveHasContent)}
           />
           <GenerationCard
             icon={Milestone}
@@ -298,9 +303,24 @@ export function LineageContent() {
  * card used to print "עוד אין כאן מחזור שקדם לכם" in that case: a fact asserted
  * out of a missing field, and the exact shape of claim this app forbids.
  */
-function beforeStat(span: GenerationSpan, isHe: boolean): string {
+function beforeStat(span: GenerationSpan, isHe: boolean, archiveHasContent: boolean): string {
+  // #48. `span` is built from cohort YEARS, and a year only appears once its
+  // cohort clears COHORT_LABEL_MIN_N. Below that bar the year is suppressed —
+  // which is a fact about LABELS, not about content. Deriving "the archive is
+  // empty" from it turns a privacy suppression into a false claim, and at
+  // launch — where every cohort is under the bar — it is false for every
+  // student who looks.
+  //
+  // This file already fixed the same confusion one level down: `positionKnown`
+  // exists precisely to separate "we don't know" from "nobody". The totals are
+  // already on the same response, so the distinction costs nothing.
   if (!span.positionKnown) {
     if (span.total === 0) {
+      if (archiveHasContent) {
+        return isHe
+          ? "יש כאן תרומות, אבל עוד אין מחזור עם מספיק תורמים כדי לציין את השנה שלו"
+          : "There is content here, but no cohort yet has enough contributors to name its year";
+      }
       return isHe
         ? "הארכיון עוד ריק — אין מחזור קודם לספר עליו"
         : "The archive is still empty — no earlier cohort to report";
@@ -315,6 +335,11 @@ function beforeStat(span: GenerationSpan, isHe: boolean): string {
         ? "מחזור אחד לפניכם כבר תרם כאן"
         : `${span.before} מחזורים לפניכם כבר תרמו כאן`
       : `${span.before} earlier ${span.before === 1 ? "cohort has" : "cohorts have"} contributed`;
+  }
+  if (archiveHasContent) {
+    return isHe
+      ? "יש כאן תרומות, אבל עוד אין מחזור שקדם לכם עם מספיק תורמים כדי לציין אותו"
+      : "There is content here, but no earlier cohort yet has enough contributors to name";
   }
   return isHe
     ? "עוד אין כאן מחזור שקדם לכם — אתם בתחילת השושלת"

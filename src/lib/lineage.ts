@@ -80,7 +80,17 @@ export function hasContributed(stats: {
   reviews?: number;
   insights?: number;
   plans?: number;
+  /** Anonymous grade points — the ONE-CLICK contribution, and the one this
+   *  function used to ignore. A student who shared twenty grades was told
+   *  "עוד לא תרמתם כלום" two cards above a card counting those very rows. (#48) */
+  gradePoints?: number;
 } | null | undefined): boolean {
   if (!stats) return false;
-  return (stats.reviews ?? 0) + (stats.insights ?? 0) + (stats.plans ?? 0) > 0;
+  return (
+    (stats.reviews ?? 0) +
+      (stats.insights ?? 0) +
+      (stats.plans ?? 0) +
+      (stats.gradePoints ?? 0) >
+    0
+  );
 }

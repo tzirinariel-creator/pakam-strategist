@@ -11,6 +11,7 @@ import { TRPCError } from "@trpc/server";
 import { checkRateLimit } from "@/lib/rate-limit";
 import { decodePlan } from "@/lib/plan-share";
 import { REPORT_HIDE_THRESHOLD, countByCohortYear, safeCohortYear } from "@/lib/k-anonymity";
+import { dedupeHashFor } from "./course-knowledge";
 
 const INSIGHT_STAGES = ["BIDDING", "EXAMS", "FOCUS", "FIRST_YEAR", "GENERAL"] as const;
 // Shared with reviews so "3 distinct reporters hide it" is one number, one file.
@@ -123,12 +124,46 @@ export const cohortRouter = createTRPCRouter({
 
   /** Contribution stats for the game layer — counts only, derived live. */
   myContributionStats: protectedProcedure.query(async ({ ctx }) => {
-    const [reviews, insights, plans] = await Promise.all([
+    // Ariel, #48 (and the last unfixed instance of 22-19): the ONE-CLICK way to
+    // contribute is "שתפו את הציונים שלי" in settings, which writes
+    // CourseGradePoint rows — and this counted everything EXCEPT those. So a
+    // student who had just shared twenty grades was told, on /lineage,
+    // "עוד לא תרמתם כלום", two cards above a card counting the very rows they
+    // had contributed, while settings called those rows תרומות in the button
+    // that withdraws them. The app disagreed with itself about what a
+    // contribution is, on the launch-day path.
+    //
+    // Counted the way withdrawMyContributions already finds them: the one-way
+    // hash over the caller's own course codes. No identity is added to the
+    // table — that hash is already the only link, and it does not reverse.
+    const myCourses = await ctx.db.userCourse.findMany({
+      where: { userId: ctx.user.id },
+      select: { course: { select: { code: true } } },
+    });
+    const hashes = [...new Set(myCourses.map((c) => c.course.code))].map((code) =>
+      dedupeHashFor(ctx.user.id, code),
+    );
+
+    const [reviews, insights, plans, gradePoints] = await Promise.all([
       ctx.db.courseReview.count({ where: { userId: ctx.user.id } }),
       ctx.db.cohortInsight.count({ where: { userId: ctx.user.id } }),
       ctx.db.sharedPlanEntry.count({ where: { userId: ctx.user.id } }),
+      hashes.length > 0
+        ? ctx.db.courseGradePoint.count({ where: { dedupeHash: { in: hashes } } })
+        : Promise.resolve(0),
     ]);
-    return { reviews, insights, plans, total: reviews + insights + plans };
+    // `total` is what the rank ladder reads. Shared grades are real data the
+    // next cohort uses, so they count — but one import can yield twenty rows,
+    // which moves a student several rungs for a single click. Whether that is
+    // the right ladder is Ariel's call, not one to settle inside a bug fix, so
+    // the parts are returned separately and the screen can say both.
+    return {
+      reviews,
+      insights,
+      plans,
+      gradePoints,
+      total: reviews + insights + plans + gradePoints,
+    };
   }),
 
   // ─── Winning-plans gallery ────────────────────────────────────────
