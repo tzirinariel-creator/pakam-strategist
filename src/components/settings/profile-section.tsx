@@ -6,7 +6,7 @@ import { useTranslations, useLocale } from "next-intl";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { Bidi } from "@/lib/bidi";
-import { getAcademicNow, deriveYearOfStudy, hebrewYearLabel } from "@/lib/academic-calendar";
+import { getPlanningAnchor, getAcademicNow, deriveYearOfStudy, hebrewYearLabel } from "@/lib/academic-calendar";
 import { DISCIPLINE_CONFIG, FOCUS_DISCIPLINE_IDS, YEAR_CONFIG, ENGLISH_CONFIG } from "@/lib/constants";
 import { api } from "@/lib/trpc/react";
 import { Button } from "@/components/ui/button";
@@ -157,12 +157,25 @@ export function ProfileSection() {
     { value: "UNDECIDED", label: t("focusOptions.undecided") },
   ];
 
-  // Degree-start years: this academic year back to -5 (the derived line below
-  // shows what the calendar concludes from the choice).
-  const nowStartYear = getAcademicNow().startYear;
+  // Degree-start years, newest first.
+  //
+  // This used to count back from getAcademicNow().startYear while onboarding
+  // saves an anchor derived from getPlanningAnchor().startYear. Between the end
+  // of one teaching year and the start of the next those two differ by a full
+  // year — today (1.9.2026) they are 2025 and 2026 — so the list began a year
+  // BEHIND the value the app itself had just stored, and a student who started
+  // this year could not find their own year in it.
+  //
+  // The planning anchor is the one the rest of the app plans against, so the
+  // list starts there and covers the six years a current student could have
+  // begun in.
+  const nowStartYear = getPlanningAnchor().startYear;
   const startYearOptions = Array.from({ length: 6 }, (_, i) => {
     const y = nowStartYear - i;
-    return { value: String(y), label: `${hebrewYearLabel(y)} · ${y}/${(y + 1) % 100}` };
+    const hebrew = hebrewYearLabel(y);
+    const latin = `${y}/${(y + 1) % 100}`;
+    // Never print the same string twice, whatever the label table holds.
+    return { value: String(y), label: hebrew === latin ? latin : `${hebrew} · ${latin}` };
   });
 
   if (profileQuery.isLoading) {

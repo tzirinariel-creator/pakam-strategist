@@ -55,6 +55,7 @@ import { classifyExamAvailability } from "@/lib/exam-availability";
 import { deriveYearOfStudy, getPlanningAnchor } from "@/lib/academic-calendar";
 import { CalendarSyncNudge } from "@/components/calendar/calendar-sync-nudge";
 import { XlsxIntro } from "@/components/exam-planner/xlsx-intro";
+import { heNoun } from "@/lib/he-count";
 
 export function ExamPlannerContent() {
   const isHe = useLocale() === "he";
@@ -156,7 +157,15 @@ export function ExamPlannerContent() {
     now.setHours(0, 0, 0, 0);
     const out: { code: string; name: string; credits: number; examDateA: Date | null; examDateB: Date | null; averageGrade: number | null; failRate: number | null; manual: boolean }[] = [];
     for (const c of plannedCourses) {
-      if (c.status === "COMPLETED" && c.grade != null) continue;
+      // Ariel, 1.9: "למה הוא מראה לי מבחנים שסיימתי?"
+      //
+      // The test was `COMPLETED && grade != null`, so a course finished
+      // WITHOUT a numeric grade came back onto the board: anything marked
+      // pass/exempt, anything graded only by a paper, and every failed row —
+      // each of them handed a fresh תשפ״ז date and asked to be revised for.
+      // Whether a sitting is behind you is a question about STATUS, not about
+      // whether a number was typed.
+      if (c.status === "COMPLETED" || c.status === "EXEMPT" || c.status === "FAILED") continue;
       // Ariel, 21.8: "לדעתי לא כל המבחנים שובצו.. אני רואה שאין מבחנים
       // בסמסטר א׳ שנה ב׳". He was right, and the cause was the precedence
       // below being the wrong way round.
@@ -193,6 +202,47 @@ export function ExamPlannerContent() {
     out.sort((a, b) => earliest(a) - earliest(b));
     return out;
   }, [plannedCourses, manualDates]);
+
+  // Ariel, 1.9: "למה אני מתכנן מבחנים של שנה שלמה במקום של סמסטר קרוב? זה
+  // גרוע" · "ושוב פעם לוח מבחנים בלתי נגמר שאי אפשר להבין ממנו כלום".
+  //
+  // Every exam in the plan was on one board — all three years of it, because
+  // the ידיעון hands out dates by course code and nothing narrowed the set
+  // afterwards. A revision plan spanning January to September is not a plan.
+  // Default to the sitting period actually coming up; the rest is one click
+  // away, and the count is stated so nothing is hidden in silence.
+  const focusSemester = useMemo(() => {
+    const anchor = getPlanningAnchor();
+    return {
+      semester: anchor.semester,
+      year: deriveYearOfStudy(
+        profileQuery.data?.startYear,
+        profileQuery.data?.currentYear ?? 1,
+        anchor.startYear,
+      ),
+    };
+  }, [profileQuery.data]);
+
+  const [showWholeYear, setShowWholeYear] = useState(false);
+
+  const scopedExamCourses = useMemo(() => {
+    if (showWholeYear) return examCourses;
+    const codesInFocus = new Set(
+      plannedCourses
+        .filter(
+          (c) =>
+            c.plannedYear === focusSemester.year &&
+            c.plannedSemester === focusSemester.semester,
+        )
+        .map((c) => c.code),
+    );
+    const scoped = examCourses.filter((c) => codesInFocus.has(c.code));
+    // Never leave the student with an empty board because our scoping guessed
+    // wrong about where they are — a long list beats a blank screen.
+    return scoped.length > 0 ? scoped : examCourses;
+  }, [examCourses, plannedCourses, focusSemester, showWholeYear]);
+
+  const hiddenByScope = examCourses.length - scopedExamCourses.length;
 
   // Courses the student could still put a date on: no published sitting at all.
   // Scoped to the semester they're actually planning (the anchor + their derived
@@ -614,7 +664,43 @@ export function ExamPlannerContent() {
               ? "ברירת המחדל היא מועד א׳ — רוב הסטודנטים ניגשים אליו, ומועד ב׳ נשאר כרשת ביטחון (שימו לב: הציון האחרון קובע)."
               : "Moed A is the default — most students take it, keeping Moed B as the safety net (note: the last grade counts)."}
           </p>
-          {examCourses.filter((c) => !altAssessment.has(c.code)).map((c) => {
+          {/* The board defaults to the sitting period coming up. When that
+              hides exams, say how many and offer the whole year — a shorter
+              list is only an improvement if the student can see what is
+              missing from it. */}
+          {hiddenByScope > 0 && (
+            <button
+              type="button"
+              onClick={() => setShowWholeYear((v) => !v)}
+              className="w-full rounded-lg border border-border/50 bg-foreground/[0.02] px-3 py-2 text-start text-[11px] leading-relaxed text-foreground/60 transition-colors hover:border-foreground/25"
+            >
+              {isHe ? (
+                <>
+                  מוצגים המבחנים של {focusSemester.semester === "FALL" ? "סמסטר א׳" : "סמסטר ב׳"} ·{" "}
+                  <span className="font-semibold text-accent-brand">
+                    {heNoun(hiddenByScope, "מבחן נוסף", "מבחנים נוספים")} בהמשך השנה — להצגה
+                  </span>
+                </>
+              ) : (
+                <>
+                  Showing {focusSemester.semester === "FALL" ? "semester A" : "semester B"} ·{" "}
+                  <span className="font-semibold text-accent-brand">
+                    {hiddenByScope} more later this year — show
+                  </span>
+                </>
+              )}
+            </button>
+          )}
+          {showWholeYear && (
+            <button
+              type="button"
+              onClick={() => setShowWholeYear(false)}
+              className="w-full rounded-lg border border-border/50 px-3 py-2 text-start text-[11px] text-foreground/55 transition-colors hover:border-foreground/25"
+            >
+              {isHe ? "חזרה למבחנים של הסמסטר הקרוב בלבד" : "Back to the coming semester only"}
+            </button>
+          )}
+          {scopedExamCourses.filter((c) => !altAssessment.has(c.code)).map((c) => {
             const sel = selected[c.code];
             // Recommend a sitting against the OTHER selected exams' chosen
             // dates (#32): default A (last grade counts — B is the safety

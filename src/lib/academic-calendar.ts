@@ -335,13 +335,24 @@ export function deriveYearOfStudy(
   return Math.min(3, Math.max(1, nowYear - startYear + 1));
 }
 
+// Ariel, 1.9: "מה זה השנות תחילת תואר המוזרות האלו?"
+//
+// The settings picker offers six years back, and this table only covered
+// 2022-2027 — so the two oldest options fell through to the fallback below and
+// rendered as "2021/22 · 2021/22": the Latin year printed twice, with no
+// Hebrew name at all. Extended to cover every year the picker can reach.
 const HEBREW_YEAR_LABELS: Record<number, string> = {
+  2019: "תש״פ",
+  2020: "תשפ״א",
+  2021: "תשפ״ב",
   2022: "תשפ״ג",
   2023: "תשפ״ד",
   2024: "תשפ״ה",
   2025: "תשפ״ו",
   2026: "תשפ״ז",
   2027: "תשפ״ח",
+  2028: "תשפ״ט",
+  2029: "תש״צ",
 };
 
 export function hebrewYearLabel(startYear: number): string {

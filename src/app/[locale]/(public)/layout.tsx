@@ -81,12 +81,19 @@ export default function PublicLayout({
             >
               {t("footerAccessibility")}
             </Link>
-            {/* L3 — feedback channel for logged-out visitors too */}
+            {/* L3 — feedback channel for logged-out visitors too.
+                Shows the ADDRESS rather than the words "report a problem": a
+                bare mailto: does nothing at all on a machine with no mail
+                client bound to the protocol, and a link whose only failure mode
+                is silence is indistinguishable from a broken one. With the
+                address as the text, a dead click still hands the visitor
+                something they can use. */}
             <a
               href={`mailto:${CONTACT_EMAIL}?subject=%D7%9E%D7%A9%D7%95%D7%91%20%D7%A2%D7%9C%20%D7%A4%D7%9B%D7%9E%D7%95%D7%9F`}
-              className="transition-colors hover:text-foreground"
+              className="font-data transition-colors hover:text-foreground"
+              dir="ltr"
             >
-              {t("footerFeedback")}
+              {CONTACT_EMAIL}
             </a>
           </div>
         </div>

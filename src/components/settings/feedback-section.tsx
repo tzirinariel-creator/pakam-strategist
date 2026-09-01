@@ -42,12 +42,19 @@ export function FeedbackSection() {
               The address is now visible and copyable, so the mail link is a
               convenience rather than the only route. */}
           <div className="flex flex-wrap items-center gap-2">
+            {/* Ariel, 1.9: "לוחצים על דיווח על בעיה או רעיון וזה לא עושה כלום.
+                בוא פשוט נשאיר את המייל."
+                The copy-address escape hatch beside this was added in August
+                and he still hit the wall, because the PRIMARY control was a
+                label that says nothing about where it goes. So the address is
+                now the label: a click that silently fails still leaves the one
+                thing he asked for on the screen, in front of him, readable. */}
             <a
               href={mailtoHref}
               className="inline-flex items-center gap-2 rounded-lg bg-foreground px-4 py-2 text-sm font-semibold text-background transition-colors hover:bg-foreground/90"
             >
               <Mail className="size-4" />
-              {t("feedbackButton")}
+              <span className="font-data" dir="ltr">{CONTACT_EMAIL}</span>
             </a>
             <button
               type="button"
@@ -69,8 +76,9 @@ export function FeedbackSection() {
             </button>
           </div>
           <p className="mt-2 text-xs text-foreground/50">
-            {isHe ? "או כתבו ישירות ל־" : "Or write directly to "}
-            <span className="font-data text-foreground/70" dir="ltr">{CONTACT_EMAIL}</span>
+            {isHe
+              ? "זו הכתובת — אפשר להעתיק אותה ולכתוב מכל מקום."
+              : "That's the address — copy it and write from anywhere."}
           </p>
           <p className="mt-1 text-xs text-foreground/50">{t("feedbackHint")}</p>
           {/* Ariel, 21.8: "נזכיר שאני סטודנט שעושה את זה בשביל הכיף ובשביל
