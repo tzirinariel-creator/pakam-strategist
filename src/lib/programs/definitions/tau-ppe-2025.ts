@@ -91,7 +91,19 @@ export const TAU_PPE_2025: ProgramDefinition = {
   // student. Revisit when TAU publishes the missing 2-ש"ז PPE course.
   creditRequirements: {
     total: 150,
+    // What the app REQUIRES of a student (the gate). 101, for the reason above.
     mandatoryCredits: 101,
+    // What the ידיעון SAYS (the published figure). Ariel, #49: "זה לא מגיע ל-150
+    // אפילו.. אתה סגור על מה שכתוב כאן?" He is right — the overview card printed
+    // 150 as a headline over 101 + 35 + 12, which is 148, and an app that cannot
+    // add its own numbers is an app whose other numbers you stop trusting.
+    //
+    // Both figures are real and they are not the same claim, so the app now
+    // holds both: the official split is what it DISPLAYS, and the 101 gate is
+    // what it CHECKS — with the two missing credits named out loud rather than
+    // quietly dropped.
+    officialMandatoryCredits: 103,
+    unpublishedMandatoryCredits: 2,
     seminarCredits: 12,
     electiveCredits: 35,
     focusAreaMin: 60,

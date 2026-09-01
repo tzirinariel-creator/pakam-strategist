@@ -47,15 +47,29 @@ export function LoginForm() {
   const [showEmailForm, setShowEmailForm] = useState(false);
   const [resetMessage, setResetMessage] = useState<string | null>(null);
 
-  // Show error if redirected from auth callback with ?error=auth
+  // The callback now says WHICH way it failed (#3). Each one gets the sentence
+  // that is actually true, because "בדקו את הפרטים" is wrong advice for three
+  // of these four — the student never typed any details.
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
-    if (params.get("error") === "auth") {
-      setError(t("loginFailed"));
-      // Clean URL without reloading
-      window.history.replaceState({}, "", window.location.pathname);
-    }
-  }, [t]);
+    const reason = params.get("error");
+    if (!reason) return;
+    const isHe = locale === "he";
+    const message =
+      reason === "cancelled"
+        ? null // Backing out of Google's consent screen is a choice, not a fault.
+        : reason === "provider"
+          ? isHe
+            ? "Google לא השלים את ההתחברות. אפשר לנסות שוב, או להתחבר עם אימייל וסיסמה."
+            : "Google didn't complete the sign-in. Try again, or use email and password."
+          : reason === "exchange"
+            ? isHe
+              ? "ההתחברות אושרה אבל לא הצלחנו לפתוח את החיבור. נסו שוב — ואם זה חוזר, כתבו לי ואטפל."
+              : "You were approved but we couldn't open the session. Try again — if it repeats, write to me."
+            : t("loginFailed");
+    if (message) setError(message);
+    window.history.replaceState({}, "", window.location.pathname);
+  }, [t, locale]);
 
   const handleGoogleLogin = async () => {
     setError(null);

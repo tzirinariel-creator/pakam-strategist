@@ -85,10 +85,14 @@ export function DegreeInfoCard() {
 
         {/* 3 mini cards */}
         <div className="grid grid-cols-3 gap-2">
-          {/* Mandatory */}
+          {/* Mandatory — the OFFICIAL figure, so the three cards sum to the
+              headline. #49: "זה לא מגיע ל-150 אפילו." They summed to 148,
+              because this printed the internal gate (101) instead of what the
+              ידיעון publishes (103). The two missing credits are explained
+              under the row rather than silently dropped. */}
           <div className="flex flex-col items-center gap-1 rounded-md border border-border/30 bg-card/30 px-2 py-2.5">
             <span className="font-mono text-lg font-bold text-foreground/80">
-              {CREDIT_REQUIREMENTS.MANDATORY_TOTAL}
+              {CREDIT_REQUIREMENTS.MANDATORY_OFFICIAL}
             </span>
             <span className="text-[10px] font-medium text-foreground/50">
               {t("mandatory")}
@@ -113,6 +117,13 @@ export function DegreeInfoCard() {
             </span>
           </div>
         </div>
+        {CREDIT_REQUIREMENTS.MANDATORY_UNPUBLISHED > 0 && (
+          <p className="mt-2 text-[11px] leading-snug text-foreground/40">
+            {isHe
+              ? `מתוך ${CREDIT_REQUIREMENTS.MANDATORY_OFFICIAL} ש״ס החובה, ${CREDIT_REQUIREMENTS.MANDATORY_UNPUBLISHED} עדיין בלי קורס בידיעון — לכן פכמון בודק אתכם מול ${CREDIT_REQUIREMENTS.MANDATORY_TOTAL} ולא ידרוש מכם ש״ס שאין ממה לקחת.`
+              : `Of the ${CREDIT_REQUIREMENTS.MANDATORY_OFFICIAL} mandatory credits, ${CREDIT_REQUIREMENTS.MANDATORY_UNPUBLISHED} have no catalog course yet — so Pakamon checks you against ${CREDIT_REQUIREMENTS.MANDATORY_TOTAL} rather than asking for credits nothing can supply.`}
+          </p>
+        )}
       </Section>
 
       {/* ── Section 2: Discipline Breakdown ──────────────────────── */}

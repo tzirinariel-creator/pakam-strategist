@@ -141,6 +141,16 @@ function buildCreditRequirements(program: ProgramDefinition) {
     // is pinned to 101 (the published catalog supply; the last 2 ש"ז is an
     // unpublished future PPE course — see tau-ppe-2025.ts).
     MANDATORY_TOTAL: program.creditRequirements.mandatoryCredits ?? 0,
+    /** For DISPLAY in a breakdown that must sum to TOTAL. Never gate on this —
+     *  gate on MANDATORY_TOTAL, which is what a student can actually earn from
+     *  the published catalog. (#49) */
+    MANDATORY_OFFICIAL:
+      program.creditRequirements.officialMandatoryCredits ??
+      program.creditRequirements.mandatoryCredits ??
+      0,
+    /** How much of MANDATORY_OFFICIAL has no published course yet. 0 when the
+     *  official figure and the gate agree. */
+    MANDATORY_UNPUBLISHED: program.creditRequirements.unpublishedMandatoryCredits ?? 0,
     SEMINAR_TOTAL: program.creditRequirements.seminarCredits ?? 0,
     ELECTIVE_TOTAL: program.creditRequirements.electiveCredits ?? 0,
     PRACTICE_ELECTIVE_MAX: 8,

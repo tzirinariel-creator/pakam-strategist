@@ -96,6 +96,11 @@ export interface ProgramDefinition {
      * Optional: programs that don't model this can omit it.
      */
     mandatoryCredits?: number;
+    /** What the programme's own documents publish as mandatory (e.g., 103).
+     *  May exceed `mandatoryCredits` when part of it has no catalog course yet. */
+    officialMandatoryCredits?: number;
+    /** The part of `officialMandatoryCredits` no published course can supply. */
+    unpublishedMandatoryCredits?: number;
     /** Minimum SEMINAR credits — their own bucket, NOT electives (e.g., 12). */
     seminarCredits?: number;
     /** Minimum ELECTIVE credits (e.g., 35). */
