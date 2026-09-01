@@ -371,7 +371,6 @@
     },
     "feedbackTitle": "Feedback & install",
     "feedbackDesc": "Hit a problem? Got an idea? This is the place — I read every message",
-    "feedbackButton": "Report a problem or idea",
     "feedbackHint": "Opens a ready email to me. The more detail — what you did, what you expected, what actually happened, and on which screen — the faster I can fix it. A screenshot helps a lot.",
     "feedbackSubject": "Pakamon feedback",
     "feedbackBody": "What I did:%0D%0A%0D%0AWhat I expected:%0D%0A%0D%0AWhat actually happened:%0D%0A%0D%0AScreen I was on:%0D%0A%0D%0APhone or desktop:%0D%0A%0D%0A(a screenshot really helps)",
@@ -927,8 +926,7 @@
     "finalCta": {
       "title": "Signing up takes less time than finding a course in the Yedion",
       "note": "Free. No credit card, no subscription — and it stays that way."
-    },
-    "footerFeedback": "Report a problem"
+    }
   },
   "about": {
     "title": "About",

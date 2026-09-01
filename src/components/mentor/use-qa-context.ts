@@ -66,8 +66,25 @@ export function useDegreeQAContext(
     // "future only" filter lives in the H-NEXT-EXAM handler (c.now ?? new
     // Date()), the established pattern for the whole degree-qa layer.
     const planCourses = planQuery.data?.courses ?? [];
-    const derivedYear = deriveYearOfStudy(profile?.startYear, profile?.currentYear ?? 1);
-    const liveSemester = getAcademicNow().semester;
+    // Ariel, #22/#55: "למה המלך ממליץ לי על קורסים לא מהסמסטר שלי?"
+    //
+    // getAcademicNow attributes the ENTIRE window from spring teaching-start to
+    // the next fall teaching-start to SPRING — so from mid-July to 18.10, which
+    // includes today and the whole bidding period, "the current semester" is a
+    // term that finished in July. "מה יש לי הסמסטר" was answered about it, and
+    // since those rows are usually COMPLETED by then (this filter keeps only
+    // IN_PROGRESS/PLANNED) a student with a full fall plan saved was told
+    // "לא רשומים לך קורסים בסמסטר הנוכחי".
+    //
+    // That answer is deterministic and never escalates, so no prompt change
+    // could reach it. On a break, the honest referent of "הסמסטר" is the term
+    // being planned — the same anchor every other screen uses.
+    const acad = getAcademicNow();
+    const anchor = getPlanningAnchor();
+    const onBreak = acad.phase === "break";
+    const refStartYear = onBreak ? anchor.startYear : acad.startYear;
+    const derivedYear = deriveYearOfStudy(profile?.startYear, profile?.currentYear ?? 1, refStartYear);
+    const liveSemester = onBreak ? anchor.semester : acad.semester;
 
     const upcomingExams = planCourses
       .filter((uc) => uc.status !== "COMPLETED" && uc.status !== "FAILED")
@@ -137,7 +154,20 @@ export function useDegreeQAContext(
       // contradictory answers in one conversation, both wrong, to a student who
       // had just entered 13 completed courses. Nothing is saved yet is a FACT
       // the advisor must state, not a number it should compute around.
-      planIsEmpty: planCourses.length === 0,
+      // Ariel, #22/#55: "ולמה הוא אומר שלא שמרתי נתונים?"
+      //
+      // The server-side claim was fixed; the client kept its own copy. This was
+      // `planCourses.length === 0` — which is TRUE while getUserPlan is still in
+      // flight and TRUE FOREVER if it errors (retry: 1). The send gate below
+      // deliberately does not wait for that query, so a student with a full
+      // saved plan whose plan request was slow or failed was told flatly that
+      // nothing was saved — and the router marks that answer
+      // `shouldEscalate: false`, so the King never got a chance to correct it.
+      //
+      // "Nothing is saved" is a claim about the student's data. It now requires
+      // positive evidence: the query resolved AND came back empty. Absence of a
+      // loaded query is not a fact about anyone.
+      planIsEmpty: planQuery.data ? planCourses.length === 0 : false,
       effectiveTotal: b?.effectiveTotal ?? 0,
       earned: b?.earned ?? 0,
       planned: b?.planned ?? 0,
@@ -247,6 +277,9 @@ export function useDegreeQAContext(
     });
   }, [creditsQuery.data, gradeQuery.data, regulationQuery.data, profileQuery.data, planQuery.data]);
 
-  const ready = !!creditsQuery.data && !!profileQuery.data;
+  // The plan is now part of readiness. It was left out so the panel could open
+  // fast, but every personal answer is derived from it — answering before it
+  // lands is answering about data we do not have. (#22/#55)
+  const ready = !!creditsQuery.data && !!profileQuery.data && !!planQuery.data;
   return { ctx, ready, recommendations };
 }
