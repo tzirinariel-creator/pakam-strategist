@@ -22,6 +22,14 @@
 import { useState, useMemo } from "react";
 import { useLocale } from "next-intl";
 import { FlaskConical, RotateCcw, X } from "lucide-react";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { cn } from "@/lib/utils";
 import { Bidi } from "@/lib/bidi";
 
@@ -108,51 +116,54 @@ export function GradeSimulator({
   if (!active) {
     return (
       <>
+        {/* #36, הנגשת מצב הסימולציה. The button said "מצב סימולציה" — a mode
+            name, which tells you what the app calls it, not what it does for
+            you. It now asks the question the tool answers, and says up front
+            that nothing is saved, so that is known BEFORE the click rather
+            than in an interstitial after it. */}
         <button
           type="button"
           onClick={() => setConfirming(true)}
           className="inline-flex items-center gap-2 rounded-lg border border-border px-3 py-2 text-sm font-medium text-foreground/75 transition-colors hover:border-foreground/30"
         >
           <FlaskConical className="size-4" />
-          {isHe ? "מצב סימולציה" : "Simulation mode"}
+          {isHe ? "מה יקרה לממוצע אם…" : "What happens to my average if…"}
         </button>
 
-        {confirming && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
-            <div className="w-full max-w-sm rounded-2xl bg-card p-5 shadow-xl">
-              <div className="mx-auto flex size-12 items-center justify-center rounded-full bg-foreground text-background">
-                <FlaskConical className="size-5" />
-              </div>
-              <h3 className="mt-3 text-center font-display text-lg font-bold text-foreground">
-                {isHe ? "כניסה למצב סימולציה" : "Enter simulation mode"}
-              </h3>
-              <p className="mt-2 text-center text-sm leading-relaxed text-foreground/60">
+        {/* Was a hand-rolled `fixed inset-0` div: no role, no aria-modal, no
+            Escape, no focus trap, no focus restore, and a backdrop that did
+            nothing when clicked. Someone on a keyboard could tab straight out
+            of it into the page behind, and a screen reader was never told a
+            dialog had opened. The app already has a Radix dialog that eight
+            other modals use; it brings all of that for free. */}
+        <Dialog open={confirming} onOpenChange={setConfirming}>
+          <DialogContent className="max-w-sm">
+            <DialogHeader>
+              <DialogTitle>
+                {isHe ? "מה יקרה לממוצע אם…" : "What happens to my average if…"}
+              </DialogTitle>
+              <DialogDescription className="text-sm leading-relaxed text-foreground/60">
                 {isHe
-                  ? "כאן אפשר לשחק עם הציונים ולראות איך הם משפיעים על הממוצע — בלי לשנות את הנתונים האמיתיים שלכם."
-                  : "Play with your grades and watch what happens to the average — without changing any of your real data."}
-              </p>
-              <p className="mt-2 text-center text-xs text-foreground/45">
-                {isHe
-                  ? "שום דבר כאן לא נשמר. ביציאה הכול חוזר למה שהיה."
-                  : "Nothing here is saved. On exit everything returns to what it was."}
-              </p>
+                  ? "משנים ציונים על המסך ורואים מיד לאן הממוצע זז. הנתונים האמיתיים שלכם לא נוגעים."
+                  : "Change grades on screen and watch where the average goes. Your real data is not touched."}
+              </DialogDescription>
+            </DialogHeader>
+            <p className="text-xs text-foreground/50">
+              {isHe
+                ? "שום דבר כאן לא נשמר. ביציאה הכול חוזר למה שהיה."
+                : "Nothing here is saved. On exit everything returns to what it was."}
+            </p>
+            <DialogFooter>
               <button
                 type="button"
                 onClick={() => { setConfirming(false); setActive(true); }}
-                className="mt-4 w-full rounded-xl bg-foreground py-3 text-sm font-semibold text-background"
+                className="w-full rounded-xl bg-foreground py-3 text-sm font-semibold text-background"
               >
-                {isHe ? "המשך" : "Continue"}
+                {isHe ? "בואו נראה" : "Let's see"}
               </button>
-              <button
-                type="button"
-                onClick={() => setConfirming(false)}
-                className="mt-2 w-full py-2 text-sm text-foreground/50"
-              >
-                {isHe ? "ביטול" : "Cancel"}
-              </button>
-            </div>
-          </div>
-        )}
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       </>
     );
   }
@@ -397,12 +408,28 @@ function TargetHint({
   // put the same sentence on every course.
   if (needed == null) return null;
   if (needed <= (course.grade ?? 0)) return null;
+  // #37, "המחשבונים המוזרים". This line said "כדי להגיע לממוצע 88" and gave a
+  // number. Two things were missing, and together they made it read as a bar
+  // the app had invented: WHICH average (the degree's final grade is 78%
+  // courses + 18% seminars + 4% referat — this moves the 78% part only), and
+  // where the 88 came from. Both are on screen now, so the reader can check
+  // the claim instead of taking it: the target is simply the next whole point
+  // above the average they have right now.
   return (
-    <p className="mt-1.5 text-[11px] text-foreground/45">
-      {isHe ? "כדי להגיע לממוצע " : "To reach an average of "}
-      <Bidi text={target} />
-      {isHe ? " צריך כאן " : ", you'd need "}
-      <span className="font-mono font-semibold text-foreground/70"><Bidi text={needed} /></span>
+    <p className="mt-1.5 text-[11px] leading-relaxed text-foreground/45">
+      {isHe ? (
+        <>
+          כדי שממוצע הקורסים יעלה מ-<Bidi text={current.toFixed(2)} /> ל-<Bidi text={target} />,
+          צריך כאן{" "}
+          <span className="font-mono font-semibold text-foreground/70"><Bidi text={needed} /></span>
+        </>
+      ) : (
+        <>
+          To lift your course average from <Bidi text={current.toFixed(2)} /> to{" "}
+          <Bidi text={target} />, this one needs{" "}
+          <span className="font-mono font-semibold text-foreground/70"><Bidi text={needed} /></span>
+        </>
+      )}
     </p>
   );
 }

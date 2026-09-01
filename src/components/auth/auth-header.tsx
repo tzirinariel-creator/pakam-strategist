@@ -29,7 +29,7 @@ export function AuthHeader({
       <div className="animate-stagger-2 max-w-sm">
         {/* Was text-foreground/85 — the page's only h1, dimmed. */}
         <h1 className="font-display text-2xl font-bold text-foreground">פכמון</h1>
-        <p className="mt-1.5 text-sm text-foreground/55">{subtitle}</p>
+        <p className="mt-1.5 text-sm text-foreground/65">{subtitle}</p>
         {/* Ariel note #1 — "יש בו גם איזה רווח מוזר אחרי השורה הראשונה".
             Root cause: warmLine and the benefit list were two separate mt-2
             blocks at nearly identical size and opacity, so they read as ONE

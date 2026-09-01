@@ -202,7 +202,7 @@ export function LoginForm() {
       <div data-card className="rounded-xl border border-border/50 bg-card/50 p-6 backdrop-blur-sm space-y-4">
         {/* Error Message */}
         {error && (
-          <div className="flex items-center gap-2 rounded-lg bg-destructive/10 p-3 text-sm text-destructive">
+          <div role="alert" className="flex items-center gap-2 rounded-lg bg-destructive/10 p-3 text-sm text-destructive">
             <AlertCircle className="size-4 shrink-0" />
             <span>{error}</span>
           </div>
@@ -217,14 +217,17 @@ export function LoginForm() {
              The two auth screens must not drift apart. */
           className="w-full gap-3 h-12 text-base font-medium bg-card text-foreground border border-border hover:bg-card-hover"
         >
+          {/* The label must survive the spinner. lucide adds aria-hidden="true"
+              to a childless icon, so a button whose ONLY content is <Loader2 />
+              computes an EMPTY accessible name: a screen reader announces
+              "button", with no hint that anything is happening. Swap the glyph,
+              keep the words. */}
           {googleLoading ? (
             <Loader2 className="size-5 animate-spin" />
           ) : (
-            <>
-              <GoogleIcon className="size-5" />
-              {t("loginWithGoogle")}
-            </>
+            <GoogleIcon className="size-5" />
           )}
+          {t("loginWithGoogle")}
         </Button>
 
         {/* Divider */}
@@ -241,13 +244,18 @@ export function LoginForm() {
 
         {/* Email/Password — Secondary (collapsible) */}
         {!showEmailForm ? (
-          <button
+          /* The signup screen fixed this and the login screen did not — the
+             same drift the comment above warns about. Grey text pretending to
+             be a button, ~36px tall, below the 44px minimum. Same outline
+             Button the rest of the app uses. */
+          <Button
             type="button"
+            variant="outline"
             onClick={() => setShowEmailForm(true)}
-            className="w-full text-center text-sm text-muted-foreground hover:text-foreground transition-colors py-2"
+            className="w-full h-11"
           >
             {t("loginWithEmail")}
-          </button>
+          </Button>
         ) : (
           <form onSubmit={handleEmailSubmit} className="space-y-4 animate-in fade-in slide-in-from-top-2 duration-300">
             {/* Email */}
@@ -264,7 +272,7 @@ export function LoginForm() {
                 placeholder="you@example.com"
                 required
                 autoComplete="email"
-                className="bg-background/50"
+                className="h-11 bg-background/50"
               />
             </div>
 
@@ -282,7 +290,7 @@ export function LoginForm() {
                 placeholder="********"
                 required
                 autoComplete="current-password"
-                className="bg-background/50"
+                className="h-11 bg-background/50"
               />
             </div>
 
@@ -302,7 +310,7 @@ export function LoginForm() {
 
             {/* Reset feedback */}
             {resetMessage && (
-              <p className="text-xs font-medium text-foreground/70">
+              <p aria-live="polite" className="text-xs font-medium text-foreground/70">
                 {resetMessage}
               </p>
             )}
@@ -316,11 +324,8 @@ export function LoginForm() {
                 "font-medium transition-all",
               )}
             >
-              {loading ? (
-                <Loader2 className="size-4 animate-spin" />
-              ) : (
-                t("login")
-              )}
+              {loading && <Loader2 className="size-4 animate-spin" />}
+              {t("login")}
             </Button>
           </form>
         )}
@@ -332,16 +337,14 @@ export function LoginForm() {
             onClick={handleDemoLogin}
             disabled={demoLoading}
             variant="outline"
-            className="w-full gap-2 h-9 text-sm border-dashed border-border text-foreground/60 hover:bg-foreground/5 hover:text-foreground/80 transition-all"
+            className="w-full gap-2 h-11 text-sm border-dashed border-border text-foreground/60 hover:bg-foreground/5 hover:text-foreground/80 transition-all"
           >
             {demoLoading ? (
               <Loader2 className="size-4 animate-spin" />
             ) : (
-              <>
-                <Eye className="size-4" />
-                {t("tryDemo")}
-              </>
+              <Eye className="size-4" />
             )}
+            {t("tryDemo")}
           </Button>
         )}
       </div>

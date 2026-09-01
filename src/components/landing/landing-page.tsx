@@ -49,24 +49,24 @@ const PREVIEW_SEMESTERS = [
     he: "שנה א׳",
     en: "Year 1",
     courses: [
-      { he: "מבוא ללוגיקה", en: "Intro to Logic", color: "#4A90D9", credits: 4 },
-      { he: "מיקרו כלכלה א׳", en: "Microecon I", color: "#2ECC71", credits: 5 },
+      { he: "מבוא ללוגיקה", en: "Intro to Logic", color: "var(--course-color-0)", credits: 4 },
+      { he: "מיקרו כלכלה א׳", en: "Microecon I", color: "var(--course-color-2)", credits: 5 },
     ],
   },
   {
     he: "שנה ב׳",
     en: "Year 2",
     courses: [
-      { he: "פילוסופיה פוליטית", en: "Political Phil.", color: "#4A90D9", credits: 4 },
-      { he: "פוליטיקה השוואתית", en: "Comparative Pol.", color: "#E74C3C", credits: 4 },
+      { he: "פילוסופיה פוליטית", en: "Political Phil.", color: "var(--course-color-10)", credits: 4 },
+      { he: "פוליטיקה השוואתית", en: "Comparative Pol.", color: "var(--course-color-5)", credits: 4 },
     ],
   },
   {
     he: "שנה ג׳",
     en: "Year 3",
     courses: [
-      { he: "חקיקה ורגולציה", en: "Legislation", color: "#F39C12", credits: 4 },
-      { he: "סמינר פכ״מ", en: "PPE Seminar", color: "#6B7280", credits: 4 },
+      { he: "חקיקה ורגולציה", en: "Legislation", color: "var(--course-color-1)", credits: 4 },
+      { he: "סמינר פכ״מ", en: "PPE Seminar", color: "var(--course-color-9)", credits: 4 },
     ],
   },
 ] as const;
@@ -122,7 +122,7 @@ function PlannerPreview({ isRTL }: { isRTL: boolean }) {
                   <div className="line-clamp-2 text-[11px] font-medium leading-tight text-foreground/90">
                     {isRTL ? c.he : c.en}
                   </div>
-                  <div className="text-[10px] text-muted-foreground">
+                  <div className="text-[11px] text-muted-foreground">
                     {c.credits} {isRTL ? "ש״ס" : "cr"}
                   </div>
                 </div>
@@ -314,7 +314,7 @@ export function LandingPage() {
                       the "spreadsheet filename" texture on the mono chip. */}
                   <p
                     className={cn(
-                      "mt-1 text-xs leading-relaxed text-foreground/55",
+                      "mt-1 text-xs leading-relaxed text-foreground/65",
                       chip.mono && "font-mono",
                     )}
                   >
@@ -477,7 +477,7 @@ export function LandingPage() {
               </span>
             ))}
           </div>
-          <p className="mt-5 text-xs text-muted-foreground/80">{t("founder.meta")}</p>
+          <p className="mt-5 text-xs text-muted-foreground">{t("founder.meta")}</p>
           <Link
             href="/about"
             className="mt-3 inline-flex items-center gap-1.5 text-sm font-medium text-accent-brand transition-colors hover:underline"

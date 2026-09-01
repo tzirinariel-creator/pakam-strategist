@@ -204,7 +204,7 @@ export function SignupForm() {
 
           {/* Resend feedback */}
           {resendMessage && (
-            <p className="text-xs font-medium text-foreground/70">
+            <p aria-live="polite" className="text-xs font-medium text-foreground/70">
               {resendMessage}
             </p>
           )}
@@ -262,7 +262,7 @@ export function SignupForm() {
       <div data-card className="rounded-xl border border-border/50 bg-card/50 p-6 backdrop-blur-sm space-y-4">
         {/* Error Message */}
         {error && (
-          <div className="flex items-center gap-2 rounded-lg bg-destructive/10 p-3 text-sm text-destructive">
+          <div role="alert" className="flex items-center gap-2 rounded-lg bg-destructive/10 p-3 text-sm text-destructive">
             <AlertCircle className="size-4 shrink-0" />
             <span>{error}</span>
           </div>
@@ -282,14 +282,15 @@ export function SignupForm() {
              themes, and Google's mark stays the only colour in it. */
           className="w-full gap-3 h-12 text-base font-medium bg-card text-foreground border border-border hover:bg-card-hover"
         >
+          {/* See login-form: a childless lucide icon is aria-hidden, so a
+              button whose only content is the spinner has NO accessible name
+              while it is working. Swap the glyph, keep the label. */}
           {googleLoading ? (
             <Loader2 className="size-5 animate-spin" />
           ) : (
-            <>
-              <GoogleIcon className="size-5" />
-              {t("loginWithGoogle")}
-            </>
+            <GoogleIcon className="size-5" />
           )}
+          {t("loginWithGoogle")}
         </Button>
 
         {/* Divider */}
@@ -337,7 +338,7 @@ export function SignupForm() {
                 placeholder="you@example.com"
                 required
                 autoComplete="email"
-                className="bg-background/50"
+                className="h-11 bg-background/50"
               />
             </div>
 
@@ -356,7 +357,7 @@ export function SignupForm() {
                 required
                 minLength={6}
                 autoComplete="new-password"
-                className="bg-background/50"
+                className="h-11 bg-background/50"
               />
             </div>
 
@@ -365,11 +366,8 @@ export function SignupForm() {
                 rule into the component, so the override is gone and this button
                 and every other primary action share ONE source of truth. */}
             <Button type="submit" disabled={loading} className="w-full h-11 font-medium">
-              {loading ? (
-                <Loader2 className="size-4 animate-spin" />
-              ) : (
-                t("register")
-              )}
+              {loading && <Loader2 className="size-4 animate-spin" />}
+              {t("createAccount")}
             </Button>
           </form>
         )}
@@ -381,16 +379,14 @@ export function SignupForm() {
             onClick={handleDemoLogin}
             disabled={demoLoading}
             variant="outline"
-            className="w-full gap-2 h-9 text-sm border-dashed border-border text-foreground/60 hover:bg-foreground/5 hover:text-foreground/80 transition-all"
+            className="w-full gap-2 h-11 text-sm border-dashed border-border text-foreground/60 hover:bg-foreground/5 hover:text-foreground/80 transition-all"
           >
             {demoLoading ? (
               <Loader2 className="size-4 animate-spin" />
             ) : (
-              <>
-                <Eye className="size-4" />
-                {t("tryDemo")}
-              </>
+              <Eye className="size-4" />
             )}
+            {t("tryDemo")}
           </Button>
         )}
       </div>
