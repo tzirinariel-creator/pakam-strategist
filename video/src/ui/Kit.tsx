@@ -44,25 +44,47 @@ export const Caption: React.FC<{
   const o = ramp(frame, [at, at + 10], [0, 1]);
   const y = ramp(frame, [at, at + 14], [16, 0]);
   return (
-    <div
-      style={{
-        position: "absolute",
-        bottom,
-        left: 0,
-        right: 0,
-        textAlign: "center",
-        fontSize: size,
-        fontWeight: 500,
-        lineHeight: 1.35,
-        color: dark ? "rgba(236,236,238,0.92)" : "rgba(24,24,27,0.85)",
-        opacity: o,
-        transform: `translateY(${y}px)`,
-        ...HE,
-        padding: "0 160px",
-      }}
-    >
-      {text}
-    </div>
+    <>
+      {/*
+        מסך־הצללה. מרגע שהכתוביות יושבות מעל צילומי מסך אמיתיים, טקסט על
+        רקע שקוף מתערבב עם התוכן ונעשה בלתי־קריא.
+        HIG · Color > Inclusive color: "ניגודיות לא מספקת גורמת לאייקונים
+        ולטקסט להתמזג עם הרקע ולתוכן להיות קשה לקריאה."
+      */}
+      <div
+        style={{
+          position: "absolute",
+          left: 0,
+          right: 0,
+          bottom: 0,
+          height: bottom + size * 3,
+          opacity: o,
+          background: dark
+            ? "linear-gradient(to top, rgba(11,11,15,0.95) 0%, rgba(11,11,15,0.85) 45%, rgba(11,11,15,0) 100%)"
+            : "linear-gradient(to top, rgba(252,252,253,0.97) 0%, rgba(252,252,253,0.88) 45%, rgba(252,252,253,0) 100%)",
+          pointerEvents: "none",
+        }}
+      />
+      <div
+        style={{
+          position: "absolute",
+          bottom,
+          left: 0,
+          right: 0,
+          textAlign: "center",
+          fontSize: size,
+          fontWeight: 600,
+          lineHeight: 1.35,
+          color: dark ? "rgba(236,236,238,0.95)" : "rgba(24,24,27,0.9)",
+          opacity: o,
+          transform: `translateY(${y}px)`,
+          ...HE,
+          padding: "0 160px",
+        }}
+      >
+        {text}
+      </div>
+    </>
   );
 };
 

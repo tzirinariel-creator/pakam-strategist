@@ -925,3 +925,50 @@ h4, h5, h6 {
 :root:not([data-pk-persona="referent"]) .pk-persona-referent {
   display: none;
 }
+
+/* ── ניגודיות מוגברת (prefers-contrast: more) ─────────────────────────────
+   HIG · Color: "אם אתם מגדירים צבע מותאם, ספקו וריאנט בהיר וכהה — ולכל
+   וריאנט גם אפשרות ניגודיות מוגברת שנותנת הבדל חזותי גבוה משמעותית."
+   HIG · Accessibility: "אם האפליקציה לא מספקת את הניגודיות המינימלית
+   כברירת מחדל, ודאו שלפחות תהיה ערכה בניגודיות גבוהה יותר כשההגדרה
+   Increase Contrast דלוקה."
+
+   ההגדרה הזאת קיימת ב-macOS וב-iOS (נגישות › תצוגה › הגברת ניגודיות)
+   והדפדפן מעביר אותה כ-prefers-contrast. עד עכשיו לא הגבנו לה בכלל.
+
+   הרצפה הרגילה שלנו אחרי התיקון היא /60 = 4.61:1 בבהיר — עוברת AA.
+   כאן היא עולה ל-/75 = 7.71:1, כלומר AAA, והגבולות עולים מקו־שיער
+   שקוף (1.62:1) ל-3.33:1 — הסף שהתקן דורש לגבול שנושא משמעות.
+
+   כל הערכים נמדדו, לא נוחשו. אין כאן טוקן חדש: רק ערכים אחרים
+   לטוקנים הקיימים, כך ששום רכיב לא צריך לדעת שהמצב הזה קיים. */
+@media (prefers-contrast: more) {
+  [data-theme="light"] {
+    --foreground-secondary: #3f3f46;
+    --muted-foreground: #52525b;   /* 4.71:1 → 7.54:1 */
+    --border: #8a8a96;             /* 1.62:1 → 3.33:1 */
+    --border-subtle: #b4b4be;
+    --accent-brand: #4a4abf;       /* 5.24:1 → 6.78:1 */
+    --crown-gold: #8a6416;         /* 3.66:1 → 5.23:1 */
+  }
+
+  [data-theme="dark"] {
+    --foreground-secondary: #d4d4d8;
+    --muted-foreground: #c3c3cb;   /* 5.82:1 → 11.22:1 */
+    --border: rgba(255, 255, 255, 0.34);
+    --border-subtle: rgba(255, 255, 255, 0.2);
+    --accent-brand: #a8a8f2;       /* 6.53:1 → 8.93:1 */
+  }
+
+  /* הטקסט שנשען על שקיפות עולה מדרגה. /60 היא רצפת ה-AA שלנו;
+     כאן היא נעשית /75, שהיא AAA. */
+  .text-foreground\/60 {
+    color: color-mix(in srgb, var(--foreground) 75%, transparent);
+  }
+  .text-foreground\/65 {
+    color: color-mix(in srgb, var(--foreground) 80%, transparent);
+  }
+  .text-foreground\/70 {
+    color: color-mix(in srgb, var(--foreground) 85%, transparent);
+  }
+}
