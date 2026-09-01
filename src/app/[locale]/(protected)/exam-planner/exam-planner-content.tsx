@@ -53,7 +53,7 @@ import { Disclosure } from "@/components/exam-planner/disclosure";
 import { ShareMenu } from "@/components/exam-planner/share-menu";
 import { ExamSeasonWisdom } from "@/components/exam-planner/exam-season-wisdom";
 import { AcademicStatusLine, ExamsEmptyState } from "@/components/exam-planner/exams-empty-state";
-import { classifyExamAvailability } from "@/lib/exam-availability";
+import { classifyExamAvailability, isStillAhead } from "@/lib/exam-availability";
 import { deriveYearOfStudy, getPlanningAnchor } from "@/lib/academic-calendar";
 import { CalendarSyncNudge } from "@/components/calendar/calendar-sync-nudge";
 import { XlsxIntro } from "@/components/exam-planner/xlsx-intro";
@@ -167,7 +167,7 @@ export function ExamPlannerContent() {
       // each of them handed a fresh תשפ״ז date and asked to be revised for.
       // Whether a sitting is behind you is a question about STATUS, not about
       // whether a number was typed.
-      if (c.status === "COMPLETED" || c.status === "EXEMPT" || c.status === "FAILED") continue;
+      if (!isStillAhead(c.status)) continue;
       // Ariel, 21.8: "לדעתי לא כל המבחנים שובצו.. אני רואה שאין מבחנים
       // בסמסטר א׳ שנה ב׳". He was right, and the cause was the precedence
       // below being the wrong way round.
@@ -642,8 +642,11 @@ export function ExamPlannerContent() {
           for exactly the courses that still have no date, in both states. */}
       {(() => {
         const dated = new Set(examCourses.map((c) => c.code));
+        // Starts from the SAME set the picker starts from (#42). Subtracting
+        // the dated codes from every planned course meant that everything the
+        // picker had just excluded for being finished reappeared here.
         const undated = plannedCourses
-          .filter((c) => !dated.has(c.code))
+          .filter((c) => isStillAhead(c.status) && !dated.has(c.code))
           .map((c) => ({ courseCode: c.code, nameHe: c.name, nameEn: null }));
         return undated.length > 0 ? (
           <div className="mb-3">

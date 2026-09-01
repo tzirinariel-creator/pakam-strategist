@@ -26,6 +26,25 @@ export type ExamPlannerEmptyReason =
   /** Dates exist, but every sitting is already behind us. */
   | "all-past";
 
+/**
+ * Is this course's exam still ahead of the student?
+ *
+ * Ariel, #42: "למה הוא מראה לי מבחנים שסיימתי?" The picker was fixed by
+ * dropping COMPLETED/EXEMPT/FAILED — and the ידיעון panel directly above it
+ * builds its list as "planned courses MINUS whatever the picker kept", so every
+ * course the fix removed landed there instead, printed with its date, weekday
+ * and hour under a header counting them as courses in the student's plan. The
+ * finished exams did not go away; they moved up the page.
+ *
+ * That is what a fix living at one call site looks like. It lives here now, so
+ * both lists start from the same set and cannot disagree about what "finished"
+ * means. The test is STATUS, never "was a number typed" — a course passed
+ * without a numeric grade, exempted, or failed is equally behind you.
+ */
+export function isStillAhead(status: string | null | undefined): boolean {
+  return status !== "COMPLETED" && status !== "EXEMPT" && status !== "FAILED";
+}
+
 /** The minimum a planned course must expose to be classified. */
 export interface ExamAvailabilityCourse {
   code: string;
