@@ -33,6 +33,10 @@ interface CourseBubbleProps {
   recommended?: boolean;
   /** S3 — "מומלץ ע"י המחזור": ≥60% recommend among enough raters (k-anonymous). */
   cohortRecommended?: boolean;
+  /** Outside the year our catalog recommends. Shown, never hidden — and said
+   *  out loud, because "you may take it" and "it is meant for you now" are
+   *  different claims. */
+  outOfRecommendedYear?: { years: number[] };
   onToggle?: () => void;
   /** Pointer/keyboard hover — the pool ghosts this course on the grid (#2). */
   onHoverPreview?: (on: boolean) => void;
@@ -45,6 +49,7 @@ export function CourseBubble({
   disabledReason,
   recommended,
   cohortRecommended,
+  outOfRecommendedYear,
   onToggle,
   onHoverPreview,
   onDisciplineOverride,
@@ -151,6 +156,21 @@ export function CourseBubble({
             title={isHe ? "לפחות 60% מהמדרגים במחזור ממליצים (3 מדרגים ומעלה)" : "≥60% of cohort raters recommend (3+ raters)"}
           >
             {isHe ? "מומלץ ע״י המחזור" : "Cohort pick"}
+          </span>
+        )}
+
+        {outOfRecommendedYear && (
+          <span
+            className="shrink-0 rounded-full border border-amber-500/40 px-1.5 py-0 text-[10px] font-medium text-amber-700 dark:text-amber-400"
+            title={
+              isHe
+                ? "הקטלוג ממליץ עליו לשנה אחרת. פכ״מ פטור מדרישות קדם, אז אפשר לקחת אותו — רק דעו שהוא לא נועד לשנה שלכם."
+                : "The catalog recommends this for another year. PPE waives prerequisites, so you can take it — just know it isn't aimed at your year."
+            }
+          >
+            {isHe
+              ? `מומלץ לשנה ${outOfRecommendedYear.years.join("/")}`
+              : `for year ${outOfRecommendedYear.years.join("/")}`}
           </span>
         )}
 

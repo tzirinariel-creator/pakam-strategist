@@ -892,7 +892,14 @@ export function SemesterPlanner({
           hasMoreSemesters={hasMoreSemesters}
           onPlanNext={handlePlanNext}
           onFinish={handleFinish}
-          onBack={() => setShowSummary(false)}
+          onBack={() => {
+            // They pressed "add or edit courses" — so open on the pool. The
+            // default below sends a mandatory-heavy year-1 student to the
+            // GROUPS tab, which is right when they arrive on their own and
+            // wrong when they arrived asking for courses.
+            setRailTabPref("courses");
+            setShowSummary(false);
+          }}
           isSaving={isSaving || isRegistering}
           autoRecommended={summaryPref === null && mandatoryHeavy}
         />

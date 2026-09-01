@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useTranslations, useLocale } from "next-intl";
 import { BookOpen, Lock, Plus, Search, Star } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -51,14 +51,36 @@ export function CoursePool({
       if (completedCourseIds.has(c.id)) return false;
       // Skip mandatory courses (they're already in "My Semester")
       if (mandatoryIds.has(c.id)) return false;
-      // Check if offered this semester
+      // The SEMESTER filter stays: a course that is not taught this term
+      // genuinely cannot be taken this term. That is a fact about the
+      // timetable, not a preference of ours.
       const offered = c.semesterOffered.map(String);
       if (offered.length > 0 && !offered.includes(currentSemester)) return false;
-      // Check if offered this year
-      if (c.yearOffered.length > 0 && !c.yearOffered.includes(currentYear)) return false;
+
+      // גיל, 24.8: "זה לא נותן קורסים שזמינים להוסיף למשל".
+      //
+      // The YEAR filter used to hide as hard as the semester one, and it is
+      // not the same kind of claim. `yearOffered` is our catalog's RECOMMENDED
+      // year, not a gate: only 10 of 344 courses in the whole catalog carry a
+      // prerequisite, and the King's own course list is documented as
+      // unfiltered for exactly this reason. Counted against production: a
+      // first-year in semester A was shown 19 of 278 electives. 259 courses
+      // they may perfectly well take were invisible, and the screen said
+      // "אין קורסי בחירה זמינים לסמסטר הזה" — which is not true.
+      //
+      // So a course outside its recommended year is SHOWN and MARKED, and
+      // sorted after the ones that fit. Proposing and labelling is what this
+      // app does everywhere else; hiding was the odd one out.
       return true;
     });
-  }, [allCourses, currentYear, currentSemester, mandatoryIds, completedCourseIds]);
+  }, [allCourses, currentSemester, mandatoryIds, completedCourseIds]);
+
+  /** Outside the year our catalog recommends — shown, but said out loud. */
+  const isOutOfRecommendedYear = useCallback(
+    (c: { yearOffered: number[] }) =>
+      c.yearOffered.length > 0 && !c.yearOffered.includes(currentYear),
+    [currentYear],
+  );
 
   // S3 — cohort recommendations for the visible pool, in ONE batched query
   // (getForCourses; aggregate-only, k-anonymous). Tag shows only when ≥60%
@@ -168,6 +190,11 @@ export function CoursePool({
       : currentCourses;
 
     return [...filtered].sort((a, b) => {
+      // Courses that fit THIS year come first. They are no longer hidden, so
+      // ordering is what keeps the pool's default view sensible.
+      const aFits = isOutOfRecommendedYear(a) ? 1 : 0;
+      const bFits = isOutOfRecommendedYear(b) ? 1 : 0;
+      if (aFits !== bFits) return aFits - bFits;
       // Recommended (focus area match) first
       if (focusArea) {
         const aMatch = a.discipline === focusArea ? 0 : 1;
@@ -179,7 +206,7 @@ export function CoursePool({
       const bName = isHe ? b.nameHe : (b.nameEn ?? b.nameHe);
       return aName.localeCompare(bName, isHe ? "he" : "en");
     });
-  }, [currentCourses, focusArea, isHe, searchQuery]);
+  }, [currentCourses, focusArea, isHe, searchQuery, isOutOfRecommendedYear]);
 
   return (
     <div className="flex h-full flex-col">
@@ -343,6 +370,9 @@ export function CoursePool({
                 }
                 recommended={isRecommended}
                 cohortRecommended={isCohortRecommended(course.code)}
+                outOfRecommendedYear={
+                  isOutOfRecommendedYear(course) ? { years: course.yearOffered } : undefined
+                }
                 onToggle={() => onToggleCourse(course.id)}
                 // Ghost only bubbles that would ADD something: selected courses
                 // are already solid on the grid, disabled ones can't be picked.

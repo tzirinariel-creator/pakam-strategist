@@ -1,7 +1,7 @@
 "use client";
 
 import { useTranslations, useLocale } from "next-intl";
-import { CheckCircle, Calendar, Feather, Gauge, Weight, Flame, Pencil, Loader2, Users } from "lucide-react";
+import { CheckCircle, Calendar, Feather, Gauge, Weight, Flame, Plus, Pencil, Loader2, Users } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Bidi } from "@/lib/bidi";
 import { calculateHonestLoad, type HonestLoadLabel } from "@/lib/workload-calculator";
@@ -297,14 +297,21 @@ export function SemesterSummary({
               t("finishPlanning")
             )}
           </button>
-          {/* Tertiary: go back to editing this semester — lossless (#28). */}
+          {/* גיל, משתמשת אמיתית, 24.8: "נגיד איפה מוסיפים קורסים למערכת" ·
+              "זה לא נותן קורסים שזמינים להוסיף" · "חייב את זה כדי לסדר את
+              המערכת שעות, כי זה כאילו חובה".
+              This is the ONLY door to the course pool from this screen, and it
+              was the faintest thing on it: 12px, foreground/45, labelled
+              "הצגה ועריכה". Someone looking for where to ADD a course has no
+              reason to read that as the way in. It says what it does now, and
+              looks like a control rather than a footnote. */}
           <button
             onClick={onBack}
             disabled={isSaving}
-            className="flex items-center justify-center gap-1.5 rounded-xl px-6 py-2 text-xs font-medium text-foreground/45 transition-colors hover:text-foreground/70 disabled:opacity-50"
+            className="flex items-center justify-center gap-1.5 rounded-xl border border-border/70 px-6 py-2 text-sm font-semibold text-foreground/75 transition-colors hover:border-foreground/30 hover:text-foreground disabled:opacity-50"
           >
-            <Pencil className="h-3 w-3" />
-            {isHe ? "הצגה ועריכה של הקורסים" : "View & edit the courses"}
+            <Plus className="h-3.5 w-3.5" />
+            {isHe ? "הוספה ועריכה של קורסים" : "Add or edit courses"}
           </button>
         </div>
       </div>
