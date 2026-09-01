@@ -16,6 +16,7 @@
 // called. "תכנון מבחנים" means nothing to someone who has never seen it;
 // "לפרוס את החזרה על החומר על פני הימים שנשארו" means something immediately.
 
+import { useEffect, useState } from "react";
 import { useLocale } from "next-intl";
 import Link from "next/link";
 import { Check, ChevronLeft, Compass } from "lucide-react";
@@ -65,12 +66,29 @@ const COPY: Record<FeatureId, { he: [string, string]; en: [string, string] }> = 
 
 export function FeatureDiscoveryCard(input: FeatureDiscoveryInput) {
   const isHe = useLocale() === "he";
+
+  // Rendered only after mount, on purpose.
+  //
+  // Every input to this card is a function of "now" — days until the bidding
+  // round, days until the nearest exam — so the server and the client compute
+  // it at two different instants. The dashboard sits inside a Suspense
+  // boundary, and a mismatch there does not merely warn: the boundary stops
+  // resolving and the student is left looking at the crown loader forever.
+  // That is exactly what shipped, and it is the sort of thing only opening the
+  // page catches — the HTML was correct, the queries all returned 200, and
+  // nothing appeared in the console.
+  //
+  // A time-dependent card has no business rendering on the server at all.
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
+
   const entries = featureDiscovery(input);
   const { tried, knowable } = triedCount(entries);
 
   // Once every trackable feature has been used, this has done its job and
   // should stop taking up the dashboard. A permanent "discover our features"
   // panel is an advert, not a help.
+  if (!mounted) return null;
   if (knowable > 0 && tried === knowable) return null;
   if (entries.length === 0) return null;
 
