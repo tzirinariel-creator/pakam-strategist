@@ -125,8 +125,13 @@ export function CourseBubble({
           style={{ backgroundColor: courseColor(course.code) }}
         />
 
-        {/* Course name */}
+        {/* Course name. Two lines is the right stopping point for a pool this
+            dense — every name at full length would make it unscannable — so the
+            FULL name has to stay reachable rather than merely being cut more
+            politely. It is here on hover/long-press, and in the detail popover
+            this bubble opens. */}
         <span
+          title={isHe ? course.nameHe : (course.nameEn ?? course.nameHe)}
           className={cn(
             // Names wrap to at most two lines instead of being cut. Measured at
             // 375px: "כלכלה התנהגותית לניהול" had 77px of the 124 it needs, on
