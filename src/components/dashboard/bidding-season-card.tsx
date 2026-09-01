@@ -46,7 +46,10 @@ export function BiddingSeasonCard({
   // says something the one-line hero cannot (which round, opening and closing
   // to the hour, what to do in this phase), so it is not a duplicate ask.
   if (isBiddingRelevant(now)) {
-    return <BiddingTimeline isHe={isHe} now={now} />;
+    // When the hero already carries the countdown, this card keeps the part
+    // the hero cannot show — the two rounds with their hours, the milestones,
+    // the links — and drops the sentence they were both saying.
+    return <BiddingTimeline isHe={isHe} now={now} hideHeadline={heroOwnsBidding} />;
   }
 
   // Published dates that say the rounds are FINISHED outrank the window proxy

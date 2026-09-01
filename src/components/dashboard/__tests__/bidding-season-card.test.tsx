@@ -45,8 +45,21 @@ describe("BiddingSeasonCard — home screen registration surface", () => {
     expect(text(container)).toMatch(/23\.9\s*11:00 — 5\.10\s*10:00/);
   });
 
-  it("keeps showing the timeline even when the hero already owns the ask — it carries the dates the hero can't", () => {
+  it("keeps the dates when the hero already owns the ask, and drops the sentence they shared", () => {
+    // The test name was always right — this card carries what the hero cannot,
+    // namely both rounds with their hours, the milestones and the links. What
+    // it asserted was the one thing that WAS a duplicate: the headline
+    // "מקצה 1 נפתח בעוד N ימים", rendered here and again two hundred pixels
+    // above, six days before the round. So the assertion now matches the name.
     const { container } = render(<BiddingSeasonCard heroOwnsBidding now={il(2026, 8, 13)} />);
+    const t = text(container);
+    expect(t).not.toMatch(/מקצה\s*1\s*נפתח/); // the hero says this
+    expect(t).toMatch(/7\.9\s*11:00 — 15\.9\s*10:00/); // this card says this
+    expect(t).toMatch(/23\.9\s*11:00 — 5\.10\s*10:00/);
+  });
+
+  it("still leads with the headline when the hero is NOT showing it", () => {
+    const { container } = render(<BiddingSeasonCard now={il(2026, 8, 13)} />);
     expect(text(container)).toMatch(/מקצה\s*1\s*נפתח/);
   });
 

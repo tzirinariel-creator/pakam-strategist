@@ -20,9 +20,10 @@
 // It never silently rearranges anything. A search proposes; the student's
 // existing plan stands until they accept it.
 
+import type React from "react";
 import { useState } from "react";
 import { useLocale } from "next-intl";
-import { CalendarCheck, Sunrise, CheckCircle2, Sparkle } from "lucide-react";
+import { CalendarCheck, Sunrise, CheckCircle2 } from "lucide-react";
 import { PhilosopherKingIcon } from "@/components/ui/philosopher-king-icon";
 import { heNoun } from "@/lib/he-count";
 import { ComboPreferencesControl } from "./combo-preferences-control";
@@ -61,10 +62,23 @@ export function PlannerAssistantCard({
     setTimeout(() => setBusy(null), 600);
   };
 
-  const actions: { key: string; icon: typeof CalendarCheck; he: string; en: string; prefs?: ComboPreferences }[] = [
+  const actions: {
+    key: string;
+    // Not `typeof CalendarCheck`: the King's mark is an ordinary component,
+    // not a lucide ForwardRef, and the only thing this list asks of an icon is
+    // that it accepts a className.
+    icon: React.ComponentType<{ className?: string }>;
+    he: string;
+    en: string;
+    prefs?: ComboPreferences;
+  }[] = [
     {
       key: "clash",
-      icon: Sparkle,
+      // Was `Sparkle`. The comment eight lines below this one says a generic
+      // wand is the AI icon this project forbids and that the advisor already
+      // has a face — and then the first button carried a generic sparkle
+      // anyway. The King's mark is the mark.
+      icon: PhilosopherKingIcon,
       he: conflicts > 0 ? "סדרו לי שבוע בלי התנגשויות" : "נסו לשפר לי את השבוע",
       en: conflicts > 0 ? "Build me a clash-free week" : "Try to improve my week",
     },

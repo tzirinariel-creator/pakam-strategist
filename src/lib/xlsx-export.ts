@@ -184,13 +184,31 @@ export async function buildExamPlanWorkbook(
     const firstSession = plan.sessions.length
       ? plan.sessions.reduce((min, sess) => (sess.date < min ? sess.date : min), plan.sessions[0]!.date)
       : now;
-    const rangeStart = startOfDay(new Date(Math.min(now.getTime(), startOfDay(firstSession).getTime())));
     const lastExam = plan.exams.reduce(
       (max, ex) => (ex.examDate > max ? ex.examDate : max),
       plan.exams[0]!.examDate,
     );
+    const firstExam = plan.exams.reduce(
+      (min, ex) => (ex.examDate < min ? ex.examDate : min),
+      plan.exams[0]!.examDate,
+    );
+    // The same window bug as the on-screen grid, in the exported sheet: this
+    // anchored on TODAY, so a plan built in September for January sittings
+    // exported ten weeks of empty rows before the first study block. Anchor on
+    // the plan — three days before the earlier of the first session and the
+    // first exam — so the sheet opens where the work does.
+    // Only real dates — see weekly-grid.tsx. `firstSession` falls back to
+    // `now` when the plan has no blocks yet, and folding that into the anchor
+    // would put the sheet back in September.
+    const planStart = plan.sessions.length
+      ? Math.min(startOfDay(firstSession).getTime(), startOfDay(firstExam).getTime())
+      : startOfDay(firstExam).getTime();
+    const rangeStart = startOfDay(addDays(new Date(planStart), -3));
     // Snap to the containing week (Sunday) and cap at ~10 weeks for sanity.
     const weekStart = addDays(rangeStart, -rangeStart.getDay());
+    // 70 days from the WINDOW start (which now sits on the plan), not from
+    // today — otherwise anchoring the start correctly would simply move the
+    // truncation to the other end and cut the exams out of the sheet.
     const totalDays = Math.min(
       70,
       Math.ceil((startOfDay(lastExam).getTime() - weekStart.getTime()) / 86_400_000) + 1,

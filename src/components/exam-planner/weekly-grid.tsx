@@ -214,13 +214,39 @@ export function WeeklyGrid({
     const examDates = plan.exams.map((e) => startOfDay(new Date(e.examDate)).getTime());
     const firstSession = sessionDates.length ? Math.min(...sessionDates) : today.getTime();
     const lastExam = examDates.length ? Math.max(...examDates) : firstSession;
-    const rangeStart = startOfDay(new Date(Math.min(today.getTime(), firstSession)));
+
+    // Ariel, three times: "ושוב פעם לוח מבחנים בלתי נגמר שאי אפשר להבין ממנו
+    // כלום."
+    //
+    // The window used to start at min(today, firstSession) — anchored on the
+    // calendar rather than on the plan. Build a revision plan on 1.9 for the
+    // January sittings and the engine, quite correctly, schedules nothing:
+    // it does not start revising more than about three weeks before an exam
+    // (WINDOW_DAYS_STEADY). So the grid opened on FOURTEEN week rows of seven
+    // empty squares — 98 cells, roughly 1,300 pixels of nothing — and that was
+    // the first thing on screen after pressing "build me a plan".
+    //
+    // Anchoring on the plan instead: three days before whichever comes first,
+    // the earliest study block or the earliest exam. The neighbouring skyline
+    // was fixed exactly this way and the fix was never carried across.
+    // Only the dates that actually exist. `firstSession` falls back to today
+    // when the plan has no blocks yet, and folding that fallback into the
+    // anchor put the window back in September for a plan that is nothing but
+    // January exams — the very case being fixed.
+    const anchors = [...sessionDates, ...examDates];
+    const planStart = anchors.length ? Math.min(...anchors) : today.getTime();
+    const rangeStart = startOfDay(addDays(new Date(planStart), -3));
     const ws = addDays(rangeStart, -rangeStart.getDay());
-    // Cap the horizon at today+90 — the SAME window the skyline uses
-    // (study-skyline.ts: span = min(90, daysBetween(today, lastExam))) — so a
-    // far exam is shown here exactly when the skyline shows it, never silently
-    // dropped by a mismatched cap.
-    const horizon = Math.min(lastExam, addDays(today, 90).getTime());
+    // The ceiling moves with the window, not with the calendar.
+    //
+    // Anchoring the START on the plan without doing the same to the CAP breaks
+    // it the other way: today+90 from 1.9 lands in November, which is before
+    // the January sittings, so the grid would have opened in the right place
+    // and then stopped short of every exam it exists to show. Measured from
+    // the window start, the ceiling still does its real job — keeping a June
+    // sitting from rendering 273 cells — without amputating a plan that
+    // legitimately sits months out.
+    const horizon = Math.min(lastExam, addDays(ws, 90).getTime());
     const totalDays = Math.ceil((horizon - ws.getTime()) / 86_400_000) + 1;
     return { weekStart: ws, weeks: Math.max(1, Math.ceil(totalDays / 7)) };
   }, [plan.sessions, plan.exams, today]);

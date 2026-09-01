@@ -71,6 +71,13 @@ export function WhatMovesMyAverage({
   // This sentence exists to be the most honest one on the screen — it is the
   // paragraph that tells a student not to give up their summer over one course
   // — so a fabricated number here costs more than anywhere else on the page.
+  // NOTE on the clause in the sentence below. Fixing the number alone traded
+  // an impossible figure for a visible contradiction: the four green tags
+  // above still read +8.5, +7.5, +5.3, +5.3, and a student who adds them gets
+  // 26.7 while the line underneath says 16. Both numbers are correct — each
+  // tag is that course ON ITS OWN — and the reason they do not add up is the
+  // whole insight the card exists to deliver. So it is said, once, in the
+  // sentence rather than left for the reader to catch us out on.
   const combinedUpside = useMemo(() => {
     if (shown.length === 0) return null;
     const overrides = Object.fromEntries(
@@ -184,12 +191,19 @@ export function WhatMovesMyAverage({
             <p className="min-w-0 flex-1 text-xs leading-relaxed text-foreground/55">
             {isHe ? (
               <>
-                גם אם {shown.length === 1 ? "הקורס הזה היה מסתיים" : `כל ${heNoun(shown.length, "הקורס", "הקורסים")} האלה היו מסתיימים`} ב־
+                גם אם {shown.length === 1 ? "הקורס הזה היה מסתיים" : "כל הקורסים שלמעלה היו מסתיימים"} ב־
                 <Bidi text={summary.best.assumedGrade} />, הממוצע היה עולה ב־
                 <b>
                   <Bidi text={combinedUpside ?? 0} />
                 </b>{" "}
-                נקודות בסך הכול. קורס בודד מזיז פחות ממה שנדמה — שווה לדעת את זה לפני
+                נקודות בסך הכול
+                {shown.length > 1 && (
+                  <>
+                    {" "}— פחות מסכום המספרים שלמעלה, כי קורס שנכנס לממוצע גם מגדיל את
+                    המכנה
+                  </>
+                )}
+                . קורס בודד מזיז פחות ממה שנדמה — שווה לדעת את זה לפני
                 שמוותרים על חופשה.
                 {keepsHigherGrade
                   ? " בקבוצת המילואים שלכם נשמר הציון הגבוה, אז מועד ב׳ לא מסכן כלום."
@@ -197,10 +211,12 @@ export function WhatMovesMyAverage({
               </>
             ) : (
               <>
-                Even if {shown.length === 1 ? "this course" : `all ${shown.length} of these`} ended at{" "}
+                Even if {shown.length === 1 ? "this course" : "all of the courses above"} ended at{" "}
                 {summary.best.assumedGrade}, your average would rise by{" "}
-                <b>{combinedUpside ?? 0}</b> points in total. A single course moves it less than
-                it feels like.
+                <b>{combinedUpside ?? 0}</b> points in total
+                {shown.length > 1 && <> — less than the figures above add up to, because a course
+                that joins the average also enlarges the denominator</>}
+                . A single course moves it less than it feels like.
                 {keepsHigherGrade
                   ? " Your reserve group keeps the higher sitting, so a resit risks nothing."
                   : " And a resit replaces the first sitting, even if it goes worse."}

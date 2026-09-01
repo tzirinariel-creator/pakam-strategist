@@ -20,4 +20,29 @@ describe("CATALOG_COURSE_COUNT is pinned to the real תשפ״ז catalog", () => 
     ) as unknown[];
     expect(CATALOG_COURSE_COUNT).toBe(parsed.length);
   });
+
+  it("no landing string states a course count in prose", () => {
+    // The reason the previous version of this bug survived: the test read the
+    // CONSTANT and the marketing sentence was a separate copy of the number.
+    // "כל 302 הקורסים" would have gone stale on the next migration with this
+    // file still green. Any three-digit run inside landing.* is now a failure —
+    // the count belongs in an ICU {count} placeholder, fed from the constant.
+    for (const locale of ["he", "en"]) {
+      const messages = JSON.parse(
+        readFileSync(join(process.cwd(), `src/messages/${locale}.json`), "utf8"),
+      ) as { landing?: Record<string, unknown> };
+      const offenders: string[] = [];
+      const walk = (node: unknown, path: string) => {
+        if (typeof node === "string") {
+          if (/(?<!\{)\b\d{3}\b(?!\})/.test(node)) offenders.push(`${path}: ${node.slice(0, 70)}`);
+          return;
+        }
+        if (node && typeof node === "object") {
+          for (const [k, v] of Object.entries(node)) walk(v, `${path}.${k}`);
+        }
+      };
+      walk(messages.landing ?? {}, `${locale}.landing`);
+      expect(offenders).toEqual([]);
+    }
+  });
 });

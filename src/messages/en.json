@@ -846,7 +846,7 @@
     "signup": "Sign Up",
     "badge": "Built by a PPE student, for PPE students",
     "heroTitle": "Three departments, one degree — and one place to run it",
-    "heroSubtitle": "All 302 PPE courses, the prerequisites, the regulations and your final-grade calculation — computed from your data. No spreadsheets, no guessing.",
+    "heroSubtitle": "All {count} PPE courses, the prerequisites, the regulations and your final-grade calculation — computed from your data. No spreadsheets, no guessing.",
     "ctaStart": "Get started",
     "ctaLogin": "I have an account",
     "featuresTitle": "What's inside",
@@ -899,7 +899,7 @@
       "chip1Title": "The Yedion",
       "chip1Body": "An ASP.NET table from the 2000s. Search? Sort of.",
       "chip2Title": "The regulations",
-      "chip2Body": "A 40-page PDF. When did you last read it?",
+      "chip2Body": "A PDF nobody reads to the end. When did you last open it?",
       "chip3Title": "The spreadsheet",
       "chip3Body": "degree-plan-FINAL-v3(2).xlsx",
       "chip4Title": "The WhatsApp group",
@@ -908,7 +908,7 @@
       "afterBody": "Courses, regulations and your grades — connected. One question, one answer, from your data."
     },
     "king": {
-      "title": "Someone here actually read all 40 pages of the regulations",
+      "title": "Someone here actually read the regulations end to end",
       "subtitle": "The Philosopher King — Pakamon's AI advisor. Wired to your plan, your grades and the rulebook; answers first, no throat-clearing, and never makes up numbers. Always free.",
       "chatQ": "How many credits until I close year 2?",
       "chatA": "9 credits: 5 in economics, 4 elective. Micro II (5 cr) closes economics — you already meet its prerequisites. For the elective, 12 courses are open in spring; three fit your timetable with zero clashes.",
@@ -917,7 +917,7 @@
     "founder": {
       "eyebrow": "Who built this",
       "title": "A PPE student who'd had enough of spreadsheets",
-      "body": "Pakamon started as genuine frustration: the course catalog is an ASP.NET table from the 2000s, the regulations are a 40-page PDF, and no tool connects the two. So I built one. Not a startup, not a final project — I just needed it. A few weeks in, friends from the program asked for access. Then their friends. Now it's here, open to everyone.",
+      "body": "Pakamon started as genuine frustration: the course catalog is an ASP.NET table from the 2000s, the regulations are a PDF nobody reads to the end, and no tool connects the two. So I built one. Not a startup, not a final project — I just needed it. A few weeks in, friends from the program asked for access. Then their friends. Now it's here, open to everyone.",
       "chip1": "No subscription",
       "chip2": "No ads",
       "chip3": "Not official — always confirm with the department",
@@ -933,7 +933,7 @@
   "about": {
     "title": "About",
     "heroLine": "A first-year PPE student who got tired of spreadsheets",
-    "story1": "Pakamon was born out of real frustration. At the start of my first year in PPE at Tel Aviv University, I tried to figure out how many courses I needed, from which discipline, and what the prerequisites were. The Yedion is an ASP.NET table from the 2000s. The regulations are a 40-page PDF. And there's no tool that connects the two.",
+    "story1": "Pakamon was born out of real frustration. At the start of my first year in PPE at Tel Aviv University, I tried to figure out how many courses I needed, from which discipline, and what the prerequisites were. The Yedion is an ASP.NET table from the 2000s. The regulations are a PDF nobody reads to the end. And there's no tool that connects the two.",
     "story2": "So I built Pakamon. Not as a final project and not as a startup — just because I needed it. After a few weeks, friends from the program asked for access. Then their friends. Now it's here, open to everyone.",
     "whatIsTitle": "What it does",
     "whatIs": "Pakamon is a degree planning tool for PPE at Tel Aviv University. It helps organize 150 credits across 3 years, track regulation compliance, calculate your graduation score, and build a weekly schedule — without opening the Yedion every time.",

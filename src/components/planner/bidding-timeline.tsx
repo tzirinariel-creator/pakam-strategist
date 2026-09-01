@@ -103,7 +103,24 @@ function headline(
   }
 }
 
-export function BiddingTimeline({ isHe, now = new Date() }: { isHe: boolean; now?: Date }) {
+export function BiddingTimeline({
+  isHe,
+  now = new Date(),
+  hideHeadline = false,
+}: {
+  isHe: boolean;
+  now?: Date;
+  /**
+   * Drop the "מקצה 1 נפתח בעוד N ימים" line and keep the dates.
+   *
+   * On the dashboard this card sits directly under TimeFocusHero, which
+   * renders that exact same sentence — the identical string, two hundred
+   * pixels apart, six days before the round. The rest of this card is not a
+   * duplicate: which round, opening and closing to the hour, the milestones,
+   * the links. Only the headline was.
+   */
+  hideHeadline?: boolean;
+}) {
   const phase = getBiddingPhase(now);
   const head = headline(phase, isHe, hasCurrentBiddingCycle(now));
 
@@ -134,13 +151,17 @@ export function BiddingTimeline({ isHe, now = new Date() }: { isHe: boolean; now
           className={cn("mt-0.5 size-4 shrink-0", head.tone === "urgent" ? "text-accent-brand" : "text-foreground/45")}
         />
         <div className="min-w-0 flex-1">
-          <p className="font-display text-sm font-semibold text-foreground/85">
-            <Bidi text={head.title} />
-          </p>
-          <p className="mt-1 text-xs leading-relaxed text-foreground/60">{head.body}</p>
+          {!hideHeadline && (
+            <>
+              <p className="font-display text-sm font-semibold text-foreground/85">
+                <Bidi text={head.title} />
+              </p>
+              <p className="mt-1 text-xs leading-relaxed text-foreground/60">{head.body}</p>
+            </>
+          )}
 
           {/* The two rounds, with real dates */}
-          <ol className="mt-3 space-y-2">
+          <ol className={cn("space-y-2", hideHeadline ? "mt-0" : "mt-3")}>
             {steps.map((s) => (
               <li key={s.key} className="flex items-start gap-2 text-xs">
                 {s.done ? (

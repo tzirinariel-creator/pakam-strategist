@@ -1,11 +1,12 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { User, Loader2, Check } from "lucide-react";
 import { useTranslations, useLocale } from "next-intl";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { Bidi } from "@/lib/bidi";
+import { englishPlacementLabel } from "@/lib/english-placement-label";
 import { getPlanningAnchor, getAcademicNow, deriveYearOfStudy, hebrewYearLabel } from "@/lib/academic-calendar";
 import { DISCIPLINE_CONFIG, FOCUS_DISCIPLINE_IDS, YEAR_CONFIG, ENGLISH_CONFIG } from "@/lib/constants";
 import { api } from "@/lib/trpc/react";
@@ -169,6 +170,17 @@ export function ProfileSection() {
   // The planning anchor is the one the rest of the app plans against, so the
   // list starts there and covers the six years a current student could have
   // begun in.
+  // Live, as the student types — the same mapping the onboarding step shows,
+  // routed through resolveEnglishLevel so a DECLARED level outranks a score.
+  const placement = useMemo(
+    () =>
+      englishPlacementLabel(
+        englishLevelSel || profileQuery.data?.englishLevel || null,
+        amirantScore.trim() === "" ? null : Number(amirantScore),
+      ),
+    [englishLevelSel, profileQuery.data?.englishLevel, amirantScore],
+  );
+
   const nowStartYear = getPlanningAnchor().startYear;
   const startYearOptions = Array.from({ length: 6 }, (_, i) => {
     const y = nowStartYear - i;
@@ -298,6 +310,38 @@ export function ProfileSection() {
             onChange={(e) => setAmirantScore(e.target.value)}
             placeholder={t("amirantScorePlaceholder")}
           />
+          {/* Ariel, "בפעם ה-100": "אם יש לי 90 באנגלית — הוא מסמן לי פה משהו
+              אוטומטי או לא? כי זה מאוד יוצר אמון."
+              In this box, the answer was no. The hint above promises the field
+              "קובע אילו קורסי אנגלית נדרשים מכם" and then nothing happened when
+              you typed — on the very screen the regulations card sends you to.
+              The onboarding step has had a live label all along; it was written
+              inline there so no other screen could use it. */}
+          {placement && (
+            <div
+              className={cn(
+                "rounded-lg border p-2.5 text-xs leading-relaxed",
+                placement.tone === "good"
+                  ? "border-emerald-500/35 bg-emerald-500/[0.06]"
+                  : placement.tone === "check"
+                    ? "border-amber-500/40 bg-amber-500/[0.06]"
+                    : "border-border/60 bg-foreground/[0.02]",
+              )}
+            >
+              <p className="font-semibold text-foreground/85">
+                {isHe ? placement.he : placement.en}
+              </p>
+              {(isHe ? placement.suspectInputHe : placement.suspectInputEn) && (
+                <p className="mt-1 text-foreground/70">
+                  {isHe ? placement.suspectInputHe : placement.suspectInputEn}
+                </p>
+              )}
+              {/* Never a course count without saying where it came from. */}
+              <p className="mt-1 text-[11px] text-foreground/45">
+                {isHe ? placement.sourceHe : placement.sourceEn}
+              </p>
+            </div>
+          )}
         </div>
 
         {/* English level (#23) — the grade sheet prints the level as text with no

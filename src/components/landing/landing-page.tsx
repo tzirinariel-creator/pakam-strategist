@@ -17,7 +17,7 @@ import { Button } from "@/components/ui/button";
 import { PhilosopherKingIcon } from "@/components/ui/philosopher-king-icon";
 import { PhilosopherKingCharacter } from "@/components/ui/philosopher-king-character";
 import { cn } from "@/lib/utils";
-import { CATALOG_COURSE_COUNT } from "@/lib/constants";
+import { CATALOG_COURSE_COUNT, CONTACT_EMAIL } from "@/lib/constants";
 
 // ─── Feature Card Data ──────────────────────────────────────────────
 // The King has his own dedicated dark band above the grid; the grid holds the
@@ -224,13 +224,18 @@ export function LandingPage() {
             </h1>
 
             <p className="mx-auto mb-8 max-w-xl text-lg leading-relaxed text-muted-foreground lg:mx-0">
-              {t("heroSubtitle")}
+              {/* The count comes from the constant the catalog test pins,
+                  not from the sentence. Typed into the string it would go
+                  stale on the next catalog migration while the stat strip
+                  beside it updated — and the test guarding that number would
+                  stay green, because it never reads the prose. */}
+              {t("heroSubtitle", { count: CATALOG_COURSE_COUNT })}
             </p>
 
             <div className="flex flex-col items-center gap-3 sm:flex-row sm:justify-center lg:justify-start">
               <Button
                 size="lg"
-                className="w-full bg-foreground px-8 text-background shadow-lg shadow-foreground/20 hover:bg-foreground/90 sm:w-auto"
+                className="w-full px-8 sm:w-auto"
                 asChild
               >
                 <Link href="/signup">
@@ -494,7 +499,7 @@ export function LandingPage() {
           <div className="mt-6 flex flex-col items-center justify-center gap-3 sm:flex-row">
             <Button
               size="lg"
-              className="w-full bg-foreground px-8 text-background shadow-lg shadow-foreground/20 hover:bg-foreground/90 sm:w-auto"
+              className="w-full px-8 sm:w-auto"
               asChild
             >
               <Link href="/signup">
@@ -530,6 +535,21 @@ export function LandingPage() {
             <Link href="/terms" className="transition-colors hover:text-foreground">
               {t("footerTerms")}
             </Link>
+            {/* The landing page lives outside the (public) route group, so it
+                builds its own footer — and that copy had drifted: every other
+                public page carries an accessibility link and a contact
+                address, and the one page most visitors actually see carried
+                neither. */}
+            <Link href="/accessibility" className="transition-colors hover:text-foreground">
+              {t("footerAccessibility")}
+            </Link>
+            <a
+              href={`mailto:${CONTACT_EMAIL}`}
+              className="font-data transition-colors hover:text-foreground"
+              dir="ltr"
+            >
+              {CONTACT_EMAIL}
+            </a>
           </div>
         </div>
       </footer>
