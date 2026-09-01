@@ -434,19 +434,36 @@ export function StudySkyline({ plan, recommendations, isHe, now, onDayClick, onM
   const cellH = isNarrow ? 150 : 182;
   const pxPerHour = Math.min(40, usableH / model.maxDayHours);
 
-  // Auto-scroll so TODAY sits ~1.5 cells in from the leading edge. RTL sign-
-  // flipped exactly like exam-gantt.tsx — getting this wrong flows time the
-  // wrong way and lands the student on empty days.
+  // Auto-scroll so the day that matters sits ~1.5 cells in from the leading
+  // edge. RTL sign-flipped exactly like exam-gantt.tsx — getting this wrong
+  // flows time the wrong way and lands the student on empty days.
+  //
+  // "The day that matters" is TODAY only while today is inside the window.
+  // Since the window was re-anchored on the plan rather than on the calendar,
+  // that is no longer the common case: build a January revision plan in
+  // September and the strip starts in late December, so today is nowhere in
+  // it. The old loop searched for a day it would never find, fell out of the
+  // bottom having added up every cell, and scrolled to the far END — the
+  // planner opened on the last day of the exam period with "מתחילים כאן"
+  // seven hundred pixels behind the student, off-screen, on a phone.
+  //
+  // So: today if it is there, otherwise the first day with actual studying,
+  // otherwise the start. Never "past the end because we ran out of days".
   useEffect(() => {
     const el = scrollRef.current;
     if (!el) return;
-    let offset = 0;
-    for (const item of model.items) {
-      if (item.kind === "day" && item.isToday) break;
-      offset += (item.kind === "rest" ? restW : cellW) + gap;
-    }
-    offset = Math.max(0, offset - 1.5 * (cellW + gap));
-    el.scrollLeft = isHe ? -offset : offset;
+    const anchorAt = (pick: (i: DayItem) => boolean) => {
+      let off = 0;
+      for (const item of model.items) {
+        if (item.kind === "day" && pick(item)) return off;
+        off += (item.kind === "rest" ? restW : cellW) + gap;
+      }
+      return null;
+    };
+    const offset =
+      anchorAt((i) => i.isToday) ?? anchorAt((i) => i.isFirstStudy) ?? 0;
+    const scrolled = Math.max(0, offset - 1.5 * (cellW + gap));
+    el.scrollLeft = isHe ? -scrolled : scrolled;
   }, [model, isHe, cellW, restW, gap]);
 
   if (model.items.length === 0 || !model.firstExam) return null;

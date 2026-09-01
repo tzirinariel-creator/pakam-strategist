@@ -995,8 +995,19 @@ export function ExamPlannerContent() {
               />
             </div>
           )}
+          {/* The seven-column board is a DESKTOP surface. Measured on a real
+              375px phone: the grid is min-w-[560px] inside a 293px scroller,
+              which leaves each chip 61px and each course name THIRTY-ONE — two
+              characters. "מיקרו כלכלה ב׳" and "מיקרו כלכלה א׳" truncate to the
+              same two characters, so the board was not merely cramped, it was
+              ambiguous about which course you are dragging.
+
+              Nothing is lost by hiding it: the agenda directly below shows the
+              same days full-width, with the same actions, and its push/push-day
+              controls do what dragging a chip does — on touch, better than a
+              220ms-delay drag inside a sideways-scrolling container ever did. */}
           {persistedPlan.exams.length > 0 && (
-            <div className="animate-stagger-2">
+            <div className="hidden animate-stagger-2 sm:block">
               <WeeklyGrid
                 plan={persistedPlan}
                 byDay={byDay}

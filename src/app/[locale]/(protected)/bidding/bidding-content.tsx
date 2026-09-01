@@ -105,7 +105,12 @@ function TermColumn({
               <span className="font-data text-[11px] text-foreground/50" dir="ltr">
                 {c.code}
               </span>
-              <span className="min-w-0 flex-1 truncate text-foreground/85">{c.name}</span>
+              {/* NOT truncated. Measured at 375px: "כסף מסובב את העולם - אי
+                  שוויון מגדרי בעולם קפיטליסטי" needs 273px and had 193, and a
+                  bidding list is read to DECIDE — a name cut mid-phrase is the
+                  one thing on this screen a student cannot work around. The row
+                  already wraps, so a second line costs nothing. */}
+              <span className="min-w-0 flex-1 basis-40 text-balance text-foreground/85">{c.name}</span>
               {c.isMandatory && (
                 <span className="shrink-0 rounded bg-foreground/[0.07] px-1.5 py-px text-[10px] text-foreground/55">
                   {isHe ? "חובה" : "required"}
