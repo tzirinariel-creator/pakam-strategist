@@ -40,6 +40,7 @@ const SyllabusScanner = dynamic(
 );
 import { MoedBenefitBanner } from "@/components/exam-planner/moed-benefit-banner";
 import { MoedBDecisionCard } from "@/components/exam-planner/moed-b-decision-card";
+import { GradeRecourseNav } from "@/components/shared/grade-recourse-nav";
 import { ExamPlanWizard, MoedPrinciplesCard, type PrepStyle } from "@/components/exam-planner/exam-plan-wizard";
 import { planFromStudyTasks, buildPrePlaced } from "@/lib/plan-from-tasks";
 import { downloadGanttCsv, type GanttTask } from "@/lib/excel-export";
@@ -1112,6 +1113,10 @@ export function ExamPlannerContent() {
             courses={planQuery.data?.courses ?? []}
             keepsHigherGrade={preferHigherGradeFlag}
           />
+          {/* 22-12 — this card answers "should I sit it again". The other two
+              answers to the same disappointing grade lived on other routes with
+              nothing pointing at them. */}
+          <GradeRecourseNav current="moed-b" isHe={isHe} />
           <div className="animate-stagger-2">
             <ExamPlanWizard
               isHe={isHe}

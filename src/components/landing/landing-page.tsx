@@ -118,7 +118,11 @@ function PlannerPreview({ isRTL }: { isRTL: boolean }) {
                   className="rounded-md border border-border/50 border-s-2 bg-background px-2 py-1.5"
                   style={{ borderInlineStartColor: c.color }}
                 >
-                  <div className="truncate text-[11px] font-medium text-foreground/90">
+                  {/* Two lines, not a cut. Measured at 375px: "פוליטיקה
+                      השוואתית" needs 90px of the 79 these three columns leave
+                      it, so the mock that is meant to show the product working
+                      showed a course name ending in an ellipsis. */}
+                  <div className="line-clamp-2 text-[11px] font-medium leading-tight text-foreground/90">
                     {isRTL ? c.he : c.en}
                   </div>
                   <div className="text-[10px] text-muted-foreground">

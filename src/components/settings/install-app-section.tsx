@@ -134,7 +134,11 @@ export function InstallAppSection() {
           </span>
           <p className="text-sm leading-relaxed text-foreground/70">
             {isHe
-              ? 'בתפריט הדפדפן (⋮ בפינה) ← "התקנה" או "התקנת פכמון". היא תיפתח בחלון משלה, עם אייקון בדוק או בשורת המשימות.'
+              // "בדוק" without the hyphen is the Hebrew word for "checked" —
+              // the sentence read "an icon that is checked" rather than "an
+              // icon in the Dock". Caught by reading the rendered page, not
+              // the source. Latin-script product names need the maqaf.
+              ? 'בתפריט הדפדפן (⋮ בפינה) ← "התקנה" או "התקנת פכמון". היא תיפתח בחלון משלה, עם אייקון ב-Dock או בשורת המשימות.'
               : 'In the browser menu (⋮) → "Install" or "Install Pakamon". It opens in its own window, with an icon in your Dock or taskbar.'}
           </p>
         </div>

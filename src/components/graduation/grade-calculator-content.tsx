@@ -1,6 +1,7 @@
 "use client";
 
 import { GradeSimulator } from "@/components/graduation/grade-simulator";
+import { GradeRecourseNav } from "@/components/shared/grade-recourse-nav";
 import { WhatMovesMyAverage } from "@/components/graduation/what-moves-my-average";
 import { FuturePlansCard } from "@/components/graduation/future-plans-card";
 import { resolveEnglishLevel } from "@/lib/constants";
@@ -645,13 +646,17 @@ export function GradeCalculatorContent() {
         <FuturePlansCard facts={futureFacts} />
       </div>
 
-      <div className="animate-stagger-2">
+      <div className="animate-stagger-2 flex flex-col gap-3">
         <GradeSimulator
           courses={allCourses}
           preferHigherGrade={prefersHigherGrade(
             (profileQuery.data?.miluimGroup ?? "NONE") as MiluimGroupKey,
           )}
         />
+        {/* 22-12 — the simulator answers "how much would it matter"; the two
+            screens that answer "so what do I do about it" were unreachable
+            from here. */}
+        <GradeRecourseNav current="simulator" isHe={locale === "he"} />
       </div>
 
       {/* Section 2: Score Dashboard + Section 3: Reverse Calculator */}

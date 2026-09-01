@@ -23,6 +23,7 @@ const GradeSheetScanner = dynamic(
 );
 import { maybeNudgeCourseReview, ReviewNudgeHost } from "@/components/catalog/review-nudge";
 import { BinaryAdvisor } from "@/components/record/binary-advisor";
+import { GradeRecourseNav } from "@/components/shared/grade-recourse-nav";
 import { toast } from "sonner";
 import {
   SEMESTER_CONFIG,
@@ -446,8 +447,12 @@ export function AcademicRecordContent() {
 
       {/* Miluim binary-conversion advisor — exact average impact, advisory only.
           Renders nothing for non-miluim students or when out of quota. */}
-      <div className="animate-stagger-2">
+      <div className="animate-stagger-2 flex flex-col gap-3">
         <BinaryAdvisor />
+        {/* 22-12 — binary conversion spends a limited quota, so the two cheaper
+            options belong beside it, not on screens you have to already know
+            about. */}
+        <GradeRecourseNav current="binary" isHe={isHe} />
       </div>
 
       {/* In progress now — the derived PRESENT, above the completed past. Only
