@@ -52,9 +52,22 @@ export function MoedBDecisionCard({
 
   // Default to the lowest grade — the one a student is most likely asking about.
   const [selectedId, setSelectedId] = useState<string>(() => candidates[0]?.id ?? "");
-  const [optimistic, setOptimistic] = useState(90);
+  const [rawOptimistic, setOptimistic] = useState(90);
 
   const active = candidates.find((c) => c.id === selectedId) ?? candidates[0];
+
+  // "אם ילך טוב" has to mean better than today.
+  //
+  // The slider value did not reset when the course changed. Open the card on a
+  // 68, drag the slider down to 75, then switch to a course you scored 92 in —
+  // and the box headed "אם ילך טוב", in emerald with an upward arrow, showed a
+  // LOWER average than today and a negative delta. The card's whole job is to
+  // help someone decide whether to sit again, and it was rendering a loss as a
+  // gain.
+  //
+  // Deriving instead of storing: whatever the slider holds, the optimistic
+  // case is never below one point above the current grade.
+  const optimistic = Math.max(rawOptimistic, Math.min(100, (active?.grade ?? 0) + 1));
 
   const outcome = useMemo(() => {
     if (!active) return null;
@@ -131,7 +144,10 @@ export function MoedBDecisionCard({
             <Cell
               label={isHe ? "אם ילך טוב" : "If it goes well"}
               value={outcome.averageIfBetter}
-              tone="up"
+              // Derived, never asserted. A cell that decides its own colour
+              // from a hardcoded prop can contradict the number printed inside
+              // it — which is exactly what "אם ילך טוב" was doing.
+              tone={(outcome.upside ?? 0) > 0 ? "up" : (outcome.upside ?? 0) < 0 ? "down" : "neutral"}
               delta={outcome.upside}
             />
             <Cell
