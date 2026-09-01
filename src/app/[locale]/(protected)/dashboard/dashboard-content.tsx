@@ -143,6 +143,33 @@ export function DashboardContent() {
 
   const isTransitioning = fromOnboarding || onboardingFlag;
 
+  // Ariel, #5/#19/#21: "לא התנסיתי במלך. לא התנסיתי בתכנון מבחנים… אני לא
+  // מספיק מכיר ויכול לנצל את האפליקציה במיטבה" — and, on the same complaint,
+  // "מפריע לי מאוד מאוד מאוד מאוד וביקשתי את זה עשרות פעמים".
+  //
+  // The discovery tier EXISTS. It was switched off on the one screen it was
+  // built for. `isTransitioning` is true whenever `?from=onboarding` is in the
+  // URL — which is exactly where step-ready's primary CTA sends every student
+  // who finishes signing up — and six surfaces were gated on `!isTransitioning`:
+  // the time-focus hero, "מה עוד יש כאן", the semester-wrap card, the bidding
+  // season card, the next-semester card and the cohort teaser.
+  //
+  // `onboardingFlag` clears itself. The query param never did: replaceState was
+  // called for `?saved=1` and `?reset=demo` and not for this one. So for the
+  // whole first dashboard session after signup — precisely the moment a new
+  // student is deciding whether this app is worth returning to — every card
+  // that exists to show them what is here was dark. The card whose own header
+  // quotes note #5 was among the ones being hidden.
+  //
+  // The flag is doing two jobs. "The plan may not have arrived yet" is the real
+  // one and stays (it drives retry/staleTime below). "Suppress content" was
+  // never the intent, so the param is consumed the moment the dashboard
+  // renders, exactly like the two beside it.
+  useEffect(() => {
+    if (!fromOnboarding) return;
+    window.history.replaceState({}, "", window.location.pathname);
+  }, [fromOnboarding]);
+
   // Check if user has any courses in their plan (for onboarding detection)
   // retry more aggressively when arriving from onboarding
   // staleTime: 0 when transitioning to force fresh fetch
@@ -764,13 +791,13 @@ export function DashboardContent() {
           points at THE action that matters now (exams → plan; grades in →
           enter; bidding → check clashes; teaching → your week). Dedupes the
           wrap/bidding cards below so the same ask never appears twice. */}
-      {!tourOpen && !isTransitioning && <TimeFocusHero focus={timeFocus} />}
+      {!tourOpen && hasPlanData && <TimeFocusHero focus={timeFocus} />}
 
       {/* Ariel, "עשרות פעמים": a student finishes signup and has still never
           seen the exam planner, the King or the simulator. This says what else
           is here, ordered by the academic calendar, and removes itself once
           everything trackable has been used. */}
-      {!tourOpen && !isTransitioning && (
+      {!tourOpen && hasPlanData && (
         <FeatureDiscoveryCard
           daysToBidding={(() => {
             const phase = getBiddingPhase();
@@ -789,7 +816,7 @@ export function DashboardContent() {
 
       {/* End-of-semester rite (#22) — the app asks for grades once the semester
           ends. Suppressed when the TimeFocus hero already owns the grades ask. */}
-      {!tourOpen && !isTransitioning && timeFocus?.kind !== "grades" && (
+      {!tourOpen && hasPlanData && timeFocus?.kind !== "grades" && (
         <SemesterWrapCard
           profile={profileQuery.data ?? undefined}
           currentYear={currentYear}
@@ -804,14 +831,14 @@ export function DashboardContent() {
           hero and nothing else. The card now decides for itself: with real
           dates it renders the full timeline (which the hero cannot carry),
           otherwise it defers to the hero and stays quiet. */}
-      {!tourOpen && !isTransitioning && (
+      {!tourOpen && hasPlanData && (
         <BiddingSeasonCard heroOwnsBidding={timeFocus?.kind === "bidding"} />
       )}
 
       {/* "מתי זה מזכיר לי לתכנן את הסמסטר הבא?" — the half-planned-year nudge.
           Calendar-driven, once per target semester, and honest about what we
           don't know regarding the round's scope. */}
-      {!tourOpen && !isTransitioning && (
+      {!tourOpen && hasPlanData && (
         <NextSemesterCard
           courses={planQuery.data?.courses ?? []}
           startYear={profileQuery.data?.startYear}
@@ -821,7 +848,7 @@ export function DashboardContent() {
 
       {/* #24 (12.7) — the cohort file travels with you: the freshest insight
           from the wall, right on the home screen. */}
-      {!tourOpen && !isTransitioning && <CohortWisdomTeaser />}
+      {!tourOpen && hasPlanData && <CohortWisdomTeaser />}
 
       {/* Returning-student prompt — year ≥ 2 with nothing marked completed yet.
           Hidden while the rite is up: both ask "enter your past grades" (#22
