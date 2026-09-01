@@ -101,7 +101,7 @@ export function RuleList({ results }: { results: RegulationResult[] }) {
         <div className="flex items-center gap-2.5 rounded-xl border border-emerald-400/30 bg-emerald-400/[0.06] px-4 py-3">
           <CheckCircle2 className="size-5 shrink-0 text-emerald-500" />
           <p className="text-sm text-foreground/75">
-            {isHe ? "אין כרגע חסימות או דרישות דחופות — הכול בכיוון." : "No blockers or urgent requirements right now — you're on track."}
+            {isHe ? "אין חסימות ואין דרישות דחופות כרגע." : "No blockers and nothing urgent right now."}
           </p>
         </div>
       )}

@@ -41,7 +41,7 @@ export function UnofficialNotice({ variant = "full" }: { variant?: "compact" | "
       <Info className="mt-0.5 size-4 shrink-0 text-foreground/40" />
       <div className="text-xs leading-relaxed text-foreground/60">
         <p className="font-semibold text-foreground/75">
-          {isHe ? "כדאי שתדעו — זה לא אתר רשמי" : "Worth knowing — this isn't an official site"}
+          {isHe ? "פכמון הוא לא אתר של האוניברסיטה" : "Pakamon is not a university site"}
         </p>
         <p className="mt-1">
           {isHe

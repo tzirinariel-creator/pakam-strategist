@@ -2,7 +2,7 @@
   "nav": {
     "dashboard": "Home",
     "planner": "Degree Planner",
-    "regulations": "Degree check",
+    "regulations": "Degree requirements",
     "mentor": "Philosopher King",
     "syllabus": "Syllabi",
     "catalog": "Course Catalog",
@@ -98,7 +98,7 @@
     "error": "Couldn't move the course — try again"
   },
   "regulations": {
-    "title": "Degree check",
+    "title": "Degree requirements",
     "subtitle": "Your status against the degree requirements",
     "passed": "Passed",
     "failed": "Failed",
@@ -795,7 +795,7 @@
     "coursesWithoutScheduleExplain": "Meeting times haven't been set yet, or these may be online courses. They're in your plan but won't appear on the timetable.",
     "dropHere": "Drop here",
     "noCoursesEmpty": "No courses",
-    "featureMentorByok": "Works instantly and free. Want a private quota? Add a free Gemini key in settings",
+    "featureMentorByok": "Works right away, no setup. Add your own Gemini key if you want a separate quota",
     "historyTitle": "Your history",
     "historyDesc": "Mark the courses you've already taken — we've grouped the mandatory ones by semester. You can add grades too (optional), so your credits and average are accurate from the start.",
     "historySelectedCount": "{count, plural, one {1 completed course} other {# completed courses}}",
@@ -843,8 +843,8 @@
     "brand": "Pakamon",
     "login": "Log In",
     "signup": "Sign Up",
-    "badge": "The Philosopher King included — always free",
-    "heroTitle": "Three departments, one degree — and someone finally counting your credits",
+    "badge": "Built by a PPE student, for PPE students",
+    "heroTitle": "Three departments, one degree — and one place to run it",
     "heroSubtitle": "All 302 PPE courses, the prerequisites, the regulations and your final-grade calculation — computed from your data. No spreadsheets, no guessing.",
     "ctaStart": "Get started",
     "ctaLogin": "I have an account",

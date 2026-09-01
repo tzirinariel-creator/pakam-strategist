@@ -290,7 +290,7 @@ function TargetHint({
     return (
       <p className="mt-1.5 text-[11px] text-foreground/35">
         {isHe
-          ? `גם ציון 100 בקורס הזה לא יביא את הממוצע ל-${target}`
+          ? `הקורס הזה לבדו לא יכול להביא אתכם ל-${target}`
           : `Even a 100 here wouldn't bring the average to ${target}`}
       </p>
     );

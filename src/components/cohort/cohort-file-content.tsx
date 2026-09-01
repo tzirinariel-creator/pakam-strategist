@@ -107,7 +107,7 @@ export function CohortFileContent() {
             </h1>
             <p className="mt-1 text-foreground/55">
               {isHe
-                ? `${advisor.short} מארח: מה שהמחזורים שלפניכם למדו בדם — שמור, אנונימי, ועובר הלאה.`
+                ? `${advisor.short} מארח: מה שהמחזורים שלפניכם גילו על הדרך — בלי שמות, ועובר הלאה.`
                 : `Hosted by ${advisor.short}: what the cohorts before you learned the hard way — kept, anonymous, passed on.`}
             </p>
             <LineagePactStrip className="mt-2 max-w-2xl" />

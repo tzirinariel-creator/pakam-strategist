@@ -118,6 +118,38 @@ const FUN_FACTS: Tip[] = [
     category: "fun_fact",
     icon: ArrowUpRight,
   },
+  // The four below are computed from OUR OWN catalog (the same rows the course
+  // list renders), so a student who doubts one can go and count. That is the
+  // difference between a fact and a flourish — and after the career line above,
+  // it is the standard every card on this surface has to meet.
+  {
+    id: "ff-11",
+    textEn: "Only 10 of the 344 courses in the catalog have prerequisites. The degree is far less locked-in than it feels.",
+    textHe: "רק 10 מתוך 344 הקורסים בקטלוג דורשים קדם. התואר הרבה פחות נעול ממה שהוא מרגיש.",
+    category: "fun_fact",
+    icon: Compass,
+  },
+  {
+    id: "ff-12",
+    textEn: "72 of the catalog's courses are seminars — you need 3. There is a lot of room to pick ones you actually want.",
+    textHe: "72 מהקורסים בקטלוג הם סמינרים — ואתם צריכים 3. יש הרבה מקום לבחור משהו שבאמת מעניין אתכם.",
+    category: "fun_fact",
+    icon: PenTool,
+  },
+  {
+    id: "ff-13",
+    textEn: "The heaviest courses in the degree are 6 credits each: Macroeconomics, Introduction to Econometrics, and Foundations of Finance.",
+    textHe: "הקורסים הכבדים ביותר בתואר הם 6 ש״ס כל אחד: מאקרו כלכלה, מבוא לאקונומטריקה, ויסודות המימון.",
+    category: "fun_fact",
+    icon: BarChart3,
+  },
+  {
+    id: "ff-14",
+    textEn: "The catalog spans six fields, not three: alongside philosophy, economics and political science there are law courses, PPE core courses, and general electives.",
+    textHe: "הקטלוג פרוש על שישה תחומים, לא שלושה: לצד פילוסופיה, כלכלה ומדע המדינה יש גם קורסי משפטים, קורסי ליבה של פכ״מ, ובחירה כללית.",
+    category: "fun_fact",
+    icon: Landmark,
+  },
 ];
 
 // -------------------------------------------
@@ -219,11 +251,24 @@ const WARNINGS: Tip[] = [
 const MOTIVATION_TIPS: Tip[] = [
   {
     id: "m-1",
-    textEn: "PPE grads work in policy, strategic consulting, diplomacy and law firms — and many go on to an MBA. This degree opens doors that most degrees don't.",
-    // #23 — the Hebrew was broken twice: "עובדים ב… ו-MBA" put a degree in a
-    // list of workplaces, and the last clause was cut off ("שרוב התארים לא"
-    // — לא what?). Same claims, whole sentences.
-    textHe: "בוגרי פכ״מ עובדים בקביעת מדיניות, בייעוץ אסטרטגי, בדיפלומטיה ובמשרדי עורכי דין — ורבים ממשיכים ל-MBA. התואר פותח דלתות שרוב התארים לא פותחים.",
+    // Ariel, 1.9: "יש שם שטויות וטעויות. איזה משרד עורכי דין? על מה אתה מדבר?"
+    //
+    // He is right, and the previous rewrite of this line missed the actual
+    // problem. It read: "בוגרי פכ״מ עובדים בקביעת מדיניות, בייעוץ אסטרטגי,
+    // בדיפלומטיה ובמשרדי עורכי דין — ורבים ממשיכים ל-MBA." Every clause in it
+    // is a claim about graduate outcomes that WE HAVE NO SOURCE FOR. Nobody
+    // surveyed the graduates; the sentence was written because it sounded like
+    // the sort of thing such a page says. That is exactly the "אין נתון בלי
+    // מקור" rule, broken in the one place a student is most likely to believe
+    // it — a card that presents itself as a fact.
+    //
+    // What this app CAN say truthfully about the degree is what its own
+    // catalog holds, and it turns out to be more interesting than the
+    // invented version: only 27 of the 344 courses are required.
+    textEn:
+      "Of the 344 courses in the PPE catalog, 27 are required — 93 credits. The other 57 credits toward the 150 are yours to choose.",
+    textHe:
+      "מתוך 344 הקורסים בקטלוג של פכ״מ, 27 הם חובה — 93 ש״ס. שאר 57 הש״ס עד ה-150 הם בחירה שלכם.",
     category: "motivation",
     icon: Briefcase,
   },

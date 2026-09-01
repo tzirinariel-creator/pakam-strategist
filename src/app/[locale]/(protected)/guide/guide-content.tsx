@@ -87,7 +87,7 @@ export function GuideContent() {
           <Li>{isHe ? "שנה א׳ = קורסי חובה. אל תתחכמו — קחו הכל ותתמקדו בממוצע טוב." : "Year 1 = mandatory courses. Take them all, aim for a good GPA."}</Li>
           <Li>{isHe ? "בחרו תחום מיקוד מוקדם — הוא משפיע על כל התכנון." : "Choose your focus area early — it drives the whole plan."}</Li>
           <Li>{isHe ? "כדאי לקחת אנגלית מוקדם — קורסים קלים יחסית שמורידים עומס בהמשך." : "Take English early — relatively easy courses that ease your load later."}</Li>
-          <Li>{isHe ? "אל תשימו 3 קורסים כבדים באותו סמסטר." : "Don't stack 3 heavy courses in one semester."}</Li>
+          <Li>{isHe ? "קורסי החובה הכבדים כבר קבועים בסמסטר שלהם — את העומס מאזנים עם קורסי הבחירה שסביבם." : "The heavy required courses are already fixed to their semester — you balance the load with the electives around them."}</Li>
           <Li>{isHe ? "מעבר שנה: " : "Year transition: "}<Bidi text={isHe ? "ממוצע 75 כללי + 80 בקורסי פכ״מ" : "75 overall + 80 in PPE courses"} />.</Li>
           <Li>{isHe ? "בסוף כל סמסטר: מורידים 'אישור קורסים וציונים' מהאזור האישי של ת״א וסורקים אותו ב'רשומה' — כל הציונים מתעדכנים בבת-אחת." : "At each semester's end: download your 'Record of study' from the TAU personal area and scan it in 'Record' — all grades update at once."}</Li>
         </ul>
