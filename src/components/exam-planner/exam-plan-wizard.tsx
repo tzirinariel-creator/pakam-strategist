@@ -160,7 +160,7 @@ export function ExamPlanWizard({
             />
           ))}
         </div>
-        <span className="ms-auto text-xs font-medium text-foreground/55">
+        <span className="ms-auto text-xs font-medium text-foreground/60">
           <Bidi text={`${step}/4`} /> · {titles[step - 1]}
         </span>
       </div>
@@ -173,7 +173,7 @@ export function ExamPlanWizard({
           <div className="space-y-3">
             <div>
               <h3 className="text-sm font-bold text-foreground/85">{isHe ? "איך אתם מעדיפים ללמוד?" : "How do you prefer to study?"}</h3>
-              <p className="mt-0.5 text-xs text-foreground/50">
+              <p className="mt-0.5 text-xs text-foreground/60">
                 {isHe ? "נכוונן את פיזור הלמידה בהתאם — תמיד אפשר לשנות אחר כך." : "We'll shape the spread accordingly — you can change it later."}
               </p>
             </div>
@@ -191,12 +191,12 @@ export function ExamPlanWizard({
                       active ? "border-accent-brand bg-accent-brand/[0.05]" : "border-border/60 hover:bg-foreground/[0.03]",
                     )}
                   >
-                    <span className={cn("flex size-9 shrink-0 items-center justify-center rounded-lg", active ? "bg-accent-brand text-accent-brand-fg" : "bg-foreground/[0.06] text-foreground/50")}>
+                    <span className={cn("flex size-9 shrink-0 items-center justify-center rounded-lg", active ? "bg-accent-brand text-accent-brand-fg" : "bg-foreground/[0.06] text-foreground/60")}>
                       <Icon className="size-[18px]" />
                     </span>
                     <span className="min-w-0 flex-1">
                       <span className="block text-sm font-semibold text-foreground/85">{isHe ? o.he : o.en}</span>
-                      <span className="block text-xs text-foreground/50">{isHe ? o.subHe : o.subEn}</span>
+                      <span className="block text-xs text-foreground/60">{isHe ? o.subHe : o.subEn}</span>
                     </span>
                     <span className={cn("flex size-5 shrink-0 items-center justify-center rounded-full border", active ? "border-accent-brand bg-accent-brand text-accent-brand-fg" : "border-foreground/25")}>
                       {active && <CheckCircle2 className="size-3.5" />}
@@ -217,7 +217,7 @@ export function ExamPlanWizard({
                 <Clock className="size-4 text-accent-brand" />
                 {isHe ? "כמה שעות ביום ללמוד?" : "Study hours per day?"}
               </h3>
-              <p className="mt-0.5 text-xs text-foreground/50">
+              <p className="mt-0.5 text-xs text-foreground/60">
                 {isHe ? "נבנה את התוכנית לפי הזמן האמיתי שלכם — בלי ימים עמוסים מדי." : "We'll build the plan around your real time — no over-packed days."}
               </p>
               <div dir={isHe ? "rtl" : "ltr"} className="mt-2 grid grid-cols-7 gap-1">
@@ -229,12 +229,12 @@ export function ExamPlanWizard({
                       weekdayHours[i] === 0 ? "border-border/40 bg-foreground/[0.02]" : "border-border/60 bg-card/40",
                     )}
                   >
-                    <span className={cn("text-[11px] font-medium", i === 6 ? "text-foreground/35" : "text-foreground/55")}>{name}</span>
+                    <span className={cn("text-[11px] font-medium", i === 6 ? "text-foreground/60" : "text-foreground/60")}>{name}</span>
                     <button
                       type="button"
                       aria-label={isHe ? `יותר שעות ל${name}` : `more on ${name}`}
                       onClick={() => bumpDay(i, 0.5)}
-                      className="text-foreground/40 transition-colors hover:text-accent-brand"
+                      className="text-foreground/60 transition-colors hover:text-accent-brand"
                     >
                       <ChevronUp className="size-3.5" />
                     </button>
@@ -244,7 +244,7 @@ export function ExamPlanWizard({
                       aria-label={isHe ? `פחות שעות ל${name}` : `less on ${name}`}
                       onClick={() => bumpDay(i, -0.5)}
                       disabled={weekdayHours[i] === 0}
-                      className="text-foreground/40 transition-colors hover:text-accent-brand disabled:opacity-30"
+                      className="text-foreground/60 transition-colors hover:text-accent-brand disabled:opacity-30"
                     >
                       <ChevronDown className="size-3.5" />
                     </button>
@@ -260,7 +260,7 @@ export function ExamPlanWizard({
                 <CalendarOff className="size-4 text-accent-brand" />
                 {isHe ? "יש ימים שאי-אפשר ללמוד?" : "Any days you can't study?"}
               </h3>
-              <p className="mt-0.5 text-xs text-foreground/50">
+              <p className="mt-0.5 text-xs text-foreground/60">
                 {isHe ? "עבודה, מילואים, אירוע — נדלג עליהם בשיבוץ." : "Work, reserve duty, an event — we'll skip them when scheduling."}
               </p>
             </div>
@@ -286,7 +286,7 @@ export function ExamPlanWizard({
                 {sortedDays.map((k) => (
                   <span key={k} className="inline-flex items-center gap-1 rounded-full border border-border/60 bg-foreground/[0.04] px-2.5 py-1 text-xs text-foreground/70">
                     <Bidi text={fmtDayChip(k, isHe)} />
-                    <button type="button" onClick={() => removeDay(k)} aria-label={isHe ? "הסירו" : "remove"} className="text-foreground/40 transition-colors hover:text-red-400">
+                    <button type="button" onClick={() => removeDay(k)} aria-label={isHe ? "הסירו" : "remove"} className="text-foreground/60 transition-colors hover:text-red-400">
                       <X className="size-3" />
                     </button>
                   </span>
@@ -306,7 +306,7 @@ export function ExamPlanWizard({
           <div className="space-y-4">
             <div>
               <h3 className="text-sm font-bold text-foreground/85">{isHe ? "הנה התוכנית" : "Here's the plan"}</h3>
-              <p className="mt-0.5 text-xs text-foreground/50">
+              <p className="mt-0.5 text-xs text-foreground/60">
                 {isHe ? "תצוגה מקדימה חיה. אפשר לחזור ולכוונן, או לבנות." : "A live preview. Go back to tune, or build it."}
               </p>
             </div>
@@ -395,7 +395,7 @@ export function MoedPrinciplesCard({ isHe }: { isHe: boolean }) {
           </li>
         ))}
       </ul>
-      <p className="mt-3 border-t border-border/40 pt-2.5 text-[11px] leading-relaxed text-foreground/45">
+      <p className="mt-3 border-t border-border/40 pt-2.5 text-[11px] leading-relaxed text-foreground/60">
         {isHe
           ? "לא ננחש תאריכים שלא פורסמו ולא נחזה כמה מבחן יהיה קשה — ההחלטה שלכם, על בסיס העקרונות והעבר האמיתי."
           : "We won't guess unpublished dates or predict how hard an exam will be — the call is yours, based on these principles and your real history."}

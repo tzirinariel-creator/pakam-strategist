@@ -504,7 +504,7 @@ export function MentorChat() {
               /* Empty state — clean welcome */
               <div className="flex flex-col items-center justify-center py-20">
                 <div className="mb-5 flex h-14 w-14 items-center justify-center rounded-2xl bg-muted">
-                  <PersonaIcon className="h-7 w-7 text-foreground/50" />
+                  <PersonaIcon className="h-7 w-7 text-foreground/60" />
                 </div>
                 <h3 className="mb-1.5 font-display text-lg font-bold">{personaTitle}</h3>
                 <p className="mb-6 max-w-sm text-center text-sm text-muted-foreground leading-relaxed">

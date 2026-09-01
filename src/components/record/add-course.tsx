@@ -105,12 +105,12 @@ export function AddCourse({
     return (
       <div className="data-card p-8 text-center">
         <div className="mb-5 flex justify-center">
-          <FolderOpen className="h-12 w-12 text-foreground/40" />
+          <FolderOpen className="h-12 w-12 text-foreground/60" />
         </div>
         <h2 className="mb-2 font-display text-lg font-bold text-foreground/90">
           {t("addTitle")}
         </h2>
-        <p className="mb-6 text-sm text-foreground/55">{t("emptyDescNoCourses")}</p>
+        <p className="mb-6 text-sm text-foreground/60">{t("emptyDescNoCourses")}</p>
         <Link
           href="/dashboard"
           className="inline-flex items-center gap-2 rounded-full border border-accent-brand/30 bg-accent-brand/15 px-6 py-2.5 text-sm font-bold text-foreground/90 transition-colors hover:bg-accent-brand/25"
@@ -128,7 +128,7 @@ export function AddCourse({
         <Plus className="h-5 w-5 text-accent-brand" />
         {t("addTitle")}
       </h2>
-      <p className="mb-4 text-sm text-foreground/50">{t("addDesc")}</p>
+      <p className="mb-4 text-sm text-foreground/60">{t("addDesc")}</p>
 
       {/* Placement picker — when did you take it? Defaults to the most recent
           PAST semester so an added course lands in the correct year·semester
@@ -139,7 +139,7 @@ export function AddCourse({
             {t("placementLabel")}
           </span>
           <div className="flex flex-col gap-1">
-            <label htmlFor="record-add-year" className="text-[11px] text-foreground/45">
+            <label htmlFor="record-add-year" className="text-[11px] text-foreground/60">
               {t("placementYear")}
             </label>
             <select
@@ -158,7 +158,7 @@ export function AddCourse({
             </select>
           </div>
           <div className="flex flex-col gap-1">
-            <label htmlFor="record-add-semester" className="text-[11px] text-foreground/45">
+            <label htmlFor="record-add-semester" className="text-[11px] text-foreground/60">
               {t("placementSemester")}
             </label>
             <select
@@ -180,14 +180,14 @@ export function AddCourse({
       )}
 
       <div className="relative">
-        <Search className="pointer-events-none absolute inset-y-0 start-3 my-auto h-4 w-4 text-foreground/30" />
+        <Search className="pointer-events-none absolute inset-y-0 start-3 my-auto h-4 w-4 text-foreground/60" />
         <input
           type="text"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           placeholder={t("searchPlaceholder")}
           aria-label={t("searchPlaceholder")}
-          className="w-full rounded-lg border border-border bg-card py-2.5 ps-9 pe-3 text-sm text-foreground placeholder:text-foreground/30 focus:border-foreground/30 focus:outline-none"
+          className="w-full rounded-lg border border-border bg-card py-2.5 ps-9 pe-3 text-sm text-foreground placeholder:text-foreground/60 focus:border-foreground/30 focus:outline-none"
         />
       </div>
 
@@ -230,7 +230,7 @@ export function AddCourse({
                     {t("englishBadge")}
                   </span>
                 )}
-                <span className="shrink-0 font-mono text-[10px] text-foreground/40">
+                <span className="shrink-0 font-mono text-[10px] text-foreground/60">
                   {course.credits} {t("credits")}
                 </span>
               </button>
@@ -239,10 +239,10 @@ export function AddCourse({
         </div>
       )}
       {search.trim().length >= 2 && results.length === 0 && (
-        <p className="mt-2 text-sm text-foreground/35">{t("noResults")}</p>
+        <p className="mt-2 text-sm text-foreground/60">{t("noResults")}</p>
       )}
       {search.trim().length >= 2 && results.length > 0 && (
-        <p className="mt-2 text-[11px] text-foreground/35">{t("addToSemester", { label: targetLabel })}</p>
+        <p className="mt-2 text-[11px] text-foreground/60">{t("addToSemester", { label: targetLabel })}</p>
       )}
     </div>
   );

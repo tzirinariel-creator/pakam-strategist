@@ -114,7 +114,7 @@ export function LineageArchiveState({
           )}
         </div>
 
-        <p className="border-t border-border/40 pt-2 text-xs leading-relaxed text-foreground/45">
+        <p className="border-t border-border/40 pt-2 text-xs leading-relaxed text-foreground/60">
           {isHe
             ? "כל המספרים כאן נספרים מתיק המחזור עצמו ברגע הטעינה — לא הערכה ולא תחזית."
             : "Every number here is counted from the cohort file itself at load time — not an estimate, not a forecast."}
@@ -130,7 +130,7 @@ function Stat({ value, label }: { value: number; label: string }) {
       <span className="font-data text-2xl font-bold text-foreground/85">
         <bdi dir="ltr">{value}</bdi>
       </span>
-      <span className="text-xs text-foreground/55">{label}</span>
+      <span className="text-xs text-foreground/60">{label}</span>
     </div>
   );
 }

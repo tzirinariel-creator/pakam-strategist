@@ -355,7 +355,7 @@ export function SemesterPlannerPage() {
           <span className="font-medium text-foreground/80">
             {isHe ? "תצוגה מקדימה — השינויים עדיין לא נשמרו" : "Preview — your changes aren't saved yet"}
           </span>
-          <span className="text-foreground/45">
+          <span className="text-foreground/60">
             {isHe ? "· המספרים מתעדכנים חי; סיימו את התכנון כדי לשמור" : "· numbers update live; finish planning to save"}
           </span>
         </div>

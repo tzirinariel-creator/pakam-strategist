@@ -147,7 +147,7 @@ export function CourseBubble({
 
         {/* English-taught badge */}
         {course.courseType === "ENGLISH" && (
-          <span className="shrink-0 rounded bg-foreground/8 px-1 text-[10px] font-medium text-foreground/50" title={isHe ? "נלמד באנגלית" : "Taught in English"}>
+          <span className="shrink-0 rounded bg-foreground/8 px-1 text-[10px] font-medium text-foreground/60" title={isHe ? "נלמד באנגלית" : "Taught in English"}>
             EN
           </span>
         )}
@@ -169,7 +169,7 @@ export function CourseBubble({
 
         {/* Focus area badge */}
         {recommended && (
-          <span className="shrink-0 rounded-full bg-foreground/8 px-1 py-0 text-[11px] font-medium text-foreground/40">
+          <span className="shrink-0 rounded-full bg-foreground/8 px-1 py-0 text-[11px] font-medium text-foreground/60">
             {isHe ? "מיקוד" : "Focus"}
           </span>
         )}
@@ -204,7 +204,7 @@ export function CourseBubble({
             rather than quietly overstating the week. */}
         {daysLabel && (
           <span
-            className="shrink-0 font-mono text-[10px] text-foreground/25"
+            className="shrink-0 font-mono text-[10px] text-foreground/60"
             title={
               isPickable
                 ? isHe
@@ -219,25 +219,25 @@ export function CourseBubble({
 
         {/* Status icon */}
         {state === "mandatory" && (
-          <Lock className="h-3 w-3 shrink-0 text-foreground/50" />
+          <Lock className="h-3 w-3 shrink-0 text-foreground/60" />
         )}
         {state === "selected" && (
           <Check className="h-3 w-3 shrink-0 text-foreground/80" />
         )}
         {state === "disabled" && (
-          <AlertTriangle className="h-3 w-3 shrink-0 text-foreground/30" />
+          <AlertTriangle className="h-3 w-3 shrink-0 text-foreground/60" />
         )}
 
         {/* Recommended star */}
         {recommended && state === "default" && (
-          <Star className="h-3 w-3 shrink-0 text-foreground/50 fill-foreground/30" />
+          <Star className="h-3 w-3 shrink-0 text-foreground/60 fill-foreground/30" />
         )}
 
         {/* Credits badge */}
         <span
           className={cn(
             "shrink-0 font-mono text-[10px]",
-            state === "selected" ? "text-foreground/70" : "text-foreground/30"
+            state === "selected" ? "text-foreground/70" : "text-foreground/60"
           )}
         >
           {course.credits}

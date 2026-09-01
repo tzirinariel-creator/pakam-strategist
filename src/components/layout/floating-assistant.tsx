@@ -960,7 +960,7 @@ export function FloatingAssistant() {
               </div>
               <div className="min-w-0 flex-1">
                 <p className="font-display text-sm font-bold text-foreground/90">{labels.name}</p>
-                <p className="text-[11px] text-foreground/50">
+                <p className="text-[11px] text-foreground/60">
                   {isReferent
                     ? isHe ? "שנה ג׳ שכבר עבר את זה · דוגרי, מהנתונים שלכם" : "A final-year who's been through it · straight talk, from your data"
                     : aiAvailable
@@ -1004,7 +1004,7 @@ export function FloatingAssistant() {
                 }}
                 aria-label={isHe ? `החליפו ל${otherName}` : `Switch to ${otherName}`}
                 title={isHe ? `העדפת ${otherName}? החליפו` : `Prefer ${otherName}? Switch`}
-                className="me-1 flex shrink-0 items-center gap-1 rounded-md px-2 py-1.5 text-[11px] text-foreground/40 transition-colors hover:bg-foreground/10 hover:text-foreground/70"
+                className="me-1 flex shrink-0 items-center gap-1 rounded-md px-2 py-1.5 text-[11px] text-foreground/60 transition-colors hover:bg-foreground/10 hover:text-foreground/70"
               >
                 <ArrowLeftRight className="size-3.5" />
                 <span className="hidden sm:inline">{otherName}</span>
@@ -1013,7 +1013,7 @@ export function FloatingAssistant() {
                 type="button"
                 onClick={() => setOpen(false)}
                 aria-label={isHe ? "סגור" : "Close"}
-                className="rounded-md p-1.5 text-foreground/40 transition-colors hover:bg-foreground/10 hover:text-foreground/70"
+                className="rounded-md p-1.5 text-foreground/60 transition-colors hover:bg-foreground/10 hover:text-foreground/70"
               >
                 <X className="size-4" />
               </button>
@@ -1103,14 +1103,14 @@ export function FloatingAssistant() {
                             </button>
                           ))}
                         </div>
-                        <p className="mt-1.5 text-[11px] leading-relaxed text-foreground/45">
+                        <p className="mt-1.5 text-[11px] leading-relaxed text-foreground/60">
                           {isHe
                             ? "לחיצה ממלאת את שורת הכתיבה — ערכו את הפרטים ושלחו. לפני כל שינוי תקבלו כרטיס-אישור, וכלום לא זז בלי לחיצה שלכם."
                             : "Tapping fills the input — edit the details and send. A confirm card always comes first; nothing moves without your click."}
                         </p>
                       </>
                     ) : (
-                      <p className="text-[11px] leading-relaxed text-foreground/45">
+                      <p className="text-[11px] leading-relaxed text-foreground/60">
                         {actionVerbsLine(isHe)}
                       </p>
                     )}
@@ -1119,7 +1119,7 @@ export function FloatingAssistant() {
                       shared free key (no BYOK), say so calmly — with the free way
                       out of the small daily cap. BYOK users never see this. */}
                   {!apiKeyQuery.data?.hasKey && apiKeyQuery.data?.sharedAvailable && (
-                    <p className="text-[11px] leading-relaxed text-foreground/40">
+                    <p className="text-[11px] leading-relaxed text-foreground/60">
                       {isHe ? "אתם על המכסה החינמית המשותפת — עובד מצוין. אם היא נגמרת לכם, " : "You're on the free shared quota — works great. If it runs out, "}
                       <Link href="/settings" className="text-accent-brand/80 underline-offset-2 hover:underline">
                         {isHe ? "מפתח Gemini אישי (גם חינם)" : "a personal Gemini key (also free)"}
@@ -1203,7 +1203,7 @@ export function FloatingAssistant() {
                       </div>
                     )}
                     {m.action && m.actionResolved && (
-                      <p className="mt-1 text-[11px] text-foreground/40">
+                      <p className="mt-1 text-[11px] text-foreground/60">
                         {isHe ? "✓ טופל" : "✓ handled"}
                       </p>
                     )}
@@ -1235,7 +1235,7 @@ export function FloatingAssistant() {
               ))}
 
               {streaming && messages[messages.length - 1]?.content === "" && (
-                <div className="flex items-center gap-1.5 px-1 text-xs text-foreground/40">
+                <div className="flex items-center gap-1.5 px-1 text-xs text-foreground/60">
                   <Loader2 className="size-3 animate-spin" />
                   {isHe ? "חושב…" : "Thinking…"}
                 </div>
@@ -1247,8 +1247,8 @@ export function FloatingAssistant() {
               <div className="flex items-center gap-2 border-t border-border/60 px-3 pt-3">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img src={attachedImage.preview} alt="" className="size-12 rounded-lg border border-border/50 object-cover" />
-                <span className="flex-1 text-xs text-foreground/55">{isHe ? pg("תמונה מצורפת — שאל עליה", "תמונה מצורפת — שאלי עליה", "תמונה מצורפת — שאלו עליה") : "Image attached — ask about it"}</span>
-                <button type="button" onClick={clearImage} aria-label={isHe ? "הסר תמונה" : "Remove image"} className="rounded-md p-1 text-foreground/40 hover:text-foreground/70">
+                <span className="flex-1 text-xs text-foreground/60">{isHe ? pg("תמונה מצורפת — שאל עליה", "תמונה מצורפת — שאלי עליה", "תמונה מצורפת — שאלו עליה") : "Image attached — ask about it"}</span>
+                <button type="button" onClick={clearImage} aria-label={isHe ? "הסר תמונה" : "Remove image"} className="rounded-md p-1 text-foreground/60 hover:text-foreground/70">
                   <X className="size-4" />
                 </button>
               </div>
@@ -1279,7 +1279,7 @@ export function FloatingAssistant() {
                 disabled={!ready || streaming}
                 aria-label={isHe ? "צרף תמונה" : "Attach an image"}
                 title={isHe ? "צלם ושאל" : "Photo & ask"}
-                className="flex size-10 shrink-0 items-center justify-center rounded-xl border border-border/60 text-foreground/55 transition-colors hover:bg-foreground/5 hover:text-foreground/80 disabled:opacity-40"
+                className="flex size-10 shrink-0 items-center justify-center rounded-xl border border-border/60 text-foreground/60 transition-colors hover:bg-foreground/5 hover:text-foreground/80 disabled:opacity-40"
               >
                 <ImagePlus className="size-4" />
               </button>
@@ -1310,7 +1310,7 @@ export function FloatingAssistant() {
                     "flex size-10 shrink-0 items-center justify-center rounded-xl border transition-colors disabled:opacity-40",
                     listening
                       ? "animate-pulse border-red-400/60 bg-red-500/10 text-red-500"
-                      : "border-border/60 text-foreground/55 hover:bg-foreground/5 hover:text-foreground/80",
+                      : "border-border/60 text-foreground/60 hover:bg-foreground/5 hover:text-foreground/80",
                   )}
                 >
                   <Mic className="size-4" />

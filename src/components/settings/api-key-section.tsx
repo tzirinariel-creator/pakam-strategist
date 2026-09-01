@@ -62,7 +62,7 @@ export function ApiKeySection() {
       description={t("apiKeyDescription")}
     >
       {isDemoUser ? (
-        <p className="text-sm text-foreground/50">{t("apiKeyDemoNote")}</p>
+        <p className="text-sm text-foreground/60">{t("apiKeyDemoNote")}</p>
       ) : hasKey ? (
         <div className="flex flex-col gap-3">
           <div className="flex flex-wrap items-center gap-2 text-sm text-foreground/70">
@@ -117,7 +117,7 @@ export function ApiKeySection() {
             <button
               type="button"
               onClick={() => setShowKey((s) => !s)}
-              className="absolute inset-y-0 end-0 flex items-center px-3 text-foreground/50 transition-colors hover:text-foreground"
+              className="absolute inset-y-0 end-0 flex items-center px-3 text-foreground/60 transition-colors hover:text-foreground"
               aria-label={showKey ? "Hide key" : "Show key"}
             >
               {showKey ? (
@@ -133,7 +133,7 @@ export function ApiKeySection() {
               and a SECOND collapsed 4-step guide to the same Google page. The
               duplicates are gone; ConnectGeminiGuide above is the single guide
               and carries the (accurate) privacy disclosure. */}
-          <p className="text-xs text-foreground/40">{t("apiKeyFreeLimits")}</p>
+          <p className="text-xs text-foreground/60">{t("apiKeyFreeLimits")}</p>
           <div className="flex flex-wrap items-center gap-3">
             <Button
               onClick={() => saveMutation.mutate({ apiKey: keyInput })}

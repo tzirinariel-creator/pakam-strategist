@@ -313,7 +313,7 @@ export function CourseCard({ userCourse, disabled, currentYear }: CourseCardProp
                 "inline-flex items-center rounded-full px-1.5 py-0.5 text-[10px] font-medium",
                 declaredApproved
                   ? "bg-emerald-500/12 text-emerald-700 dark:text-emerald-400"
-                  : "bg-foreground/8 text-foreground/50",
+                  : "bg-foreground/8 text-foreground/60",
               )}
               title={
                 declaredApproved
@@ -651,7 +651,7 @@ function CompletionControl({
                   className={cn(
                     "w-20 rounded-md border bg-background/50 px-2 py-1.5",
                     "font-mono text-sm text-center",
-                    "placeholder:text-foreground/20",
+                    "placeholder:text-foreground/60",
                     "focus:outline-none focus:ring-1 transition-all",
                     isFailingGrade
                       ? "border-amber-400/60 text-amber-600 focus:border-amber-400 focus:ring-amber-400/30 dark:text-amber-400"
@@ -699,7 +699,7 @@ function CompletionControl({
               </button>
               <span>{tPlanner("markBinary")}</span>
             </label>
-            <p className="text-xs leading-tight text-foreground/45">
+            <p className="text-xs leading-tight text-foreground/60">
               {tPlanner("binaryHint")}
             </p>
           </div>

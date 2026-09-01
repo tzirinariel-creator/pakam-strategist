@@ -48,7 +48,7 @@ export function KnownSittings({ courses }: { courses: PlannedCourseLite[] }) {
   return (
     <div className="rounded-xl border border-border/60 bg-card/40 p-3">
       <p className="flex items-center gap-2 text-sm font-semibold text-foreground/85">
-        <CalendarClock className="size-4 shrink-0 text-foreground/45" />
+        <CalendarClock className="size-4 shrink-0 text-foreground/60" />
         {isHe ? "מועדי הבחינה לפי הידיעון" : "Exam sittings per the ידיעון"}
       </p>
       <p className="mt-1.5 text-xs leading-relaxed text-foreground/60">
@@ -74,7 +74,7 @@ export function KnownSittings({ courses }: { courses: PlannedCourseLite[] }) {
         ))}
       </ul>
 
-      <p className="mt-2.5 text-[11px] leading-relaxed text-foreground/40">
+      <p className="mt-2.5 text-[11px] leading-relaxed text-foreground/60">
         {isHe
           ? "מקור: לוח הבחינות והמטלות בידיעון פכ״מ תשפ״ז. תאריכים משתנים לפעמים — שווה לאמת מול הידיעון לפני שסוגרים משהו. אם הזנתם תאריך בעצמכם, הוא תמיד גובר."
           : "Source: the PPE תשפ״ז exam and assignment board. Dates do change — worth verifying against the ידיעון before you commit. A date you entered yourself always wins."}

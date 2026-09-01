@@ -88,7 +88,7 @@ export function UnassignedDisciplinePrompt({
             </p>
           )}
 
-          <p className="mt-2 text-xs text-foreground/50">
+          <p className="mt-2 text-xs text-foreground/60">
             {names.join(isHe ? ", " : ", ")}
             {more > 0 && (isHe ? ` ועוד ${more}` : ` and ${more} more`)}
           </p>

@@ -83,17 +83,17 @@ export function WhereIsMySheet() {
       <summary className="cursor-pointer list-none text-xs text-accent-brand underline-offset-2 hover:underline">
         {isHe ? "איפה משיגים את הגיליון?" : "Where do I get the sheet?"}
       </summary>
-      <ol className="mt-2 space-y-1.5 text-xs leading-relaxed text-foreground/55">
+      <ol className="mt-2 space-y-1.5 text-xs leading-relaxed text-foreground/60">
         {steps.map((step, i) => (
           <li key={i} className="flex gap-2">
-            <span className="flex size-4 shrink-0 items-center justify-center rounded-full bg-foreground/10 text-[10px] font-bold text-foreground/50">
+            <span className="flex size-4 shrink-0 items-center justify-center rounded-full bg-foreground/10 text-[10px] font-bold text-foreground/60">
               {i + 1}
             </span>
             <span className="min-w-0">{step}</span>
           </li>
         ))}
       </ol>
-      <p className="mt-2 text-xs leading-relaxed text-foreground/45">
+      <p className="mt-2 text-xs leading-relaxed text-foreground/60">
         {isHe
           ? "הגיליון יכול להתפרס על כמה עמודים — אפשר להעלות עמוד אחרי עמוד, סריקה חוזרת מעדכנת ולא משכפלת. אם ה-PDF כבד מדי, צלמו את העמוד עצמו. שום דבר לא נשמר בלי שתאשרו שורה-שורה."
           : "The sheet can run to several pages — upload them one after another; a repeat scan updates rather than duplicates. If the PDF is too heavy, photograph the page itself. Nothing is saved until you approve it row by row."}

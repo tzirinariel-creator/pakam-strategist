@@ -149,7 +149,7 @@ export function SyllabusScanner() {
           <p className="text-sm font-semibold text-foreground/85">
             {isHe ? "סריקת סילבוס" : "Scan a syllabus"}
           </p>
-          <p className="text-xs text-foreground/50">
+          <p className="text-xs text-foreground/60">
             {isHe
               ? "מעלים צילום/PDF של הסילבוס — בחינות והגשות נכנסות ללוח. כלום לא נשמר בלי אישור שלכם."
               : "Upload a syllabus photo/PDF — exams and deadlines land on your plan. Nothing saved without your approval."}
@@ -177,7 +177,7 @@ export function SyllabusScanner() {
       </div>
 
       {scanning && (
-        <p className="mt-2 text-xs text-foreground/45" aria-live="polite">
+        <p className="mt-2 text-xs text-foreground/60" aria-live="polite">
           {scan.hint ?? (isHe ? "לא סוגרים את העמוד." : "Keep this page open.")}
           {elapsed >= REASSURE_AFTER_S && (
             <>
@@ -196,7 +196,7 @@ export function SyllabusScanner() {
                 ? `${result.courseName ? `"${result.courseName}" — ` : ""}נמצאו ${result.items.length} תאריכים. סמנו מה להוסיף:`
                 : `${result.courseName ? `"${result.courseName}" — ` : ""}found ${result.items.length} dates. Pick what to add:`}
             </p>
-            <button type="button" onClick={() => setResult(null)} aria-label={isHe ? "סגור" : "Close"} className="rounded-md p-1 text-foreground/30 hover:text-foreground/60">
+            <button type="button" onClick={() => setResult(null)} aria-label={isHe ? "סגור" : "Close"} className="rounded-md p-1 text-foreground/60 hover:text-foreground/90">
               <X className="size-4" />
             </button>
           </div>
@@ -225,13 +225,13 @@ export function SyllabusScanner() {
                   >
                     {checked.has(i) && <Check className="size-3" />}
                   </button>
-                  <Icon className="size-3.5 shrink-0 text-foreground/40" />
+                  <Icon className="size-3.5 shrink-0 text-foreground/60" />
                   <span className="min-w-0 flex-1 truncate text-foreground/80">
                     {item.title}
                     {item.kind === "exam" && item.moed && (
                       // Real separator in the markup — a CSS margin alone glues
                       // the moed to the title in textContent (the #27 family).
-                      <span className="text-foreground/45">{isHe ? ` · מועד ${item.moed === "B" ? "ב׳" : "א׳"}` : ` · Moed ${item.moed}`}</span>
+                      <span className="text-foreground/60">{isHe ? ` · מועד ${item.moed === "B" ? "ב׳" : "א׳"}` : ` · Moed ${item.moed}`}</span>
                     )}
                   </span>
                   <span className="font-mono tabular-nums text-foreground/60" dir="ltr">

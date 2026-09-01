@@ -491,7 +491,7 @@ export function WeeklyTimetable({
                                   e.stopPropagation();
                                   onPickGroup!(slot.courseCode, e.currentTarget);
                                 }}
-                                className="flex min-h-[32px] shrink-0 items-center gap-1 rounded-md px-1.5 py-1 text-[11px] font-medium text-foreground/55 transition-colors hover:bg-foreground/5 hover:text-accent-brand"
+                                className="flex min-h-[32px] shrink-0 items-center gap-1 rounded-md px-1.5 py-1 text-[11px] font-medium text-foreground/60 transition-colors hover:bg-foreground/5 hover:text-accent-brand"
                                 title={isHe ? "החלף קבוצה" : "Change group"}
                                 aria-label={isHe ? "החלף קבוצה" : "Change group"}
                               >
@@ -806,7 +806,7 @@ export function WeeklyTimetable({
                       {canPickGroup && (
                         <Repeat
                           aria-hidden
-                          className="mt-px size-3 shrink-0 text-foreground/35"
+                          className="mt-px size-3 shrink-0 text-foreground/60"
                         />
                       )}
                     </div>

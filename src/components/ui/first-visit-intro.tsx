@@ -79,7 +79,7 @@ export function FirstVisitIntro({
         <button
           type="button"
           onClick={dismiss}
-          className="mt-3 text-xs font-medium text-foreground/45 transition-colors hover:text-foreground/70"
+          className="mt-3 text-xs font-medium text-foreground/60 transition-colors hover:text-foreground/70"
         >
           {isHe ? "הבנתי" : "Got it"}
         </button>
@@ -88,7 +88,7 @@ export function FirstVisitIntro({
         type="button"
         onClick={dismiss}
         aria-label={isHe ? "סגור" : "Dismiss"}
-        className="shrink-0 rounded-md p-1 text-foreground/25 transition-colors hover:text-foreground/60"
+        className="shrink-0 rounded-md p-1 text-foreground/60 transition-colors hover:text-foreground/90"
       >
         <X className="size-4" />
       </button>

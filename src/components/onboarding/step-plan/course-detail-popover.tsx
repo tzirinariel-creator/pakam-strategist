@@ -52,7 +52,7 @@ export function CourseDetailPopover({ course, children, onDisciplineOverride }: 
       <PopoverTrigger asChild>{children}</PopoverTrigger>
       <PopoverContent className="w-80 space-y-3 p-4" side="top" sideOffset={8}>
         {/* Close button */}
-        <PopoverClose className="absolute top-2 end-2 rounded-md p-1 text-foreground/30 hover:text-foreground/60 hover:bg-foreground/5 transition-all">
+        <PopoverClose className="absolute top-2 end-2 rounded-md p-1 text-foreground/60 hover:text-foreground/90 hover:bg-foreground/5 transition-all">
           <X className="h-3.5 w-3.5" />
         </PopoverClose>
 
@@ -67,7 +67,7 @@ export function CourseDetailPopover({ course, children, onDisciplineOverride }: 
               {isHe ? course.nameHe : (course.nameEn ?? course.nameHe)}
             </span>
           </div>
-          <div className="mt-1 flex items-center gap-2 text-xs text-foreground/40">
+          <div className="mt-1 flex items-center gap-2 text-xs text-foreground/60">
             <span className="font-mono">{course.code}</span>
             <span>·</span>
             <span>{course.credits} {t("nz")}</span>
@@ -84,7 +84,7 @@ export function CourseDetailPopover({ course, children, onDisciplineOverride }: 
 
         {/* Description */}
         {course.description && (
-          <p className="text-[11px] leading-relaxed text-foreground/50">
+          <p className="text-[11px] leading-relaxed text-foreground/60">
             {course.description}
           </p>
         )}
@@ -108,17 +108,17 @@ export function CourseDetailPopover({ course, children, onDisciplineOverride }: 
             {/* Golden rule (Q1): never dir="ltr" around a Hebrew word — bdi on
                 the NUMBER only (this flipped to "81.07 ממוצע" in the popover). */}
             {av.averageGrade != null && (
-              <span className="text-foreground/55">
+              <span className="text-foreground/60">
                 {isHe ? "ממוצע " : "avg "}
                 <bdi dir="ltr">{av.averageGrade}</bdi>
               </span>
             )}
             {av.failRate != null && av.failRate >= 1 && (
-              <span className="text-foreground/55">
+              <span className="text-foreground/60">
                 <bdi dir="ltr">{Math.round(av.failRate)}%</bdi> {isHe ? "נכשלים" : "fail"}
               </span>
             )}
-            <span className="text-foreground/30">{isHe ? "· מנתוני עבר" : "· from past data"}</span>
+            <span className="text-foreground/60">{isHe ? "· מנתוני עבר" : "· from past data"}</span>
           </div>
         )}
 
@@ -131,7 +131,7 @@ export function CourseDetailPopover({ course, children, onDisciplineOverride }: 
             </span>
           )}
           {course.attendanceMandatory && (
-            <span className="inline-flex items-center gap-1 rounded-full bg-foreground/5 border border-foreground/10 px-2 py-0.5 text-[11px] text-foreground/50">
+            <span className="inline-flex items-center gap-1 rounded-full bg-foreground/5 border border-foreground/10 px-2 py-0.5 text-[11px] text-foreground/60">
               <Users className="h-2.5 w-2.5" />
               {t("attendanceRequired")}
             </span>
@@ -153,7 +153,7 @@ export function CourseDetailPopover({ course, children, onDisciplineOverride }: 
             {onDisciplineOverride && <Pencil className="inline h-2.5 w-2.5 opacity-40" />}
           </button>
           {course.submissionType !== "NONE" && (
-            <span className="inline-flex items-center gap-1 rounded-full bg-foreground/5 border border-foreground/10 px-2 py-0.5 text-[11px] text-foreground/50">
+            <span className="inline-flex items-center gap-1 rounded-full bg-foreground/5 border border-foreground/10 px-2 py-0.5 text-[11px] text-foreground/60">
               <BookOpen className="h-2.5 w-2.5" />
               {course.submissionType === "EXAM" ? t("exam") : course.submissionType === "PAPER" ? t("paper") : t("referat")}
             </span>
@@ -206,17 +206,17 @@ export function CourseDetailPopover({ course, children, onDisciplineOverride }: 
             course costs you. */}
         {scheduleOutline.length > 0 && (
           <div className="space-y-1.5">
-            <div className="text-[11px] font-medium text-foreground/40 uppercase tracking-wider">
+            <div className="text-[11px] font-medium text-foreground/60 uppercase tracking-wider">
               {t("schedule")}
             </div>
             {scheduleOutline.map((section) => (
               <div key={section.sessionType}>
                 <div className="flex flex-wrap items-baseline gap-x-1.5">
-                  <span className="text-[11px] font-medium text-foreground/55">
+                  <span className="text-[11px] font-medium text-foreground/60">
                     {sessionTypeNameFor(section.sessionType, isHe)}
                   </span>
                   {isChoice(section) && (
-                    <span className="text-[10px] text-foreground/40">
+                    <span className="text-[10px] text-foreground/60">
                       {isHe
                         ? `${heNoun(section.groups.length, "קבוצה", "קבוצות")} — בוחרים אחת`
                         : `${section.groups.length} groups — pick one`}
@@ -226,9 +226,9 @@ export function CourseDetailPopover({ course, children, onDisciplineOverride }: 
                 <div className="mt-0.5 flex flex-col gap-0.5">
                   {section.groups.map((g, gi) => (
                     <div key={g.groupCode ?? gi} className="flex flex-wrap items-center gap-x-2 gap-y-0.5 text-xs text-foreground/60">
-                      <Clock className="h-3 w-3 shrink-0 text-foreground/30" />
+                      <Clock className="h-3 w-3 shrink-0 text-foreground/60" />
                       {g.groupCode && (
-                        <span className="shrink-0 rounded bg-foreground/[0.06] px-1.5 py-px text-[10px] font-medium text-foreground/55">
+                        <span className="shrink-0 rounded bg-foreground/[0.06] px-1.5 py-px text-[10px] font-medium text-foreground/60">
                           <Bidi text={isHe ? `קבוצה ${g.groupCode}` : `Group ${g.groupCode}`} />
                         </span>
                       )}
@@ -249,7 +249,7 @@ export function CourseDetailPopover({ course, children, onDisciplineOverride }: 
         {/* Exam dates — future sittings only, year-stamped */}
         {(examA || examB) && (
           <div className="space-y-1">
-            <div className="text-[11px] font-medium text-foreground/40 uppercase tracking-wider">
+            <div className="text-[11px] font-medium text-foreground/60 uppercase tracking-wider">
               {t("examDates")}
             </div>
             <div className="flex gap-3 text-xs text-foreground/60">
@@ -286,14 +286,14 @@ export function CourseDetailPopover({ course, children, onDisciplineOverride }: 
         {/* Prerequisites */}
         {course.prerequisites.length > 0 && (
           <div className="space-y-1">
-            <div className="text-[11px] font-medium text-foreground/40 uppercase tracking-wider">
+            <div className="text-[11px] font-medium text-foreground/60 uppercase tracking-wider">
               {t("prerequisites")}
             </div>
             <div className="flex flex-wrap gap-1">
               {course.prerequisites.map((code) => (
                 <span
                   key={code}
-                  className="rounded bg-foreground/5 px-1.5 py-0.5 font-mono text-[10px] text-foreground/50"
+                  className="rounded bg-foreground/5 px-1.5 py-0.5 font-mono text-[10px] text-foreground/60"
                 >
                   {code}
                 </span>

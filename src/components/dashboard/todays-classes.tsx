@@ -119,7 +119,7 @@ export function TodaysClasses({ currentYear, currentSemester }: TodaysClassesPro
         <h3 className="font-display text-base font-bold text-foreground/90">
           {t("todaysClasses")}
         </h3>
-        <span className="ms-auto text-xs text-foreground/40">
+        <span className="ms-auto text-xs text-foreground/60">
           {isHe ? `יום ${dayLabel}` : dayLabel}
         </span>
       </div>
@@ -159,7 +159,7 @@ export function TodaysClasses({ currentYear, currentSemester }: TodaysClassesPro
                 )}>
                   {session.startTime ?? "—"}
                 </div>
-                <div dir="ltr" className="font-mono text-[10px] text-foreground/30">
+                <div dir="ltr" className="font-mono text-[10px] text-foreground/60">
                   {session.endTime ?? ""}
                 </div>
               </div>
@@ -182,7 +182,7 @@ export function TodaysClasses({ currentYear, currentSemester }: TodaysClassesPro
                     </span>
                   )}
                 </div>
-                <div className="flex items-center gap-3 mt-0.5 text-xs text-foreground/40">
+                <div className="flex items-center gap-3 mt-0.5 text-xs text-foreground/60">
                   {session.sessionType && (
                     <span>{typeLabel(session.sessionType)}</span>
                   )}

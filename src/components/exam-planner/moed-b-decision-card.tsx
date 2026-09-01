@@ -97,14 +97,14 @@ export function MoedBDecisionCard({
           <h3 className="font-display text-base font-bold text-foreground/90">
             {isHe ? "כדאי לגשת למועד ב׳?" : "Is a second sitting worth it?"}
           </h3>
-          <p className="mt-1 text-xs leading-relaxed text-foreground/55">
+          <p className="mt-1 text-xs leading-relaxed text-foreground/60">
             {isHe
               ? "בחרו קורס ותראו את שתי האפשרויות — כמה הממוצע יכול לעלות, וכמה הוא יכול לרדת."
               : "Pick a course and see both outcomes — how much the average could rise, and how much it could fall."}
           </p>
 
           <label className="mt-3 block">
-            <span className="mb-1 block text-[11px] font-medium text-foreground/45">
+            <span className="mb-1 block text-[11px] font-medium text-foreground/60">
               {isHe ? "הקורס" : "Course"}
             </span>
             <select
@@ -121,7 +121,7 @@ export function MoedBDecisionCard({
           </label>
 
           <label className="mt-3 block">
-            <span className="mb-1 block text-[11px] font-medium text-foreground/45">
+            <span className="mb-1 block text-[11px] font-medium text-foreground/60">
               {isHe ? `אם במועד ב׳ תקבלו ${optimistic}` : `If the retake scores ${optimistic}`}
             </span>
             <input
@@ -161,7 +161,7 @@ export function MoedBDecisionCard({
           {/* The rule that governs the whole decision, stated where it is
               being made rather than as a footnote somewhere else. */}
           <p className="mt-3 flex items-start gap-1.5 text-xs leading-relaxed text-foreground/60">
-            <Shield className="mt-0.5 size-3.5 shrink-0 text-foreground/35" />
+            <Shield className="mt-0.5 size-3.5 shrink-0 text-foreground/60" />
             {outcome.canLose
               ? isHe
                 ? "מועד ב׳ מחליף את מועד א׳ — גם אם הוא נמוך יותר. הציון החדש הוא זה שנספר."
@@ -172,7 +172,7 @@ export function MoedBDecisionCard({
           </p>
 
           {weight != null && (
-            <p className="mt-1.5 text-xs leading-relaxed text-foreground/45">
+            <p className="mt-1.5 text-xs leading-relaxed text-foreground/60">
               {isHe ? (
                 <>
                   הקורס הזה הוא <Bidi text={`${weight}%`} /> מהממוצע שלכם — קורס בודד מזיז
@@ -213,13 +213,13 @@ function Cell({
 
   return (
     <div className="rounded-xl border border-foreground/10 bg-foreground/[0.02] p-3">
-      <span className="block text-[11px] font-medium text-foreground/45">{label}</span>
+      <span className="block text-[11px] font-medium text-foreground/60">{label}</span>
       <span className={`mt-0.5 flex items-baseline gap-1 text-lg font-bold tabular-nums ${toneClass}`}>
         {value == null ? "—" : <Bidi text={value} />}
         {Icon && <Icon className="size-3.5" />}
       </span>
       {delta != null && delta !== 0 && (
-        <span className="text-[11px] tabular-nums text-foreground/40">
+        <span className="text-[11px] tabular-nums text-foreground/60">
           <Bidi text={`${delta > 0 ? "+" : ""}${delta}`} />
         </span>
       )}

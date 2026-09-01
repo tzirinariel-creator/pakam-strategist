@@ -165,14 +165,14 @@ function RuleGroupAccordion({ group, rules, isHe }: { group: RuleGroup; rules: R
         <div className="min-w-0 flex-1">
           <div className="flex items-center gap-2">
             <span className="text-sm font-bold text-foreground/80">{isHe ? meta.he : meta.en}</span>
-            <span className="font-mono text-xs text-foreground/45" dir="ltr">{met}/{total}</span>
+            <span className="font-mono text-xs text-foreground/60" dir="ltr">{met}/{total}</span>
             {allMet && <CheckCircle2 className="size-3.5 text-emerald-400" />}
           </div>
           <div className="mt-1.5 h-1.5 w-full overflow-hidden rounded-full bg-foreground/8">
             <div className={cn("h-full rounded-full transition-all", allMet ? "bg-emerald-400" : "bg-foreground/45")} style={{ width: `${pct}%` }} />
           </div>
         </div>
-        <ChevronDown className={cn("size-4 shrink-0 text-foreground/40 transition-transform", open && "rotate-180")} />
+        <ChevronDown className={cn("size-4 shrink-0 text-foreground/60 transition-transform", open && "rotate-180")} />
       </button>
       {open && (
         <div className="grid gap-2 border-t border-border/40 p-3 lg:grid-cols-2">

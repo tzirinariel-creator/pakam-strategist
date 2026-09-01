@@ -970,7 +970,7 @@ export function SemesterPlanner({
         <h2 className="text-2xl font-bold text-foreground/90">
           {t("semesterPlannerTitle")}
         </h2>
-        <p className="mt-1 text-sm text-foreground/50">
+        <p className="mt-1 text-sm text-foreground/60">
           {t("semesterPlannerDesc")}
         </p>
         {/* Semester picker — jump to any semester */}
@@ -1002,8 +1002,8 @@ export function SemesterPlanner({
                       : isCompleted
                         ? "bg-foreground/10 text-foreground/60 hover:bg-foreground/15"
                         : isFar
-                          ? "border border-dashed border-foreground/20 bg-transparent text-foreground/35 hover:text-foreground/50"
-                          : "bg-foreground/5 text-foreground/35 hover:bg-foreground/10 hover:text-foreground/50"
+                          ? "border border-dashed border-foreground/20 bg-transparent text-foreground/60 hover:text-foreground/90"
+                          : "bg-foreground/5 text-foreground/60 hover:bg-foreground/10 hover:text-foreground/90"
                   )}
                 >
                   {isCompleted && !isActive && (
@@ -1024,7 +1024,7 @@ export function SemesterPlanner({
           )}
           <button
             onClick={() => setShowDegreeModal(true)}
-            className="inline-flex items-center gap-1 rounded-full bg-foreground/5 px-2.5 py-1 text-xs text-foreground/40 hover:text-foreground/60 transition-colors"
+            className="inline-flex items-center gap-1 rounded-full bg-foreground/5 px-2.5 py-1 text-xs text-foreground/60 hover:text-foreground/90 transition-colors"
           >
             <Info className="h-3 w-3" />
             {t("aboutPPE")}
@@ -1112,7 +1112,7 @@ export function SemesterPlanner({
                   "flex flex-1 items-center justify-center gap-1.5 rounded-md px-2.5 py-2 text-xs font-medium transition-all",
                   railTab === "courses"
                     ? "bg-background text-foreground/75 shadow-sm"
-                    : "text-foreground/40 hover:text-foreground/60",
+                    : "text-foreground/60 hover:text-foreground/90",
                 )}
               >
                 {isHe ? "קורסים" : "Courses"}
@@ -1125,7 +1125,7 @@ export function SemesterPlanner({
                   "flex flex-1 items-center justify-center gap-1.5 rounded-md px-2.5 py-2 text-xs font-medium transition-all",
                   railTab === "groups"
                     ? "bg-background text-foreground/75 shadow-sm"
-                    : "text-foreground/40 hover:text-foreground/60",
+                    : "text-foreground/60 hover:text-foreground/90",
                 )}
               >
                 {isHe ? "קבוצות" : "Groups"}
@@ -1181,7 +1181,7 @@ export function SemesterPlanner({
                   "flex items-center gap-1.5 rounded-md px-2.5 py-1.5 text-xs font-medium transition-all",
                   bottomTab === "timetable"
                     ? "bg-background text-foreground/70 shadow-sm"
-                    : "text-foreground/35 hover:text-foreground/50"
+                    : "text-foreground/60 hover:text-foreground/90"
                 )}
               >
                 <CalendarDays className="h-3 w-3" />
@@ -1193,7 +1193,7 @@ export function SemesterPlanner({
                   "flex items-center gap-1.5 rounded-md px-2.5 py-1.5 text-xs font-medium transition-all",
                   bottomTab === "exams"
                     ? "bg-background text-foreground/70 shadow-sm"
-                    : "text-foreground/35 hover:text-foreground/50"
+                    : "text-foreground/60 hover:text-foreground/90"
                 )}
               >
                 <BarChart3 className="h-3 w-3" />
@@ -1235,7 +1235,7 @@ export function SemesterPlanner({
               {allCurrentCourses.length === 0 && (
                 <div className="flex flex-col items-center justify-center py-8 text-center">
                   <CalendarDays className="h-8 w-8 text-foreground/20" />
-                  <p className="mt-2 text-xs text-foreground/40">
+                  <p className="mt-2 text-xs text-foreground/60">
                     {t("noCoursesSemester")}
                   </p>
                 </div>
@@ -1275,7 +1275,7 @@ export function SemesterPlanner({
             "w-full rounded-xl px-6 py-3 text-sm font-medium transition-all",
             allCurrentCourses.length > 0
               ? "bg-foreground text-background hover:scale-[1.01] press-scale font-bold"
-              : "bg-foreground/10 text-foreground/30 cursor-not-allowed"
+              : "bg-foreground/10 text-foreground/60 cursor-not-allowed"
           )}
         >
           {t("semesterDone")} — {allCurrentCourses.length} {t("courses")}, {currentSemesterCredits} {t("nz")}

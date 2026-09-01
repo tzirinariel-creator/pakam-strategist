@@ -142,7 +142,7 @@ export function PlannerAssistantCard({
             )}
           </p>
 
-          <p className="mt-1.5 text-xs leading-relaxed text-foreground/50">
+          <p className="mt-1.5 text-xs leading-relaxed text-foreground/60">
             {isHe
               ? "הוא עובר על כל הקבוצות של כל הקורסים שבחרתם ומחפש שילוב שמסתדר. התוכנית שלכם לא משתנה עד שתאשרו."
               : "It searches every group of every course you picked for a combination that works. Your plan does not change until you accept."}

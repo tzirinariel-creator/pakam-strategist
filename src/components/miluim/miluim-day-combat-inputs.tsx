@@ -50,10 +50,10 @@ export function MiluimDayCombatInputs({
             onDaysChange(e.target.value === "" ? null : parseInt(e.target.value, 10))
           }
           placeholder={labels.daysPlaceholder}
-          className="w-full rounded-lg border border-border bg-card px-3 py-2 text-sm text-foreground placeholder:text-foreground/25 focus:border-foreground/30 focus:outline-none transition-colors"
+          className="w-full rounded-lg border border-border bg-card px-3 py-2 text-sm text-foreground placeholder:text-foreground/60 focus:border-foreground/30 focus:outline-none transition-colors"
         />
         {labels.daysHint && (
-          <p className="text-xs text-foreground/30">{labels.daysHint}</p>
+          <p className="text-xs text-foreground/60">{labels.daysHint}</p>
         )}
       </div>
 

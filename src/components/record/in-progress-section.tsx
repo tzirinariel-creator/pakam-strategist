@@ -41,7 +41,7 @@ export function InProgressSection({
             <Bidi text={courses.length} />)
           </span>
         </div>
-        <p className="mt-1 text-xs leading-snug text-foreground/50">
+        <p className="mt-1 text-xs leading-snug text-foreground/60">
           {isHe
             ? "אלה הקורסים של הסמסטר הנוכחי. כשמתפרסם ציון — מסמנים ✓ ליד הקורס ומזינים אותו."
             : "The courses you're taking right now. When grades come out — mark done + grade here."}
@@ -64,7 +64,7 @@ export function InProgressSection({
                 >
                   {courseName}
                 </span>
-                <span dir="ltr" className="font-mono text-[10px] text-foreground/40">
+                <span dir="ltr" className="font-mono text-[10px] text-foreground/60">
                   {uc.course.code}
                 </span>
               </div>

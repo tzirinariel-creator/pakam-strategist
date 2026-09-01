@@ -117,7 +117,7 @@ export function StepWelcome({ onNext, selectedProgram, onProgramSelect }: StepWe
               <h3 className="font-display text-sm font-semibold text-foreground/90">
                 {feature.title}
               </h3>
-              <p className="mt-0.5 text-xs leading-relaxed text-foreground/50">
+              <p className="mt-0.5 text-xs leading-relaxed text-foreground/60">
                 {feature.description}
               </p>
               {"note" in feature && (
@@ -137,7 +137,7 @@ export function StepWelcome({ onNext, selectedProgram, onProgramSelect }: StepWe
           <h3 className="font-display mb-1 text-sm font-semibold text-foreground/70">
             {t("chooseProgram")}
           </h3>
-          <p className="mb-4 text-xs text-foreground/40">
+          <p className="mb-4 text-xs text-foreground/60">
             {t("chooseProgramDesc")}
           </p>
 
@@ -181,7 +181,7 @@ export function StepWelcome({ onNext, selectedProgram, onProgramSelect }: StepWe
                         "h-5 w-5",
                         isActive
                           ? "text-foreground/70"
-                          : "text-foreground/30"
+                          : "text-foreground/60"
                       )}
                     />
                   </div>
@@ -194,14 +194,14 @@ export function StepWelcome({ onNext, selectedProgram, onProgramSelect }: StepWe
                           "text-sm font-semibold",
                           isActive
                             ? "text-foreground/90"
-                            : "text-foreground/40"
+                            : "text-foreground/60"
                         )}
                       >
                         {nameKey ? t(nameKey) : (isHe ? program.nameHe : program.nameEn)}
                       </span>
 
                       {!isActive && (
-                        <span className="flex items-center gap-1 rounded-full bg-foreground/5 px-2 py-0.5 text-[10px] font-medium text-foreground/30">
+                        <span className="flex items-center gap-1 rounded-full bg-foreground/5 px-2 py-0.5 text-[10px] font-medium text-foreground/60">
                           <Lock className="h-2.5 w-2.5" />
                           {t("comingSoon")}
                         </span>
@@ -212,8 +212,8 @@ export function StepWelcome({ onNext, selectedProgram, onProgramSelect }: StepWe
                       className={cn(
                         "mt-0.5 text-xs leading-relaxed",
                         isActive
-                          ? "text-foreground/50"
-                          : "text-foreground/25"
+                          ? "text-foreground/60"
+                          : "text-foreground/60"
                       )}
                     >
                       {descKey ? t(descKey) : (isHe ? program.fullNameHe : program.fullNameEn)}
@@ -243,7 +243,7 @@ export function StepWelcome({ onNext, selectedProgram, onProgramSelect }: StepWe
                 the dot renders on the far right and it reads ".1 ספרו מי אתם"
                 — the very bug this was meant to fix. Verified by measuring
                 per-character getBoundingClientRect in an RTL context. */}
-            <span className="rounded-full bg-foreground/5 px-3 py-1 text-xs text-foreground/40">
+            <span className="rounded-full bg-foreground/5 px-3 py-1 text-xs text-foreground/60">
               <bdi dir="ltr">{i + 1}</bdi>. {step}
             </span>
           </span>
@@ -259,7 +259,7 @@ export function StepWelcome({ onNext, selectedProgram, onProgramSelect }: StepWe
       </button>
 
       {/* Time note */}
-      <p className="animate-stagger-5 mt-3 text-xs text-foreground/30">
+      <p className="animate-stagger-5 mt-3 text-xs text-foreground/60">
         {t("welcomeNote")}
       </p>
     </div>

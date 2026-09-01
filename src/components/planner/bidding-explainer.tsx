@@ -40,14 +40,14 @@ export function BiddingExplainer({ isHe }: { isHe: boolean }) {
             {isHe ? "איך עובד הבידינג?" : "How bidding works"}
           </p>
           {/* Even while collapsed, name the #1 trap so it isn't missed. */}
-          <p className="text-xs text-foreground/50">
+          <p className="text-xs text-foreground/60">
             {isHe
               ? "מכרז ב-2 מקצים · חפיפות נפתרות לפי הניקוד"
               : "A 2-round auction · the trap: last request wins"}
           </p>
         </div>
         <ChevronDown
-          className={cn("size-4 shrink-0 text-foreground/40 transition-transform", open && "rotate-180")}
+          className={cn("size-4 shrink-0 text-foreground/60 transition-transform", open && "rotate-180")}
         />
       </button>
 
@@ -67,7 +67,7 @@ export function BiddingExplainer({ isHe }: { isHe: boolean }) {
             iconClassName="size-3.5"
           />
 
-          <p className="text-xs leading-tight text-foreground/40">
+          <p className="text-xs leading-tight text-foreground/60">
             {isHe
               ? "מנגנון יציב. אנחנו לא מנחשים כמה נקודות צריך לקורס — זה משתנה כל סמסטר ולא מתפרסם מראש."
               : "Stable mechanism. We don't guess how many points a course needs — it changes each semester and isn't published in advance."}
@@ -101,10 +101,10 @@ function Steps({ isHe }: { isHe: boolean }) {
           <div key={i} className="relative rounded-xl border border-border/50 bg-foreground/[0.02] p-3">
             <div className="mb-1.5 flex items-center gap-2">
               <span className="flex size-6 shrink-0 items-center justify-center rounded-full bg-accent-brand/10 text-[11px] font-bold text-accent-brand">{i + 1}</span>
-              <Icon className="size-4 text-foreground/45" />
+              <Icon className="size-4 text-foreground/60" />
             </div>
             <p className="text-xs font-bold text-foreground/80">{s.title}</p>
-            <p className="mt-0.5 text-[11px] leading-snug text-foreground/55">{s.body}</p>
+            <p className="mt-0.5 text-[11px] leading-snug text-foreground/60">{s.body}</p>
           </div>
         );
       })}
@@ -159,7 +159,7 @@ function OverlapTrap({ isHe }: { isHe: boolean }) {
           />
         </div>
         {/* axis ticks */}
-        <div className="flex justify-between px-0.5 text-[10px] font-mono text-foreground/30">
+        <div className="flex justify-between px-0.5 text-[10px] font-mono text-foreground/60">
           <span>08:00</span><span>10:00</span><span>12:00</span><span>14:00</span>
         </div>
       </div>
@@ -217,7 +217,7 @@ function Checklist({ isHe }: { isHe: boolean }) {
               >
                 {done[i] && <Check className="size-3" />}
               </span>
-              <span className={cn("text-[11px] leading-snug", done[i] ? "text-foreground/40 line-through" : "text-foreground/70")}>{m}</span>
+              <span className={cn("text-[11px] leading-snug", done[i] ? "text-foreground/60 line-through" : "text-foreground/70")}>{m}</span>
             </button>
           </li>
         ))}
@@ -267,7 +267,7 @@ function RegistrationCadence({ isHe }: { isHe: boolean }) {
           ? "פכ״מ הוא תואר משולב, אז זה נוגע לכם משני הצדדים: קורסי הפילוסופיה ומדע המדינה בדרך כלל שנתיים, וקורסי הכלכלה סמסטריאליים. אנחנו לא מנחשים בשבילכם — שווה לוודא מול המזכירות מה חל על הקורסים שלכם השנה."
           : "PPE is a joint degree, so both apply to you: philosophy and political-science courses are usually annual, economics courses per-semester. We won't guess for you — worth confirming with the secretariat which applies to your courses this year."}
       </p>
-      <p className="mt-2 text-[11px] leading-tight text-foreground/35">
+      <p className="mt-2 text-[11px] leading-tight text-foreground/60">
         {isHe ? "מקור: עמודי הבידינג של הפקולטה למדעי החברה, אוניברסיטת תל אביב." : "Source: TAU Faculty of Social Sciences bidding pages."}
       </p>
     </div>

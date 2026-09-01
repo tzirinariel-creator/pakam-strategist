@@ -218,7 +218,7 @@ export function CoursePool({
         {onAddCustomCourse && (
           <button
             onClick={onAddCustomCourse}
-            className="flex items-center gap-1 rounded-md px-2 py-1 text-[10px] text-foreground/40 hover:text-foreground/60 hover:bg-foreground/5 transition-all"
+            className="flex items-center gap-1 rounded-md px-2 py-1 text-[10px] text-foreground/60 hover:text-foreground/90 hover:bg-foreground/5 transition-all"
           >
             <Plus className="h-3 w-3" />
             {isHe ? "ידני" : "Custom"}
@@ -227,7 +227,7 @@ export function CoursePool({
       </div>
 
       {/* Frame — explains mandatory was placed; add electives to reach 150 */}
-      <p className="mb-3 rounded-lg bg-foreground/[0.03] px-3 py-2 text-[11px] leading-snug text-foreground/45">
+      <p className="mb-3 rounded-lg bg-foreground/[0.03] px-3 py-2 text-[11px] leading-snug text-foreground/60">
         {t("poolFrame")}
       </p>
 
@@ -246,7 +246,7 @@ export function CoursePool({
 
           Whether it should EVER pick courses is Ariel's call and is not being
           taken here. */}
-      <p className="mb-3 text-[11px] leading-snug text-foreground/35">
+      <p className="mb-3 text-[11px] leading-snug text-foreground/60">
         {isHe
           ? "את הקורסים אתם בוחרים — פכמון לא בוחר בשבילכם. הוא מסמן מה עוד חסר לדרישות, מה מתנגש, ומה כתוב בידיעון."
           : "You choose the courses — Pakamon does not choose for you. It flags what your requirements still need, what clashes, and what the ידיעון says."}
@@ -258,7 +258,7 @@ export function CoursePool({
           (src/lib/course-color.ts). The discipline is still named in words on
           every bubble's badge, so nothing was lost — but a legend claiming the
           dots are a field key would now be wrong, so it says what is true. */}
-      <p className="mb-3 text-[10px] leading-snug text-foreground/45">
+      <p className="mb-3 text-[10px] leading-snug text-foreground/60">
         {isHe
           ? "לכל קורס צבע קבוע — אותו צבע כאן, במערכת השעות ובלוח התכנון."
           : "Each course keeps one colour — the same here, on the timetable and on the board."}
@@ -269,7 +269,7 @@ export function CoursePool({
       <div className="mb-3 space-y-2">
         {mandatoryTabs.length > 0 && (
           <div>
-            <p className="mb-1 flex items-center gap-1 text-[10px] font-semibold uppercase tracking-wide text-foreground/40">
+            <p className="mb-1 flex items-center gap-1 text-[10px] font-semibold uppercase tracking-wide text-foreground/60">
               <Lock className="h-2.5 w-2.5" />
               {t("poolGroupMandatory")}
             </p>
@@ -282,7 +282,7 @@ export function CoursePool({
                     "shrink-0 rounded-lg px-3 py-1.5 text-xs font-medium transition-all",
                     activeTab === tab.key
                       ? "bg-foreground/10 text-foreground/80"
-                      : "bg-foreground/5 text-foreground/40 hover:text-foreground/60"
+                      : "bg-foreground/5 text-foreground/60 hover:text-foreground/90"
                   )}
                 >
                   {tab.label}
@@ -294,7 +294,7 @@ export function CoursePool({
         )}
 
         <div>
-          <p className="mb-1 flex items-center gap-1 text-[10px] font-semibold uppercase tracking-wide text-foreground/40">
+          <p className="mb-1 flex items-center gap-1 text-[10px] font-semibold uppercase tracking-wide text-foreground/60">
             <Plus className="h-2.5 w-2.5" />
             {t("poolGroupElective")}
           </p>
@@ -307,7 +307,7 @@ export function CoursePool({
                   "shrink-0 rounded-lg px-3 py-1.5 text-xs font-medium transition-all",
                   activeTab === tab.key
                     ? "bg-foreground/10 text-foreground/80"
-                    : "bg-foreground/5 text-foreground/40 hover:text-foreground/60"
+                    : "bg-foreground/5 text-foreground/60 hover:text-foreground/90"
                 )}
               >
                 {tab.label}
@@ -320,14 +320,14 @@ export function CoursePool({
 
       {/* Search input */}
       <div className="relative mb-2">
-        <Search className="pointer-events-none absolute start-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-foreground/30" />
+        <Search className="pointer-events-none absolute start-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-foreground/60" />
         <input
           type="text"
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
           placeholder={isHe ? "חיפוש קורס..." : "Search course..."}
           aria-label={isHe ? "חיפוש קורס לפי שם או מספר" : "Search a course by name or code"}
-          className="w-full rounded-md border border-foreground/10 bg-foreground/[0.02] py-1.5 pe-3 ps-8 text-xs text-foreground placeholder:text-foreground/25 focus:border-foreground/25 focus:outline-none"
+          className="w-full rounded-md border border-foreground/10 bg-foreground/[0.02] py-1.5 pe-3 ps-8 text-xs text-foreground placeholder:text-foreground/60 focus:border-foreground/25 focus:outline-none"
         />
       </div>
 
@@ -339,7 +339,7 @@ export function CoursePool({
           // it as "approve", not "empty" — the schedule is already built.
           activeTab === "elective" && mandatoryIds.size > 0 && searchQuery.trim() === "" ? (
             <div className="rounded-xl border border-dashed border-border/50 bg-foreground/[0.02] p-4 text-center">
-              <p className="text-sm text-foreground/55">
+              <p className="text-sm text-foreground/60">
                 {isHe
                   ? "הסמסטר הזה כמעט כולו חובה — רוב המערכת כבר סגורה מראש. נשאר רק לבחור קבוצות תרגול ולאשר."
                   : "This semester is almost all mandatory — your schedule is already built. Just pick tutorial groups and confirm."}
@@ -348,7 +348,7 @@ export function CoursePool({
           ) : (
             <div className="flex flex-col items-center justify-center py-8 text-center">
               <BookOpen className="h-8 w-8 text-foreground/20" />
-              <p className="mt-2 text-xs text-foreground/40">
+              <p className="mt-2 text-xs text-foreground/60">
                 {t("noElectivesAvailable")}
               </p>
             </div>
@@ -411,7 +411,7 @@ export function CoursePool({
 
       {/* Star legend */}
       {focusArea && (
-        <div className="mt-2 flex items-center gap-1 text-[10px] text-foreground/30">
+        <div className="mt-2 flex items-center gap-1 text-[10px] text-foreground/60">
           <Star className="h-2.5 w-2.5 fill-current" />
           <span>{t("starLegend")}</span>
         </div>

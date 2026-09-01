@@ -50,7 +50,7 @@ export function ProactiveNudgeCard({
         type="button"
         onClick={onDismiss}
         aria-label={isHe ? "הבנתי, אל תזכיר שוב היום" : "Got it, don't remind me today"}
-        className="absolute end-2 top-2 rounded-md p-1 text-foreground/30 transition-colors hover:text-foreground/60"
+        className="absolute end-2 top-2 rounded-md p-1 text-foreground/60 transition-colors hover:text-foreground/90"
       >
         <X className="size-3.5" />
       </button>

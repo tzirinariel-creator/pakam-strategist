@@ -401,7 +401,7 @@ export function AcademicRecordContent() {
           <h1 className="font-display text-3xl font-bold text-foreground/85">
             {t("title")}
           </h1>
-          <p className="mt-1 text-foreground/50">{t("subtitle")}</p>
+          <p className="mt-1 text-foreground/60">{t("subtitle")}</p>
         </div>
         {/* Cross-link to the Grade Forecast */}
         <Link
@@ -496,14 +496,14 @@ export function AcademicRecordContent() {
                   <span className="font-bold text-foreground/90">
                     {yearLabel} — {semLabel}
                   </span>
-                  <span className="text-xs text-foreground/40">
+                  <span className="text-xs text-foreground/60">
                     {group.courses.length} {isHe ? (group.courses.length === 1 ? "קורס" : "קורסים") : (group.courses.length === 1 ? "course" : "courses")} · {groupCredits} {t("credits")}
                   </span>
                 </div>
                 <div className="overflow-x-auto">
                   <table className="w-full text-sm">
                     <thead>
-                      <tr className="border-b border-border/20 text-foreground/50">
+                      <tr className="border-b border-border/20 text-foreground/60">
                         <th className="px-5 py-2.5 text-start font-medium">{t("course")}</th>
                         <th className="hidden px-3 py-2.5 text-start font-medium sm:table-cell">
                           {t("discipline")}

@@ -49,13 +49,13 @@ export function ConnectGeminiGuide() {
                 <span className="mt-px flex size-4.5 shrink-0 items-center justify-center rounded-full bg-accent-brand/10 text-[10px] font-bold text-accent-brand">
                   {i + 1}
                 </span>
-                <Icon className="mt-0.5 size-3.5 shrink-0 text-foreground/40" />
+                <Icon className="mt-0.5 size-3.5 shrink-0 text-foreground/60" />
                 <span>{s.text}</span>
               </li>
             );
           })}
         </ol>
-        <p className="mt-2 text-[11px] leading-snug text-foreground/45">
+        <p className="mt-2 text-[11px] leading-snug text-foreground/60">
           {isHe
             ? "אין לכם מפתח? העוזר עדיין עובד דרך המפתח המשותף החינמי של האפליקציה (עם מכסה יומית משותפת). מפתח אישי פשוט נותן לכם מכסה משלכם."
             : "No key? The assistant still works through the app's shared free key (with a shared daily quota). A personal key simply gives you your own quota."}

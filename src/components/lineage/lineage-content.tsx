@@ -121,7 +121,7 @@ export function LineageContent() {
           <h1 className="font-display text-3xl font-bold text-foreground/85">
             {isHe ? "השושלת" : "The Lineage"}
           </h1>
-          <p className="mt-1 max-w-2xl leading-relaxed text-foreground/55">
+          <p className="mt-1 max-w-2xl leading-relaxed text-foreground/60">
             {isHe
               ? "מחזור אחד לומד משהו בדרך הקשה, מסיים, והידע נעלם איתו. השושלת היא הניסיון להפסיק את זה: מה שאתם יודעים נשאר כאן, למי שיבוא אחריכם — בדיוק כמו שמה שיודעים מי שלפניכם מחכה לכם עכשיו."
               : "One cohort learns something the hard way, graduates, and the knowledge leaves with them. The Lineage is the attempt to stop that: what you know stays here for whoever comes next — exactly as what the cohorts before you knew is waiting for you now."}
@@ -205,7 +205,7 @@ export function LineageContent() {
         <h2 className="font-display text-xl font-bold text-foreground/85">
           {isHe ? "שתי הדרכים לעזור ולהיעזר" : "Two ways to help and be helped"}
         </h2>
-        <p className="max-w-3xl text-sm leading-relaxed text-foreground/55">
+        <p className="max-w-3xl text-sm leading-relaxed text-foreground/60">
           {isHe
             ? "הן נראות דומות ומתנהגות הפוך, ולכן הן נפרדות: אחת עובדת בלי שמות בכלל, השנייה עובדת רק עם שם ורק בהזמנה שלכם."
             : "They look alike and behave in opposite ways, which is why they're separate: one works with no names at all, the other only with a name and only by your invitation."}
@@ -266,7 +266,7 @@ export function LineageContent() {
           <h2 className="font-display text-xl font-bold text-foreground/85">
             {isHe ? "איפה מתחילים" : "Where to start"}
           </h2>
-          <p className="mt-1 max-w-3xl text-sm leading-relaxed text-foreground/55">
+          <p className="mt-1 max-w-3xl text-sm leading-relaxed text-foreground/60">
             {isHe
               ? "הדרך הקצרה ביותר להיכנס לשושלת היא לדרג קורס אחד שכבר סיימתם. זה דקה, וזה מה שמזיז נתון אחד מתחת לסף אל מעליו."
               : "The shortest way in is to rate one course you've already finished. It takes a minute, and it's what moves one number from under the bar to over it."}
@@ -397,7 +397,7 @@ function GenerationCard({
         <h3 className="font-semibold text-foreground/85">{title}</h3>
       </div>
       <p className="text-sm leading-relaxed text-foreground/65">{body}</p>
-      <p className="mt-auto border-t border-border/40 pt-2 text-xs font-medium text-foreground/50">
+      <p className="mt-auto border-t border-border/40 pt-2 text-xs font-medium text-foreground/60">
         <Bidi text={stat} />
       </p>
     </div>
@@ -431,7 +431,7 @@ function DoorCard({
         </div>
         <div className="min-w-0">
           <h3 className="font-display text-lg font-bold text-foreground/85">{title}</h3>
-          <p className="text-xs font-medium text-foreground/50">{kicker}</p>
+          <p className="text-xs font-medium text-foreground/60">{kicker}</p>
         </div>
       </div>
       <p className="text-sm leading-relaxed text-foreground/65">{body}</p>

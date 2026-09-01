@@ -181,7 +181,7 @@ export function NextMovesCard(props: NextMovesCardProps) {
         type="button"
         onClick={dismiss}
         aria-label={isHe ? "סגירה" : "Dismiss"}
-        className="absolute end-3 top-3 rounded-md p-1 text-foreground/25 transition-colors hover:text-foreground/60"
+        className="absolute end-3 top-3 rounded-md p-1 text-foreground/60 transition-colors hover:text-foreground/90"
       >
         <X className="size-4" />
       </button>
@@ -192,7 +192,7 @@ export function NextMovesCard(props: NextMovesCardProps) {
           <h3 className="font-display text-base font-bold text-foreground/90">
             {isHe ? "מה עוד יש כאן" : "What else is here"}
           </h3>
-          <p className="mt-1 text-xs leading-relaxed text-foreground/50">
+          <p className="mt-1 text-xs leading-relaxed text-foreground/60">
             {isHe
               ? "מה שיש לו תאריך קרוב מופיע ראשון. השורות מסומנות לפי מה שכבר עשיתם."
               : "Whatever has a near date comes first. Rows tick from what you have actually done."}
@@ -213,7 +213,7 @@ export function NextMovesCard(props: NextMovesCardProps) {
                 style={{ width: `${(done / total) * 100}%` }}
               />
             </div>
-            <span className="shrink-0 text-xs font-semibold tabular-nums text-foreground/50">
+            <span className="shrink-0 text-xs font-semibold tabular-nums text-foreground/60">
               <Bidi text={`${done}/${total}`} />
             </span>
           </div>
@@ -239,7 +239,7 @@ export function NextMovesCard(props: NextMovesCardProps) {
                       ) : m.id === "advisor" ? (
                         <PersonaCharacter className="size-4" />
                       ) : (
-                        <Icon className="size-3.5 text-foreground/40" />
+                        <Icon className="size-3.5 text-foreground/60" />
                       )}
                     </span>
                     <span className="min-w-0 flex-1">
@@ -247,7 +247,7 @@ export function NextMovesCard(props: NextMovesCardProps) {
                         <span
                           className={
                             m.done
-                              ? "text-sm font-medium text-foreground/40 line-through decoration-foreground/20"
+                              ? "text-sm font-medium text-foreground/60 line-through decoration-foreground/20"
                               : "text-sm font-semibold text-foreground/85"
                           }
                         >
@@ -268,13 +268,13 @@ export function NextMovesCard(props: NextMovesCardProps) {
                         )}
                       </span>
                       {!m.done && (
-                        <span className="mt-0.5 block text-xs leading-relaxed text-foreground/55">
+                        <span className="mt-0.5 block text-xs leading-relaxed text-foreground/60">
                           {withAdvisorName(copy[2], advisorName)}
                         </span>
                       )}
                     </span>
                     {!m.done && (
-                      <ChevronLeft className="mt-1 size-3.5 shrink-0 text-foreground/25 ltr:rotate-180" />
+                      <ChevronLeft className="mt-1 size-3.5 shrink-0 text-foreground/60 ltr:rotate-180" />
                     )}
                   </Link>
                 </li>

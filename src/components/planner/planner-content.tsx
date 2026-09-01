@@ -258,7 +258,7 @@ export function PlannerContent() {
             <p className="text-sm font-semibold text-foreground/85">
               {t("planSavedBannerTitle")}
             </p>
-            <p className="mt-0.5 text-xs text-foreground/55">
+            <p className="mt-0.5 text-xs text-foreground/60">
               {t("planSavedBannerDesc")}
             </p>
           </div>
@@ -266,7 +266,7 @@ export function PlannerContent() {
             type="button"
             onClick={() => setShowSavedBanner(false)}
             aria-label={isHe ? "סגור" : "Close"}
-            className="shrink-0 rounded-md p-1 text-foreground/30 transition-colors hover:text-foreground/60"
+            className="shrink-0 rounded-md p-1 text-foreground/60 transition-colors hover:text-foreground/90"
           >
             <X className="size-4" />
           </button>
@@ -350,7 +350,7 @@ export function PlannerContent() {
                     ? `לקראת המכרז — ${biddingTarget.labelHe} הקרוב`
                     : `Toward the bidding round — the coming ${biddingTarget.semester === "FALL" ? "fall" : "spring"}`}
                 </h2>
-                <span className="text-xs text-foreground/45">
+                <span className="text-xs text-foreground/60">
                   {isHe
                     ? `הסמסטר נפתח ${daysUntilLabel(biddingTarget.daysUntilStart, true)} — המכרז מתקיים לפני כן`
                     : `Semester starts ${daysUntilLabel(biddingTarget.daysUntilStart, false)} — bidding happens before`}
@@ -379,7 +379,7 @@ export function PlannerContent() {
                   />
                 </>
               ) : (
-                <div className="rounded-xl border border-border/60 bg-foreground/[0.02] p-4 text-xs leading-relaxed text-foreground/55">
+                <div className="rounded-xl border border-border/60 bg-foreground/[0.02] p-4 text-xs leading-relaxed text-foreground/60">
                   {isHe
                     ? `עוד לא תכננתם קורסים ל${biddingTarget.labelHe} הקרוב. גררו קורסים ללוח למעלה — ואז נבדוק לכם חפיפות ונכין רשימת-בדיקה למכרז.`
                     : "You haven't planned the coming semester yet. Drag courses onto the board above — then we'll check clashes and prep your bidding checklist."}

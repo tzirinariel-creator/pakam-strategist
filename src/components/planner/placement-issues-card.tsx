@@ -78,11 +78,11 @@ export function PlacementIssuesCard({
                   <span className="min-w-0 flex-1 text-xs">
                     <span className="font-semibold text-foreground/85">{it.nameHe}</span>
                     {it.isMandatory && (
-                      <span className="ms-1.5 rounded bg-foreground/[0.07] px-1.5 py-px text-[10px] text-foreground/55">
+                      <span className="ms-1.5 rounded bg-foreground/[0.07] px-1.5 py-px text-[10px] text-foreground/60">
                         {isHe ? "חובה" : "required"}
                       </span>
                     )}
-                    <span className="mt-0.5 block text-foreground/55">
+                    <span className="mt-0.5 block text-foreground/60">
                       {it.kind === "wrong-semester"
                         ? isHe
                           ? `אצלכם ב${termHe(it.plannedSemester)} · ניתן ב${it.offeredSemesters.map(termHe).join(" / ")}`

@@ -27,7 +27,7 @@ export function GoogleCalendarBanner({
         <p className="text-sm font-medium text-foreground/80">
           {isConnected ? t("googleBannerConnected") : t("googleBanner")}
         </p>
-        <p className="text-xs text-foreground/40 mt-0.5">
+        <p className="text-xs text-foreground/60 mt-0.5">
           {isConnected
             ? (isHe ? "השיעורים והמבחנים שלכם מסונכרנים ליומן Google" : "Your classes and exams are synced to Google Calendar")
             : (isHe
@@ -65,7 +65,7 @@ export function GoogleCalendarBanner({
           // /20 measured 1.75:1 (dark) and 1.53:1 (light) against the card —
           // WCAG 1.4.11 wants 3:1 for a control's icon. /50 measures 4.64:1 and
           // 3.40:1, the lowest step that clears it in BOTH themes.
-          className="rounded-md p-1 text-foreground/50 hover:text-foreground/75 transition-colors"
+          className="rounded-md p-1 text-foreground/60 hover:text-foreground/75 transition-colors"
         >
           <X className="size-4" />
         </button>

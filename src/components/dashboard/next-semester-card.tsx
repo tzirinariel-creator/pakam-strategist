@@ -103,7 +103,7 @@ export function NextSemesterCard({
         type="button"
         onClick={dismiss}
         aria-label={isHe ? "סגור" : "Dismiss"}
-        className="shrink-0 rounded-md p-1 text-foreground/25 transition-colors hover:text-foreground/60"
+        className="shrink-0 rounded-md p-1 text-foreground/60 transition-colors hover:text-foreground/90"
       >
         <X className="size-4" />
       </button>

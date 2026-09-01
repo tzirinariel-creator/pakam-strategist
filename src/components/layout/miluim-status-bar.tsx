@@ -170,7 +170,7 @@ export function MiluimStatusBar() {
         <span className="font-medium text-foreground/80">
           {t("barLabel")} · {t("groupShort", { group: shortGroup(group) })}
         </span>
-        <span className="hidden text-foreground/45 sm:inline">
+        <span className="hidden text-foreground/60 sm:inline">
           ·{" "}
           {cfg.creditExemptionPerYear > 0 ? (
             <Bidi text={t("barCreditHeadline", { credits: cfg.creditExemptionPerYear })} />
@@ -213,13 +213,13 @@ export function MiluimStatusBar() {
                 <DialogPrimitive.Title className="font-display text-lg font-bold text-foreground/90">
                   <Bidi text={groupName} />
                 </DialogPrimitive.Title>
-                <DialogPrimitive.Description className="mt-0.5 text-xs leading-relaxed text-foreground/55">
+                <DialogPrimitive.Description className="mt-0.5 text-xs leading-relaxed text-foreground/60">
                   <Bidi text={groupDesc} />
                 </DialogPrimitive.Description>
               </div>
               <DialogPrimitive.Close
                 aria-label={t("close")}
-                className="rounded-md p-1 text-foreground/40 transition-colors hover:bg-foreground/10 hover:text-foreground/70"
+                className="rounded-md p-1 text-foreground/60 transition-colors hover:bg-foreground/10 hover:text-foreground/70"
               >
                 <X className="size-4" />
               </DialogPrimitive.Close>
@@ -232,7 +232,7 @@ export function MiluimStatusBar() {
                   answering two different questions. Each block now states its
                   own scope in its heading. */}
               <div>
-                <h4 className="mb-2 text-xs font-semibold text-foreground/50">
+                <h4 className="mb-2 text-xs font-semibold text-foreground/60">
                   {isHe ? "המכסות שלכם לכל התואר — כמה כבר מימשתם" : "Your whole-degree quotas — how much you've used"}
                 </h4>
                 {/* Quota cards: credit exemption + binary conversions */}
@@ -289,7 +289,7 @@ export function MiluimStatusBar() {
                   clearer than a chip-row, and the value/label split fixes the
                   cramped "+25% זמן בבחינה" reading. */}
               <div>
-                <h4 className="mb-2 text-xs font-semibold text-foreground/50">
+                <h4 className="mb-2 text-xs font-semibold text-foreground/60">
                   {isHe
                     ? "מה מגיע לכם בסמסטר הזה — לפי הקבוצה הנוכחית"
                     : "What you get this semester — by your current group"}
@@ -313,7 +313,7 @@ export function MiluimStatusBar() {
                     <InfoStat icon={Target} value={`+${cfg.biddingBonus}%`} label={isHe ? "בידינג" : "Bidding"} />
                   )}
                 </div>
-                <p className="mt-2 text-[10px] leading-relaxed text-foreground/40">
+                <p className="mt-2 text-[10px] leading-relaxed text-foreground/60">
                   {isHe
                     ? "ההטבות האלה נגזרות מהקבוצה של הסמסטר הנוכחי. שירתם יותר או פחות בסמסטר הבא — הקבוצה, ואיתה ההטבות, נקבעות מחדש."
                     : "These follow this semester's group. Serve more or fewer days next semester and the group — and these benefits — are set again."}
@@ -336,7 +336,7 @@ export function MiluimStatusBar() {
                   request-elsewhere. */}
               {benefitGroups.map((bg) => (
                 <div key={bg.titleEn}>
-                  <h4 className="mb-2 text-xs font-semibold text-foreground/50">
+                  <h4 className="mb-2 text-xs font-semibold text-foreground/60">
                     {isHe ? bg.titleHe : bg.titleEn}
                   </h4>
                   <ul className="space-y-2">
@@ -345,7 +345,7 @@ export function MiluimStatusBar() {
                         {b.auto ? (
                           <BadgeCheck className={cn("mt-0.5 size-3.5 shrink-0", style.chip)} />
                         ) : (
-                          <Check className="mt-0.5 size-3.5 shrink-0 text-foreground/35" />
+                          <Check className="mt-0.5 size-3.5 shrink-0 text-foreground/60" />
                         )}
                         <span className="leading-snug">
                           <Bidi text={isHe ? b.he : b.en} />
@@ -368,7 +368,7 @@ export function MiluimStatusBar() {
               ))}
 
               {/* Honest "how this works" — what's automatic vs. what to request. */}
-              <div className="rounded-xl border border-border/60 bg-foreground/[0.02] p-3.5 text-xs leading-relaxed text-foreground/55">
+              <div className="rounded-xl border border-border/60 bg-foreground/[0.02] p-3.5 text-xs leading-relaxed text-foreground/60">
                 {isHe ? BENEFITS_HONESTY_NOTE.he : BENEFITS_HONESTY_NOTE.en}
               </div>
             </div>
@@ -418,11 +418,11 @@ function ServiceTimeline({
 
   return (
     <div>
-      <h4 className="mb-2 text-xs font-semibold text-foreground/50">
+      <h4 className="mb-2 text-xs font-semibold text-foreground/60">
         {isHe ? "השירות שלכם בתואר, סמסטר אחרי סמסטר" : "Your service during the degree, semester by semester"}
       </h4>
       {semesters.length === 0 ? (
-        <p className="rounded-xl border border-dashed border-border/60 bg-foreground/[0.02] p-3 text-xs leading-relaxed text-foreground/50">
+        <p className="rounded-xl border border-dashed border-border/60 bg-foreground/[0.02] p-3 text-xs leading-relaxed text-foreground/60">
           {isHe
             ? "הקבוצה נקבעת מחדש לכל סמסטר לפי ימי השירות בו. עוד לא רשמתם שירות — הכי מהיר להעלות טופס 3010 בעמוד המילואים (הכפתור למטה), ואנחנו נמלא את הסמסטרים."
             : "Your group is re-derived each semester from that semester's days. No service recorded yet — the quickest way is uploading a Form 3010 on the miluim page (button below) and we'll fill the semesters in."}
@@ -458,7 +458,7 @@ function ServiceTimeline({
                     {isHe ? "עכשיו" : "now"}
                   </span>
                 )}
-                <span className="text-foreground/50">
+                <span className="text-foreground/60">
                   {isHe
                     ? s.daysServed === 1 ? "יום שירות אחד" : `${s.daysServed} ימי שירות`
                     : `${s.daysServed} day${s.daysServed === 1 ? "" : "s"} served`}
@@ -471,7 +471,7 @@ function ServiceTimeline({
                 <span
                   className={cn(
                     "ms-auto inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 text-[10px] font-bold",
-                    chip ? cn(chip.bar, chip.chip) : "bg-foreground/5 text-foreground/45",
+                    chip ? cn(chip.bar, chip.chip) : "bg-foreground/5 text-foreground/60",
                   )}
                 >
                   {g === "NONE"
@@ -503,7 +503,7 @@ function InfoStat({
       title={title}
       className="flex flex-col items-center gap-1 rounded-xl border border-border/60 bg-foreground/[0.02] p-2.5 text-center"
     >
-      <Icon className="size-4 text-foreground/55" />
+      <Icon className="size-4 text-foreground/60" />
       {/* #43 — the value used to carry dir="auto" and sit glued to its label,
           so the block read "+25%זמן בבחינה" / "פטורנוכחות" wherever the text
           was copied or linearized. <Bidi> isolates the number run properly
@@ -513,7 +513,7 @@ function InfoStat({
       <span className="font-data text-sm font-bold text-foreground/85">
         <Bidi text={value} />
       </span>{" "}
-      <span className="text-[10px] leading-tight text-foreground/50">{label}</span>
+      <span className="text-[10px] leading-tight text-foreground/60">{label}</span>
     </div>
   );
 }

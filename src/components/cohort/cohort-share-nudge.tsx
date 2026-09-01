@@ -180,12 +180,12 @@ export function CohortShareNudge({
                 <button
                   type="button"
                   onClick={dismiss}
-                  className="ms-auto text-xs text-foreground/40 transition-colors hover:text-foreground/65"
+                  className="ms-auto text-xs text-foreground/60 transition-colors hover:text-foreground/65"
                 >
                   {isHe ? "לא עכשיו" : "Not now"}
                 </button>
               </div>
-              <p className="mt-2 text-[11px] leading-relaxed text-foreground/40">
+              <p className="mt-2 text-[11px] leading-relaxed text-foreground/60">
                 {isHe
                   ? "בלי שם, אי-אפשר לשחזר מי. ממוצע נחשף רק מ-5 תורמים ומעלה, ואפשר למשוך הכול בכל רגע."
                   : "No name, no way to trace back. An average appears only from 5+ contributors, and you can withdraw anytime."}

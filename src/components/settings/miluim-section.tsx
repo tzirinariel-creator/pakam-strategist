@@ -191,7 +191,7 @@ export function MiluimSection() {
       <div className="flex flex-col gap-5">
         {/* Which record is being edited — academic year + semester (fix C) */}
         <div className="flex items-center justify-between rounded-lg border border-foreground/10 bg-foreground/3 px-4 py-2.5">
-          <span className="text-xs text-foreground/50">{t("editingRecord")}</span>
+          <span className="text-xs text-foreground/60">{t("editingRecord")}</span>
           <span className="text-xs font-medium text-foreground/70">
             <Bidi text={academicYearLabel} /> · {semesterLabel}
           </span>
@@ -309,7 +309,7 @@ export function MiluimSection() {
             <h4 className="mb-1 text-sm font-medium text-foreground/70">
               {isHe ? "השירות שלכם מאז תחילת התואר" : "Your service since the degree began"}
             </h4>
-            <p className="mb-2 text-[11px] text-foreground/45">
+            <p className="mb-2 text-[11px] text-foreground/60">
               {isHe
                 ? "שורה לכל סמסטר — הקבוצה נקבעת מחדש בכל סמסטר לפי הימים שבו."
                 : "One row per semester — the group is re-derived each semester from that semester's days."}
@@ -364,7 +364,7 @@ export function MiluimSection() {
           >
             {isHe ? "סיווג ידני (מקרים מיוחדים)" : "Manual group (special cases)"}
           </label>
-          <p className="mb-2.5 text-xs text-foreground/45">
+          <p className="mb-2.5 text-xs text-foreground/60">
             {isHe
               ? <Bidi text="מקרים מיוחדים: 300+ ימי לחימה מאז 7.10.23 מקנים קבוצה C; שכול או פגיעת-פעולה — קבוצה G; שירות קבע בתוכנית שירות — האפשרות הייעודית למטה. אם זה המצב שלכם, בחרו כאן." />
               : <Bidi text="300+ combat days since Oct 7 2023 → Group C · bereaved or wounded → Group G · career service → the dedicated option below. If that's you, pick it here." />}
@@ -460,7 +460,7 @@ export function MiluimSection() {
         <details className="rounded-lg border border-border/50 bg-foreground/[0.02] p-4">
           <summary className="cursor-pointer text-sm font-semibold text-foreground/75">
             {isHe ? "איך מנצלים את הזכויות חכם? המדריך הקצר" : "How to use the benefits wisely — the short playbook"}{" "}
-            <span className="rounded-full bg-foreground/8 px-2 py-0.5 text-[10px] font-normal text-foreground/50">
+            <span className="rounded-full bg-foreground/8 px-2 py-0.5 text-[10px] font-normal text-foreground/60">
               {isHe ? "נכון לתשפ״ו" : "As of 2025-26"}
             </span>
           </summary>

@@ -43,7 +43,7 @@ export function ModerationQueue() {
 
   if (queue.isLoading) {
     return (
-      <div className="flex items-center justify-center gap-2 py-16 text-sm text-foreground/50">
+      <div className="flex items-center justify-center gap-2 py-16 text-sm text-foreground/60">
         <Loader2 className="size-4 animate-spin" />
         טוען את תור המודרציה…
       </div>
@@ -59,7 +59,7 @@ export function ModerationQueue() {
           <ShieldCheck className="size-6 text-foreground/60" />
           מודרציית חוות-דעת
         </h1>
-        <p className="mt-1 text-sm text-foreground/50">
+        <p className="mt-1 text-sm text-foreground/60">
           חוות-דעת שהוסתרו אוטומטית (3 דיווחים) או שנצברו עליהן דיווחים. אשרו —
           והן חוזרות להיות גלויות עם ספירת-דיווחים נקייה; מחקו — והן נעלמות לצמיתות.
         </p>
@@ -78,7 +78,7 @@ export function ModerationQueue() {
                 <span className="font-semibold text-foreground/90">
                   {r.courseName ?? r.courseCode}
                 </span>
-                <span className="font-mono text-xs text-foreground/40">
+                <span className="font-mono text-xs text-foreground/60">
                   {r.courseCode}
                 </span>
                 {r.status === "HIDDEN" ? (
@@ -92,7 +92,7 @@ export function ModerationQueue() {
                     גלויה + דיווחים
                   </span>
                 )}
-                <span className="text-xs text-foreground/50">
+                <span className="text-xs text-foreground/60">
                   {r.reportCount} דיווחים
                 </span>
               </div>
@@ -155,7 +155,7 @@ export function ModerationQueue() {
                   <button
                     type="button"
                     onClick={() => setConfirmDeleteId(null)}
-                    className="text-xs text-foreground/50 hover:text-foreground/80"
+                    className="text-xs text-foreground/60 hover:text-foreground/80"
                   >
                     ביטול
                   </button>
@@ -172,7 +172,7 @@ export function ModerationQueue() {
           <h2 className="font-display text-xl font-bold text-foreground/85">תוכן קהילתי מדווח</h2>
           {cohortQueue.data!.insights.map((r) => (
             <div key={r.id} className="data-card space-y-2 p-4">
-              <div className="flex flex-wrap items-center gap-2 text-xs text-foreground/50">
+              <div className="flex flex-wrap items-center gap-2 text-xs text-foreground/60">
                 <span className="rounded-full bg-foreground/8 px-2 py-0.5">תובנה · {r.stage}</span>
                 <span className={r.status === "HIDDEN" ? "text-red-500" : "text-amber-600"}>
                   {r.status === "HIDDEN" ? "מוסתרת" : "מדווחת"} · {r.reportCount} דיווחים
@@ -189,7 +189,7 @@ export function ModerationQueue() {
           ))}
           {cohortQueue.data!.plans.map((r) => (
             <div key={r.id} className="data-card space-y-2 p-4">
-              <div className="flex flex-wrap items-center gap-2 text-xs text-foreground/50">
+              <div className="flex flex-wrap items-center gap-2 text-xs text-foreground/60">
                 <span className="rounded-full bg-foreground/8 px-2 py-0.5">מסלול</span>
                 <span className={r.status === "HIDDEN" ? "text-red-500" : "text-amber-600"}>
                   {r.status === "HIDDEN" ? "מוסתר" : "מדווח"} · {r.reportCount} דיווחים

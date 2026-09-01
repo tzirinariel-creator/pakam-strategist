@@ -48,7 +48,7 @@ export function EmptyState({
         {!hasAnyCourses && (
           <Link
             href="/dashboard"
-            className="inline-flex items-center gap-2 text-sm font-medium text-foreground/55 underline-offset-4 transition-colors hover:text-foreground/80 hover:underline"
+            className="inline-flex items-center gap-2 text-sm font-medium text-foreground/60 underline-offset-4 transition-colors hover:text-foreground/80 hover:underline"
           >
             <GraduationCap className="h-4 w-4" />
             {t("backToOnboarding")}

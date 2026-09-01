@@ -121,7 +121,7 @@ export function MyStatusHero({
             </span>
           </p>
         ) : topGapKnown ? (
-          <p className="text-xs text-foreground/45">
+          <p className="text-xs text-foreground/60">
             {isHe
               ? "אין כרגע דרישה שחסרה — ממשיכים לצבור ש״ס לפי התוכנית."
               : "No missing requirement right now — keep accumulating credits per your plan."}
@@ -129,7 +129,7 @@ export function MyStatusHero({
         ) : (
           // Regulations not resolved yet — never claim an all-clear we haven't
           // checked. Neutral line instead of a false "no missing requirement".
-          <p className="text-xs text-foreground/40">
+          <p className="text-xs text-foreground/60">
             {isHe ? "בודקים את הדרישות…" : "Checking your requirements…"}
           </p>
         )}

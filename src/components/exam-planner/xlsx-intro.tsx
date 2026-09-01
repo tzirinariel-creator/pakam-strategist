@@ -29,7 +29,7 @@ function GridPreview({ isHe }: { isHe: boolean }) {
     <div className="w-fit rounded-lg border border-border/50 bg-foreground/[0.02] p-2">
       <div className="mb-1 grid grid-cols-6 gap-0.5">
         {days.map((d, i) => (
-          <span key={i} className="w-6 text-center text-[9px] font-medium text-foreground/35">
+          <span key={i} className="w-6 text-center text-[11px] font-medium text-foreground/60">
             {d}
           </span>
         ))}

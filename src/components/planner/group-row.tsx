@@ -105,7 +105,7 @@ export function GroupRow({
             <span className="font-medium">{dayNameFor(m.dayOfWeek, isHe)}</span>
             <Bidi text={`${m.startTime}–${m.endTime}`} />
             {formatLocation(m) && (
-              <span className="flex items-center gap-0.5 text-foreground/40">
+              <span className="flex items-center gap-0.5 text-foreground/60">
                 <MapPin className="size-2.5 shrink-0" />
                 <Bidi text={formatLocation(m)} />
               </span>
@@ -116,7 +116,7 @@ export function GroupRow({
 
       {/* Line n+1 — lecturers */}
       {option.lecturers.length > 0 && (
-        <span className="truncate ps-[18px] text-[10px] text-foreground/40">
+        <span className="truncate ps-[18px] text-[10px] text-foreground/60">
           {option.lecturers.join(" · ")}
         </span>
       )}
@@ -130,7 +130,7 @@ export function GroupRow({
             ? "text-red-400/90"
             : impact.tone === "newDay"
               ? "text-amber-500/90"
-              : "text-foreground/35",
+              : "text-foreground/60",
         )}
       >
         {impact.tone === "newDay" && <Sunrise className="size-2.5 shrink-0" />}

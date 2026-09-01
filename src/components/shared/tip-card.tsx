@@ -44,7 +44,7 @@ export function TipCard({ tip, className }: TipCardProps) {
         className
       )}
     >
-      <Icon className="mt-0.5 h-4 w-4 shrink-0 text-foreground/40" />
+      <Icon className="mt-0.5 h-4 w-4 shrink-0 text-foreground/60" />
       <p className="flex-1 text-sm leading-relaxed text-foreground/60"><Bidi text={text} /></p>
       {canCycle && (
         <button
@@ -52,7 +52,7 @@ export function TipCard({ tip, className }: TipCardProps) {
           onClick={nextTip}
           title={isHe ? "טיפ הבא" : "Next tip"}
           aria-label={isHe ? "טיפ הבא" : "Next tip"}
-          className="-me-1 -mt-1 shrink-0 rounded-md p-1.5 text-foreground/30 transition-colors hover:bg-foreground/5 hover:text-foreground/60"
+          className="-me-1 -mt-1 shrink-0 rounded-md p-1.5 text-foreground/60 transition-colors hover:bg-foreground/5 hover:text-foreground/90"
         >
           <RefreshCw className="h-3.5 w-3.5" />
         </button>

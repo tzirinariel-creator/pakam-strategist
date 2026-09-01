@@ -142,7 +142,7 @@ export function LineageFirstContribution({ className }: { className?: string }) 
             }
           />
         </p>
-        <p className="text-xs leading-relaxed text-foreground/55">
+        <p className="text-xs leading-relaxed text-foreground/60">
           <Bidi
             text={
               isHe
@@ -152,7 +152,7 @@ export function LineageFirstContribution({ className }: { className?: string }) 
           />
         </p>
         {reviewedCount > 0 && (
-          <p className="text-xs text-foreground/45">
+          <p className="text-xs text-foreground/60">
             <Bidi
               text={
                 isHe
@@ -191,7 +191,7 @@ export function LineageFirstContribution({ className }: { className?: string }) 
         <button
           type="button"
           onClick={() => setExpanded((v) => !v)}
-          className="text-xs font-medium text-foreground/50 transition-colors hover:text-foreground/80"
+          className="text-xs font-medium text-foreground/60 transition-colors hover:text-foreground/80"
         >
           {expanded ? (
             isHe ? "הצגה מקוצרת" : "Show fewer"

@@ -28,7 +28,7 @@ export function ShareMenu({ isHe, onXlsx, onIcs, onCsv }: { isHe: boolean; onXls
           <CalendarPlus className="size-4 text-accent-brand" />
           {isHe ? "הוסיפו ליומן Google" : "Add to Google Calendar"}
         </DropdownMenuItem>
-        <DropdownMenuItem onSelect={onCsv} className="gap-2 text-xs text-foreground/55">
+        <DropdownMenuItem onSelect={onCsv} className="gap-2 text-xs text-foreground/60">
           <FileSpreadsheet className="size-3.5" />
           {isHe ? "טבלה פשוטה (CSV)" : "Plain table (CSV)"}
         </DropdownMenuItem>

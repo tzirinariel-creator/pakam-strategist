@@ -547,8 +547,8 @@ export function OnboardingWizard() {
                     state === "current"
                       ? "bg-accent-brand/12 font-semibold text-accent-brand"
                       : state === "done"
-                        ? "bg-foreground/5 text-foreground/45"
-                        : "text-foreground/30",
+                        ? "bg-foreground/5 text-foreground/60"
+                        : "text-foreground/60",
                   )}
                 >
                   {/* The period must stay OUTSIDE the isolate. Inside it, the
@@ -569,7 +569,7 @@ export function OnboardingWizard() {
           above (#36). */}
       {flowIndex >= 0 && (
         <div className="animate-fade-in mb-8">
-          <div className="mb-2 flex items-center justify-between text-xs text-foreground/40">
+          <div className="mb-2 flex items-center justify-between text-xs text-foreground/60">
             <span className="tabular">
               {t("step")} <bdi dir="ltr">{flowIndex + 1}</bdi> {t("of")}{" "}
               <bdi dir="ltr">{flowSteps.length}</bdi>
@@ -617,7 +617,7 @@ export function OnboardingWizard() {
                 <p className="text-sm font-semibold text-foreground/80">
                   {locale === "he" ? "לא הצלחנו לטעון את קטלוג הקורסים" : "We couldn't load the course catalog"}
                 </p>
-                <p className="text-xs text-foreground/50">
+                <p className="text-xs text-foreground/60">
                   {locale === "he"
                     ? "בלי הקטלוג אי אפשר לבנות את התוכנית. בדקו את החיבור ונסו שוב."
                     : "The plan can't be built without the catalog. Check your connection and try again."}
@@ -686,7 +686,7 @@ export function OnboardingWizard() {
         <div className="mt-8 flex items-center justify-between">
           <button
             onClick={goBack}
-            className="flex items-center gap-1.5 rounded-lg px-4 py-2.5 text-sm text-foreground/50 transition-all hover:bg-foreground/5 hover:text-foreground/70"
+            className="flex items-center gap-1.5 rounded-lg px-4 py-2.5 text-sm text-foreground/60 transition-all hover:bg-foreground/5 hover:text-foreground/70"
           >
             <BackChevron className="h-4 w-4" />
             {t("back")}

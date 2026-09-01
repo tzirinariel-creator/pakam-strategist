@@ -50,7 +50,7 @@ export function MentorsContent() {
       <header className="animate-stagger-1 space-y-2">
         <Link
           href="/lineage"
-          className="inline-flex items-center gap-1 text-xs font-medium text-foreground/45 transition-colors hover:text-foreground/75"
+          className="inline-flex items-center gap-1 text-xs font-medium text-foreground/60 transition-colors hover:text-foreground/75"
         >
           {isHe ? "השושלת" : "The Lineage"}
           <ChevronLeft className="size-3.5 ltr:rotate-180" />
@@ -58,12 +58,12 @@ export function MentorsContent() {
         <h1 className="font-display text-3xl font-bold text-foreground/85">
           {isHe ? "חונכות" : "Mentoring"}
         </h1>
-        <p className="max-w-2xl text-foreground/55">
+        <p className="max-w-2xl text-foreground/60">
           {isHe
             ? "הזמינו סטודנטים שאתם סומכים עליהם לראות את תוכנית-התואר שלכם ולייעץ. הם רואים את הקורסים והסמסטרים בלבד — לעולם לא את הציונים. אתם שולטים: אפשר לנתק בכל רגע."
             : "Invite someone you trust to view your degree plan and advise. They see your courses and semesters only — never your grades. You're in control: end it anytime."}
         </p>
-        <p className="max-w-2xl text-sm leading-relaxed text-foreground/45">
+        <p className="max-w-2xl text-sm leading-relaxed text-foreground/60">
           {isHe
             ? "זה הצד עם השמות. הצד האנונימי — ממוצעים, דירוגים וטיפים בלי לדעת מי כתב — נמצא בתיק המחזור, ושם אף אחד לא מזמין אף אחד."
             : "This is the named side. The anonymous side — averages, ratings and tips with no idea who wrote them — lives in the cohort file, where nobody invites anybody."}
@@ -81,7 +81,7 @@ export function MentorsContent() {
 
         <div className="mt-4 flex flex-col gap-2 sm:flex-row">
           <div className="relative flex-1">
-            <Mail className="pointer-events-none absolute top-1/2 size-4 -translate-y-1/2 text-foreground/35 start-3" />
+            <Mail className="pointer-events-none absolute top-1/2 size-4 -translate-y-1/2 text-foreground/60 start-3" />
             <input
               type="email"
               inputMode="email"
@@ -89,7 +89,7 @@ export function MentorsContent() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder={isHe ? "אימייל של המנטור (רשומים לפכמון)" : "Mentor's email (a Pakamon user)"}
-              className="w-full rounded-lg border border-border bg-card/60 py-2.5 pe-3 ps-9 text-sm text-foreground placeholder:text-foreground/35 focus:border-accent-brand focus:outline-none"
+              className="w-full rounded-lg border border-border bg-card/60 py-2.5 pe-3 ps-9 text-sm text-foreground placeholder:text-foreground/60 focus:border-accent-brand focus:outline-none"
             />
           </div>
           <button
@@ -105,7 +105,7 @@ export function MentorsContent() {
 
         <ul className="mt-4 space-y-2">
           {(myMentors.data ?? []).length === 0 && !myMentors.isLoading && (
-            <li className="rounded-lg border border-dashed border-border/60 p-3 text-sm text-foreground/45">
+            <li className="rounded-lg border border-dashed border-border/60 p-3 text-sm text-foreground/60">
               {isHe ? "עדיין לא הזמנתם אף אחד. התוכנית שלכם פרטית לגמרי." : "You haven't invited anyone. Your plan is fully private."}
             </li>
           )}
@@ -113,7 +113,7 @@ export function MentorsContent() {
             <li key={m.linkId} className="flex items-center justify-between gap-3 rounded-lg border border-border/60 bg-card/40 p-3">
               <div className="min-w-0">
                 <p className="truncate text-sm font-medium text-foreground/85">{m.mentorName}</p>
-                <p className="text-xs text-foreground/50">
+                <p className="text-xs text-foreground/60">
                   {m.status === "ACTIVE"
                     ? (isHe ? "רואה את התוכנית שלכם" : "Can see your plan")
                     : (isHe ? "ממתינים לאישור ההזמנה" : "Invitation pending")}
@@ -143,7 +143,7 @@ export function MentorsContent() {
               <li key={inv.linkId} className="flex items-center justify-between gap-3 rounded-lg border border-border/60 bg-card/40 p-3">
                 <p className="min-w-0 truncate text-sm text-foreground/85">
                   <span className="font-medium">{inv.menteeName}</span>{" "}
-                  <span className="text-foreground/55">{isHe ? "מזמינים אתכם לראות את התוכנית ולייעץ" : "invited you to view their plan and advise"}</span>
+                  <span className="text-foreground/60">{isHe ? "מזמינים אתכם לראות את התוכנית ולייעץ" : "invited you to view their plan and advise"}</span>
                 </p>
                 <div className="flex shrink-0 gap-2">
                   <button
@@ -158,7 +158,7 @@ export function MentorsContent() {
                     type="button"
                     onClick={() => respond.mutate({ linkId: inv.linkId, accept: false })}
                     disabled={respond.isPending}
-                    className="inline-flex items-center gap-1 rounded-lg bg-foreground/8 px-3 py-1.5 text-xs font-medium text-foreground/55 transition-colors hover:bg-foreground/15 disabled:opacity-50"
+                    className="inline-flex items-center gap-1 rounded-lg bg-foreground/8 px-3 py-1.5 text-xs font-medium text-foreground/60 transition-colors hover:bg-foreground/15 disabled:opacity-50"
                   >
                     <X className="size-3.5" /> {isHe ? "דחייה" : "Decline"}
                   </button>
@@ -242,17 +242,17 @@ function MenteePlan({ menteeUserId, menteeName, isHe, onClose }: {
         <button
           type="button"
           onClick={onClose}
-          className="rounded-md p-1.5 text-foreground/40 transition-colors hover:bg-foreground/5 hover:text-foreground/70"
+          className="rounded-md p-1.5 text-foreground/60 transition-colors hover:bg-foreground/5 hover:text-foreground/70"
           aria-label={isHe ? "סגירה" : "Close"}
         >
           <X className="size-4" />
         </button>
       </div>
-      <p className="mt-1 text-xs text-foreground/45">
+      <p className="mt-1 text-xs text-foreground/60">
         {isHe ? "קורסים וסמסטרים בלבד — הציונים נשארים פרטיים." : "Courses and semesters only — grades stay private."}
       </p>
 
-      {q.isLoading && <p className="mt-4 text-sm text-foreground/50">{isHe ? "טוען…" : "Loading…"}</p>}
+      {q.isLoading && <p className="mt-4 text-sm text-foreground/60">{isHe ? "טוען…" : "Loading…"}</p>}
       {q.isError && (
         <p className="mt-4 text-sm text-red-400/80">
           {isHe ? "לא הצלחנו לטעון — ייתכן שהגישה נותקה." : "Couldn't load — access may have been revoked."}
@@ -260,7 +260,7 @@ function MenteePlan({ menteeUserId, menteeName, isHe, onClose }: {
       )}
 
       {!q.isLoading && !q.isError && grouped.length === 0 && (
-        <p className="mt-4 text-sm text-foreground/45">{isHe ? "אין עדיין קורסים בתוכנית." : "No courses in the plan yet."}</p>
+        <p className="mt-4 text-sm text-foreground/60">{isHe ? "אין עדיין קורסים בתוכנית." : "No courses in the plan yet."}</p>
       )}
 
       <div className="mt-4 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
@@ -271,7 +271,7 @@ function MenteePlan({ menteeUserId, menteeName, isHe, onClose }: {
           const semLabel = isHe ? (semCfg?.short ?? g.semester) : (semCfg?.shortEn ?? g.semester);
           return (
             <div key={`${g.year}-${g.semester}`} className="rounded-xl border border-border/60 bg-card/40 p-3">
-              <p className="mb-2 text-xs font-semibold text-foreground/55">{yearLabel} · {semLabel}</p>
+              <p className="mb-2 text-xs font-semibold text-foreground/60">{yearLabel} · {semLabel}</p>
               <ul className="space-y-1.5">
                 {g.courses.map((c) => {
                   const disc = (c.disciplineOverride ?? c.course.discipline) as keyof typeof DISCIPLINE_CONFIG;
@@ -287,7 +287,7 @@ function MenteePlan({ menteeUserId, menteeName, isHe, onClose }: {
                         c.status === "COMPLETED" ? "bg-emerald-500/15 text-emerald-500"
                           : c.status === "IN_PROGRESS" ? "bg-accent-brand/15 text-accent-brand"
                           : c.status === "FAILED" ? "bg-red-500/15 text-red-500"
-                          : "bg-foreground/8 text-foreground/50",
+                          : "bg-foreground/8 text-foreground/60",
                       )}>
                         {statusLabel(c.status)}
                       </span>

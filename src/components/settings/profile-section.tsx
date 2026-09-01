@@ -249,7 +249,7 @@ export function ProfileSection() {
           <label htmlFor="settings-first-name" className="text-sm font-medium text-foreground/80">
             {t("firstNameLabel")}
           </label>
-          <p className="text-xs text-foreground/40">{t("firstNameHint")}</p>
+          <p className="text-xs text-foreground/60">{t("firstNameHint")}</p>
           <div className="grid grid-cols-2 gap-2">
             <Input
               id="settings-first-name"
@@ -281,7 +281,7 @@ export function ProfileSection() {
                   "rounded-lg border px-3 py-2 text-xs font-medium transition-colors",
                   gender === opt.value
                     ? "border-foreground bg-foreground/10 text-foreground/80"
-                    : "border-border bg-card text-foreground/55 hover:border-foreground/30"
+                    : "border-border bg-card text-foreground/60 hover:border-foreground/30"
                 )}
               >
                 {opt.label}
@@ -297,7 +297,7 @@ export function ProfileSection() {
           </label>
           {/* The hint carries a numeric range ("50–150"); unisolated it
               reverses to "150–50" inside the RTL paragraph. */}
-          <p className="text-xs text-foreground/40">
+          <p className="text-xs text-foreground/60">
             <Bidi text={t("amirantScoreHint")} />
           </p>
           <Input
@@ -337,7 +337,7 @@ export function ProfileSection() {
                 </p>
               )}
               {/* Never a course count without saying where it came from. */}
-              <p className="mt-1 text-[11px] text-foreground/45">
+              <p className="mt-1 text-[11px] text-foreground/60">
                 {isHe ? placement.sourceHe : placement.sourceEn}
               </p>
             </div>
@@ -351,7 +351,7 @@ export function ProfileSection() {
           <label id="settings-english-level-label" className="text-sm font-medium text-foreground/80">
             {isHe ? "רמת אנגלית (מגיליון הציונים)" : "English level (from the grade sheet)"}
           </label>
-          <p className="text-xs text-foreground/40">
+          <p className="text-xs text-foreground/60">
             {isHe
               ? "בגיליון הרשמי הרמה מודפסת כמילים בלי מספר (למשל “מתקדמים ב׳”). אם אתם יודעים את הרמה, בחרו אותה — היא גוברת על ציון אמירנט."
               : "The official sheet prints the level as words, not a number. If you know your level, pick it — it overrides the Amirant score."}
@@ -381,12 +381,12 @@ export function ProfileSection() {
           <label id="settings-focus-label" className="text-sm font-medium text-foreground/80">
             {t("focusArea")}
           </label>
-          <p className="text-xs text-foreground/40">
+          <p className="text-xs text-foreground/60">
             {t("focusAreaHint")}
           </p>
           {/* "What IS a focus area and why choose one" — the #6/#29 question a
               first-year student actually asks, answered where the choice is. */}
-          <div className="rounded-lg border border-border/50 bg-foreground/[0.02] p-2.5 text-[11px] leading-relaxed text-foreground/55">
+          <div className="rounded-lg border border-border/50 bg-foreground/[0.02] p-2.5 text-[11px] leading-relaxed text-foreground/60">
             {isHe
               ? "מה זה בכלל? מתוך שלוש הדיסציפלינות של פכ״מ בוחרים אחת להעמקה — לפחות 60 ש״ס ממנה בתואר. הבחירה קובעת גם את הסיווג בשירות המדינה, והיא משפיעה על אילו קורסי-בחירה כדאי לקחת. אפשר להתלבט בשנה א׳ ולבחור אחר-כך — האפליקציה תסמן לכם אילו קורסים נספרים לכל כיוון."
               : "What is this? Of PPE's three disciplines you pick one to specialize in — at least 60 credits from it across the degree. It also sets your civil-service classification and shapes which electives are worth taking. It's fine to stay undecided in year 1 — the app marks which courses count toward each direction."}
@@ -447,7 +447,7 @@ export function ProfileSection() {
             const sem = onBreak ? anchor.semester : acadNow.semester;
             const semName = sem === "FALL" ? (isHe ? "סמסטר א׳" : "Semester A") : (isHe ? "סמסטר ב׳" : "Semester B");
             return (
-              <p className="text-sm text-foreground/55">
+              <p className="text-sm text-foreground/60">
                 {isHe
                   ? onBreak
                     ? `לפי הלוח האקדמי, הסמסטר הקרוב: ${yearName} · ${semName}`

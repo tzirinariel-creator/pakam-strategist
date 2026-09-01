@@ -148,7 +148,7 @@ export function BiddingTimeline({
     >
       <div className="flex items-start gap-2.5">
         <CalendarClock
-          className={cn("mt-0.5 size-4 shrink-0", head.tone === "urgent" ? "text-accent-brand" : "text-foreground/45")}
+          className={cn("mt-0.5 size-4 shrink-0", head.tone === "urgent" ? "text-accent-brand" : "text-foreground/60")}
         />
         <div className="min-w-0 flex-1">
           {!hideHeadline && (
@@ -169,13 +169,13 @@ export function BiddingTimeline({
                 ) : s.live ? (
                   <Radio className="mt-0.5 size-3.5 shrink-0 animate-pulse text-accent-brand" />
                 ) : (
-                  <Circle className="mt-0.5 size-3.5 shrink-0 text-foreground/25" />
+                  <Circle className="mt-0.5 size-3.5 shrink-0 text-foreground/60" />
                 )}
                 <div className="min-w-0">
                   <span className={cn("font-medium", s.live ? "text-accent-brand" : "text-foreground/75")}>
                     {s.label}
                   </span>
-                  <span className="text-foreground/45">
+                  <span className="text-foreground/60">
                     {" · "}
                     <Bidi text={s.when} />
                     {" · "}
@@ -186,7 +186,7 @@ export function BiddingTimeline({
             ))}
           </ol>
 
-          <p className="mt-3 text-[11px] leading-relaxed text-foreground/45">
+          <p className="mt-3 text-[11px] leading-relaxed text-foreground/60">
             <Bidi
               text={
                 isHe
@@ -210,14 +210,14 @@ export function BiddingTimeline({
               href={BIDDING_LINKS.video}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-1 text-[11px] text-foreground/50 hover:text-foreground/75 hover:underline"
+              className="inline-flex items-center gap-1 text-[11px] text-foreground/60 hover:text-foreground/75 hover:underline"
             >
               {isHe ? "הדרכה מצולמת" : "Video guide"}
               <ExternalLink className="size-3" />
             </a>
           </div>
 
-          <p className="mt-2 text-[10px] leading-relaxed text-foreground/35">
+          <p className="mt-2 text-[10px] leading-relaxed text-foreground/60">
             {isHe
               ? "התאריכים מתוך ההנחיות הרשמיות של הפקולטה למדעי הרוח לתשפ״ז. פכמון לא מנחש כמה נקודות צריך — המכסה לא מתפרסמת, וגם ההנחיות עצמן אומרות שאין להסיק מתוצאות שנים קודמות."
               : "Dates from the Faculty of Humanities' official 2026/27 guidelines. Pakamon never guesses how many points a course needs — the quota isn't published, and the guidelines themselves say past results shouldn't be extrapolated."}

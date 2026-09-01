@@ -144,7 +144,7 @@ export function GroupRail({
     return (
       <div className="flex flex-col items-center justify-center gap-2 py-10 text-center">
         <Users className="size-6 text-foreground/15" />
-        <p className="text-xs leading-relaxed text-foreground/40">
+        <p className="text-xs leading-relaxed text-foreground/60">
           {isHe
             ? "לאף קורס בסמסטר הזה אין כמה קבוצות — אין כאן מה לבחור, והמערכת שלכם סופית."
             : "No course this semester offers a second group — nothing to choose, your week is settled."}
@@ -187,7 +187,7 @@ export function GroupRail({
               <ChevronDown
                 aria-hidden
                 className={cn(
-                  "size-3.5 shrink-0 text-foreground/35 transition-transform",
+                  "size-3.5 shrink-0 text-foreground/60 transition-transform",
                   isOpen && "rotate-180",
                 )}
               />
@@ -198,7 +198,7 @@ export function GroupRail({
                 {choices.map((choice) => {
                   const current = resolveSelectedGroup(choice, selected);
                   return (
-                    <p key={choice.sessionType} className="truncate text-[11px] text-foreground/50">
+                    <p key={choice.sessionType} className="truncate text-[11px] text-foreground/60">
                       {sessionTypeNameFor(choice.sessionType, isHe)}
                       {" · "}
                       {isHe ? "קבוצה " : "group "}
@@ -219,7 +219,7 @@ export function GroupRail({
                   return (
                     <div key={choice.sessionType} className="space-y-1.5">
                       <div className="flex items-baseline justify-between gap-2">
-                        <p className="text-[11px] font-medium text-foreground/55">
+                        <p className="text-[11px] font-medium text-foreground/60">
                           {isHe
                             ? `בחרו קבוצת ${sessionTypeNameFor(choice.sessionType, isHe)}`
                             : `Choose a ${sessionTypeNameFor(choice.sessionType, isHe)} group`}
@@ -227,7 +227,7 @@ export function GroupRail({
                         <p
                           className={cn(
                             "shrink-0 text-[10px] font-medium",
-                            choice.freeCount === 0 ? "text-red-400" : "text-foreground/45",
+                            choice.freeCount === 0 ? "text-red-400" : "text-foreground/60",
                           )}
                         >
                           {isHe ? (

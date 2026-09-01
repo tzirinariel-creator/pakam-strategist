@@ -52,7 +52,7 @@ function GridPickHint({ isHe }: { isHe: boolean }) {
           ? "לקורסים עם התג הזה יש כמה קבוצות — הקישו על הבלוק בגריד כדי להחליף שעה."
           : "Courses with this tag offer several groups — tap the block on the grid to swap the time."}
       </span>
-      <span className="shrink-0 text-foreground/35">{isHe ? "הבנתי" : "Got it"}</span>
+      <span className="shrink-0 text-foreground/60">{isHe ? "הבנתי" : "Got it"}</span>
     </button>
   );
 }
@@ -340,7 +340,7 @@ export function LiveTimetable({
     return (
       <div className="flex items-center justify-center gap-2 rounded-lg border border-dashed border-border/30 py-6 text-center">
         <CalendarX2 className="h-4 w-4 text-foreground/20" />
-        <p className="text-xs text-foreground/30">
+        <p className="text-xs text-foreground/60">
           {t("coursesWithoutSchedule", { count: courses.length })}
         </p>
       </div>
@@ -456,10 +456,10 @@ export function LiveTimetable({
             <span className="font-medium">
               {t("coursesWithoutSchedule", { count: coursesWithoutSchedule.length })}
             </span>
-            <span className="text-foreground/40">
+            <span className="text-foreground/60">
               {" — "}{coursesWithoutSchedule.join(", ")}
             </span>
-            <p className="mt-0.5 text-foreground/30">
+            <p className="mt-0.5 text-foreground/60">
               {t("coursesWithoutScheduleExplain")}
             </p>
           </div>

@@ -37,7 +37,7 @@ export function ForecastStrip({
               </span>
               <span className="text-sm font-medium text-foreground/60">{t("forecastTitle")}</span>
             </div>
-            <p className="mt-0.5 text-[11px] text-foreground/45">{t("forecastCaption")}</p>
+            <p className="mt-0.5 text-[11px] text-foreground/60">{t("forecastCaption")}</p>
           </div>
         </div>
       ) : (

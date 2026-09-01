@@ -117,7 +117,7 @@ export function RecommendationsWidget({
                 <p className="text-sm font-semibold text-foreground/85">
                   <Bidi text={isHe ? rec.titleHe : rec.titleEn} />
                 </p>
-                <p className="mt-0.5 text-xs leading-relaxed text-foreground/55">
+                <p className="mt-0.5 text-xs leading-relaxed text-foreground/60">
                   <Bidi text={isHe ? rec.bodyHe : rec.bodyEn} />
                 </p>
                 <span className="mt-1.5 inline-flex items-center gap-1 text-xs font-medium text-foreground/60 transition-colors group-hover:text-foreground/85">

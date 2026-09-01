@@ -104,7 +104,7 @@ export function GradeInput({
           className={cn(
             "w-20 rounded-md border bg-background/50 px-2 py-1.5",
             "font-mono text-sm text-foreground text-center",
-            "placeholder:text-foreground/20",
+            "placeholder:text-foreground/60",
             "focus:outline-none focus:ring-1",
             "transition-all",
             isFailing

@@ -100,7 +100,7 @@ export function SharedPlanContent() {
           <h1 className="font-display text-xl font-bold text-foreground/85">
             {isHe ? "תכנון תואר משותף" : "A shared degree plan"}
           </h1>
-          <p className="text-xs text-foreground/50">
+          <p className="text-xs text-foreground/60">
             <bdi dir="ltr">{resolved.length}</bdi> {isHe ? "קורסים" : "courses"} · <bdi dir="ltr">{totalCredits}</bdi> {isHe ? "ש״ס" : "cr."}
           </p>
         </div>
@@ -118,9 +118,9 @@ export function SharedPlanContent() {
             <div className="space-y-1.5">
               {courses.map((c) => (
                 <div key={c.id} className="flex items-center gap-2 text-sm">
-                  <GraduationCap className="size-3.5 shrink-0 text-foreground/35" />
+                  <GraduationCap className="size-3.5 shrink-0 text-foreground/60" />
                   <span className="min-w-0 flex-1 truncate text-foreground/80">{c.name}</span>
-                  <span className="shrink-0 font-mono text-xs text-foreground/40">{c.credits}</span>
+                  <span className="shrink-0 font-mono text-xs text-foreground/60">{c.credits}</span>
                 </div>
               ))}
             </div>
@@ -147,7 +147,7 @@ export function SharedPlanContent() {
           <Link
             href="/login"
             onClick={rememberSharedPlanReturn}
-            className="text-center text-xs text-foreground/55 underline underline-offset-4 hover:text-foreground/80"
+            className="text-center text-xs text-foreground/60 underline underline-offset-4 hover:text-foreground/80"
           >
             {isHe ? "כבר רשומים? התחברות והעתקה לתכנון שלכם" : "Already registered? Log in and copy it"}
           </Link>

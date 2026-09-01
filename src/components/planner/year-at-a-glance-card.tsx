@@ -52,13 +52,13 @@ export function YearAtAGlanceCard({
             <h3 className="font-display text-base font-bold text-foreground/90">
               {isHe ? "כל השנה במבט אחד" : "The whole year at a glance"}
             </h3>
-            <span className="text-xs font-semibold tabular-nums text-foreground/55">
+            <span className="text-xs font-semibold tabular-nums text-foreground/60">
               <Bidi text={plan.totalCredits} /> {isHe ? "ש״ס" : "credits"} ·{" "}
               {isHe ? heNoun(plan.totalCourses, "קורס", "קורסים") : `${plan.totalCourses} courses`}
             </span>
           </div>
 
-          <p className="mt-1 text-xs leading-relaxed text-foreground/55">
+          <p className="mt-1 text-xs leading-relaxed text-foreground/60">
             {isHe
               ? "בפכ״מ הרישום עובר דרך כמה חוגים, וחלק מהם רושמים לשנה שלמה — כלומר קורסים של סמסטר ב׳ נבחרים כבר במקצה הזה. שני הסמסטרים כאן יחד, כדי לבדוק אותם לפני שהוא נפתח."
               : "PPE registration runs through several departments, some of which register for a whole year — so semester B courses are chosen in this round too. Both terms are here together, to review before it opens."}
@@ -120,13 +120,13 @@ function TermColumn({ tp, isHe }: { tp: TermPlan; isHe: boolean }) {
     <div className="min-w-0 rounded-xl border border-foreground/10 bg-foreground/[0.02] p-3">
       <div className="flex items-baseline justify-between gap-2">
         <span className="text-sm font-bold text-foreground/85">{title}</span>
-        <span className="text-xs font-semibold tabular-nums text-foreground/50">
+        <span className="text-xs font-semibold tabular-nums text-foreground/60">
           <Bidi text={tp.credits} /> {isHe ? "ש״ס" : "cr."}
         </span>
       </div>
 
       {tp.mandatoryCredits > 0 && (
-        <p className="mt-0.5 text-[11px] text-foreground/45">
+        <p className="mt-0.5 text-[11px] text-foreground/60">
           {isHe ? (
             <>
               מתוכם <Bidi text={tp.mandatoryCredits} /> ש״ס חובה — לא נתונים לבחירה
@@ -138,18 +138,18 @@ function TermColumn({ tp, isHe }: { tp: TermPlan; isHe: boolean }) {
       )}
 
       {tp.courses.length === 0 ? (
-        <p className="mt-2 text-xs text-foreground/40">
+        <p className="mt-2 text-xs text-foreground/60">
           {isHe ? "עוד לא תוכנן" : "Nothing planned yet"}
         </p>
       ) : (
         <ul className="mt-2 flex flex-col gap-1">
           {tp.courses.map((c) => (
             <li key={c.userCourseId} className="flex items-baseline gap-2 text-xs">
-              <span className="shrink-0 font-data text-[10px] text-foreground/35" dir="ltr">
+              <span className="shrink-0 font-data text-[10px] text-foreground/60" dir="ltr">
                 {c.code}
               </span>
               <span className="min-w-0 flex-1 text-balance text-foreground/75">{c.name}</span>
-              <span className="shrink-0 tabular-nums text-foreground/45">
+              <span className="shrink-0 tabular-nums text-foreground/60">
                 <Bidi text={c.credits} />
               </span>
             </li>

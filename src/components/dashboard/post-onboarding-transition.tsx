@@ -85,13 +85,13 @@ export function PostOnboardingTransition({
     return (
       <div className="flex min-h-[60vh] flex-col items-center justify-center gap-5">
         <div className="flex h-16 w-16 items-center justify-center rounded-full bg-foreground/5">
-          <GraduationCap className="h-8 w-8 text-foreground/40" />
+          <GraduationCap className="h-8 w-8 text-foreground/60" />
         </div>
         <div className="flex flex-col items-center gap-1.5">
           <p className="text-sm font-medium text-foreground/70">
             {t("planLoadSlow")}
           </p>
-          <p className="text-xs text-foreground/40">
+          <p className="text-xs text-foreground/60">
             {t("planLoadSlowDesc")}
           </p>
         </div>
@@ -111,7 +111,7 @@ export function PostOnboardingTransition({
           <button
             type="button"
             onClick={onContinue}
-            className="rounded-lg border border-foreground/20 px-5 py-2 text-sm font-medium text-foreground/50 transition-colors hover:bg-foreground/5"
+            className="rounded-lg border border-foreground/20 px-5 py-2 text-sm font-medium text-foreground/60 transition-colors hover:bg-foreground/5"
           >
             {t("continueAnyway")}
           </button>
@@ -146,7 +146,7 @@ export function PostOnboardingTransition({
         <button
           type="button"
           onClick={onContinue}
-          className="animate-fade-in rounded-lg border border-foreground/20 px-5 py-2 text-sm font-medium text-foreground/50 transition-colors hover:bg-foreground/5"
+          className="animate-fade-in rounded-lg border border-foreground/20 px-5 py-2 text-sm font-medium text-foreground/60 transition-colors hover:bg-foreground/5"
         >
           {t("continueAnyway")}
         </button>

@@ -580,7 +580,7 @@ export function CalendarContent() {
                       <p className="text-xs font-semibold text-foreground/75">{info.nameHe}</p>
                       {[...info.types.entries()].map(([type, opts]) => (
                         <div key={type} className="flex flex-wrap items-center gap-1.5">
-                          <span className="text-[11px] text-foreground/50">
+                          <span className="text-[11px] text-foreground/60">
                             {sessionTypeNameFor(type, isHe)}:
                           </span>
                           {opts.map((o) => (

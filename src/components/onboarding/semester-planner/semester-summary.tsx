@@ -133,11 +133,11 @@ export function SemesterSummary({
               ? (isHe ? "המערכת המומלצת מוכנה" : "Your recommended timetable is ready")
               : t("semesterDone")}
           </h3>
-          <p className="mt-1 text-sm text-foreground/50">
+          <p className="mt-1 text-sm text-foreground/60">
             {yearLabel} · {semLabel}
           </p>
           {autoRecommended && (
-            <p className="mt-1.5 text-xs text-foreground/45">
+            <p className="mt-1.5 text-xs text-foreground/60">
               {isHe
                 ? "רוב הסמסטר הזה חובה, אז הרכבנו אותו בשבילכם — אפשר לאשר, או לחזור לעריכה ולשנות."
                 : "Most of this semester is mandatory, so we assembled it for you — confirm, or go back and tweak."}
@@ -149,11 +149,11 @@ export function SemesterSummary({
         <div className="grid grid-cols-3 gap-3">
           <div className="rounded-lg bg-foreground/5 p-3">
             <div className="font-mono text-xl font-bold text-foreground/80">{courses.length}</div>
-            <div className="text-[10px] text-foreground/40">{t("courses")}</div>
+            <div className="text-[10px] text-foreground/60">{t("courses")}</div>
           </div>
           <div className="rounded-lg bg-foreground/5 p-3">
             <div className="font-mono text-xl font-bold text-foreground/80">{semesterCredits}</div>
-            <div className="text-[10px] text-foreground/40">{t("nz")}</div>
+            <div className="text-[10px] text-foreground/60">{t("nz")}</div>
           </div>
           <div
             className="rounded-lg bg-foreground/5 p-3"
@@ -167,7 +167,7 @@ export function SemesterSummary({
               <IconComponent className="size-5" />
               <span className="font-mono text-xl font-bold">{honest.weeklyHours}</span>
             </div>
-            <div className="text-[10px] text-foreground/40">
+            <div className="text-[10px] text-foreground/60">
               {isHe ? "שעות לימוד בשבוע" : "weekly class hours"}
             </div>
           </div>
@@ -192,7 +192,7 @@ export function SemesterSummary({
             now the beginner sees exactly what "the recommended timetable" is. */}
         {courses.length > 0 && (
           <div className="space-y-1.5 rounded-lg border border-border/50 bg-foreground/[0.02] p-3 text-start">
-            <p className="text-[11px] font-medium text-foreground/45">
+            <p className="text-[11px] font-medium text-foreground/60">
               {isHe ? "הקורסים בסמסטר הזה:" : "Courses this semester:"}
             </p>
             <ul className="space-y-1">
@@ -201,7 +201,7 @@ export function SemesterSummary({
                   <span className="min-w-0 flex-1 text-balance text-foreground/75">
                     {isHe ? c.nameHe : (c.nameEn ?? c.nameHe)}
                   </span>
-                  <span className="shrink-0 font-mono text-[10px] text-foreground/40">
+                  <span className="shrink-0 font-mono text-[10px] text-foreground/60">
                     {c.credits} {isHe ? "ש״ס" : "cr."}
                   </span>
                 </li>
@@ -213,7 +213,7 @@ export function SemesterSummary({
         {/* Total progress */}
         <div className="space-y-1.5">
           <div className="flex items-center justify-between text-xs">
-            <span className="text-foreground/50">{t("creditsPlannedSoFar")}</span>
+            <span className="text-foreground/60">{t("creditsPlannedSoFar")}</span>
             <span className="font-mono font-medium text-foreground/70" dir="ltr">
               {totalCredits}/{CREDIT_REQUIREMENTS.TOTAL}
             </span>
@@ -249,7 +249,7 @@ export function SemesterSummary({
                 )}
               </span>
             </p>
-            <p className="text-[11px] leading-relaxed text-foreground/55">
+            <p className="text-[11px] leading-relaxed text-foreground/60">
               {isHe
                 ? "הקישו על הבלוק במערכת השעות שלצד כדי לבחור קבוצה — הבחירה נשמרת מיד."
                 : "Tap a block on the timetable beside this card to choose a group — it saves immediately."}

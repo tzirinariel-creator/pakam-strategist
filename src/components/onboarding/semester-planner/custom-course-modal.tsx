@@ -155,7 +155,7 @@ export function CustomCourseModal({
           <DialogTitle className="text-base font-semibold">
             {isHe ? "הוספת קורס ידני" : "Add Custom Course"}
           </DialogTitle>
-          <p className="text-xs text-foreground/40 mt-1">
+          <p className="text-xs text-foreground/60 mt-1">
             {isHe ? "לקורסים שלא נמצאים בקטלוג שלנו (בחירות חיצוניות, סדנאות וכו׳)" : "For courses not in our catalog (external electives, workshops, etc.)"}
           </p>
         </DialogHeader>
@@ -163,7 +163,7 @@ export function CustomCourseModal({
         <div className="space-y-4 pt-2">
           {/* Course name */}
           <div>
-            <label className="mb-1 block text-xs text-foreground/50">
+            <label className="mb-1 block text-xs text-foreground/60">
               {isHe ? "שם הקורס" : "Course Name"} *
             </label>
             <Input
@@ -177,7 +177,7 @@ export function CustomCourseModal({
           {/* Credits */}
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="mb-1 block text-xs text-foreground/50">
+              <label className="mb-1 block text-xs text-foreground/60">
                 {isHe ? "ש״ס" : "Credits"}
               </label>
               <Input
@@ -215,7 +215,7 @@ export function CustomCourseModal({
             {/* The discipline is part of the declaration: it's what the course
                 counts toward. Disabled (never silently ignored) until declared. */}
             <div className="mt-3">
-              <label className="mb-1 block text-xs text-foreground/50">
+              <label className="mb-1 block text-xs text-foreground/60">
                 {isHe ? "נחשב לכם לתחום" : "Counts toward"}
               </label>
               <Select value={discipline} onValueChange={setDiscipline} disabled={!declared}>
@@ -232,7 +232,7 @@ export function CustomCourseModal({
               </Select>
             </div>
 
-            <p className="mt-2 flex items-start gap-1.5 text-[11px] leading-relaxed text-foreground/45">
+            <p className="mt-2 flex items-start gap-1.5 text-[11px] leading-relaxed text-foreground/60">
               <AlertTriangle className="mt-0.5 size-3 shrink-0 text-amber-500" />
               <span>
                 {isHe
@@ -244,7 +244,7 @@ export function CustomCourseModal({
 
           {/* Schedule (optional) */}
           <div>
-            <label className="mb-1 block text-xs text-foreground/50">
+            <label className="mb-1 block text-xs text-foreground/60">
               {isHe ? "מערכת שעות (אופציונלי)" : "Schedule (optional)"}
             </label>
             <div className="grid grid-cols-3 gap-2">

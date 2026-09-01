@@ -270,7 +270,7 @@ export function WeeklyGrid({
         <h3 className="font-display text-base font-bold text-foreground/90">
           {isHe ? "הלוח השבועי שלכם" : "Your weekly board"}
         </h3>
-        <span className="text-[11px] text-foreground/45">
+        <span className="text-[11px] text-foreground/60">
           {isHe ? "גררו בלוק ליום אחר · הוסיפו · מחקו" : "Drag a block to another day · add · delete"}
         </span>
       </div>
@@ -284,8 +284,8 @@ export function WeeklyGrid({
                 <div
                   key={i}
                   className={cn(
-                    "text-center text-[11px] font-medium text-foreground/45",
-                    (i === 5 || i === 6) && "text-foreground/30",
+                    "text-center text-[11px] font-medium text-foreground/60",
+                    (i === 5 || i === 6) && "text-foreground/60",
                   )}
                 >
                   {d}
@@ -342,14 +342,14 @@ export function WeeklyGrid({
                         <span
                           className={cn(
                             "text-[10px] font-semibold tabular-nums",
-                            isToday ? "text-accent-brand" : "text-foreground/40",
+                            isToday ? "text-accent-brand" : "text-foreground/60",
                           )}
                           dir="ltr"
                         >
                           {day.getDate()}.{day.getMonth() + 1}
                         </span>
                         {dayHours > 0 && (
-                          <span dir="ltr" className="text-[9px] tabular-nums text-foreground/35">
+                          <span dir="ltr" className="text-[11px] tabular-nums text-foreground/60">
                             {dayHours}h
                           </span>
                         )}
@@ -410,7 +410,7 @@ export function WeeklyGrid({
                               type="button"
                               onClick={(e) => e.stopPropagation()}
                               aria-label={isHe ? "הוסיפו בלוק לימוד" : "Add a study block"}
-                              className="mt-auto flex items-center justify-center gap-0.5 rounded-md border border-dashed border-foreground/15 py-0.5 text-[10px] text-foreground/40 transition-colors hover:border-accent-brand/40 hover:text-accent-brand"
+                              className="mt-auto flex items-center justify-center gap-0.5 rounded-md border border-dashed border-foreground/15 py-0.5 text-[10px] text-foreground/60 transition-colors hover:border-accent-brand/40 hover:text-accent-brand"
                             >
                               <Plus className="size-3" />
                               {isHe ? "לימוד" : "Study"}

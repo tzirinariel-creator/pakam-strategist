@@ -138,7 +138,7 @@ export function ContributeReviewSheet({
           <DialogTitle className="text-start text-base font-bold">
             {isHe ? "דרגו את הקורס" : "Rate this course"}
           </DialogTitle>
-          <DialogDescription className="text-start text-xs text-foreground/55">
+          <DialogDescription className="text-start text-xs text-foreground/60">
             {courseName} · {isHe ? "אנונימי לחלוטין. עוזר למחזור הבא לבחור נכון." : "Fully anonymous. Helps the next cohort choose well."}
           </DialogDescription>
         </DialogHeader>
@@ -165,7 +165,7 @@ export function ContributeReviewSheet({
               {isHe ? "היה שווה?" : "Was it worth it?"}
             </div>
             {isRequired && (
-              <p className="mb-2 text-[11px] leading-snug text-foreground/45">
+              <p className="mb-2 text-[11px] leading-snug text-foreground/60">
                 {isHe
                   ? "קורס חובה — אף אחד לא באמת יכול לדלג עליו. מה שכן עוזר למי שאחריכם זה לדעת למה לצפות."
                   : "A required course — nobody can actually skip it. What helps the next cohort is knowing what to expect."}
@@ -222,7 +222,7 @@ export function ContributeReviewSheet({
           <div>
             <div className="mb-2 flex items-center justify-between">
               <span className="text-xs font-medium text-foreground/70">{isHe ? "טיפ למחזור הבא" : "A tip for the next cohort"}</span>
-              <span className="text-[10px] tabular-nums text-foreground/40" dir="ltr">
+              <span className="text-[10px] tabular-nums text-foreground/60" dir="ltr">
                 <Bidi text={`${tip.length}/${TIP_MAX}`} />
               </span>
             </div>
@@ -232,7 +232,7 @@ export function ContributeReviewSheet({
               maxLength={TIP_MAX}
               rows={3}
               placeholder={isHe ? "מה כדאי לדעת מראש? (בלי שמות מרצים בהשמצה, בלי קישורים)" : "What's worth knowing in advance?"}
-              className="w-full resize-none rounded-lg border border-border/60 bg-foreground/[0.02] p-2.5 text-xs leading-relaxed text-foreground/85 outline-none placeholder:text-foreground/35 focus:border-accent-brand/40"
+              className="w-full resize-none rounded-lg border border-border/60 bg-foreground/[0.02] p-2.5 text-xs leading-relaxed text-foreground/85 outline-none placeholder:text-foreground/60 focus:border-accent-brand/40"
             />
           </div>
 
@@ -245,7 +245,7 @@ export function ContributeReviewSheet({
             {contribute.isPending ? (isHe ? "שולח…" : "Sending…") : isHe ? "שתפו" : "Share"}
           </button>
           {!hasAny && (
-            <p className="-mt-3 text-center text-[11px] text-foreground/40">
+            <p className="-mt-3 text-center text-[11px] text-foreground/60">
               {isHe ? "מלאו לפחות שדה אחד." : "Fill at least one field."}
             </p>
           )}
@@ -282,14 +282,14 @@ function ScaleRow({
               "flex min-h-[44px] flex-1 items-center justify-center rounded-lg border text-sm font-bold tabular-nums transition-colors",
               value != null && n <= value
                 ? "border-accent-brand/50 bg-accent-brand/15 text-accent-brand"
-                : "border-border/60 bg-foreground/[0.02] text-foreground/45 hover:border-accent-brand/30"
+                : "border-border/60 bg-foreground/[0.02] text-foreground/60 hover:border-accent-brand/30"
             )}
           >
             {n}
           </button>
         ))}
       </div>
-      <div className="mt-1 flex justify-between text-[10px] text-foreground/40">
+      <div className="mt-1 flex justify-between text-[10px] text-foreground/60">
         <span>{isHe ? lowHe : lowEn}</span>
         <span>{isHe ? highHe : highEn}</span>
       </div>

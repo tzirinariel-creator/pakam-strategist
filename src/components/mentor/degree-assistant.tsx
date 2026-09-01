@@ -73,7 +73,7 @@ export function DegreeAssistant() {
               ? `${greetNameForLocale(profileQuery.data, true) ? `${greetNameForLocale(profileQuery.data, true)}, ` : ""}${gendered(normalizeGender(profileQuery.data?.gender), { m: "שאל", f: "שאלי", n: "שאלו" })} אותי על התואר שלך`
               : "Ask about your degree"}
           </h1>
-          <p className="text-xs text-foreground/50">
+          <p className="text-xs text-foreground/60">
             {isHe
               ? "תשובות מהנתונים שלך — בלי בינה מלאכותית, בלי המצאות."
               : "Answers from your own data — no AI, no made-up facts."}
@@ -84,7 +84,7 @@ export function DegreeAssistant() {
       {/* Conversation */}
       <div className="flex-1 space-y-3 overflow-y-auto rounded-xl">
         {turns.length === 0 && (
-          <div className="rounded-xl border border-dashed border-border/50 bg-foreground/[0.02] p-5 text-center text-sm text-foreground/50">
+          <div className="rounded-xl border border-dashed border-border/50 bg-foreground/[0.02] p-5 text-center text-sm text-foreground/60">
             {isHe ? "בחרו שאלה למטה, או כתבו שאלה משלכם" : "Pick a question below, or type your own"}
           </div>
         )}
@@ -140,7 +140,7 @@ export function DegreeAssistant() {
           value={input}
           onChange={(e) => setInput(e.target.value)}
           placeholder={isHe ? gendered(normalizeGender(profileQuery.data?.gender), { m: "כתוב שאלה על התואר…", f: "כתבי שאלה על התואר…", n: "כתבו שאלה על התואר…" }) : "Type a question about your degree…"}
-          className="flex-1 rounded-xl border border-border/60 bg-card px-4 py-2.5 text-sm text-foreground placeholder:text-foreground/30 focus:border-foreground/30 focus:outline-none focus:ring-1 focus:ring-foreground/20"
+          className="flex-1 rounded-xl border border-border/60 bg-card px-4 py-2.5 text-sm text-foreground placeholder:text-foreground/60 focus:border-foreground/30 focus:outline-none focus:ring-1 focus:ring-foreground/20"
         />
         <button
           type="submit"
@@ -150,7 +150,7 @@ export function DegreeAssistant() {
             "flex size-10 shrink-0 items-center justify-center rounded-xl transition-colors",
             input.trim()
               ? "bg-accent-brand text-accent-brand-fg hover:bg-accent-brand-hover"
-              : "bg-foreground/10 text-foreground/30"
+              : "bg-foreground/10 text-foreground/60"
           )}
         >
           <Send className="size-4 rtl:-scale-x-100" />

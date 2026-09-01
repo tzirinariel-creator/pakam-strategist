@@ -1,0 +1,23 @@
+{
+  "name": "pakam-promo",
+  "version": "1.0.0",
+  "private": true,
+  "description": "סרטון שיווקי לפכמון — Remotion, נבנה עם סקיל video-shotcraft",
+  "scripts": {
+    "studio": "remotion studio src/index.ts",
+    "render": "remotion render src/index.ts PakamPromo out/pakam-promo.mp4",
+    "render-nobgm": "remotion render src/index.ts PakamPromo out/pakam-promo-nobgm.mp4 --props='{\"bgm\":false}'",
+    "still": "remotion still src/index.ts PakamPromo"
+  },
+  "dependencies": {
+    "@remotion/cli": "4.0.484",
+    "@remotion/google-fonts": "^4.0.484",
+    "react": "19.2.7",
+    "react-dom": "19.2.7",
+    "remotion": "4.0.484"
+  },
+  "devDependencies": {
+    "@types/react": "19.2.17",
+    "typescript": "6.0.3"
+  }
+}

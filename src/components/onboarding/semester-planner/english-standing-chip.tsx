@@ -53,7 +53,7 @@ export function EnglishStandingChip({ signal }: { signal: EnglishSignal }) {
       {done ? (
         <Check className="size-3.5 shrink-0 text-emerald-600 dark:text-emerald-400" />
       ) : (
-        <Languages className="size-3.5 shrink-0 text-foreground/45" />
+        <Languages className="size-3.5 shrink-0 text-foreground/60" />
       )}
       <div className="min-w-0">
         <span
@@ -77,7 +77,7 @@ export function EnglishStandingChip({ signal }: { signal: EnglishSignal }) {
             ))}
         </span>
         {signal.kind === "level-track-done" && (
-          <span className="block text-[10px] leading-tight text-foreground/45">
+          <span className="block text-[10px] leading-tight text-foreground/60">
             {isHe
               ? "את הפטור עצמו מאשרים במזכירות"
               : "The exemption itself is confirmed by the secretariat"}

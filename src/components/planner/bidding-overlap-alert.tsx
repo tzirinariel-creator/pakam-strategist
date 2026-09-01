@@ -98,7 +98,7 @@ export function BiddingOverlapAlert({
             ? "אין חפיפות בין הקורסים שבחרתם — אפשר להגיש את המכרז בראש שקט."
             : "No time clashes between your courses this semester — safe to bid."}
           {unscheduledCount > 0 && (
-            <span className="text-foreground/45">
+            <span className="text-foreground/60">
               {" "}
               {isHe
                 ? `(${unscheduledCount === 1 ? "לקורס אחד" : `ל-${heNoun(unscheduledCount, "קורס", "קורסים")}`} אין עדיין שעות בידיעון — לא נבדקו.)`

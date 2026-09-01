@@ -193,7 +193,7 @@ export function StudyPlannerWidget({
           <CalendarDays className="h-5 w-5 text-foreground/60" />
           <h3 className="text-base font-semibold text-foreground/80">{t("title")}</h3>
           {totalCount > 0 && (
-            <span dir="ltr" className="ms-auto text-xs text-foreground/40">
+            <span dir="ltr" className="ms-auto text-xs text-foreground/60">
               {completedCount}/{totalCount}
             </span>
           )}
@@ -215,10 +215,10 @@ export function StudyPlannerWidget({
         {totalCount === 0 && (
           <div className="flex flex-col items-center gap-2 py-6 text-center">
             <div className="flex h-12 w-12 items-center justify-center rounded-full bg-foreground/5">
-              <CalendarDays className="h-6 w-6 text-foreground/30" />
+              <CalendarDays className="h-6 w-6 text-foreground/60" />
             </div>
-            <p className="text-sm text-foreground/50">{t("emptyTitle")}</p>
-            <p className="text-xs text-foreground/30">{t("emptyDesc")}</p>
+            <p className="text-sm text-foreground/60">{t("emptyTitle")}</p>
+            <p className="text-xs text-foreground/60">{t("emptyDesc")}</p>
           </div>
         )}
 
@@ -248,13 +248,13 @@ export function StudyPlannerWidget({
                   ? `התוכנית מתחילה ${planStartLabel}`
                   : `Your plan starts ${planStartLabel}`}
               </p>
-              <p className="mt-0.5 text-xs text-foreground/45">
+              <p className="mt-0.5 text-xs text-foreground/60">
                 {isHe
                   ? `${activeTasks.length} מטלות מחכות שם — אין מה לעשות איתן היום.`
                   : `${activeTasks.length} tasks waiting there — nothing to do about them today.`}
               </p>
             </div>
-            <Arrow className="size-4 shrink-0 text-foreground/30" />
+            <Arrow className="size-4 shrink-0 text-foreground/60" />
           </Link>
         )}
 
@@ -286,7 +286,7 @@ export function StudyPlannerWidget({
                   <button
                     type="button"
                     onClick={() => toggleTask.mutate({ id: task.id })}
-                    className="shrink-0 text-foreground/30 transition-colors hover:text-emerald-400"
+                    className="shrink-0 text-foreground/60 transition-colors hover:text-emerald-400"
                   >
                     <Circle className="h-4 w-4" />
                   </button>
@@ -315,7 +315,7 @@ export function StudyPlannerWidget({
                       </div>
                       <span className={cn(
                         "text-[10px]",
-                        isOverdue ? "font-medium text-red-400" : "text-foreground/40"
+                        isOverdue ? "font-medium text-red-400" : "text-foreground/60"
                       )}>
                         {isOverdue
                           ? t("overdue")
@@ -324,7 +324,7 @@ export function StudyPlannerWidget({
                             : t("daysLeft", { count: daysLeft })}
                       </span>
                       {task.courseCode && (
-                        <span className="text-[10px] text-foreground/30">
+                        <span className="text-[10px] text-foreground/60">
                           {task.courseCode}
                         </span>
                       )}
@@ -335,7 +335,7 @@ export function StudyPlannerWidget({
                       i.e. it CONTAINS a Hebrew word — forcing LTR pushes the
                       month past the day and reorders the two ends of the range
                       (measured). Natural RTL flow renders it correctly. */}
-                  <span className="hidden text-[10px] text-foreground/30 sm:block">
+                  <span className="hidden text-[10px] text-foreground/60 sm:block">
                     {formatTaskDate(task.startDate, isHe)} – {formatTaskDate(task.endDate, isHe)}
                   </span>
 
@@ -362,7 +362,7 @@ export function StudyPlannerWidget({
             })}
 
             {activeTasks.length > 6 && (
-              <p className="pt-1 text-center text-xs text-foreground/30">
+              <p className="pt-1 text-center text-xs text-foreground/60">
                 {t("moreTasksHidden", { count: activeTasks.length - 6 })}
               </p>
             )}
@@ -371,7 +371,7 @@ export function StudyPlannerWidget({
 
         {/* Completed summary */}
         {completedCount > 0 && (
-          <div className="mt-3 flex items-center gap-1.5 text-xs text-foreground/30">
+          <div className="mt-3 flex items-center gap-1.5 text-xs text-foreground/60">
             <CheckCircle2 className="h-3 w-3 text-emerald-400/60" />
             {t("completedCount", { count: completedCount })}
           </div>
@@ -381,7 +381,7 @@ export function StudyPlannerWidget({
             place you generate/edit the whole plan (#10). */}
         <Link
           href="/exam-planner"
-          className="mt-3 inline-flex items-center gap-1 text-xs font-medium text-foreground/55 transition-colors hover:text-foreground/80"
+          className="mt-3 inline-flex items-center gap-1 text-xs font-medium text-foreground/60 transition-colors hover:text-foreground/80"
         >
           {isHe ? "למתכנן המבחנים המלא" : "Open the full exam planner"}
           <Arrow className="h-3 w-3" />

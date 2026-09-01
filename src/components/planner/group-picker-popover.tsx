@@ -86,7 +86,7 @@ export function GroupPickerPopover({
         dir={isHe ? "rtl" : "ltr"}
       >
         <div className="flex items-center gap-1.5">
-          <Users className="size-3.5 shrink-0 text-foreground/40" />
+          <Users className="size-3.5 shrink-0 text-foreground/60" />
           <p className="truncate text-xs font-semibold text-foreground/80">
             {courseName}
           </p>
@@ -105,13 +105,13 @@ export function GroupPickerPopover({
               {/* "4 מתוך 6 בלי חפיפה" — in bidding week the first question is
                   what's still possible, not what exists. */}
               <div className="flex items-baseline justify-between gap-2">
-                <p className="text-[11px] font-medium text-foreground/55">
+                <p className="text-[11px] font-medium text-foreground/60">
                   {isHe ? `בחרו קבוצת ${typeName}` : `Choose a ${typeName} group`}
                 </p>
                 <p
                   className={cn(
                     "shrink-0 text-[10px] font-medium",
-                    choice.freeCount === 0 ? "text-red-400" : "text-foreground/45",
+                    choice.freeCount === 0 ? "text-red-400" : "text-foreground/60",
                   )}
                 >
                   {isHe ? (
@@ -152,7 +152,7 @@ export function GroupPickerPopover({
           );
         })}
 
-        <p className="text-[10px] leading-tight text-foreground/35">
+        <p className="text-[10px] leading-tight text-foreground/60">
           {isHe
             ? "הקבוצות הפנויות מוצגות ראשונות. החפיפות נבדקות מול כל מה שכבר יש לכם בסמסטר הזה."
             : "Clash-free groups are listed first. Clashes are checked against everything already in this semester."}

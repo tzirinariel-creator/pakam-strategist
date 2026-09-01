@@ -116,7 +116,7 @@ export function AddTaskModal({
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               placeholder={t("taskTitlePlaceholder")}
-              className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground placeholder:text-foreground/30 focus:border-foreground/30 focus:outline-none"
+              className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground placeholder:text-foreground/60 focus:border-foreground/30 focus:outline-none"
               autoFocus
             />
           </div>
@@ -136,7 +136,7 @@ export function AddTaskModal({
                     "flex-1 rounded-lg px-2 py-1.5 text-xs font-medium transition-all",
                     taskType === type
                       ? "text-white shadow-sm"
-                      : "bg-foreground/5 text-foreground/50 hover:bg-foreground/10"
+                      : "bg-foreground/5 text-foreground/60 hover:bg-foreground/10"
                   )}
                   style={taskType === type ? { backgroundColor: TASK_COLORS[type] } : undefined}
                 >
@@ -211,7 +211,7 @@ export function AddTaskModal({
               onChange={(e) => setNotes(e.target.value)}
               placeholder={t("notesPlaceholder")}
               rows={2}
-              className="w-full resize-none rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground placeholder:text-foreground/30 focus:border-foreground/30 focus:outline-none"
+              className="w-full resize-none rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground placeholder:text-foreground/60 focus:border-foreground/30 focus:outline-none"
             />
           </div>
         </div>
@@ -220,7 +220,7 @@ export function AddTaskModal({
           <button
             type="button"
             onClick={() => onOpenChange(false)}
-            className="rounded-lg px-4 py-2 text-sm text-foreground/50 transition-colors hover:bg-foreground/5"
+            className="rounded-lg px-4 py-2 text-sm text-foreground/60 transition-colors hover:bg-foreground/5"
           >
             {t("cancel")}
           </button>
@@ -232,7 +232,7 @@ export function AddTaskModal({
               "rounded-lg px-5 py-2 text-sm font-medium transition-all",
               canSubmit && !isSubmitting
                 ? "bg-foreground text-background hover:scale-[1.02] press-scale"
-                : "cursor-not-allowed bg-foreground/20 text-foreground/40"
+                : "cursor-not-allowed bg-foreground/20 text-foreground/60"
             )}
           >
             {isSubmitting ? t("saving") : t("save")}

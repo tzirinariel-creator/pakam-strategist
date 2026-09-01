@@ -332,7 +332,7 @@ export function ExamSchedule() {
         <CalendarClock className="size-10 text-foreground/20" />
         <div className="text-center">
           <p className="text-base font-medium text-foreground/60">{t("noExams")}</p>
-          <p className="mt-1 max-w-xs text-sm text-foreground/40">{t("noExamsDesc")}</p>
+          <p className="mt-1 max-w-xs text-sm text-foreground/60">{t("noExamsDesc")}</p>
         </div>
       </div>
     );
@@ -396,7 +396,7 @@ export function ExamSchedule() {
               "flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-medium transition-colors",
               activeTab === "list"
                 ? "bg-foreground/10 text-foreground/80"
-                : "text-muted-foreground hover:text-foreground/60"
+                : "text-muted-foreground hover:text-foreground/90"
             )}
           >
             <List className="size-3.5" />
@@ -409,7 +409,7 @@ export function ExamSchedule() {
               "flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-medium transition-colors",
               activeTab === "gantt"
                 ? "bg-foreground/10 text-foreground/80"
-                : "text-muted-foreground hover:text-foreground/60"
+                : "text-muted-foreground hover:text-foreground/90"
             )}
           >
             <BarChart3 className="size-3.5" />
@@ -482,14 +482,14 @@ export function ExamSchedule() {
         // Everything is in the past or already passed → nothing upcoming (#33).
         <div className="flex min-h-[160px] flex-col items-center justify-center gap-3 rounded-lg border border-dashed border-border/40 p-6">
           <CheckCircle2 className="size-8 text-emerald-400/70" />
-          <p className="text-sm text-foreground/55">
+          <p className="text-sm text-foreground/60">
             {isRTL ? "אין מבחנים קרובים — אתם מעודכנים." : "No upcoming exams — you're all caught up."}
           </p>
         </div>
       ) : (
       <div className="flex flex-col gap-4">
         {/* Legend (#8): what the dot color, Moed-B badge and red mean. */}
-        <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5 rounded-lg border border-border/40 bg-card/30 px-3 py-2 text-[11px] text-foreground/50">
+        <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5 rounded-lg border border-border/40 bg-card/30 px-3 py-2 text-[11px] text-foreground/60">
           {/* The dot is the COURSE's colour, not the discipline's — the same
               one it wears on the weekly grid and the plan board, so the eye
               can carry a course between screens. The old legend listed the

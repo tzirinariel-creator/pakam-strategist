@@ -44,7 +44,7 @@ function Section({
   return (
     <div className="rounded-lg border border-border/30 bg-card/20 p-4">
       <div className="mb-3 flex items-center gap-2">
-        <Icon className="h-4 w-4 text-foreground/50" />
+        <Icon className="h-4 w-4 text-foreground/60" />
         <h3 className="text-sm font-bold text-foreground/80">{title}</h3>
       </div>
       {children}
@@ -80,9 +80,9 @@ export function DegreeInfoCard() {
             <span className="font-mono text-2xl font-bold text-foreground/80">
               {CREDIT_REQUIREMENTS.TOTAL}
             </span>
-            <span className="text-sm text-foreground/50">{t("totalCredits")}</span>
+            <span className="text-sm text-foreground/60">{t("totalCredits")}</span>
           </div>
-          <p className="mt-0.5 text-xs text-foreground/40">
+          <p className="mt-0.5 text-xs text-foreground/60">
             <Bidi text={t("creditsAboveRegular")} />
           </p>
         </div>
@@ -98,7 +98,7 @@ export function DegreeInfoCard() {
             <span className="font-mono text-lg font-bold text-foreground/80">
               {CREDIT_REQUIREMENTS.MANDATORY_OFFICIAL}
             </span>
-            <span className="text-[10px] font-medium text-foreground/50">
+            <span className="text-[10px] font-medium text-foreground/60">
               {t("mandatory")}
             </span>
           </div>
@@ -107,7 +107,7 @@ export function DegreeInfoCard() {
             <span className="font-mono text-lg font-bold text-foreground/80">
               {CREDIT_REQUIREMENTS.ELECTIVE_TOTAL}
             </span>
-            <span className="text-[10px] font-medium text-foreground/50">
+            <span className="text-[10px] font-medium text-foreground/60">
               {t("elective")}
             </span>
           </div>
@@ -116,13 +116,13 @@ export function DegreeInfoCard() {
             <span className="font-mono text-lg font-bold text-foreground/80">
               {CREDIT_REQUIREMENTS.SEMINAR_TOTAL}
             </span>
-            <span className="text-[10px] font-medium text-foreground/50">
+            <span className="text-[10px] font-medium text-foreground/60">
               {t("seminarsLabel")}
             </span>
           </div>
         </div>
         {CREDIT_REQUIREMENTS.MANDATORY_UNPUBLISHED > 0 && (
-          <p className="mt-2 text-[11px] leading-snug text-foreground/40">
+          <p className="mt-2 text-[11px] leading-snug text-foreground/60">
             {isHe
               ? `מתוך ${CREDIT_REQUIREMENTS.MANDATORY_OFFICIAL} ש״ס החובה, ${CREDIT_REQUIREMENTS.MANDATORY_UNPUBLISHED} עדיין בלי קורס בידיעון — לכן פכמון בודק אתכם מול ${CREDIT_REQUIREMENTS.MANDATORY_TOTAL} ולא ידרוש מכם ש״ס שאין ממה לקחת.`
               : `Of the ${CREDIT_REQUIREMENTS.MANDATORY_OFFICIAL} mandatory credits, ${CREDIT_REQUIREMENTS.MANDATORY_UNPUBLISHED} have no catalog course yet — so Pakamon checks you against ${CREDIT_REQUIREMENTS.MANDATORY_TOTAL} rather than asking for credits nothing can supply.`}
@@ -171,8 +171,8 @@ export function DegreeInfoCard() {
             </span>
           </div>
           <div className="flex items-start gap-2 rounded-md bg-foreground/[0.03] px-3 py-2">
-            <AlertCircle className="mt-0.5 h-3.5 w-3.5 shrink-0 text-foreground/40" />
-            <p className="text-xs leading-relaxed text-foreground/50">
+            <AlertCircle className="mt-0.5 h-3.5 w-3.5 shrink-0 text-foreground/60" />
+            <p className="text-xs leading-relaxed text-foreground/60">
               {t("focusAreaExplanation")}
             </p>
           </div>
@@ -200,15 +200,15 @@ export function DegreeInfoCard() {
           </div>
 
           {/* Grade weight note */}
-          <div className="flex items-start gap-2 text-xs text-foreground/50">
-            <FileText className="mt-0.5 h-3.5 w-3.5 shrink-0 text-foreground/40" />
+          <div className="flex items-start gap-2 text-xs text-foreground/60">
+            <FileText className="mt-0.5 h-3.5 w-3.5 shrink-0 text-foreground/60" />
             <span>{t("eachPaperWeight")}</span>
           </div>
 
           {/* Restrictions */}
           <div className="flex items-start gap-2 rounded-md bg-foreground/[0.03] px-3 py-2">
-            <AlertCircle className="mt-0.5 h-3.5 w-3.5 shrink-0 text-foreground/40" />
-            <p className="text-xs leading-relaxed text-foreground/50">
+            <AlertCircle className="mt-0.5 h-3.5 w-3.5 shrink-0 text-foreground/60" />
+            <p className="text-xs leading-relaxed text-foreground/60">
               {t("maxEconSeminars", { maxEcon: SEMINAR_REQUIREMENTS.MAX_DISCIPLINE_SEMINARS })}
             </p>
           </div>
@@ -229,7 +229,7 @@ export function DegreeInfoCard() {
             </p>
             {/* #10: intro-phil can be taken in English, which also satisfies the
                 English-content requirement. */}
-            <p className="mt-1.5 text-[11px] leading-relaxed text-foreground/45">
+            <p className="mt-1.5 text-[11px] leading-relaxed text-foreground/60">
               {t("englishTip")}
             </p>
           </div>
@@ -289,7 +289,7 @@ export function DegreeInfoCard() {
           {glossary.map(([term, def]) => (
             <div key={term} className="rounded-md border border-border/20 bg-card/20 px-3 py-2">
               <dt className="font-bold text-foreground/75">{term}</dt>
-              <dd className="mt-0.5 text-foreground/55">
+              <dd className="mt-0.5 text-foreground/60">
                 <Bidi text={def} />
               </dd>
             </div>

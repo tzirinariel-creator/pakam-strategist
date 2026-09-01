@@ -204,11 +204,11 @@ export function BiddingWorksheet({
           <p className="text-sm font-semibold text-foreground/85">
             {isHe ? "גיליון בידינג — הנקודות שלכם" : "Bidding worksheet — your points"}
           </p>
-          <p className="text-xs text-foreground/50">
+          <p className="text-xs text-foreground/60">
             {isHe ? "אתם מזינים, אנחנו רק בודקים · נשמר במכשיר שלכם" : "You enter, we only validate · saved on your device"}
           </p>
         </div>
-        <ChevronDown className={cn("size-4 shrink-0 text-foreground/40 transition-transform", open && "rotate-180")} />
+        <ChevronDown className={cn("size-4 shrink-0 text-foreground/60 transition-transform", open && "rotate-180")} />
       </button>
 
       {open && (
@@ -216,7 +216,7 @@ export function BiddingWorksheet({
           {/* Pool + round */}
           <div className="flex flex-wrap items-end gap-3">
             <div className="flex flex-col gap-1">
-              <label htmlFor="bid-pool" className="text-[11px] text-foreground/55">
+              <label htmlFor="bid-pool" className="text-[11px] text-foreground/60">
                 {isHe ? "כמה נקודות יש לכם? (מופיע רק במסך-הבידינג בידיעון)" : "Your point pool (shown only on the Yedion bidding screen)"}
               </label>
               <input
@@ -231,14 +231,14 @@ export function BiddingWorksheet({
               />
             </div>
             <div className="flex flex-col gap-1">
-              <span className="text-[11px] text-foreground/55">{isHe ? "מקצה (הנקודות מתאפסות ביניהם)" : "Round (pool resets between them)"}</span>
+              <span className="text-[11px] text-foreground/60">{isHe ? "מקצה (הנקודות מתאפסות ביניהם)" : "Round (pool resets between them)"}</span>
               <div className="flex overflow-hidden rounded-md border border-border/60 text-xs">
                 {(["1", "2"] as const).map((r) => (
                   <button
                     key={r}
                     type="button"
                     onClick={() => setRound(r)}
-                    className={cn("px-3 py-2 transition-colors", round === r ? "bg-foreground text-background" : "text-foreground/55 hover:bg-foreground/5")}
+                    className={cn("px-3 py-2 transition-colors", round === r ? "bg-foreground text-background" : "text-foreground/60 hover:bg-foreground/5")}
                   >
                     {isHe ? `מקצה ${r}` : `Round ${r}`}
                   </button>
@@ -247,11 +247,11 @@ export function BiddingWorksheet({
             </div>
             {/* Remaining meter */}
             <div className="ms-auto text-end">
-              <p className="text-[11px] text-foreground/55">{isHe ? "נשאר במאגר" : "Remaining"}</p>
+              <p className="text-[11px] text-foreground/60">{isHe ? "נשאר במאגר" : "Remaining"}</p>
               <p
                 className={cn(
                   "text-lg font-bold tabular-nums",
-                  check.remaining == null ? "text-foreground/40" : check.remaining < 0 ? "text-red-500" : "text-emerald-600",
+                  check.remaining == null ? "text-foreground/60" : check.remaining < 0 ? "text-red-500" : "text-emerald-600",
                 )}
                 dir="ltr"
               >
@@ -294,7 +294,7 @@ export function BiddingWorksheet({
                           </span>
                         )}
                       </p>
-                      <p className="text-[10px] text-foreground/40">
+                      <p className="text-[10px] text-foreground/60">
                         <span dir="ltr">{r.courseCode}</span>
                         {r.groupLabel ? ` · ${r.groupLabel}` : ""}
                       </p>
@@ -307,7 +307,7 @@ export function BiddingWorksheet({
                           type="button"
                           onClick={() => setPriority(r.courseCode, p.key)}
                           aria-pressed={pri === p.key}
-                          className={cn("px-1.5 py-1 transition-colors", pri === p.key ? "bg-accent-brand text-accent-brand-fg" : "text-foreground/50 hover:bg-foreground/5")}
+                          className={cn("px-1.5 py-1 transition-colors", pri === p.key ? "bg-accent-brand text-accent-brand-fg" : "text-foreground/60 hover:bg-foreground/5")}
                         >
                           {isHe ? p.he : p.en}
                         </button>
@@ -347,10 +347,10 @@ export function BiddingWorksheet({
               {isHe ? "טיפים (מנגנון, לא ניחוש)" : "Tips (mechanics, not guesses)"}
             </p>
             <ul className="space-y-1 text-[11px] leading-snug text-foreground/60">
-              <li className="flex gap-1.5"><Check className="mt-0.5 size-3 shrink-0 text-foreground/35" />{isHe ? "שוויון בסף נשבר בהגרלה — מספר קצת לא-עגול (כמו 41) גובר על העגול שכולם בוחרים (40)." : "Ties at the cutoff go to a lottery — a slightly odd number (41) beats the round one everyone picks (40)."}</li>
-              <li className="flex gap-1.5"><Check className="mt-0.5 size-3 shrink-0 text-foreground/35" />{isHe ? "ביטול בין המקצים מחזיר את הנקודות — מקצה 2 מתחיל מחדש עם כל המאגר." : "Cancelling between rounds refunds points — round 2 starts fresh with the full pool."}</li>
-              <li className="flex gap-1.5"><Check className="mt-0.5 size-3 shrink-0 text-foreground/35" />{isHe ? "תעדפו את מה שחייבים ומהר-מתמלא; את הבטוחים אפשר להשאיר על המינימום." : "Prioritize must-haves and fast-fillers; safe picks can sit at the minimum."}</li>
-              <li className="flex gap-1.5"><Check className="mt-0.5 size-3 shrink-0 text-foreground/35" />{isHe ? "אנחנו לא יודעים את המכסה — הכלי רק בודק שהמספרים שלכם מסתדרים." : "We don't know the quota — this tool only checks your own numbers add up."}</li>
+              <li className="flex gap-1.5"><Check className="mt-0.5 size-3 shrink-0 text-foreground/60" />{isHe ? "שוויון בסף נשבר בהגרלה — מספר קצת לא-עגול (כמו 41) גובר על העגול שכולם בוחרים (40)." : "Ties at the cutoff go to a lottery — a slightly odd number (41) beats the round one everyone picks (40)."}</li>
+              <li className="flex gap-1.5"><Check className="mt-0.5 size-3 shrink-0 text-foreground/60" />{isHe ? "ביטול בין המקצים מחזיר את הנקודות — מקצה 2 מתחיל מחדש עם כל המאגר." : "Cancelling between rounds refunds points — round 2 starts fresh with the full pool."}</li>
+              <li className="flex gap-1.5"><Check className="mt-0.5 size-3 shrink-0 text-foreground/60" />{isHe ? "תעדפו את מה שחייבים ומהר-מתמלא; את הבטוחים אפשר להשאיר על המינימום." : "Prioritize must-haves and fast-fillers; safe picks can sit at the minimum."}</li>
+              <li className="flex gap-1.5"><Check className="mt-0.5 size-3 shrink-0 text-foreground/60" />{isHe ? "אנחנו לא יודעים את המכסה — הכלי רק בודק שהמספרים שלכם מסתדרים." : "We don't know the quota — this tool only checks your own numbers add up."}</li>
             </ul>
           </div>
 

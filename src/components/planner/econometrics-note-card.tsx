@@ -34,7 +34,7 @@ export function EconometricsNoteCard({
   return (
     <div className="rounded-xl border border-border/60 bg-card/60 p-4">
       <div className="flex items-start gap-2.5">
-        <GraduationCap className="mt-0.5 size-4 shrink-0 text-foreground/45" />
+        <GraduationCap className="mt-0.5 size-4 shrink-0 text-foreground/60" />
         <div className="min-w-0 flex-1">
           <p className="text-sm font-bold text-foreground/85">
             {isHe
@@ -44,7 +44,7 @@ export function EconometricsNoteCard({
           <p className="mt-1 text-xs leading-relaxed text-foreground/65">
             {isHe ? ECONOMETRICS_GATE.he : ECONOMETRICS_GATE.en}
           </p>
-          <p className="mt-1.5 text-xs leading-relaxed text-foreground/50">
+          <p className="mt-1.5 text-xs leading-relaxed text-foreground/60">
             {isHe ? (
               <>
                 הקורס אינו בתכנית שלכם כרגע, ואתם בשנה <Bidi text={note.currentYear} /> — עוד אפשר
@@ -57,7 +57,7 @@ export function EconometricsNoteCard({
               </>
             )}
           </p>
-          <p className="mt-1.5 text-[11px] text-foreground/40">
+          <p className="mt-1.5 text-[11px] text-foreground/60">
             {isHe ? ECONOMETRICS_GATE.sourceHe : ECONOMETRICS_GATE.sourceEn}
           </p>
         </div>

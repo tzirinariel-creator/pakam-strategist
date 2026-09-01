@@ -75,12 +75,12 @@ export function FeedbackSection() {
                 : isHe ? "העתקת הכתובת" : "Copy address"}
             </button>
           </div>
-          <p className="mt-2 text-xs text-foreground/50">
+          <p className="mt-2 text-xs text-foreground/60">
             {isHe
               ? "זו הכתובת — אפשר להעתיק אותה ולכתוב מכל מקום."
               : "That's the address — copy it and write from anywhere."}
           </p>
-          <p className="mt-1 text-xs text-foreground/50">{t("feedbackHint")}</p>
+          <p className="mt-1 text-xs text-foreground/60">{t("feedbackHint")}</p>
           {/* Ariel, 21.8: "נזכיר שאני סטודנט שעושה את זה בשביל הכיף ובשביל
               לעזור". Worth saying out loud — it sets the right expectation
               (there is no support desk) and it makes people write to a person

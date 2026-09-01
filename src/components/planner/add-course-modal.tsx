@@ -671,7 +671,7 @@ export function AddCourseModal() {
               className={cn(
                 "flex min-h-[40px] items-center justify-center gap-2 rounded-lg px-4 py-2 text-sm font-medium transition-colors",
                 summary.count === 0 || isAdding
-                  ? "cursor-not-allowed bg-foreground/10 text-foreground/40"
+                  ? "cursor-not-allowed bg-foreground/10 text-foreground/60"
                   : "bg-foreground text-primary-foreground hover:bg-foreground/90",
               )}
             >

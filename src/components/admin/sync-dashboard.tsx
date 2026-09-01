@@ -203,7 +203,7 @@ export function SyncDashboard() {
         <h1 className="text-2xl font-bold text-foreground/90">
           סנכרון ידיעון
         </h1>
-        <p className="mt-1 text-sm text-foreground/50">
+        <p className="mt-1 text-sm text-foreground/60">
           סנכרון קורסים מול אתר הידיעון של אוניברסיטת תל אביב
         </p>
       </div>
@@ -221,7 +221,7 @@ export function SyncDashboard() {
             </span>
           </div>
           <StatusBadge status={latestDiff.data.status} />
-          <span className="text-xs text-foreground/40">
+          <span className="text-xs text-foreground/60">
             {latestDiff.data.coursesChecked} קורסים נבדקו •{" "}
             {latestDiff.data.changesFound} שינויים •{" "}
             {latestDiff.data.changesApplied} הוחלו
@@ -266,7 +266,7 @@ export function SyncDashboard() {
               <BarChart3 className="h-4 w-4 text-violet-400" />
               סנכרון ציונים (Arazim)
             </h2>
-            <p className="mt-0.5 text-xs text-foreground/40">
+            <p className="mt-0.5 text-xs text-foreground/60">
               עדכון נתוני קושי וציונים מ-Arazim Project. רץ אוטומטית כל יום ראשון.
             </p>
           </div>
@@ -354,7 +354,7 @@ export function SyncDashboard() {
               <p className={cn("text-2xl font-bold", stat.color)}>
                 {stat.value}
               </p>
-              <p className="mt-0.5 text-xs text-foreground/40">{stat.label}</p>
+              <p className="mt-0.5 text-xs text-foreground/60">{stat.label}</p>
             </div>
           ))}
         </div>
@@ -370,7 +370,7 @@ export function SyncDashboard() {
             <div className="flex items-center gap-2">
               <button
                 onClick={selectAll}
-                className="text-xs text-foreground/40 hover:text-foreground/60 transition-colors"
+                className="text-xs text-foreground/60 hover:text-foreground/90 transition-colors"
               >
                 בחר הכל
               </button>
@@ -408,7 +408,7 @@ export function SyncDashboard() {
                   className="h-4 w-4 rounded border-foreground/20 accent-emerald-500"
                 />
                 <div className="min-w-0 flex-1">
-                  <span className="font-mono text-xs text-foreground/40">
+                  <span className="font-mono text-xs text-foreground/60">
                     {courseChange.courseCode}
                   </span>
                   <span className="mx-2 text-foreground/20">·</span>
@@ -416,7 +416,7 @@ export function SyncDashboard() {
                     {courseChange.courseName}
                   </span>
                 </div>
-                <span className="text-xs text-foreground/30">
+                <span className="text-xs text-foreground/60">
                   {courseChange.changes.length} שינויים
                 </span>
               </div>
@@ -451,7 +451,7 @@ export function SyncDashboard() {
         <div className="data-card flex flex-col items-center gap-2 py-12 text-center">
           <CheckCircle2 className="h-10 w-10 text-emerald-400/40" />
           <p className="text-foreground/60">הכול מעודכן — אין שינויים</p>
-          <p className="text-xs text-foreground/30">
+          <p className="text-xs text-foreground/60">
             {diff.unchanged.length} קורסים נבדקו ונמצאו זהים לידיעון
           </p>
         </div>
@@ -462,7 +462,7 @@ export function SyncDashboard() {
         <div className="data-card flex flex-col items-center gap-2 py-12 text-center">
           <RefreshCw className="h-10 w-10 text-foreground/20" />
           <p className="text-foreground/60">טרם בוצע סנכרון</p>
-          <p className="text-xs text-foreground/30">
+          <p className="text-xs text-foreground/60">
             לחץ על &quot;הרץ סנכרון&quot; כדי לסנכרן קורסים מהידיעון
           </p>
         </div>
@@ -483,7 +483,7 @@ export function SyncDashboard() {
               <div>
                 <span className="font-mono text-red-400/80">{err.code}</span>
                 <span className="mx-1.5 text-foreground/20">—</span>
-                <span className="text-foreground/50">{err.error}</span>
+                <span className="text-foreground/60">{err.error}</span>
               </div>
             </div>
           ))}
@@ -517,7 +517,7 @@ export function SyncDashboard() {
           </h2>
 
           {syncLogs.isLoading && (
-            <p className="text-sm text-foreground/40">טוען...</p>
+            <p className="text-sm text-foreground/60">טוען...</p>
           )}
 
           {syncLogs.data?.map((log) => {
@@ -537,7 +537,7 @@ export function SyncDashboard() {
                 <span className="text-foreground/60">
                   {new Date(log.startedAt).toLocaleString("he-IL")}
                 </span>
-                <span className="text-xs text-foreground/30">
+                <span className="text-xs text-foreground/60">
                   {log.coursesChecked} נבדקו • {log.changesFound} שינויים •{" "}
                   {log.changesApplied} הוחלו
                 </span>
@@ -551,7 +551,7 @@ export function SyncDashboard() {
           })}
 
           {syncLogs.data?.length === 0 && (
-            <p className="text-sm text-foreground/40">אין היסטוריה עדיין</p>
+            <p className="text-sm text-foreground/60">אין היסטוריה עדיין</p>
           )}
         </div>
       )}

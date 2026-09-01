@@ -61,7 +61,7 @@ export function ScanGapBanner({
           <ul className="mt-1 space-y-1">
             {missing.map((m) => (
               <li key={m.courseCode} className="flex items-baseline gap-2 text-xs text-foreground/80">
-                <span className="font-mono text-foreground/50"><Bidi text={m.courseCode} /></span>
+                <span className="font-mono text-foreground/60"><Bidi text={m.courseCode} /></span>
                 <span>{label(m.courseCode)}</span>
                 {m.grade != null && (
                   <span className="font-mono font-semibold">
@@ -82,7 +82,7 @@ export function ScanGapBanner({
           <ul className="mt-1 space-y-1">
             {lostGrades.map((m) => (
               <li key={m.courseCode} className="flex items-baseline gap-2 text-xs text-foreground/80">
-                <span className="font-mono text-foreground/50"><Bidi text={m.courseCode} /></span>
+                <span className="font-mono text-foreground/60"><Bidi text={m.courseCode} /></span>
                 <span>{label(m.courseCode)}</span>
                 <span className="font-mono font-semibold">
                   {isHe ? "בגיליון: " : "on the sheet: "}<Bidi text={m.censusGrade} />
@@ -90,7 +90,7 @@ export function ScanGapBanner({
               </li>
             ))}
           </ul>
-          <p className="mt-1.5 text-[11px] leading-relaxed text-foreground/50">
+          <p className="mt-1.5 text-[11px] leading-relaxed text-foreground/60">
             {isHe
               ? "לא מילאנו את הציון בשבילכם בכוונה — קריאה שנייה היא לא הוכחה. השוו לגיליון ותקנו בשורה עצמה."
               : "We deliberately did not fill the grade in for you — a second read is not proof. Check it against your sheet and fix it on the row itself."}

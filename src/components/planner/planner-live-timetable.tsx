@@ -205,7 +205,7 @@ export function PlannerLiveTimetable({ courses, currentYear }: PlannerLiveTimeta
                   "px-2.5 py-1 transition-colors",
                   semester === s
                     ? "bg-foreground text-background"
-                    : "text-foreground/55 hover:bg-foreground/5"
+                    : "text-foreground/60 hover:bg-foreground/5"
                 )}
               >
                 {isHe ? SEMESTER_CONFIG[s].short : SEMESTER_CONFIG[s].shortEn}
@@ -218,7 +218,7 @@ export function PlannerLiveTimetable({ courses, currentYear }: PlannerLiveTimeta
               type="button"
               ref={expandBtnRef}
               onClick={() => setExpanded(true)}
-              className="flex size-7 items-center justify-center rounded-md border border-border/60 text-foreground/55 transition-colors hover:bg-foreground/5 hover:text-foreground/80"
+              className="flex size-7 items-center justify-center rounded-md border border-border/60 text-foreground/60 transition-colors hover:bg-foreground/5 hover:text-foreground/80"
               aria-label={isHe ? "הגדלת מערכת השעות" : "Expand timetable"}
               title={isHe ? "פתיחה במסך מלא" : "Expand to full view"}
             >
@@ -228,20 +228,20 @@ export function PlannerLiveTimetable({ courses, currentYear }: PlannerLiveTimeta
         </div>
       </div>
 
-      <p className="text-[11px] text-foreground/45">
+      <p className="text-[11px] text-foreground/60">
         {isHe
           ? `${yearLabel} · מתעדכן כשמזיזים קורסים בלוח`
           : `${yearLabel} · updates as you move courses on the board`}
       </p>
 
       {coursesQuery.isLoading ? (
-        <div className="py-10 text-center text-xs text-foreground/40">
+        <div className="py-10 text-center text-xs text-foreground/60">
           {isHe ? "טוען מערכת…" : "Loading timetable…"}
         </div>
       ) : semCourses.length === 0 ? (
         <div className="flex flex-col items-center justify-center gap-2 py-10 text-center">
           <CalendarDays className="size-7 text-foreground/15" />
-          <p className="text-xs text-foreground/40">
+          <p className="text-xs text-foreground/60">
             {isHe
               ? "אין קורסים בסמסטר הזה — הוסיפו או גררו קורסים ללוח."
               : "No courses this semester — add or drag courses on the board."}
@@ -290,7 +290,7 @@ export function PlannerLiveTimetable({ courses, currentYear }: PlannerLiveTimeta
               type="button"
               ref={closeBtnRef}
               onClick={() => setExpanded(false)}
-              className="flex size-8 items-center justify-center rounded-md text-foreground/50 transition-colors hover:bg-foreground/5 hover:text-foreground/80"
+              className="flex size-8 items-center justify-center rounded-md text-foreground/60 transition-colors hover:bg-foreground/5 hover:text-foreground/80"
               aria-label={isHe ? "סגור" : "Close"}
             >
               <X className="size-4" />

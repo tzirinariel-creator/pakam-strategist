@@ -97,7 +97,7 @@ export function CalendarSyncNudge({
           <button
             type="button"
             onClick={dismiss}
-            className="ms-auto text-xs text-foreground/40 transition-colors hover:text-foreground/65"
+            className="ms-auto text-xs text-foreground/60 transition-colors hover:text-foreground/65"
           >
             {isHe ? "לא, תודה" : "No thanks"}
           </button>

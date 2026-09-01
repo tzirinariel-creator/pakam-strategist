@@ -94,7 +94,7 @@ export function CohortFileContent() {
       <div className="animate-stagger-1 space-y-2">
         <Link
           href="/lineage"
-          className="inline-flex items-center gap-1 text-xs font-medium text-foreground/45 transition-colors hover:text-foreground/75"
+          className="inline-flex items-center gap-1 text-xs font-medium text-foreground/60 transition-colors hover:text-foreground/75"
         >
           {isHe ? "השושלת" : "The Lineage"}
           <ChevronLeft className="size-3.5 ltr:rotate-180" />
@@ -105,7 +105,7 @@ export function CohortFileContent() {
             <h1 className="font-display text-3xl font-bold text-foreground/85">
               {isHe ? "תיק המחזור" : "The cohort file"}
             </h1>
-            <p className="mt-1 text-foreground/55">
+            <p className="mt-1 text-foreground/60">
               {isHe
                 ? `${advisor.short} מארח: מה שהמחזורים שלפניכם גילו על הדרך — בלי שמות, ועובר הלאה.`
                 : `Hosted by ${advisor.short}: what the cohorts before you learned the hard way — kept, anonymous, passed on.`}
@@ -174,7 +174,7 @@ export function CohortFileContent() {
             <div className="data-card overflow-x-auto p-0">
               <table className="w-full min-w-[560px] text-sm">
                 <thead>
-                  <tr className="border-b border-border/60 text-start text-xs text-foreground/50">
+                  <tr className="border-b border-border/60 text-start text-xs text-foreground/60">
                     <th className="px-4 py-2.5 text-start font-medium">{isHe ? "קורס" : "Course"}</th>
                     <th className="px-3 py-2.5 text-center font-medium">{isHe ? "ממליצים" : "Recommend"}</th>
                     <th className="px-3 py-2.5 text-center font-medium">{isHe ? "עומס" : "Workload"}</th>
@@ -196,7 +196,7 @@ export function CohortFileContent() {
                             <span className="font-medium text-foreground/85">
                               {isHe ? c.nameHe : (c.nameEn ?? c.nameHe)}
                             </span>
-                            <span className="font-mono text-[11px] text-foreground/35">{c.courseCode}</span>
+                            <span className="font-mono text-[11px] text-foreground/60">{c.courseCode}</span>
                           </div>
                         </td>
                         <td className="px-3 py-2.5 text-center">
@@ -213,26 +213,26 @@ export function CohortFileContent() {
                               {Math.round(c.recommendShare * 100)}%
                             </span>
                           ) : (
-                            <span className="text-foreground/30">—</span>
+                            <span className="text-foreground/60">—</span>
                           )}
                         </td>
                         <td className="px-3 py-2.5 text-center font-mono text-foreground/70">
-                          {c.workload != null ? `${c.workload}/5` : <span className="text-foreground/30">—</span>}
+                          {c.workload != null ? `${c.workload}/5` : <span className="text-foreground/60">—</span>}
                         </td>
                         <td className="px-3 py-2.5 text-center font-mono text-foreground/70">
-                          {c.difficulty != null ? `${c.difficulty}/5` : <span className="text-foreground/30">—</span>}
+                          {c.difficulty != null ? `${c.difficulty}/5` : <span className="text-foreground/60">—</span>}
                         </td>
                         <td className="px-3 py-2.5 text-center font-mono text-foreground/70">
-                          {c.cohortAverage != null ? c.cohortAverage : <span className="text-foreground/30">—</span>}
+                          {c.cohortAverage != null ? c.cohortAverage : <span className="text-foreground/60">—</span>}
                         </td>
-                        <td className="px-3 py-2.5 text-center text-foreground/55">{c.ratingCount}</td>
+                        <td className="px-3 py-2.5 text-center text-foreground/60">{c.ratingCount}</td>
                       </tr>
                     );
                   })}
                 </tbody>
               </table>
             </div>
-            <p className="text-xs text-foreground/40">
+            <p className="text-xs text-foreground/60">
               {isHe
                 ? "מוצג רק מה שעבר את סף האנונימיות: דירוגים מ-3 מדרגים, ציונים מ-5 תורמים. אף נתון אישי לא נחשף."
                 : "Only data above the anonymity bar is shown: ratings from 3+ raters, grades from 5+ contributors. Nothing personal is exposed."}
@@ -250,13 +250,13 @@ export function CohortFileContent() {
                 {digest!.tips.map((t, i) => (
                   <div key={i} className="data-card space-y-1.5 p-4">
                     <p className="text-sm leading-relaxed text-foreground/80">{t.tip}</p>
-                    <p className="flex flex-wrap items-center gap-x-2 gap-y-0.5 text-xs text-foreground/45">
+                    <p className="flex flex-wrap items-center gap-x-2 gap-y-0.5 text-xs text-foreground/60">
                       <span>{t.courseName}</span>
                       {/* #41 — how far ahead of you the writer was. The server
                           only sends a year when that cohort is crowded enough
                           to hide the individual (safeCohortYear). */}
                       {t.cohortYear != null && (
-                        <span className="text-foreground/35">
+                        <span className="text-foreground/60">
                           {cohortLabel(t.cohortYear, profileQuery.data?.startYear, isHe)}
                         </span>
                       )}
@@ -273,7 +273,7 @@ export function CohortFileContent() {
            rating control; the rating list itself is the CTA now. */
         <div className="animate-stagger-3 space-y-3">
           <div className="data-card flex flex-col items-center gap-2 p-8 text-center">
-            <Sprout className="size-10 text-foreground/25" />
+            <Sprout className="size-10 text-foreground/60" />
             <p className="max-w-md text-sm leading-relaxed text-foreground/60">
               {isHe
                 ? "התיק נפתח ברגע שיש מספיק תרומות כדי לשמור על אנונימיות (3 מדרגים לקורס). סיימתם קורס? דרגו אותו כאן ותפתחו את הידע לכל המחזור."
@@ -390,7 +390,7 @@ function InsightsSection({ isHe }: { isHe: boolean }) {
 
       {/* The wall */}
       {rows.length === 0 ? (
-        <p className="text-sm text-foreground/45">
+        <p className="text-sm text-foreground/60">
           {isHe ? "עוד אין תובנות בשלב הזה — שלכם יכולה להיות הראשונה." : "No insights here yet — yours could be the first."}
         </p>
       ) : (
@@ -399,7 +399,7 @@ function InsightsSection({ isHe }: { isHe: boolean }) {
             <div key={r.id} className="data-card group space-y-1.5 p-4">
               <p className="text-sm leading-relaxed text-foreground/80">{r.text}</p>
               <div className="flex items-center justify-between">
-                <span className="text-xs text-foreground/40">
+                <span className="text-xs text-foreground/60">
                   {cohortLabel(r.cohortYear, profileQuery.data?.startYear, isHe)}
                 </span>
                 <button
@@ -408,7 +408,7 @@ function InsightsSection({ isHe }: { isHe: boolean }) {
                   className="opacity-0 transition-opacity group-hover:opacity-100 focus-visible:opacity-100"
                   aria-label={isHe ? "דיווח על תוכן פוגעני" : "Report"}
                 >
-                  <Flag className="size-3.5 text-foreground/30 hover:text-red-500" />
+                  <Flag className="size-3.5 text-foreground/60 hover:text-red-500" />
                 </button>
               </div>
             </div>
@@ -432,7 +432,7 @@ function InsightsSection({ isHe }: { isHe: boolean }) {
                 onChange={(e) => setDraft(e.target.value)}
                 maxLength={400}
                 placeholder={isHe ? "למשל: אל תיקחו 3 קורסי כלכלה באותו סמסטר…" : "e.g. don't stack 3 econ courses…"}
-                className="min-w-0 flex-1 rounded-lg border border-border bg-card px-3 py-2 text-sm text-foreground placeholder:text-foreground/25 focus:border-foreground/30 focus:outline-none"
+                className="min-w-0 flex-1 rounded-lg border border-border bg-card px-3 py-2 text-sm text-foreground placeholder:text-foreground/60 focus:border-foreground/30 focus:outline-none"
                 aria-label={isHe ? "תובנה למחזור" : "Insight"}
               />
               <button
@@ -448,7 +448,7 @@ function InsightsSection({ isHe }: { isHe: boolean }) {
                 <button
                   type="button"
                   onClick={() => deleteMine.mutate({ stage })}
-                  className="rounded-lg bg-foreground/8 px-3 py-2 text-sm font-medium text-foreground/55 transition-colors hover:bg-red-500/15 hover:text-red-500"
+                  className="rounded-lg bg-foreground/8 px-3 py-2 text-sm font-medium text-foreground/60 transition-colors hover:bg-red-500/15 hover:text-red-500"
                 >
                   {isHe ? "מחיקה" : "Delete"}
                 </button>
@@ -519,7 +519,7 @@ function GallerySection({ isHe }: { isHe: boolean }) {
             <li key={e.id} className="flex items-center justify-between gap-2">
               <div className="min-w-0">
                 <p className="truncate text-sm font-medium text-foreground/80">{e.title}</p>
-                <p className="text-xs text-foreground/40">
+                <p className="text-xs text-foreground/60">
                   {e.cohortYear ? cohortLabel(e.cohortYear, profileQuery.data?.startYear, isHe) : ""}
                 </p>
               </div>
@@ -535,7 +535,7 @@ function GallerySection({ isHe }: { isHe: boolean }) {
                   type="button"
                   onClick={() => reportEntry.mutate({ id: e.id })}
                   aria-label={isHe ? "דיווח על מסלול" : "Report plan"}
-                  className="rounded-lg p-1.5 text-foreground/30 hover:text-red-500"
+                  className="rounded-lg p-1.5 text-foreground/60 hover:text-red-500"
                 >
                   <Flag className="size-3.5" />
                 </button>
@@ -544,7 +544,7 @@ function GallerySection({ isHe }: { isHe: boolean }) {
           ))}
         </ul>
       ) : (
-        <p className="text-sm leading-relaxed text-foreground/55">
+        <p className="text-sm leading-relaxed text-foreground/60">
           {isHe
             ? "עוד אין מסלולים בגלריה — פרסמו את שלכם וקבעו את הרף."
             : "No plans in the gallery yet — publish yours and set the bar."}
@@ -558,7 +558,7 @@ function GallerySection({ isHe }: { isHe: boolean }) {
           onChange={(e) => setTitle(e.target.value)}
           maxLength={80}
           placeholder={isHe ? "שם למסלול שלכם (למשל: שנה ב׳ מאוזנת)" : "Name your plan"}
-          className="min-w-0 flex-1 rounded-lg border border-border bg-card px-3 py-2 text-sm text-foreground placeholder:text-foreground/25 focus:border-foreground/30 focus:outline-none"
+          className="min-w-0 flex-1 rounded-lg border border-border bg-card px-3 py-2 text-sm text-foreground placeholder:text-foreground/60 focus:border-foreground/30 focus:outline-none"
           aria-label={isHe ? "שם המסלול" : "Plan title"}
         />
         <button
@@ -573,7 +573,7 @@ function GallerySection({ isHe }: { isHe: boolean }) {
       <button
         type="button"
         onClick={() => unpublish.mutate()}
-        className="text-xs text-foreground/40 transition-colors hover:text-foreground/70"
+        className="text-xs text-foreground/60 transition-colors hover:text-foreground/70"
       >
         {isHe ? "הסרת המסלול שפרסמתי" : "Remove my published plan"}
       </button>
@@ -591,7 +591,7 @@ function LevelChip({ isHe }: { isHe: boolean }) {
       <div className="min-w-0 flex-1">
         <p className="text-sm font-semibold text-foreground/80">
           {isHe ? `הדרגה שלכם בתיק: ${lvl.titleHe}` : `Your file rank: ${lvl.titleEn}`}
-          <span className="font-normal text-foreground/45">
+          <span className="font-normal text-foreground/60">
             {isHe ? ` (${heNounF(stats.data.total, "תרומה", "תרומות")})` : ` (${stats.data.total} contributions)`}
           </span>
         </p>
@@ -603,7 +603,7 @@ function LevelChip({ isHe }: { isHe: boolean }) {
                 style={{ width: `${Math.round(lvl.progress * 100)}%` }}
               />
             </div>
-            <p className="mt-1 text-xs text-foreground/45">
+            <p className="mt-1 text-xs text-foreground/60">
               {isHe
                 ? (lvl.nextAt - stats.data.total === 1
                     ? "עוד תרומה אחת לדרגה הבאה — חוות-דעת, תובנה או מסלול."
@@ -612,7 +612,7 @@ function LevelChip({ isHe }: { isHe: boolean }) {
             </p>
           </>
         ) : (
-          <p className="mt-1 text-xs text-foreground/45">
+          <p className="mt-1 text-xs text-foreground/60">
             {isHe ? "הדרגה הגבוהה ביותר — המחזור חייב לכם." : "Top rank — the cohort owes you."}
           </p>
         )}

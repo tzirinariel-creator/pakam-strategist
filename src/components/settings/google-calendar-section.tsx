@@ -75,7 +75,7 @@ function CalendarFeedCard({ isHe }: { isHe: boolean }) {
           </>
         )}
       </div>
-      <p className="mt-2 text-[11px] text-foreground/40">
+      <p className="mt-2 text-[11px] text-foreground/60">
         {isHe
           ? "טיפ: ב-iPhone בחרו \"הוספה ליומן\" ← מנוי; ב-Google Calendar הדביקו את הקישור תחת \"יומנים אחרים ← מכתובת\"."
           : "Tip: on iPhone tap \"Add to my calendar\" → subscribe; in Google Calendar paste the link under \"Other calendars → From URL\"."}
@@ -291,7 +291,7 @@ export function GoogleCalendarSection() {
             {/* Sync is per-semester: re-syncing updates only the chosen semester
                 and removes courses you dropped from it. If you move a course to a
                 different semester, re-sync the old one too to clear its events. */}
-            <p className="text-xs text-foreground/45">
+            <p className="text-xs text-foreground/60">
               {isHe
                 ? "הסנכרון מעדכן את הסמסטר שנבחר בלבד — ומסיר קורסים שהורדתם ממנו. אם העברתם קורס לסמסטר אחר, סנכרנו גם את הסמסטר הקודם כדי לנקות את האירועים שלו."
                 : "Sync updates only the chosen semester — and removes courses you dropped from it. If you moved a course to another semester, re-sync the old one too to clear its events."}
@@ -331,7 +331,7 @@ export function GoogleCalendarSection() {
                   "self-start",
                   confirmDelete
                     ? "text-destructive hover:text-destructive"
-                    : "text-foreground/50 hover:text-destructive"
+                    : "text-foreground/60 hover:text-destructive"
                 )}
               >
                 {deleting ? (
@@ -347,7 +347,7 @@ export function GoogleCalendarSection() {
                 variant="ghost"
                 onClick={handleDisconnect}
                 disabled={disconnecting}
-                className="self-start text-foreground/50 hover:text-destructive"
+                className="self-start text-foreground/60 hover:text-destructive"
               >
                 {disconnecting ? (
                   <Loader2 className="size-4 animate-spin" />
@@ -366,7 +366,7 @@ export function GoogleCalendarSection() {
                   far more than a promise of "security" ever does. */}
               <div className="rounded-xl border border-border/60 bg-foreground/[0.02] p-3">
                 <p className="flex items-center gap-1.5 text-xs font-semibold text-foreground/80">
-                  <ShieldCheck className="size-3.5 shrink-0 text-foreground/45" />
+                  <ShieldCheck className="size-3.5 shrink-0 text-foreground/60" />
                   {t("googleScopeTitle")}
                 </p>
                 <p className="mt-1.5 text-xs leading-relaxed text-foreground/65">
@@ -375,7 +375,7 @@ export function GoogleCalendarSection() {
                 <p className="mt-1.5 text-xs leading-relaxed text-foreground/65">
                   {t("googleScopeControl")}
                 </p>
-                <p className="mt-1.5 text-[11px] leading-relaxed text-foreground/40">
+                <p className="mt-1.5 text-[11px] leading-relaxed text-foreground/60">
                   {t("googleScopeLegal")}
                 </p>
               </div>

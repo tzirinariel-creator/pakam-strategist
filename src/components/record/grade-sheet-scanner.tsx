@@ -351,7 +351,7 @@ export function GradeSheetScanner() {
           <p className="text-sm font-semibold text-foreground/85">
             {isHe ? "סריקת גיליון ציונים" : "Scan your grade sheet"}
           </p>
-          <p className="text-xs text-foreground/50">
+          <p className="text-xs text-foreground/60">
             {isHe
               ? "מעלים את 'אישור קורסים וציונים' מהאזור האישי של ת״א — ואנחנו ממלאים ציונים, קורסים בלימוד ורמת-אנגלית. שום דבר לא נשמר בלי אישור שלכם."
               : "Upload your 'Record of study' from the TAU personal area — we fill in grades, in-progress courses and English level. Nothing is saved without your approval."}
@@ -379,7 +379,7 @@ export function GradeSheetScanner() {
       </div>
 
       {scanning && (
-        <p className="mt-2 text-xs text-foreground/45" aria-live="polite">
+        <p className="mt-2 text-xs text-foreground/60" aria-live="polite">
           {scan.hint ?? (isHe ? "לא סוגרים את העמוד." : "Keep this page open.")}
           {elapsed >= REASSURE_AFTER_S && (
             <>
@@ -453,7 +453,7 @@ export function GradeSheetScanner() {
           <button
             type="button"
             onClick={() => setScanSummary(null)}
-            className="text-xs text-foreground/45 transition-colors hover:text-foreground/70"
+            className="text-xs text-foreground/60 transition-colors hover:text-foreground/70"
           >
             {isHe ? "סגירה" : "Dismiss"}
           </button>
@@ -474,7 +474,7 @@ export function GradeSheetScanner() {
                   })} — סמנו מה לשמור, ותקנו כל שורה שנקראה לא נכון:`
                 : `Found ${rows.length} row${rows.length === 1 ? "" : "s"} — pick what to save, and fix any row we misread:`}
             </p>
-            <button type="button" onClick={() => { setRows(null); setEditing(null); setScannedEnglish(null); }} aria-label={isHe ? "סגירה" : "Close"} className="rounded-md p-1 text-foreground/30 hover:text-foreground/60">
+            <button type="button" onClick={() => { setRows(null); setEditing(null); setScannedEnglish(null); }} aria-label={isHe ? "סגירה" : "Close"} className="rounded-md p-1 text-foreground/60 hover:text-foreground/90">
               <X className="size-4" />
             </button>
           </div>
@@ -504,7 +504,7 @@ export function GradeSheetScanner() {
                 <button
                   type="button"
                   onClick={() => setScannedEnglish(null)}
-                  className="shrink-0 rounded-md px-1.5 py-1 text-foreground/40 hover:text-foreground/70"
+                  className="shrink-0 rounded-md px-1.5 py-1 text-foreground/60 hover:text-foreground/70"
                 >
                   {isHe ? "לא עכשיו" : "Not now"}
                 </button>
@@ -583,7 +583,7 @@ export function GradeSheetScanner() {
                   >
                     <span className="truncate">{r.courseName}</span>
                     {r.courseCode && (
-                      <span className="shrink-0 text-foreground/40" dir="ltr">
+                      <span className="shrink-0 text-foreground/60" dir="ltr">
                         {"· "}
                         {r.courseCode}
                       </span>
@@ -600,12 +600,12 @@ export function GradeSheetScanner() {
                     return label ? (
                       <span
                         title={label.raw}
-                        className="rounded bg-foreground/5 px-1.5 py-px text-[10px] text-foreground/45"
+                        className="rounded bg-foreground/5 px-1.5 py-px text-[10px] text-foreground/60"
                       >
                         {label.text}
                       </span>
                     ) : (
-                      <span className="rounded bg-foreground/5 px-1.5 py-px font-data text-[10px] text-foreground/45" dir="ltr">
+                      <span className="rounded bg-foreground/5 px-1.5 py-px font-data text-[10px] text-foreground/60" dir="ltr">
                         {r.semester}
                       </span>
                     );
@@ -623,7 +623,7 @@ export function GradeSheetScanner() {
                     // DECLARE the exact outcome before applying (#30) — the
                     // student never gets a silent COMPLETED/FAILED.
                     !r.changesGrade && decision.status === "COMPLETED" && r.grade != null ? (
-                      <span className="rounded bg-foreground/5 px-1.5 py-px text-[10px] text-foreground/45">
+                      <span className="rounded bg-foreground/5 px-1.5 py-px text-[10px] text-foreground/60">
                         {isHe ? "כבר מעודכן" : "Already current"}
                       </span>
                     ) : decision.status === "FAILED" ? (
@@ -713,7 +713,7 @@ export function GradeSheetScanner() {
                     </span>
                   )}
                   {applicable && isEnglish && (
-                    <span className="rounded bg-foreground/5 px-1.5 py-px text-[10px] text-foreground/45">
+                    <span className="rounded bg-foreground/5 px-1.5 py-px text-[10px] text-foreground/60">
                       {isHe ? "לא נכנס לממוצע התואר" : "not in the degree average"}
                     </span>
                   )}
@@ -731,7 +731,7 @@ export function GradeSheetScanner() {
                       "inline-flex shrink-0 items-center gap-1 rounded-md px-1.5 py-1 text-[10px] font-semibold transition-colors",
                       editing === i
                         ? "bg-accent-brand/15 text-accent-brand"
-                        : "text-foreground/45 hover:bg-foreground/5 hover:text-foreground/70",
+                        : "text-foreground/60 hover:bg-foreground/5 hover:text-foreground/70",
                     )}
                   >
                     <PenLine className="size-3" />
@@ -839,7 +839,7 @@ export function GradeSheetScanner() {
                           </select>
                         </div>
                       </div>
-                      <p className="text-[10px] leading-relaxed text-foreground/45">
+                      <p className="text-[10px] leading-relaxed text-foreground/60">
                         {isHe
                           ? "ציון תקין הוא 0 עד 100. מה שתתקנו כאן הוא מה שיישמר; כדי לוותר על השורה — הסירו את הסימון שלה."
                           : "A valid grade is 0 to 100. What you fix here is what gets saved; to leave a row out, un-tick it."}

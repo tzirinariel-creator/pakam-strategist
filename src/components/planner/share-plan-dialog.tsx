@@ -62,13 +62,13 @@ export function SharePlanDialog({
       <DialogContent className="max-w-md">
         <DialogHeader>
           <DialogTitle>{isHe ? "שיתוף התוכנית" : "Share your plan"}</DialogTitle>
-          <DialogDescription className="text-sm text-foreground/55">
+          <DialogDescription className="text-sm text-foreground/60">
             {isHe
               ? "מי שמקבל את הקישור רואה: הקורסים, השנים והסמסטרים, וסך הש״ס."
               : "Whoever gets the link sees: the courses, years and semesters, and the credit total."}
           </DialogDescription>
         </DialogHeader>
-        <p className="text-xs text-foreground/50">
+        <p className="text-xs text-foreground/60">
           {isHe ? "בלי ציונים, בלי פרטים אישיים." : "No grades, no personal details."}
         </p>
         <div className="flex flex-col gap-2">
