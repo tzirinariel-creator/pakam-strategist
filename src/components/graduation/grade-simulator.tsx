@@ -24,6 +24,9 @@ import { useLocale } from "next-intl";
 import { FlaskConical, RotateCcw, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Bidi } from "@/lib/bidi";
+
+/** Where a nudge starts when the student has no average yet either. */
+const DEFAULT_ASSUMED_GRADE = 85;
 import { heNoun } from "@/lib/he-count";
 import {
   simulate, clampGrade, gradeDistribution, gradeNeededForTarget,
@@ -58,7 +61,18 @@ export function GradeSimulator({
 
   const nudge = (uc: UserCourseWithCourse, by: number) =>
     setOverrides((o) => {
-      const base = o[uc.id]?.grade ?? uc.grade ?? 0;
+      // A PLANNED course has no grade yet, and `?? 0` made zero its starting
+      // point — so pressing "+5" on it set the grade to 5 and took 25 points
+      // off the average. A button marked with a plus that subtracts twenty-five
+      // is not confusing, it is broken, and it is the moment a student closes
+      // the app.
+      //
+      // With nothing to nudge FROM, the honest starting point is where the
+      // student already stands: their current course average. Nudging from
+      // there answers the question they were actually asking — "what if this
+      // one goes well?" — instead of answering a question about zero.
+      const fallback = result.current.courseAverage ?? DEFAULT_ASSUMED_GRADE;
+      const base = o[uc.id]?.grade ?? uc.grade ?? Math.round(fallback);
       return { ...o, [uc.id]: { ...o[uc.id], grade: clampGrade(base + by) } };
     });
 

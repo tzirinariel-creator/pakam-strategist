@@ -4,6 +4,7 @@ import { useState, useMemo } from "react";
 import { Link } from "@/i18n/navigation";
 import { useTranslations, useLocale } from "next-intl";
 import {
+  TriangleAlert,
   CalendarDays,
   Loader2,
   AlertTriangle,
@@ -20,6 +21,7 @@ import { cn } from "@/lib/utils";
 import { ThemedLoader } from "@/components/ui/themed-loader";
 import { SEMESTER_CONFIG, YEAR_CONFIG } from "@/lib/constants";
 import { WeeklyTimetable } from "./weekly-timetable";
+import { heNoun } from "@/lib/he-count";
 import { ExamSchedule } from "@/components/exam/exam-schedule";
 import { downloadICSFromSessions } from "@/lib/ics-export";
 import { buildWeekShareText } from "@/lib/week-share";
@@ -227,6 +229,17 @@ export function CalendarContent() {
     }
     return { unchosen: perCourse, displaySessions: sessions };
   }, [scheduleData, isHe]);
+
+  // Which of this semester's courses actually reach the grid, and which are
+  // silently absent because the ידיעון publishes no hours for them.
+  const { displayedCourseCount, missingHours } = useMemo(() => {
+    const drawn = new Set(displaySessions.map((s) => s.course?.code ?? s.courseCode));
+    const missing = semesterCourses
+      .filter((uc) => !drawn.has(uc.course.code))
+      .map((uc) => uc.course.nameHe);
+    return { displayedCourseCount: semesterCourses.length - missing.length, missingHours: missing };
+  }, [displaySessions, semesterCourses]);
+
 
   const chooseGroup = (courseCode: string, type: string, groupCode: string) => {
     const uc = semesterCourses.find((c) => c.course.code === courseCode);
@@ -519,6 +532,38 @@ export function CalendarContent() {
                       ))}
                     </div>
                   ))}
+                </div>
+              )}
+              {/* A course with no timetable rows in the ידיעון simply had no
+                  sessions to draw, so it vanished from the week without a
+                  word — and the student read an empty Tuesday as a free
+                  Tuesday. Six days before a bidding round that is a decision
+                  built on a false picture.
+                  The planner already says this out loud (insights-bar); the
+                  calendar did not. Naming the courses matters more than the
+                  count: "one course is missing" sends you hunting, "סמינר
+                  פכ״מ אין לו שעות" tells you which day is not really free. */}
+              {missingHours.length > 0 && (
+                <div className="mb-3 flex items-start gap-2 rounded-xl border border-amber-500/35 bg-amber-500/[0.06] p-3">
+                  <TriangleAlert className="mt-0.5 size-4 shrink-0 text-amber-600 dark:text-amber-400" />
+                  <p className="text-xs leading-relaxed text-foreground/75">
+                    {isHe ? (
+                      <>
+                        השבוע הזה מציג {displayedCourseCount} מתוך{" "}
+                        {semesterCourses.length} הקורסים שלכם.{" "}
+                        {heNoun(missingHours.length, "לקורס", "לקורסים")} הבאים אין שעות
+                        בידיעון, אז אל תסיקו מכאן שיום מסוים פנוי:{" "}
+                        <b>{missingHours.join(" · ")}</b>
+                      </>
+                    ) : (
+                      <>
+                        This week shows {displayedCourseCount} of your{" "}
+                        {semesterCourses.length} courses. These have no hours in the
+                        catalog, so don&apos;t read an empty day as a free one:{" "}
+                        <b>{missingHours.join(" · ")}</b>
+                      </>
+                    )}
+                  </p>
                 </div>
               )}
               <WeeklyTimetable sessions={displaySessions} />

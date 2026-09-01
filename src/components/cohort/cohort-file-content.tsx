@@ -474,6 +474,8 @@ function GallerySection({ isHe }: { isHe: boolean }) {
       toast.success(isHe ? "המסלול פורסם לתיק המחזור!" : "Published to the cohort file!");
       setTitle("");
       void utils.cohort.listGallery.invalidate();
+      // A published plan counts toward the rank — so the rank has to hear about it.
+      void utils.cohort.myContributionStats.invalidate();
     },
     onError: (e) => toast.error(e.message),
   });
@@ -488,6 +490,7 @@ function GallerySection({ isHe }: { isHe: boolean }) {
     onSuccess: () => {
       toast.success(isHe ? "המסלול הוסר" : "Unpublished");
       void utils.cohort.listGallery.invalidate();
+      void utils.cohort.myContributionStats.invalidate();
     },
     onError: (e) => toast.error(e.message),
   });

@@ -41,6 +41,9 @@ vi.mock("@/lib/trpc/react", () => ({
   api: {
     useUtils: () => ({}),
     course: { list: { useQuery: () => ({ data: CATALOG, isLoading: false, isError: false, refetch: vi.fn() }) } },
+    // The wizard reads the profile only to scope its saved state to the
+    // account (see onboardingStateKey) — nothing on screen depends on it.
+    user: { getProfile: { useQuery: () => ({ data: { supabaseId: "sb-test" }, isLoading: false, isError: false }) } },
   },
 }));
 

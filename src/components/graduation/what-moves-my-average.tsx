@@ -28,6 +28,8 @@ import { useLocale } from "next-intl";
 import { TrendingUp, CalendarClock, Info } from "lucide-react";
 import { Link } from "@/i18n/navigation";
 import { Bidi } from "@/lib/bidi";
+import { heNoun } from "@/lib/he-count";
+import { simulate } from "@/lib/grade-simulator";
 import { gradeLevers, leverSummary } from "@/lib/grade-levers";
 import { yedionExamDates, examSittingsFor, describeSitting } from "@/lib/yedion-assessments";
 import type { UserCourseWithCourse } from "@/types/degree";
@@ -54,9 +56,30 @@ export function WhatMovesMyAverage({
     [courses, keepsHigherGrade],
   );
   const summary = useMemo(() => leverSummary(levers), [levers]);
+  const shown = useMemo(() => levers.slice(0, limit), [levers, limit]);
+
+  // The combined figure, simulated ONCE over the courses actually listed.
+  //
+  // It used to be the sum of the individual upsides, and that sum is not a
+  // number: each lever's delta was computed on its own, against a denominator
+  // that a PLANNED course also enlarges when it gains a grade. Adding them
+  // therefore over-counts, and not slightly — run on a real second-year with
+  // an 83.6 average it printed "+25.12", which would put the average at 108.7.
+  // The true answer for that student is 11.39. On a first-year with five
+  // grades it printed 102.5.
+  //
+  // This sentence exists to be the most honest one on the screen — it is the
+  // paragraph that tells a student not to give up their summer over one course
+  // — so a fabricated number here costs more than anywhere else on the page.
+  const combinedUpside = useMemo(() => {
+    if (shown.length === 0) return null;
+    const overrides = Object.fromEntries(
+      shown.map((l) => [l.userCourseId, { grade: l.assumedGrade }]),
+    );
+    return simulate(courses, overrides, { preferHigherGrade: keepsHigherGrade }).averageDelta;
+  }, [courses, shown, keepsHigherGrade]);
 
   if (!summary) return null;
-  const shown = levers.slice(0, limit);
 
   return (
     <div className="data-card p-5">
@@ -161,10 +184,10 @@ export function WhatMovesMyAverage({
             <p className="min-w-0 flex-1 text-xs leading-relaxed text-foreground/55">
             {isHe ? (
               <>
-                גם אם <b>כל</b> הקורסים האלה היו מסתיימים ב־
+                גם אם {shown.length === 1 ? "הקורס הזה היה מסתיים" : `כל ${heNoun(shown.length, "הקורס", "הקורסים")} האלה היו מסתיימים`} ב־
                 <Bidi text={summary.best.assumedGrade} />, הממוצע היה עולה ב־
                 <b>
-                  <Bidi text={summary.totalUpside} />
+                  <Bidi text={combinedUpside ?? 0} />
                 </b>{" "}
                 נקודות בסך הכול. קורס בודד מזיז פחות ממה שנדמה — שווה לדעת את זה לפני
                 שמוותרים על חופשה.
@@ -174,9 +197,10 @@ export function WhatMovesMyAverage({
               </>
             ) : (
               <>
-                Even if <b>all</b> of these ended at {summary.best.assumedGrade}, your average
-                would rise by <b>{summary.totalUpside}</b> points in total. A single course moves
-                it less than it feels like.
+                Even if {shown.length === 1 ? "this course" : `all ${shown.length} of these`} ended at{" "}
+                {summary.best.assumedGrade}, your average would rise by{" "}
+                <b>{combinedUpside ?? 0}</b> points in total. A single course moves it less than
+                it feels like.
                 {keepsHigherGrade
                   ? " Your reserve group keeps the higher sitting, so a resit risks nothing."
                   : " And a resit replaces the first sitting, even if it goes worse."}

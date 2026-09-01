@@ -55,6 +55,15 @@ export function ContributeReviewSheet({
   const contribute = api.courseKnowledge.contributeReview.useMutation({
     onSuccess: () => {
       void utils.courseKnowledge.getForCourse.invalidate({ courseCode });
+      // Ariel, 1.9: "תרמתי עוד וזה לא מעלה אותי בדרגה."
+      //
+      // The rank counts reviews, insights and published plans together
+      // (cohort.myContributionStats), and only ONE of the three refreshed it.
+      // A review lives in the courseKnowledge router, a published plan
+      // invalidated only the gallery — so both left the tally showing the
+      // number from before the contribution, until a hard reload.
+      // A counter that does not move when you feed it is worse than no counter.
+      void utils.cohort.myContributionStats.invalidate();
       toast.success(isHe ? "תודה — עזרתם למחזור הבא." : "Thanks — you helped the next cohort.");
       reset();
       onClose();

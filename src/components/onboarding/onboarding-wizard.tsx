@@ -89,9 +89,26 @@ function getDefaultSemester(year: number): "FALL" | "SPRING" {
 // In-progress onboarding is persisted here so a refresh or an accidental
 // back/forward never wipes a half-built plan (reported #13). Cleared by
 // step-ready once the plan is saved.
-const ONBOARDING_STATE_KEY = "pakamon-onboarding-state";
+// Scoped to the account on purpose.
+//
+// The saved blob holds a first name, a surname, a gender, a year, a semester
+// and the entire course map read off a grade sheet. Under one global key it
+// outlived the person who typed it: a student who abandoned signup halfway, or
+// logged out, left all of it in the browser — and the next person to sign up
+// on that machine (a library computer, a shared laptop, this project's own
+// test account after a reset) had the wizard restore it as their own.
+//
+// The suffix is the Supabase user id. A logged-out visitor gets "anon", which
+// is the one case where sharing is harmless because there is nothing personal
+// to share yet.
+const ONBOARDING_STATE_PREFIX = "pakamon-onboarding-state";
+const LEGACY_ONBOARDING_STATE_KEY = "pakamon-onboarding-state";
 
-function loadOnboardingState(): {
+function onboardingStateKey(userId: string | null | undefined): string {
+  return `${ONBOARDING_STATE_PREFIX}:${userId ?? "anon"}`;
+}
+
+function loadOnboardingState(userId: string | null | undefined): {
   step?: number;
   data?: Partial<OnboardingData>;
   plannedSemesters?: PlannedSemester[] | null;
@@ -103,7 +120,12 @@ function loadOnboardingState(): {
 } | null {
   if (typeof window === "undefined") return null;
   try {
-    const raw = localStorage.getItem(ONBOARDING_STATE_KEY);
+    const raw = localStorage.getItem(onboardingStateKey(userId));
+    // A blob left under the old, unscoped key belongs to whoever was last at
+    // this browser — which may not be the person now signing up. It is removed
+    // rather than migrated: losing a half-built wizard once is the safe
+    // failure, restoring someone else's name and grades is not.
+    localStorage.removeItem(LEGACY_ONBOARDING_STATE_KEY);
     return raw ? JSON.parse(raw) : null;
   } catch {
     return null;
@@ -112,6 +134,10 @@ function loadOnboardingState(): {
 
 export function OnboardingWizard() {
   const t = useTranslations("onboarding");
+  // Only for scoping the saved wizard state to this account — see
+  // onboardingStateKey. Nothing on screen depends on it, so a slow or failed
+  // profile fetch simply means the state is scoped to "anon" for that render.
+  const profileQuery = api.user.getProfile.useQuery(undefined, { retry: 1, staleTime: 5 * 60 * 1000 });
   const locale = useLocale();
   const BackChevron = locale === "he" ? ChevronRight : ChevronLeft;
   const NextChevron = locale === "he" ? ChevronLeft : ChevronRight;
@@ -241,7 +267,7 @@ export function OnboardingWizard() {
   // persist from overwriting saved state with defaults before restore applies.
   const [hydrated, setHydrated] = useState(false);
   useEffect(() => {
-    const s = loadOnboardingState();
+    const s = loadOnboardingState(profileQuery.data?.supabaseId);
     if (s) {
       if (typeof s.step === "number") setStep(s.step);
       if (s.data) setData((d) => ({ ...d, ...s.data }));
@@ -256,12 +282,15 @@ export function OnboardingWizard() {
       if (s.manualHistory) setManualHistory(true);
     }
     setHydrated(true);
-  }, []);
+    // Deliberately keyed on the id: until the profile resolves there is no
+    // account to scope to, and restoring from "anon" would be reading a
+    // stranger's bucket on a shared machine.
+  }, [profileQuery.data?.supabaseId]);
   useEffect(() => {
     if (!hydrated) return;
     try {
       localStorage.setItem(
-        ONBOARDING_STATE_KEY,
+        onboardingStateKey(profileQuery.data?.supabaseId),
         JSON.stringify({ step, data, plannedSemesters, sessionGroupSelections, completedCourses, removedCourseCodes: [...removedCodes.current], sheetSeeded, manualHistory })
       );
     } catch {
@@ -316,6 +345,23 @@ export function OnboardingWizard() {
     });
     historySeeded.current = pastKeys.size > 0;
   }, [hydrated, data.year, data.semester, allCourses, sheetSeeded]);
+
+  // Ariel, 1.9: "כשאני מסיים לעלות את הסילבוס — זה זורק אותי לתחתית העמוד של
+  // המשך ההרשמה במקום לחלק העליון."
+  //
+  // Nothing was throwing him anywhere: the browser simply kept its scroll
+  // offset while the step underneath it changed. He had scrolled to the bottom
+  // of a long list of scanned courses to reach "נכון — המשיכו מכאן", the next
+  // step rendered, and he landed in the middle of it — below its heading, its
+  // progress bar and its instructions, with no reason to suspect they existed.
+  //
+  // The protected shell's <main> is an ordinary block, so window scroll is the
+  // scroll that matters. "instant" rather than "smooth" on purpose: a step
+  // change is a new screen, not a movement within one.
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    window.scrollTo({ top: 0, behavior: "instant" });
+  }, [step]);
 
   const goNext = useCallback(() => {
     setStep((prev) => {
