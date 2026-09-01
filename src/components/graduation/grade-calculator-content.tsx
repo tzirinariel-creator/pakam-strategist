@@ -503,8 +503,20 @@ export function GradeCalculatorContent() {
   // shown elsewhere in the app — the card organises them around a direction,
   // it does not compute anything new about the student.
   const futureFacts = useMemo(() => {
-    const graded = allCourses.filter(
-      (uc) => uc.status === "COMPLETED" && uc.grade != null && countsTowardAverage(uc),
+    // This average MUST come out of canonicalAttempts, like the one at the top
+    // of this same card. A hand-rolled weighted loop skips the retake collapse,
+    // so a student who resat a 4-credit course (70, then 95) read 95 in the
+    // graduation score above and 82.5 here — two different averages for the
+    // same person on one screen, and this lower one is what feeds the
+    // "what comes after the degree" directions.
+    //
+    // The comment at the top of this file already records that exact
+    // divergence being found and fixed once (audit launch-blocker A1). I
+    // reintroduced it in this card by computing the number again instead of
+    // asking the engine. Same source, one answer.
+    const graded = canonicalAttempts(
+      allCourses.filter((uc) => uc.status === "COMPLETED" && uc.grade != null && countsTowardAverage(uc)),
+      { preferHigherGrade: preferHigherGradeFlag },
     );
     const totalCredits = graded.reduce((s2, uc) => s2 + (uc.course.credits ?? 0), 0);
     const average =
@@ -515,7 +527,13 @@ export function GradeCalculatorContent() {
           ) / 10
         : null;
 
-    const completed = allCourses.filter((uc) => uc.status === "COMPLETED");
+    // Retakes collapsed here too: a resat course is ONE course, and counting
+    // it twice inflates both the seminar count and the quantitative credits
+    // the econ direction is judged on.
+    const completed = canonicalAttempts(
+      allCourses.filter((uc) => uc.status === "COMPLETED"),
+      { preferHigherGrade: preferHigherGradeFlag },
+    );
     const englishInfo = resolveEnglishLevel(
       profileQuery.data?.englishLevel ?? null,
       profileQuery.data?.amiramScore ?? null,
