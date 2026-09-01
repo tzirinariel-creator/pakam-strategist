@@ -115,3 +115,70 @@ describe("detectInstallPlatform", () => {
     expect(shouldOfferInstall(p)).toBe(false);
   });
 });
+
+// =========================================================================
+// 22-24 — "ההורדת אפליקציה לכאורה — עבדה לי גם במק"
+// =========================================================================
+// Desktop fell straight through to "unsupported", so the settings section
+// rendered NOTHING on a Mac — while installing on a Mac plainly works, which
+// is exactly what Ariel reported. The app was under-claiming a path it has.
+//
+// Two real desktop paths, neither of which needs `beforeinstallprompt` (it
+// never fires here — Chrome's criteria include a service worker and we ship
+// none): Chromium's own menu, and Safari's "Add to Dock" on macOS.
+//
+// The ordering trap this pins: every Chromium user-agent string also contains
+// "Safari", so a Safari check placed first captures Chrome on a Mac and sends
+// those users to a Share menu that will not have the item.
+
+describe("desktop install paths are recognised, not silently dropped", () => {
+  const CHROME_MAC =
+    "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36";
+  const SAFARI_MAC =
+    "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.4 Safari/605.1.15";
+  const EDGE_WIN =
+    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36 Edg/131.0.0.0";
+  const FIREFOX_MAC =
+    "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:133.0) Gecko/20100101 Firefox/133.0";
+
+  const at = (userAgent: string, touch = 0) =>
+    detectInstallPlatform({ userAgent, isStandalone: false, hasPromptEvent: false }, touch);
+
+  it("offers something on Chrome for Mac — the case Ariel hit", () => {
+    expect(at(CHROME_MAC)).toBe("desktop-chromium");
+    expect(shouldOfferInstall(at(CHROME_MAC))).toBe(true);
+  });
+
+  it("does not mistake Chrome on a Mac for Safari", () => {
+    // Every Chromium UA carries "Safari". Getting this order wrong sends
+    // Chrome users to a Share-menu item that is not there.
+    expect(at(CHROME_MAC)).not.toBe("mac-safari");
+  });
+
+  it("recognises Safari on macOS separately", () => {
+    expect(at(SAFARI_MAC)).toBe("mac-safari");
+    expect(shouldOfferInstall(at(SAFARI_MAC))).toBe(true);
+  });
+
+  it("recognises Edge on Windows", () => {
+    expect(at(EDGE_WIN)).toBe("desktop-chromium");
+  });
+
+  it("still says nothing on desktop Firefox, where there is genuinely no path", () => {
+    // The fix must not turn into "claim an install everywhere".
+    expect(at(FIREFOX_MAC)).toBe("unsupported");
+    expect(shouldOfferInstall(at(FIREFOX_MAC))).toBe(false);
+  });
+
+  it("an iPad reporting a desktop UA is still iOS, not desktop Safari", () => {
+    // iPadOS 13+ sends a Macintosh UA; touch points give it away. If the new
+    // desktop branch ran first, iPad users would be told to use a Dock.
+    expect(at(SAFARI_MAC, 5)).toBe("ios-safari");
+  });
+
+  it("an already-installed window still says nothing about installing", () => {
+    expect(
+      detectInstallPlatform({ userAgent: CHROME_MAC, isStandalone: true, hasPromptEvent: false }),
+    ).toBe("installed");
+  });
+});

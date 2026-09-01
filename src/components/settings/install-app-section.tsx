@@ -76,7 +76,13 @@ export function InstallAppSection() {
   if (platform === null) return null;
   if (!installed && !shouldOfferInstall(platform)) return null;
 
-  const title = isHe ? "פכמון על מסך הבית" : "Pakamon on your home screen";
+  // A Mac has no home screen. Saying "מסך הבית" to someone whose install
+  // target is the Dock is the small kind of wrong that makes a person stop
+  // looking for the thing.
+  const onDesktop = platform === "desktop-chromium" || platform === "mac-safari";
+  const title = onDesktop
+    ? isHe ? "פכמון כאפליקציה במחשב" : "Pakamon as a desktop app"
+    : isHe ? "פכמון על מסך הבית" : "Pakamon on your home screen";
   const description = isHe
     ? "פותחים כמו אפליקציה — בלי שורת הכתובת, עם אייקון משלה."
     : "Opens like an app — no address bar, with its own icon.";
@@ -117,6 +123,34 @@ export function InstallAppSection() {
             <SquarePlus className="size-3.5" />
           </span>
           <p className="text-sm leading-relaxed text-foreground/70">{t("installAndroid")}</p>
+        </div>
+      ) : platform === "desktop-chromium" ? (
+        // 22-24. Chromium on the desktop installs from its own menu with no
+        // `beforeinstallprompt` involved — which is why this worked on a Mac
+        // while the app said nothing at all.
+        <div className="flex items-start gap-2.5">
+          <span className="mt-0.5 flex size-6 shrink-0 items-center justify-center rounded-md bg-accent-brand-muted text-accent-brand">
+            <SquarePlus className="size-3.5" />
+          </span>
+          <p className="text-sm leading-relaxed text-foreground/70">
+            {isHe
+              ? 'בתפריט הדפדפן (⋮ בפינה) ← "התקנה" או "התקנת פכמון". היא תיפתח בחלון משלה, עם אייקון בדוק או בשורת המשימות.'
+              : 'In the browser menu (⋮) → "Install" or "Install Pakamon". It opens in its own window, with an icon in your Dock or taskbar.'}
+          </p>
+        </div>
+      ) : platform === "mac-safari" ? (
+        // Safari on macOS puts it in the Share menu as "Add to Dock" — a
+        // different menu from the iPhone's, so it says so rather than sending
+        // someone to a bottom bar their Mac does not have.
+        <div className="flex items-start gap-2.5">
+          <span className="mt-0.5 flex size-6 shrink-0 items-center justify-center rounded-md bg-accent-brand-muted text-accent-brand">
+            <Share className="size-3.5" />
+          </span>
+          <p className="text-sm leading-relaxed text-foreground/70">
+            {isHe
+              ? 'בספארי: כפתור השיתוף בסרגל העליון ← "הוספה ל-Dock". (בגרסאות ישנות של macOS האפשרות לא קיימת — אפשר פשוט להשאיר לשונית פתוחה.)'
+              : 'In Safari: the Share button in the top bar → "Add to Dock". (Older macOS versions do not have it — a pinned tab works just as well.)'}
+          </p>
         </div>
       ) : (
         // iOS Safari — no install API exists. Instructions, not a fake button.

@@ -26,6 +26,27 @@ export type InstallPlatform =
    * answer here rather than silence.
    */
   | "android-manual"
+  /**
+   * Ariel, 22-24: "ההורדת אפליקציה לכאורה — עבדה לי גם במק."
+   *
+   * He is right, and this module was the reason it looked otherwise. Desktop
+   * fell straight through to "unsupported", so the section rendered NOTHING on
+   * a Mac — while installing on a Mac plainly works. The app was under-claiming
+   * a path it actually has.
+   *
+   * Chromium on the desktop installs from its own menu whether or not
+   * `beforeinstallprompt` ever fires (it does not fire here — Chrome's criteria
+   * include a service worker and we ship none). So the honest answer for
+   * desktop Chrome/Edge is the same as for Android: instructions, not silence.
+   */
+  | "desktop-chromium"
+  /**
+   * Safari on macOS has "Add to Dock" in the Share menu (Sonoma and later). It
+   * is a different menu from the iPhone's, so it gets its own copy rather than
+   * being folded into `ios-safari` and told to look for a button that is not
+   * where we said it would be.
+   */
+  | "mac-safari"
   /** Anything else (e.g. desktop Firefox) — no reliable install path. */
   | "unsupported";
 
@@ -61,6 +82,9 @@ export function detectInstallPlatform(
   // BUTTON on the strength of a user-agent string alone.
   if (env.hasPromptEvent) return "prompt-capable";
   if (/Android/i.test(env.userAgent)) return "android-manual";
+  // Desktop. Order matters: every Chromium UA also contains "Safari".
+  if (/Edg\//i.test(env.userAgent) || /Chrome\//i.test(env.userAgent)) return "desktop-chromium";
+  if (/Macintosh/i.test(env.userAgent) && /Safari\//i.test(env.userAgent)) return "mac-safari";
   return "unsupported";
 }
 
@@ -69,6 +93,8 @@ export function shouldOfferInstall(platform: InstallPlatform): boolean {
   return (
     platform === "ios-safari" ||
     platform === "prompt-capable" ||
-    platform === "android-manual"
+    platform === "android-manual" ||
+    platform === "desktop-chromium" ||
+    platform === "mac-safari"
   );
 }
