@@ -57,8 +57,14 @@ const FUN_FACTS: Tip[] = [
   },
   {
     id: "ff-2",
-    textEn: "PPE students study across 3 faculties — Social Sciences, Humanities, and Law. Each has its own office, rules, and vibe.",
-    textHe: "בפכ״מ לומדים ב-3 פקולטות שונות — חברה, רוח ומשפטים. כל אחת עם מזכירות, חוקים ואווירה אחרת.",
+    // Said "3 פקולטות — חברה, רוח ומשפטים" and named Law as the third. It is
+    // not one: TAU's Law faculty is a separate faculty that PPE students do not
+    // belong to. The programme's own page files it under two faculties
+    // (go.tau.ac.il/he/humanities/ba/pacam breadcrumbs: הפקולטה למדעי הרוח >
+    // הפקולטה למדעי החברה) and calls the law part "לימודי יסוד במשפטים".
+    // A student who went looking for a third secretariat would not find one.
+    textEn: "PPE students study across two faculties, Social Sciences and Humanities, plus foundational law studies. Each faculty has its own office, rules, and vibe.",
+    textHe: "בפכ״מ לומדים בשתי פקולטות, חברה ורוח, ולצידן לימודי יסוד במשפטים. לכל פקולטה מזכירות, חוקים ואווירה משלה.",
     category: "fun_fact",
     icon: Landmark,
   },
@@ -124,8 +130,14 @@ const FUN_FACTS: Tip[] = [
   // it is the standard every card on this surface has to meet.
   {
     id: "ff-11",
-    textEn: "Only 9 of the 302 courses on offer have prerequisites. The degree is far less locked-in than it feels.",
-    textHe: "רק 9 מתוך 302 הקורסים שנלמדים דורשים קדם. התואר הרבה פחות נעול ממה שהוא מרגיש.",
+    // Was "only 9 of 302 courses have prerequisites" — a report on a column in
+    // OUR database, not on the degree, and it missed the far stronger rule the
+    // Yedion actually states. Sourced: docs/pakam-domain-rules-2026.md §9b,
+    // quoting Yedion note 19 — "תלמידי פכ״ם אינם מחוייבים בדרישות הקדם" — and
+    // the seminar gate from the same section. Neither number moves with the
+    // catalog, because neither is a number.
+    textEn: "The Yedion exempts PPE students from course prerequisites. The one real gate is seminars: they need a passing grade in every mandatory course first.",
+    textHe: "הידיעון פוטר את תלמידי פכ״מ מדרישות הקדם. השער האמיתי היחיד הוא הסמינרים: אליהם נרשמים רק עם ציון עובר בכל קורסי החובה.",
     category: "fun_fact",
     icon: Compass,
   },
@@ -149,6 +161,28 @@ const FUN_FACTS: Tip[] = [
     textHe: "הקטלוג פרוש על שישה תחומים, לא שלושה: לצד פילוסופיה, כלכלה ומדע המדינה יש גם קורסי משפטים, קורסי ליבה של פכ״מ, ובחירה כללית.",
     category: "fun_fact",
     icon: Landmark,
+  },
+  {
+    id: "ff-18",
+    // Counted off the parsed exam board, src/data/yedion-5787-assessments.json:
+    // 134 DISTINCT course codes carry a "בחינה סופית", every one of them with
+    // exactly two sittings, and the median A→B gap over those 134 is 35 days.
+    // (The raw file holds 269 such records — one per group — so counting rows
+    // instead of courses would double it.)
+    textEn: "All 134 courses with a final exam in the 5787 Yedion get exactly two sittings. The median gap between Moed A and Moed B is 35 days.",
+    textHe: "לכל אחד מ-134 הקורסים עם בחינה סופית בידיעון תשפ״ז יש בדיוק שני מועדים. חציון המרווח בין מועד א׳ למועד ב׳ הוא 35 יום.",
+    category: "fun_fact",
+    icon: CalendarDays,
+  },
+  {
+    id: "ff-22",
+    // All four numbers are read from the program definition, not estimated:
+    // programs/definitions/tau-ppe-2025.ts — focusAreaMin 60, and the mandatory
+    // core's ECONOMICS 27 / PHILOSOPHY 18 / POLITICAL_SCIENCE 15.
+    textEn: "A focus area is 60 credits in one discipline, and the mandatory core already covers part of it: 27 credits in economics, 18 in philosophy, 15 in political science. The gap left to fill is not the same in all three.",
+    textHe: "תחום מיקוד דורש 60 ש״ס בתחום אחד, וקורסי החובה כבר מכסים חלק מהם: 27 ש״ס בכלכלה, 18 בפילוסופיה ו-15 במדע המדינה. הפער שנשאר לכם להשלים לא זהה בשלושת התחומים.",
+    category: "fun_fact",
+    icon: Target,
   },
 ];
 
@@ -276,19 +310,31 @@ const MOTIVATION_TIPS: Tip[] = [
     // מקור" rule, broken in the one place a student is most likely to believe
     // it — a card that presents itself as a fact.
     //
-    // What this app CAN say truthfully about the degree is what its own
-    // catalog holds, and it turns out to be more interesting than the
-    // invented version: only 25 of the 302 courses on offer are required.
+    // The first replacement was 302 courses / 25 mandatory / 89 credits — three
+    // numbers read off our own catalog. Within eight weeks all three were
+    // false: the catalog holds 304 active courses, and reactivating two
+    // mandatory courses on 2.9 moved 25→27 and 89→93. A fact that has to be
+    // re-verified every time the catalog moves is a false fact waiting for its
+    // turn, and this card is the one place a student is most likely to believe
+    // us.
     //
-    // Counted over ACTIVE courses, which is also the set the landing page
-    // means by "כל 302 הקורסים" — two different totals for the same idea in
-    // one product is its own small breach of trust.
+    // So this states something the catalog cannot move, sourced to the
+    // programme's own page: go.tau.ac.il/he/humanities/ba/pacam — "בישראל, רק
+    // אוניברסיטת תל אביב משלבת את תוכנית ההצטיינות בפכ״מ עם לימודי יסוד
+    // במשפטים". The 14 ש״ס is ours and is pinned twice:
+    // programs/definitions/tau-ppe-2025.ts (LAW minCredits) and
+    // docs/pakam-domain-rules-2026.md §1.
+    //
+    // Wording keeps the source's own verb (משלב) and the app's own name for
+    // the division (חטיבת המשפט, as in ar-2) — a third name for one thing is
+    // the same breach in miniature. The icon follows: Briefcase was a leftover
+    // of the deleted career promise.
     textEn:
-      "Of the 302 courses on offer in PPE, 25 are required — 89 credits. The other 61 credits toward the 150 are yours to choose.",
+      "TAU's is the only PPE programme in Israel that combines the degree with law foundation studies. That is the law division: 14 of your 150 credits.",
     textHe:
-      "מתוך 302 הקורסים שנלמדים בפכ״מ, 25 הם חובה — 89 ש״ס. שאר 61 הש״ס עד ה-150 הם בחירה שלכם.",
+      "פכ״מ של תל אביב הוא היחיד בישראל שמשלב לימודי יסוד במשפטים בתוך התואר. זו חטיבת המשפט, 14 ש״ס מתוך ה-150 שלכם.",
     category: "motivation",
-    icon: Briefcase,
+    icon: Scale,
   },
   {
     id: "m-2",

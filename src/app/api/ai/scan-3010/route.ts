@@ -51,11 +51,24 @@ export async function POST(request: NextRequest) {
           unavailable: "הסורק אינו זמין כרגע — נסו שוב מאוחר יותר.",
         };
 
+  // Where the student's wait actually goes (#9/#10, "קריאת 3010 איטית").
+  // Reported as a Server-Timing header, so the answer is one devtools panel
+  // away instead of a guess. Costs nothing and ships to nobody's screen.
+  const t0 = Date.now();
+  const marks: string[] = [];
+  const mark = (name: string, since: number) => marks.push(`${name};dur=${Date.now() - since}`);
+
   try {
     const supabase = await createServerSupabase();
-    const {
-      data: { user: authUser },
-    } = await supabase.auth.getUser();
+    // The body is already in flight and the session cookie is already on the
+    // request — reading them one after the other just adds the two latencies
+    // together. Nothing here depends on the other.
+    const [authRes, rawBody] = await Promise.all([
+      supabase.auth.getUser(),
+      request.json().catch(() => null),
+    ]);
+    mark("auth", t0);
+    const authUser = authRes.data.user;
     if (!authUser) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
     // Demo is read-only AND must not drain the shared vision quota.
@@ -63,10 +76,12 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: DEMO_READONLY_MESSAGE }, { status: 403 });
     }
 
-    const parsed = scanInputSchema.safeParse(await request.json());
+    const parsed = scanInputSchema.safeParse(rawBody);
     if (!parsed.success) return NextResponse.json({ error: "Invalid input" }, { status: 400 });
 
+    const tUser = Date.now();
     const user = await prisma.user.findUnique({ where: { supabaseId: authUser.id } });
+    mark("user", tUser);
     if (!user) return NextResponse.json({ error: "User not found" }, { status: 404 });
 
     // Key resolution — the student's own Gemini key, else the shared free key.
@@ -100,6 +115,7 @@ export async function POST(request: NextRequest) {
       }
     }
 
+    const tVision = Date.now();
     const text = await generateGeminiVision(
       encryptedKey,
       FORM_3010_SYSTEM,
@@ -107,6 +123,8 @@ export async function POST(request: NextRequest) {
       parsed.data.imageBase64,
       parsed.data.mimeType,
     );
+    mark("vision", tVision);
+    mark("total", t0);
 
     const form = parseForm3010(text);
     if (!form || form.periods.length === 0) {
@@ -118,7 +136,10 @@ export async function POST(request: NextRequest) {
     // stored anchor is authoritative; the client's value only covers onboarding,
     // where the profile row doesn't exist yet.
     const startYear = user.startYear ?? parsed.data.startYear ?? null;
-    return NextResponse.json({ form, summary: summarizeForm3010(form, { startYear }) });
+    return NextResponse.json(
+      { form, summary: summarizeForm3010(form, { startYear }) },
+      { headers: { "Server-Timing": marks.join(", ") } },
+    );
   } catch (e) {
     const status = (e as { status?: number })?.status;
     if (status === 429) return NextResponse.json({ error: errs.rateLimit }, { status: 429 });

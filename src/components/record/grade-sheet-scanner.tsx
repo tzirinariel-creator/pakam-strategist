@@ -6,6 +6,7 @@ import { useLocale } from "next-intl";
 import { ScanLine, Loader2, Check, AlertTriangle, X, Languages, PenLine } from "lucide-react";
 import { toast } from "sonner";
 import { advisorError } from "@/lib/advisor-toast";
+import { Bidi } from "@/lib/bidi";
 import { api } from "@/lib/trpc/react";
 import { getEnglishLevelInfo, type EnglishLevel } from "@/lib/constants";
 import {
@@ -30,6 +31,8 @@ import type { UserCourseWithCourse } from "@/types/degree";
 import { WhereIsMySheet } from "@/components/record/where-is-my-sheet";
 import { CohortShareNudge } from "@/components/cohort/cohort-share-nudge";
 import { fileToBase64, SCANNER_ACCEPT } from "@/lib/upload";
+import { useScanProgress } from "@/hooks/use-scan-progress";
+import { REASSURE_AFTER_S } from "@/lib/scan-progress";
 import { invalidatePlanData } from "@/lib/trpc/invalidate-plan";
 import { cn } from "@/lib/utils";
 import { sheetSemesterLabel } from "@/lib/sheet-semester-label";
@@ -43,7 +46,10 @@ import { sheetSemesterLabel } from "@/lib/sheet-semester-label";
 export function GradeSheetScanner() {
   const isHe = useLocale() === "he";
   const fileRef = useRef<HTMLInputElement>(null);
-  const [scanning, setScanning] = useState(false);
+  // The grade sheet is the longest document we scan, so it is the longest
+  // wait — and it was the wait with the least on screen (#9/#10).
+  const scan = useScanProgress(isHe, "sheet");
+  const { scanning, elapsed } = scan;
   const [rows, setRows] = useState<MatchedRow[] | null>(null);
   // #5 — printed-average cross-check result; #4 — post-apply personal summary.
   const [avgMismatch, setAvgMismatch] = useState<{ computed: number; printed: number } | null>(null);
@@ -98,11 +104,12 @@ export function GradeSheetScanner() {
   );
 
   const handleFile = async (file: File) => {
-    setScanning(true);
+    scan.start();
     setRows(null);
     setEditing(null);
     try {
       const { b64, mime } = await fileToBase64(file);
+      scan.setStage("upload");
       // Photos are downscaled in fileToBase64; PDFs pass through, so a heavy PDF
       // can exceed the server cap and fail with an opaque platform error. Catch
       // it here with a clear, localized hint instead. (audit #11)
@@ -119,6 +126,7 @@ export function GradeSheetScanner() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ imageBase64: b64, mimeType: mime }),
       });
+      scan.setStage("read");
       const data = (await res.json()) as {
         rows?: unknown[];
         englishLevel?: EnglishLevel | null;
@@ -166,7 +174,7 @@ export function GradeSheetScanner() {
     } catch {
       advisorError(isHe ? "הסריקה לא הצליחה — נסו שוב. הציונים שלכם לא נגעו." : "The scan didn't work — try again. Your grades are untouched.");
     } finally {
-      setScanning(false);
+      scan.stop();
       if (fileRef.current) fileRef.current.value = "";
     }
   };
@@ -366,9 +374,21 @@ export function GradeSheetScanner() {
           className="inline-flex items-center gap-1.5 rounded-lg bg-accent-brand px-3 py-2 text-sm font-semibold text-accent-brand-fg transition-colors hover:bg-accent-brand-hover disabled:opacity-40"
         >
           {scanning ? <Loader2 className="size-4 animate-spin" /> : <ScanLine className="size-4" />}
-          {scanning ? (isHe ? "קורא את הגיליון…" : "Reading…") : isHe ? "העלו וסרקו" : "Upload & scan"}
+          {scanning ? scan.label : isHe ? "העלו וסרקו" : "Upload & scan"}
         </button>
       </div>
+
+      {scanning && (
+        <p className="mt-2 text-xs text-foreground/45" aria-live="polite">
+          {scan.hint ?? (isHe ? "לא סוגרים את העמוד." : "Keep this page open.")}
+          {elapsed >= REASSURE_AFTER_S && (
+            <>
+              {" · "}
+              <Bidi text={elapsed} /> {isHe ? "שניות" : "s"}
+            </>
+          )}
+        </p>
+      )}
 
       {/* #30 — the "where do I get the sheet?" guide sits OUTSIDE the header's
           flex row. Inside it, the text column is `min-w-0 flex-1` and measures

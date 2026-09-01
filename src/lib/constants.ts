@@ -640,8 +640,15 @@ export function passBarFor(courseType: string | undefined): number {
 // direct breach of the "never show a number without a source" rule.
 //
 // It is a constant rather than a live query because the landing page is a
-// static public client component, but it is pinned to its source: the guard
-// test in src/lib/__tests__/catalog-count.test.ts reads the actual תשפ״ז parse
-// and fails if the two ever drift again.
+// static public client component. Its source is the LIVE catalog:
+//   npx tsx scripts/verify-catalog-facts.ts
+// counts isActive courses and fails when this number drifts. Run it whenever
+// the catalog is touched.
+//
+// The unit test cannot reach the database, so it only holds the FLOOR. That
+// distinction is not pedantry: the test asserted equality with a frozen parse
+// snapshot, stayed green for eight weeks, and the page printed 302 against a
+// catalog of 304 the whole time. A guard aimed at the wrong source is worse
+// than no guard, because it is believed.
 // ────────────────────────────────────────────────────────────────────
-export const CATALOG_COURSE_COUNT = 302;
+export const CATALOG_COURSE_COUNT = 304;

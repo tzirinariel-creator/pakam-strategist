@@ -7,6 +7,10 @@ import { toast } from "sonner";
 import { advisorError } from "@/lib/advisor-toast";
 import { api } from "@/lib/trpc/react";
 import { fileToBase64, SCANNER_ACCEPT } from "@/lib/upload";
+import { useScanProgress } from "@/hooks/use-scan-progress";
+import { REASSURE_AFTER_S } from "@/lib/scan-progress";
+import { Bidi } from "@/lib/bidi";
+import { revealIfOffscreen } from "@/lib/reveal";
 import { syllabusDateToLocalNoon, type SyllabusExtraction } from "@/lib/syllabus-scan";
 import { cn } from "@/lib/utils";
 
@@ -19,19 +23,22 @@ import { cn } from "@/lib/utils";
 export function SyllabusScanner() {
   const isHe = useLocale() === "he";
   const fileRef = useRef<HTMLInputElement>(null);
-  const [scanning, setScanning] = useState(false);
+  const scan = useScanProgress(isHe, "syllabus");
+  const { scanning, elapsed } = scan;
   const [result, setResult] = useState<SyllabusExtraction | null>(null);
   const [checked, setChecked] = useState<Set<number>>(new Set());
   const [applying, setApplying] = useState(false);
+  const resultRef = useRef<HTMLDivElement>(null);
 
   const utils = api.useUtils();
   const createMutation = api.studyTask.create.useMutation();
 
   const handleFile = async (file: File) => {
-    setScanning(true);
+    scan.start();
     setResult(null);
     try {
       const { b64, mime } = await fileToBase64(file);
+      scan.setStage("upload");
       if (b64.length > 5_000_000) {
         // Heavy PDFs exceed the server cap; guide to a photo instead. (audit #11)
         toast.error(
@@ -46,17 +53,23 @@ export function SyllabusScanner() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ imageBase64: b64, mimeType: mime }),
       });
+      scan.setStage("read");
       const data = (await res.json()) as SyllabusExtraction & { error?: string };
       if (!res.ok) {
         advisorError(data.error ?? (isHe ? "הסריקה לא הצליחה — נסו שוב או צלמו תמונה חדה יותר." : "The scan didn't work — try again or take a sharper photo."));
         return;
       }
       setResult(data);
+      // The scanner is inside a collapsed accordion at the bottom of the page,
+      // so the dates it just extracted land off-screen and the scan looks like
+      // it did nothing. Only moves the page when the result really is out of
+      // sight (see reveal.ts).
+      requestAnimationFrame(() => revealIfOffscreen(resultRef.current));
       setChecked(new Set(data.items.map((_, i) => i)));
     } catch {
       advisorError(isHe ? "הסריקה לא הצליחה — נסו שוב. שום דבר לא נשמר בינתיים." : "The scan didn't work — try again. Nothing was saved.");
     } finally {
-      setScanning(false);
+      scan.stop();
       if (fileRef.current) fileRef.current.value = "";
     }
   };
@@ -159,12 +172,24 @@ export function SyllabusScanner() {
           className="inline-flex items-center gap-1.5 rounded-lg bg-accent-brand px-3 py-2 text-sm font-semibold text-accent-brand-fg transition-colors hover:bg-accent-brand-hover disabled:opacity-40"
         >
           {scanning ? <Loader2 className="size-4 animate-spin" /> : <FileScan className="size-4" />}
-          {scanning ? (isHe ? "קורא את הסילבוס…" : "Reading…") : isHe ? "העלו וסרקו" : "Upload & scan"}
+          {scanning ? scan.label : isHe ? "העלו וסרקו" : "Upload & scan"}
         </button>
       </div>
 
+      {scanning && (
+        <p className="mt-2 text-xs text-foreground/45" aria-live="polite">
+          {scan.hint ?? (isHe ? "לא סוגרים את העמוד." : "Keep this page open.")}
+          {elapsed >= REASSURE_AFTER_S && (
+            <>
+              {" · "}
+              <Bidi text={elapsed} /> {isHe ? "שניות" : "s"}
+            </>
+          )}
+        </p>
+      )}
+
       {result && (
-        <div className="mt-4 space-y-2">
+        <div ref={resultRef} className="mt-4 scroll-mt-20 space-y-2">
           <div className="flex items-center justify-between">
             <p className="text-xs font-bold text-foreground/70">
               {isHe

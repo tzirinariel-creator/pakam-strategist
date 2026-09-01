@@ -153,9 +153,9 @@ const DASHBOARD_STEPS: Step[] = [
     titleHe: "הלולאה המרכזית — איפה אני, מה לתכנן, ומה מותר",
     titleEn: "The main loop — where I am, what to plan, what's allowed",
     bodyHe:
-      "שלושת אלה עובדים יחד: המסך הזה מראה איפה אתם עומדים, ״התכנון״ הוא המקום שבונים בו את המערכת והסמסטרים הבאים, ו״התקנון״ בודק שמה שבניתם עומד בכללי התואר.",
+      "ארבעת אלה עובדים יחד: המסך הזה מראה איפה אתם עומדים, ״תכנון התואר״ הוא המקום שבונים בו את המערכת והסמסטרים הבאים, ״המכרז״ מוציא מהתוכנית הזו רשימה מוכנה להגשה, ו״דרישות התואר״ בודק שמה שבניתם עומד בכללים.",
     bodyEn:
-      "These three work together: this screen shows where you stand, \"Planner\" is where you build your timetable and coming semesters, and \"Regulations\" checks that what you built obeys the degree rules.",
+      "These four work together: this screen shows where you stand, \"Planner\" is where you build your timetable and coming semesters, \"Bidding\" turns that plan into a list ready to submit, and \"Requirements\" checks it against the degree rules.",
   },
   {
     selector: '[data-tour="nav-group-1"]',
@@ -183,9 +183,9 @@ const DASHBOARD_STEPS: Step[] = [
     titleHe: "לא לבד — הידע של המחזור",
     titleEn: "Not alone — your cohort's knowledge",
     bodyHe:
-      "״קטלוג״ הוא כל הקורסים עם מה שסטודנטים כתבו עליהם; ״מחזור״ מראה מה בני המחזור שלכם לוקחים; ״חונכים״ מחבר לסטודנטים משנים מתקדמות; ״מדריך״ מסביר את התואר מאפס. את מה שתכתבו כאן יקראו אלה שיבואו אחריכם.",
+      "״קטלוג קורסים״ הוא כל הקורסים עם מה שסטודנטים כתבו עליהם; ״השושלת״ מראה מי היה לפניכם ומי בא אחריכם, ומשם נכנסים לתיק המחזור ולחונכות; ״מדריך מתחיל״ מסביר את התואר מאפס. את מה שתכתבו כאן יקראו אלה שיבואו אחריכם.",
     bodyEn:
-      "\"Catalog\" is every course with what students wrote about it; \"Cohort\" shows what your year is taking; \"Mentors\" connects you to students further along; \"Guide\" explains the degree from scratch. What you write here is read by whoever comes next.",
+      "\"Catalog\" is every course with what students wrote about it; \"Lineage\" shows who came before you and who comes next, and opens the cohort file and mentoring from there; \"Guide\" explains the degree from scratch. What you write here is read by whoever comes next.",
   },
   {
     // Phone layout: the sidebar isn't rendered at all, and everything past the

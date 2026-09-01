@@ -21,7 +21,7 @@
 
 import { PrismaClient } from "@prisma/client";
 import { PrismaPg } from "@prisma/adapter-pg";
-import { CREDIT_REQUIREMENTS } from "../src/lib/constants";
+import { CATALOG_COURSE_COUNT, CREDIT_REQUIREMENTS } from "../src/lib/constants";
 import fs from "node:fs";
 import path from "node:path";
 
@@ -105,16 +105,55 @@ async function main() {
   const disciplines = new Set(all.map((c) => c.discipline).filter(Boolean));
   const maxCredits = Math.max(...all.map((c) => c.credits));
 
-  /** Each claim, the value it asserts, and the value the catalog gives now. */
-  const claims: { where: string; claim: string; asserted: number; actual: number }[] = [
-    { where: "tips-engine + landing heroSubtitle", claim: "קורסים פעילים", asserted: 302, actual: all.length },
-    { where: "tips-engine m-1", claim: "קורסי חובה", asserted: 25, actual: mandatory.length },
-    { where: "tips-engine m-1", claim: "ש״ס חובה", asserted: 89, actual: mandatory.reduce((s, c) => s + c.credits, 0) },
-    { where: "tips-engine ff-11", claim: "קורסים עם דרישת קדם", asserted: 9, actual: withPrereq.length },
-    { where: "tips-engine ff-12", claim: "סמינרים בקטלוג", asserted: 67, actual: seminars.length },
-    { where: "tips-engine ff-13", claim: "ש״ס בקורס הכבד ביותר", asserted: 6, actual: maxCredits },
+  /**
+   * Each claim, the value it asserts, the value the catalog gives now, and —
+   * where there is one — the tip id that actually prints it.
+   *
+   * `asserted` for the landing count is READ from the constant rather than
+   * copied by hand. A literal typed here can agree with the database while the
+   * screen still shows the old number, and then the run prints a green tick
+   * over a false figure. That is how 302 survived eight weeks.
+   */
+  const claims: { where: string; tip?: string; claim: string; asserted: number; actual: number }[] = [
+    { where: "constants.ts CATALOG_COURSE_COUNT + landing heroSubtitle", claim: "קורסים פעילים", asserted: CATALOG_COURSE_COUNT, actual: all.length },
+    { where: "tips-engine ff-12", tip: "ff-12", claim: "סמינרים בקטלוג", asserted: 67, actual: seminars.length },
+    { where: "tips-engine ff-13", tip: "ff-13", claim: "ש״ס בקורס הכבד ביותר", asserted: 6, actual: maxCredits },
+    // ff-14 spells it in words ("שישה תחומים"), so there is no digit to anchor.
     { where: "tips-engine ff-14", claim: "תחומים בקטלוג", asserted: 6, actual: disciplines.size },
   ];
+
+  // m-1's 25/89 and ff-11's 9 used to live here. Both cards now state a RULE
+  // instead of a count, so the rows were deleted with them — which is the
+  // failure this next loop exists to force. A row that guards a sentence the
+  // app no longer shows is worse than no row: it goes green forever, and it
+  // trains you to trust the tick.
+  //
+  // So every row that names a tip must find its number inside that tip's own
+  // text. Delete the sentence and the run tells you to delete the row; the
+  // table cannot drift away from the copy it is guarding.
+  const tipsSrc = fs.readFileSync(path.join(__dirname, "..", "src", "lib", "tips-engine.ts"), "utf-8");
+  const tipBlock = (id: string): string | null => {
+    const i = tipsSrc.indexOf(`id: "${id}"`);
+    if (i < 0) return null;
+    const j = tipsSrc.indexOf('id: "', i + 6);
+    return tipsSrc.slice(i, j < 0 ? tipsSrc.length : j);
+  };
+  let unanchored = 0;
+  for (const c of claims) {
+    if (!c.tip) continue;
+    const block = tipBlock(c.tip);
+    if (block === null) {
+      unanchored++;
+      console.log(`✗  ${c.tip} לא קיים ב-tips-engine.ts — הטענה "${c.claim}" בודקת מסך שאינו קיים.`);
+      continue;
+    }
+    const text = block.split("\n").filter((l) => /text(He|En):|^\s+"/.test(l)).join(" ");
+    if (!new RegExp(`(?<![0-9])${c.asserted}(?![0-9])`).test(text)) {
+      unanchored++;
+      console.log(`✗  ${c.tip} כבר לא כותב ${c.asserted} (${c.claim}) — למחוק את השורה מהטבלה.`);
+    }
+  }
+  if (unanchored > 0) process.exitCode = 1;
 
   let drifted = 0;
   for (const c of claims) {

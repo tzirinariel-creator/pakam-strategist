@@ -7,6 +7,8 @@ import { toast } from "sonner";
 import { advisorError } from "@/lib/advisor-toast";
 import { Bidi } from "@/lib/bidi";
 import { fileToBase64, SCANNER_ACCEPT } from "@/lib/upload";
+import { useScanProgress } from "@/hooks/use-scan-progress";
+import { REASSURE_AFTER_S } from "@/lib/scan-progress";
 import type { Form3010Summary } from "@/lib/form-3010";
 import { hebrewAcademicYear } from "@/lib/sheet-semester-label";
 import { Button } from "@/components/ui/button";
@@ -43,7 +45,10 @@ export function Form3010Uploader({
   onApplyAll?: (items: Array<{ academicYear: number; semester: "FALL" | "SPRING"; days: number }>) => void;
 }) {
   const fileRef = useRef<HTMLInputElement>(null);
-  const [scanning, setScanning] = useState(false);
+  // A scan that is working and a scan that has died look identical behind one
+  // static spinner, so the stage and the clock are both on screen (#9/#10).
+  const scan = useScanProgress(isHe, "form");
+  const { scanning, elapsed } = scan;
   const [summary, setSummary] = useState<Form3010Summary | null>(null);
   const [edited, setEdited] = useState<Record<string, number>>({});
 
@@ -59,10 +64,11 @@ export function Form3010Uploader({
     earliestPreDegreeYear != null ? hebrewAcademicYear(earliestPreDegreeYear) : null;
 
   const handleFile = async (file: File) => {
-    setScanning(true);
+    scan.start();
     setSummary(null);
     try {
       const { b64, mime } = await fileToBase64(file);
+      scan.setStage("upload");
       if (b64.length > 5_000_000) {
         toast.error(isHe ? "הקובץ גדול מדי — צלמו את העמוד עצמו (עד ~3.5MB)." : "File too large — photograph the page (max ~3.5MB).");
         return;
@@ -72,6 +78,7 @@ export function Form3010Uploader({
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ imageBase64: b64, mimeType: mime, startYear: startYear ?? null }),
       });
+      scan.setStage("read");
       const data = (await res.json()) as { summary?: Form3010Summary; error?: string };
       if (!res.ok || !data.summary) {
         advisorError(data.error ?? (isHe ? "הסריקה לא הצליחה — נסו שוב או צלמו תמונה חדה יותר." : "The scan didn't work — try again or take a sharper photo."));
@@ -82,7 +89,7 @@ export function Form3010Uploader({
     } catch {
       advisorError(isHe ? "הסריקה לא הצליחה — נסו שוב. הנתונים שלכם לא נגעו." : "The scan didn't work — try again. Your data is untouched.");
     } finally {
-      setScanning(false);
+      scan.stop();
       if (fileRef.current) fileRef.current.value = "";
     }
   };
@@ -112,9 +119,21 @@ export function Form3010Uploader({
         />
         <Button type="button" variant="outline" disabled={scanning} onClick={() => fileRef.current?.click()} className="gap-1.5">
           {scanning ? <Loader2 className="size-4 animate-spin" /> : <Shield className="size-4" />}
-          {scanning ? (isHe ? "קורא את הטופס…" : "Reading…") : isHe ? "העלו טופס 3010" : "Upload Form 3010"}
+          {scanning ? scan.label : isHe ? "העלו טופס 3010" : "Upload Form 3010"}
         </Button>
       </div>
+
+      {scanning && (
+        <p className="mt-2 text-xs text-foreground/45" aria-live="polite">
+          {scan.hint ?? (isHe ? "לא סוגרים את העמוד." : "Keep this page open.")}
+          {elapsed >= REASSURE_AFTER_S && (
+            <>
+              {" · "}
+              <Bidi text={elapsed} /> {isHe ? "שניות" : "s"}
+            </>
+          )}
+        </p>
+      )}
 
       {summary && (
         <div className="mt-3 space-y-2">

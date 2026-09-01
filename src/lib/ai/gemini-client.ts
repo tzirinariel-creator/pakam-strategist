@@ -106,8 +106,19 @@ export async function generateGeminiVision(
     throw { status: 400, message: "Invalid Gemini key format" };
   }
 
-  const res = await geminiFetchWithFallback(
-    ":generateContent",
+  // The scanners TRANSCRIBE — they copy a printed table into JSON. There is
+  // nothing to reason about, and the answer contract forbids inferring anything
+  // that is not on the page. `gemini-2.5-flash` (our fallback model) turns
+  // dynamic thinking ON by default, spending seconds of the student's wait on a
+  // chain of thought that is then discarded. Zero is the right budget here.
+  //
+  // But `thinkingConfig` is a field on someone else's API on the eve of a
+  // launch, and a 400 from it would take BOTH scanners down — a 400 is not
+  // retryable in the model loop above, and the route would tell the student
+  // their key was rejected. So the request is built twice and a 400 falls back
+  // to the plain body: worst case we are exactly as fast as before, never
+  // broken.
+  const body = (withThinking: boolean) =>
     JSON.stringify({
       systemInstruction: { parts: [{ text: system }] },
       contents: [
@@ -119,10 +130,20 @@ export async function generateGeminiVision(
           ],
         },
       ],
-      generationConfig: { maxOutputTokens: GEMINI_MAX_TOKENS, temperature: 0 },
-    }),
-    apiKey,
-  );
+      generationConfig: {
+        maxOutputTokens: GEMINI_MAX_TOKENS,
+        temperature: 0,
+        ...(withThinking ? { thinkingConfig: { thinkingBudget: 0 } } : {}),
+      },
+    });
+
+  let res: Response;
+  try {
+    res = await geminiFetchWithFallback(":generateContent", body(true), apiKey);
+  } catch (e) {
+    if ((e as { status?: number })?.status !== 400) throw e;
+    res = await geminiFetchWithFallback(":generateContent", body(false), apiKey);
+  }
 
   const data = (await res.json()) as GeminiStreamChunk;
   return (data.candidates?.[0]?.content?.parts ?? []).map((p) => p.text ?? "").join("");

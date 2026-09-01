@@ -60,8 +60,8 @@ export function GuideContent() {
         </p>
         <p className="mt-1.5 text-foreground/55">
           {isHe
-            ? "לומדים ב-3 פקולטות שונות, כל אחת עם מזכירות וחוקים משלה. תחום המיקוד שתבחרו קובע גם את הסיווג שלכם בשירות המדינה."
-            : "You study across 3 faculties, each with its own rules. Your focus area even sets your civil-service track."}
+            ? "לומדים בשתי פקולטות, מדעי הרוח ומדעי החברה, ולצידן לימודי יסוד במשפטים. לכל פקולטה מזכירות וחוקים משלה. תחום המיקוד שתבחרו קובע גם את הסיווג שלכם בשירות המדינה."
+            : "You study across two faculties, Humanities and Social Sciences, plus foundational law studies. Each faculty has its own office and rules. Your focus area even sets your civil-service track."}
         </p>
       </Section>
 

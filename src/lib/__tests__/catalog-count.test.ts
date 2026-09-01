@@ -10,15 +10,26 @@ import { CATALOG_COURSE_COUNT } from "@/lib/constants";
  * תשפ״ז migration had taken the catalog to 302. Three copies of the figure, none
  * attached to anything that could tell them they were wrong.
  *
- * This pins the constant to the actual parsed yedion, so the next migration
- * fails a test instead of quietly publishing a false claim.
+ * And then it happened again, the same way, through a door this file left open.
+ *
+ * It asserted EQUALITY with scripts/yedion_classified.json — a parse snapshot
+ * taken once, not the catalog. The catalog kept moving (304 active courses by
+ * 2.9), the snapshot did not, and this test stayed green while the landing page
+ * printed 302 to 24 real students. A guard pointed at the wrong source is worse
+ * than no guard, because it is believed.
+ *
+ * A vitest run cannot reach the database, so it cannot check the exact number.
+ * What it CAN do honestly is hold the floor — the catalog never shrinks below
+ * the snapshot it was seeded from. The exact figure is verified against the
+ * live catalog by `npx tsx scripts/verify-catalog-facts.ts`, which now reads
+ * this constant instead of repeating it.
  */
 describe("CATALOG_COURSE_COUNT is pinned to the real תשפ״ז catalog", () => {
-  it("matches the parsed yedion exactly", () => {
+  it("is never below the parsed תשפ״ז yedion", () => {
     const parsed = JSON.parse(
       readFileSync(join(process.cwd(), "scripts/yedion_classified.json"), "utf8"),
     ) as unknown[];
-    expect(CATALOG_COURSE_COUNT).toBe(parsed.length);
+    expect(CATALOG_COURSE_COUNT).toBeGreaterThanOrEqual(parsed.length);
   });
 
   it("no landing string states a course count in prose", () => {

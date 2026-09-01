@@ -11,6 +11,9 @@ import { matchExtractedToCatalog } from "@/lib/grade-sheet";
 import { passBarFor } from "@/lib/constants";
 import { isEnglishCourse, passBarForName } from "@/lib/english-standing";
 import { fileToBase64, SCANNER_ACCEPT } from "@/lib/upload";
+import { Bidi } from "@/lib/bidi";
+import { useScanProgress } from "@/hooks/use-scan-progress";
+import { REASSURE_AFTER_S } from "@/lib/scan-progress";
 import { WhereIsMySheet } from "@/components/record/where-is-my-sheet";
 import type { OnboardingData } from "./onboarding-wizard";
 import { heNoun } from "@/lib/he-count";
@@ -189,13 +192,17 @@ export function StepHistory({
   // nothing on its own — the student still reviews the pre-checked list and the
   // real save happens through the normal onboarding flow.
   const scanRef = useRef<HTMLInputElement>(null);
-  const [scanning, setScanning] = useState(false);
+  // The first scan a student ever runs, at the most fragile moment there is —
+  // mid-signup. It had the shortest label of the four ("קורא…") and no clock.
+  const scan = useScanProgress(isHe, "sheet");
+  const { scanning, elapsed } = scan;
 
   const handleScanFile = useCallback(
     async (file: File) => {
-      setScanning(true);
+      scan.start();
       try {
         const { b64, mime } = await fileToBase64(file);
+        scan.setStage("upload");
         if (b64.length > 5_000_000) {
           toast.error(
             isHe
@@ -209,6 +216,7 @@ export function StepHistory({
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ imageBase64: b64, mimeType: mime }),
         });
+        scan.setStage("read");
         const resData = (await res.json()) as { rows?: unknown[]; error?: string };
         if (!res.ok) {
           toast.error(resData.error ?? (isHe ? "הסריקה נכשלה" : "Scan failed"));
@@ -323,7 +331,7 @@ export function StepHistory({
       } catch {
         toast.error(isHe ? "הסריקה נכשלה — נסו שוב" : "Scan failed — try again");
       } finally {
-        setScanning(false);
+        scan.stop();
         if (scanRef.current) scanRef.current.value = "";
       }
     },
@@ -509,7 +517,7 @@ export function StepHistory({
                 className="inline-flex shrink-0 items-center gap-1.5 rounded-lg bg-accent-brand px-3 py-2 text-sm font-semibold text-white transition-opacity hover:opacity-90 disabled:opacity-50"
               >
                 {scanning ? <Loader2 className="size-4 animate-spin" /> : <ScanLine className="size-4" />}
-                {scanning ? (isHe ? "קורא…" : "Reading…") : isHe ? "העלו וסרקו" : "Upload & scan"}
+                {scanning ? scan.label : isHe ? "העלו וסרקו" : "Upload & scan"}
               </button>
               <input
                 ref={scanRef}
@@ -522,6 +530,17 @@ export function StepHistory({
                 }}
               />
             </div>
+            {scanning && (
+              <p className="mt-2 text-xs text-foreground/50" aria-live="polite">
+                {scan.hint ?? (isHe ? "לא סוגרים את העמוד." : "Keep this page open.")}
+                {elapsed >= REASSURE_AFTER_S && (
+                  <>
+                    {" · "}
+                    <Bidi text={elapsed} /> {isHe ? "שניות" : "s"}
+                  </>
+                )}
+              </p>
+            )}
             <div className="mt-2">
               <WhereIsMySheet />
             </div>
