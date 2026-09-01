@@ -14,6 +14,8 @@
 // Pure + injectable `now`, so the distinction is regression-testable.
 // =========================================================================
 
+import { yedionExamDates } from "@/lib/yedion-assessments";
+
 export type ExamPlannerEmptyReason =
   /** No courses in the plan at all — nothing to draw exam dates from. */
   | "no-plan"
@@ -84,7 +86,21 @@ export function classifyExamAvailability(
   let withAnyDate = 0;
   let withUpcomingDate = 0;
   for (const c of examCourses) {
-    const dates = [c.examDateA, c.examDateB]
+    // The ידיעון board counts as published, because it IS published.
+    //
+    // This classifier only ever saw the caller's examDateA/B, which every
+    // caller filled from the scraped CATALOG — תשפ״ו, all of it now behind us.
+    // So for the year actually being planned it reported "the university
+    // hasn't published the timetable yet" about courses whose sittings are
+    // printed in the ידיעון, while the screen beside it drew those very
+    // sittings. A product that shows a date on one screen and denies it on the
+    // next is worse than either message on its own.
+    //
+    // Resolved here rather than at each call site: the classifier already
+    // takes the course code, and this exact fix reaching one caller and not
+    // the other is how the problem got in.
+    const yedion = yedionExamDates(c.code);
+    const dates = [c.examDateA, c.examDateB, yedion.examDateA, yedion.examDateB]
       .filter((d): d is Date | string => d != null)
       .map((d) => new Date(d));
     if (dates.length === 0) continue;

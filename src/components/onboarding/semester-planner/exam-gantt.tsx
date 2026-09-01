@@ -11,6 +11,7 @@ import {
   isExamAssessed,
   type ExamAvailabilityCourse,
 } from "@/lib/exam-availability";
+import { yedionExamDates } from "@/lib/yedion-assessments";
 import type { CourseWithSchedule } from "@/lib/plan-generator";
 
 // ─── Types ───────────────────────────────────────────────────────────
@@ -188,19 +189,36 @@ export function ExamGantt({ courses, now }: ExamGanttProps) {
       // predicate the planner's empty state uses, not a second copy of it.
       if (!isExamAssessed(c)) continue;
       if (overrides.altAssessment.has(c.code)) continue;
-      const catalogA = upcoming(c.examDateA);
-      const catalogB = upcoming(c.examDateB);
-      // The student's own date fills only a gap the catalog left blank — a
-      // published sitting always wins, exactly as on /exam-planner.
+      // The ידיעון board leads, exactly as on /exam-planner.
+      //
+      // This gantt read `examDateA/B` alone — the scraped CATALOG, which holds
+      // תשפ״ו. Every one of those dates is behind us, `upcoming()` nulls them,
+      // and a course with no surviving date is skipped outright by the
+      // `continue` below. So the semester a student is planning right now drew
+      // almost no exams at all, silently: no message, no empty state, just
+      // missing rows.
+      //
+      // That is the SAME defect exam-date-source.ts was written for, where it
+      // hid 22 of 23 sittings on /exam-planner. It was fixed there and never
+      // carried across to here, so the fix covered the screen it was found on
+      // and not the screen beside it.
+      //
+      // Order: ידיעון (the year being planned) → catalog (the year before) →
+      // the student's own typed date, which beats both because they can see a
+      // notice board we cannot. Each candidate is validity-filtered FIRST, so a
+      // stale higher-priority entry can never mask a usable one below it.
+      const yedion = yedionExamDates(c.code);
+      const publishedA = upcoming(yedion.examDateA) ?? upcoming(c.examDateA);
+      const publishedB = upcoming(yedion.examDateB) ?? upcoming(c.examDateB);
       const manualKey =
-        catalogA == null && catalogB == null
+        publishedA == null && publishedB == null
           ? (() => {
               const k = manualDateKey(overrides.manualDates[c.code]);
               return k != null && k >= todayKey ? k : null;
             })()
           : null;
-      const moedA = catalogA ?? manualKey;
-      const moedB = catalogB;
+      const moedA = publishedA ?? manualKey;
+      const moedB = publishedB;
       if (moedA == null && moedB == null) continue;
       result.push({
         courseId: c.id,
