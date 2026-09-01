@@ -2,6 +2,7 @@
 
 import { KnownSittings } from "@/components/exam-planner/known-sittings";
 import { resolveExamDates } from "@/lib/exam-date-source";
+import { upcomingPeriod, periodLabel } from "@/lib/exam-period";
 import { yedionExamDates } from "@/lib/yedion-assessments";
 import { useEffect, useMemo, useRef, useState } from "react";
 import {
@@ -212,36 +213,40 @@ export function ExamPlannerContent() {
   // afterwards. A revision plan spanning January to September is not a plan.
   // Default to the sitting period actually coming up; the rest is one click
   // away, and the count is stated so nothing is hidden in silence.
-  const focusSemester = useMemo(() => {
-    const anchor = getPlanningAnchor();
-    return {
-      semester: anchor.semester,
-      year: deriveYearOfStudy(
-        profileQuery.data?.startYear,
-        profileQuery.data?.currentYear ?? 1,
-        anchor.startYear,
-      ),
-    };
-  }, [profileQuery.data]);
-
   const [showWholeYear, setShowWholeYear] = useState(false);
 
-  const scopedExamCourses = useMemo(() => {
-    if (showWholeYear) return examCourses;
-    const codesInFocus = new Set(
-      plannedCourses
-        .filter(
-          (c) =>
-            c.plannedYear === focusSemester.year &&
-            c.plannedSemester === focusSemester.semester,
-        )
-        .map((c) => c.code),
+  // Scoped by the SITTING DATE, not by the course's planned semester.
+  //
+  // The first attempt at this filtered on plannedYear + plannedSemester, which
+  // sounds equivalent and is not: this very app warns students that "4 קורסים
+  // מתוכננים לסמסטר שהם לא ניתנים בו", so the planned semester is a field we
+  // openly tell people can disagree with the ידיעון. Scoping revision on it
+  // means a course whose sitting is in January drops off the January board
+  // because the plan happens to file it under semester ב׳.
+  //
+  // What decides what you revise for is when you sit it. Periods are clustered
+  // out of the dates themselves (lib/exam-period.ts) rather than from invented
+  // calendar boundaries, so מועד ב׳ stays with its מועד א׳ and nothing drifts.
+  const examPeriod = useMemo(() => {
+    const sittings = examCourses.flatMap((c) =>
+      [c.examDateA, c.examDateB].filter((d): d is Date => d != null).map((d) => ({ when: d, code: c.code })),
     );
-    const scoped = examCourses.filter((c) => codesInFocus.has(c.code));
+    return upcomingPeriod(sittings, new Date());
+  }, [examCourses]);
+
+  const scopedExamCourses = useMemo(() => {
+    if (showWholeYear || !examPeriod) return examCourses;
+    const from = examPeriod.from.getTime();
+    const to = examPeriod.to.getTime();
+    const inPeriod = (d: Date | null) =>
+      d != null && d.getTime() >= from && d.getTime() <= to;
+    const scoped = examCourses.filter(
+      (c) => inPeriod(c.examDateA) || inPeriod(c.examDateB),
+    );
     // Never leave the student with an empty board because our scoping guessed
     // wrong about where they are — a long list beats a blank screen.
     return scoped.length > 0 ? scoped : examCourses;
-  }, [examCourses, plannedCourses, focusSemester, showWholeYear]);
+  }, [examCourses, examPeriod, showWholeYear]);
 
   const hiddenByScope = examCourses.length - scopedExamCourses.length;
 
@@ -675,16 +680,21 @@ export function ExamPlannerContent() {
               onClick={() => setShowWholeYear((v) => !v)}
               className="w-full rounded-lg border border-border/50 bg-foreground/[0.02] px-3 py-2 text-start text-[11px] leading-relaxed text-foreground/60 transition-colors hover:border-foreground/25"
             >
+              {/* Names the period by its own DATES rather than by "semester א׳".
+                  The semester label was a second claim we could get wrong — and
+                  this same screen already warns that a course's planned semester
+                  can disagree with the ידיעון. The dates cannot disagree with
+                  themselves. */}
               {isHe ? (
                 <>
-                  מוצגים המבחנים של {focusSemester.semester === "FALL" ? "סמסטר א׳" : "סמסטר ב׳"} ·{" "}
+                  {examPeriod ? periodLabel(examPeriod, true) : "המבחנים הקרובים"} ·{" "}
                   <span className="font-semibold text-accent-brand">
                     {heNoun(hiddenByScope, "מבחן נוסף", "מבחנים נוספים")} בהמשך השנה — להצגה
                   </span>
                 </>
               ) : (
                 <>
-                  Showing {focusSemester.semester === "FALL" ? "semester A" : "semester B"} ·{" "}
+                  {examPeriod ? periodLabel(examPeriod, false) : "Upcoming exams"} ·{" "}
                   <span className="font-semibold text-accent-brand">
                     {hiddenByScope} more later this year — show
                   </span>
