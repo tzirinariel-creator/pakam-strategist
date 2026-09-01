@@ -446,7 +446,17 @@ export function CalendarContent() {
           )}
 
           {/* Share the week on WhatsApp — same dress as the ICS button */}
-          {semesterCourses.length > 0 && viewMode !== "exams" && (
+          {/* Measured live: clicking share moments after the page settled
+              produced "אין מערכת שעות לייצא לסמסטר זה" while the grid was
+              plainly on screen — the semester resolves after mount and the
+              schedule query is briefly empty behind an already-clickable
+              button. Both share buttons had the same hole, and the text one
+              has had it all along.
+
+              A button that can only fail should not be offered. The guard is
+              the same list the grid draws from, so the buttons appear exactly
+              when there is something to put in a chat. */}
+          {semesterCourses.length > 0 && viewMode !== "exams" && displaySessions.length > 0 && (
             <>
               {/* The picture leads. Text stays because it is searchable, it
                   survives a screenshot-blocking chat, and someone reading with
