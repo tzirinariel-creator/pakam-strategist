@@ -27,7 +27,7 @@ import { ExamSchedule } from "@/components/exam/exam-schedule";
 import { downloadICSFromSessions } from "@/lib/ics-export";
 import { buildWeekShareText } from "@/lib/week-share";
 import { shareWeekImage, type WeekImageSession } from "@/lib/week-image";
-import { courseColor } from "@/lib/course-color";
+import { courseColorHex } from "@/lib/course-color";
 import { getAcademicNow, deriveYearOfStudy, getPlanningAnchor , hebrewYearLabel } from "@/lib/academic-calendar";
 import { groupCoursesBySemester } from "@/lib/plan-grouping";
 import { sessionTypeNameFor } from "@/lib/group-options";
@@ -323,7 +323,7 @@ export function CalendarContent() {
       endTime: sn.endTime,
       courseName: isHe ? sn.course.nameHe : (sn.course.nameEn ?? sn.course.nameHe),
       sessionTypeLabel: sessionTypeNameFor(sn.sessionType, isHe),
-      color: courseColor(sn.course.code),
+      color: courseColorHex(sn.course.code),
       room: sn.room ?? null,
     }));
     setSharingImage(true);

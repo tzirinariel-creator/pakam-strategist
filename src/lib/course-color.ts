@@ -89,6 +89,35 @@ export function courseColor(courseKey: string | null | undefined): string {
 }
 
 /**
+ * The LIGHT ramp as literal hex, for canvas.
+ *
+ * `courseColor()` returns `var(--course-color-N)`, which is right for the DOM
+ * and useless to a `<canvas>`: `ctx.fillStyle = "var(--course-color-3)"` does
+ * not throw, it is silently ignored and the previous fill is reused. The first
+ * shared timetable image came out with every block painted the same grey, and
+ * nothing in the type system or the tests said a word — the header note above
+ * warns about exactly this trap for `color-mix()` and it caught me anyway.
+ *
+ * Light weights specifically, because the shared image is drawn in one fixed
+ * palette on a white card rather than following the sender's theme: an image
+ * forwarded into someone else's chat has no theme to follow, and a dark-mode
+ * card landing in a light chat is how a shared picture ends up looking broken.
+ *
+ * Pinned against globals.css by course-color.test.ts, which is what keeps this
+ * from drifting into a second source of truth.
+ */
+export const COURSE_COLOR_HEX_LIGHT = [
+  "#2563EB", "#D97706", "#059669", "#C026D3", "#0891B2", "#E11D48",
+  "#7C3AED", "#65A30D", "#EA580C", "#0D9488", "#4F46E5", "#DB2777",
+] as const;
+
+/** The course's colour as a hex literal — for canvas and anything else that
+ *  cannot resolve a CSS variable. Prefer `courseColor()` in the DOM. */
+export function courseColorHex(courseKey: string | null | undefined): string {
+  return COURSE_COLOR_HEX_LIGHT[courseColorIndex(courseKey)] ?? COURSE_COLOR_HEX_LIGHT[0];
+}
+
+/**
  * A tinted SURFACE in the course's colour — the grid block's fill and the plan
  * card's wash. `percent` is how much of the course colour survives; the rest is
  * `base`, which defaults to the card so the tint tracks the theme.

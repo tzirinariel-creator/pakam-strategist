@@ -3,7 +3,9 @@ import { readFileSync } from "node:fs";
 import path from "node:path";
 import {
   COURSE_COLOR_COUNT,
+  COURSE_COLOR_HEX_LIGHT,
   courseColor,
+  courseColorHex,
   courseColorIndex,
   courseEdge,
   courseSurface,
@@ -287,6 +289,55 @@ describe("contrast against the card in both themes", () => {
     }
     for (const hex of dark) {
       expect(contrast("#ECECEE", mix(hex, DARK_CARD, 14)), `dark ${hex}`).toBeGreaterThanOrEqual(4.5);
+    }
+  });
+});
+
+// =========================================================================
+// The hex ramp is the SAME ramp, not a second one
+// =========================================================================
+// `courseColorHex` exists because a <canvas> cannot resolve a CSS variable:
+// `ctx.fillStyle = "var(--course-color-3)"` does not throw, it is quietly
+// ignored and the previous fill is reused. The first shared timetable image
+// came out with every block the same grey.
+//
+// A hex list copied out of a stylesheet is a second source of truth, and this
+// file's whole reason for existing is that the first one must not drift from
+// globals.css. So it is parsed back out of the stylesheet and compared.
+
+describe("COURSE_COLOR_HEX_LIGHT mirrors the :root ramp in globals.css", () => {
+  const css = readFileSync(path.join(process.cwd(), "src/app/globals.css"), "utf8");
+  // The LIGHT declarations only: everything before the .dark block re-declares
+  // the same twelve at 400 weights.
+  const darkAt = css.search(/\.dark\s*\{|\[data-theme=["']dark["']\]\s*\{/);
+  const lightSection = darkAt > 0 ? css.slice(0, darkAt) : css;
+
+  it("declares one hex per index, in the same order", () => {
+    for (let i = 0; i < COURSE_COLOR_COUNT; i++) {
+      const m = new RegExp(`--course-color-${i}\\s*:\\s*(#[0-9A-Fa-f]{6})`).exec(lightSection);
+      expect(m, `--course-color-${i} not found in the :root ramp`).not.toBeNull();
+      expect(COURSE_COLOR_HEX_LIGHT[i]?.toUpperCase()).toBe(m![1]!.toUpperCase());
+    }
+  });
+
+  it("has exactly COURSE_COLOR_COUNT entries", () => {
+    expect(COURSE_COLOR_HEX_LIGHT).toHaveLength(COURSE_COLOR_COUNT);
+  });
+
+  it("courseColorHex never returns a CSS variable", () => {
+    // The actual defect, stated directly: a canvas takes hex, not var().
+    for (const code of ["0651-1005", "1011-2109", "", "0616-6037"]) {
+      expect(courseColorHex(code)).toMatch(/^#[0-9A-Fa-f]{6}$/);
+    }
+  });
+
+  it("agrees index-for-index with the var() version", () => {
+    // Two functions, one question: the picture and the page must colour the
+    // same course the same way, or the share stops being a picture OF the app.
+    for (const code of ["0651-1005", "1011-2109", "0616-6037", "0910-1000"]) {
+      const idx = courseColorIndex(code);
+      expect(courseColor(code)).toBe(`var(--course-color-${idx})`);
+      expect(courseColorHex(code)).toBe(COURSE_COLOR_HEX_LIGHT[idx]);
     }
   });
 });

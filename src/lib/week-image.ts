@@ -174,10 +174,17 @@ export function drawWeekImage(
     ctx.lineTo(W - PAD, y + 0.5);
     ctx.stroke();
     if (h < hours) {
+      // The hour gutter is on the side the week STARTS from: in RTL the day
+      // columns are laid out from the right edge inward, so the gutter is the
+      // strip left over on the right. The first version drew these labels at
+      // PAD + 4 — the far LEFT — which in RTL is inside the first day column,
+      // so every hour label was painted over by the blocks drawn on top of it.
+      // The card came out with no hour axis at all: a timetable that cannot
+      // say when anything happens.
       ctx.fillStyle = MUTED;
       ctx.textAlign = isHe ? "left" : "right";
       const label = `${String(Math.floor((from + h * 60) / 60)).padStart(2, "0")}:00`;
-      ctx.fillText(label, isHe ? PAD + 4 : PAD + TIME_W - 8, y + 12);
+      ctx.fillText(label, isHe ? W - PAD - TIME_W + 6 : PAD + TIME_W - 8, y + 12);
     }
   }
 
@@ -191,6 +198,10 @@ export function drawWeekImage(
     const x = colX(i) + 3;
     const w = COL_W - 6;
 
+    // A hex literal, never `var(--course-color-N)`: canvas does not throw on an
+    // unparseable fillStyle, it IGNORES the assignment and keeps the previous
+    // one. The first card came out with every block painted in the grey left
+    // over from the hour labels, and nothing anywhere said so.
     ctx.fillStyle = `${s.color}22`;
     ctx.beginPath();
     ctx.roundRect(x, top + 1.5, w, height, 7);

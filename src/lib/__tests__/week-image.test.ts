@@ -95,3 +95,56 @@ describe("a long course name is broken, not chopped", () => {
     expect(wrapToWidth(ctx, "", 90, 2)).toEqual([]);
   });
 });
+
+// =========================================================================
+// The hour gutter is on the side the week starts from
+// =========================================================================
+// The first card rendered with NO hour axis at all — a timetable that cannot
+// say when anything happens. The labels were being drawn, at PAD + 4, the far
+// physical left. In RTL the day columns are laid out from the RIGHT edge
+// inward, so the leftover gutter is on the right and PAD + 4 lands inside the
+// first day column — where the blocks, drawn afterwards, painted over every
+// one of them.
+//
+// Restated here as the two pure position functions, so "the gutter and the
+// columns do not overlap" is an assertion rather than something to squint at.
+
+describe("the hour gutter never overlaps a day column", () => {
+  const PAD = 20, COL_W = 104, TIME_W = 44;
+  const width = (n: number) => PAD * 2 + TIME_W + COL_W * n;
+  const colX = (i: number, n: number, isHe: boolean) =>
+    isHe ? width(n) - PAD - TIME_W - COL_W * (i + 1) : PAD + TIME_W + COL_W * i;
+  const labelX = (n: number, isHe: boolean) =>
+    isHe ? width(n) - PAD - TIME_W + 6 : PAD + TIME_W - 8;
+
+  it.each([1, 2, 3, 5, 6])("keeps the label clear of every column (%i days, RTL)", (n) => {
+    const x = labelX(n, true);
+    for (let i = 0; i < n; i++) {
+      const left = colX(i, n, true);
+      expect(x, `overlaps column ${i}`).toBeGreaterThanOrEqual(left + COL_W);
+    }
+  });
+
+  it.each([1, 2, 3, 5, 6])("keeps the label clear of every column (%i days, LTR)", (n) => {
+    const x = labelX(n, false);
+    for (let i = 0; i < n; i++) {
+      expect(x, `overlaps column ${i}`).toBeLessThanOrEqual(colX(i, n, false));
+    }
+  });
+
+  it("puts the RTL gutter on the right and the LTR gutter on the left", () => {
+    // The witness for the actual defect: the old code used the LTR position in
+    // both directions.
+    const n = 3;
+    expect(labelX(n, true)).toBeGreaterThan(width(n) / 2);
+    expect(labelX(n, false)).toBeLessThan(width(n) / 2);
+    expect(labelX(n, true)).not.toBe(PAD + 4);
+  });
+
+  it("stays inside the canvas", () => {
+    for (const n of [1, 6]) {
+      expect(labelX(n, true)).toBeLessThan(width(n));
+      expect(labelX(n, false)).toBeGreaterThan(0);
+    }
+  });
+});
