@@ -340,16 +340,34 @@ export const courseKnowledgeRouter = createTRPCRouter({
         cohortYear: safeCohortYear(r.cohortYear, reviewCohortCounts),
       }));
 
-    // Which cohorts are represented in the file at all — DISTINCT YEARS only,
-    // never per-year counts (a count of 1 would name a person). Feeds the
-    // "generations" strip on /lineage; see src/lib/lineage.ts.
-    const cohortYearsPresent = [
-      ...new Set(
-        [...reviews, ...gradePoints]
-          .map((r) => r.cohortYear)
-          .filter((y): y is number => y != null),
-      ),
-    ].sort((a, b) => a - b);
+    // Which cohorts are represented in the file at all. Feeds the "generations"
+    // strip on /lineage.
+    //
+    // This used to publish the RAW set, on the reasoning that distinct years
+    // carry no per-year counts and so name nobody. That reasoning does not
+    // hold. Membership of the set is itself the disclosure: it states that at
+    // least one row from cohort X exists. With ~24 students in the programme,
+    // a year contributed by one person points at that person exactly as well
+    // as a label would — and the app was suppressing the label on every
+    // individual tip from that same cohort while announcing the year here.
+    // Two of the three sources the strip merges (insights, gallery) come back
+    // already filtered by safeCohortYear; this one did not, so the client-side
+    // note claiming "every year here is already painted on the cards" was true
+    // of two thirds of its input.
+    //
+    // Same bar as every other cohort label, from the same constant.
+    //
+    // KNOWN LIMIT, deliberately not papered over: this counts ROWS, not
+    // people, because courseGradePoint carries no userId by design (identity
+    // is physically decoupled — that decoupling is worth more than a tighter
+    // count here). Five rows could be one prolific contributor. The same
+    // caveat applies to safeCohortYear everywhere it is used; changing the
+    // shared bar is an owner decision, not one to slip in here.
+    const presenceCounts = countByCohortYear([...reviews, ...gradePoints]);
+    const cohortYearsPresent = [...presenceCounts.entries()]
+      .filter(([, n]) => n >= COHORT_LABEL_MIN_N)
+      .map(([year]) => year)
+      .sort((a, b) => a - b);
 
     // How close the file is to opening something new. An empty table with no
     // explanation reads as "this feature is broken"; the same emptiness with

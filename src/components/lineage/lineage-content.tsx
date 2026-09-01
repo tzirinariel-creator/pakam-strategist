@@ -44,9 +44,12 @@ export function LineageContent() {
   const profile = api.user.getProfile.useQuery();
   const stats = api.cohort.myContributionStats.useQuery();
 
-  // Distinct cohort years only — never per-year counts (that would name the
-  // lone contributor). Every year here is already painted on the cards these
-  // lists render, so this adds no new surface.
+  // Every year in this list has cleared COHORT_LABEL_MIN_N on the server —
+  // all three sources, now. It used to be true of `insights` and `gallery`
+  // only: `cohortYearsPresent` came back raw, so a cohort represented by one
+  // person appeared in the generations strip while the app was suppressing
+  // that same year on every individual tip. Merging a filtered list with an
+  // unfiltered one gives you an unfiltered list.
   const years = [
     ...(digest.data?.cohortYearsPresent ?? []),
     ...(insights.data ?? []).map((i) => i.cohortYear),
