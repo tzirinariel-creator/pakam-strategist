@@ -21,7 +21,12 @@ describe("buildWeekShareText", () => {
       { semesterLabel: "שנה א׳ · סמסטר ב׳", appUrl: "https://pakamon.app/he", isHe: true },
     );
     const lines = text.split("\n");
-    expect(lines[0]).toBe("*המערכת שלי — שנה א׳ · סמסטר ב׳*");
+    // One separator, not two: the semester label already carries its own, so
+    // the old headline read "המערכת שלי — שנה א׳ · סמסטר ב׳" with a dash and a
+    // dot doing the same job in one line.
+    expect(lines[0]).toBe("*המערכת שלי · שנה א׳ · סמסטר ב׳*");
+    // A summary before the wall of bullets, so the list has a point.
+    expect(lines[1]).toMatch(/בקמפוס · \d+ שעות שבועיות$/);
     const sunday = lines.indexOf("*יום א׳*");
     const tuesday = lines.indexOf("*יום ג׳*");
     expect(sunday).toBeGreaterThan(0);

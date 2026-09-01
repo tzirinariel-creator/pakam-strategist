@@ -71,16 +71,65 @@ export function consumeSharedPlanReturn(): string | null {
 }
 
 /** Pack a plan into a URL-safe token. */
+// Ariel, twice: "למה הודעת הוואטסאפ עדיין נראית כמו הצרות שלי?" ·
+// "עוד שיתוף זוועתי בוואטסאפ".
+//
+// The token was JSON — {"c":"1011-2101","y":2,"s":"FALL"} is 34 characters per
+// course before base64 inflates it by a third. A seven-course plan produced a
+// ~1,900-character URL: nine tenths of the WhatsApp message was an unreadable
+// string, and the four lines a human might actually read were buried above it.
+//
+// v2 packs the same three facts into "10112101:2F" — the dash comes off (every
+// code is ####-####), the semester is one letter. Same plan, about a tenth of
+// the characters. v1 tokens still decode, so links already sent keep working.
+const SEM_CHAR: Record<SharedCourse["s"], string> = { FALL: "F", SPRING: "S", SUMMER: "U" };
+const CHAR_SEM: Record<string, SharedCourse["s"]> = { F: "FALL", S: "SPRING", U: "SUMMER" };
+
 export function encodePlan(courses: SharedCourse[]): string {
-  const json = JSON.stringify({ v: 1, c: courses });
-  return toBase64(json).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+  const packed =
+    "2|" +
+    courses
+      .filter(
+        (c) =>
+          typeof c?.c === "string" &&
+          /^\d{4}-?\d{4}$/.test(c.c) &&
+          Number.isInteger(c.y) &&
+          c.y >= 1 &&
+          c.y <= 4 &&
+          SEM_CHAR[c.s] != null,
+      )
+      .map((c) => `${c.c.replace(/-/g, "")}:${c.y}${SEM_CHAR[c.s]}`)
+      .join(",");
+  return toBase64(packed).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
 }
 
 /** Unpack a plan token. Returns null on anything malformed (never throws). */
 export function decodePlan(token: string): SharedCourse[] | null {
   try {
     const b64 = token.replace(/-/g, "+").replace(/_/g, "/");
-    const obj = JSON.parse(fromBase64(b64)) as { v?: number; c?: unknown };
+    const raw = fromBase64(b64);
+
+    // v2 — the compact form. Anything malformed falls through to null via the
+    // same validation the JSON path uses.
+    if (raw.startsWith("2|")) {
+      // A malformed entry drops; it does not sink the link. One corrupt row in
+      // a pasted URL should still let a friend import the other six — the same
+      // forgiveness the v1 path has had since audit-r2.
+      const out: SharedCourse[] = [];
+      for (const part of raw.slice(2).split(",")) {
+        if (!part) continue;
+        const m = /^(\d{4})(\d{4}):(\d)([FSU])$/.exec(part);
+        if (!m) continue;
+        const year = Number(m[3]);
+        if (year < 1 || year > 4) continue;
+        const sem = CHAR_SEM[m[4]!];
+        if (!sem) continue;
+        out.push({ c: `${m[1]}-${m[2]}`, y: year, s: sem });
+      }
+      return out.length > 0 ? out : null;
+    }
+
+    const obj = JSON.parse(raw) as { v?: number; c?: unknown };
     if (!obj || !Array.isArray(obj.c)) return null;
     const out: SharedCourse[] = [];
     for (const x of obj.c as unknown[]) {
@@ -147,7 +196,8 @@ export function buildPlanShareText(
       : `I built a degree plan in Pakamon — view and copy it here:\n${url}`;
   }
 
-  const credits = courses.reduce((sum, c) => sum + (c.credits || 0), 0);
+  // Deliberately computed AFTER `listed` below, so the count, the credits and
+  // the bullets all describe one semester rather than three different sets.
   // Lead with the semester the plan is mostly about, so the message has a subject.
   const counts = new Map<string, number>();
   for (const c of courses) {
@@ -160,15 +210,23 @@ export function buildPlanShareText(
     ? `${YEAR_HE[Number(topYear)] ?? ""} ${SEMESTER_HE[topSem!] ?? ""}`.trim()
     : `Year ${topYear}, ${topSem!.toLowerCase()}`;
 
-  const names = courses
+  // The headline names ONE semester; the bullets used to be the first four
+  // courses in query order, so the two routinely described different terms —
+  // a message that contradicts its own title in four lines.
+  const inLeadSemester = courses.filter(
+    (c) => String(c.year) === topYear && c.semester === topSem,
+  );
+  const listed = inLeadSemester.length > 0 ? inLeadSemester : courses;
+  const credits = listed.reduce((sum, c) => sum + (c.credits || 0), 0);
+  const names = listed
     .slice(0, NAMED_COURSES)
     .map((c) => (isHe ? c.nameHe : (c.nameEn ?? c.nameHe)));
-  const more = courses.length - names.length;
+  const more = listed.length - names.length;
 
   const lines: string[] = [];
   if (isHe) {
     lines.push(`*תוכנית התואר שלי — ${label}*`);
-    lines.push(`${courses.length === 1 ? "קורס אחד" : `${heNoun(courses.length, "קורס", "קורסים")}`} · ${credits} ש״ס`);
+    lines.push(`${listed.length === 1 ? "קורס אחד" : `${heNoun(listed.length, "קורס", "קורסים")}`} · ${credits} ש״ס`);
     lines.push("");
     for (const n of names) lines.push(`• ${n}`);
     if (more > 0) lines.push(`• ועוד ${more === 1 ? "קורס אחד" : `${heNoun(more, "קורס", "קורסים")}`}`);
@@ -176,7 +234,7 @@ export function buildPlanShareText(
     lines.push("אפשר לראות את הכול ולהעתיק לעצמכם:");
   } else {
     lines.push(`*My degree plan — ${label}*`);
-    lines.push(`${courses.length} course${courses.length === 1 ? "" : "s"} · ${credits} credits`);
+    lines.push(`${listed.length} course${listed.length === 1 ? "" : "s"} · ${credits} credits`);
     lines.push("");
     for (const n of names) lines.push(`• ${n}`);
     if (more > 0) lines.push(`• and ${more} more`);

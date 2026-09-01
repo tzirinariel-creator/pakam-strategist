@@ -1,3 +1,4 @@
+import { heNoun } from "@/lib/he-count";
 // =========================================================================
 // "Share my week" (#3/#16 + finish-plan day 2) — a plain-text WhatsApp message
 // of the weekly timetable, day by day. Pure and unit-tested; ends with a link
@@ -30,9 +31,30 @@ export function buildWeekShareText(
   // #42 (12.7) — WhatsApp-native formatting: *bold* day headers and a clean
   // bullet per class. A list someone would actually send. No emoji — the file
   // header says so, and the product carries none either.
+  // Ariel, 1.9: "עוד שיתוף זוועתי בוואטסאפ".
+  //
+  // Two things made it read badly. The label already contains an em dash
+  // ("שנה ב׳ — סמסטר א׳"), so the headline came out with two of them in one
+  // line; a middle dot separates cleanly instead. And the message opened
+  // straight into twenty bullet lines with nothing telling the reader what
+  // they were looking at — a summary line first gives the list a point.
+  const days = [...byDay.keys()].length;
+  const totalHours = sessions.reduce((sum, s) => {
+    const [sh, sm] = s.startTime.split(":").map(Number);
+    const [eh, em] = s.endTime.split(":").map(Number);
+    return sum + ((eh ?? 0) * 60 + (em ?? 0) - ((sh ?? 0) * 60 + (sm ?? 0))) / 60;
+  }, 0);
+
   const lines: string[] = [
-    isHe ? `*המערכת שלי — ${semesterLabel}*` : `*My timetable — ${semesterLabel}*`,
+    isHe
+      ? `*המערכת שלי · ${semesterLabel.replace(/\s*—\s*/g, " · ")}*`
+      : `*My timetable · ${semesterLabel.replace(/\s*—\s*/g, " · ")}*`,
   ];
+  lines.push(
+    isHe
+      ? `${heNoun(days, "יום", "ימים")} בקמפוס · ${Math.round(totalHours)} שעות שבועיות`
+      : `${days} day${days === 1 ? "" : "s"} on campus · ${Math.round(totalHours)} hours a week`,
+  );
   for (const day of DAY_ORDER) {
     const list = byDay.get(day);
     if (!list?.length) continue;
