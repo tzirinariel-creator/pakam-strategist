@@ -106,7 +106,20 @@ describe("getTimeFocus — registration is driven by the PUBLISHED round dates",
   });
 
   it("never carries a points prediction — only phase, round and a date-derived countdown", () => {
+    // An ALLOWLIST, deliberately. Asserting the exact key set is what makes
+    // this a guard on the iron rule rather than a spot-check: any new field
+    // has to be justified here in writing before it can ship.
+    //
+    // `gradesAlsoPending` was added when an imminent round took the top rung
+    // from pending grades (22-20). It is a boolean about the student's OWN
+    // ungraded courses — it says nothing about how many points a course will
+    // cost, which is the thing this test exists to keep out.
     const focus = student(il(2026, 9, 10));
-    expect(Object.keys(focus ?? {}).sort()).toEqual(["bidding", "days", "href", "kind"]);
+    expect(Object.keys(focus ?? {}).sort()).toEqual([
+      "bidding", "days", "gradesAlsoPending", "href", "kind",
+    ]);
+    // And the guard stated directly, so it survives the next field too.
+    const serialised = JSON.stringify(focus);
+    expect(serialised).not.toMatch(/points|נקודות|score|predict/i);
   });
 });

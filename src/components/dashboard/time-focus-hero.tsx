@@ -81,7 +81,18 @@ export function TimeFocusHero({ focus }: { focus: TimeFocus | null }) {
                   : isHe
                     ? "זה זמן ההכנה: סגרו את המערכת ובדקו חפיפות לפני שהמקצה נפתח."
                     : "This is prep time: lock your timetable and check clashes before the round opens.";
-          return { title, body, cta: isHe ? "לבדיקת חפיפות" : "Check clashes" };
+          // Registration outranks grades on the ladder now, so the grades ask
+          // would otherwise vanish from the home screen exactly when it is
+          // most useful — you cannot decide what to register for without
+          // knowing what you passed. It is appended, not competing.
+          const withGrades = focus.gradesAlsoPending
+            ? `${body} ${
+                isHe
+                  ? "ואם יש ציונים חדשים בגיליון — כדאי להזין אותם קודם, הם משנים מה בכלל צריך להירשם אליו."
+                  : "And if new grades are on your sheet, enter them first — they change what you need to register for."
+              }`
+            : body;
+          return { title, body: withGrades, cta: isHe ? "לבדיקת חפיפות" : "Check clashes" };
         }
         return {
           title: isHe ? `לקראת המכרז — ${daysUntilLabel(d, true)}` : `Toward bidding — ${daysUntilLabel(d, false)}`,

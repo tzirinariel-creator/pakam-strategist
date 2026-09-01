@@ -120,7 +120,12 @@ export function WhatMovesMyAverage({
                   className="rounded-xl border border-foreground/10 bg-foreground/[0.02] p-3"
                 >
                   <div className="flex items-baseline justify-between gap-3">
-                    <span className="min-w-0 flex-1 truncate text-sm font-medium text-foreground/85">
+                    {/* Wraps rather than truncates. At 375px "מיקרו כלכלה א׳ -
+                        החלטות כלכליות + תרגול" needs 250px and had 181, and
+                        this list exists to help someone choose WHICH course to
+                        sit again — the delta beside it is meaningless if you
+                        cannot read which course it belongs to. */}
+                    <span className="min-w-0 flex-1 text-balance text-sm font-medium text-foreground/85">
                       {l.courseName}
                     </span>
                     <span className="shrink-0 text-sm font-bold tabular-nums text-emerald-600 dark:text-emerald-400">

@@ -271,11 +271,20 @@ export function CourseDetailModal({
 // Cross-cohort community knowledge (#3/#16)
 // ---------------------------------------------------------------------------
 
-const VERDICT_META: Record<string, { he: string; en: string; cls: string }> = {
+// The reading half of 22-18. Fixing only the QUESTION would have left the
+// ANSWER rendering as "הייתי מדלג" on a required course — which is the version
+// that actually reaches other students, and the one that does harm. Same enum,
+// same colour, wording that matches what a person can do about it.
+const VERDICT_META: Record<string, { he: string; heRequired?: string; en: string; enRequired?: string; cls: string }> = {
   RECOMMEND: { he: "שווה", en: "Worth it", cls: "bg-emerald-500/15 text-emerald-600 dark:text-emerald-400" },
   NEUTRAL: { he: "ניטרלי", en: "Neutral", cls: "bg-foreground/10 text-foreground/70" },
-  AVOID: { he: "הייתי מדלג", en: "Would skip", cls: "bg-red-500/15 text-red-600 dark:text-red-400" },
+  AVOID: { he: "הייתי מדלג", heRequired: "לא נתן לי הרבה", en: "Would skip", enRequired: "Gave me little", cls: "bg-red-500/15 text-red-600 dark:text-red-400" },
 };
+
+/** The label to print for a stored verdict, given whether the course is required. */
+function verdictLabel(vm: (typeof VERDICT_META)[string], isHe: boolean, required: boolean) {
+  return isHe ? (required && vm.heRequired) || vm.he : (required && vm.enRequired) || vm.en;
+}
 
 /** 1–5 average rendered as filled/empty dots (rounded to nearest). */
 function Dots({ value }: { value: number | null }) {
@@ -499,7 +508,7 @@ function CommunityKnowledge({
                 <div className="mb-1 flex flex-wrap items-center gap-1.5">
                   {vm && (
                     <span className={cn("rounded-full px-1.5 py-0.5 text-[10px] font-medium", vm.cls)}>
-                      {isHe ? vm.he : vm.en}
+                      {verdictLabel(vm, isHe, course.isMandatory)}
                     </span>
                   )}
                   {r.tags.filter(isAllowedTag).map((tag) => (

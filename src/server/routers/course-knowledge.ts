@@ -396,6 +396,32 @@ export const courseKnowledgeRouter = createTRPCRouter({
    * the one who ALREADY entered their grades, was sent to /record and found
    * nothing to click. This is the list that CTA needs in order to be true.
    */
+  /**
+   * The one fact the review sheet needs about a course before it can ask an
+   * honest question: is it required?
+   *
+   * Ariel, 22-18: "למה שישאלו אם הייתי מוותר על קורס חובה?" The verdict row
+   * offered "הייתי מדלג" on מיקרו א׳ — an answer nobody can act on, and one
+   * that reaches the next student as advice they cannot take.
+   *
+   * It is a query rather than a prop because the sheet opens from FOUR places
+   * (catalog modal, post-grade toast, lineage first-contribution, review
+   * nudge) and only one of them holds the course record. Threading it through
+   * the one caller that knows is how a fix ends up applying on a quarter of
+   * the screens it was written for.
+   *
+   * Public: `isMandatory` is a fact about the curriculum, not about anyone.
+   */
+  courseFacts: publicProcedure
+    .input(z.object({ code: z.string().min(3).max(20) }))
+    .query(async ({ ctx, input }) => {
+      const course = await ctx.db.course.findFirst({
+        where: { code: input.code },
+        select: { isMandatory: true, courseType: true },
+      });
+      return { isMandatory: course?.isMandatory ?? false, found: course != null };
+    }),
+
   myReviewableCourses: protectedProcedure.query(async ({ ctx }) => {
     const [completed, mine] = await Promise.all([
       ctx.db.userCourse.findMany({

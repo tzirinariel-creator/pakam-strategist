@@ -27,6 +27,10 @@ export interface TimeFocus {
    *  Present only for kind === "bidding"; absent means we have no published
    *  round dates and the hero must fall back to window wording. */
   bidding?: BiddingPhase;
+  /** Set when registration took the top rung while grades were ALSO waiting.
+   *  The hero says so, because entering grades is part of preparing to
+   *  register, not a rival for the student's attention. */
+  gradesAlsoPending?: boolean;
 }
 
 export interface TimeFocusInput {
@@ -66,19 +70,43 @@ export function getTimeFocus(input: TimeFocusInput): TimeFocus | null {
   if (input.daysToNearestExam != null && input.daysToNearestExam <= 30) {
     return { kind: "exams", href: "/exam-planner", days: input.daysToNearestExam };
   }
-  if (input.gradesPending) {
+  const biddingTarget = getBiddingTarget(input.startYear, input.storedYear, now);
+  const phase = getBiddingPhase(now);
+
+  // Ariel, 22-20: "בוא נהיה קוהרנטיים לזמן — אם הבידינג קרוב אז בוא נראה שיש
+  // הרבה מקום לבידינג."
+  //
+  // Registration used to sit BELOW grades on this ladder, so on 1.9.26 — with
+  // round 1 opening on the 7th and closing on the 15th — the home screen led
+  // with "הציונים מתחילים להתפרסם" and pushed the round into a 1-of-3 carousel
+  // further down. That is the wrong way round: entering grades has no
+  // deadline and costs nothing if it waits a week, while missing the round
+  // costs a student their courses for the year.
+  //
+  // But grades are not a RIVAL of registration — they are part of preparing
+  // for it, since what you passed decides what you register for. So the two
+  // are not swapped; registration takes the rung and CARRIES the grades ask
+  // with it (`gradesAlsoPending`), and the hero says both.
+  //
+  // The window is deliberately tighter than `isBiddingRelevant`'s 45 days. A
+  // countdown six weeks out is not more urgent than grades arriving today; a
+  // round that opens inside a fortnight, or is already open, is.
+  const registrationIsImminent =
+    phase.kind !== "done" &&
+    (phase.kind !== "before" || (phase.daysUntil ?? 999) <= 14);
+
+  if (input.gradesPending && !(biddingTarget && isBiddingRelevant(now) && registrationIsImminent)) {
     return { kind: "grades", href: "/record?scan=1" };
   }
-  const biddingTarget = getBiddingTarget(input.startYear, input.storedYear, now);
   // A student past year 3 has nothing left to register for — `getBiddingTarget`
   // returning null is that signal, and it must silence the ask either way.
   if (biddingTarget && isBiddingRelevant(now)) {
-    const phase = getBiddingPhase(now);
     return {
       kind: "bidding",
       href: "/bidding",
       days: phase.daysUntil ?? undefined,
       bidding: phase,
+      gradesAlsoPending: input.gradesPending,
     };
   }
   // The teaching-start window is a PROXY for dates we don't have. When we do

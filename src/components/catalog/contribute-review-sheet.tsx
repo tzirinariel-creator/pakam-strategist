@@ -19,10 +19,23 @@ const TIP_MAX = 400;
 
 type Verdict = "RECOMMEND" | "NEUTRAL" | "AVOID";
 
-const VERDICTS: { value: Verdict; he: string; en: string; cls: string }[] = [
+// Ariel, 22-18: "למה שישאלו אם הייתי מוותר על קורס חובה?"
+//
+// He is right, and it was worse than merely odd. "הייתי מדלג" on מיקרו א׳ is
+// an answer nobody can act on — and it does not stop at the person answering:
+// it is stored as AVOID and reaches the next student as advice to skip a
+// course they are required to take.
+//
+// The stored value keeps ONE meaning across every course — study VALUE, and
+// the aggregate would be meaningless if AVOID meant "skip it" on an elective
+// and something else on a requirement. So the enum is untouched and only the
+// WORDING changes: on a required course the same judgement is offered as
+// "לא נתן לי הרבה", which is what a person can honestly say about a course
+// they had no choice about.
+const VERDICTS: { value: Verdict; he: string; heRequired?: string; en: string; enRequired?: string; cls: string }[] = [
   { value: "RECOMMEND", he: "שווה", en: "Worth it", cls: "data-[on=true]:border-emerald-500/60 data-[on=true]:bg-emerald-500/15 data-[on=true]:text-emerald-600 dark:data-[on=true]:text-emerald-400" },
   { value: "NEUTRAL", he: "ניטרלי", en: "Neutral", cls: "data-[on=true]:border-foreground/40 data-[on=true]:bg-foreground/10 data-[on=true]:text-foreground/80" },
-  { value: "AVOID", he: "הייתי מדלג", en: "Would skip", cls: "data-[on=true]:border-red-500/60 data-[on=true]:bg-red-500/15 data-[on=true]:text-red-600 dark:data-[on=true]:text-red-400" },
+  { value: "AVOID", he: "הייתי מדלג", heRequired: "לא נתן לי הרבה", en: "Would skip", enRequired: "Gave me little", cls: "data-[on=true]:border-red-500/60 data-[on=true]:bg-red-500/15 data-[on=true]:text-red-600 dark:data-[on=true]:text-red-400" },
 ];
 
 /**
@@ -45,6 +58,15 @@ export function ContributeReviewSheet({
 }) {
   const isHe = useLocale() === "he";
   const utils = api.useUtils();
+
+  // Resolved here rather than passed in: the sheet opens from four places and
+  // only the catalog modal holds the course record. A prop would have fixed
+  // the wording on one of the four doors.
+  const facts = api.courseKnowledge.courseFacts.useQuery(
+    { code: courseCode },
+    { enabled: open, staleTime: 60 * 60 * 1000 },
+  );
+  const isRequired = facts.data?.isMandatory ?? false;
 
   const [workload, setWorkload] = useState<number | null>(null);
   const [difficulty, setDifficulty] = useState<number | null>(null);
@@ -142,6 +164,13 @@ export function ContributeReviewSheet({
             <div className="mb-2 text-xs font-medium text-foreground/70">
               {isHe ? "היה שווה?" : "Was it worth it?"}
             </div>
+            {isRequired && (
+              <p className="mb-2 text-[11px] leading-snug text-foreground/45">
+                {isHe
+                  ? "קורס חובה — אף אחד לא באמת יכול לדלג עליו. מה שכן עוזר למי שאחריכם זה לדעת למה לצפות."
+                  : "A required course — nobody can actually skip it. What helps the next cohort is knowing what to expect."}
+              </p>
+            )}
             <div className="grid grid-cols-3 gap-2">
               {VERDICTS.map((v) => (
                 <button
@@ -154,7 +183,9 @@ export function ContributeReviewSheet({
                     v.cls
                   )}
                 >
-                  {isHe ? v.he : v.en}
+                  {isHe
+                    ? (isRequired && v.heRequired) || v.he
+                    : (isRequired && v.enRequired) || v.en}
                 </button>
               ))}
             </div>
