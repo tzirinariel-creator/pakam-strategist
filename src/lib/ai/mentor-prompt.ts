@@ -40,6 +40,8 @@ export interface MentorContext {
   completedCourses: CourseInfo[];
   /** Currently in-progress courses. */
   currentCourses: CourseInfo[];
+  /** Saved but not yet started — status PLANNED, which is what savePlan writes. */
+  plannedCourses: CourseInfo[];
   /** Courses offered next semester. NOT prerequisite-filtered — PPE students
    *  are exempt from per-course prerequisites (docs §9b); unmet prereqs travel
    *  as the `recommendedAfter` ordering hint below, never as a filter. */
@@ -323,6 +325,10 @@ export function buildMentorSystemPrompt(
 
   const completedBlock = formatCourseList(context.completedCourses, true);
   const currentBlock = formatCourseList(context.currentCourses, false);
+  // The plan the student saved. Without this block the King had no way to
+  // answer "what am I taking next semester" from their own data — which is the
+  // question the whole app exists to answer.
+  const plannedBlock = formatCourseList(context.plannedCourses, false);
   // Hand the King ALL mandatory courses + only a capped set of electives — never
   // the whole ~60-course catalog. The raw dump both read as an unhelpful wall AND
   // tripped Gemini's RECITATION filter (→ the "crash") when the model echoed it
@@ -413,7 +419,17 @@ ${personalAddress}
     // reads as "8 ש״ס" — which is exactly the sentence Ariel was shown moments
     // after entering thirteen completed courses. State the absence as a fact
     // instead of narrating arithmetic over zero.
-    context.completedCourses.length === 0 && context.currentCourses.length === 0
+    // Ariel, 1.9: "למה הוא אומר שלא שמרתי נתונים?"
+    //
+    // Because this test asked only about COMPLETED and IN_PROGRESS rows —
+    // and savePlan writes PLANNED. A student who had just saved an entire
+    // semester still matched "אין ולו קורס אחד שמור", and the King was then
+    // instructed to tell them their data had not been saved. The one thing
+    // an advisor must never do is contradict the screen the student is
+    // looking at.
+    context.completedCourses.length === 0 &&
+    context.currentCourses.length === 0 &&
+    context.plannedCourses.length === 0
       ? `
   ⚠️ אין עדיין ולו קורס אחד שמור לסטודנט הזה — סביר שהוא באמצע ההרשמה והנתונים שלו עוד לא נשמרו.
   לכן: אל תציין ש״ס שנצברו, ממוצע, פערים או "כמה נשאר" — כל מספר כזה יהיה חישוב על ריק, גם אם הוא מופיע למטה.
@@ -436,7 +452,14 @@ ${completedBlock}
 
 ## קורסים בלימוד כעת:
 ${currentBlock}
-
+${
+  context.plannedCourses.length > 0
+    ? `
+## התוכנית ששמר הסטודנט (עוד לא התחילו):
+${plannedBlock}
+`
+    : ""
+}
 ## קורסים זמינים לסמסטר הבא (פכ״מ פטור מדרישות-קדם — הרשימה לא מסוננת):
 ${availableBlock}
 

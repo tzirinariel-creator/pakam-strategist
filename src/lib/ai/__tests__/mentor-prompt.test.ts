@@ -20,6 +20,7 @@ function ctx(over: Partial<MentorContext> = {}): MentorContext {
     currentSemester: "SPRING",
     completedCourses: [],
     currentCourses: [],
+  plannedCourses: [],
     availableNextSemester: [],
     currentSemesterCredits: 22,
     ...over,

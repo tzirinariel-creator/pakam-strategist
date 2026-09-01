@@ -236,6 +236,13 @@ export async function buildUserContext(
     .filter((uc) => uc.status === "IN_PROGRESS")
     .map((uc) => mapToCourseInfo(uc, false));
 
+  // What the student actually saved. PLANNED is the status savePlan writes,
+  // and it was missing from the context entirely — so the King could not see
+  // a plan the student had just finished building, and said so out loud.
+  const plannedCourses: CourseInfo[] = userCourses
+    .filter((uc) => uc.status === "PLANNED")
+    .map((uc) => mapToCourseInfo(uc, false));
+
   const currentSemesterCredits = userCourses
     .filter(
       (uc) =>
@@ -295,6 +302,11 @@ export async function buildUserContext(
       difficultyLevel: true,
       failRate: true,
       prerequisites: true,
+      // The YEAR each course is given in. The query already narrows to the
+      // right SEMESTER, and this column was never fetched — which is why the
+      // King could offer a second-year a third-year course.
+      yearOffered: true,
+      semesterOffered: true,
       // So the King can lead with "what's mandatory this semester" instead of
       // dumping the whole catalog (#14).
       courseType: true,
@@ -308,6 +320,22 @@ export async function buildUserContext(
       // what the DB returned (guards against stale rows before cleanup).
       if (isForeignLawCourseCode(course.code)) return false;
       if (allUserCourseCodes.has(course.code)) return false;
+
+      // Ariel, 1.9: "למה המלך ממליץ לי על קורסים לא מהסמסטר שלי?"
+      //
+      // Because this list, despite its name, had no year or semester filter at
+      // all — it was every course in the programme the student had not already
+      // taken. `nextSemesterInfo.year` was computed a few lines above and never
+      // used. A second-year asking "what should I take next semester" was
+      // offered third-year courses that are not even given in that term.
+      //
+      // Same predicate the planner uses: an empty column means "unknown", and
+      // unknown is not a reason to hide a course.
+      const years = course.yearOffered ?? [];
+      if (years.length > 0 && !years.includes(nextSemesterInfo.year)) return false;
+      const terms = (course.semesterOffered ?? []).map(String);
+      if (terms.length > 0 && !terms.includes(nextSemesterInfo.semester)) return false;
+
       return true;
     })
     .map((course) => {
@@ -328,6 +356,7 @@ export async function buildUserContext(
     });
 
   return {
+    plannedCourses,
     // The mentor prompt is Hebrew, so guard the greeting name by script: a
     // Google-auth user whose only name is a Latin displayName ("Ariel") returns
     // null → the King uses a generic greeting instead of jamming "Ariel" into
