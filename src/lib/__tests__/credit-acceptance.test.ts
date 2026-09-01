@@ -10,6 +10,7 @@
 // rules as INFO progress (not red ERRORs) and that PKM-010 is not falsely green.
 
 import { describe, it, expect } from "vitest";
+import { CREDIT_REQUIREMENTS } from "@/lib/constants";
 import { readFileSync } from "node:fs";
 import path from "node:path";
 import { runRegulationEngine } from "@/lib/regulations/rule-engine";
@@ -213,11 +214,16 @@ describe("ACCEPTANCE — a complete doc-correct PPE degree reconciles with no ER
     expect(summary.failed).toBe(0);
   });
 
-  it("mandatory credits ≥ the program target (101)", () => {
+  it("mandatory credits ≥ the program target", () => {
+    // Reads the target instead of restating it. The literal 101 that used to be
+    // here agreed with the constant no matter whether the catalog could supply
+    // it — and when the supply fell to 97 this test stayed green while the app
+    // told a finished student they were short. What matters is that a complete
+    // degree CLEARS the gate, not what the gate's digits are.
     const pkm018 = summary.results.find((r) => r.ruleId === "PKM-018");
-    expect(b.mandatory).toBeGreaterThanOrEqual(101);
+    expect(b.mandatory).toBeGreaterThanOrEqual(CREDIT_REQUIREMENTS.MANDATORY_TOTAL);
     expect(pkm018?.passed).toBe(true);
-    expect(pkm018?.details?.required).toBe(101);
+    expect(pkm018?.details?.required).toBe(CREDIT_REQUIREMENTS.MANDATORY_TOTAL);
   });
 
   it("total credits reconcile to ≥ 150 (and buckets sum back to the total)", () => {

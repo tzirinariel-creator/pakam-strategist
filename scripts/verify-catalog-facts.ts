@@ -21,6 +21,7 @@
 
 import { PrismaClient } from "@prisma/client";
 import { PrismaPg } from "@prisma/adapter-pg";
+import { CREDIT_REQUIREMENTS } from "../src/lib/constants";
 import fs from "node:fs";
 import path from "node:path";
 
@@ -39,7 +40,54 @@ const connectionString = process.env.DATABASE_URL || process.env.DIRECT_URL;
 if (!connectionString) throw new Error("DATABASE_URL not set");
 const prisma = new PrismaClient({ adapter: new PrismaPg({ connectionString }) });
 
+/**
+ * The gate must never exceed what the catalog can supply.
+ *
+ * `mandatoryCredits` is what the app REQUIRES; the active catalog is what a
+ * student can actually EARN. When a migration deactivates a mandatory course
+ * the second number drops and the first does not, and nothing notices — until
+ * a third-year who has done everything published is told they are short, and
+ * told they may not register for a seminar. That is what happened: the gate sat
+ * at 101 while the supply had fallen to 97.
+ *
+ * This is the check that would have caught it the day it happened.
+ */
+async function verifyMandatoryReachable(): Promise<boolean> {
+  const mand = await prisma.course.aggregate({
+    _sum: { credits: true },
+    where: { isActive: true, courseType: "MANDATORY" },
+  });
+  const sem = await prisma.course.aggregate({
+    _sum: { credits: true },
+    where: { isActive: true, courseType: "SEMINAR", isMandatory: true },
+  });
+  const law = await prisma.course.aggregate({
+    _sum: { credits: true },
+    where: { isActive: true, courseType: "LAW_FOUNDATION" },
+  });
+  const LAW_CAP = 8;
+  const reachable =
+    (mand._sum.credits ?? 0) + (sem._sum.credits ?? 0) + Math.min(LAW_CAP, law._sum.credits ?? 0);
+  const gate = CREDIT_REQUIREMENTS.MANDATORY_TOTAL;
+  const ok = reachable >= gate;
+  console.log(
+    `${ok ? "PASS" : "FAIL"} mandatory supply: catalog can supply ${reachable} ש״ס, gate requires ${gate}`,
+  );
+  if (!ok) {
+    console.log(
+      `     A student who completes every published mandatory course would be told they are ${gate - reachable} ש״ס short.`,
+    );
+    console.log(
+      "     Either reactivate the missing mandatory courses, or lower mandatoryCredits in tau-ppe-2025.ts.",
+    );
+  }
+  return ok;
+}
+
 async function main() {
+  const supplyOk = await verifyMandatoryReachable();
+  if (!supplyOk) process.exitCode = 1;
+
   // ACTIVE only — the same set the landing page counts when it says
   // "כל 302 הקורסים". Counting a different set here is how one product ends
   // up printing two totals for the same thing.

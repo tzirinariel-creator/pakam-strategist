@@ -1,4 +1,5 @@
 import { describe, it, expect } from "vitest";
+import { CREDIT_REQUIREMENTS } from "@/lib/constants";
 import { runRegulationEngine } from "@/lib/regulations/rule-engine";
 import type { UserCourseWithCourse } from "@/types/degree";
 
@@ -226,16 +227,41 @@ describe("Credit structure 103/12/35 + seminar bucket (Task 2)", () => {
     expect(electiveRule?.details?.current).toBe(3);  // electives exclude the seminar
   });
 
-  it("PKM-018/019/020 enforce 101 / 12 / 35 minima", () => {
-    // mandatoryCredits is 101, NOT the official 103: a doc-correct COMPLETE plan
-    // earns 89 (MANDATORY) + 4 (PPE seminar) + 8 (LAW_FOUNDATION basket) = 101
-    // from the published catalog; the last 2 ש"ז is an unpublished future PPE
-    // course (see tau-ppe-2025.ts). Requiring 103 would permanently red-flag a
-    // complete student for a credit no course can supply.
+  it("PKM-018/019/020 enforce the PROGRAM's minima, whatever they currently are", () => {
+    // This used to hardcode 101 and restate the arithmetic behind it — "89
+    // (MANDATORY) + 4 (PPE seminar) + 8 (LAW_FOUNDATION) = 101". That was true
+    // when written, and then the catalog moved underneath it: the תשפ״ז
+    // migration deactivated two MANDATORY courses and the reachable supply fell
+    // to 97 (85 + 4 + 8), while the gate stayed at 101.
+    //
+    // A green test held that gap in place. It asserted a NUMBER, so it agreed
+    // with the constant no matter whether any student could reach it — and the
+    // real defect was invisible to it: a third-year who had completed every
+    // published mandatory course being told they were 4 ש״ס short and ineligible
+    // for a seminar.
+    //
+    // So it now asserts the WIRING — that each rule enforces the program's own
+    // figure — which is what this test is actually for. Whether that figure is
+    // reachable is checked where it can be measured, against the live catalog,
+    // by scripts/verify-catalog-facts.ts.
     const summary = runRegulationEngine([], null);
-    expect(summary.results.find((r) => r.ruleId === "PKM-018")?.details?.required).toBe(101);
-    expect(summary.results.find((r) => r.ruleId === "PKM-019")?.details?.required).toBe(12);
-    expect(summary.results.find((r) => r.ruleId === "PKM-020")?.details?.required).toBe(35);
+    expect(summary.results.find((r) => r.ruleId === "PKM-018")?.details?.required).toBe(
+      CREDIT_REQUIREMENTS.MANDATORY_TOTAL,
+    );
+    expect(summary.results.find((r) => r.ruleId === "PKM-019")?.details?.required).toBe(
+      CREDIT_REQUIREMENTS.SEMINAR_TOTAL,
+    );
+    expect(summary.results.find((r) => r.ruleId === "PKM-020")?.details?.required).toBe(
+      CREDIT_REQUIREMENTS.ELECTIVE_TOTAL,
+    );
+  });
+
+  it("the mandatory gate never exceeds the official published figure", () => {
+    // The direction that would silently harm a student: asking for more than
+    // the ידיעון itself requires.
+    expect(CREDIT_REQUIREMENTS.MANDATORY_TOTAL).toBeLessThanOrEqual(
+      CREDIT_REQUIREMENTS.MANDATORY_OFFICIAL,
+    );
   });
 });
 

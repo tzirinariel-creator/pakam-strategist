@@ -91,8 +91,32 @@ export const TAU_PPE_2025: ProgramDefinition = {
   // student. Revisit when TAU publishes the missing 2-ש"ז PPE course.
   creditRequirements: {
     total: 150,
-    // What the app REQUIRES of a student (the gate). 101, for the reason above.
-    mandatoryCredits: 101,
+    // What the app REQUIRES of a student (the gate).
+    //
+    // MEASURED against the live catalog, not assumed: active courseType
+    // MANDATORY = 24 courses / 85 ש״ס, the mandatory PPE seminar 0651-3001 = 4,
+    // and the LAW_FOUNDATION basket caps at 8. Maximum a student can actually
+    // earn today = 97.
+    //
+    // This was pinned at 101 on the reasoning in the comment above, and the
+    // supply had since fallen below it — two MANDATORY courses are marked
+    // isActive:false in the תשפ״ז migration (1411-9240 משפט וכלכלה, 2 ש״ס, which
+    // the domain rules name as a fixed part of the 14-credit law division, and
+    // PHIL-READING שיעור קריאה או יסוד בפילוסופיה, 2 ש״ס).
+    //
+    // The consequence was not cosmetic. A third-year who had completed every
+    // published mandatory course was told "נקודות חובה לא מספיקות: 97/101 —
+    // חסרות 4 ש״ס", the all-mandatory-complete rule could never fire, and the
+    // seminar rule told that same student "הרישום לסמינר דורש ציון עובר בכל
+    // קורסי החובה… נותרו 4 ש״ס חובה" — the app asserting they were ineligible
+    // to register for a seminar they were eligible for, and the advisor
+    // repeating it. A gate above the supply is a gate no one can pass.
+    //
+    // OWNER DECISION PENDING (Ariel): whether those two courses are still
+    // mandatory in תשפ״ז. If they are, reactivate them and this returns to 101.
+    // Until that is checked against the ידיעון, the gate must not exceed what a
+    // student can earn.
+    mandatoryCredits: 97,
     // What the ידיעון SAYS (the published figure). Ariel, #49: "זה לא מגיע ל-150
     // אפילו.. אתה סגור על מה שכתוב כאן?" He is right — the overview card printed
     // 150 as a headline over 101 + 35 + 12, which is 148, and an app that cannot
@@ -103,7 +127,10 @@ export const TAU_PPE_2025: ProgramDefinition = {
     // what it CHECKS — with the two missing credits named out loud rather than
     // quietly dropped.
     officialMandatoryCredits: 103,
-    unpublishedMandatoryCredits: 2,
+    /** The published figure minus what the active catalog can supply. Shown to
+     *  the student so 103 / 35 / 12 still sums to 150 and the gap is explained
+     *  rather than silently dropped. */
+    unpublishedMandatoryCredits: 6,
     seminarCredits: 12,
     electiveCredits: 35,
     focusAreaMin: 60,
