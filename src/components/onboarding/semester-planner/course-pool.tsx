@@ -231,6 +231,27 @@ export function CoursePool({
         {t("poolFrame")}
       </p>
 
+      {/* P-ג: "למה לא בונה תוכנית לימוד."
+          Pakamon arranges the GROUPS of the courses you chose and flags what
+          your requirements are still missing — it never chooses the courses.
+          That is a position, not a missing feature, and it was nowhere on the
+          screen: someone expecting a generated plan met silence and read it as
+          the tool falling short.
+
+          It lives HERE, at the pool, rather than on the assistant card where I
+          first put it — that card returns null unless the student has a course
+          with swappable groups, so on the very screens where nothing needed
+          arranging the answer would not have appeared at all. This is the
+          place the choosing actually happens.
+
+          Whether it should EVER pick courses is Ariel's call and is not being
+          taken here. */}
+      <p className="mb-3 text-[11px] leading-snug text-foreground/35">
+        {isHe
+          ? "את הקורסים אתם בוחרים — פכמון לא בוחר בשבילכם. הוא מסמן מה עוד חסר לדרישות, מה מתנגש, ומה כתוב בידיעון."
+          : "You choose the courses — Pakamon does not choose for you. It flags what your requirements still need, what clashes, and what the ידיעון says."}
+      </p>
+
       {/* Colour legend (#13). The dot on a bubble used to be its DISCIPLINE;
           it is now the COURSE's own colour, so it matches that course's block
           on the timetable beside this pool and its card on the plan board

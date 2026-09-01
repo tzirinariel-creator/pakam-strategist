@@ -142,25 +142,12 @@ export function PlannerAssistantCard({
             )}
           </p>
 
-          {/* P-ג: "למה לא בונה תוכנית לימוד." The app arranges the GROUPS of
-              courses you chose, and never chooses the courses — which is a
-              deliberate position, not a missing feature. It was simply never
-              said anywhere, so someone who expected a generated plan met
-              silence and read it as the tool falling short.
-
-              Whether it SHOULD ever pick courses is Ariel's decision and is
-              not being taken here; what is fixed is that the current answer is
-              now stated out loud, where the question comes up. */}
           <p className="mt-1.5 text-xs leading-relaxed text-foreground/50">
             {isHe
               ? "הוא עובר על כל הקבוצות של כל הקורסים שבחרתם ומחפש שילוב שמסתדר. התוכנית שלכם לא משתנה עד שתאשרו."
               : "It searches every group of every course you picked for a combination that works. Your plan does not change until you accept."}
           </p>
-          <p className="mt-1 text-[11px] leading-relaxed text-foreground/40">
-            {isHe
-              ? "את הקורסים עצמם אתם בוחרים — פכמון לא בוחר בשבילכם. הוא מסמן מה חסר לכם לדרישות, מה חופף, ומה הידיעון אומר; ההחלטה מה ללמוד היא שלכם."
-              : "You choose the courses — Pakamon does not choose for you. It flags what your requirements are still missing, what clashes, and what the ידיעון says; what to study stays your call."}
-          </p>
+
 
           <div className="mt-2.5 flex flex-wrap gap-2">
             {actions.map((a) => {
