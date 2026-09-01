@@ -14,6 +14,9 @@ export interface DisciplineDefinition {
   id: string; // "PHILOSOPHY", "ECONOMICS", etc.
   nameHe: string; // "פילוסופיה"
   nameEn: string; // "Philosophy"
+  /** What the programme PUBLISHES for this discipline, when it exceeds the
+   *  gate below because part of it has no catalog course yet. Display only. */
+  officialMinCredits?: number;
   minCredits: number; // minimum credits required
   color: string; // hex color for UI
   icon?: string; // optional Lucide icon name

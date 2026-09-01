@@ -319,8 +319,16 @@ const ACADEMIC_RULES: Tip[] = [
   },
   {
     id: "ar-2",
-    textEn: "The law module: 14 credits from 10 foundation courses. Choose wisely — some are harder than others.",
-    textHe: "מודול משפט: 14 ש״ס מ-10 קורסי בסיס. בחרו בחוכמה — חלקם קשים יותר מאחרים.",
+    // #20. Both figures failed against the live catalog. The basket holds NINE
+    // active LAW_FOUNDATION courses, not ten — and the 14 was never a basket
+    // figure at all: the division is חקיקה ורגולציה (4, fixed) + משפט וכלכלה
+    // (2, fixed) + 8 ש״ס chosen from the basket. Only 8 of the 14 are a choice.
+    //
+    // A tip that names a basket size is a tip that goes stale the next time the
+    // catalog moves, so it no longer names one — it states the STRUCTURE, which
+    // is what a student needs and what the ידיעון actually fixes.
+    textEn: "The law division: 14 credits — Legislation & Regulation and Law & Economics are fixed, plus 8 credits you choose from the foundation basket.",
+    textHe: "חטיבת המשפט: 14 ש״ס — חקיקה ורגולציה ומשפט וכלכלה קבועים, ועוד 8 ש״ס מקורסי הבסיס לבחירתכם.",
     category: "academic_rule",
     icon: Scale,
   },

@@ -82,8 +82,21 @@ export function RegulationsContent() {
       )}
 
       {/* Compliance data — the overview verdict, then the red-flags-first,
-          thematically-grouped detail (no more wall of 25 severity-bucketed cards). */}
-      {summary && (
+          thematically-grouped detail (no more wall of 25 severity-bucketed cards).
+          
+          Gated on courseCount so the verdict REPLACES the empty-plan card
+          instead of sitting under it. #22: with nothing entered, both painted —
+          so a student who had added no courses read "עדיין לא הוספתם קורסים"
+          and, directly beneath it, a green shield saying "אתם עומדים בכל כללי
+          התקנון — אין שום הפרה".
+          
+          The engine is right: zero credits violates nothing. But "you comply"
+          is a verdict about a plan, and there is no plan — so it is an answer
+          to a question nobody asked, printed as reassurance on the one screen
+          whose job is to tell a student whether they are on track. The
+          empty-state copy already says the true thing ("ברגע שתוסיפו קורסים,
+          נבדוק אוטומטית"), so nothing new is claimed and nothing is lost. */}
+      {summary && summary.courseCount > 0 && (
         <>
           <ComplianceOverview summary={summary} />
 

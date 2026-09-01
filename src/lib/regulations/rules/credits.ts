@@ -91,6 +91,18 @@ export const ruleMandatoryCredits: RegulationRule = (ctx: RuleContext) => {
   const current = ctx.creditBreakdown.mandatory;
   const passed = current >= required;
 
+  // #49. This screen prints PKM-001 as "/150" a few rows above, so a student can
+  // add the buckets and find they do not reach it. The gap is real and it is
+  // ours to explain, not to hide: the ידיעון publishes a larger mandatory
+  // figure than the active catalog can currently supply, and we check against
+  // what they can actually earn. Said here, once, where the smaller number is
+  // printed.
+  const official = ctx.programDefinition.creditRequirements.officialMandatoryCredits ?? required;
+  const officialNote =
+    official > required
+      ? ` (הידיעון מפרסם ${official} ש״ס חובה; ${official - required} מהן עדיין בלי קורס פעיל בקטלוג, אז אנחנו בודקים אתכם מול ${required}.)`
+      : " (נכון לתשפ״ו)";
+
   return result(
     "PKM-018",
     "Mandatory Credits",
@@ -101,8 +113,8 @@ export const ruleMandatoryCredits: RegulationRule = (ctx: RuleContext) => {
       ? `Mandatory credits met: ${current}/${required} SH"S.`
       : `Mandatory credits insufficient: ${current}/${required} SH"S. Need ${required - current} more.`,
     passed
-      ? `נקודות חובה מתקיימות: ${current}/${required} ש״ס. (נכון לתשפ״ו)`
-      : `נקודות חובה לא מספיקות: ${current}/${required} ש״ס. חסרות ${required - current} ש״ס. (נכון לתשפ״ו)`,
+      ? `נקודות חובה מתקיימות: ${current}/${required} ש״ס.${officialNote}`
+      : `נקודות חובה לא מספיקות: ${current}/${required} ש״ס. חסרות ${required - current} ש״ס.${officialNote}`,
     { current, required, deficit: Math.max(0, required - current) }
   );
 };

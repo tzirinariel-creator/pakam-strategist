@@ -64,6 +64,11 @@ export const TAU_PPE_2025: ProgramDefinition = {
       // doc-correct COMPLETE plan reconciles instead of permanently red-flagging
       // students for credits no published course can supply. Revisit when TAU
       // publishes the missing course.
+      // The gate stays 13 (what the catalog delivers); the PUBLISHED figure is
+      // 29, and the overview card must show that one or its five discipline
+      // rows sum to 87 directly under a 103 headline — the same arithmetic
+      // Ariel caught at the top of the very same card (#49).
+      officialMinCredits: 29,
       minCredits: 13,
       color: "#6B7280",
       isFocusOption: false,

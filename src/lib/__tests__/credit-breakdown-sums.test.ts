@@ -19,6 +19,7 @@
 
 import { describe, it, expect } from "vitest";
 import { CREDIT_REQUIREMENTS } from "@/lib/constants";
+import { getProgramById } from "@/lib/programs/registry";
 
 describe("the displayed breakdown adds up to the displayed total", () => {
   it("official mandatory + electives + seminars === total", () => {
@@ -40,6 +41,27 @@ describe("the displayed breakdown adds up to the displayed total", () => {
     expect(CREDIT_REQUIREMENTS.TOTAL - gateSum).toBe(
       CREDIT_REQUIREMENTS.MANDATORY_UNPUBLISHED,
     );
+  });
+
+  it("the five discipline rows sum to the mandatory figure above them", () => {
+    // The gap this test did NOT cover the first time. #49 was fixed at the top
+    // of the overview card — 103 + 35 + 12 = 150 — while two sections down the
+    // same card listed five disciplines adding to 87, sixteen short of the 103
+    // they sit under. A test that checks only the headline lets the breakdown
+    // beneath it drift, which is exactly what happened.
+    const shown = getProgramById(null)
+      .disciplines.filter((d) => d.id !== "GENERAL" && d.minCredits > 0)
+      .reduce((sum, d) => sum + (d.officialMinCredits ?? d.minCredits), 0);
+    expect(shown).toBe(CREDIT_REQUIREMENTS.MANDATORY_OFFICIAL);
+  });
+
+  it("every displayed discipline figure is at least its gate", () => {
+    // The direction that would harm a student: displaying LESS than they are
+    // actually checked against.
+    for (const d of getProgramById(null).disciplines) {
+      if (d.id === "GENERAL" || d.minCredits <= 0) continue;
+      expect(d.officialMinCredits ?? d.minCredits).toBeGreaterThanOrEqual(d.minCredits);
+    }
   });
 
   it("never gates on more than a student can actually earn", () => {

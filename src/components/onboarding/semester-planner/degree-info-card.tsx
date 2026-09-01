@@ -22,9 +22,13 @@ import { getProgramById } from "@/lib/programs/registry";
 
 // ─── Discipline breakdown data (derived from ProgramDefinition) ─────
 
+// DISPLAY figures, so the five rows sum to the 103 headline above them. The
+// gate a student is actually checked against stays `minCredits` and lives in
+// credits.ts / credit-calculator.ts — see #49: the same card was fixed at the
+// top and still showed a breakdown adding to 87 two sections down.
 const DISCIPLINE_ROWS = getProgramById(null)
   .disciplines.filter((d) => d.id !== "GENERAL" && d.minCredits > 0)
-  .map((d) => ({ key: d.id, credits: d.minCredits }));
+  .map((d) => ({ key: d.id, credits: d.officialMinCredits ?? d.minCredits }));
 
 // ─── Section wrapper ────────────────────────────────────────────────
 
