@@ -380,7 +380,7 @@ export function PlannerContent() {
         {/* Live timetable — on top on a phone (order-first), sticky alongside
             the board on xl+ (order-none restores the natural side-by-side). */}
         <div className="order-first flex animate-stagger-3 flex-col gap-4 xl:order-none xl:sticky xl:top-4 xl:w-[380px] xl:shrink-0">
-          <PlannerLiveTimetable courses={courses} />
+          <PlannerLiveTimetable courses={courses} currentYear={currentYear} />
           {/* #40 — the offer belongs beside the artifact it copies. A student
               looking at their own week here is exactly the person for whom
               "put this in my calendar" is worth a tap; the same one-tap refusal

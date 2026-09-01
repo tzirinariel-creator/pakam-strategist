@@ -22,6 +22,8 @@ import type { UserCourseWithCourse } from "@/types/degree";
 interface PlannerLiveTimetableProps {
   /** The user's full plan (from getUserPlan) — re-rendered on every plan edit. */
   courses: UserCourseWithCourse[];
+  /** The student's own year of study — the tab shown until they pick one. */
+  currentYear: number;
 }
 
 /**
@@ -31,9 +33,12 @@ interface PlannerLiveTimetableProps {
  * getUserPlan — no separate fetch, no page change to see clashes. It follows the
  * board's selected year (shared planner store) and offers a Fall/Spring toggle.
  */
-export function PlannerLiveTimetable({ courses }: PlannerLiveTimetableProps) {
+export function PlannerLiveTimetable({ courses, currentYear }: PlannerLiveTimetableProps) {
   const isHe = useLocale() === "he";
-  const selectedYear = usePlannerStore((s) => s.selectedYear);
+  // Same resolution as the board beside it, from the same prop — otherwise the
+  // week and the board would show two different years. (#23/#24/#27)
+  const selectedYearRaw = usePlannerStore((s) => s.selectedYear);
+  const selectedYear = selectedYearRaw ?? currentYear;
 
   // Catalog WITH schedule sessions (cached) — resolves each planned course's grid.
   const coursesQuery = api.course.list.useQuery(undefined, {

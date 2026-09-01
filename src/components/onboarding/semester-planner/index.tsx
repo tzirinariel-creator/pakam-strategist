@@ -535,38 +535,82 @@ export function SemesterPlanner({
     setShowSummary(true);
   }, [setShowSummary]);
 
+  const handleSwitchSemester = useCallback(
+    (targetYear: number, targetSemester: "FALL" | "SPRING") => {
+      // Don't switch to the same semester
+      if (targetYear === currentYear && targetSemester === currentSemester) return;
+
+      // Save current semester to completedSemesters if not already there and has courses
+      const currentKey = `${currentYear}-${currentSemester}`;
+      const currentCourseIds = [
+        ...mandatoryIds,
+        ...Array.from(selectedCourseIds).filter((id) => !mandatoryIds.has(id)),
+      ];
+
+      setCompletedSemesters((prev) => {
+        // Remove target semester if it was previously completed (we're re-opening it)
+        const targetKey = `${targetYear}-${targetSemester}`;
+        const withoutTarget = prev.filter(
+          (s) => `${s.year}-${s.semester}` !== targetKey
+        );
+        // Save current semester (replace if exists)
+        const withoutCurrent = withoutTarget.filter(
+          (s) => `${s.year}-${s.semester}` !== currentKey
+        );
+        return [
+          ...withoutCurrent,
+          { year: currentYear, semester: currentSemester, courseIds: currentCourseIds },
+        ];
+      });
+
+      // Load previously planned courses for target semester (if any)
+      const targetPlanned = completedSemesters.find(
+        (s) => s.year === targetYear && s.semester === targetSemester
+      );
+      const restoredIds = targetPlanned
+        ? new Set(targetPlanned.courseIds)
+        : new Set<string>();
+
+      setCurrentYear(targetYear);
+      setCurrentSemester(targetSemester);
+      setSelectedCourseIds(restoredIds);
+      setShowSummary(false);
+      undoStack.current = [];
+      redoStack.current = [];
+    },
+    [currentYear, currentSemester, mandatoryIds, selectedCourseIds, completedSemesters, setShowSummary]
+  );
+
+  // Ariel, #23/#24: "לדעתי תכננתי את הקורסים וזה נמחק משום מה."
+  //
+  // This is where courses were actually destroyed, and it was a second copy of
+  // handleSwitchSemester that had drifted. Both answer the same question —
+  // "change which semester I am editing" — but this one advanced the year and
+  // then called setSelectedCourseIds(new Set()) WITHOUT removing the target's
+  // entry from completedSemesters and WITHOUT restoring its saved courseIds.
+  //
+  // So the board then claimed the target semester held nothing. handleFinish
+  // rebuilds that semester's entry from the (empty) board and filters out the
+  // saved one, and savePlan's reconcile deletes exactly what the payload omits.
+  // Every course the student had already saved in that semester was deleted
+  // from the database — and because completedCourseIds still counted them, the
+  // rebuilt entry could be literally empty, taking the mandatory rows too.
+  //
+  // Not an exotic path: on a mandatory-heavy semester the board opens straight
+  // on the summary, where "תכננו את הסמסטר הבא" is the FILLED primary button
+  // and "סיימתי" is the outline one beside it.
+  //
+  // Delegating instead of duplicating: handleSwitchSemester already stores the
+  // current semester, strips and restores the target, and clears the undo
+  // stacks. One path, so neither can forget the restore again. markDirty stays
+  // HERE because switching does not set it and this advance does mutate saved
+  // state by folding mandatoryIds into the stored entry.
   const handlePlanNext = useCallback(() => {
     markDirty();
-    // Save current semester
-    const currentKey = `${currentYear}-${currentSemester}`;
-    const currentCourseIds = [
-      ...mandatoryIds,
-      ...Array.from(selectedCourseIds).filter((id) => !mandatoryIds.has(id)),
-    ];
-    setCompletedSemesters((prev) => {
-      const withoutCurrent = prev.filter(
-        (s) => `${s.year}-${s.semester}` !== currentKey
-      );
-      return [
-        ...withoutCurrent,
-        { year: currentYear, semester: currentSemester, courseIds: currentCourseIds },
-      ];
-    });
-
-    // Advance to next semester
-    if (currentSemester === "FALL") {
-      setCurrentSemester("SPRING");
-    } else {
-      setCurrentSemester("FALL");
-      setCurrentYear((y) => y + 1);
-    }
-
-    // Reset for new semester
-    setSelectedCourseIds(new Set());
-    setShowSummary(false);
-    undoStack.current = [];
-    redoStack.current = [];
-  }, [currentYear, currentSemester, mandatoryIds, selectedCourseIds, markDirty, setShowSummary]);
+    const nextYear = currentSemester === "FALL" ? currentYear : currentYear + 1;
+    const nextSemester: "FALL" | "SPRING" = currentSemester === "FALL" ? "SPRING" : "FALL";
+    handleSwitchSemester(nextYear, nextSemester);
+  }, [currentYear, currentSemester, markDirty, handleSwitchSemester]);
 
   const handleAddCustomCourse = useCallback(
     (course: CustomCourseDraft) => {
@@ -816,52 +860,6 @@ export function SemesterPlanner({
     return "far";
   };
   const activeIsFar = horizonOf(currentYear, currentSemester) === "far";
-
-  const handleSwitchSemester = useCallback(
-    (targetYear: number, targetSemester: "FALL" | "SPRING") => {
-      // Don't switch to the same semester
-      if (targetYear === currentYear && targetSemester === currentSemester) return;
-
-      // Save current semester to completedSemesters if not already there and has courses
-      const currentKey = `${currentYear}-${currentSemester}`;
-      const currentCourseIds = [
-        ...mandatoryIds,
-        ...Array.from(selectedCourseIds).filter((id) => !mandatoryIds.has(id)),
-      ];
-
-      setCompletedSemesters((prev) => {
-        // Remove target semester if it was previously completed (we're re-opening it)
-        const targetKey = `${targetYear}-${targetSemester}`;
-        const withoutTarget = prev.filter(
-          (s) => `${s.year}-${s.semester}` !== targetKey
-        );
-        // Save current semester (replace if exists)
-        const withoutCurrent = withoutTarget.filter(
-          (s) => `${s.year}-${s.semester}` !== currentKey
-        );
-        return [
-          ...withoutCurrent,
-          { year: currentYear, semester: currentSemester, courseIds: currentCourseIds },
-        ];
-      });
-
-      // Load previously planned courses for target semester (if any)
-      const targetPlanned = completedSemesters.find(
-        (s) => s.year === targetYear && s.semester === targetSemester
-      );
-      const restoredIds = targetPlanned
-        ? new Set(targetPlanned.courseIds)
-        : new Set<string>();
-
-      setCurrentYear(targetYear);
-      setCurrentSemester(targetSemester);
-      setSelectedCourseIds(restoredIds);
-      setShowSummary(false);
-      undoStack.current = [];
-      redoStack.current = [];
-    },
-    [currentYear, currentSemester, mandatoryIds, selectedCourseIds, completedSemesters, setShowSummary]
-  );
 
   // Can we plan more semesters?
   const hasMoreSemesters = currentYear < 3 || (currentYear === 3 && currentSemester === "FALL");

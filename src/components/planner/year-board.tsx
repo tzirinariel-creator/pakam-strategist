@@ -40,7 +40,11 @@ export function YearBoard({ courses, currentYear }: YearBoardProps) {
   const tCredits = useTranslations("credits");
   const isHe = useLocale() === "he";
 
-  const selectedYear = usePlannerStore((s) => s.selectedYear);
+  // null = the student has not picked a tab, so show the year they are actually
+  // in. Resolved HERE rather than seeded into the store, so an explicit tab
+  // click still wins and nothing has to race the profile query. (#23/#24/#27)
+  const selectedYearRaw = usePlannerStore((s) => s.selectedYear);
+  const selectedYear = selectedYearRaw ?? currentYear;
   const setSelectedYear = usePlannerStore((s) => s.setSelectedYear);
 
   const [activeCourse, setActiveCourse] = useState<UserCourseWithCourse | null>(null);
