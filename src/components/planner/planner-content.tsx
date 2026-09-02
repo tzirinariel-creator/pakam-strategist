@@ -20,7 +20,7 @@ import { BiddingWorksheet } from "./bidding-worksheet";
 import { PlannerLiveTimetable } from "./planner-live-timetable";
 import { DegreeStatus } from "@/components/dashboard/degree-status";
 import { api } from "@/lib/trpc/react";
-import { deriveYearOfStudy } from "@/lib/academic-calendar";
+import { deriveYearOfStudy, getPlanningAnchor } from "@/lib/academic-calendar";
 import { getBiddingTarget } from "@/lib/bidding-target";
 import { ThemedLoader } from "@/components/ui/themed-loader";
 import { cn } from "@/lib/utils";
@@ -137,6 +137,29 @@ export function PlannerContent() {
   // Year of study is DERIVED from the calendar (#39/#43) — powers the live
   // "בלימוד" tag on cards of the current semester.
   const currentYear = deriveYearOfStudy(profileQuery.data?.startYear, profileQuery.data?.currentYear ?? 1);
+
+  // #23/#27 שוב, 2.9 — ותיקון של תיקון שלי.
+  //
+  // כשסגרתי את "תכננתי את הקורסים וזה נמחק" גרמתי ללוח להיפתח על השנה שהסטודנט
+  // *נמצא בה*. בזמן לימודים זה נכון. בחופשת הסמסטר זה השנה שהרגע נגמרה.
+  //
+  // נמדד היום, 2.9.2026, על חשבון עם startYear=2024:
+  //   getAcademicNow  → 2025 SPRING **break**
+  //   deriveYearOfStudy → שנה ב׳     ← הלוח נפתח כאן
+  //   getPlanningAnchor → 2026 FALL   = שנה ג׳
+  //   getBiddingTarget  → שנה ג׳ · סמסטר א׳  ← מגישים על זה בעוד 5 ימים
+  //
+  // כלומר סטודנט לוחץ "לבדיקת חפיפות" למקצה 1, ונוחת על השנה שהסתיימה.
+  // `getPlanningAnchor` כבר קיים ומתועד כ"היכן התכנון צריך להיפתח" — הלוח פשוט
+  // לא קרא לו. `currentYear` נשאר בדיוק כפי שהוא, כי הוא מזין את תגית "בלימוד",
+  // ושם דווקא *נכון* שקורס לא ייחשב נלמד בחופשה.
+  const planningAnchor = getPlanningAnchor();
+  const planningYear = deriveYearOfStudy(
+    profileQuery.data?.startYear,
+    profileQuery.data?.currentYear ?? 1,
+    planningAnchor.startYear,
+  );
+
   // #13/#15 (12.7) — bidding concerns the NEXT teaching semester (what you
   // actually submit requests for), never the running one.
   const biddingTarget = getBiddingTarget(profileQuery.data?.startYear, profileQuery.data?.currentYear ?? 1);
@@ -329,7 +352,12 @@ export function PlannerContent() {
       <div className="flex flex-col gap-5 xl:flex-row xl:items-start">
         <div className="flex min-w-0 flex-1 flex-col gap-5">
           <div className="animate-stagger-3">
-            <YearBoard courses={courses} currentYear={currentYear} />
+            <YearBoard
+              courses={courses}
+              currentYear={currentYear}
+              planningYear={planningYear}
+              planningSemester={planningAnchor.semester}
+            />
           </div>
 
           {/* Moved down from the top of the page — see the note above. */}

@@ -32,10 +32,20 @@ const YEARS = [1, 2, 3] as const;
 
 interface YearBoardProps {
   courses: UserCourseWithCourse[];
+  /** השנה שהסטודנט *לומד* בה — מזינה את תגית "בלימוד". בחופשה אין כזו. */
   currentYear: number;
+  /** השנה שהסטודנט *מתכנן* — הסמסטר הקרוב שמלמדים בו. זה הטאב שנפתח. */
+  planningYear: number;
+  /** הסמסטר הקרוב שמלמדים בו — הטאב שנפתח בטלפון. */
+  planningSemester: Semester;
 }
 
-export function YearBoard({ courses, currentYear }: YearBoardProps) {
+export function YearBoard({
+  courses,
+  currentYear,
+  planningYear,
+  planningSemester,
+}: YearBoardProps) {
   const tYear = useTranslations("year");
   const tCredits = useTranslations("credits");
   const isHe = useLocale() === "he";
@@ -44,7 +54,10 @@ export function YearBoard({ courses, currentYear }: YearBoardProps) {
   // in. Resolved HERE rather than seeded into the store, so an explicit tab
   // click still wins and nothing has to race the profile query. (#23/#24/#27)
   const selectedYearRaw = usePlannerStore((s) => s.selectedYear);
-  const selectedYear = selectedYearRaw ?? currentYear;
+  // `planningYear`, לא `currentYear`. בזמן לימודים הם זהים; בחופשת הסמסטר —
+  // כלומר בדיוק בימים שבהם נפתח הבידינג — הם נבדלים בשנה שלמה, והלוח נפתח על
+  // השנה שהסתיימה במקום על זו שמגישים עליה. נמדד ב-2.9.2026.
+  const selectedYear = selectedYearRaw ?? planningYear;
   const setSelectedYear = usePlannerStore((s) => s.setSelectedYear);
 
   // Ariel, #3, 2.9: "ההמלצה והתהליך הטבעי לכל משתמש כרגע היא לתכנן שני
@@ -63,7 +76,9 @@ export function YearBoard({ courses, currentYear }: YearBoardProps) {
   // where both genuinely fit, nothing changes: two columns, no tabs.
   // Moving a course between them without dragging already exists on the card
   // itself, so the tab boundary costs nothing.
-  const [mobileSemester, setMobileSemester] = useState<Semester>("FALL");
+  // ברירת המחדל היא הסמסטר הקרוב, לא "FALL" קבוע — אחרת סטודנט שפותח את הלוח
+  // באמצע סמסטר א׳ כדי לתכנן את ב׳ נוחת על הטאב הלא־נכון.
+  const [mobileSemester, setMobileSemester] = useState<Semester>(planningSemester);
 
   const [activeCourse, setActiveCourse] = useState<UserCourseWithCourse | null>(null);
 
