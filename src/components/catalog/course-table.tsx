@@ -19,6 +19,7 @@ import { CohortCourseChip } from "@/components/cohort/cohort-course-chip";
 import { ARAZIM_ENABLED, arazimView } from "@/lib/arazim/visibility";
 import { api } from "@/lib/trpc/react";
 import { cn } from "@/lib/utils";
+import { isFocusCourse } from "@/lib/focus-star";
 import type { Course } from "@/types/degree";
 import type { Discipline } from "@/types/enums";
 
@@ -46,6 +47,23 @@ interface CourseTableProps {
   allCourses?: Course[];
   /** The student's chosen focus-area discipline — its courses get starred. */
   focusArea?: string | null;
+  /**
+   * The student's OWN discipline assignments, by course code (#13, 2.9).
+   *
+   * 123 of the 304 active courses carry no discipline, and that is faithful to
+   * the ידיעון: it lists seminars under "סמינר 4 ש״ס", by credit count, never
+   * by field. The ידיעון's rule lives in a different line — "סמינר בתחום
+   * המיקוד בו תוגש עבודה סמינריונית" — which makes the field a property of
+   * where the STUDENT submits the paper, not of the course. That is why the
+   * app asks (unassigned-discipline-prompt) and stores a per-user override.
+   *
+   * The credit calculator, the planner and the course colours all honour that
+   * override. This table did not: it read `course.discipline` alone, so a
+   * seminar the student had already assigned to philosophy counted toward the
+   * focus area on one screen and sat unstarred on this one. Same course, two
+   * answers.
+   */
+  overrides?: Record<string, string>;
 }
 
 /** Difficulty level → localized label + color class. */
@@ -114,7 +132,7 @@ function formatSemesters(semesters: string[], locale: string): string {
 // Component
 // ---------------------------------------------------------------------------
 
-export function CourseTable({ courses, allCourses, focusArea }: CourseTableProps) {
+export function CourseTable({ courses, allCourses, focusArea, overrides }: CourseTableProps) {
   const t = useTranslations("catalog");
   const tCourseType = useTranslations("courseType");
   const tCommon = useTranslations("common");
@@ -407,7 +425,7 @@ export function CourseTable({ courses, allCourses, focusArea }: CourseTableProps
 
         <TableBody>
           {sortedCourses.map((course) => {
-            const isFocus = !!focusArea && course.discipline === focusArea;
+            const isFocus = isFocusCourse(course.code, course.discipline, focusArea, overrides);
             return (
             <TableRow
               key={course.id}

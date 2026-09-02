@@ -68,6 +68,20 @@ export function CatalogContent() {
   // The student's focus area — its courses get starred + tinted in the table.
   const { data: profile } = api.user.getProfile.useQuery();
 
+  // …and the student's OWN discipline assignments (#13). The ידיעון files
+  // seminars by credit count, so 123 courses carry no field of their own and
+  // the student assigns them. The credit calculator already honours that; the
+  // star here did not, so an assigned seminar counted toward the focus area on
+  // the record screen and sat unstarred in the catalog.
+  const { data: plan } = api.plan.getUserPlan.useQuery(undefined, { staleTime: 5 * 60 * 1000 });
+  const overrides = useMemo(() => {
+    const m: Record<string, string> = {};
+    for (const uc of plan?.courses ?? []) {
+      if (uc.disciplineOverride && uc.course?.code) m[uc.course.code] = uc.disciplineOverride;
+    }
+    return m;
+  }, [plan]);
+
   // Cast the returned data to our Course type
   const typedCourses = (courses ?? []) as unknown as Course[];
 
@@ -141,7 +155,12 @@ export function CatalogContent() {
       {/* Course Table */}
       {!isLoading && !error && (
         <div className="animate-stagger-3">
-          <CourseTable courses={typedCourses} allCourses={allCourses} focusArea={profile?.focusArea ?? null} />
+          <CourseTable
+            courses={typedCourses}
+            allCourses={allCourses}
+            focusArea={profile?.focusArea ?? null}
+            overrides={overrides}
+          />
         </div>
       )}
 
