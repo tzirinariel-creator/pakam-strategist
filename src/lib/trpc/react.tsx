@@ -1,7 +1,7 @@
 "use client";
 
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { createTRPCReact, httpBatchLink } from "@trpc/react-query";
+import { createTRPCReact, httpBatchLink, httpLink, splitLink } from "@trpc/react-query";
 import superjson from "superjson";
 import { useState, type ReactNode } from "react";
 import type { AppRouter } from "@/server/trpc/router";
@@ -46,14 +46,40 @@ export function TRPCReactProvider({ children }: { children: ReactNode }) {
   const [trpcClient] = useState(() =>
     api.createClient({
       links: [
-        httpBatchLink({
-          url: `${getBaseUrl()}/api/trpc`,
-          transformer: superjson,
-          headers() {
-            return {
-              "x-trpc-source": "react",
-            };
-          },
+        // Found by reading the network panel on /catalog: one GET was 5,747
+        // characters long. `courseKnowledge.getForCourses` sends EVERY course
+        // code in the catalog as a query parameter, so that URL grows WITH the
+        // catalog — 304 courses today at roughly 19 encoded characters each.
+        // Around 450 it crosses the 8KB line that many proxies, CDNs and mobile
+        // carriers enforce, and the catalog would start failing for some
+        // students and not others, with no error message we ever wrote.
+        //
+        // The obvious fix — `maxURLLength` on the batch link — is wrong here,
+        // and I only found out by checking: tRPC does not fall back for an
+        // operation that exceeds the limit ON ITS OWN. It rejects it with
+        // "Input is too big for a single dispatch". Capping the length would
+        // have silently removed the cohort data from the catalog.
+        //
+        // So the one oversized query goes by POST, where there is no URL at all
+        // to outgrow. Everything else keeps the batched GET, which is what makes
+        // the rest of the app a handful of requests instead of dozens.
+        splitLink({
+          condition: (op) => op.path === "courseKnowledge.getForCourses",
+          true: httpLink({
+            url: `${getBaseUrl()}/api/trpc`,
+            transformer: superjson,
+            methodOverride: "POST",
+            headers() {
+              return { "x-trpc-source": "react" };
+            },
+          }),
+          false: httpBatchLink({
+            url: `${getBaseUrl()}/api/trpc`,
+            transformer: superjson,
+            headers() {
+              return { "x-trpc-source": "react" };
+            },
+          }),
         }),
       ],
     })

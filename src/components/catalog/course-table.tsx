@@ -164,11 +164,34 @@ export function CourseTable({ courses, allCourses, focusArea, overrides }: Cours
     () => [...new Set(gatedCourses.map((c) => c.code))].sort(),
     [gatedCourses],
   );
-  const cohortKnowledgeQuery = api.courseKnowledge.getForCourses.useQuery(
-    { courseCodes: cohortCourseCodes },
-    { staleTime: 5 * 60_000, enabled: cohortCourseCodes.length > 0 },
+
+  // The server caps this input at 200 course codes — a sensible guard on an
+  // endpoint that reads the whole cohort archive. The catalog has 304 and sent
+  // all of them, so the request came back 400 EVERY TIME, and the cohort chips
+  // in the catalog have simply never appeared for anyone. Nothing said so: the
+  // query failed, the component rendered its no-data branch, and a missing chip
+  // is indistinguishable from a course nobody has reviewed.
+  //
+  // Found by reading the network panel, not by a report — the only visible
+  // trace was a 207 on the batch and a 400 in the server log.
+  //
+  // Two chunks of at most 200, merged. Sorted upstream, so a re-sort of the
+  // same set does not change the query keys and refetch.
+  const CHUNK = 200;
+  const chunkA = useMemo(() => cohortCourseCodes.slice(0, CHUNK), [cohortCourseCodes]);
+  const chunkB = useMemo(() => cohortCourseCodes.slice(CHUNK, CHUNK * 2), [cohortCourseCodes]);
+  const knowledgeA = api.courseKnowledge.getForCourses.useQuery(
+    { courseCodes: chunkA },
+    { staleTime: 5 * 60_000, enabled: chunkA.length > 0 },
   );
-  const cohortKnowledgeByCode = cohortKnowledgeQuery.data;
+  const knowledgeB = api.courseKnowledge.getForCourses.useQuery(
+    { courseCodes: chunkB },
+    { staleTime: 5 * 60_000, enabled: chunkB.length > 0 },
+  );
+  const cohortKnowledgeByCode = useMemo(() => {
+    if (!knowledgeA.data && !knowledgeB.data) return undefined;
+    return { ...(knowledgeA.data ?? {}), ...(knowledgeB.data ?? {}) };
+  }, [knowledgeA.data, knowledgeB.data]);
 
   // ---- Sorting logic ----
   const sortedCourses = useMemo(() => {

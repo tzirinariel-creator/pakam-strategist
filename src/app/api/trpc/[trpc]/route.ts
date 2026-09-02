@@ -14,6 +14,15 @@ const handler = (req: Request) =>
     endpoint: "/api/trpc",
     req,
     router: appRouter,
+    // One query — courseKnowledge.getForCourses — is sent by POST from the
+    // client, because its input is every course code in the catalog and the
+    // GET URL had already reached 5,747 characters. Without this the adapter
+    // rejects a POST for a query outright.
+    //
+    // Safe in this direction: it permits a READ over POST, never a write over
+    // GET. And every response here is already `private, no-store`, so nothing
+    // was relying on these being cacheable GETs.
+    allowMethodOverride: true,
     createContext: () => createTRPCContext({ headers: req.headers }),
     // SEC — same bug class as the ICS calendar route, one layer up. Next's
     // default for a route handler is `cache-control: public, max-age=0,
