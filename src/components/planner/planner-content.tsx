@@ -347,12 +347,12 @@ export function PlannerContent() {
               <div className="flex flex-wrap items-baseline gap-2">
                 <h2 className="text-base font-bold text-foreground/80">
                   {isHe
-                    ? `לקראת המכרז — ${biddingTarget.labelHe} הקרוב`
+                    ? `לקראת הבידינג — ${biddingTarget.labelHe} הקרוב`
                     : `Toward the bidding round — the coming ${biddingTarget.semester === "FALL" ? "fall" : "spring"}`}
                 </h2>
                 <span className="text-xs text-foreground/45">
                   {isHe
-                    ? `הסמסטר נפתח ${daysUntilLabel(biddingTarget.daysUntilStart, true)} — המכרז מתקיים לפני כן`
+                    ? `הסמסטר נפתח ${daysUntilLabel(biddingTarget.daysUntilStart, true)} — הבידינג מתקיים לפני כן`
                     : `Semester starts ${daysUntilLabel(biddingTarget.daysUntilStart, false)} — bidding happens before`}
                 </span>
               </div>
@@ -381,7 +381,7 @@ export function PlannerContent() {
               ) : (
                 <div className="rounded-xl border border-border/60 bg-foreground/[0.02] p-4 text-xs leading-relaxed text-foreground/55">
                   {isHe
-                    ? `עוד לא תכננתם קורסים ל${biddingTarget.labelHe} הקרוב. גררו קורסים ללוח למעלה — ואז נבדוק לכם חפיפות ונכין רשימת-בדיקה למכרז.`
+                    ? `עוד לא תכננתם קורסים ל${biddingTarget.labelHe} הקרוב. גררו קורסים ללוח למעלה — ואז נבדוק לכם חפיפות ונכין רשימת-בדיקה לבידינג.`
                     : "You haven't planned the coming semester yet. Drag courses onto the board above — then we'll check clashes and prep your bidding checklist."}
                 </div>
               )}

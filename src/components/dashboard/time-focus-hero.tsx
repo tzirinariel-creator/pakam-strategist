@@ -95,7 +95,7 @@ export function TimeFocusHero({ focus }: { focus: TimeFocus | null }) {
           return { title, body: withGrades, cta: isHe ? "לבדיקת חפיפות" : "Check clashes" };
         }
         return {
-          title: isHe ? `לקראת המכרז — ${daysUntilLabel(d, true)}` : `Toward bidding — ${daysUntilLabel(d, false)}`,
+          title: isHe ? `לקראת הבידינג — ${daysUntilLabel(d, true)}` : `Toward bidding — ${daysUntilLabel(d, false)}`,
           body: isHe
             ? "סגרו את התוכנית לסמסטר הבא ובדקו חפיפות לפני שההרשמה נפתחת."
             : "Finalize next semester's plan and check clashes before registration opens.",

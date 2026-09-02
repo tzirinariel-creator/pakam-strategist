@@ -69,7 +69,7 @@ export function BiddingSeasonCard({
       <div className="min-w-0 flex-1 basis-48">
         <p className="text-sm font-semibold text-foreground/85">
           {isHe
-            ? `המכרז ל${target.labelHe} מתקרב`
+            ? `הבידינג ל${target.labelHe} מתקרב`
             : `Bidding for the coming ${target.semester === "FALL" ? "fall" : "spring"} is near`}
         </p>
         <p className="text-xs text-foreground/55">

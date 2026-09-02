@@ -270,7 +270,7 @@ export function BiddingWorksheet({
             <p className="flex items-center gap-1.5 rounded-lg border border-amber-400/30 bg-amber-400/[0.06] px-3 py-2 text-xs text-amber-600">
               <AlertTriangle className="size-3.5 shrink-0" />
               {isHe
-                ? `רק המינימום (5 × ${heNoun(check.minFloor / MIN_BID, "קורס", "קורסים")} = ${check.minFloor}) כבר עובר את המאגר שלכם — אי אפשר להתמכרז על כולם.`
+                ? `רק המינימום (5 × ${heNoun(check.minFloor / MIN_BID, "קורס", "קורסים")} = ${check.minFloor}) כבר עובר את המאגר שלכם — אי אפשר להגיש הצעה על כולם.`
                 : `The floor alone (5 × ${check.minFloor / MIN_BID} courses = ${check.minFloor}) exceeds your pool — you can't bid on all of them.`}
             </p>
           )}
@@ -326,7 +326,7 @@ export function BiddingWorksheet({
                   </div>
                   {issue === "below-min" && (
                     <p className="mt-1.5 text-[11px] text-red-500">
-                      {isHe ? `מתחת ל-${heNounF(MIN_BID, "נקודה", "נקודות")} אי אפשר להיכנס למכרז על הקורס.` : `Below ${MIN_BID} points you can't enter the auction for this course.`}
+                      {isHe ? `מתחת ל-${heNounF(MIN_BID, "נקודה", "נקודות")} אי אפשר להגיש הצעה על הקורס.` : `Below ${MIN_BID} points you can't enter the auction for this course.`}
                     </p>
                   )}
                   {issue === "not-integer" && (

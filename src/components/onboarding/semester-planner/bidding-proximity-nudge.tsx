@@ -87,7 +87,7 @@ export function BiddingProximityNudge({ now = new Date() }: { now?: Date }) {
             href="/bidding"
             className="mt-2.5 inline-flex items-center gap-1.5 text-xs font-semibold text-accent-brand hover:underline"
           >
-            {isHe ? "למסך המכרז — התאריכים ושני הסמסטרים" : "To the bidding screen — dates and both semesters"}
+            {isHe ? "למסך הבידינג — התאריכים ושני הסמסטרים" : "To the bidding screen — dates and both semesters"}
             <Arrow className="size-3.5" />
           </Link>
         </div>

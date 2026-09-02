@@ -33,6 +33,7 @@
 // It shows what is true: the dates, your plan, and where it collides.
 
 import { useMemo, useState } from "react";
+import { YEAR_CONFIG } from "@/lib/constants";
 import Link from "next/link";
 import { useLocale } from "next-intl";
 import { CalendarClock, ExternalLink, ArrowLeft, TriangleAlert, Copy, Check } from "lucide-react";
@@ -190,12 +191,12 @@ export function BiddingContent() {
         <div className="flex items-center gap-2">
           <CalendarClock className="size-5 text-accent-brand" />
           <h1 className="font-display text-2xl font-bold text-foreground/95">
-            {isHe ? "המכרז" : "Course bidding"}
+            {isHe ? "בידינג" : "Course bidding"}
           </h1>
         </div>
         <p className="text-sm leading-relaxed text-foreground/60">
           {isHe
-            ? "שני הסמסטרים יחד — כי המכרז מגיש את שניהם באותה פעם. כאן רואים את התאריכים, את מה שתכננתם, ואיפה יש התנגשות."
+            ? "שני הסמסטרים יחד — כי הבידינג מגיש את שניהם באותה פעם. כאן רואים את התאריכים, את מה שתכננתם, ואיפה יש התנגשות."
             : "Both semesters together — the round submits them in one sitting. Here are the dates, your plan, and where it collides."}
         </p>
       </header>
@@ -206,7 +207,13 @@ export function BiddingContent() {
       <section className="flex flex-col gap-3">
         <div className="flex flex-wrap items-baseline justify-between gap-2">
           <h2 className="font-display text-lg font-bold text-foreground/90">
-            {isHe ? `השנה שאתם מגישים עליה — שנה ${yearOfStudy}` : `The year you're bidding for — year ${yearOfStudy}`}
+            {/* Ariel, #8: "למה כתוב שנה 2 ולא שנה ב׳?" — the app names study
+                years by Hebrew letter everywhere else, and YEAR_CONFIG in
+                constants.ts already holds that mapping. This one line printed
+                the raw digit. */}
+            {isHe
+              ? `השנה שאתם מגישים עליה — ${YEAR_CONFIG[yearOfStudy as 1 | 2 | 3]?.nameHe ?? `שנה ${yearOfStudy}`}`
+              : `The year you're bidding for — ${YEAR_CONFIG[yearOfStudy as 1 | 2 | 3]?.nameEn ?? `year ${yearOfStudy}`}`}
           </h2>
           <span className="text-xs font-semibold tabular-nums text-foreground/55">
             {isHe ? (
@@ -232,7 +239,7 @@ export function BiddingContent() {
             <TriangleAlert className="mt-0.5 size-4 shrink-0 text-amber-600 dark:text-amber-400" />
             <p className="text-xs leading-relaxed text-foreground/70">
               {isHe
-                ? "אחד הסמסטרים ריק. המכרז מגיש את שני הסמסטרים יחד — סמסטר שלא הגשתם עליו בקשה נסגר, ומה שנשאר בו בסבב השני הוא מה שאחרים לא רצו."
+                ? "אחד הסמסטרים ריק. הבידינג מגיש את שני הסמסטרים יחד — סמסטר שלא הגשתם עליו בקשה נסגר, ומה שנשאר בו בסבב השני הוא מה שאחרים לא רצו."
                 : "One semester is empty. The round submits both together — a term you request nothing for fills up, and what's left in round two is what nobody else wanted."}
             </p>
           </div>
@@ -320,7 +327,7 @@ export function BiddingContent() {
         className="inline-flex w-fit items-center gap-1.5 rounded-xl border border-border/70 px-4 py-2 text-sm font-semibold text-foreground/80 transition-colors hover:border-foreground/30"
       >
         <ExternalLink className="size-4" />
-        {isHe ? "למערכת המכרז של האוניברסיטה" : "Open the university's bidding system"}
+        {isHe ? "למערכת הבידינג של האוניברסיטה" : "Open the university's bidding system"}
       </a>
 
       {/* The line this screen exists to be trusted for. */}

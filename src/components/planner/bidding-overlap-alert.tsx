@@ -95,7 +95,7 @@ export function BiddingOverlapAlert({
         <ShieldCheck className="size-4 shrink-0 text-emerald-500" />
         <p className="text-xs text-foreground/70">
           {isHe
-            ? "אין חפיפות בין הקורסים שבחרתם — אפשר להגיש את המכרז בראש שקט."
+            ? "אין חפיפות בין הקורסים שבחרתם — אפשר להגיש את הבידינג בראש שקט."
             : "No time clashes between your courses this semester — safe to bid."}
           {unscheduledCount > 0 && (
             <span className="text-foreground/45">

@@ -95,9 +95,9 @@ function headline(
           }
         : {
             tone: "calm",
-            title: isHe ? "מועדי המכרז הבא עוד לא פורסמו" : "The next round's dates aren't published",
+            title: isHe ? "מועדי הבידינג הבא עוד לא פורסמו" : "The next round's dates aren't published",
             body: isHe
-              ? "התאריכים שאנחנו מחזיקים הם של מכרז תשפ״ז, והוא נסגר. כשהאוניברסיטה תפרסם את המועדים הבאים נציג אותם כאן — אנחנו לא מנחשים תאריך."
+              ? "התאריכים שאנחנו מחזיקים הם של הבידינג של תשפ״ז, והוא נסגר. כשהאוניברסיטה תפרסם את המועדים הבאים נציג אותם כאן — אנחנו לא מנחשים תאריך."
               : "The dates we hold are the 2026/27 round, which has closed. When the university publishes the next ones we'll show them here — we don't guess a date.",
           };
   }

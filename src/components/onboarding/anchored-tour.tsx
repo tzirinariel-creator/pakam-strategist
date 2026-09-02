@@ -153,7 +153,7 @@ const DASHBOARD_STEPS: Step[] = [
     titleHe: "הלולאה המרכזית — איפה אני, מה לתכנן, ומה מותר",
     titleEn: "The main loop — where I am, what to plan, what's allowed",
     bodyHe:
-      "ארבעת אלה עובדים יחד: המסך הזה מראה איפה אתם עומדים, ״תכנון התואר״ הוא המקום שבונים בו את המערכת והסמסטרים הבאים, ״המכרז״ מוציא מהתוכנית הזו רשימה מוכנה להגשה, ו״דרישות התואר״ בודק שמה שבניתם עומד בכללים.",
+      "ארבעת אלה עובדים יחד: המסך הזה מראה איפה אתם עומדים, ״תכנון התואר״ הוא המקום שבונים בו את המערכת והסמסטרים הבאים, ״בידינג״ מוציא מהתוכנית הזו רשימה מוכנה להגשה, ו״דרישות התואר״ בודק שמה שבניתם עומד בכללים.",
     bodyEn:
       "These four work together: this screen shows where you stand, \"Planner\" is where you build your timetable and coming semesters, \"Bidding\" turns that plan into a list ready to submit, and \"Requirements\" checks it against the degree rules.",
   },

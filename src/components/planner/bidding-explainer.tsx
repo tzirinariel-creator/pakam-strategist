@@ -42,7 +42,7 @@ export function BiddingExplainer({ isHe }: { isHe: boolean }) {
           {/* Even while collapsed, name the #1 trap so it isn't missed. */}
           <p className="text-xs text-foreground/50">
             {isHe
-              ? "מכרז ב-2 מקצים · חפיפות נפתרות לפי הניקוד"
+              ? "בידינג ב-2 מקצים · חפיפות נפתרות לפי הניקוד"
               : "A 2-round auction · the trap: last request wins"}
           </p>
         </div>
@@ -84,7 +84,7 @@ function Steps({ isHe }: { isHe: boolean }) {
   const steps = isHe
     ? [
         { icon: ListOrdered, title: "מדרגים העדפות", body: "בוחרים קורסים ומקצים לכל אחד נקודות (מינ׳ 5). מתי הקלדת — לא משנה." },
-        { icon: Trophy, title: "מכרז: הגבוה זוכה", body: "המציע הכי גבוה על קורס זוכה במקום. ואם יש שוויון בדיוק על הסף? המחשב מגריל." },
+        { icon: Trophy, title: "בידינג: הגבוה זוכה", body: "המציע הכי גבוה על קורס זוכה במקום. ואם יש שוויון בדיוק על הסף? המחשב מגריל." },
         { icon: RefreshCw, title: "2 מקצים, איפוס", body: "בכל מקצה מקבלים את כל הנקודות מחדש. ביטול בין מקצים מחזיר נקודות." },
       ]
     : [
@@ -196,7 +196,7 @@ function Checklist({ isHe }: { isHe: boolean }) {
   return (
     <div>
       <p className="mb-2 text-xs font-bold text-foreground/70">
-        {isHe ? "צ׳קליסט לפני המכרז" : "Pre-bid checklist"}
+        {isHe ? "צ׳קליסט לפני הבידינג" : "Pre-bid checklist"}
       </p>
       <ul className="space-y-1">
         {items.map((m, i) => (
