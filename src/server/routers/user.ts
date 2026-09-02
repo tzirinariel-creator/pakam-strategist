@@ -409,30 +409,71 @@ export const userRouter = createTRPCRouter({
     const user = ctx.user;
     if (!user) throw new TRPCError({ code: "NOT_FOUND", message: "User not found" });
 
-    // 1+2 — contributions + reports (not covered by the User cascade).
-    const courses = await ctx.db.userCourse.findMany({
-      where: { userId: user.id },
-      select: { course: { select: { code: true } } },
-    });
+    // Ariel, 2.9: "הוא אפילו לא נותן לי למחוק את המשתמש עכשיו" — the screen
+    // answered with the generic server error and nothing else.
+    //
+    // Whatever failed that day, the shape of this procedure was the real
+    // problem: four destructive steps in a row, none of them individually
+    // guarded. A throw anywhere left the student looking at "something went
+    // wrong" with NO WAY TO KNOW whether their data was gone, half gone, or
+    // untouched — for the one operation in the app where that distinction is
+    // the whole point. Deleting your account and being told "try again" is a
+    // sentence you cannot act on.
+    //
+    // So every step now names itself. A failure says which one, the log says
+    // it too, and the message tells the student what is actually true about
+    // their data right now.
+    const step = async <T>(name: string, fn: () => Promise<T>): Promise<T> => {
+      try {
+        return await fn();
+      } catch (e) {
+        console.error(`[deleteAccount] step "${name}" failed for ${user.id}:`, e);
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          cause: e,
+          message:
+            name === "account"
+              ? "לא הצלחנו למחוק את החשבון. התרומות האנונימיות שלכם כבר הוסרו, שאר הנתונים שלכם לא נגעו. נסו שוב, ואם זה חוזר — כתבו לנו ונמחק ידנית."
+              : "לא הצלחנו למחוק את החשבון, ושום דבר לא נמחק. נסו שוב, ואם זה חוזר — כתבו לנו.",
+        });
+      }
+    };
+
+    // 1 — the anonymous contributions. Keyed by a one-way hash of (userId,
+    // courseCode), so the codes must be read while the rows still exist.
+    const courses = await step("read-courses", () =>
+      ctx.db.userCourse.findMany({
+        where: { userId: user.id },
+        select: { course: { select: { code: true } } },
+      }),
+    );
     const hashes = [...new Set(courses.map((c) => c.course.code))].map((code) =>
       dedupeHashFor(user.id, code),
     );
-    await ctx.db.$transaction([
-      ctx.db.courseReview.deleteMany({ where: { userId: user.id } }),
-      ctx.db.reviewReport.deleteMany({ where: { userId: user.id } }),
-      ...(hashes.length
-        ? [ctx.db.courseGradePoint.deleteMany({ where: { dedupeHash: { in: hashes } } })]
-        : []),
-    ]);
+    await step("contributions", () =>
+      ctx.db.$transaction([
+        ctx.db.courseReview.deleteMany({ where: { userId: user.id } }),
+        ctx.db.reviewReport.deleteMany({ where: { userId: user.id } }),
+        ...(hashes.length
+          ? [ctx.db.courseGradePoint.deleteMany({ where: { dedupeHash: { in: hashes } } })]
+          : []),
+      ]),
+    );
 
-    // 3 — the app data (cascades take every owned row).
-    await ctx.db.user.delete({ where: { id: user.id } });
+    // 2 — the app data (cascades take every owned row).
+    await step("account", () => ctx.db.user.delete({ where: { id: user.id } }));
 
-    // 4 — the auth identity. Service-role admin client; failure here must NOT
-    // resurrect the app data — report it so the user can contact support.
+    // 3 — the auth identity. Service-role admin client. A failure here must NOT
+    // throw: the app data is already gone, and turning that into an error would
+    // tell the student nothing was deleted when in fact everything was. Report
+    // it instead so the client can say the one true thing.
     const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
     const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
-    if (url && serviceKey) {
+    if (!url || !serviceKey) {
+      console.error("[deleteAccount] SUPABASE_SERVICE_ROLE_KEY missing — auth user not deleted");
+      return { ok: true, authDeleted: false };
+    }
+    try {
       const admin = createClient(url, serviceKey, { auth: { persistSession: false } });
       const { error } = await admin.auth.admin.deleteUser(ctx.userId!);
       if (error) {
@@ -440,9 +481,11 @@ export const userRouter = createTRPCRouter({
         return { ok: true, authDeleted: false };
       }
       return { ok: true, authDeleted: true };
+    } catch (e) {
+      // The admin client itself can throw (network, bad key). Same reasoning.
+      console.error("[deleteAccount] auth deletion threw:", e);
+      return { ok: true, authDeleted: false };
     }
-    console.error("[deleteAccount] SUPABASE_SERVICE_ROLE_KEY missing — auth user not deleted");
-    return { ok: true, authDeleted: false };
   }),
 
   /**

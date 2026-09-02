@@ -184,11 +184,24 @@ function DeleteAccountBlock({ onDone }: { onDone: () => void }) {
   const [confirmText, setConfirmText] = useState("");
   const CONFIRM = isHe ? "מחקו לצמיתות" : "DELETE FOREVER";
   const deleteMutation = api.user.deleteAccount.useMutation({
-    onSuccess: () => {
-      toast.success(isHe ? "החשבון וכל הנתונים נמחקו" : "Account and all data deleted");
+    // The server reports whether the AUTH identity went with the data. When it
+    // did not, the account's rows are gone but the login still exists — so
+    // "everything was deleted" would be false, and the student would discover
+    // it by signing in and finding an empty app. Say the true thing instead.
+    onSuccess: (res) => {
+      if (res?.authDeleted === false) {
+        toast.success(
+          isHe
+            ? "כל הנתונים שלכם נמחקו. הכניסה עצמה עוד קיימת אצל ספק ההתחברות — כתבו לנו ונסיר גם אותה."
+            : "All your data is deleted. The sign-in itself still exists at the auth provider — write to us and we'll remove it too.",
+          { duration: 9000 },
+        );
+      } else {
+        toast.success(isHe ? "החשבון וכל הנתונים נמחקו" : "Account and all data deleted");
+      }
       onDone();
     },
-    onError: (e) => toast.error(e.message),
+    onError: (e) => toast.error(e.message, { duration: 9000 }),
   });
   return (
     <div className="mt-2 rounded-xl border border-destructive/25 bg-destructive/[0.04] p-4">

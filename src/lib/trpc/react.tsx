@@ -22,7 +22,18 @@ export function TRPCReactProvider({ children }: { children: ReactNode }) {
           queries: {
             staleTime: 30 * 1000, // 30 seconds
             refetchOnWindowFocus: false,
-            retry: 1,
+            // Ariel, 2.9, with a screenshot: "לא הצלחנו לטעון את התוכנית" on
+            // the home screen. Reads had ONE retry, and this database is a
+            // Supabase instance that goes cold — a first request after a quiet
+            // spell can lose the race, and two in a row is an ordinary Tuesday,
+            // not an outage. One retry turned that into a red error card as the
+            // first thing a student sees.
+            //
+            // Two retries with React Query's exponential backoff costs about
+            // three seconds in the genuinely-broken case and removes the common
+            // transient one. Mutations deliberately keep retry:false below — a
+            // write must never be replayed on our guess that it failed.
+            retry: 2,
           },
           mutations: {
             // Mutations don't auto-retry by default — keep that

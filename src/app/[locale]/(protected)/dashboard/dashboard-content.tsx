@@ -175,8 +175,20 @@ export function DashboardContent() {
   // Each degrades gracefully on its own for a course-less user, so gating them
   // only on demoResetDone (avoids the demo pre-reset race) lets the batch link
   // send all six together. 60s staleTime makes back-navigation instant.
+  // Ariel, 2.9, with a screenshot: the home screen answered "לא הצלחנו לטעון
+  // את התוכנית". This query GATES THE ENTIRE DASHBOARD — everything else is
+  // behind it — and it had a single retry. The database is a Supabase instance
+  // that goes cold, so a first request after a quiet spell can take seconds or
+  // simply lose the race; two of those in a row is not exotic, it is a Tuesday.
+  // And the reward for it was a red error card as the first thing a student
+  // sees, on the app that is supposed to be the reliable one.
+  //
+  // Three retries with React Query's exponential backoff costs about seven
+  // seconds in the genuinely-broken case, and turns the common transient case
+  // into something the student never sees. The error card stays for when the
+  // failure is real.
   const planQuery = api.plan.getUserPlan.useQuery(undefined, {
-    retry: isTransitioning ? 3 : 1,
+    retry: 3,
     staleTime: isTransitioning ? 0 : 60 * 1000,
     enabled: demoResetDone,
   });
