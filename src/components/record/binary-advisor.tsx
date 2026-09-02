@@ -35,6 +35,7 @@ export function BinaryAdvisor() {
   const { g: pg } = usePersonalAddress();
   const trpcUtils = api.useUtils();
   const [confirmId, setConfirmId] = useState<string | null>(null);
+  const [showAll, setShowAll] = useState(false);
   const convertMutation = api.plan.updateCourse.useMutation();
 
   const planQuery = api.plan.getUserPlan.useQuery();
@@ -120,7 +121,19 @@ export function BinaryAdvisor() {
     creditsLeft != null ? candidates.filter((c) => c.course.credits <= creditsLeft) : candidates;
   if (fitting.length === 0) return null;
 
-  const top = fitting.slice(0, 3);
+  // Ariel, #9, 2.9: "איפה אני רואה סטטוס בינארי ויכול לשחק עם זה? זה לא
+  // מספיק ברור. וגם לשחק עם זה - לראות את ההשפעה של בינארי ורק אז להחליט
+  // אם אני שם או לא."
+  //
+  // The card RECOMMENDED three courses and stopped there. A conversion is
+  // irreversible and there are only a handful of them in a degree, so "here are
+  // our three picks, commit" is the wrong shape: the student wants to see what
+  // each of their courses would do before spending one. Every eligible course
+  // is now available — the top three stay prominent because that ranking is
+  // real work, and the rest are one tap away.
+  const TOP_N = 3;
+  const top = showAll ? fitting : fitting.slice(0, TOP_N);
+  const hiddenCount = fitting.length - TOP_N;
 
   return (
     <div className="data-card p-4">
@@ -209,6 +222,25 @@ export function BinaryAdvisor() {
           </li>
         ))}
       </ul>
+
+      {/* #9 — the rest of the eligible courses. A conversion is irreversible
+          and the quota is small, so seeing what every course would do is the
+          decision, not a detail. */}
+      {hiddenCount > 0 && (
+        <button
+          type="button"
+          onClick={() => setShowAll((v) => !v)}
+          className="mt-2 w-full rounded-lg border border-border/50 py-2 text-xs font-medium text-foreground/60 transition-colors hover:border-foreground/25 hover:text-foreground/85"
+        >
+          {showAll
+            ? isHe
+              ? "רק שלושת המשתלמים ביותר"
+              : "Just the top three"
+            : isHe
+              ? `הראו את כל ${fitting.length} הקורסים שאפשר להמיר`
+              : `Show all ${fitting.length} courses you could convert`}
+        </button>
+      )}
 
       {/* טל, מזכירת פכ״מ: "עדיף לשים בינאריים רק בסוף התואר כי יש איזושהי
           מכסה". The quota is finite and the end of the degree is when you
