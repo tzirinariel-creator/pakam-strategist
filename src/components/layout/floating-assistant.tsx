@@ -1020,7 +1020,28 @@ export function FloatingAssistant() {
             </div>
 
             {/* Messages */}
-            <div ref={scrollRef} className="flex-1 space-y-3 overflow-y-auto p-4">
+            {/*
+              המשטח הזה הוא ה-AI המרכזי של המוצר, והוא היה השטח היחיד שבו
+              תוכן נכתב מעצמו בלי ששום דבר מכריז עליו. סטודנט שמשתמש
+              בקורא־מסך שאל שאלה, התשובה הופיעה, והוא לא ידע.
+
+              HIG · Accessibility: "תארו את הממשק והתוכן של האפליקציה
+              לקוראי־מסך." · HIG · Feedback: "ודאו שכל משוב נגיש."
+
+              `role="log"` ולא `status`: זה תעתיק שנצבר, לא הודעה מתחלפת —
+              קורא־מסך יקריא רק את מה שנוסף. `polite` ולא `assertive`, כי
+              תשובת יועץ אינה מצדיקה קטיעה של מה שהמשתמש כרגע קורא.
+              `aria-relevant="additions"` מונע הקראה חוזרת של כל השיחה
+              בכל טוקן שנוסף בזרם.
+            */}
+            <div
+              ref={scrollRef}
+              role="log"
+              aria-live="polite"
+              aria-relevant="additions"
+              aria-label={isHe ? "שיחה עם היועץ" : "Advisor conversation"}
+              className="flex-1 space-y-3 overflow-y-auto p-4"
+            >
               {messages.length === 0 && (
                 <div className="flex flex-col gap-3 pt-2">
                   {proactiveNudge && (
