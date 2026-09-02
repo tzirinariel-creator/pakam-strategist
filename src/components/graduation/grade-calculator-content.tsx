@@ -22,6 +22,7 @@ import {
 import { api } from "@/lib/trpc/react";
 import { ThemedLoader } from "@/components/ui/themed-loader";
 import { cn } from "@/lib/utils";
+import { Bidi } from "@/lib/bidi";
 import { GRADE_WEIGHTS } from "@/lib/constants";
 import { roundScore, countsTowardAverage, courseTypeCountsTowardAverage, canonicalAttempts } from "@/lib/grade-calculator";
 import { computeHonorsDistance, HONORS_YEARLY_BAR } from "@/lib/honors";
@@ -247,12 +248,44 @@ function ReverseCalculator({
   allCourses,
   t,
   preferHigherGradeFlag,
+  isHe,
 }: {
   allCourses: UserCourseWithCourse[];
   t: ReturnType<typeof useTranslations<"grades">>;
   preferHigherGradeFlag: boolean;
+  isHe: boolean;
 }) {
-  const [target, setTarget] = useState(80);
+  // Ariel, #12: "הסקאלה והמחשבון המוזרים… נראים לי מיושנים ומוזרים ושבורים".
+  //
+  // The slider opened on a hardcoded 80 and ran 60–100, regardless of where the
+  // student actually stands. For his own account — a 97.3 course average — the
+  // card therefore opened on "ציון יעד 80 · ממוצע נדרש 55.3": a target he
+  // passed long ago, and a number that reads as an insult or a bug. Everything
+  // under it was arithmetically correct and completely useless.
+  //
+  // A reverse calculator only answers one question — "what do I need in what's
+  // left to get HIGHER than I am now" — so it now opens on the next whole point
+  // above the student's current average, and the slider will not travel below
+  // that average, because every target underneath it is already met.
+  const currentAvg = useMemo(() => {
+    const done = canonicalAttempts(allCourses.filter(countsTowardAverage), {
+      preferHigherGrade: preferHigherGradeFlag,
+    });
+    const cr = done.reduce((s, c) => s + c.course.credits, 0);
+    if (!cr) return null;
+    return done.reduce((s, c) => s + (c.grade ?? 0) * c.course.credits, 0) / cr;
+  }, [allCourses, preferHigherGradeFlag]);
+
+  const sliderMin = currentAvg == null ? 60 : Math.min(99, Math.floor(currentAvg));
+  const defaultTarget = currentAvg == null ? 85 : Math.min(100, Math.floor(currentAvg) + 1);
+  const [target, setTarget] = useState(defaultTarget);
+  // A student who enters their first grades mid-session must not be left with a
+  // target from before there was anything to compare against.
+  const [seededFor, setSeededFor] = useState<number | null>(null);
+  if (currentAvg != null && seededFor !== defaultTarget && seededFor === null) {
+    setSeededFor(defaultTarget);
+    setTarget(defaultTarget);
+  }
 
   const result = useMemo(() => {
     const completed = canonicalAttempts(allCourses.filter(countsTowardAverage), {
@@ -352,9 +385,27 @@ function ReverseCalculator({
             {target}
           </span>
         </div>
+        {/* Where the number came from. Without this the target is a figure the
+            app picked and the student cannot check — the same complaint as the
+            per-course hint in the simulator (#37). */}
+        {currentAvg != null && (
+          <p className="text-xs text-foreground/50">
+            {isHe ? (
+              <>
+                ממוצע הקורסים שלכם עכשיו <Bidi text={currentAvg.toFixed(1)} />. הסרגל מתחיל שם,
+                כי כל יעד נמוך יותר כבר הושג.
+              </>
+            ) : (
+              <>
+                Your course average is <Bidi text={currentAvg.toFixed(1)} /> right now. The slider
+                starts there, because every target below it is already met.
+              </>
+            )}
+          </p>
+        )}
         <input
           type="range"
-          min={60}
+          min={sliderMin}
           max={100}
           step={1}
           aria-label={t("targetScore")}
@@ -668,7 +719,7 @@ export function GradeCalculatorContent() {
           isHe={locale === "he"}
           preferHigherGradeFlag={preferHigherGradeFlag}
         />
-        <ReverseCalculator allCourses={allCourses} t={t} preferHigherGradeFlag={preferHigherGradeFlag} />
+        <ReverseCalculator allCourses={allCourses} t={t} preferHigherGradeFlag={preferHigherGradeFlag} isHe={locale === "he"} />
       </div>
 
       {/* Note #25 — distance to honors (approved). Computed aid, year-tagged;

@@ -159,6 +159,9 @@ describe("ReverseCalculator honesty guards (#44 QA-8)", () => {
 
     const card = reverseCard();
     // remaining = [cC] only. completed=20 ש״ס (grade 70) → sum 1400, total 30.
+    // The slider no longer opens on a hardcoded 80 (#12) — it opens above the
+    // student's own average — so drive it to the target this guard is about.
+    fireEvent.change(slider(), { target: { value: "80" } });
     // neededAvg = (80*30 - 1400) / 10 = 100.0  → "possible".
     // If the retake leaked into remaining: count 2, "(30 credits)", neededAvg 86.7.
     expect(within(card).getByText("neededAvg")).toBeInTheDocument();
@@ -183,9 +186,15 @@ describe("ReverseCalculator honesty guards (#44 QA-8)", () => {
 
     const card = reverseCard();
     // Correct divisor = 10 ש״ס (only cC). total 30.
-    // neededAvg = (80*30 - 1800) / 10 = 60.0. count 1.
-    // If seminar/English/binary leaked in: count 4, "(32 credits)", neededAvg 73.8.
-    expect(within(card).getByText("60.0")).toBeInTheDocument();
+    // This guard is about the DIVISOR, not about any particular target. The
+    // slider no longer opens on a hardcoded 80 and will not travel below the
+    // student's own average (#12) — theirs is 90 — so drive it to 92.
+    fireEvent.change(slider(), { target: { value: "92" } });
+    // neededAvg = (92*30 - 1800) / 10 = 96.0. count 1.
+    // If seminar/English/binary leaked into the divisor it would be 32 credits,
+    // and the answer would read 30.0 instead.
+    expect(within(card).getByText("96.0")).toBeInTheDocument();
+    expect(within(card).queryByText("30.0")).toBeNull();
     expect(within(card).getByText("1")).toBeInTheDocument();
     expect(within(card).getByText(/\(10 credits\)/)).toBeInTheDocument();
     expect(within(card).queryByText(/\(32 credits\)/)).toBeNull();
@@ -211,24 +220,33 @@ describe("ReverseCalculator honesty guards (#44 QA-8)", () => {
     expect(within(reverseCard()).queryByText("neededAvg")).toBeNull();
   });
 
-  it("status flips to 'already-achieved' when the needed average is <= 0", () => {
-    // completed grade 100, 30 ש״ס → sum 3000; planned 10 ש״ס.
+  it("cannot be aimed below the student's own average (#12)", () => {
+    // This used to assert the "already-achieved" branch, reached by dragging the
+    // target down to 60 while the student sat at 100. That branch is now
+    // unreachable through the UI, and that IS the fix Ariel asked for: the card
+    // opened on a hardcoded 80 regardless of where the student stood, so at a
+    // 97.3 average it greeted him with "ממוצע נדרש 55.3" — arithmetically right,
+    // and useless. A reverse calculator answers one question, "what do I need to
+    // get HIGHER than I am", so the floor is the average itself.
     h.courses = [
       uc({ code: "0001", courseId: "cA", status: "COMPLETED", grade: 100, credits: 30 }),
       uc({ code: "0002", courseId: "cC", status: "PLANNED", credits: 10 }),
     ];
     render(<GradeCalculatorContent />);
 
-    const card = reverseCard();
-    // target 80: neededAvg = (80*40 - 3000)/10 = 20.0 → "possible".
-    expect(within(card).getByText("neededAvg")).toBeInTheDocument();
+    const bar = slider() as HTMLInputElement;
+    // Average is 100, so there is nowhere above to go: floor and value are 100.
+    expect(Number(bar.min)).toBeGreaterThanOrEqual(99);
+    expect(Number(bar.value)).toBeGreaterThanOrEqual(Number(bar.min));
 
-    // Drop the target to 60: neededAvg = (60*40 - 3000)/10 = -60 → already-achieved.
-    // (that branch renders the t("possible") reassurance, not a needed number.)
-    fireEvent.change(slider(), { target: { value: "60" } });
+    // And the old absurdity is gone: no target on this slider produces a
+    // "needed average" beneath the grades already earned.
+    fireEvent.change(bar, { target: { value: bar.min } });
     const after = reverseCard();
-    expect(within(after).getByText("possible")).toBeInTheDocument();
-    expect(within(after).queryByText("neededAvg")).toBeNull();
+    // Holding a 100 average needs 100 in what is left — a real answer, and the
+    // lowest one this card can now be made to give. Never a number below the
+    // grades already earned, and never "impossible" for standing still.
+    expect(within(after).getByText("100.0")).toBeInTheDocument();
     expect(within(after).queryByText("impossible")).toBeNull();
   });
 
