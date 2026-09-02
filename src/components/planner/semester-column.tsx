@@ -65,7 +65,7 @@ export function SemesterColumn({ year, semester, courses, currentYear }: Semeste
         <div className="flex flex-col gap-1.5 p-2">
           {courses.length === 0 && (
             <div className={cn(
-              "flex min-h-[100px] items-center justify-center rounded-lg border border-dashed border-border/40 text-xs text-muted-foreground/60",
+              "flex min-h-[100px] items-center justify-center rounded-lg border border-dashed border-border/40 text-xs text-muted-foreground",
               isOver && "border-foreground/50 bg-foreground/5 text-foreground/70",
             )}>
               {isOver ? t("dropHere") : t("emptySlot")}

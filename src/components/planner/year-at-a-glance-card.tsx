@@ -71,7 +71,7 @@ export function YearAtAGlanceCard({
 
           {plan.hasEmptyTerm && (
             <p className="mt-3 flex items-start gap-1.5 rounded-lg bg-amber-500/[0.07] p-2.5 text-xs leading-relaxed text-foreground/65">
-              <AlertTriangle className="mt-0.5 size-3.5 shrink-0 text-amber-600 dark:text-amber-400" />
+              <AlertTriangle className="mt-0.5 size-3.5 shrink-0 text-status-amber" />
               {isHe
                 ? "אחד הסמסטרים ריק. אם החוג שלכם רושם לשנה שלמה, זה הרגע לתכנן גם אותו — אחרת הוא ייפתח בלי הקורסים שרציתם."
                 : "One term is empty. If your department registers annually, this is the moment to plan it too — otherwise it opens without the courses you wanted."}

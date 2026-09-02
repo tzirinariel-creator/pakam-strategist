@@ -216,7 +216,7 @@ export function DegreeStatus({
             {isHe ? "מהתואר הושלמו" : "of the degree done"}
           </span>
           {remaining <= 0 && (
-            <span className="text-xs text-emerald-500">
+            <span className="text-xs text-status-green">
               {isHe ? "כל הש״ס הושלמו" : "all credits complete"}
             </span>
           )}
@@ -344,7 +344,7 @@ export function DegreeStatus({
                     </span>
                     <span className="font-mono tabular-nums text-foreground/60" dir="ltr">
                       {d.earned}/{d.required}
-                      {d.met && <span className="text-emerald-500"> ✓</span>}
+                      {d.met && <span className="text-status-green"> ✓</span>}
                     </span>
                   </div>
                   <div className="mt-1 h-1.5 w-full overflow-hidden rounded-full bg-foreground/8">
@@ -395,7 +395,7 @@ export function DegreeStatus({
                 <div className="flex items-center gap-1.5 text-[11px] font-medium text-foreground/60">
                   <Icon className="size-3.5" />
                   {b.label}
-                  {met && <CheckCircle2 className="ms-auto size-3.5 text-emerald-400" />}
+                  {met && <CheckCircle2 className="ms-auto size-3.5 text-status-green" />}
                 </div>
                 <div className="mt-1 flex items-baseline gap-1" dir="ltr">
                   <span className="font-mono text-lg font-bold tabular-nums text-foreground/85">
@@ -416,7 +416,7 @@ export function DegreeStatus({
                   <p
                     className={cn(
                       "mt-1 text-xs leading-tight",
-                      englishLevel.isExempt ? "text-emerald-500/80" : "text-amber-500/90",
+                      englishLevel.isExempt ? "text-status-green/80" : "text-status-amber/90",
                     )}
                   >
                     {isHe ? englishLevel.nameHe : englishLevel.nameEn}

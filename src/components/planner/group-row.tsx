@@ -64,7 +64,7 @@ export function GroupRow({
         {isChosen ? (
           <Check className="size-3 shrink-0 text-accent-brand" />
         ) : hasClash ? (
-          <AlertTriangle className="size-3 shrink-0 text-red-400" />
+          <AlertTriangle className="size-3 shrink-0 text-status-red" />
         ) : (
           <span className="size-3 shrink-0" aria-hidden />
         )}
@@ -78,17 +78,17 @@ export function GroupRow({
           <Bidi text={option.groupCode} />
         </span>
         {isSelected && isDefaulted && (
-          <span className="shrink-0 rounded bg-amber-500/15 px-1.5 py-0.5 text-[10px] font-semibold text-amber-700 dark:text-amber-400">
+          <span className="shrink-0 rounded bg-amber-500/15 px-1.5 py-0.5 text-[10px] font-semibold text-status-amber">
             {isHe ? "ברירת מחדל" : "our default"}
           </span>
         )}
         <span className="flex-1" />
         {hasClash ? (
-          <span className="shrink-0 rounded bg-red-400/12 px-1.5 py-0.5 text-[10px] font-semibold text-red-400">
+          <span className="shrink-0 rounded bg-red-400/12 px-1.5 py-0.5 text-[10px] font-semibold text-status-red">
             {isHe ? "חופפת" : "clashes"}
           </span>
         ) : (
-          <span className="shrink-0 rounded bg-emerald-400/12 px-1.5 py-0.5 text-[10px] font-semibold text-emerald-500">
+          <span className="shrink-0 rounded bg-emerald-400/12 px-1.5 py-0.5 text-[10px] font-semibold text-status-green">
             {isHe ? "פנויה" : "free"}
           </span>
         )}
@@ -127,9 +127,9 @@ export function GroupRow({
         className={cn(
           "flex items-center gap-1 ps-[18px] text-[10px] leading-snug",
           impact.tone === "clash"
-            ? "text-red-400/90"
+            ? "text-status-red/90"
             : impact.tone === "newDay"
-              ? "text-amber-500/90"
+              ? "text-status-amber/90"
               : "text-foreground/60",
         )}
       >

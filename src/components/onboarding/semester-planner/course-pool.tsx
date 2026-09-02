@@ -218,7 +218,7 @@ export function CoursePool({
         {onAddCustomCourse && (
           <button
             onClick={onAddCustomCourse}
-            className="flex items-center gap-1 rounded-md px-2 py-1 text-[10px] text-foreground/60 hover:text-foreground/90 hover:bg-foreground/5 transition-all"
+            className="flex items-center gap-1 rounded-md px-2 py-1 text-[10px] text-foreground/70 hover:text-foreground/90 hover:bg-foreground/5 transition-all"
           >
             <Plus className="h-3 w-3" />
             {isHe ? "ידני" : "Custom"}
@@ -282,7 +282,7 @@ export function CoursePool({
                     "shrink-0 rounded-lg px-3 py-1.5 text-xs font-medium transition-all",
                     activeTab === tab.key
                       ? "bg-foreground/10 text-foreground/80"
-                      : "bg-foreground/5 text-foreground/60 hover:text-foreground/90"
+                      : "bg-foreground/5 text-foreground/70 hover:text-foreground/90"
                   )}
                 >
                   {tab.label}
@@ -307,7 +307,7 @@ export function CoursePool({
                   "shrink-0 rounded-lg px-3 py-1.5 text-xs font-medium transition-all",
                   activeTab === tab.key
                     ? "bg-foreground/10 text-foreground/80"
-                    : "bg-foreground/5 text-foreground/60 hover:text-foreground/90"
+                    : "bg-foreground/5 text-foreground/70 hover:text-foreground/90"
                 )}
               >
                 {tab.label}

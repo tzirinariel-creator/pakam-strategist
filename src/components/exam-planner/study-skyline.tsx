@@ -273,9 +273,9 @@ function moedLabel(moed: "A" | "B", isHe: boolean): string {
 }
 
 function countdownClasses(days: number): string {
-  if (days <= 0) return "bg-red-500/15 text-red-600";
-  if (days <= 2) return "bg-red-500/10 text-red-600";
-  if (days <= 7) return "bg-amber-500/10 text-amber-600";
+  if (days <= 0) return "bg-red-500/15 text-status-red";
+  if (days <= 2) return "bg-red-500/10 text-status-red";
+  if (days <= 7) return "bg-amber-500/10 text-status-amber";
   return "bg-foreground/5 text-foreground/70";
 }
 
@@ -530,7 +530,7 @@ export function StudySkyline({ plan, recommendations, isHe, now, onDayClick, onM
                 </span>
               </p>
             ) : (
-              <p className="flex items-center gap-1 text-sm font-bold text-emerald-500">
+              <p className="flex items-center gap-1 text-sm font-bold text-status-green">
                 <Coffee className="size-3.5" />
                 {isHe ? "היום פנוי" : "Free today"}
               </p>
@@ -540,7 +540,7 @@ export function StudySkyline({ plan, recommendations, isHe, now, onDayClick, onM
           {/* Peak day */}
           <div className={cn("flex-1 rounded-md border-border/60 sm:border-s sm:px-4", model.hasOverload && "bg-red-400/5")}>
             <p className="flex items-center gap-1 text-xs font-medium uppercase tracking-wide text-foreground/60">
-              {model.hasOverload && <AlertTriangle className="size-3 text-red-500" />}
+              {model.hasOverload && <AlertTriangle className="size-3 text-status-red" />}
               {isHe ? "היום הכי עמוס" : "Heaviest day"}
             </p>
             {peak ? (
@@ -614,7 +614,7 @@ export function StudySkyline({ plan, recommendations, isHe, now, onDayClick, onM
                       </div>
                     )}
                     {!hasExam && item.isFirstStudy && (
-                      <span className="flex items-center gap-0.5 whitespace-nowrap rounded-sm bg-accent-brand/10 px-1 py-px text-[11px] font-semibold text-accent-brand" title={isHe ? "מתחילים כאן" : "Start here"}>
+                      <span className="flex items-center gap-0.5 whitespace-nowrap rounded-sm bg-accent-brand/6 px-1 py-px text-[11px] font-semibold text-accent-brand" title={isHe ? "מתחילים כאן" : "Start here"}>
                         <Flag className="size-2" />
                         {isHe ? "כאן" : "here"}
                       </span>
@@ -711,7 +711,7 @@ export function StudySkyline({ plan, recommendations, isHe, now, onDayClick, onM
           promptEn="How do I spread my studying well up to my exams? I have an especially heavy day — help me plan it."
           labelHe="שאל את {advisor} על הפיזור"
           labelEn="Ask {advisor} about the spread"
-          className="order-last inline-flex items-center gap-1.5 rounded-md px-1.5 py-1 text-[11px] font-medium text-accent-brand transition-colors hover:bg-accent-brand/10 hover:text-accent-brand ms-auto"
+          className="order-last inline-flex items-center gap-1.5 rounded-md px-1.5 py-1 text-[11px] font-medium text-accent-brand transition-colors hover:bg-accent-brand/6 hover:text-accent-brand ms-auto"
           iconClassName="size-3"
         />
         {model.courses.map((c) => (

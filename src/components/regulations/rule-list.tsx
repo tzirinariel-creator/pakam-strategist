@@ -60,9 +60,9 @@ export function RuleList({ results }: { results: RegulationResult[] }) {
       {blockers.length > 0 && (
         <section className="flex flex-col gap-2.5">
           <div className="flex items-center gap-2">
-            <ShieldAlert className="size-5 text-red-400" />
-            <h3 className="text-base font-bold text-red-400">{isHe ? "דורש טיפול" : "Needs action"}</h3>
-            <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-red-400/10 px-1.5 font-data text-xs font-bold text-red-400">
+            <ShieldAlert className="size-5 text-status-red" />
+            <h3 className="text-base font-bold text-status-red">{isHe ? "דורש טיפול" : "Needs action"}</h3>
+            <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-red-400/10 px-1.5 font-data text-xs font-bold text-status-red">
               {blockers.length}
             </span>
           </div>
@@ -72,7 +72,7 @@ export function RuleList({ results }: { results: RegulationResult[] }) {
           {/* Close the VERIFY→PLAN loop: most gaps are fixed by placing courses. */}
           <Link
             href="/planner"
-            className="inline-flex w-fit items-center gap-1.5 self-start rounded-lg bg-accent-brand/10 px-3 py-1.5 text-xs font-semibold text-accent-brand transition-colors hover:bg-accent-brand/20"
+            className="inline-flex w-fit items-center gap-1.5 self-start rounded-lg bg-accent-brand/6 px-3 py-1.5 text-xs font-semibold text-accent-brand transition-colors hover:bg-accent-brand/20"
           >
             {isHe ? "תקנו את זה במתכנן התואר" : "Fix these in the degree planner"}
             <ArrowLeft className="size-3.5 ltr:rotate-180" />
@@ -84,9 +84,9 @@ export function RuleList({ results }: { results: RegulationResult[] }) {
       {attention.length > 0 && (
         <section className="flex flex-col gap-2.5">
           <div className="flex items-center gap-2">
-            <AlertTriangle className="size-5 text-amber-500" />
-            <h3 className="text-base font-bold text-amber-500">{isHe ? "כדאי לשים לב" : "Worth attention"}</h3>
-            <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-amber-400/10 px-1.5 font-data text-xs font-bold text-amber-500">
+            <AlertTriangle className="size-5 text-status-amber" />
+            <h3 className="text-base font-bold text-status-amber">{isHe ? "כדאי לשים לב" : "Worth attention"}</h3>
+            <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-amber-400/10 px-1.5 font-data text-xs font-bold text-status-amber">
               {attention.length}
             </span>
           </div>
@@ -99,7 +99,7 @@ export function RuleList({ results }: { results: RegulationResult[] }) {
       {/* All clear — only when there are neither blockers nor attention items. */}
       {blockers.length === 0 && attention.length === 0 && (
         <div className="flex items-center gap-2.5 rounded-xl border border-emerald-400/30 bg-emerald-400/[0.06] px-4 py-3">
-          <CheckCircle2 className="size-5 shrink-0 text-emerald-500" />
+          <CheckCircle2 className="size-5 shrink-0 text-status-green" />
           <p className="text-sm text-foreground/75">
             {isHe ? "אין חסימות ואין דרישות דחופות כרגע." : "No blockers and nothing urgent right now."}
           </p>
@@ -128,9 +128,9 @@ function RedFlagCard({ rule, isHe }: { rule: RegulationResult; isHe: boolean }) 
     <div className={cn("rounded-xl border p-3.5", isError ? "border-red-400/40 bg-red-400/[0.06]" : "border-amber-400/40 bg-amber-400/[0.06]")}>
       <div className="flex items-start gap-2.5">
         {isError ? (
-          <XCircle className="mt-0.5 size-4 shrink-0 text-red-400" />
+          <XCircle className="mt-0.5 size-4 shrink-0 text-status-red" />
         ) : (
-          <AlertTriangle className="mt-0.5 size-4 shrink-0 text-amber-500" />
+          <AlertTriangle className="mt-0.5 size-4 shrink-0 text-status-amber" />
         )}
         <div className="min-w-0 flex-1">
           <p className="text-sm font-bold text-foreground/85">{name}</p>
@@ -140,7 +140,7 @@ function RedFlagCard({ rule, isHe }: { rule: RegulationResult; isHe: boolean }) 
             promptEn={`Explain the requirement "${name}" — why am I not meeting it, and what exactly should I do to close it?`}
             labelHe="שאל את {advisor} איך לסגור את זה"
             labelEn="Ask {advisor} how to close this"
-            className="mt-2.5 inline-flex items-center gap-1.5 rounded-lg bg-accent-brand/10 px-2.5 py-1.5 text-xs font-medium text-accent-brand transition-colors hover:bg-accent-brand/20"
+            className="mt-2.5 inline-flex items-center gap-1.5 rounded-lg bg-accent-brand/6 px-2.5 py-1.5 text-xs font-medium text-accent-brand transition-colors hover:bg-accent-brand/20"
             iconClassName="size-3.5"
           />
         </div>
@@ -166,7 +166,7 @@ function RuleGroupAccordion({ group, rules, isHe }: { group: RuleGroup; rules: R
           <div className="flex items-center gap-2">
             <span className="text-sm font-bold text-foreground/80">{isHe ? meta.he : meta.en}</span>
             <span className="font-mono text-xs text-foreground/60" dir="ltr">{met}/{total}</span>
-            {allMet && <CheckCircle2 className="size-3.5 text-emerald-400" />}
+            {allMet && <CheckCircle2 className="size-3.5 text-status-green" />}
           </div>
           <div className="mt-1.5 h-1.5 w-full overflow-hidden rounded-full bg-foreground/8">
             <div className={cn("h-full rounded-full transition-all", allMet ? "bg-emerald-400" : "bg-foreground/45")} style={{ width: `${pct}%` }} />

@@ -303,7 +303,7 @@ export function LoginForm() {
               >
                 {t("forgotPassword")}
               </button>
-              <span className="text-[11px] text-muted-foreground/70">
+              <span className="text-[11px] text-muted-foreground">
                 {t("forgotPasswordHint")}
               </span>
             </div>
@@ -337,7 +337,7 @@ export function LoginForm() {
             onClick={handleDemoLogin}
             disabled={demoLoading}
             variant="outline"
-            className="w-full gap-2 h-11 text-sm border-dashed border-border text-foreground/60 hover:bg-foreground/5 hover:text-foreground/80 transition-all"
+            className="w-full gap-2 h-11 text-sm border-dashed border-border text-foreground/70 hover:bg-foreground/5 hover:text-foreground/80 transition-all"
           >
             {demoLoading ? (
               <Loader2 className="size-4 animate-spin" />

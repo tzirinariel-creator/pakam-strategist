@@ -21,7 +21,7 @@ export function CohortWisdomTeaser() {
   if (!latest) return <CohortShareNudge variant="card" />;
   return (
     <div className="data-card flex flex-wrap items-center gap-3 p-4">
-      <div className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-foreground/8 text-foreground/60">
+      <div className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-foreground/8 text-foreground/70">
         <Users2 className="size-4.5" />
       </div>
       <div className="min-w-0 flex-1">

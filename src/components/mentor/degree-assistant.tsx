@@ -150,7 +150,7 @@ export function DegreeAssistant() {
             "flex size-10 shrink-0 items-center justify-center rounded-xl transition-colors",
             input.trim()
               ? "bg-accent-brand text-accent-brand-fg hover:bg-accent-brand-hover"
-              : "bg-foreground/10 text-foreground/60"
+              : "bg-foreground/10 text-foreground/70"
           )}
         >
           <Send className="size-4 rtl:-scale-x-100" />

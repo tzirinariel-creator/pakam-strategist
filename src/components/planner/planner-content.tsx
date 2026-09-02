@@ -92,7 +92,7 @@ export function PlannerContent() {
 
     return (
       <div className="flex min-h-[50vh] flex-col items-center justify-center gap-3">
-        <AlertTriangle className="size-8 text-red-400" />
+        <AlertTriangle className="size-8 text-status-red" />
         <p className="text-sm text-muted-foreground">{error.message}</p>
         {isUnauthorized ? (
           <Link
@@ -251,7 +251,7 @@ export function PlannerContent() {
           role="status"
           className="animate-fade-in flex items-center gap-3 rounded-xl border border-emerald-400/30 bg-emerald-400/[0.07] p-4"
         >
-          <span className="flex size-9 shrink-0 items-center justify-center rounded-full bg-emerald-400/15 text-emerald-500">
+          <span className="flex size-9 shrink-0 items-center justify-center rounded-full bg-emerald-400/15 text-status-green">
             <CheckCircle2 className="size-5" />
           </span>
           <div className="min-w-0 flex-1">
@@ -294,8 +294,8 @@ export function PlannerContent() {
               className={cn(
                 "flex items-center gap-1.5 rounded-lg border px-3 py-2 text-xs font-medium transition-colors hover:shadow-sm",
                 regulationQuery.data.passed === regulationQuery.data.totalRules
-                  ? "border-emerald-400/30 bg-emerald-400/5 text-emerald-400 hover:border-emerald-400/50"
-                  : "border-amber-400/30 bg-amber-400/5 text-amber-400 hover:border-amber-400/50"
+                  ? "border-emerald-400/30 bg-emerald-400/5 text-status-green hover:border-emerald-400/50"
+                  : "border-amber-400/30 bg-amber-400/5 text-status-amber hover:border-amber-400/50"
               )}
             >
               <Scale className="h-3.5 w-3.5" />

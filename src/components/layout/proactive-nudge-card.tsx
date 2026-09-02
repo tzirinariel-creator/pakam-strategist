@@ -55,7 +55,7 @@ export function ProactiveNudgeCard({
         <X className="size-3.5" />
       </button>
       <div className="flex items-start gap-2.5 pe-5">
-        <Icon className={cn("mt-0.5 size-4 shrink-0", critical ? "text-red-400" : "text-amber-500")} />
+        <Icon className={cn("mt-0.5 size-4 shrink-0", critical ? "text-status-red" : "text-status-amber")} />
         <div className="min-w-0 flex-1">
           <p className="text-sm font-bold text-foreground/85">{isHe ? rec.titleHe : rec.titleEn}</p>
           <p className="mt-0.5 text-xs leading-relaxed text-foreground/60">{isHe ? rec.bodyHe : rec.bodyEn}</p>

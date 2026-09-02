@@ -90,7 +90,7 @@ export function FuturePlansCard({ facts }: { facts: StudentFacts }) {
                 aria-pressed={chosen === d.id}
                 className={
                   chosen === d.id
-                    ? "rounded-full border border-accent-brand bg-accent-brand/10 px-3 py-1.5 text-xs font-semibold text-accent-brand"
+                    ? "rounded-full border border-accent-brand bg-accent-brand/6 px-3 py-1.5 text-xs font-semibold text-accent-brand"
                     : "rounded-full border border-border px-3 py-1.5 text-xs font-medium text-foreground/65 transition-colors hover:border-foreground/30"
                 }
               >
@@ -111,7 +111,7 @@ export function FuturePlansCard({ facts }: { facts: StudentFacts }) {
                     s.state === "done" ? Check : s.state === "in-progress" ? CircleDashed : Circle;
                   const tone =
                     s.state === "done"
-                      ? "text-emerald-600 dark:text-emerald-400"
+                      ? "text-status-green"
                       : s.state === "in-progress"
                         ? "text-foreground/60"
                         : "text-foreground/60";

@@ -205,9 +205,9 @@ function Cell({
 }) {
   const toneClass =
     tone === "up"
-      ? "text-emerald-600 dark:text-emerald-400"
+      ? "text-status-green"
       : tone === "down"
-        ? "text-rose-600 dark:text-rose-400"
+        ? "text-status-red"
         : "text-foreground/80";
   const Icon = tone === "up" ? TrendingUp : tone === "down" ? TrendingDown : null;
 

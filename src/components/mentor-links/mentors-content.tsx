@@ -73,7 +73,7 @@ export function MentorsContent() {
       {/* ── Invite + who can see my plan (I am the MENTEE) ── */}
       <section className="data-card animate-stagger-2 p-5">
         <div className="flex items-center gap-2">
-          <ShieldCheck className="size-5 text-emerald-500" />
+          <ShieldCheck className="size-5 text-status-green" />
           <h2 className="font-display text-lg font-bold text-foreground/85">
             {isHe ? "מי רואה את התוכנית שלי" : "Who can see my plan"}
           </h2>
@@ -123,7 +123,7 @@ export function MentorsContent() {
                 type="button"
                 onClick={() => endLink.mutate({ linkId: m.linkId })}
                 disabled={endLink.isPending}
-                className="shrink-0 rounded-lg bg-foreground/8 px-3 py-1.5 text-xs font-medium text-foreground/60 transition-colors hover:bg-red-500/15 hover:text-red-500 disabled:opacity-50"
+                className="shrink-0 rounded-lg bg-foreground/8 px-3 py-1.5 text-xs font-medium text-foreground/70 transition-colors hover:bg-red-500/15 hover:text-status-red disabled:opacity-50"
               >
                 {m.status === "ACTIVE" ? (isHe ? "ניתוק" : "Revoke") : (isHe ? "ביטול" : "Cancel")}
               </button>
@@ -150,7 +150,7 @@ export function MentorsContent() {
                     type="button"
                     onClick={() => respond.mutate({ linkId: inv.linkId, accept: true })}
                     disabled={respond.isPending}
-                    className="inline-flex items-center gap-1 rounded-lg bg-emerald-500/15 px-3 py-1.5 text-xs font-semibold text-emerald-500 transition-colors hover:bg-emerald-500/25 disabled:opacity-50"
+                    className="inline-flex items-center gap-1 rounded-lg bg-emerald-500/15 px-3 py-1.5 text-xs font-semibold text-status-green transition-colors hover:bg-emerald-500/25 disabled:opacity-50"
                   >
                     <Check className="size-3.5" /> {isHe ? "אישור" : "Accept"}
                   </button>
@@ -158,7 +158,7 @@ export function MentorsContent() {
                     type="button"
                     onClick={() => respond.mutate({ linkId: inv.linkId, accept: false })}
                     disabled={respond.isPending}
-                    className="inline-flex items-center gap-1 rounded-lg bg-foreground/8 px-3 py-1.5 text-xs font-medium text-foreground/60 transition-colors hover:bg-foreground/15 disabled:opacity-50"
+                    className="inline-flex items-center gap-1 rounded-lg bg-foreground/8 px-3 py-1.5 text-xs font-medium text-foreground/70 transition-colors hover:bg-foreground/15 disabled:opacity-50"
                   >
                     <X className="size-3.5" /> {isHe ? "דחייה" : "Decline"}
                   </button>
@@ -242,7 +242,7 @@ function MenteePlan({ menteeUserId, menteeName, isHe, onClose }: {
         <button
           type="button"
           onClick={onClose}
-          className="rounded-md p-1.5 text-foreground/60 transition-colors hover:bg-foreground/5 hover:text-foreground/70"
+          className="rounded-md p-1.5 text-foreground/70 transition-colors hover:bg-foreground/5 hover:text-foreground/70"
           aria-label={isHe ? "סגירה" : "Close"}
         >
           <X className="size-4" />
@@ -254,7 +254,7 @@ function MenteePlan({ menteeUserId, menteeName, isHe, onClose }: {
 
       {q.isLoading && <p className="mt-4 text-sm text-foreground/60">{isHe ? "טוען…" : "Loading…"}</p>}
       {q.isError && (
-        <p className="mt-4 text-sm text-red-400/80">
+        <p className="mt-4 text-sm text-status-red/80">
           {isHe ? "לא הצלחנו לטעון — ייתכן שהגישה נותקה." : "Couldn't load — access may have been revoked."}
         </p>
       )}
@@ -284,10 +284,10 @@ function MenteePlan({ menteeUserId, menteeName, isHe, onClose }: {
                       </span>
                       <span className={cn(
                         "shrink-0 rounded-full px-2 py-0.5 text-[11px] font-medium",
-                        c.status === "COMPLETED" ? "bg-emerald-500/15 text-emerald-500"
+                        c.status === "COMPLETED" ? "bg-emerald-500/15 text-status-green"
                           : c.status === "IN_PROGRESS" ? "bg-accent-brand/15 text-accent-brand"
-                          : c.status === "FAILED" ? "bg-red-500/15 text-red-500"
-                          : "bg-foreground/8 text-foreground/60",
+                          : c.status === "FAILED" ? "bg-red-500/15 text-status-red"
+                          : "bg-foreground/8 text-foreground/70",
                       )}>
                         {statusLabel(c.status)}
                       </span>

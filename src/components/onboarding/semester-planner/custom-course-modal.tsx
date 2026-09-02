@@ -233,7 +233,7 @@ export function CustomCourseModal({
             </div>
 
             <p className="mt-2 flex items-start gap-1.5 text-[11px] leading-relaxed text-foreground/60">
-              <AlertTriangle className="mt-0.5 size-3 shrink-0 text-amber-500" />
+              <AlertTriangle className="mt-0.5 size-3 shrink-0 text-status-amber" />
               <span>
                 {isHe
                   ? "מי שמאשר קורס לתואר זו המזכירות או הידיעון, לא אנחנו — קורס שאינו בקטלוג שלנו אנחנו לא יכולים לבדוק. מה שתסמנו כאן נשמר כהצהרה שלכם, ומוצג ככזו."

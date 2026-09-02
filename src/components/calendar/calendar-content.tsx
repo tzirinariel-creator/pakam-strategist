@@ -355,7 +355,7 @@ export function CalendarContent() {
   if (planError) {
     return (
       <div className="flex min-h-[50vh] flex-col items-center justify-center gap-3">
-        <AlertTriangle className="size-8 text-red-400" />
+        <AlertTriangle className="size-8 text-status-red" />
         <p className="text-sm text-muted-foreground">{tCommon("error")}</p>
         <button
           type="button"
@@ -376,7 +376,7 @@ export function CalendarContent() {
         <PageHeader viewMode={viewMode} onViewChange={setViewMode} />
 
         <div className="flex min-h-[40vh] flex-col items-center justify-center gap-4">
-          <BookOpen className="size-12 text-muted-foreground/40" />
+          <BookOpen className="size-12 text-muted-foreground" />
           <div className="text-center">
             <p className="text-lg font-medium text-foreground/70">
               {t("noSchedule")}
@@ -511,7 +511,7 @@ export function CalendarContent() {
             ) : (
               <Link
                 href="/settings"
-                className="flex items-center gap-1.5 rounded-lg bg-emerald-500/10 px-3 py-1.5 text-sm font-medium text-emerald-600 transition-colors hover:bg-emerald-500/20 dark:text-emerald-400"
+                className="flex items-center gap-1.5 rounded-lg bg-emerald-500/10 px-3 py-1.5 text-sm font-medium text-status-green transition-colors hover:bg-emerald-500/20"
                 title={locale === "he" ? "חברו את יומן Google כדי לסנכרן את המערכת" : "Connect Google Calendar to sync your timetable"}
               >
                 <CalendarDays className="size-3.5" />
@@ -524,7 +524,7 @@ export function CalendarContent() {
 
       {/* Honest ידיעון note — next year's schedule isn't published yet */}
       {yedionCaveat && semesterCourses.length > 0 && viewMode !== "exams" && (
-        <p className="-mt-2 text-xs leading-relaxed text-amber-600/80 dark:text-amber-400/80">
+        <p className="-mt-2 text-xs leading-relaxed text-status-amber/80/80">
           {locale === "he"
             ? `שימו לב: השעות והמיקומים לסמסטר הקרוב מוצגים לפי ידיעון ${hebrewYearLabel(yedionCaveat.published)} — ידיעון ${hebrewYearLabel(yedionCaveat.upcoming)} טרם פורסם, וייתכנו עדכונים.`
             : `Heads up: next semester's hours and rooms follow the ${yedionCaveat.published}/${yedionCaveat.published + 1} catalog — the ${yedionCaveat.upcoming}/${yedionCaveat.upcoming + 1} one isn't published yet, so details may shift.`}
@@ -533,7 +533,7 @@ export function CalendarContent() {
 
       {/* .ics import hint — clarifies the downloaded file must be imported */}
       {semesterCourses.length > 0 && viewMode !== "exams" && (
-        <p className="-mt-2 text-xs text-muted-foreground/70">
+        <p className="-mt-2 text-xs text-muted-foreground">
           {t("exportHint")}
         </p>
       )}
@@ -541,7 +541,7 @@ export function CalendarContent() {
       {/* Empty semester state */}
       {semesterCourses.length === 0 && viewMode !== "exams" && (
         <div className="animate-stagger-3 flex min-h-[30vh] flex-col items-center justify-center gap-3">
-          <BookOpen className="size-10 text-muted-foreground/40" />
+          <BookOpen className="size-10 text-muted-foreground" />
           <p className="text-sm text-muted-foreground">{t("noSchedule")}</p>
         </div>
       )}
@@ -553,7 +553,7 @@ export function CalendarContent() {
               planning (interactive skyline, drag, share) lives in ONE place. */}
           <Link
             href="/exam-planner"
-            className="inline-flex items-center gap-1.5 rounded-lg bg-accent-brand/10 px-3 py-1.5 text-xs font-semibold text-accent-brand transition-colors hover:bg-accent-brand/20"
+            className="inline-flex items-center gap-1.5 rounded-lg bg-accent-brand/6 px-3 py-1.5 text-xs font-semibold text-accent-brand transition-colors hover:bg-accent-brand/20"
           >
             {locale === "he" ? "לתכנון המבחנים המלא ←" : "Full exam planning →"}
           </Link>
@@ -570,7 +570,7 @@ export function CalendarContent() {
             <>
               {unchosen.size > 0 && (
                 <div className="mb-3 space-y-2 rounded-xl border border-amber-500/35 bg-amber-500/[0.07] p-3.5">
-                  <p className="text-xs font-bold text-amber-700 dark:text-amber-400">
+                  <p className="text-xs font-bold text-status-amber">
                     {isHe
                       ? "יש קורסים שעוד לא בחרתם בהם קבוצה — המערכת מציגה בינתיים את הקבוצה הראשונה:"
                       : "Some courses have no chosen group yet — showing the first group meanwhile:"}
@@ -616,7 +616,7 @@ export function CalendarContent() {
                   פכ״מ אין לו שעות" tells you which day is not really free. */}
               {missingHours.length > 0 && (
                 <div className="mb-3 flex items-start gap-2 rounded-xl border border-amber-500/35 bg-amber-500/[0.06] p-3">
-                  <TriangleAlert className="mt-0.5 size-4 shrink-0 text-amber-600 dark:text-amber-400" />
+                  <TriangleAlert className="mt-0.5 size-4 shrink-0 text-status-amber" />
                   <p className="text-xs leading-relaxed text-foreground/75">
                     {isHe ? (
                       <>

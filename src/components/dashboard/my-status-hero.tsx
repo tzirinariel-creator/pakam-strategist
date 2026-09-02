@@ -70,8 +70,8 @@ export function MyStatusHero({
             className={cn(
               "ms-auto inline-flex items-baseline gap-1 rounded-full px-2.5 py-0.5 text-xs font-medium",
               gpa >= gpaBar
-                ? "bg-emerald-400/10 text-emerald-500"
-                : "bg-amber-400/10 text-amber-500",
+                ? "bg-emerald-400/10 text-status-green"
+                : "bg-amber-400/10 text-status-amber",
             )}
           >
             {/* RTL: only the NUMBER is LTR-isolated; "ממוצע" stays in the RTL
@@ -87,7 +87,7 @@ export function MyStatusHero({
       {inProgressCount != null && inProgressCount > 0 && (
         <Link
           href="/record"
-          className="mb-3 inline-flex items-center gap-1.5 rounded-lg bg-blue-400/10 px-2.5 py-1 text-xs font-medium text-blue-500 transition-colors hover:bg-blue-400/15"
+          className="mb-3 inline-flex items-center gap-1.5 rounded-lg bg-blue-400/10 px-2.5 py-1 text-xs font-medium text-status-blue transition-colors hover:bg-blue-400/15"
         >
           <BookOpen className="size-3.5" />
           {isHe

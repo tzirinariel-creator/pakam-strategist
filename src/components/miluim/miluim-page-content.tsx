@@ -35,15 +35,15 @@ import { heNoun } from "@/lib/he-count";
 function groupChip(group: string, isHe: boolean): { label: string; cls: string } {
   const g = MILUIM_CONFIG.GROUPS[group as keyof typeof MILUIM_CONFIG.GROUPS];
   if (!g || group === "NONE") {
-    return { label: isHe ? "ללא" : "None", cls: "bg-foreground/8 text-foreground/60" };
+    return { label: isHe ? "ללא" : "None", cls: "bg-foreground/8 text-foreground/70" };
   }
   const letter = group.replace("GROUP_", "");
   const cls =
     group === "GROUP_C" || group === "GROUP_G"
-      ? "bg-emerald-500/15 text-emerald-600"
+      ? "bg-emerald-500/15 text-status-green"
       : group === "GROUP_B"
-        ? "bg-sky-500/15 text-sky-600"
-        : "bg-foreground/10 text-foreground/60";
+        ? "bg-sky-500/15 text-status-blue"
+        : "bg-foreground/10 text-foreground/70";
   return { label: isHe ? `קבוצה ${letter}` : `Group ${letter}`, cls };
 }
 
@@ -244,7 +244,7 @@ export function MiluimPageContent() {
                                 },
                               );
                             }}
-                            className="rounded-md p-1 text-foreground/60 transition-colors hover:bg-red-500/10 hover:text-red-500 disabled:opacity-40"
+                            className="rounded-md p-1 text-foreground/60 transition-colors hover:bg-red-500/10 hover:text-status-red disabled:opacity-40"
                           >
                             <Trash2 className="size-3.5" />
                           </button>
@@ -325,7 +325,7 @@ export function MiluimPageContent() {
               of the degree. */}
           {preDegreeRows.length > 0 && (
             <details className="mt-3 rounded-lg border border-amber-500/25 bg-amber-500/5 p-2.5">
-              <summary className="cursor-pointer text-[11px] font-medium text-amber-600">
+              <summary className="cursor-pointer text-[11px] font-medium text-status-amber">
                 <Bidi
                   text={
                     isHe
@@ -374,7 +374,7 @@ export function MiluimPageContent() {
                           },
                         )
                       }
-                      className="rounded-md p-1 text-foreground/60 transition-colors hover:bg-red-500/10 hover:text-red-500 disabled:opacity-40"
+                      className="rounded-md p-1 text-foreground/60 transition-colors hover:bg-red-500/10 hover:text-status-red disabled:opacity-40"
                       aria-label={
                         isHe
                           ? `מחקו את ${hebrewYearLabel(r.academicYear)} ${r.semester === "FALL" ? "א׳" : "ב׳"}`

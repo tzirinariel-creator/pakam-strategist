@@ -31,7 +31,7 @@ export function ErrorBoundaryFallback({
           {error.message || t("errorRetry")}
         </p>
         {error.digest && (
-          <p className="mt-1 font-data text-xs text-muted-foreground/60">
+          <p className="mt-1 font-data text-xs text-muted-foreground">
             {error.digest}
           </p>
         )}

@@ -33,10 +33,10 @@ const LEVEL_LABELS_EN: Record<HonestLoadLabel, string> = {
 };
 
 const LEVEL_COLORS: Record<HonestLoadLabel, string> = {
-  light: "text-emerald-400",
-  hours: "text-amber-500",
-  credits: "text-amber-500",
-  examCrunch: "text-red-400",
+  light: "text-status-green",
+  hours: "text-status-amber",
+  credits: "text-status-amber",
+  examCrunch: "text-status-red",
 };
 
 interface SemesterSummaryProps {
@@ -123,7 +123,7 @@ export function SemesterSummary({
         {/* Success icon */}
         <div className="flex justify-center">
           <div className="flex h-14 w-14 items-center justify-center rounded-full bg-emerald-400/10">
-            <CheckCircle className="h-7 w-7 text-emerald-400" />
+            <CheckCircle className="h-7 w-7 text-status-green" />
           </div>
         </div>
 
@@ -234,7 +234,7 @@ export function SemesterSummary({
             disappears the moment the last group is chosen. */}
         {unchosenGroupCount > 0 && !semesterOver && (
           <div className="space-y-2 rounded-xl border-2 border-amber-500/40 bg-amber-500/[0.06] px-4 py-3 text-start">
-            <p className="flex items-start gap-2 text-xs font-semibold leading-relaxed text-amber-700 dark:text-amber-400">
+            <p className="flex items-start gap-2 text-xs font-semibold leading-relaxed text-status-amber">
               <Users className="mt-0.5 h-4 w-4 shrink-0" />
               <span>
                 {isHe ? (

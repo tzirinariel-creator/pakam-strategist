@@ -128,7 +128,7 @@ export function WhatMovesMyAverage({
                     <span className="min-w-0 flex-1 text-balance text-sm font-medium text-foreground/85">
                       {l.courseName}
                     </span>
-                    <span className="shrink-0 text-sm font-bold tabular-nums text-emerald-600 dark:text-emerald-400">
+                    <span className="shrink-0 text-sm font-bold tabular-nums text-status-green">
                       +<Bidi text={l.upside} />
                     </span>
                   </div>

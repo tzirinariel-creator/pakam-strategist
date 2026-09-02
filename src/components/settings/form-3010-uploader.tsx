@@ -141,7 +141,7 @@ export function Form3010Uploader({
               that overlaps the degree is offered. When we don't know when the
               degree started we say so instead of quietly importing everything. */}
           {summary.startYear == null && (
-            <p className="rounded-lg border border-amber-500/25 bg-amber-500/5 px-3 py-2 text-[11px] leading-relaxed text-amber-600">
+            <p className="rounded-lg border border-amber-500/25 bg-amber-500/5 px-3 py-2 text-[11px] leading-relaxed text-status-amber">
               {isHe
                 ? "אנחנו לא יודעים מתי התחלתם את התואר, אז לא סיננו כלום — הרשימה כוללת את כל השירות שבטופס. אשרו רק סמסטרים שבהם כבר למדתם (שירות שקדם לתואר לא מזכה בהטבות), או קבעו שנת פתיחה בהגדרות ונסננו לבד."
                 : "We don't know when your degree started, so nothing was filtered — the list covers every period on the form. Approve only semesters you actually studied in (pre-degree service grants no benefits), or set your start year in settings and we'll filter it for you."}
@@ -182,7 +182,7 @@ export function Form3010Uploader({
               // delete the account and start again. A dead end that hides the
               // number it is reasoning from is worse than an error.
               <div className="rounded-lg border border-amber-500/25 bg-amber-500/5 px-3 py-2.5">
-                <p className="text-[11px] font-semibold leading-relaxed text-amber-700 dark:text-amber-400">
+                <p className="text-[11px] font-semibold leading-relaxed text-status-amber">
                   {isHe
                     ? `כל השירות שבטופס קדם לתחילת התואר, אז אין מה לייבא.`
                     : "All service on the form predates the start of your degree, so there is nothing to import."}
@@ -211,7 +211,7 @@ export function Form3010Uploader({
                   <button
                     type="button"
                     onClick={() => onSetStartYear(earliestPreDegreeYear)}
-                    className="mt-2 inline-flex items-center gap-1.5 rounded-lg border border-amber-500/40 bg-background px-2.5 py-1.5 text-[11px] font-semibold text-amber-700 transition-colors hover:bg-amber-500/10 dark:text-amber-400"
+                    className="mt-2 inline-flex items-center gap-1.5 rounded-lg border border-amber-500/40 bg-background px-2.5 py-1.5 text-[11px] font-semibold text-status-amber transition-colors hover:bg-amber-500/10"
                   >
                     <Check className="size-3" />
                     {isHe
@@ -251,7 +251,7 @@ export function Form3010Uploader({
                   dir="ltr"
                 />
                 {current && current.daysServed !== days && (
-                  <span className="rounded bg-amber-500/10 px-1.5 py-px text-[10px] font-semibold text-amber-600">
+                  <span className="rounded bg-amber-500/10 px-1.5 py-px text-[10px] font-semibold text-status-amber">
                     {isHe ? <>רשום כרגע <bdi dir="ltr">{current.daysServed}</bdi> — יוחלף</> : `Recorded ${current.daysServed} — will replace`}
                   </span>
                 )}

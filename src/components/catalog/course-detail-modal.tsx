@@ -28,10 +28,10 @@ import type { Course } from "@/types/degree";
 import type { Discipline } from "@/types/enums";
 
 const DIFFICULTY_META: Record<string, { he: string; en: string; cls: string }> = {
-  easy: { he: "קל", en: "Easy", cls: "text-emerald-500" },
+  easy: { he: "קל", en: "Easy", cls: "text-status-green" },
   moderate: { he: "בינוני", en: "Moderate", cls: "text-foreground/60" },
-  hard: { he: "קשה", en: "Hard", cls: "text-amber-500" },
-  very_hard: { he: "קשה מאוד", en: "Very hard", cls: "text-red-500" },
+  hard: { he: "קשה", en: "Hard", cls: "text-status-amber" },
+  very_hard: { he: "קשה מאוד", en: "Very hard", cls: "text-status-red" },
 };
 
 function formatGradeYear(raw: string | null, isHe: boolean): string | null {
@@ -211,13 +211,13 @@ export function CourseDetailModal({
               <div className="flex gap-4 text-xs text-foreground/60">
                 {course.examDateA && (
                   <span className="flex items-center gap-1.5">
-                    <Calendar className="size-3 text-red-400/60" />
+                    <Calendar className="size-3 text-status-red/60" />
                     {isHe ? "מועד א׳:" : "A:"} <span className="font-mono text-[10px]" dir="ltr">{new Date(course.examDateA).toLocaleDateString(isHe ? "he-IL" : "en-GB", { day: "2-digit", month: "2-digit", timeZone: "UTC" })}</span>
                   </span>
                 )}
                 {course.examDateB && (
                   <span className="flex items-center gap-1.5">
-                    <Calendar className="size-3 text-amber-400/60" />
+                    <Calendar className="size-3 text-status-amber/60" />
                     {isHe ? "מועד ב׳:" : "B:"} <span className="font-mono text-[10px]" dir="ltr">{new Date(course.examDateB).toLocaleDateString(isHe ? "he-IL" : "en-GB", { day: "2-digit", month: "2-digit", timeZone: "UTC" })}</span>
                   </span>
                 )}
@@ -243,7 +243,7 @@ export function CourseDetailModal({
                       {isHe ? pre.nameHe : (pre.nameEn ?? pre.nameHe)}
                     </button>
                   ) : (
-                    <span key={code} className="rounded-lg bg-foreground/5 px-2 py-1 font-mono text-[10px] text-foreground/60">
+                    <span key={code} className="rounded-lg bg-foreground/5 px-2 py-1 font-mono text-[10px] text-foreground/70">
                       <Bidi text={code} />
                     </span>
                   );
@@ -258,7 +258,7 @@ export function CourseDetailModal({
             promptEn={`Tell me about "${course.nameEn ?? course.nameHe}" (${course.code}) — how hard is it, and how does it fit my degree?`}
             labelHe="שאל את {advisor} על הקורס הזה"
             labelEn="Ask {advisor} about this course"
-            className="inline-flex w-fit items-center gap-1.5 rounded-lg bg-accent-brand/10 px-2.5 py-1.5 text-xs font-medium text-accent-brand transition-colors hover:bg-accent-brand/20"
+            className="inline-flex w-fit items-center gap-1.5 rounded-lg bg-accent-brand/6 px-2.5 py-1.5 text-xs font-medium text-accent-brand transition-colors hover:bg-accent-brand/20"
             iconClassName="size-3.5"
           />
         </div>
@@ -276,9 +276,9 @@ export function CourseDetailModal({
 // that actually reaches other students, and the one that does harm. Same enum,
 // same colour, wording that matches what a person can do about it.
 const VERDICT_META: Record<string, { he: string; heRequired?: string; en: string; enRequired?: string; cls: string }> = {
-  RECOMMEND: { he: "שווה", en: "Worth it", cls: "bg-emerald-500/15 text-emerald-600 dark:text-emerald-400" },
+  RECOMMEND: { he: "שווה", en: "Worth it", cls: "bg-emerald-500/15 text-status-green" },
   NEUTRAL: { he: "ניטרלי", en: "Neutral", cls: "bg-foreground/10 text-foreground/70" },
-  AVOID: { he: "הייתי מדלג", heRequired: "לא נתן לי הרבה", en: "Would skip", enRequired: "Gave me little", cls: "bg-red-500/15 text-red-600 dark:text-red-400" },
+  AVOID: { he: "הייתי מדלג", heRequired: "לא נתן לי הרבה", en: "Would skip", enRequired: "Gave me little", cls: "bg-red-500/15 text-status-red" },
 };
 
 /** The label to print for a stored verdict, given whether the course is required. */
@@ -397,7 +397,7 @@ function CommunityKnowledge({
         <button
           type="button"
           onClick={onContribute}
-          className="mt-2 inline-flex min-h-[36px] items-center gap-1.5 rounded-lg bg-accent-brand/10 px-2.5 py-1.5 text-xs font-medium text-accent-brand transition-colors hover:bg-accent-brand/20"
+          className="mt-2 inline-flex min-h-[36px] items-center gap-1.5 rounded-lg bg-accent-brand/6 px-2.5 py-1.5 text-xs font-medium text-accent-brand transition-colors hover:bg-accent-brand/20"
         >
           <MessageSquarePlus className="size-3.5" />
           {isHe ? "דרגו את הקורס" : "Rate this course"}
@@ -533,7 +533,7 @@ function CommunityKnowledge({
                     type="button"
                     onClick={() => report.mutate({ reviewId: r.id })}
                     disabled={report.isPending}
-                    className="inline-flex items-center gap-1 text-[10px] text-foreground/60 transition-colors hover:text-red-500 disabled:opacity-50"
+                    className="inline-flex items-center gap-1 text-[10px] text-foreground/60 transition-colors hover:text-status-red disabled:opacity-50"
                     title={isHe ? "דווחו על התוכן" : "Report this"}
                   >
                     <Flag className="size-2.5" />
@@ -549,7 +549,7 @@ function CommunityKnowledge({
       <button
         type="button"
         onClick={onContribute}
-        className="mt-3 inline-flex min-h-[36px] w-full items-center justify-center gap-1.5 rounded-lg border border-accent-brand/30 bg-accent-brand/5 px-2.5 py-1.5 text-xs font-medium text-accent-brand transition-colors hover:bg-accent-brand/15"
+        className="mt-3 inline-flex min-h-[36px] w-full items-center justify-center gap-1.5 rounded-lg border border-accent-brand/30 bg-accent-brand/5 px-2.5 py-1.5 text-xs font-medium text-accent-brand transition-colors hover:bg-accent-brand/6"
       >
         <MessageSquarePlus className="size-3.5" />
         {isHe ? "הוסיפו טיפ / דרגו את הקורס" : "Add a tip / rate this course"}

@@ -541,7 +541,7 @@ export function StepReady({ data, plannedSemesters, completedCourses, allCourses
               setIsSaving(false);
               router.push("/dashboard?from=onboarding");
             }}
-            className="animate-fade-in rounded-lg border border-foreground/20 px-5 py-2 text-sm font-medium text-foreground/60 transition-colors hover:bg-foreground/5"
+            className="animate-fade-in rounded-lg border border-foreground/20 px-5 py-2 text-sm font-medium text-foreground/70 transition-colors hover:bg-foreground/5"
           >
             {t("continueWithoutSaving")}
           </button>
@@ -706,7 +706,7 @@ export function StepReady({ data, plannedSemesters, completedCourses, allCourses
                       <span className="text-sm text-foreground/60">
                         {isHe ? "ש״ס שכבר השלמתם" : "Credits already completed"}
                       </span>
-                      <span className="font-mono tabular text-lg font-bold text-emerald-500">
+                      <span className="font-mono tabular text-lg font-bold text-status-green">
                         {completedCredits}
                       </span>
                     </div>
@@ -846,9 +846,9 @@ export function StepReady({ data, plannedSemesters, completedCourses, allCourses
       {saveError && !hasSaved && (
         <div className="animate-stagger-4 mt-8 flex w-full max-w-sm flex-col gap-3">
           <div className="flex items-start gap-2 rounded-lg border border-red-500/20 bg-red-500/5 px-4 py-3 text-start">
-            <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-red-400" />
+            <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-status-red" />
             <div>
-              <p className="text-sm font-medium text-red-400">
+              <p className="text-sm font-medium text-status-red">
                 {saveError === "demo" ? t("demoNotSavedTitle") : t("saveFailedTitle")}
               </p>
               <p className="mt-0.5 text-xs text-foreground/60">

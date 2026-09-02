@@ -184,7 +184,7 @@ export function SignupForm() {
       <div className="w-full max-w-md space-y-8">
         <div className="flex flex-col items-center gap-4 text-center">
           <div className="flex size-16 items-center justify-center rounded-2xl bg-green-500/10">
-            <CheckCircle className="size-8 text-green-500" />
+            <CheckCircle className="size-8 text-status-green" />
           </div>
           <div>
             <h1 className="font-display font-bold text-2xl tracking-tight">
@@ -197,7 +197,7 @@ export function SignupForm() {
               })}
             </p>
             {/* Spam-folder hint */}
-            <p className="mt-2 text-xs text-muted-foreground/80">
+            <p className="mt-2 text-xs text-muted-foreground">
               {t("spamHint")}
             </p>
           </div>
@@ -379,7 +379,7 @@ export function SignupForm() {
             onClick={handleDemoLogin}
             disabled={demoLoading}
             variant="outline"
-            className="w-full gap-2 h-11 text-sm border-dashed border-border text-foreground/60 hover:bg-foreground/5 hover:text-foreground/80 transition-all"
+            className="w-full gap-2 h-11 text-sm border-dashed border-border text-foreground/70 hover:bg-foreground/5 hover:text-foreground/80 transition-all"
           >
             {demoLoading ? (
               <Loader2 className="size-4 animate-spin" />

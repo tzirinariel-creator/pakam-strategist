@@ -286,7 +286,7 @@ export function ExamPlanWizard({
                 {sortedDays.map((k) => (
                   <span key={k} className="inline-flex items-center gap-1 rounded-full border border-border/60 bg-foreground/[0.04] px-2.5 py-1 text-xs text-foreground/70">
                     <Bidi text={fmtDayChip(k, isHe)} />
-                    <button type="button" onClick={() => removeDay(k)} aria-label={isHe ? "הסירו" : "remove"} className="text-foreground/60 transition-colors hover:text-red-400">
+                    <button type="button" onClick={() => removeDay(k)} aria-label={isHe ? "הסירו" : "remove"} className="text-foreground/60 transition-colors hover:text-status-red">
                       <X className="size-3" />
                     </button>
                   </span>
@@ -385,7 +385,7 @@ export function MoedPrinciplesCard({ isHe }: { isHe: boolean }) {
       <ul className="space-y-2.5">
         {points.map((p, i) => (
           <li key={i} className="flex gap-2.5">
-            <span className="mt-0.5 flex size-5 shrink-0 items-center justify-center rounded-full bg-accent-brand/10 text-[11px] font-bold text-accent-brand">
+            <span className="mt-0.5 flex size-5 shrink-0 items-center justify-center rounded-full bg-accent-brand/6 text-[11px] font-bold text-accent-brand">
               <Bidi text={String(i + 1)} />
             </span>
             <span className="min-w-0">

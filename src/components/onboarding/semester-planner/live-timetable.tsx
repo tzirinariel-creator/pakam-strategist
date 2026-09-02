@@ -371,7 +371,7 @@ export function LiveTimetable({
           קבוצה") — the planner, where the choosing actually happens, said
           nothing at all. */}
       {defaultedGroupKeys.size > 0 && (
-        <p className="rounded-lg border border-dashed border-amber-500/45 bg-amber-500/[0.06] px-3 py-2 text-[11px] leading-relaxed text-amber-700 dark:text-amber-400">
+        <p className="rounded-lg border border-dashed border-amber-500/45 bg-amber-500/[0.06] px-3 py-2 text-[11px] leading-relaxed text-status-amber">
           {isHe ? (
             <>
               {defaultedGroupKeys.size === 1 ? (
@@ -451,8 +451,8 @@ export function LiveTimetable({
       {/* Warning for courses that couldn't be shown on the timetable */}
       {coursesWithoutSchedule.length > 0 && (
         <div className="flex items-start gap-2 rounded-lg border border-dashed border-amber-500/20 bg-amber-500/5 px-3 py-2">
-          <CalendarX2 className="mt-0.5 h-3.5 w-3.5 shrink-0 text-amber-500/60" />
-          <div className="text-xs leading-relaxed text-amber-600/70">
+          <CalendarX2 className="mt-0.5 h-3.5 w-3.5 shrink-0 text-status-amber/60" />
+          <div className="text-xs leading-relaxed text-status-amber/70">
             <span className="font-medium">
               {t("coursesWithoutSchedule", { count: coursesWithoutSchedule.length })}
             </span>

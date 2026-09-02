@@ -51,7 +51,7 @@ export function EnglishStandingChip({ signal }: { signal: EnglishSignal }) {
       }
     >
       {done ? (
-        <Check className="size-3.5 shrink-0 text-emerald-600 dark:text-emerald-400" />
+        <Check className="size-3.5 shrink-0 text-status-green" />
       ) : (
         <Languages className="size-3.5 shrink-0 text-foreground/60" />
       )}
@@ -59,7 +59,7 @@ export function EnglishStandingChip({ signal }: { signal: EnglishSignal }) {
         <span
           className={
             done
-              ? "block text-xs font-semibold text-emerald-700 dark:text-emerald-300"
+              ? "block text-xs font-semibold text-status-green"
               : "block text-xs font-semibold text-foreground/75"
           }
         >

@@ -125,7 +125,7 @@ export function BinaryAdvisor() {
   return (
     <div className="data-card p-4">
       <div className="mb-1 flex items-center gap-2">
-        <div className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-emerald-400/10 text-emerald-600">
+        <div className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-emerald-400/10 text-status-green">
           <Scale className="size-4.5" />
         </div>
         <div className="min-w-0 flex-1">
@@ -161,7 +161,7 @@ export function BinaryAdvisor() {
                 <bdi dir="ltr">{course.grade} · {course.credits}</bdi> {isHe ? "ש״ס" : "cr"}
               </span>
             </span>
-            <span className="inline-flex items-center gap-1 rounded-md bg-emerald-400/10 px-2 py-1 font-bold text-emerald-600" dir="ltr">
+            <span className="inline-flex items-center gap-1 rounded-md bg-emerald-400/10 px-2 py-1 font-bold text-status-green" dir="ltr">
               <TrendingUp className="size-3" />
               {newAverage.toFixed(1)} (+{delta.toFixed(1)})
             </span>

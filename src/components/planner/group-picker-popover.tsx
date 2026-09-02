@@ -111,7 +111,7 @@ export function GroupPickerPopover({
                 <p
                   className={cn(
                     "shrink-0 text-[10px] font-medium",
-                    choice.freeCount === 0 ? "text-red-400" : "text-foreground/60",
+                    choice.freeCount === 0 ? "text-status-red" : "text-foreground/60",
                   )}
                 >
                   {isHe ? (
@@ -127,7 +127,7 @@ export function GroupPickerPopover({
               </div>
 
               {!chosen && (
-                <p className="text-[10px] leading-snug text-amber-700 dark:text-amber-400">
+                <p className="text-[10px] leading-snug text-status-amber">
                   {isHe
                     ? "עוד לא בחרתם — המערכת מציגה בינתיים את הקבוצה המסומנת בקו מקווקו."
                     : "You haven't chosen yet — the dashed row is what we're showing meanwhile."}

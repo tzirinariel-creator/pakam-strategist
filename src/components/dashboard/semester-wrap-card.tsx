@@ -114,14 +114,14 @@ export function SemesterWrapCard({
           </Link>
           <Link
             href="/record"
-            className="rounded-lg px-2.5 py-2 text-xs font-medium text-foreground/60 hover:bg-foreground/5"
+            className="rounded-lg px-2.5 py-2 text-xs font-medium text-foreground/70 hover:bg-foreground/5"
           >
             {isHe ? "עדכון ידני" : "Manual"}
           </Link>
           <button
             type="button"
             onClick={snooze}
-            className="rounded-lg px-2.5 py-2 text-xs text-foreground/60 hover:bg-foreground/5"
+            className="rounded-lg px-2.5 py-2 text-xs text-foreground/70 hover:bg-foreground/5"
           >
             {isHe ? "לא עכשיו" : "Not now"}
           </button>

@@ -483,7 +483,7 @@ export function StepHistory({
       <div className="mt-6 w-full max-w-2xl space-y-5">
         {/* Summary chip */}
         <div className="animate-stagger-2 flex items-center justify-center gap-2 text-xs text-foreground/60">
-          <GraduationCap className="h-4 w-4 text-emerald-500" />
+          <GraduationCap className="h-4 w-4 text-status-green" />
           <span>{t("historySelectedCount", { count: selectedCount })}</span>
           {gradedCount > 0 && (
             <span className="text-foreground/60">
@@ -634,7 +634,7 @@ export function StepHistory({
                                 · {course.credits} {t("nz")}
                               </span>
                               {isElective && (
-                                <span className="rounded-full bg-foreground/8 px-1.5 py-0.5 text-[11px] font-medium text-foreground/60">
+                                <span className="rounded-full bg-foreground/8 px-1.5 py-0.5 text-[11px] font-medium text-foreground/70">
                                   {t("historyElectiveBadge")}
                                 </span>
                               )}
@@ -650,7 +650,7 @@ export function StepHistory({
                                 </span>
                               )}
                               {isEnglish && (
-                                <span className="inline-flex items-center gap-0.5 rounded-full bg-blue-500/10 px-1.5 py-0.5 text-[11px] font-medium text-blue-500">
+                                <span className="inline-flex items-center gap-0.5 rounded-full bg-blue-500/10 px-1.5 py-0.5 text-[11px] font-medium text-status-blue">
                                   <Languages className="h-2.5 w-2.5" />
                                   {t("historyEnglishBadge")}
                                 </span>
@@ -692,7 +692,7 @@ export function StepHistory({
                                 })
                               }
                               aria-label={t("historyRemove")}
-                              className="shrink-0 rounded-md p-1 text-foreground/60 transition-colors hover:bg-red-500/10 hover:text-red-400"
+                              className="shrink-0 rounded-md p-1 text-foreground/60 transition-colors hover:bg-red-500/10 hover:text-status-red"
                             >
                               <X className="h-3.5 w-3.5" />
                             </button>
@@ -742,7 +742,7 @@ export function StepHistory({
                       onClick={() => addElective(course, defaultElectiveTarget)}
                       className="flex w-full items-center gap-2 rounded-md px-2 py-2 text-start transition-colors hover:bg-foreground/5"
                     >
-                      <Plus className="h-3.5 w-3.5 shrink-0 text-emerald-500" />
+                      <Plus className="h-3.5 w-3.5 shrink-0 text-status-green" />
                       <span className="min-w-0 flex-1 truncate text-sm text-foreground/80">
                         {isHe ? course.nameHe : (course.nameEn ?? course.nameHe)}
                       </span>
@@ -757,7 +757,7 @@ export function StepHistory({
                         </span>
                       )}
                       {isEnglish && (
-                        <span className="shrink-0 rounded-full bg-blue-500/10 px-1.5 py-0.5 text-[11px] font-medium text-blue-500">
+                        <span className="shrink-0 rounded-full bg-blue-500/10 px-1.5 py-0.5 text-[11px] font-medium text-status-blue">
                           {t("historyEnglishBadge")}
                         </span>
                       )}
@@ -860,7 +860,7 @@ export function StepHistory({
                           onChange(next);
                         }}
                         aria-label={isHe ? "הסרה" : "Remove"}
-                        className="rounded-md p-1 text-foreground/60 transition-colors hover:bg-foreground/10 hover:text-foreground/70"
+                        className="rounded-md p-1 text-foreground/70 transition-colors hover:bg-foreground/10 hover:text-foreground/70"
                       >
                         <X className="h-3.5 w-3.5" />
                       </button>
@@ -877,7 +877,7 @@ export function StepHistory({
         <button
           type="button"
           onClick={onBack}
-          className="rounded-lg px-4 py-2.5 text-sm text-foreground/60 transition-all hover:bg-foreground/5 hover:text-foreground/70"
+          className="rounded-lg px-4 py-2.5 text-sm text-foreground/70 transition-all hover:bg-foreground/5 hover:text-foreground/70"
         >
           {t("back")}
         </button>

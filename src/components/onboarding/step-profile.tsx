@@ -188,34 +188,34 @@ export function StepProfile({ data, onUpdate, sheetSeeded = false }: StepProfile
       return {
         text: isHe ? "פטור! עדיין צריך 2 קורסי תוכן באנגלית" : "Exempt! Still need 2 English content courses",
         detail: isHe ? "ציון 134+ — פטור מקורסי שפה, נדרשים 2 קורסים אקדמיים באנגלית" : "Score 134+ — exempt from language courses, 2 academic English courses required",
-        color: "text-emerald-500",
+        color: "text-status-green",
       };
     }
     if (score >= AMIRNET_CONFIG.ADVANCED_B_THRESHOLD) {
       return {
         text: isHe ? "מתקדמים ב׳ — קורס שפה + 2 קורסי תוכן" : "Advanced B — 1 language + 2 content courses",
         detail: isHe ? "ציון 120-133 — קורס שפה אחד + 2 קורסים אקדמיים באנגלית" : "Score 120-133 — 1 language course + 2 academic English courses",
-        color: "text-blue-400",
+        color: "text-status-blue",
       };
     }
     if (score >= AMIRNET_CONFIG.ADVANCED_A_THRESHOLD) {
       return {
         text: isHe ? "מתקדמים א׳ — 2 קורסי שפה" : "Advanced A — 2 language courses",
         detail: isHe ? "ציון 100-119 — 2 קורסי אנגלית (רמת הקבלה המינימלית)" : "Score 100-119 — 2 English courses (minimum admission level)",
-        color: "text-amber-500",
+        color: "text-status-amber",
       };
     }
     if (score >= AMIRNET_CONFIG.BASIC_THRESHOLD) {
       return {
         text: isHe ? "בסיסי — 3 קורסי שפה" : "Basic — 3 language courses",
         detail: isHe ? "ציון 85-99 — 3 קורסי אנגלית נדרשים" : "Score 85-99 — 3 English courses required",
-        color: "text-orange-400",
+        color: "text-status-amber",
       };
     }
     return {
       text: isHe ? "טרום בסיסי — 4-5 קורסי שפה" : "Pre-basic — 4-5 language courses",
       detail: isHe ? "ציון מתחת ל-85 — מחייב 4-5 קורסי אנגלית" : "Score below 85 — requires 4-5 English courses",
-      color: "text-red-400",
+      color: "text-status-red",
     };
   };
 
@@ -418,7 +418,7 @@ export function StepProfile({ data, onUpdate, sheetSeeded = false }: StepProfile
           >
             <Shield className={cn(
               "h-5 w-5 shrink-0",
-              showMiluimDetails || hasGroup ? "text-emerald-500" : "text-foreground/60"
+              showMiluimDetails || hasGroup ? "text-status-green" : "text-foreground/60"
             )} />
             <div className="flex-1 text-start">
               <span className="block">
@@ -428,7 +428,7 @@ export function StepProfile({ data, onUpdate, sheetSeeded = false }: StepProfile
               </span>
             </div>
             {hasGroup && exemptionShown > 0 && (
-              <span className="rounded-full bg-emerald-500/10 px-2.5 py-1 text-[11px] font-bold text-emerald-500">
+              <span className="rounded-full bg-emerald-500/10 px-2.5 py-1 text-[11px] font-bold text-status-green">
                 {tm("collapsedExempt", { credits: exemptionShown })}
               </span>
             )}
@@ -571,7 +571,7 @@ export function StepProfile({ data, onUpdate, sheetSeeded = false }: StepProfile
                           className={cn(
                             "flex items-center justify-center gap-1.5 rounded-lg border px-3 py-2 text-xs transition-all",
                             isCombat
-                              ? "border-amber-500/40 bg-amber-500/5 text-amber-600 font-medium"
+                              ? "border-amber-500/40 bg-amber-500/5 text-status-amber font-medium"
                               : "border-foreground/15 bg-card text-foreground/60 hover:border-foreground/30"
                           )}
                         >
@@ -601,7 +601,7 @@ export function StepProfile({ data, onUpdate, sheetSeeded = false }: StepProfile
                     {/* Result */}
                     {derivedGroup !== "NONE" && (days ?? 0) > 0 && (
                       <div className="rounded-lg border border-emerald-500/20 bg-emerald-500/5 p-2.5 animate-in fade-in duration-200">
-                        <p className="text-xs font-medium text-emerald-500">{tm("resultTitle")}</p>
+                        <p className="text-xs font-medium text-status-green">{tm("resultTitle")}</p>
                         <p className="mt-1 text-sm font-bold text-foreground/80">
                           <Bidi
                             text={
@@ -643,7 +643,7 @@ export function StepProfile({ data, onUpdate, sheetSeeded = false }: StepProfile
                       onClick={() => setExplicitGroup("GROUP_C")}
                       className="w-full rounded-lg border border-amber-500/20 bg-amber-500/5 px-3 py-2 text-start text-[11px] text-foreground/60 hover:border-amber-500/30 transition-all"
                     >
-                      <span className="flex items-center gap-1.5 font-medium text-amber-500">
+                      <span className="flex items-center gap-1.5 font-medium text-status-amber">
                         <Swords className="h-3 w-3" />
                         <Bidi text={tm("special300")} />
                       </span>
@@ -656,7 +656,7 @@ export function StepProfile({ data, onUpdate, sheetSeeded = false }: StepProfile
                       onClick={() => setExplicitGroup("GROUP_C", true)}
                       className="w-full rounded-lg border border-amber-500/20 bg-amber-500/5 px-3 py-2 text-start text-[11px] text-foreground/60 hover:border-amber-500/30 transition-all"
                     >
-                      <span className="flex items-center gap-1.5 font-medium text-amber-500">
+                      <span className="flex items-center gap-1.5 font-medium text-status-amber">
                         <Shield className="h-3 w-3" />
                         <Bidi text={tm("specialCareer")} />
                       </span>
@@ -726,7 +726,7 @@ export function StepProfile({ data, onUpdate, sheetSeeded = false }: StepProfile
                           <div className="flex items-center justify-between">
                             <span className="font-medium"><Bidi text={isHe ? group.nameHe : group.nameEn} /></span>
                             {groupKey !== "NONE" && (
-                              <span className="rounded-full bg-foreground/5 px-1.5 py-0.5 text-[10px] font-mono text-foreground/60">
+                              <span className="rounded-full bg-foreground/5 px-1.5 py-0.5 text-[10px] font-mono text-foreground/70">
                                 {Math.min(group.creditExemptionPerYear, MILUIM_CONFIG.MAX_CREDIT_EXEMPTIONS_DEGREE)} {isHe ? "ש״ס" : "cr."}
                               </span>
                             )}
@@ -751,12 +751,12 @@ export function StepProfile({ data, onUpdate, sheetSeeded = false }: StepProfile
                   {/* (1) Auto-applied — the exemption */}
                   <div className="rounded-xl border border-emerald-500/25 bg-emerald-500/5 p-3">
                     <div className="flex items-center gap-1.5 mb-1.5">
-                      <BadgeCheck className="h-3.5 w-3.5 text-emerald-500" />
-                      <p className="text-xs font-semibold text-emerald-600">{tm("appliedTitle")}</p>
+                      <BadgeCheck className="h-3.5 w-3.5 text-status-green" />
+                      <p className="text-xs font-semibold text-status-green">{tm("appliedTitle")}</p>
                     </div>
                     <p className="text-[11px] text-foreground/60 mb-2">{tm("appliedSubtitle")}</p>
                     <div className="flex items-start gap-1.5 text-[11px] text-foreground/60">
-                      <Check className="h-3 w-3 text-emerald-400 mt-0.5 shrink-0" />
+                      <Check className="h-3 w-3 text-status-green mt-0.5 shrink-0" />
                       <span>{tm("appliedExemption", { credits: exemptionShown })}</span>
                     </div>
                   </div>
@@ -768,7 +768,7 @@ export function StepProfile({ data, onUpdate, sheetSeeded = false }: StepProfile
                         <FileText className="h-3.5 w-3.5 text-foreground/60" />
                         <p className="text-xs font-semibold text-foreground/70">{tm("entitlementsTitle")}</p>
                       </div>
-                      <span className="rounded-full bg-foreground/5 px-2 py-0.5 text-[11px] font-medium text-foreground/60">
+                      <span className="rounded-full bg-foreground/5 px-2 py-0.5 text-[11px] font-medium text-foreground/70">
                         {tm("asof")}
                       </span>
                     </div>

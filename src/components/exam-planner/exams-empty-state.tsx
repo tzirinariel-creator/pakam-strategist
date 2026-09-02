@@ -95,7 +95,7 @@ export function ExamsEmptyState({
       <AcademicStatusLine isHe={isHe} now={now} />
       <div className="rounded-lg border border-amber-400/30 bg-amber-400/[0.06] p-3">
         <p className="flex items-center gap-2 text-sm font-semibold text-foreground/85">
-          <CalendarX2 className="size-4 shrink-0 text-amber-500" />
+          <CalendarX2 className="size-4 shrink-0 text-status-amber" />
           {isUnpublished
             ? isHe
               ? `לוח הבחינות של ${yearLabelHe} טרם פורסם`

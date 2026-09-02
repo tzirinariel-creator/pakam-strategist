@@ -59,24 +59,24 @@ function WeightBreakdownBar({
       weight: GRADE_WEIGHTS.COURSES,
       grade: breakdown.courseAverage,
       contribution: courseContribution,
-      color: "bg-blue-500",
-      textColor: "text-blue-400",
+      color: "bg-blue-600",
+      textColor: "text-status-blue",
     },
     {
       label: t("seminarsWeight"),
       weight: GRADE_WEIGHTS.SEMINAR_PAPERS,
       grade: breakdown.seminarPaperAverage,
       contribution: seminarContribution,
-      color: "bg-purple-500",
-      textColor: "text-purple-400",
+      color: "bg-purple-600",
+      textColor: "text-status-purple",
     },
     {
       label: t("referatWeight"),
       weight: GRADE_WEIGHTS.REFERAT,
       grade: breakdown.referatGrade,
       contribution: referatContribution,
-      color: "bg-teal-500",
-      textColor: "text-teal-400",
+      color: "bg-teal-700",
+      textColor: "text-status-teal",
     },
   ];
 
@@ -165,11 +165,11 @@ function ScoreDashboard({
 
   // Color coding
   const getScoreColor = (s: number) => {
-    if (s >= 90) return "text-emerald-400";
+    if (s >= 90) return "text-status-green";
     if (s >= 80) return "text-foreground/80";
-    if (s >= 70) return "text-amber-400";
-    if (s >= 60) return "text-orange-400";
-    return "text-red-400";
+    if (s >= 70) return "text-status-amber";
+    if (s >= 60) return "text-status-amber";
+    return "text-status-red";
   };
 
   return (
@@ -197,7 +197,7 @@ function ScoreDashboard({
           </div>
         ) : (
           <div className="flex flex-col items-center gap-2">
-            <span className="font-mono text-4xl font-bold text-foreground/20">
+            <span className="font-mono text-4xl font-bold text-foreground/50">
               --.-
             </span>
             <span className="max-w-[16rem] text-center text-xs text-foreground/60">
@@ -393,14 +393,14 @@ function ReverseCalculator({
         </div>
       ) : result.status === "impossible" ? (
         <div className="rounded-lg border border-red-400/20 bg-red-400/5 px-5 py-4">
-          <div className="flex items-center gap-2 text-red-400">
+          <div className="flex items-center gap-2 text-status-red">
             <AlertTriangle className="h-4 w-4" />
             <span className="text-sm font-medium">{t("impossible")}</span>
           </div>
         </div>
       ) : result.status === "already-achieved" ? (
         <div className="rounded-lg border border-emerald-400/20 bg-emerald-400/5 px-5 py-4">
-          <div className="flex items-center gap-2 text-emerald-400">
+          <div className="flex items-center gap-2 text-status-green">
             <Check className="h-4 w-4" />
             <span className="text-sm font-medium">{t("possible")}</span>
           </div>
@@ -708,7 +708,7 @@ function HonorsDistanceCard({
         <h3 className="font-display font-bold text-lg text-foreground/90">
           {t("honorsTitle")}
         </h3>
-        <span className="rounded-full bg-foreground/8 px-2 py-0.5 text-[10px] text-foreground/60">
+        <span className="rounded-full bg-foreground/8 px-2 py-0.5 text-[10px] text-foreground/70">
           {t("honorsTag")}
         </span>
       </div>

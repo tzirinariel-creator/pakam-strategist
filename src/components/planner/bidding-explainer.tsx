@@ -63,7 +63,7 @@ export function BiddingExplainer({ isHe }: { isHe: boolean }) {
             promptEn="How should I prioritize my bidding requests? What common mistakes should I avoid?"
             labelHe="שאל את {advisor} על אסטרטגיית בידינג"
             labelEn="Ask {advisor} about bidding strategy"
-            className="inline-flex items-center gap-1.5 rounded-lg bg-accent-brand/10 px-2.5 py-1.5 text-xs font-medium text-accent-brand transition-colors hover:bg-accent-brand/20"
+            className="inline-flex items-center gap-1.5 rounded-lg bg-accent-brand/6 px-2.5 py-1.5 text-xs font-medium text-accent-brand transition-colors hover:bg-accent-brand/20"
             iconClassName="size-3.5"
           />
 
@@ -100,7 +100,7 @@ function Steps({ isHe }: { isHe: boolean }) {
         return (
           <div key={i} className="relative rounded-xl border border-border/50 bg-foreground/[0.02] p-3">
             <div className="mb-1.5 flex items-center gap-2">
-              <span className="flex size-6 shrink-0 items-center justify-center rounded-full bg-accent-brand/10 text-[11px] font-bold text-accent-brand">{i + 1}</span>
+              <span className="flex size-6 shrink-0 items-center justify-center rounded-full bg-accent-brand/6 text-[11px] font-bold text-accent-brand">{i + 1}</span>
               <Icon className="size-4 text-foreground/60" />
             </div>
             <p className="text-xs font-bold text-foreground/80">{s.title}</p>
@@ -127,7 +127,7 @@ function OverlapTrap({ isHe }: { isHe: boolean }) {
   return (
     <div className="rounded-xl border border-amber-400/30 bg-amber-400/[0.06] p-3">
       <div className="mb-2 flex items-start gap-2">
-        <AlertTriangle className="mt-0.5 size-4 shrink-0 text-amber-500" />
+        <AlertTriangle className="mt-0.5 size-4 shrink-0 text-status-amber" />
         <p className="text-xs font-bold text-foreground/80">
           {isHe ? "חפיפת שעות — מה באמת קורה" : "Time clashes — what actually happens"}
         </p>
@@ -138,7 +138,7 @@ function OverlapTrap({ isHe }: { isHe: boolean }) {
         {/* held course */}
         <div className="relative h-7 rounded-md bg-foreground/[0.04]">
           <div
-            className="absolute inset-y-0 flex items-center justify-center rounded-md bg-emerald-500/20 text-[11px] font-semibold text-emerald-700 ring-1 ring-emerald-500/40 dark:text-emerald-300"
+            className="absolute inset-y-0 flex items-center justify-center rounded-md bg-emerald-500/20 text-[11px] font-semibold text-status-green ring-1 ring-emerald-500/40"
             style={{ insetInlineStart: `${pct(held.start)}%`, width: `${pct(held.end) - pct(held.start)}%` }}
           >
             <bdi>{isHe ? "קורס א׳ ✓" : "Course A ✓"}</bdi>
@@ -147,7 +147,7 @@ function OverlapTrap({ isHe }: { isHe: boolean }) {
         {/* new bid course */}
         <div className="relative h-7 rounded-md bg-foreground/[0.04]">
           <div
-            className="absolute inset-y-0 flex items-center justify-center rounded-md bg-amber-500/25 text-[11px] font-semibold text-amber-700 ring-1 ring-amber-500/50 dark:text-amber-300"
+            className="absolute inset-y-0 flex items-center justify-center rounded-md bg-amber-500/25 text-[11px] font-semibold text-status-amber ring-1 ring-amber-500/50"
             style={{ insetInlineStart: `${pct(bid.start)}%`, width: `${pct(bid.end) - pct(bid.start)}%` }}
           >
             <bdi>{isHe ? "קורס ב׳ ⚠" : "Course B ⚠"}</bdi>

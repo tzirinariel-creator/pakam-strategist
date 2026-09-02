@@ -140,7 +140,7 @@ export function GradeRecourseNav({
                     {isHe ? tool.he : tool.en}
                   </span>
                   {here && (
-                    <span className="rounded-full bg-accent-brand/10 px-1.5 py-px text-[10px] text-accent-brand">
+                    <span className="rounded-full bg-accent-brand/6 px-1.5 py-px text-[10px] text-accent-brand">
                       {isHe ? "אתם כאן" : "you're here"}
                     </span>
                   )}

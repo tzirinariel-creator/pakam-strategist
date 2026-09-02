@@ -450,7 +450,7 @@ export function MentorChat() {
                     <p className="truncate text-sm">
                       {session.title ?? t("newChat")}
                     </p>
-                    <p className="text-xs text-muted-foreground/70">
+                    <p className="text-xs text-muted-foreground">
                       {t("messageCount", { count: session.messageCount })}
                     </p>
                   </div>
@@ -584,7 +584,7 @@ export function MentorChat() {
                 rows={1}
                 className={cn(
                   "w-full resize-none rounded-xl border border-border bg-muted/50 px-4 py-3 text-sm outline-none transition-colors",
-                  "placeholder:text-muted-foreground/50",
+                  "placeholder:text-muted-foreground",
                   "focus:border-foreground/20 focus:bg-background",
                   "disabled:opacity-50"
                 )}

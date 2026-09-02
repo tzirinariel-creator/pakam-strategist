@@ -46,7 +46,7 @@ export function ConnectGeminiGuide() {
             const Icon = s.icon;
             return (
               <li key={i} className="flex items-start gap-2 text-xs leading-relaxed text-foreground/70">
-                <span className="mt-px flex size-4.5 shrink-0 items-center justify-center rounded-full bg-accent-brand/10 text-[10px] font-bold text-accent-brand">
+                <span className="mt-px flex size-4.5 shrink-0 items-center justify-center rounded-full bg-accent-brand/6 text-[10px] font-bold text-accent-brand">
                   {i + 1}
                 </span>
                 <Icon className="mt-0.5 size-3.5 shrink-0 text-foreground/60" />
@@ -65,7 +65,7 @@ export function ConnectGeminiGuide() {
       {/* Privacy, in plain words */}
       <div className="rounded-xl border border-border/60 bg-foreground/[0.02] p-3.5">
         <p className="mb-1.5 flex items-center gap-1.5 text-xs font-bold text-foreground/70">
-          <ShieldCheck className="size-3.5 text-emerald-500" />
+          <ShieldCheck className="size-3.5 text-status-green" />
           {isHe ? "מה נשלח ולאן? (פרטיות בגובה העיניים)" : "What gets sent where? (privacy, plainly)"}
         </p>
         <ul className="space-y-1 text-[11px] leading-relaxed text-foreground/60">

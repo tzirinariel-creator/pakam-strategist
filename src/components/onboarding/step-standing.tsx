@@ -242,7 +242,7 @@ export function StepStanding({ allCourses, isLoadingCourses, onDone, onBack }: S
                 ? "העלו את גיליון הציונים ופכמון יקרא ממנו מה כבר עשיתם, מה נכשל, איפה אתם באנגלית וכמה ש״ס נצברו — ויתחיל מהנקודה שלכם."
                 : "Upload your grade sheet and we'll read what you've done, what you failed, your English status and the credits you've earned — then start from where you actually are."}
             </span>
-            <span className="mt-1 inline-flex items-center gap-1 rounded-full bg-accent-brand/12 px-2.5 py-1 text-[11px] font-semibold text-accent-brand">
+            <span className="mt-1 inline-flex items-center gap-1 rounded-full bg-accent-brand/6 px-2.5 py-1 text-[11px] font-semibold text-accent-brand">
               {isHe ? "הדרך המהירה" : "The fast path"}
             </span>
           </button>
@@ -253,7 +253,7 @@ export function StepStanding({ allCourses, isLoadingCourses, onDone, onBack }: S
             onClick={() => onDone({ choice: "fresh" })}
             className="animate-stagger-2 flex flex-col items-start gap-2 rounded-2xl border-2 border-border bg-card p-5 text-start transition-all hover:border-foreground/30"
           >
-            <span className="flex size-10 items-center justify-center rounded-xl bg-foreground/8 text-foreground/60">
+            <span className="flex size-10 items-center justify-center rounded-xl bg-foreground/8 text-foreground/70">
               <GraduationCap className="size-5" />
             </span>
             <span className="font-display text-base font-bold text-foreground/90">
@@ -281,7 +281,7 @@ export function StepStanding({ allCourses, isLoadingCourses, onDone, onBack }: S
         <button
           type="button"
           onClick={onBack}
-          className="mt-6 rounded-lg px-4 py-2 text-sm text-foreground/60 transition-colors hover:bg-foreground/5 hover:text-foreground/90"
+          className="mt-6 rounded-lg px-4 py-2 text-sm text-foreground/70 transition-colors hover:bg-foreground/5 hover:text-foreground/90"
         >
           {isHe ? "חזרה" : "Back"}
         </button>
@@ -362,7 +362,7 @@ export function StepStanding({ allCourses, isLoadingCourses, onDone, onBack }: S
         {scan.kind === "failed" && (
           <div className="rounded-2xl border border-amber-500/30 bg-amber-500/[0.06] p-4">
             <div className="flex items-start gap-2.5">
-              <AlertTriangle className="mt-0.5 size-4 shrink-0 text-amber-500" />
+              <AlertTriangle className="mt-0.5 size-4 shrink-0 text-status-amber" />
               <div className="min-w-0">
                 <p className="text-sm font-semibold text-foreground/85">
                   {isHe ? "הסריקה לא הצליחה" : "The scan didn't succeed"}
@@ -431,7 +431,7 @@ export function StepStanding({ allCourses, isLoadingCourses, onDone, onBack }: S
           type="button"
           onClick={() => (scan.kind === "scanning" ? undefined : setMode("ask"))}
           disabled={scan.kind === "scanning"}
-          className="mt-6 rounded-lg px-4 py-2 text-sm text-foreground/60 transition-colors hover:bg-foreground/5 hover:text-foreground/90 disabled:opacity-40"
+          className="mt-6 rounded-lg px-4 py-2 text-sm text-foreground/70 transition-colors hover:bg-foreground/5 hover:text-foreground/90 disabled:opacity-40"
         >
           {isHe ? "חזרה" : "Back"}
         </button>
@@ -525,7 +525,7 @@ function StandingSummaryCard({
       {/* Headline standing */}
       <div className="rounded-2xl border border-emerald-500/25 bg-emerald-500/[0.05] p-5">
         <div className="flex items-start gap-3">
-          <span className="flex size-9 shrink-0 items-center justify-center rounded-xl bg-emerald-500/12 text-emerald-500">
+          <span className="flex size-9 shrink-0 items-center justify-center rounded-xl bg-emerald-500/12 text-status-green">
             <Check className="size-5" />
           </span>
           <div className="min-w-0 flex-1">
@@ -609,7 +609,7 @@ function StandingSummaryCard({
       {averageMismatch && (
         <div className="rounded-2xl border border-amber-500/30 bg-amber-500/[0.06] p-4">
           <div className="flex items-start gap-2.5">
-            <AlertTriangle className="mt-0.5 size-4 shrink-0 text-amber-500" />
+            <AlertTriangle className="mt-0.5 size-4 shrink-0 text-status-amber" />
             <div className="min-w-0">
               <p className="text-sm font-semibold text-foreground/85">
                 {isHe
@@ -647,7 +647,7 @@ function StandingSummaryCard({
                 key={r.id}
                 className={cn(
                   "inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-semibold",
-                  r.cfg?.badgeClass ?? "bg-foreground/8 text-foreground/60",
+                  r.cfg?.badgeClass ?? "bg-foreground/8 text-foreground/70",
                 )}
               >
                 {isHe ? r.cfg?.nameHe : r.cfg?.nameEn}
@@ -705,7 +705,7 @@ function StandingSummaryCard({
               // the sheet says is still being studied. Saying "בלימוד" for it
               // would be asserting something the document never said.
               <li className="flex items-start gap-2">
-                <AlertTriangle className="mt-0.5 size-3.5 shrink-0 text-amber-500" />
+                <AlertTriangle className="mt-0.5 size-3.5 shrink-0 text-status-amber" />
                 <span>
                   <Bidi
                     text={
@@ -771,7 +771,7 @@ function StandingSummaryCard({
             )}
             {summary.uncertain.length > 0 && (
               <li className="flex items-start gap-2">
-                <AlertTriangle className="mt-0.5 size-3.5 shrink-0 text-amber-500" />
+                <AlertTriangle className="mt-0.5 size-3.5 shrink-0 text-status-amber" />
                 <span>
                   <Bidi
                     text={
@@ -890,10 +890,10 @@ function StandingSummaryCard({
                   className={cn(
                     "rounded-full px-2 py-0.5 text-[11px] font-medium",
                     r.status === "COMPLETED"
-                      ? "bg-emerald-500/10 text-emerald-500"
+                      ? "bg-emerald-500/10 text-status-green"
                       : r.status === "FAILED"
-                        ? "bg-amber-500/10 text-amber-500"
-                        : "bg-foreground/8 text-foreground/60",
+                        ? "bg-amber-500/10 text-status-amber"
+                        : "bg-foreground/8 text-foreground/70",
                   )}
                 >
                   {r.status === "COMPLETED"
@@ -917,14 +917,14 @@ function StandingSummaryCard({
                             : "Unclear"}
                 </span>
                 {r.uncertain && (
-                  <span className="rounded-full bg-amber-500/10 px-2 py-0.5 text-[11px] font-medium text-amber-500">
+                  <span className="rounded-full bg-amber-500/10 px-2 py-0.5 text-[11px] font-medium text-status-amber">
                     {isHe ? "לבדיקה" : "Check"}
                   </span>
                 )}
                 {r.manual && (
                   // Never let a course the STUDENT typed look like something we
                   // read off their official document.
-                  <span className="rounded-full bg-accent-brand/10 px-2 py-0.5 text-[11px] font-medium text-accent-brand">
+                  <span className="rounded-full bg-accent-brand/6 px-2 py-0.5 text-[11px] font-medium text-accent-brand">
                     {isHe ? "הוספתם" : "You added"}
                   </span>
                 )}
@@ -933,7 +933,7 @@ function StandingSummaryCard({
                     let the student settle it with one tap, instead of burying
                     the number we already have. */}
                 {included && r.grade == null && r.otherGrade != null && (
-                  <span className="inline-flex items-center gap-1.5 rounded-full bg-amber-500/10 px-2 py-0.5 text-[11px] text-amber-600">
+                  <span className="inline-flex items-center gap-1.5 rounded-full bg-amber-500/10 px-2 py-0.5 text-[11px] text-status-amber">
                     {isHe ? "באחת הקריאות יצא" : "One read gave"}
                     <bdi dir="ltr" className="font-mono font-bold">
                       {r.otherGrade}
@@ -941,7 +941,7 @@ function StandingSummaryCard({
                     <button
                       type="button"
                       onClick={() => onEditRow(i, { grade: r.otherGrade })}
-                      className="rounded font-semibold underline underline-offset-2 hover:text-amber-700"
+                      className="rounded font-semibold underline underline-offset-2 hover:text-status-amber"
                     >
                       {isHe ? "זה הציון" : "That's the grade"}
                     </button>
@@ -957,7 +957,7 @@ function StandingSummaryCard({
                     <button
                       type="button"
                       onClick={() => setEditingRow(i)}
-                      className="inline-flex shrink-0 items-center gap-1 rounded-full border border-emerald-500/35 px-2 py-0.5 text-[11px] font-semibold text-emerald-600 transition-colors hover:bg-emerald-500/10"
+                      className="inline-flex shrink-0 items-center gap-1 rounded-full border border-emerald-500/35 px-2 py-0.5 text-[11px] font-semibold text-status-green transition-colors hover:bg-emerald-500/10"
                     >
                       <PenLine className="size-3" />
                       {isHe ? "להזין ציון" : "Enter a grade"}
@@ -972,7 +972,7 @@ function StandingSummaryCard({
                     "inline-flex shrink-0 items-center gap-1 rounded-md px-1.5 py-1 text-[11px] font-semibold transition-colors",
                     editingRow === i
                       ? "bg-accent-brand/15 text-accent-brand"
-                      : "text-foreground/60 hover:bg-foreground/5 hover:text-foreground/70",
+                      : "text-foreground/70 hover:bg-foreground/5 hover:text-foreground/70",
                   )}
                 >
                   <PenLine className="size-3" />
@@ -1132,7 +1132,7 @@ function StandingSummaryCard({
                   }}
                   className="flex w-full items-center gap-2 rounded-md px-2 py-2 text-start transition-colors hover:bg-foreground/5"
                 >
-                  <Plus className="size-3.5 shrink-0 text-emerald-500" />
+                  <Plus className="size-3.5 shrink-0 text-status-green" />
                   <span className="min-w-0 flex-1 truncate text-sm text-foreground/80">
                     {isHe ? c.nameHe : (c.nameEn ?? c.nameHe)}
                   </span>

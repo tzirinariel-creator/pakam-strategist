@@ -165,7 +165,7 @@ export function CohortFileContent() {
                   "rounded-full px-3 py-1.5 text-xs font-medium transition-colors",
                   electivesOnly
                     ? "bg-foreground text-background"
-                    : "bg-foreground/8 text-foreground/60 hover:bg-foreground/15",
+                    : "bg-foreground/8 text-foreground/70 hover:bg-foreground/15",
                 )}
               >
                 {isHe ? "רק קורסי בחירה" : "Electives only"}
@@ -205,8 +205,8 @@ export function CohortFileContent() {
                               className={cn(
                                 "inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-semibold",
                                 c.recommendShare >= 0.6
-                                  ? "bg-emerald-500/15 text-emerald-600"
-                                  : "bg-foreground/8 text-foreground/60",
+                                  ? "bg-emerald-500/15 text-status-green"
+                                  : "bg-foreground/8 text-foreground/70",
                               )}
                             >
                               <ThumbsUp className="size-3" />
@@ -380,7 +380,7 @@ function InsightsSection({ isHe }: { isHe: boolean }) {
               "rounded-full px-3 py-1.5 text-xs font-medium transition-colors",
               stage === st.key
                 ? "bg-foreground text-background"
-                : "bg-foreground/8 text-foreground/60 hover:bg-foreground/15",
+                : "bg-foreground/8 text-foreground/70 hover:bg-foreground/15",
             )}
           >
             {isHe ? st.he : st.en}
@@ -408,7 +408,7 @@ function InsightsSection({ isHe }: { isHe: boolean }) {
                   className="opacity-0 transition-opacity group-hover:opacity-100 focus-visible:opacity-100"
                   aria-label={isHe ? "דיווח על תוכן פוגעני" : "Report"}
                 >
-                  <Flag className="size-3.5 text-foreground/60 hover:text-red-500" />
+                  <Flag className="size-3.5 text-foreground/60 hover:text-status-red" />
                 </button>
               </div>
             </div>
@@ -448,7 +448,7 @@ function InsightsSection({ isHe }: { isHe: boolean }) {
                 <button
                   type="button"
                   onClick={() => deleteMine.mutate({ stage })}
-                  className="rounded-lg bg-foreground/8 px-3 py-2 text-sm font-medium text-foreground/60 transition-colors hover:bg-red-500/15 hover:text-red-500"
+                  className="rounded-lg bg-foreground/8 px-3 py-2 text-sm font-medium text-foreground/70 transition-colors hover:bg-red-500/15 hover:text-status-red"
                 >
                   {isHe ? "מחיקה" : "Delete"}
                 </button>
@@ -526,7 +526,7 @@ function GallerySection({ isHe }: { isHe: boolean }) {
               <div className="flex shrink-0 items-center gap-1.5">
                 <Link
                   href={`/shared-plan?d=${encodeURIComponent(e.token)}`}
-                  className="inline-flex items-center gap-1 rounded-lg bg-accent-brand/10 px-2.5 py-1.5 text-xs font-semibold text-accent-brand hover:bg-accent-brand/20"
+                  className="inline-flex items-center gap-1 rounded-lg bg-accent-brand/6 px-2.5 py-1.5 text-xs font-semibold text-accent-brand hover:bg-accent-brand/20"
                 >
                   <ExternalLink className="size-3" />
                   {isHe ? "צפייה והעתקה" : "View & copy"}
@@ -535,7 +535,7 @@ function GallerySection({ isHe }: { isHe: boolean }) {
                   type="button"
                   onClick={() => reportEntry.mutate({ id: e.id })}
                   aria-label={isHe ? "דיווח על מסלול" : "Report plan"}
-                  className="rounded-lg p-1.5 text-foreground/60 hover:text-red-500"
+                  className="rounded-lg p-1.5 text-foreground/60 hover:text-status-red"
                 >
                   <Flag className="size-3.5" />
                 </button>

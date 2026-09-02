@@ -1000,10 +1000,10 @@ export function SemesterPlanner({
                     isActive
                       ? "bg-foreground text-background shadow-sm"
                       : isCompleted
-                        ? "bg-foreground/10 text-foreground/60 hover:bg-foreground/15"
+                        ? "bg-foreground/10 text-foreground/70 hover:bg-foreground/15"
                         : isFar
                           ? "border border-dashed border-foreground/20 bg-transparent text-foreground/60 hover:text-foreground/90"
-                          : "bg-foreground/5 text-foreground/60 hover:bg-foreground/10 hover:text-foreground/90"
+                          : "bg-foreground/5 text-foreground/70 hover:bg-foreground/10 hover:text-foreground/90"
                   )}
                 >
                   {isCompleted && !isActive && (
@@ -1016,7 +1016,7 @@ export function SemesterPlanner({
           </div>
           {/* Soft horizon nudge — only when editing a far semester (E-4). */}
           {activeIsFar && (
-            <p className="max-w-md text-[11px] leading-snug text-amber-600/80 dark:text-amber-400/70">
+            <p className="max-w-md text-[11px] leading-snug text-status-amber/80/70">
               {isHe
                 ? "זה סמסטר רחוק יחסית — סביר שדברים עוד ישתנו. אפשר לתכנן, רק כדאי להתמקד קודם בסמסטר הקרוב."
                 : "This is a far-off semester — things will likely still change. Plan if you like, but focus on the upcoming one first."}
@@ -1024,7 +1024,7 @@ export function SemesterPlanner({
           )}
           <button
             onClick={() => setShowDegreeModal(true)}
-            className="inline-flex items-center gap-1 rounded-full bg-foreground/5 px-2.5 py-1 text-xs text-foreground/60 hover:text-foreground/90 transition-colors"
+            className="inline-flex items-center gap-1 rounded-full bg-foreground/5 px-2.5 py-1 text-xs text-foreground/70 hover:text-foreground/90 transition-colors"
           >
             <Info className="h-3 w-3" />
             {t("aboutPPE")}
@@ -1132,7 +1132,7 @@ export function SemesterPlanner({
                 {/* Live count of what is still OUR default — the one number that
                     tells a student how much of this week they haven't decided. */}
                 {unchosenGroupCount > 0 && (
-                  <span className="rounded-full bg-amber-500/20 px-1.5 py-0.5 text-[10px] font-bold text-amber-700 dark:text-amber-400">
+                  <span className="rounded-full bg-amber-500/20 px-1.5 py-0.5 text-[10px] font-bold text-status-amber">
                     {unchosenGroupCount}
                   </span>
                 )}
@@ -1275,7 +1275,7 @@ export function SemesterPlanner({
             "w-full rounded-xl px-6 py-3 text-sm font-medium transition-all",
             allCurrentCourses.length > 0
               ? "bg-foreground text-background hover:scale-[1.01] press-scale font-bold"
-              : "bg-foreground/10 text-foreground/60 cursor-not-allowed"
+              : "bg-foreground/10 text-foreground/70 cursor-not-allowed"
           )}
         >
           {t("semesterDone")} — {allCurrentCourses.length} {t("courses")}, {currentSemesterCredits} {t("nz")}

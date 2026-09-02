@@ -63,10 +63,10 @@ interface CourseCardProps {
 
 const STATUS_ICON: Record<CourseStatus, React.ReactNode> = {
   PLANNED: <Clock className="size-3.5 text-muted-foreground" />,
-  IN_PROGRESS: <BookOpen className="size-3.5 text-blue-400" />,
-  COMPLETED: <CheckCircle2 className="size-3.5 text-emerald-400" />,
-  FAILED: <XCircle className="size-3.5 text-red-400" />,
-  EXEMPT: <ShieldCheck className="size-3.5 text-amber-400" />,
+  IN_PROGRESS: <BookOpen className="size-3.5 text-status-blue" />,
+  COMPLETED: <CheckCircle2 className="size-3.5 text-status-green" />,
+  FAILED: <XCircle className="size-3.5 text-status-red" />,
+  EXEMPT: <ShieldCheck className="size-3.5 text-status-amber" />,
 };
 
 export function CourseCard({ userCourse, disabled, currentYear }: CourseCardProps) {
@@ -246,7 +246,7 @@ export function CourseCard({ userCourse, disabled, currentYear }: CourseCardProp
           !disabled && !confirmRemove && "cursor-grab active:cursor-grabbing",
         )}
       >
-        <GripVertical className="size-4 text-muted-foreground/40 group-hover:text-muted-foreground/70" />
+        <GripVertical className="size-4 text-muted-foreground group-hover:text-muted-foreground" />
       </button>
 
       {/* Course info */}
@@ -259,7 +259,7 @@ export function CourseCard({ userCourse, disabled, currentYear }: CourseCardProp
         </div>
 
         <div className="flex items-center gap-2">
-          <span className="text-[10px] font-mono text-muted-foreground/60">{course.code}</span>
+          <span className="text-[10px] font-mono text-muted-foreground">{course.code}</span>
           <DisciplineBadge
             discipline={userCourse.disciplineOverride ?? course.discipline}
             className="text-[11px] px-1.5 py-0"
@@ -274,7 +274,7 @@ export function CourseCard({ userCourse, disabled, currentYear }: CourseCardProp
           )}
           {userCourse.isBinary && userCourse.status === "COMPLETED" && (
             <span
-              className="inline-flex items-center rounded-full bg-amber-500/15 px-1.5 py-0 text-[11px] font-medium text-amber-600"
+              className="inline-flex items-center rounded-full bg-amber-500/15 px-1.5 py-0 text-[11px] font-medium text-status-amber"
               title={tPlanner("binaryHint")}
             >
               {tPlanner("binaryBadge")}
@@ -293,7 +293,7 @@ export function CourseCard({ userCourse, disabled, currentYear }: CourseCardProp
             userCourse.status !== "COMPLETED" &&
             userCourse.status !== "FAILED" && (
               <span
-                className="inline-flex items-center gap-1 rounded-full bg-amber-500/12 px-1.5 py-0.5 text-[10px] font-medium text-amber-700 dark:text-amber-400"
+                className="inline-flex items-center gap-1 rounded-full bg-amber-500/12 px-1.5 py-0.5 text-[10px] font-medium text-status-amber"
                 title={
                   isHe
                     ? "הקורס לא מופיע בידיעון תשפ״ז. ייתכן שבוטל, שקודו שונה, או שטרם פורסם — לא ידוע לנו מה מבין השלושה. כדאי לאמת מול המזכירות."
@@ -312,8 +312,8 @@ export function CourseCard({ userCourse, disabled, currentYear }: CourseCardProp
               className={cn(
                 "inline-flex items-center rounded-full px-1.5 py-0.5 text-[10px] font-medium",
                 declaredApproved
-                  ? "bg-emerald-500/12 text-emerald-700 dark:text-emerald-400"
-                  : "bg-foreground/8 text-foreground/60",
+                  ? "bg-emerald-500/12 text-status-green"
+                  : "bg-foreground/8 text-foreground/70",
               )}
               title={
                 declaredApproved
@@ -367,7 +367,7 @@ export function CourseCard({ userCourse, disabled, currentYear }: CourseCardProp
             onPointerDown={(e) => e.stopPropagation()}
             aria-label={tPlanner("moveCourse")}
             title={tPlanner("moveCourse")}
-            className="flex size-6 shrink-0 items-center justify-center rounded-lg text-muted-foreground/50 transition-colors hover:bg-muted hover:text-foreground focus:opacity-100 focus:outline-none md:opacity-0 md:group-hover:opacity-100"
+            className="flex size-6 shrink-0 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-muted hover:text-foreground focus:opacity-100 focus:outline-none md:opacity-0 md:group-hover:opacity-100"
           >
             <FolderInput className="size-3.5" />
           </button>
@@ -438,7 +438,7 @@ export function CourseCard({ userCourse, disabled, currentYear }: CourseCardProp
           "absolute -top-1.5 -end-1.5 z-20 flex items-center justify-center rounded-full border transition-all",
           confirmRemove
             ? "size-auto gap-1 border-red-400/60 bg-red-500/90 px-2 py-0.5 text-[11px] font-medium text-white"
-            : "size-5 border-border/60 bg-card text-muted-foreground/50 opacity-100 hover:border-red-400/60 hover:bg-red-500/10 hover:text-red-400 focus:opacity-100 focus:ring-2 focus:ring-red-400/60 focus:outline-none md:opacity-0 md:group-hover:opacity-100",
+            : "size-5 border-border/60 bg-card text-muted-foreground opacity-100 hover:border-red-400/60 hover:bg-red-500/10 hover:text-status-red focus:opacity-100 focus:ring-2 focus:ring-red-400/60 focus:outline-none md:opacity-0 md:group-hover:opacity-100",
         )}
         title={tPlanner("removeCourse")}
       >
@@ -594,8 +594,8 @@ function CompletionControl({
           className={cn(
             "shrink-0 flex items-center justify-center rounded-md p-1 transition-all focus:outline-none focus:ring-2 focus:ring-foreground/30",
             isCompleted
-              ? "text-emerald-400 hover:bg-emerald-400/10"
-              : "text-muted-foreground/50 hover:text-foreground/70 hover:bg-foreground/5 opacity-100 focus:opacity-100 md:opacity-0 md:group-hover:opacity-100",
+              ? "text-status-green hover:bg-emerald-400/10"
+              : "text-muted-foreground hover:text-foreground/70 hover:bg-foreground/5 opacity-100 focus:opacity-100 md:opacity-0 md:group-hover:opacity-100",
           )}
         >
           <GraduationCap className="size-3.5" />
@@ -654,17 +654,17 @@ function CompletionControl({
                     "placeholder:text-foreground/60",
                     "focus:outline-none focus:ring-1 transition-all",
                     isFailingGrade
-                      ? "border-amber-400/60 text-amber-600 focus:border-amber-400 focus:ring-amber-400/30 dark:text-amber-400"
+                      ? "border-amber-400/60 text-status-amber focus:border-amber-400 focus:ring-amber-400/30"
                       : "border-border/50 text-foreground focus:border-foreground/35 focus:ring-foreground/20",
                   )}
                 />
               </div>
               {grade !== null && !isFailingGrade && (
-                <Check className="size-3.5 text-emerald-400" />
+                <Check className="size-3.5 text-status-green" />
               )}
             </div>
             {isFailingGrade && (
-              <p className="flex items-center gap-1 text-xs leading-tight text-amber-600 dark:text-amber-500">
+              <p className="flex items-center gap-1 text-xs leading-tight text-status-amber">
                 <AlertTriangle className="size-3 shrink-0" />
                 {isHe
                   ? "ציון נכשל — הקורס לא נספר לקרדיט עד שתעבור אותו מחדש."
@@ -733,12 +733,12 @@ function GradeWithTooltip({
   // Dynamic color based on grade
   const gradeColor =
     grade >= 85
-      ? "text-emerald-400"
+      ? "text-status-green"
       : grade >= 70
         ? "text-foreground/70"
         : grade >= 60
-          ? "text-amber-400"
-          : "text-red-400";
+          ? "text-status-amber"
+          : "text-status-red";
 
   const tooltipText = isHe
     ? `${label} | ציון ${grade} | משקל: ${weight} מנוסחת הגמר | ${credits} ש״ס`

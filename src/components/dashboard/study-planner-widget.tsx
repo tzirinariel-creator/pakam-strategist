@@ -286,7 +286,7 @@ export function StudyPlannerWidget({
                   <button
                     type="button"
                     onClick={() => toggleTask.mutate({ id: task.id })}
-                    className="shrink-0 text-foreground/60 transition-colors hover:text-emerald-400"
+                    className="shrink-0 text-foreground/60 transition-colors hover:text-status-green"
                   >
                     <Circle className="h-4 w-4" />
                   </button>
@@ -315,7 +315,7 @@ export function StudyPlannerWidget({
                       </div>
                       <span className={cn(
                         "text-[10px]",
-                        isOverdue ? "font-medium text-red-400" : "text-foreground/60"
+                        isOverdue ? "font-medium text-status-red" : "text-foreground/60"
                       )}>
                         {isOverdue
                           ? t("overdue")
@@ -344,7 +344,7 @@ export function StudyPlannerWidget({
                     <button
                       type="button"
                       onClick={() => deleteTask.mutate({ id: task.id })}
-                      className="shrink-0 rounded px-1.5 py-0.5 text-[10px] font-medium text-red-400 transition-colors hover:bg-red-500/10"
+                      className="shrink-0 rounded px-1.5 py-0.5 text-[10px] font-medium text-status-red transition-colors hover:bg-red-500/10"
                     >
                       {t("confirmDelete")}
                     </button>
@@ -352,7 +352,7 @@ export function StudyPlannerWidget({
                     <button
                       type="button"
                       onClick={() => setDeletingId(task.id)}
-                      className="shrink-0 text-foreground/20 opacity-0 transition-all group-hover:opacity-100 hover:text-red-400"
+                      className="shrink-0 text-foreground/20 opacity-0 transition-all group-hover:opacity-100 hover:text-status-red"
                     >
                       <Trash2 className="h-3.5 w-3.5" />
                     </button>
@@ -372,7 +372,7 @@ export function StudyPlannerWidget({
         {/* Completed summary */}
         {completedCount > 0 && (
           <div className="mt-3 flex items-center gap-1.5 text-xs text-foreground/60">
-            <CheckCircle2 className="h-3 w-3 text-emerald-400/60" />
+            <CheckCircle2 className="h-3 w-3 text-status-green/60" />
             {t("completedCount", { count: completedCount })}
           </div>
         )}

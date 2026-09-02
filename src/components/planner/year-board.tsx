@@ -195,7 +195,7 @@ export function YearBoard({ courses, currentYear }: YearBoardProps) {
           {showSaved && (
             <span
               role="status"
-              className="animate-fade-in inline-flex items-center gap-1 text-xs font-medium text-emerald-500"
+              className="animate-fade-in inline-flex items-center gap-1 text-xs font-medium text-status-green"
             >
               <CheckCircle2 className="size-3.5" />
               {isHe ? "נשמר" : "Saved"}
@@ -252,12 +252,12 @@ export function YearBoard({ courses, currentYear }: YearBoardProps) {
         {/* רשת-ביטחון: קורסים שמשובצים לסמסטר קיץ (אין לזה עמודה) */}
         {summerCourses.length > 0 && (
           <div className="rounded-xl border border-amber-400/50 bg-amber-50/60 p-3 dark:bg-amber-950/20">
-            <p className="text-sm font-semibold text-amber-900 dark:text-amber-200">
+            <p className="text-sm font-semibold text-status-amber">
               {isHe
                 ? "יש קורסים שמשובצים לסמסטר קיץ"
                 : "Some courses are placed in a summer semester"}
             </p>
-            <p className="mt-0.5 text-xs text-amber-800/80 dark:text-amber-200/70">
+            <p className="mt-0.5 text-xs text-status-amber/80/70">
               {isHe
                 ? "פכ״מ מתוכנן לסתיו ולאביב בלבד. כדי שהקורסים האלה לא יאבדו, העבירו אותם לאביב."
                 : "This degree is planned for fall and spring only. Move these to spring so they aren't lost."}
@@ -276,7 +276,7 @@ export function YearBoard({ courses, currentYear }: YearBoardProps) {
                     type="button"
                     onClick={() => moveSummerToSpring(uc)}
                     disabled={updateCourse.isPending}
-                    className="shrink-0 rounded-md border border-amber-400/60 px-2 py-1 text-[11px] font-semibold text-amber-900 transition-colors hover:bg-amber-100 disabled:opacity-50 dark:text-amber-200 dark:hover:bg-amber-900/30"
+                    className="shrink-0 rounded-md border border-amber-400/60 px-2 py-1 text-[11px] font-semibold text-status-amber transition-colors hover:bg-amber-100 disabled:opacity-50 dark:hover:bg-amber-900/30"
                   >
                     {isHe ? "העבירו לאביב" : "Move to spring"}
                   </button>

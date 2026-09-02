@@ -80,7 +80,7 @@ export function SharedPlanContent() {
   if (!shared) {
     return (
       <div className="flex min-h-[60vh] flex-col items-center justify-center gap-3 p-6 text-center">
-        <AlertTriangle className="size-10 text-amber-400" />
+        <AlertTriangle className="size-10 text-status-amber" />
         <p className="text-sm text-foreground/60">
           {isHe ? "הקישור לא תקין או פג." : "This share link is invalid or expired."}
         </p>
@@ -155,7 +155,7 @@ export function SharedPlanContent() {
       ) : (
         <div className="data-card flex flex-col gap-2 p-4">
           {confirming && (
-            <p className="flex items-start gap-2 text-xs text-amber-600">
+            <p className="flex items-start gap-2 text-xs text-status-amber">
               <AlertTriangle className="mt-0.5 size-3.5 shrink-0" />
               {isHe
                 ? "שימו לב: ההעתקה תחליף את התכנון הנוכחי שלכם. ללחוץ שוב כדי לאשר."

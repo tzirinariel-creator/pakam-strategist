@@ -547,7 +547,7 @@ export function OnboardingWizard() {
                     state === "current"
                       ? "bg-accent-brand/12 font-semibold text-accent-brand"
                       : state === "done"
-                        ? "bg-foreground/5 text-foreground/60"
+                        ? "bg-foreground/5 text-foreground/70"
                         : "text-foreground/60",
                   )}
                 >
@@ -686,7 +686,7 @@ export function OnboardingWizard() {
         <div className="mt-8 flex items-center justify-between">
           <button
             onClick={goBack}
-            className="flex items-center gap-1.5 rounded-lg px-4 py-2.5 text-sm text-foreground/60 transition-all hover:bg-foreground/5 hover:text-foreground/70"
+            className="flex items-center gap-1.5 rounded-lg px-4 py-2.5 text-sm text-foreground/70 transition-all hover:bg-foreground/5 hover:text-foreground/70"
           >
             <BackChevron className="h-4 w-4" />
             {t("back")}

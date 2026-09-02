@@ -21,7 +21,7 @@ export function ShareMenu({ isHe, onXlsx, onIcs, onCsv }: { isHe: boolean; onXls
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-60 rounded-xl">
         <DropdownMenuItem onSelect={onXlsx} className="gap-2 text-sm font-medium text-foreground/85">
-          <FileSpreadsheet className="size-4 text-emerald-600" />
+          <FileSpreadsheet className="size-4 text-status-green" />
           {isHe ? "אקסל — לוח שבועי לתלייה" : "Excel — a weekly grid to print"}
         </DropdownMenuItem>
         <DropdownMenuItem onSelect={onIcs} className="gap-2 text-sm text-foreground/80">

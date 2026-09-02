@@ -75,7 +75,7 @@ function TermColumn({
         <h3 className="font-display text-base font-bold text-foreground/90">
           {label}
           {isBiddingTerm && (
-            <span className="ms-2 rounded-full bg-accent-brand/15 px-2 py-0.5 text-[10px] font-semibold text-accent-brand">
+            <span className="ms-2 rounded-full bg-accent-brand/6 px-2 py-0.5 text-[10px] font-semibold text-accent-brand">
               {isHe ? "הסמסטר הקרוב" : "the near term"}
             </span>
           )}
@@ -229,7 +229,7 @@ export function BiddingContent() {
 
         {plan.hasEmptyTerm && (
           <div className="flex items-start gap-2 rounded-xl border border-amber-500/35 bg-amber-500/[0.06] p-3">
-            <TriangleAlert className="mt-0.5 size-4 shrink-0 text-amber-600 dark:text-amber-400" />
+            <TriangleAlert className="mt-0.5 size-4 shrink-0 text-status-amber" />
             <p className="text-xs leading-relaxed text-foreground/70">
               {isHe
                 ? "אחד הסמסטרים ריק. המכרז מגיש את שני הסמסטרים יחד — סמסטר שלא הגשתם עליו בקשה נסגר, ומה שנשאר בו בסבב השני הוא מה שאחרים לא רצו."

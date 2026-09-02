@@ -554,7 +554,7 @@ export function AddCourseModal() {
                       {/* What this course does for the degree — the thing the
                           competitors structurally cannot say. */}
                       {fit.closes && !fit.alreadyPlanned && (
-                        <span className="flex items-start gap-1 text-[10px] leading-tight text-emerald-700 dark:text-emerald-400">
+                        <span className="flex items-start gap-1 text-[10px] leading-tight text-status-green">
                           <Check className="mt-px size-3 shrink-0" />
                           {requirementLine(fit.closes)}
                         </span>
@@ -562,7 +562,7 @@ export function AddCourseModal() {
 
                       {/* Clash — named, per the M2 rule: never just "חפיפה". */}
                       {conflicts && conflicts.length > 0 && !fit.alreadyPlanned && (
-                        <span className="flex items-start gap-1 text-[10px] leading-tight text-amber-700 dark:text-amber-400">
+                        <span className="flex items-start gap-1 text-[10px] leading-tight text-status-amber">
                           <AlertTriangle className="mt-px size-3 shrink-0" />
                           {conflicts[0]}
                         </span>
@@ -626,7 +626,7 @@ export function AddCourseModal() {
                     </>}
             </span>
             {summary.conflicts > 0 && (
-              <span className="flex items-center gap-1 text-[11px] text-amber-700 dark:text-amber-400">
+              <span className="flex items-center gap-1 text-[11px] text-status-amber">
                 <AlertTriangle className="size-3 shrink-0" />
                 {isHe ? (
                   <>
@@ -640,7 +640,7 @@ export function AddCourseModal() {
               </span>
             )}
             {summary.conflicts === 0 && summary.closesRequirements > 0 && (
-              <span className="text-[11px] text-emerald-700 dark:text-emerald-400">
+              <span className="text-[11px] text-status-green">
                 {isHe ? (
                   <>
                     <bdi dir="ltr" className="tabular-nums">{summary.closesRequirements}</bdi> מהם סוגרים דרישה חסרה
@@ -671,7 +671,7 @@ export function AddCourseModal() {
               className={cn(
                 "flex min-h-[40px] items-center justify-center gap-2 rounded-lg px-4 py-2 text-sm font-medium transition-colors",
                 summary.count === 0 || isAdding
-                  ? "cursor-not-allowed bg-foreground/10 text-foreground/60"
+                  ? "cursor-not-allowed bg-foreground/10 text-foreground/70"
                   : "bg-foreground text-primary-foreground hover:bg-foreground/90",
               )}
             >

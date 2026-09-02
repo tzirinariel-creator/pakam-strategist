@@ -58,10 +58,10 @@ const LEVEL_LABELS_EN: Record<HonestLoadLabel, string> = {
 };
 
 const LEVEL_COLORS: Record<HonestLoadLabel, string> = {
-  light: "text-emerald-400",
-  hours: "text-amber-500",
-  credits: "text-amber-500",
-  examCrunch: "text-red-400",
+  light: "text-status-green",
+  hours: "text-status-amber",
+  credits: "text-status-amber",
+  examCrunch: "text-status-red",
 };
 
 // ─── Types ────────────────────────────────────────────────────────────
@@ -518,9 +518,9 @@ export function InsightsBar({
           <div className="flex items-center justify-between gap-1.5">
             <div className="flex items-center gap-1.5 min-w-0">
               {conflictCount > 0 ? (
-                <AlertTriangle className="h-3.5 w-3.5 shrink-0 text-red-400" />
+                <AlertTriangle className="h-3.5 w-3.5 shrink-0 text-status-red" />
               ) : (
-                <CheckCircle className="h-3.5 w-3.5 shrink-0 text-emerald-400" />
+                <CheckCircle className="h-3.5 w-3.5 shrink-0 text-status-green" />
               )}
               <span className="text-[10px] text-foreground/60 truncate">
                 {t("conflicts")}
@@ -539,7 +539,7 @@ export function InsightsBar({
             <span
               className={cn(
                 "font-mono text-lg font-bold",
-                conflictCount > 0 ? "text-red-400" : "text-emerald-400"
+                conflictCount > 0 ? "text-status-red" : "text-status-green"
               )}
             >
               {conflictCount}
@@ -682,7 +682,7 @@ export function InsightsBar({
                 <>
                   <span className={cn(
                     "font-mono text-base font-bold",
-                    honestLoad.label === "examCrunch" ? "text-red-400" : "text-foreground/80"
+                    honestLoad.label === "examCrunch" ? "text-status-red" : "text-foreground/80"
                   )}>
                     <Bidi text={honestLoad.tightestExamGapDays} />
                   </span>
@@ -706,7 +706,7 @@ export function InsightsBar({
       {/* Conflict details — expanded panel */}
       {showConflictDetails && conflictCount > 0 && (
         <div className="rounded-xl border border-red-400/20 bg-red-400/5 p-3 space-y-2 animate-in fade-in slide-in-from-top-1 duration-200">
-          <p className="text-[10px] font-semibold text-red-400">
+          <p className="text-[10px] font-semibold text-status-red">
             {isHe ? "התנגשויות בין קורסים:" : "Schedule conflicts:"}
           </p>
           {conflicts.map((conflict, idx) => (
@@ -714,11 +714,11 @@ export function InsightsBar({
               key={`${conflict.aName}|${conflict.bName}|${conflict.day}|${conflict.time}|${idx}`}
               className="flex items-start gap-2 rounded-lg bg-red-400/5 px-2.5 py-1.5"
             >
-              <AlertTriangle className="h-3 w-3 shrink-0 text-red-400/60 mt-0.5" />
+              <AlertTriangle className="h-3 w-3 shrink-0 text-status-red/60 mt-0.5" />
               <div className="text-[10px] text-foreground/60 leading-relaxed">
                 <span className="font-medium text-foreground/80">{conflict.aName}</span>
                 {" "}
-                <X className="inline h-2.5 w-2.5 text-red-400" />
+                <X className="inline h-2.5 w-2.5 text-status-red" />
                 {" "}
                 <span className="font-medium text-foreground/80">{conflict.bName}</span>
                 <span className="text-foreground/60 ms-1.5">
@@ -741,9 +741,9 @@ export function InsightsBar({
                 key={idx}
                 className={cn(
                   "flex items-center gap-2 rounded-lg px-2.5 py-1.5 text-[10px]",
-                  insight.type === "positive" && "bg-emerald-500/5 text-emerald-600/70",
+                  insight.type === "positive" && "bg-emerald-500/5 text-status-green/70",
                   insight.type === "neutral" && "bg-foreground/[0.03] text-foreground/60",
-                  insight.type === "warning" && "bg-amber-500/5 text-amber-600/70",
+                  insight.type === "warning" && "bg-amber-500/5 text-status-amber/70",
                 )}
               >
                 <Icon className="h-3 w-3 shrink-0" />

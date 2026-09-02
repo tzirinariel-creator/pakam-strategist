@@ -121,7 +121,7 @@ export function StepWelcome({ onNext, selectedProgram, onProgramSelect }: StepWe
                 {feature.description}
               </p>
               {"note" in feature && (
-                <span className="mt-1.5 inline-flex items-center gap-1 rounded-full bg-emerald-500/10 px-2 py-0.5 text-[10px] font-medium text-emerald-600 dark:text-emerald-400">
+                <span className="mt-1.5 inline-flex items-center gap-1 rounded-full bg-emerald-500/10 px-2 py-0.5 text-[10px] font-medium text-status-green">
                   <Check className="h-2.5 w-2.5" />
                   {feature.note}
                 </span>
@@ -201,7 +201,7 @@ export function StepWelcome({ onNext, selectedProgram, onProgramSelect }: StepWe
                       </span>
 
                       {!isActive && (
-                        <span className="flex items-center gap-1 rounded-full bg-foreground/5 px-2 py-0.5 text-[10px] font-medium text-foreground/60">
+                        <span className="flex items-center gap-1 rounded-full bg-foreground/5 px-2 py-0.5 text-[10px] font-medium text-foreground/70">
                           <Lock className="h-2.5 w-2.5" />
                           {t("comingSoon")}
                         </span>
@@ -243,7 +243,7 @@ export function StepWelcome({ onNext, selectedProgram, onProgramSelect }: StepWe
                 the dot renders on the far right and it reads ".1 ספרו מי אתם"
                 — the very bug this was meant to fix. Verified by measuring
                 per-character getBoundingClientRect in an RTL context. */}
-            <span className="rounded-full bg-foreground/5 px-3 py-1 text-xs text-foreground/60">
+            <span className="rounded-full bg-foreground/5 px-3 py-1 text-xs text-foreground/70">
               <bdi dir="ltr">{i + 1}</bdi>. {step}
             </span>
           </span>

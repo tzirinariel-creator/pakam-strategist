@@ -201,8 +201,8 @@ export function GradeSimulator({
                 className={cn(
                   "ms-2 font-mono text-base font-semibold",
                   result.averageDelta > 0
-                    ? "text-emerald-600 dark:text-emerald-400"
-                    : "text-red-600 dark:text-red-400",
+                    ? "text-status-green"
+                    : "text-status-red",
                 )}
               >
                 {/* Sign INSIDE the isolate — a "+" left outside it is a

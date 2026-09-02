@@ -52,7 +52,7 @@ export function TipCard({ tip, className }: TipCardProps) {
           onClick={nextTip}
           title={isHe ? "טיפ הבא" : "Next tip"}
           aria-label={isHe ? "טיפ הבא" : "Next tip"}
-          className="-me-1 -mt-1 shrink-0 rounded-md p-1.5 text-foreground/60 transition-colors hover:bg-foreground/5 hover:text-foreground/90"
+          className="-me-1 -mt-1 shrink-0 rounded-md p-1.5 text-foreground/70 transition-colors hover:bg-foreground/5 hover:text-foreground/90"
         >
           <RefreshCw className="h-3.5 w-3.5" />
         </button>

@@ -108,17 +108,17 @@ export function GradeInput({
             "focus:outline-none focus:ring-1",
             "transition-all",
             isFailing
-              ? "border-amber-400/60 text-amber-600 focus:border-amber-400 focus:ring-amber-400/30 dark:text-amber-400"
+              ? "border-amber-400/60 text-status-amber focus:border-amber-400 focus:ring-amber-400/30"
               : "border-border/50 focus:border-foreground/35 focus:ring-foreground/20",
             saved && !isFailing && "border-emerald-400/50 ring-1 ring-emerald-400/30"
           )}
         />
         {saved && (
-          <Check className="absolute -end-5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-emerald-400 animate-in fade-in" />
+          <Check className="absolute -end-5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-status-green animate-in fade-in" />
         )}
       </div>
       {isFailing && (
-        <p className="flex items-center gap-1 text-xs leading-tight text-amber-600 dark:text-amber-500">
+        <p className="flex items-center gap-1 text-xs leading-tight text-status-amber">
           <AlertTriangle className="size-3 shrink-0" />
           {isHe ? "ציון נכשל — הש״ס לא נספרות. אפשר לחזור על הקורס." : "Failing — the credits don't count. You can retake it."}
         </p>

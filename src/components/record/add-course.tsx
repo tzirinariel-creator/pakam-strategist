@@ -211,7 +211,7 @@ export function AddCourse({
                 }}
                 className="flex w-full items-center gap-2 rounded-md px-2 py-2 text-start transition-colors hover:bg-foreground/5 disabled:opacity-50"
               >
-                <Plus className="h-3.5 w-3.5 shrink-0 text-emerald-500" />
+                <Plus className="h-3.5 w-3.5 shrink-0 text-status-green" />
                 <span className="min-w-0 flex-1 truncate text-sm text-foreground/80">
                   {isHe ? course.nameHe : (course.nameEn ?? course.nameHe)}
                 </span>
@@ -226,7 +226,7 @@ export function AddCourse({
                   </span>
                 )}
                 {english && (
-                  <span className="shrink-0 rounded-full bg-blue-500/10 px-1.5 py-0.5 text-[11px] font-medium text-blue-500">
+                  <span className="shrink-0 rounded-full bg-blue-500/10 px-1.5 py-0.5 text-[11px] font-medium text-status-blue">
                     {t("englishBadge")}
                   </span>
                 )}

@@ -66,7 +66,7 @@ export function ApiKeySection() {
       ) : hasKey ? (
         <div className="flex flex-col gap-3">
           <div className="flex flex-wrap items-center gap-2 text-sm text-foreground/70">
-            <Check className="size-4 text-emerald-500" />
+            <Check className="size-4 text-status-green" />
             <span>{t("apiKeySet")}</span>
             {masked && (
               <code className="rounded bg-foreground/5 px-2 py-0.5 font-mono text-xs">
@@ -74,11 +74,11 @@ export function ApiKeySection() {
               </code>
             )}
             {provider && (
-              <span className="inline-flex items-center gap-1.5 rounded-full bg-foreground/5 px-2 py-0.5 text-xs text-foreground/60">
+              <span className="inline-flex items-center gap-1.5 rounded-full bg-foreground/5 px-2 py-0.5 text-xs text-foreground/70">
                 {t("apiKeyProvider")}{" "}
                 {provider === "gemini" ? "Google Gemini" : "Anthropic Claude"}
                 {provider === "gemini" && (
-                  <span className="rounded-full bg-emerald-400/15 px-1.5 text-[10px] font-bold text-emerald-600">
+                  <span className="rounded-full bg-emerald-400/15 px-1.5 text-[10px] font-bold text-status-green">
                     {t("apiKeyFreeBadge")}
                   </span>
                 )}

@@ -26,8 +26,8 @@ function SeverityBadge({ severity }: { severity: FieldChange["severity"] }) {
       className={cn(
         "rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider",
         severity === "safe"
-          ? "bg-emerald-500/15 text-emerald-400"
-          : "bg-amber-500/15 text-amber-400"
+          ? "bg-emerald-500/15 text-status-green"
+          : "bg-amber-500/15 text-status-amber"
       )}
     >
       {severity === "safe" ? "אוטומטי" : "דורש אישור"}
@@ -42,19 +42,19 @@ function SeverityBadge({ severity }: { severity: FieldChange["severity"] }) {
 function StatusBadge({ status }: { status: string }) {
   const fallback = {
     bg: "bg-red-500/15",
-    text: "text-red-400",
+    text: "text-status-red",
     icon: <XCircle className="h-3 w-3" />,
   };
 
   const config = {
     running: {
       bg: "bg-blue-500/15",
-      text: "text-blue-400",
+      text: "text-status-blue",
       icon: <RefreshCw className="h-3 w-3 animate-spin" />,
     },
     success: {
       bg: "bg-emerald-500/15",
-      text: "text-emerald-400",
+      text: "text-status-green",
       icon: <CheckCircle2 className="h-3 w-3" />,
     },
     failed: fallback,
@@ -263,7 +263,7 @@ export function SyncDashboard() {
         <div className="flex items-center justify-between">
           <div>
             <h2 className="flex items-center gap-2 text-base font-semibold text-foreground/80">
-              <BarChart3 className="h-4 w-4 text-violet-400" />
+              <BarChart3 className="h-4 w-4 text-status-purple" />
               סנכרון ציונים (Arazim)
             </h2>
             <p className="mt-0.5 text-xs text-foreground/60">
@@ -274,7 +274,7 @@ export function SyncDashboard() {
             onClick={() => runArazimSync.mutate()}
             disabled={runArazimSync.isPending}
             className={cn(
-              "inline-flex items-center gap-2 rounded-lg border border-violet-500/30 bg-violet-500/10 px-4 py-2 text-sm font-medium text-violet-400 transition-all hover:bg-violet-500/20",
+              "inline-flex items-center gap-2 rounded-lg border border-violet-500/30 bg-violet-500/10 px-4 py-2 text-sm font-medium text-status-purple transition-all hover:bg-violet-500/20",
               runArazimSync.isPending && "opacity-60 cursor-wait"
             )}
           >
@@ -287,7 +287,7 @@ export function SyncDashboard() {
 
         {/* Arazim sync result */}
         {runArazimSync.isSuccess && runArazimSync.data && (
-          <div className="flex items-center gap-2 rounded-lg border border-emerald-500/20 bg-emerald-500/10 p-3 text-xs text-emerald-400">
+          <div className="flex items-center gap-2 rounded-lg border border-emerald-500/20 bg-emerald-500/10 p-3 text-xs text-status-green">
             <CheckCircle2 className="h-4 w-4 shrink-0" />
             <span>
               {runArazimSync.data.coursesChecked} קורסים נבדקו •{" "}
@@ -300,11 +300,11 @@ export function SyncDashboard() {
 
         {/* Arazim sync error */}
         {runArazimSync.isError && (
-          <div className="flex items-start gap-2 rounded-lg border border-red-500/20 bg-red-500/10 p-3 text-xs text-red-400">
+          <div className="flex items-start gap-2 rounded-lg border border-red-500/20 bg-red-500/10 p-3 text-xs text-status-red">
             <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" />
             <div>
               <p className="font-medium">שגיאה בעדכון ציונים</p>
-              <p className="mt-0.5 text-red-400/70">{runArazimSync.error.message}</p>
+              <p className="mt-0.5 text-status-red/70">{runArazimSync.error.message}</p>
             </div>
           </div>
         )}
@@ -312,13 +312,13 @@ export function SyncDashboard() {
 
       {/* Sync error */}
       {(runSync.isError || lastSyncFailed || lastSyncHasErrors) && (
-        <div className="flex items-start gap-3 rounded-xl border border-amber-500/20 bg-amber-500/10 p-4 text-sm text-amber-400">
+        <div className="flex items-start gap-3 rounded-xl border border-amber-500/20 bg-amber-500/10 p-4 text-sm text-status-amber">
           <Info className="mt-0.5 h-4 w-4 shrink-0" />
           <div>
             <p className="font-medium">
               {runSync.isError ? "הסנכרון נכשל" : "הסנכרון האחרון נתקל בבעיות"}
             </p>
-            <p className="mt-1 text-amber-400/70">
+            <p className="mt-1 text-status-amber/70">
               ייתכן שמדובר בבעיית תקשורת זמנית מול שרתי הידיעון. נסה שוב מאוחר יותר.
             </p>
           </div>
@@ -332,22 +332,22 @@ export function SyncDashboard() {
             {
               label: "שינויים",
               value: diff.updated.length,
-              color: diff.updated.length > 0 ? "text-amber-400" : "text-foreground/70",
+              color: diff.updated.length > 0 ? "text-status-amber" : "text-foreground/70",
             },
             {
               label: "ללא שינוי",
               value: diff.unchanged.length,
-              color: "text-emerald-400",
+              color: "text-status-green",
             },
             {
               label: "לא נמצאו",
               value: diff.notFound.length,
-              color: diff.notFound.length > 0 ? "text-yellow-400" : "text-foreground/70",
+              color: diff.notFound.length > 0 ? "text-status-amber" : "text-foreground/70",
             },
             {
               label: "שגיאות",
               value: diff.errors.length,
-              color: diff.errors.length > 0 ? "text-red-400" : "text-foreground/70",
+              color: diff.errors.length > 0 ? "text-status-red" : "text-foreground/70",
             },
           ].map((stat) => (
             <div key={stat.label} className="data-card p-3 text-center">
@@ -431,10 +431,10 @@ export function SyncDashboard() {
                     <span className="font-medium text-foreground/60">
                       {FIELD_LABELS[change.field] ?? change.field}
                     </span>
-                    <span className="truncate text-red-400/60 line-through">
+                    <span className="truncate text-status-red/60 line-through">
                       {formatValue(change.oldValue)}
                     </span>
-                    <span className="truncate text-emerald-400/80">
+                    <span className="truncate text-status-green/80">
                       {formatValue(change.newValue)}
                     </span>
                     <SeverityBadge severity={change.severity} />
@@ -449,7 +449,7 @@ export function SyncDashboard() {
       {/* No changes */}
       {diff && diff.updated.length === 0 && (
         <div className="data-card flex flex-col items-center gap-2 py-12 text-center">
-          <CheckCircle2 className="h-10 w-10 text-emerald-400/40" />
+          <CheckCircle2 className="h-10 w-10 text-status-green/40" />
           <p className="text-foreground/60">הכול מעודכן — אין שינויים</p>
           <p className="text-xs text-foreground/60">
             {diff.unchanged.length} קורסים נבדקו ונמצאו זהים לידיעון
@@ -471,7 +471,7 @@ export function SyncDashboard() {
       {/* Errors */}
       {diff && diff.errors.length > 0 && (
         <div className="space-y-2">
-          <h3 className="text-sm font-medium text-red-400">
+          <h3 className="text-sm font-medium text-status-red">
             שגיאות ({diff.errors.length})
           </h3>
           {diff.errors.map((err, i) => (
@@ -479,9 +479,9 @@ export function SyncDashboard() {
               key={i}
               className="flex items-start gap-2 rounded-lg border border-red-500/10 bg-red-500/5 p-2 text-xs"
             >
-              <AlertCircle className="mt-0.5 h-3 w-3 shrink-0 text-red-400" />
+              <AlertCircle className="mt-0.5 h-3 w-3 shrink-0 text-status-red" />
               <div>
-                <span className="font-mono text-red-400/80">{err.code}</span>
+                <span className="font-mono text-status-red/80">{err.code}</span>
                 <span className="mx-1.5 text-foreground/20">—</span>
                 <span className="text-foreground/60">{err.error}</span>
               </div>
@@ -492,7 +492,7 @@ export function SyncDashboard() {
 
       {/* Apply success */}
       {applyChanges.isSuccess && (
-        <div className="flex items-center gap-2 rounded-xl border border-emerald-500/20 bg-emerald-500/10 p-4 text-sm text-emerald-400">
+        <div className="flex items-center gap-2 rounded-xl border border-emerald-500/20 bg-emerald-500/10 p-4 text-sm text-status-green">
           <CheckCircle2 className="h-4 w-4" />
           <span>השינויים הוחלו בהצלחה!</span>
         </div>
@@ -500,11 +500,11 @@ export function SyncDashboard() {
 
       {/* Apply error */}
       {applyChanges.isError && (
-        <div className="flex items-start gap-3 rounded-xl border border-red-500/20 bg-red-500/10 p-4 text-sm text-red-400">
+        <div className="flex items-start gap-3 rounded-xl border border-red-500/20 bg-red-500/10 p-4 text-sm text-status-red">
           <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" />
           <div>
             <p className="font-medium">שגיאה בהחלת שינויים</p>
-            <p className="mt-1 text-red-400/70">{applyChanges.error.message}</p>
+            <p className="mt-1 text-status-red/70">{applyChanges.error.message}</p>
           </div>
         </div>
       )}
@@ -530,7 +530,7 @@ export function SyncDashboard() {
                 <StatusBadge status={log.status} />
                 <span className={cn(
                   "rounded-full px-2 py-0.5 text-[10px] font-medium",
-                  isArazim ? "bg-violet-500/15 text-violet-400" : "bg-blue-500/15 text-blue-400"
+                  isArazim ? "bg-violet-500/15 text-status-purple" : "bg-blue-500/15 text-status-blue"
                 )}>
                   {isArazim ? "ציונים" : "ידיעון"}
                 </span>
@@ -542,7 +542,7 @@ export function SyncDashboard() {
                   {log.changesApplied} הוחלו
                 </span>
                 {log.errorMessage && (
-                  <span className="text-xs text-red-400/70">
+                  <span className="text-xs text-status-red/70">
                     {log.errorMessage.slice(0, 80)}
                   </span>
                 )}

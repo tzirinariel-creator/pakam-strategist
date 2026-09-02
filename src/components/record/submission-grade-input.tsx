@@ -115,7 +115,7 @@ export function SubmissionGradeInput({
       </div>
 
       {justSaved && (
-        <Check className="size-3 text-emerald-600 dark:text-emerald-400" aria-hidden="true" />
+        <Check className="size-3 text-status-green" aria-hidden="true" />
       )}
     </div>
   );

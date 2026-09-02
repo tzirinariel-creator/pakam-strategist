@@ -750,12 +750,12 @@ export function ExamPlannerContent() {
                         onClick={() => setSelected((s) => ({ ...s, [c.code]: m }))}
                         // E3′ — a missing sitting says so honestly, never a bare dash.
                         title={!date ? (isHe ? "התאריך טרם פורסם" : "Date not published yet") : undefined}
-                        className={cn("flex flex-col items-center px-2.5 py-1 transition-colors disabled:opacity-40", active ? "bg-accent-brand text-accent-brand-fg" : "text-foreground/60 hover:bg-foreground/5")}
+                        className={cn("flex flex-col items-center px-2.5 py-1 transition-colors disabled:opacity-40", active ? "bg-accent-brand text-accent-brand-fg" : "text-foreground/70 hover:bg-foreground/5")}
                       >
                         <span className="flex items-center gap-1 leading-tight">
                           {isHe ? `מועד ${m === "A" ? "א׳" : "ב׳"}` : `Moed ${m}`}
                           {isRec && !active && (
-                            <span className="rounded-full bg-accent-brand/10 px-1 text-[11px] font-semibold text-accent-brand">
+                            <span className="rounded-full bg-accent-brand/6 px-1 text-[11px] font-semibold text-accent-brand">
                               {isHe ? "מומלץ" : "rec."}
                             </span>
                           )}
@@ -779,7 +779,7 @@ export function ExamPlannerContent() {
                           onClick={() => setConfidence((p) => ({ ...p, [c.code]: n }))}
                           className={cn(
                             "px-2 py-0.5 text-xs tabular-nums transition-colors",
-                            confidence[c.code] === n ? "bg-accent-brand text-accent-brand-fg" : "text-foreground/60 hover:bg-foreground/5",
+                            confidence[c.code] === n ? "bg-accent-brand text-accent-brand-fg" : "text-foreground/70 hover:bg-foreground/5",
                           )}
                         >
                           {n}
@@ -954,14 +954,14 @@ export function ExamPlannerContent() {
               promptEn="Let's think through my exam plan together — ask me what you need, then tell me what you'd change."
               labelHe="לחשוב על זה עם {advisor}"
               labelEn="Think it through with {advisor}"
-              className="ms-auto inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 text-[11px] font-medium text-accent-brand transition-colors hover:bg-accent-brand/10 hover:text-accent-brand"
+              className="ms-auto inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 text-[11px] font-medium text-accent-brand transition-colors hover:bg-accent-brand/6 hover:text-accent-brand"
               iconClassName="size-3"
             />
           )}
         </div>
         <ul className="space-y-1.5">
           {recs.map((r, i) => (
-            <li key={i} className={cn("flex items-start gap-2 text-xs leading-relaxed", r.kind === "clash" || r.kind === "deferB" || r.kind === "capacity" ? "text-amber-600" : "text-foreground/70")}>
+            <li key={i} className={cn("flex items-start gap-2 text-xs leading-relaxed", r.kind === "clash" || r.kind === "deferB" || r.kind === "capacity" ? "text-status-amber" : "text-foreground/70")}>
               {(r.kind === "clash" || r.kind === "deferB" || r.kind === "capacity") && <AlertTriangle className="mt-0.5 size-3.5 shrink-0" />}
               <span>{isHe ? r.textHe : r.textEn}</span>
             </li>

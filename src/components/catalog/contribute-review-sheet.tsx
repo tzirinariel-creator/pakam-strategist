@@ -33,9 +33,9 @@ type Verdict = "RECOMMEND" | "NEUTRAL" | "AVOID";
 // "לא נתן לי הרבה", which is what a person can honestly say about a course
 // they had no choice about.
 const VERDICTS: { value: Verdict; he: string; heRequired?: string; en: string; enRequired?: string; cls: string }[] = [
-  { value: "RECOMMEND", he: "שווה", en: "Worth it", cls: "data-[on=true]:border-emerald-500/60 data-[on=true]:bg-emerald-500/15 data-[on=true]:text-emerald-600 dark:data-[on=true]:text-emerald-400" },
+  { value: "RECOMMEND", he: "שווה", en: "Worth it", cls: "data-[on=true]:border-emerald-500/60 data-[on=true]:bg-emerald-500/15 data-[on=true]:text-status-green dark:data-[on=true]:text-status-green" },
   { value: "NEUTRAL", he: "ניטרלי", en: "Neutral", cls: "data-[on=true]:border-foreground/40 data-[on=true]:bg-foreground/10 data-[on=true]:text-foreground/80" },
-  { value: "AVOID", he: "הייתי מדלג", heRequired: "לא נתן לי הרבה", en: "Would skip", enRequired: "Gave me little", cls: "data-[on=true]:border-red-500/60 data-[on=true]:bg-red-500/15 data-[on=true]:text-red-600 dark:data-[on=true]:text-red-400" },
+  { value: "AVOID", he: "הייתי מדלג", heRequired: "לא נתן לי הרבה", en: "Would skip", enRequired: "Gave me little", cls: "data-[on=true]:border-red-500/60 data-[on=true]:bg-red-500/15 data-[on=true]:text-status-red dark:data-[on=true]:text-status-red" },
 ];
 
 /**

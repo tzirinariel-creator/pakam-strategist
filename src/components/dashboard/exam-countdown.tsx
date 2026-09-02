@@ -91,17 +91,17 @@ export function ExamCountdown() {
         {upcomingExams.map((exam, i) => {
           const urgencyColor =
             exam.daysLeft <= 3
-              ? "text-red-400 bg-red-400/10 border-red-400/20"
+              ? "text-status-red bg-red-400/10 border-red-400/20"
               : exam.daysLeft <= 7
-                ? "text-amber-400 bg-amber-400/10 border-amber-400/20"
-                : "text-foreground/60 bg-foreground/5 border-foreground/10";
+                ? "text-status-amber bg-amber-400/10 border-amber-400/20"
+                : "text-foreground/70 bg-foreground/5 border-foreground/10";
 
           const daysBgColor =
             exam.daysLeft <= 3
-              ? "bg-red-400/20 text-red-400"
+              ? "bg-red-400/20 text-status-red"
               : exam.daysLeft <= 7
-                ? "bg-amber-400/20 text-amber-400"
-                : "bg-foreground/10 text-foreground/60";
+                ? "bg-amber-400/20 text-status-amber"
+                : "bg-foreground/10 text-foreground/70";
 
           return (
             <div
@@ -140,7 +140,7 @@ export function ExamCountdown() {
 
               {/* Today badge */}
               {exam.daysLeft === 0 && (
-                <span className="shrink-0 rounded-full bg-red-400/20 px-2 py-0.5 text-[11px] font-bold text-red-400 animate-pulse">
+                <span className="shrink-0 rounded-full bg-red-400/20 px-2 py-0.5 text-[11px] font-bold text-status-red animate-pulse">
                   {isHe ? "היום" : "Today"}
                 </span>
               )}

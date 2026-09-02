@@ -55,10 +55,10 @@ function difficultyMeta(
 ): { label: string; cls: string } | null {
   if (!level) return null;
   const map: Record<string, { he: string; en: string; cls: string }> = {
-    easy: { he: "קל", en: "Easy", cls: "bg-emerald-400/15 text-emerald-600 dark:text-emerald-400" },
-    moderate: { he: "בינוני", en: "Moderate", cls: "bg-amber-400/15 text-amber-600 dark:text-amber-400" },
-    hard: { he: "קשה", en: "Hard", cls: "bg-orange-400/15 text-orange-600 dark:text-orange-400" },
-    very_hard: { he: "קשה מאוד", en: "Very hard", cls: "bg-red-400/15 text-red-600 dark:text-red-400" },
+    easy: { he: "קל", en: "Easy", cls: "bg-emerald-400/15 text-status-green" },
+    moderate: { he: "בינוני", en: "Moderate", cls: "bg-amber-400/15 text-status-amber" },
+    hard: { he: "קשה", en: "Hard", cls: "bg-orange-400/15 text-status-amber" },
+    very_hard: { he: "קשה מאוד", en: "Very hard", cls: "bg-red-400/15 text-status-red" },
   };
   const m = map[level];
   if (!m) return null;
@@ -468,7 +468,7 @@ export function CourseTable({ courses, allCourses, focusArea }: CourseTableProps
                   promptEn={`Tell me about "${course.nameEn ?? course.nameHe}" (${course.code}) — how hard is it, and how does it fit my degree?`}
                   labelHe="שאל את {advisor} על זה"
                   labelEn="Ask {advisor}"
-                  className="mt-1 inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 text-[11px] font-medium text-accent-brand transition-all hover:bg-accent-brand/10 hover:text-accent-brand sm:opacity-0 sm:group-hover:opacity-100"
+                  className="mt-1 inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 text-[11px] font-medium text-accent-brand transition-all hover:bg-accent-brand/6 hover:text-accent-brand sm:opacity-0 sm:group-hover:opacity-100"
                 />
               </TableCell>
 
@@ -515,7 +515,7 @@ export function CourseTable({ courses, allCourses, focusArea }: CourseTableProps
                     {(() => {
                       const from = formatGradeDataYear(course.gradeDataYear, isHe);
                       return (
-                        <span className="text-[10px] text-muted-foreground/55">
+                        <span className="text-[10px] text-muted-foreground">
                           {isHe ? "ארזים" : "Arazim"}
                           {from ? ` · ${from}` : ""}
                         </span>
@@ -531,7 +531,7 @@ export function CourseTable({ courses, allCourses, focusArea }: CourseTableProps
                   </div>
                 ) : (
                   <div className="flex flex-col items-center gap-0.5">
-                    <span className="text-xs text-muted-foreground/40" title={isHe ? "אין נתון" : "No data"}>
+                    <span className="text-xs text-muted-foreground" title={isHe ? "אין נתון" : "No data"}>
                       —
                     </span>
                     <CohortCourseChip
@@ -562,7 +562,7 @@ export function CourseTable({ courses, allCourses, focusArea }: CourseTableProps
                     {course.prerequisites.join(", ")}
                   </span>
                 ) : (
-                  <span className="text-xs text-muted-foreground/50">
+                  <span className="text-xs text-muted-foreground">
                     {t("none")}
                   </span>
                 )}

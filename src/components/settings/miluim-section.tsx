@@ -339,7 +339,7 @@ export function MiluimSection() {
                         <bdi dir="ltr">{s.daysServed}</bdi> {isHe ? "ימים" : "days"}
                       </span>
                       {s.isCombat && (
-                        <span className="text-amber-500">{isHe ? "תפקיד לחימה" : "combat"}</span>
+                        <span className="text-status-amber">{isHe ? "תפקיד לחימה" : "combat"}</span>
                       )}
                       <span className="rounded-full bg-foreground/8 px-2 py-0.5 font-bold text-foreground/70">
                         {s.derivedGroup === "NONE"
@@ -406,7 +406,7 @@ export function MiluimSection() {
           {manualGroup !== "NONE" &&
             (days ?? 0) > 0 &&
             deriveGroupFromDays(days ?? 0, combat) !== manualGroup && (
-              <p className="mt-2 rounded-md border border-amber-500/25 bg-amber-500/5 px-3 py-2 text-[11px] leading-relaxed text-amber-600">
+              <p className="mt-2 rounded-md border border-amber-500/25 bg-amber-500/5 px-3 py-2 text-[11px] leading-relaxed text-status-amber">
                 {isHe
                   ? "שימו לב: הזנתם ימים לסמסטר הנוכחי — הם קובעים את הקבוצה לסמסטר הזה וגוברים על הסיווג הידני. הסיווג הידני חל על סמסטרים בלי ימים."
                   : "Note: you entered days for the current semester — those set the group for this semester and override the manual classification. The manual classification applies to semesters with no days entered."}
@@ -460,7 +460,7 @@ export function MiluimSection() {
         <details className="rounded-lg border border-border/50 bg-foreground/[0.02] p-4">
           <summary className="cursor-pointer text-sm font-semibold text-foreground/75">
             {isHe ? "איך מנצלים את הזכויות חכם? המדריך הקצר" : "How to use the benefits wisely — the short playbook"}{" "}
-            <span className="rounded-full bg-foreground/8 px-2 py-0.5 text-[10px] font-normal text-foreground/60">
+            <span className="rounded-full bg-foreground/8 px-2 py-0.5 text-[10px] font-normal text-foreground/70">
               {isHe ? "נכון לתשפ״ו" : "As of 2025-26"}
             </span>
           </summary>

@@ -86,7 +86,7 @@ export function WhereIsMySheet() {
       <ol className="mt-2 space-y-1.5 text-xs leading-relaxed text-foreground/60">
         {steps.map((step, i) => (
           <li key={i} className="flex gap-2">
-            <span className="flex size-4 shrink-0 items-center justify-center rounded-full bg-foreground/10 text-[10px] font-bold text-foreground/60">
+            <span className="flex size-4 shrink-0 items-center justify-center rounded-full bg-foreground/10 text-[10px] font-bold text-foreground/70">
               {i + 1}
             </span>
             <span className="min-w-0">{step}</span>

@@ -1004,7 +1004,7 @@ export function FloatingAssistant() {
                 }}
                 aria-label={isHe ? `החליפו ל${otherName}` : `Switch to ${otherName}`}
                 title={isHe ? `העדפת ${otherName}? החליפו` : `Prefer ${otherName}? Switch`}
-                className="me-1 flex shrink-0 items-center gap-1 rounded-md px-2 py-1.5 text-[11px] text-foreground/60 transition-colors hover:bg-foreground/10 hover:text-foreground/70"
+                className="me-1 flex shrink-0 items-center gap-1 rounded-md px-2 py-1.5 text-[11px] text-foreground/70 transition-colors hover:bg-foreground/10 hover:text-foreground/70"
               >
                 <ArrowLeftRight className="size-3.5" />
                 <span className="hidden sm:inline">{otherName}</span>
@@ -1013,7 +1013,7 @@ export function FloatingAssistant() {
                 type="button"
                 onClick={() => setOpen(false)}
                 aria-label={isHe ? "סגור" : "Close"}
-                className="rounded-md p-1.5 text-foreground/60 transition-colors hover:bg-foreground/10 hover:text-foreground/70"
+                className="rounded-md p-1.5 text-foreground/70 transition-colors hover:bg-foreground/10 hover:text-foreground/70"
               >
                 <X className="size-4" />
               </button>
@@ -1145,7 +1145,7 @@ export function FloatingAssistant() {
                         className={cn(
                           "mb-1 inline-flex items-center gap-1 rounded px-1.5 py-0.5 text-[10px] font-semibold",
                           m.source === "rules"
-                            ? "bg-emerald-400/10 text-emerald-600 dark:text-emerald-400"
+                            ? "bg-emerald-400/10 text-status-green"
                             : "bg-accent-brand/10 text-accent-brand",
                         )}
                       >
@@ -1196,7 +1196,7 @@ export function FloatingAssistant() {
                               }),
                             )
                           }
-                          className="rounded-lg bg-foreground/8 px-3 py-1.5 text-xs font-medium text-foreground/60 transition-colors hover:bg-foreground/15"
+                          className="rounded-lg bg-foreground/8 px-3 py-1.5 text-xs font-medium text-foreground/70 transition-colors hover:bg-foreground/15"
                         >
                           {isHe ? "ביטול" : "Cancel"}
                         </button>
@@ -1279,7 +1279,7 @@ export function FloatingAssistant() {
                 disabled={!ready || streaming}
                 aria-label={isHe ? "צרף תמונה" : "Attach an image"}
                 title={isHe ? "צלם ושאל" : "Photo & ask"}
-                className="flex size-10 shrink-0 items-center justify-center rounded-xl border border-border/60 text-foreground/60 transition-colors hover:bg-foreground/5 hover:text-foreground/80 disabled:opacity-40"
+                className="flex size-10 shrink-0 items-center justify-center rounded-xl border border-border/60 text-foreground/70 transition-colors hover:bg-foreground/5 hover:text-foreground/80 disabled:opacity-40"
               >
                 <ImagePlus className="size-4" />
               </button>
@@ -1309,8 +1309,8 @@ export function FloatingAssistant() {
                   className={cn(
                     "flex size-10 shrink-0 items-center justify-center rounded-xl border transition-colors disabled:opacity-40",
                     listening
-                      ? "animate-pulse border-red-400/60 bg-red-500/10 text-red-500"
-                      : "border-border/60 text-foreground/60 hover:bg-foreground/5 hover:text-foreground/80",
+                      ? "animate-pulse border-red-400/60 bg-red-500/10 text-status-red"
+                      : "border-border/60 text-foreground/70 hover:bg-foreground/5 hover:text-foreground/80",
                   )}
                 >
                   <Mic className="size-4" />

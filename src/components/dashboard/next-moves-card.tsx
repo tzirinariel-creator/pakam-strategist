@@ -235,7 +235,7 @@ export function NextMovesCard(props: NextMovesCardProps) {
                   >
                     <span className="mt-0.5 flex size-4 shrink-0 items-center justify-center">
                       {m.done ? (
-                        <Check className="size-3.5 text-emerald-600 dark:text-emerald-400" />
+                        <Check className="size-3.5 text-status-green" />
                       ) : m.id === "advisor" ? (
                         <PersonaCharacter className="size-4" />
                       ) : (
@@ -254,7 +254,7 @@ export function NextMovesCard(props: NextMovesCardProps) {
                           {title}
                         </span>
                         {m.dueInDays != null && (
-                          <span className="rounded-full bg-accent-brand/15 px-1.5 py-px text-[10px] font-semibold text-accent-brand">
+                          <span className="rounded-full bg-accent-brand/6 px-1.5 py-px text-[10px] font-semibold text-accent-brand">
                             {isHe ? (
                               <>
                                 בעוד <Bidi text={heNoun(m.dueInDays, "יום", "ימים")} />

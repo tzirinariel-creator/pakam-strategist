@@ -111,7 +111,7 @@ export function PostOnboardingTransition({
           <button
             type="button"
             onClick={onContinue}
-            className="rounded-lg border border-foreground/20 px-5 py-2 text-sm font-medium text-foreground/60 transition-colors hover:bg-foreground/5"
+            className="rounded-lg border border-foreground/20 px-5 py-2 text-sm font-medium text-foreground/70 transition-colors hover:bg-foreground/5"
           >
             {t("continueAnyway")}
           </button>
@@ -146,7 +146,7 @@ export function PostOnboardingTransition({
         <button
           type="button"
           onClick={onContinue}
-          className="animate-fade-in rounded-lg border border-foreground/20 px-5 py-2 text-sm font-medium text-foreground/60 transition-colors hover:bg-foreground/5"
+          className="animate-fade-in rounded-lg border border-foreground/20 px-5 py-2 text-sm font-medium text-foreground/70 transition-colors hover:bg-foreground/5"
         >
           {t("continueAnyway")}
         </button>

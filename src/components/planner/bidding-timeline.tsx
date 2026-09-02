@@ -165,7 +165,7 @@ export function BiddingTimeline({
             {steps.map((s) => (
               <li key={s.key} className="flex items-start gap-2 text-xs">
                 {s.done ? (
-                  <CheckCircle2 className="mt-0.5 size-3.5 shrink-0 text-emerald-500" />
+                  <CheckCircle2 className="mt-0.5 size-3.5 shrink-0 text-status-green" />
                 ) : s.live ? (
                   <Radio className="mt-0.5 size-3.5 shrink-0 animate-pulse text-accent-brand" />
                 ) : (

@@ -37,7 +37,7 @@ export function MoedBenefitBanner() {
 
   return (
     <div className="animate-stagger-2 flex items-start gap-3 rounded-xl border border-emerald-500/25 bg-emerald-500/[0.06] p-4">
-      <div className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-emerald-500/15 text-emerald-600">
+      <div className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-emerald-500/15 text-status-green">
         <CalendarCheck className="size-4.5" />
       </div>
       <div className="min-w-0 flex-1">

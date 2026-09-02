@@ -238,7 +238,7 @@ export function BiddingWorksheet({
                     key={r}
                     type="button"
                     onClick={() => setRound(r)}
-                    className={cn("px-3 py-2 transition-colors", round === r ? "bg-foreground text-background" : "text-foreground/60 hover:bg-foreground/5")}
+                    className={cn("px-3 py-2 transition-colors", round === r ? "bg-foreground text-background" : "text-foreground/70 hover:bg-foreground/5")}
                   >
                     {isHe ? `מקצה ${r}` : `Round ${r}`}
                   </button>
@@ -251,7 +251,7 @@ export function BiddingWorksheet({
               <p
                 className={cn(
                   "text-lg font-bold tabular-nums",
-                  check.remaining == null ? "text-foreground/60" : check.remaining < 0 ? "text-red-500" : "text-emerald-600",
+                  check.remaining == null ? "text-foreground/60" : check.remaining < 0 ? "text-status-red" : "text-status-green",
                 )}
                 dir="ltr"
               >
@@ -261,13 +261,13 @@ export function BiddingWorksheet({
           </div>
 
           {check.overPool && (
-            <p className="flex items-center gap-1.5 rounded-lg border border-red-400/30 bg-red-400/[0.06] px-3 py-2 text-xs text-red-600">
+            <p className="flex items-center gap-1.5 rounded-lg border border-red-400/30 bg-red-400/[0.06] px-3 py-2 text-xs text-status-red">
               <AlertTriangle className="size-3.5 shrink-0" />
               {isHe ? `חילקתם ${heNounF(check.total, "נקודה", "נקודות")} אבל יש לכם רק ${state.pool}. תורידו ממשהו.` : `You allocated ${check.total} but only have ${state.pool}. Trim something.`}
             </p>
           )}
           {state.pool != null && !check.overPool && check.minFloor > state.pool && (
-            <p className="flex items-center gap-1.5 rounded-lg border border-amber-400/30 bg-amber-400/[0.06] px-3 py-2 text-xs text-amber-600">
+            <p className="flex items-center gap-1.5 rounded-lg border border-amber-400/30 bg-amber-400/[0.06] px-3 py-2 text-xs text-status-amber">
               <AlertTriangle className="size-3.5 shrink-0" />
               {isHe
                 ? `רק המינימום (5 × ${heNoun(check.minFloor / MIN_BID, "קורס", "קורסים")} = ${check.minFloor}) כבר עובר את המאגר שלכם — אי אפשר להתמכרז על כולם.`
@@ -288,7 +288,7 @@ export function BiddingWorksheet({
                       <p className="truncate text-sm text-foreground/80">
                         {r.courseName}
                         {r.hasClash && (
-                          <span className="ms-1.5 inline-flex items-center gap-0.5 rounded bg-amber-500/10 px-1 py-0.5 text-[10px] font-bold text-amber-600" title={isHe ? "חופף בזמן לקורס אחר שלכם — ראו את ההתראה למעלה" : "Time-clashes with another of your courses — see the alert above"}>
+                          <span className="ms-1.5 inline-flex items-center gap-0.5 rounded bg-amber-500/10 px-1 py-0.5 text-[10px] font-bold text-status-amber" title={isHe ? "חופף בזמן לקורס אחר שלכם — ראו את ההתראה למעלה" : "Time-clashes with another of your courses — see the alert above"}>
                             <AlertTriangle className="size-2.5" />
                             {isHe ? "חפיפה" : "clash"}
                           </span>
@@ -307,7 +307,7 @@ export function BiddingWorksheet({
                           type="button"
                           onClick={() => setPriority(r.courseCode, p.key)}
                           aria-pressed={pri === p.key}
-                          className={cn("px-1.5 py-1 transition-colors", pri === p.key ? "bg-accent-brand text-accent-brand-fg" : "text-foreground/60 hover:bg-foreground/5")}
+                          className={cn("px-1.5 py-1 transition-colors", pri === p.key ? "bg-accent-brand text-accent-brand-fg" : "text-foreground/70 hover:bg-foreground/5")}
                         >
                           {isHe ? p.he : p.en}
                         </button>
@@ -325,15 +325,15 @@ export function BiddingWorksheet({
                     />
                   </div>
                   {issue === "below-min" && (
-                    <p className="mt-1.5 text-[11px] text-red-500">
+                    <p className="mt-1.5 text-[11px] text-status-red">
                       {isHe ? `מתחת ל-${heNounF(MIN_BID, "נקודה", "נקודות")} אי אפשר להיכנס למכרז על הקורס.` : `Below ${MIN_BID} points you can't enter the auction for this course.`}
                     </p>
                   )}
                   {issue === "not-integer" && (
-                    <p className="mt-1.5 text-[11px] text-red-500">{isHe ? "מספרים שלמים בלבד." : "Whole numbers only."}</p>
+                    <p className="mt-1.5 text-[11px] text-status-red">{isHe ? "מספרים שלמים בלבד." : "Whole numbers only."}</p>
                   )}
                   {issue === "negative" && (
-                    <p className="mt-1.5 text-[11px] text-red-500">{isHe ? "אי אפשר מספר שלילי." : "Can't be negative."}</p>
+                    <p className="mt-1.5 text-[11px] text-status-red">{isHe ? "אי אפשר מספר שלילי." : "Can't be negative."}</p>
                   )}
                 </li>
               );
@@ -343,7 +343,7 @@ export function BiddingWorksheet({
           {/* Safe, mechanism-based tips (never a predicted number) */}
           <div className="rounded-xl border border-border/50 bg-foreground/[0.02] p-3">
             <p className="mb-1.5 flex items-center gap-1.5 text-xs font-bold text-foreground/70">
-              <Lightbulb className="size-3.5 text-amber-500" />
+              <Lightbulb className="size-3.5 text-status-amber" />
               {isHe ? "טיפים (מנגנון, לא ניחוש)" : "Tips (mechanics, not guesses)"}
             </p>
             <ul className="space-y-1 text-[11px] leading-snug text-foreground/60">

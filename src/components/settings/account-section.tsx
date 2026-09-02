@@ -169,7 +169,7 @@ function SetPasswordBlock() {
         </Button>
       </div>
       {(tooShort || mismatch) && (
-        <p className="mt-1.5 text-xs text-red-500">
+        <p className="mt-1.5 text-xs text-status-red">
           {tooShort
             ? (isHe ? "הסיסמה קצרה מדי (לפחות 8 תווים)." : "Too short (at least 8 characters).")
             : (isHe ? "הסיסמאות אינן תואמות." : "Passwords don't match.")}

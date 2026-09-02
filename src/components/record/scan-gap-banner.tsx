@@ -41,7 +41,7 @@ export function ScanGapBanner({
 
   return (
     <div className="mt-3 rounded-xl border border-amber-500/40 bg-amber-500/10 p-3 text-sm">
-      <p className="flex items-start gap-2 font-semibold text-amber-800 dark:text-amber-300">
+      <p className="flex items-start gap-2 font-semibold text-status-amber">
         <AlertTriangle className="mt-0.5 size-4 shrink-0" />
         {isHe
           ? "בגיליון יש שורות שהקריאה לא החזירה"

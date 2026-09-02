@@ -178,7 +178,7 @@ export function GroupRail({
                 {courseName}
               </span>
               {unchosen > 0 ? (
-                <span className="shrink-0 rounded-full bg-amber-500/15 px-1.5 py-0.5 text-[10px] font-semibold text-amber-700 dark:text-amber-400">
+                <span className="shrink-0 rounded-full bg-amber-500/15 px-1.5 py-0.5 text-[10px] font-semibold text-status-amber">
                   {isHe ? "ברירת מחדל" : "our default"}
                 </span>
               ) : (
@@ -227,7 +227,7 @@ export function GroupRail({
                         <p
                           className={cn(
                             "shrink-0 text-[10px] font-medium",
-                            choice.freeCount === 0 ? "text-red-400" : "text-foreground/60",
+                            choice.freeCount === 0 ? "text-status-red" : "text-foreground/60",
                           )}
                         >
                           {isHe ? (
@@ -243,7 +243,7 @@ export function GroupRail({
                       </div>
 
                       {!chosen && (
-                        <p className="text-[10px] leading-snug text-amber-700 dark:text-amber-400">
+                        <p className="text-[10px] leading-snug text-status-amber">
                           {isHe
                             ? "עוד לא בחרתם — המקווקוות היא מה שמוצג בינתיים על המערכת."
                             : "You haven't chosen yet — the dashed one is what's on the grid meanwhile."}

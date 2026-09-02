@@ -28,10 +28,10 @@ import { cn } from "@/lib/utils";
 // Per-group accent. Higher service tier → "warmer/stronger" accent. NONE never
 // renders this bar at all.
 const GROUP_STYLE: Record<Exclude<MiluimGroupKey, "NONE">, { bar: string; chip: string; dot: string }> = {
-  GROUP_A: { bar: "border-sky-400/20 bg-sky-400/[0.06]", chip: "text-sky-500", dot: "bg-sky-400" },
-  GROUP_B: { bar: "border-amber-400/20 bg-amber-400/[0.06]", chip: "text-amber-500", dot: "bg-amber-400" },
-  GROUP_C: { bar: "border-emerald-400/20 bg-emerald-400/[0.06]", chip: "text-emerald-500", dot: "bg-emerald-400" },
-  GROUP_G: { bar: "border-violet-400/20 bg-violet-400/[0.06]", chip: "text-violet-500", dot: "bg-violet-400" },
+  GROUP_A: { bar: "border-sky-400/20 bg-sky-400/[0.06]", chip: "text-status-blue", dot: "bg-sky-400" },
+  GROUP_B: { bar: "border-amber-400/20 bg-amber-400/[0.06]", chip: "text-status-amber", dot: "bg-amber-400" },
+  GROUP_C: { bar: "border-emerald-400/20 bg-emerald-400/[0.06]", chip: "text-status-green", dot: "bg-emerald-400" },
+  GROUP_G: { bar: "border-violet-400/20 bg-violet-400/[0.06]", chip: "text-status-purple", dot: "bg-violet-400" },
 };
 
 /** Short label for the chip ("C") derived from the group key. */
@@ -219,7 +219,7 @@ export function MiluimStatusBar() {
               </div>
               <DialogPrimitive.Close
                 aria-label={t("close")}
-                className="rounded-md p-1 text-foreground/60 transition-colors hover:bg-foreground/10 hover:text-foreground/70"
+                className="rounded-md p-1 text-foreground/70 transition-colors hover:bg-foreground/10 hover:text-foreground/70"
               >
                 <X className="size-4" />
               </DialogPrimitive.Close>
@@ -464,14 +464,14 @@ function ServiceTimeline({
                     : `${s.daysServed} day${s.daysServed === 1 ? "" : "s"} served`}
                 </span>
                 {s.isCombat && (
-                  <span className="rounded bg-red-500/10 px-1.5 py-px text-[10px] font-semibold text-red-500">
+                  <span className="rounded bg-red-500/10 px-1.5 py-px text-[10px] font-semibold text-status-red">
                     {isHe ? "לחימה" : "combat"}
                   </span>
                 )}
                 <span
                   className={cn(
                     "ms-auto inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 text-[10px] font-bold",
-                    chip ? cn(chip.bar, chip.chip) : "bg-foreground/5 text-foreground/60",
+                    chip ? cn(chip.bar, chip.chip) : "bg-foreground/5 text-foreground/70",
                   )}
                 >
                   {g === "NONE"

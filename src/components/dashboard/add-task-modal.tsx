@@ -136,7 +136,7 @@ export function AddTaskModal({
                     "flex-1 rounded-lg px-2 py-1.5 text-xs font-medium transition-all",
                     taskType === type
                       ? "text-white shadow-sm"
-                      : "bg-foreground/5 text-foreground/60 hover:bg-foreground/10"
+                      : "bg-foreground/5 text-foreground/70 hover:bg-foreground/10"
                   )}
                   style={taskType === type ? { backgroundColor: TASK_COLORS[type] } : undefined}
                 >
@@ -220,7 +220,7 @@ export function AddTaskModal({
           <button
             type="button"
             onClick={() => onOpenChange(false)}
-            className="rounded-lg px-4 py-2 text-sm text-foreground/60 transition-colors hover:bg-foreground/5"
+            className="rounded-lg px-4 py-2 text-sm text-foreground/70 transition-colors hover:bg-foreground/5"
           >
             {t("cancel")}
           </button>
@@ -232,7 +232,7 @@ export function AddTaskModal({
               "rounded-lg px-5 py-2 text-sm font-medium transition-all",
               canSubmit && !isSubmitting
                 ? "bg-foreground text-background hover:scale-[1.02] press-scale"
-                : "cursor-not-allowed bg-foreground/20 text-foreground/60"
+                : "cursor-not-allowed bg-foreground/20 text-foreground/70"
             )}
           >
             {isSubmitting ? t("saving") : t("save")}

@@ -108,7 +108,7 @@ export function CohortShareNudge({
   if (variant === "inline") {
     if (justSharedText) {
       return (
-        <p className={cn("flex items-center gap-1.5 text-xs text-emerald-600 dark:text-emerald-400", className)}>
+        <p className={cn("flex items-center gap-1.5 text-xs text-status-green", className)}>
           <Check className="size-3.5 shrink-0" />
           {justSharedText}
         </p>
@@ -154,7 +154,7 @@ export function CohortShareNudge({
           </p>
 
           {justSharedText ? (
-            <p className="mt-2.5 flex items-center gap-1.5 text-xs font-medium text-emerald-600 dark:text-emerald-400">
+            <p className="mt-2.5 flex items-center gap-1.5 text-xs font-medium text-status-green">
               <Check className="size-3.5 shrink-0" />
               {justSharedText}
             </p>
