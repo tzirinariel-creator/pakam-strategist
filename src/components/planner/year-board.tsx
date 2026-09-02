@@ -47,6 +47,24 @@ export function YearBoard({ courses, currentYear }: YearBoardProps) {
   const selectedYear = selectedYearRaw ?? currentYear;
   const setSelectedYear = usePlannerStore((s) => s.setSelectedYear);
 
+  // Ariel, #3, 2.9: "ההמלצה והתהליך הטבעי לכל משתמש כרגע היא לתכנן שני
+  // סמסטרים א וב׳ של השנה שהוא עושה! הם יכולים להיות אפילו באותו חלון עם
+  // טאבים שונים."
+  //
+  // The two semesters were a `grid-cols-1 md:grid-cols-2`: side by side on a
+  // desktop, STACKED on a phone. Measured on 375×812: סמסטר א׳ began at 1465px
+  // and סמסטר ב׳ at 2117px, so on the device most students use you could never
+  // see both at once, and comparing them meant scrolling a screen and a half
+  // and holding the first one in your head. For a task whose whole nature is
+  // balancing one semester against the other — and which the bidding submits
+  // together — that is the wrong shape.
+  //
+  // So on a phone they become tabs, exactly as he suggested. From `md` up,
+  // where both genuinely fit, nothing changes: two columns, no tabs.
+  // Moving a course between them without dragging already exists on the card
+  // itself, so the tab boundary costs nothing.
+  const [mobileSemester, setMobileSemester] = useState<Semester>("FALL");
+
   const [activeCourse, setActiveCourse] = useState<UserCourseWithCourse | null>(null);
 
   // Unified save feedback (מסלול E): a drag-move persists instantly, so instead
@@ -236,16 +254,67 @@ export function YearBoard({ courses, currentYear }: YearBoardProps) {
           })}
         </div>
 
-        {/* Semester columns for selected year — סתיו ואביב בלבד */}
+        {/* Semester tabs — PHONE ONLY. Hidden from `md` up, where both columns
+            are visible at once and a tab would only hide half the answer. */}
+        <div className="flex items-center gap-1 rounded-lg border border-border/50 bg-card/30 p-1 md:hidden">
+          {SEMESTERS.map((semester) => {
+            const isActive = mobileSemester === semester;
+            const credits = getCoursesForSlot(selectedYear, semester).reduce(
+              (sum, uc) => sum + uc.course.credits,
+              0,
+            );
+            return (
+              <button
+                key={semester}
+                type="button"
+                onClick={() => setMobileSemester(semester)}
+                aria-pressed={isActive}
+                className={cn(
+                  "flex flex-1 items-center justify-center gap-2 rounded-md px-3 py-2 text-sm font-medium transition-all",
+                  isActive
+                    ? "border border-foreground/30 bg-foreground/15 text-foreground shadow-sm"
+                    : "text-muted-foreground hover:bg-card/60 hover:text-foreground",
+                )}
+              >
+                <span className="font-bold">
+                  {isHe
+                    ? semester === "FALL"
+                      ? "סמסטר א׳"
+                      : "סמסטר ב׳"
+                    : semester === "FALL"
+                      ? "Semester A"
+                      : "Semester B"}
+                </span>
+                <span
+                  className={cn(
+                    "rounded-full px-1.5 py-0.5 text-[10px] font-bold",
+                    isActive
+                      ? "bg-foreground/20 text-foreground"
+                      : "bg-muted/50 text-muted-foreground",
+                  )}
+                >
+                  {credits} {tCredits("title")}
+                </span>
+              </button>
+            );
+          })}
+        </div>
+
+        {/* Semester columns for selected year — סתיו ואביב בלבד.
+            On a phone only the tabbed one renders; from `md` both do. */}
         <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
           {SEMESTERS.map((semester) => (
-            <SemesterColumn
+            <div
               key={`${selectedYear}-${semester}`}
-              year={selectedYear}
-              semester={semester}
-              courses={getCoursesForSlot(selectedYear, semester)}
-              currentYear={currentYear}
-            />
+              className={cn(mobileSemester === semester ? "block" : "hidden", "md:block")}
+            >
+              <SemesterColumn
+                year={selectedYear}
+                semester={semester}
+                courses={getCoursesForSlot(selectedYear, semester)}
+                currentYear={currentYear}
+              />
+            </div>
           ))}
         </div>
 

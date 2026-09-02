@@ -226,25 +226,16 @@ export function PlannerContent() {
       {/* S1 — hosts the cohort-contribution sheet the grade-lock nudge opens
           (grades lock on the course cards of this board). */}
       <ReviewNudgeHost />
-      {/* Ariel, 22.8: "לא התייחסת במתכנן לסיפור של האקונומטריקה היישומית".
-          The secretariat's rule was on the graduation screen — reached after
-          planning. It belongs where a course still gets added. */}
-      <EconometricsNoteCard
-        rows={courses.map((uc) => ({
-          code: uc.course.code,
-          status: uc.status,
-          plannedYear: uc.plannedYear,
-        }))}
-        currentYear={currentYear}
-      />
-
-      <PlacementIssuesCard
-        courses={placementRows}
-        busy={movePlacement.isPending}
-        onMove={(userCourseId, semester) =>
-          movePlacement.mutate({ userCourseId, plannedSemester: semester })
-        }
-      />
+      {/* The two advisory cards used to sit HERE, above everything including
+          the page title. Measured on a 375×812 phone: the planning board — the
+          thing a student opens this screen to use — began 2,109px down, two and
+          a half screens of scrolling past commentary. Ariel, #3: "ההמלצה
+          והתהליך הטבעי לכל משתמש כרגע היא לתכנן שני סמסטרים א וב׳ של השנה
+          שהוא עושה".
+          They are not unimportant — the placement card offers a one-click fix
+          for courses stranded in the wrong semester — but they are commentary
+          ON a plan, so they now sit directly under the board they annotate,
+          where the student has already seen what they are talking about. */}
       {/* Saved confirmation (#18) — unmissable, dismissible, auto-hides */}
       {showSavedBanner && (
         <div
@@ -339,6 +330,24 @@ export function PlannerContent() {
           <div className="animate-stagger-3">
             <YearBoard courses={courses} currentYear={currentYear} />
           </div>
+
+          {/* Moved down from the top of the page — see the note above. */}
+          <EconometricsNoteCard
+            rows={courses.map((uc) => ({
+              code: uc.course.code,
+              status: uc.status,
+              plannedYear: uc.plannedYear,
+            }))}
+            currentYear={currentYear}
+          />
+
+          <PlacementIssuesCard
+            courses={placementRows}
+            busy={movePlacement.isPending}
+            onMove={(userCourseId, semester) =>
+              movePlacement.mutate({ userCourseId, plannedSemester: semester })
+            }
+          />
           {/* #13/#15 (12.7) — bidding help targets the NEXT semester (the one
               you bid for). With planned courses → the full toolkit; without —
               a short pointer instead of tools running on enrolled courses. */}
