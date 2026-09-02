@@ -50,7 +50,16 @@ const nextConfig: NextConfig = {
               // scripts and the app uses an inline theme-flash script. Removing it safely
               // requires a strict nonce-based CSP (per-request nonce via middleware) —
               // tracked in the README roadmap.
-              `script-src 'self' 'unsafe-inline' ${isDev ? "'unsafe-eval'" : ""} https://accounts.google.com`,
+              // `va.vercel-scripts.com` serves BOTH @vercel/analytics and
+              // @vercel/speed-insights. Both are mounted in app/layout.tsx and
+              // both were being blocked by this line — every page load logged a
+              // CSP violation and no measurement ever left the browser. Which
+              // means: no idea how many people used the app, which screens they
+              // opened, or whether it was slow for them. Days before a launch,
+              // on the one product where "did it work" is the whole question.
+              // Their beacons POST to same-origin /_vercel/* paths, so
+              // connect-src 'self' already covers those.
+              `script-src 'self' 'unsafe-inline' ${isDev ? "'unsafe-eval'" : ""} https://accounts.google.com https://va.vercel-scripts.com`,
               "style-src 'self' 'unsafe-inline'",
               "img-src 'self' data: blob: https://*.supabase.co https://lh3.googleusercontent.com",
               "font-src 'self'",
