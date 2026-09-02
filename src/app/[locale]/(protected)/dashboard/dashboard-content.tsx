@@ -545,9 +545,38 @@ export function DashboardContent() {
     );
   }
 
-  // Show onboarding wizard ONLY for genuine new users:
-  // Plan query succeeded, no courses, no transition signal, and didn't force-skip
-  if (planQuery.isSuccess && !hasPlanData && !isTransitioning && !forceDashboard) {
+  // Show onboarding wizard ONLY for genuine new users.
+  //
+  // Ariel, #2, 2.9: "זה חזר לי לתכנון של סמסטר א׳ שנה א׳ ואז כל המערכת
+  // התאפסה ופתאום האפליקציה אמרה לי שעשיתי רק 5 אחוז מהתואר."
+  //
+  // The navigation half of that is fixed elsewhere (a locale-less link forced a
+  // full page reload). This is the half that made it destructive. The gate was
+  // "the plan query succeeded and returned no courses" — and an empty array is
+  // a SUCCESS, not an error. Anything that produced one for an existing student
+  // — a cold read, a race after a reload, a cache that had not filled — put
+  // them back at the start of the wizard, whose defaults are year 1 semester A.
+  // Finish it and it writes a fresh, nearly-empty history over the real one,
+  // which is the reset he watched and the 5% he was shown.
+  //
+  // `startYear` is written once, during onboarding, and never cleared. A
+  // student who has one has already been through this, and must never be
+  // offered it again by accident. When their plan really is empty they get the
+  // dashboard's own empty state, which invites them to plan — and cannot
+  // overwrite anything.
+  // And the gate waits for the profile to actually LAND. Reading `startYear`
+  // off a query that has not resolved yet gives undefined, which is
+  // indistinguishable from "no start year" — the same race, one level down.
+  // We only know a student is new once we have looked.
+  const knowsWhetherNew = profileQuery.isSuccess;
+  const isGenuinelyNew = knowsWhetherNew && profileQuery.data?.startYear == null;
+  if (
+    planQuery.isSuccess &&
+    !hasPlanData &&
+    !isTransitioning &&
+    !forceDashboard &&
+    isGenuinelyNew
+  ) {
     return <OnboardingWizard />;
   }
 
