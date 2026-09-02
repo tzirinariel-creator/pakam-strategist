@@ -148,7 +148,7 @@ export function GradeSimulator({
                   : "Change grades on screen and watch where the average goes. Your real data is not touched."}
               </DialogDescription>
             </DialogHeader>
-            <p className="text-xs text-foreground/50">
+            <p className="text-xs text-foreground/60">
               {isHe
                 ? "שום דבר כאן לא נשמר. ביציאה הכול חוזר למה שהיה."
                 : "Nothing here is saved. On exit everything returns to what it was."}
@@ -190,7 +190,7 @@ export function GradeSimulator({
           while the list scrolls under it. */}
       <div className="sticky top-0 z-10 -mx-4 -mt-4 flex items-start justify-between gap-3 rounded-t-2xl bg-card/95 px-4 pb-3 pt-4 backdrop-blur">
         <div>
-          <p className="text-xs text-foreground/50">
+          <p className="text-xs text-foreground/60">
             {isHe ? "ממוצע בסימולציה" : "Simulated average"}
           </p>
           <p className={cn("font-mono text-3xl font-bold tabular-nums",
@@ -201,8 +201,8 @@ export function GradeSimulator({
                 className={cn(
                   "ms-2 font-mono text-base font-semibold",
                   result.averageDelta > 0
-                    ? "text-emerald-600 dark:text-emerald-400"
-                    : "text-red-600 dark:text-red-400",
+                    ? "text-status-green"
+                    : "text-status-red",
                 )}
               >
                 {/* Sign INSIDE the isolate — a "+" left outside it is a
@@ -214,7 +214,7 @@ export function GradeSimulator({
               </span>
             )}
           </p>
-          <p className="mt-0.5 text-xs text-foreground/45">
+          <p className="mt-0.5 text-xs text-foreground/60">
             {isHe ? "נוכחי " : "current "}
             <Bidi text={cur != null ? cur.toFixed(2) : "—"} />
             {result.changedCount > 0 && (
@@ -241,7 +241,7 @@ export function GradeSimulator({
 
       {/* Distribution of the REAL grades — context for the nudging */}
       <div className="mt-4">
-        <p className="text-[11px] text-foreground/40">
+        <p className="text-[11px] text-foreground/60">
           {isHe ? "התפלגות הציונים שלכם" : "Your grade distribution"}
         </p>
         {/* Ariel, #39: "הציונים מימין לשמאל במצב סימולציה. לא כמו מספרים
@@ -267,10 +267,10 @@ export function GradeSimulator({
                 style={{ height: `${8 + b.count * 6}px` }}
                 aria-hidden
               />
-              <p className="mt-1 font-mono text-[10px] text-foreground/50">
+              <p className="mt-1 font-mono text-[10px] text-foreground/60">
                 <Bidi text={b.count} />
               </p>
-              <p className="text-[10px] text-foreground/35">{b.band}</p>
+              <p className="text-[10px] text-foreground/60">{b.band}</p>
             </div>
           ))}
         </div>
@@ -290,7 +290,7 @@ export function GradeSimulator({
           visible source — and only when it is true of every course. Rows keep
           their own line only when they have something specific to say. */}
       {noSingleCourseReaches && targetPoint != null && curAvg != null && (
-        <p className="mt-3 rounded-lg bg-foreground/[0.03] px-3 py-2 text-[11px] leading-relaxed text-foreground/50">
+        <p className="mt-3 rounded-lg bg-foreground/[0.03] px-3 py-2 text-[11px] leading-relaxed text-foreground/60">
           {isHe ? (
             <>
               אף קורס בודד לא יכול להעלות את הממוצע מ־<Bidi text={curAvg.toFixed(2)} /> ל־
@@ -329,7 +329,7 @@ export function GradeSimulator({
                     right-to-left and lays out backwards. The whole numeric run
                     belongs in ONE isolate; only the Hebrew unit stays outside.
                     Same family as the "%8.6" fix on the levers card. */}
-                <span className="shrink-0 font-mono text-xs text-foreground/55 tabular-nums">
+                <span className="shrink-0 font-mono text-xs text-foreground/60 tabular-nums">
                   <Bidi text={`${g ?? "—"}/100 · ${uc.course.credits}`} />{" "}
                   {isHe ? "ש״ס" : "cr"}
                 </span>
@@ -351,11 +351,11 @@ export function GradeSimulator({
                   onClick={() => resetOne(uc.id)}
                   disabled={!overrides[uc.id]}
                   aria-label={isHe ? "איפוס הקורס" : "Reset course"}
-                  className="ms-auto rounded-lg p-1.5 text-foreground/40 disabled:opacity-25"
+                  className="ms-auto rounded-lg p-1.5 text-foreground/60 disabled:opacity-25"
                 >
                   <RotateCcw className="size-3.5" />
                 </button>
-                <label className="flex cursor-pointer items-center gap-1 text-[11px] text-foreground/50">
+                <label className="flex cursor-pointer items-center gap-1 text-[11px] text-foreground/60">
                   <input
                     type="checkbox"
                     checked={!excluded}
@@ -375,7 +375,7 @@ export function GradeSimulator({
         })}
       </ul>
 
-      <p className="mt-3 text-[11px] leading-relaxed text-foreground/40">
+      <p className="mt-3 text-[11px] leading-relaxed text-foreground/60">
         {isHe
           ? "הסימולציה משתמשת באותו חישוב ממוצע כמו שאר האפליקציה — כולל החרגת בינאריים ואנגלית וקורסים חוזרים. שום דבר כאן לא נשמר."
           : "The simulation uses the same average calculation as the rest of the app — binary, English and retakes handled identically. Nothing here is saved."}
@@ -416,7 +416,7 @@ function TargetHint({
   // the claim instead of taking it: the target is simply the next whole point
   // above the average they have right now.
   return (
-    <p className="mt-1.5 text-[11px] leading-relaxed text-foreground/45">
+    <p className="mt-1.5 text-[11px] leading-relaxed text-foreground/60">
       {isHe ? (
         <>
           כדי שממוצע הקורסים יעלה מ-<Bidi text={current.toFixed(2)} /> ל-<Bidi text={target} />,

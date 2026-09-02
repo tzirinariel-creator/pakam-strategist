@@ -351,7 +351,7 @@ export function GradeSheetScanner() {
           <p className="text-sm font-semibold text-foreground/85">
             {isHe ? "סריקת גיליון ציונים" : "Scan your grade sheet"}
           </p>
-          <p className="text-xs text-foreground/50">
+          <p className="text-xs text-foreground/60">
             {isHe
               ? "מעלים את 'אישור קורסים וציונים' מהאזור האישי של ת״א — ואנחנו ממלאים ציונים, קורסים בלימוד ורמת-אנגלית. שום דבר לא נשמר בלי אישור שלכם."
               : "Upload your 'Record of study' from the TAU personal area — we fill in grades, in-progress courses and English level. Nothing is saved without your approval."}
@@ -379,7 +379,7 @@ export function GradeSheetScanner() {
       </div>
 
       {scanning && (
-        <p className="mt-2 text-xs text-foreground/45" aria-live="polite">
+        <p className="mt-2 text-xs text-foreground/60" aria-live="polite">
           {scan.hint ?? (isHe ? "לא סוגרים את העמוד." : "Keep this page open.")}
           {elapsed >= REASSURE_AFTER_S && (
             <>
@@ -402,7 +402,7 @@ export function GradeSheetScanner() {
       {scanSummary && !rows && (
         <div className="space-y-2 rounded-xl border border-emerald-500/30 bg-emerald-500/5 p-4">
           <p className="flex items-center gap-2 text-sm font-bold text-foreground/85">
-            <Check className="size-4 text-emerald-500" />
+            <Check className="size-4 text-status-green" />
             {isHe
               ? `הגיליון נקלט — ${heNoun(scanSummary.updated + scanSummary.added, "קורס", "קורסים")}`
               : `Sheet applied — ${scanSummary.updated + scanSummary.added} course${scanSummary.updated + scanSummary.added === 1 ? "" : "s"}`}
@@ -453,7 +453,7 @@ export function GradeSheetScanner() {
           <button
             type="button"
             onClick={() => setScanSummary(null)}
-            className="text-xs text-foreground/45 transition-colors hover:text-foreground/70"
+            className="text-xs text-foreground/60 transition-colors hover:text-foreground/70"
           >
             {isHe ? "סגירה" : "Dismiss"}
           </button>
@@ -474,7 +474,7 @@ export function GradeSheetScanner() {
                   })} — סמנו מה לשמור, ותקנו כל שורה שנקראה לא נכון:`
                 : `Found ${rows.length} row${rows.length === 1 ? "" : "s"} — pick what to save, and fix any row we misread:`}
             </p>
-            <button type="button" onClick={() => { setRows(null); setEditing(null); setScannedEnglish(null); }} aria-label={isHe ? "סגירה" : "Close"} className="rounded-md p-1 text-foreground/30 hover:text-foreground/60">
+            <button type="button" onClick={() => { setRows(null); setEditing(null); setScannedEnglish(null); }} aria-label={isHe ? "סגירה" : "Close"} className="rounded-md p-1 text-foreground/60 hover:text-foreground/90">
               <X className="size-4" />
             </button>
           </div>
@@ -504,7 +504,7 @@ export function GradeSheetScanner() {
                 <button
                   type="button"
                   onClick={() => setScannedEnglish(null)}
-                  className="shrink-0 rounded-md px-1.5 py-1 text-foreground/40 hover:text-foreground/70"
+                  className="shrink-0 rounded-md px-1.5 py-1 text-foreground/60 hover:text-foreground/70"
                 >
                   {isHe ? "לא עכשיו" : "Not now"}
                 </button>
@@ -515,7 +515,7 @@ export function GradeSheetScanner() {
           {avgMismatch && (
             // #5 — the grades we read don't add up to the average printed on
             // the sheet itself. Something was misread — say it before apply.
-            <div className="flex items-start gap-2 rounded-lg border border-amber-500/40 bg-amber-500/10 p-2.5 text-xs text-amber-800 dark:text-amber-300">
+            <div className="flex items-start gap-2 rounded-lg border border-amber-500/40 bg-amber-500/10 p-2.5 text-xs text-status-amber">
               <AlertTriangle className="mt-0.5 size-3.5 shrink-0" />
               <span>
                 {isHe
@@ -583,7 +583,7 @@ export function GradeSheetScanner() {
                   >
                     <span className="truncate">{r.courseName}</span>
                     {r.courseCode && (
-                      <span className="shrink-0 text-foreground/40" dir="ltr">
+                      <span className="shrink-0 text-foreground/60" dir="ltr">
                         {"· "}
                         {r.courseCode}
                       </span>
@@ -600,12 +600,12 @@ export function GradeSheetScanner() {
                     return label ? (
                       <span
                         title={label.raw}
-                        className="rounded bg-foreground/5 px-1.5 py-px text-[10px] text-foreground/45"
+                        className="rounded bg-foreground/5 px-1.5 py-px text-[10px] text-foreground/70"
                       >
                         {label.text}
                       </span>
                     ) : (
-                      <span className="rounded bg-foreground/5 px-1.5 py-px font-data text-[10px] text-foreground/45" dir="ltr">
+                      <span className="rounded bg-foreground/5 px-1.5 py-px font-data text-[10px] text-foreground/70" dir="ltr">
                         {r.semester}
                       </span>
                     );
@@ -616,47 +616,47 @@ export function GradeSheetScanner() {
                   {r.inProgress && r.grade == null && !r.passText ? (
                     // The sheet prints *** for enrolled-not-yet-graded — a calm
                     // fact, not a warning and not "unreadable gibberish".
-                    <span className="rounded bg-accent-brand/10 px-1.5 py-px text-[10px] font-semibold text-accent-brand">
+                    <span className="rounded bg-accent-brand/6 px-1.5 py-px text-[10px] font-semibold text-accent-brand">
                       {isHe ? "בלימוד — עדיין אין ציון" : "In progress — no grade yet"}
                     </span>
                   ) : r.match && decision ? (
                     // DECLARE the exact outcome before applying (#30) — the
                     // student never gets a silent COMPLETED/FAILED.
                     !r.changesGrade && decision.status === "COMPLETED" && r.grade != null ? (
-                      <span className="rounded bg-foreground/5 px-1.5 py-px text-[10px] text-foreground/45">
+                      <span className="rounded bg-foreground/5 px-1.5 py-px text-[10px] text-foreground/70">
                         {isHe ? "כבר מעודכן" : "Already current"}
                       </span>
                     ) : decision.status === "FAILED" ? (
-                      <span className="flex items-center gap-1 rounded bg-amber-500/10 px-1.5 py-px text-[10px] font-semibold text-amber-600">
+                      <span className="flex items-center gap-1 rounded bg-amber-500/10 px-1.5 py-px text-[10px] font-semibold text-status-amber">
                         <AlertTriangle className="size-2.5" />
                         {isHe ? `מתחת לרף (${passBarFor(r.match.courseType)}) — יירשם כנכשל` : `Below ${passBarFor(r.match.courseType)} — will record as failed`}
                       </span>
                     ) : decision.status === "EXEMPT" ? (
-                      <span className="rounded bg-emerald-400/10 px-1.5 py-px text-[10px] font-semibold text-emerald-600">
+                      <span className="rounded bg-emerald-400/10 px-1.5 py-px text-[10px] font-semibold text-status-green">
                         {isHe ? `יירשם כפטור: ${r.match.nameHe}` : `Will record as exempt: ${r.match.nameHe}`}
                       </span>
                     ) : decision.grade == null ? (
                       // "עובר" → COMPLETED with no grade
-                      <span className="rounded bg-emerald-400/10 px-1.5 py-px text-[10px] font-semibold text-emerald-600">
+                      <span className="rounded bg-emerald-400/10 px-1.5 py-px text-[10px] font-semibold text-status-green">
                         {isHe ? "עובר — יירשם כהושלם בלי ציון" : "Pass — will record as completed, no grade"}
                       </span>
                     ) : r.overwritesGrade && !r.ambiguous && r.matchKind !== "fuzzy" ? (
                       // Re-upload diff (SC-4): the sheet REPLACES a recorded grade
                       // (e.g. after מועד ב'). Shown as an explicit old→new change,
                       // never pre-checked — the student ticks it deliberately.
-                      <span className="rounded bg-amber-500/10 px-1.5 py-px text-[10px] font-semibold text-amber-600">
+                      <span className="rounded bg-amber-500/10 px-1.5 py-px text-[10px] font-semibold text-status-amber">
                         {isHe
                           ? <>רשום אצלכם <bdi dir="ltr">{r.match.currentGrade}</bdi> — בגיליון <bdi dir="ltr">{r.grade}</bdi>. סמנו כדי להחליף</>
                           : <>Recorded: {r.match.currentGrade} — sheet says {r.grade}. Tick to replace</>}
                       </span>
                     ) : r.autoApplySafe ? (
-                      <span className="rounded bg-emerald-400/10 px-1.5 py-px text-[10px] font-semibold text-emerald-600">
+                      <span className="rounded bg-emerald-400/10 px-1.5 py-px text-[10px] font-semibold text-status-green">
                         {isHe ? `יעודכן: ${r.match.nameHe}` : `Will update: ${r.match.nameHe}`}
                       </span>
                     ) : (
                       // Low-confidence (fuzzy/ambiguous) — left unchecked; the
                       // student must confirm this is really the right course.
-                      <span className="flex items-center gap-1 rounded bg-amber-500/10 px-1.5 py-px text-[10px] font-semibold text-amber-600">
+                      <span className="flex items-center gap-1 rounded bg-amber-500/10 px-1.5 py-px text-[10px] font-semibold text-status-amber">
                         <AlertTriangle className="size-2.5" />
                         {isHe ? `ודאו: ${r.match.nameHe}?` : `Verify: ${r.match.nameHe}?`}
                       </span>
@@ -669,16 +669,16 @@ export function GradeSheetScanner() {
                     // behind. It is now a normal, tickable row like any other —
                     // the badge DECLARES what will be written before it happens.
                     addition.status === "FAILED" ? (
-                      <span className="flex items-center gap-1 rounded bg-amber-500/10 px-1.5 py-px text-[10px] font-semibold text-amber-600">
+                      <span className="flex items-center gap-1 rounded bg-amber-500/10 px-1.5 py-px text-[10px] font-semibold text-status-amber">
                         <AlertTriangle className="size-2.5" />
                         {isHe ? "לא בתוכנית — יתווסף לתיק כנכשל" : "Not in plan — will be added as failed"}
                       </span>
                     ) : addition.status === "EXEMPT" ? (
-                      <span className="rounded bg-accent-brand/10 px-1.5 py-px text-[10px] font-semibold text-accent-brand">
+                      <span className="rounded bg-accent-brand/6 px-1.5 py-px text-[10px] font-semibold text-accent-brand">
                         {isHe ? "לא בתוכנית — יתווסף לתיק כפטור" : "Not in plan — will be added as exempt"}
                       </span>
                     ) : (
-                      <span className="rounded bg-accent-brand/10 px-1.5 py-px text-[10px] font-semibold text-accent-brand">
+                      <span className="rounded bg-accent-brand/6 px-1.5 py-px text-[10px] font-semibold text-accent-brand">
                         {isHe ? "לא בתוכנית — יתווסף לתיק עם הציון" : "Not in plan — will be added with the grade"}
                       </span>
                     )
@@ -686,14 +686,14 @@ export function GradeSheetScanner() {
                     // #5 (12.7, sub-fix 5) — the course IS matched in the plan
                     // but the sheet row came back with no grade/pass-text.
                     // Saying "לא נמצא בתוכנית" here was factually wrong.
-                    <span className="flex items-center gap-1 rounded bg-amber-500/10 px-1.5 py-px text-[10px] font-semibold text-amber-600">
+                    <span className="flex items-center gap-1 rounded bg-amber-500/10 px-1.5 py-px text-[10px] font-semibold text-status-amber">
                       <AlertTriangle className="size-2.5" />
                       {isHe
                         ? `בגיליון אין ציון ל${r.match.nameHe} — אם כבר יש ציון, הזינו אותו בתיק`
                         : `No grade on the sheet for ${r.match.nameHe} — enter it in the record if you have one`}
                     </span>
                   ) : (
-                    <span className="flex items-center gap-1 rounded bg-amber-500/10 px-1.5 py-px text-[10px] font-semibold text-amber-600">
+                    <span className="flex items-center gap-1 rounded bg-amber-500/10 px-1.5 py-px text-[10px] font-semibold text-status-amber">
                       <AlertTriangle className="size-2.5" />
                       {isHe ? "לא נמצא בתוכנית — עדכנו ידנית" : "Not in your plan — update manually"}
                     </span>
@@ -701,7 +701,7 @@ export function GradeSheetScanner() {
                   {r.uncertain && (
                     // #5 — the two reads disagreed here (or one dropped the
                     // row). Loud, specific, and never pre-checked.
-                    <span className="flex items-center gap-1 rounded bg-amber-500/15 px-1.5 py-px text-[10px] font-bold text-amber-700">
+                    <span className="flex items-center gap-1 rounded bg-amber-500/15 px-1.5 py-px text-[10px] font-bold text-status-amber">
                       <AlertTriangle className="size-2.5" />
                       {isHe
                         ? r.otherGrade != null
@@ -713,7 +713,7 @@ export function GradeSheetScanner() {
                     </span>
                   )}
                   {applicable && isEnglish && (
-                    <span className="rounded bg-foreground/5 px-1.5 py-px text-[10px] text-foreground/45">
+                    <span className="rounded bg-foreground/5 px-1.5 py-px text-[10px] text-foreground/70">
                       {isHe ? "לא נכנס לממוצע התואר" : "not in the degree average"}
                     </span>
                   )}
@@ -731,7 +731,7 @@ export function GradeSheetScanner() {
                       "inline-flex shrink-0 items-center gap-1 rounded-md px-1.5 py-1 text-[10px] font-semibold transition-colors",
                       editing === i
                         ? "bg-accent-brand/15 text-accent-brand"
-                        : "text-foreground/45 hover:bg-foreground/5 hover:text-foreground/70",
+                        : "text-foreground/70 hover:bg-foreground/5 hover:text-foreground/70",
                     )}
                   >
                     <PenLine className="size-3" />
@@ -839,7 +839,7 @@ export function GradeSheetScanner() {
                           </select>
                         </div>
                       </div>
-                      <p className="text-[10px] leading-relaxed text-foreground/45">
+                      <p className="text-[10px] leading-relaxed text-foreground/60">
                         {isHe
                           ? "ציון תקין הוא 0 עד 100. מה שתתקנו כאן הוא מה שיישמר; כדי לוותר על השורה — הסירו את הסימון שלה."
                           : "A valid grade is 0 to 100. What you fix here is what gets saved; to leave a row out, un-tick it."}

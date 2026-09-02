@@ -82,7 +82,7 @@ export function RuleCard({ rule }: RuleCardProps) {
 
   // Status icon and colors
   let StatusIcon = CheckCircle2;
-  let statusColor = "text-emerald-400";
+  let statusColor = "text-status-green";
   let borderColor = "border-emerald-400/20";
   let bgColor = "bg-emerald-400/5";
   let statusLabel = t("passed");
@@ -91,14 +91,14 @@ export function RuleCard({ rule }: RuleCardProps) {
     switch (severity) {
       case "ERROR":
         StatusIcon = XCircle;
-        statusColor = "text-red-400";
+        statusColor = "text-status-red";
         borderColor = "border-red-400/20";
         bgColor = "bg-red-400/5";
         statusLabel = t("failed");
         break;
       case "WARNING":
         StatusIcon = AlertTriangle;
-        statusColor = "text-amber-400";
+        statusColor = "text-status-amber";
         borderColor = "border-amber-400/20";
         bgColor = "bg-amber-400/5";
         statusLabel = t("warning");
@@ -117,10 +117,10 @@ export function RuleCard({ rule }: RuleCardProps) {
   // Severity badge
   const severityBadgeColor =
     severity === "ERROR"
-      ? "bg-red-400/10 text-red-400 border-red-400/20"
+      ? "bg-red-400/10 text-status-red border-red-400/20"
       : severity === "WARNING"
-        ? "bg-amber-400/10 text-amber-400 border-amber-400/20"
-        : "bg-blue-400/10 text-blue-400 border-blue-400/20";
+        ? "bg-amber-400/10 text-status-amber border-amber-400/20"
+        : "bg-blue-400/10 text-status-blue border-blue-400/20";
 
   return (
     <div
@@ -187,7 +187,7 @@ export function RuleCard({ rule }: RuleCardProps) {
               promptEn={`Explain the requirement "${ruleName}" — why am I not meeting it, and what exactly should I do to close it?`}
               labelHe="שאל את {advisor} איך לסגור את זה"
               labelEn="Ask {advisor} how to close this"
-              className="mt-2.5 inline-flex items-center gap-1.5 rounded-lg bg-accent-brand/10 px-2.5 py-1.5 text-xs font-medium text-accent-brand transition-colors hover:bg-accent-brand/20"
+              className="mt-2.5 inline-flex items-center gap-1.5 rounded-lg bg-accent-brand/6 px-2.5 py-1.5 text-xs font-medium text-accent-brand transition-colors hover:bg-accent-brand/20"
               iconClassName="size-3.5"
             />
           )}
@@ -265,7 +265,7 @@ export function RuleCard({ rule }: RuleCardProps) {
           {!passed && severity !== "INFO" && (
             <Link
               href="/planner"
-              className="mt-3 flex w-fit items-center gap-1.5 rounded-md border border-foreground/20 bg-foreground/5 px-3 py-1.5 text-xs font-medium text-foreground/60 transition-colors hover:bg-foreground/10 hover:text-foreground/80"
+              className="mt-3 flex w-fit items-center gap-1.5 rounded-md border border-foreground/20 bg-foreground/5 px-3 py-1.5 text-xs font-medium text-foreground/70 transition-colors hover:bg-foreground/10 hover:text-foreground/80"
             >
               <Wrench className="h-3 w-3" />
               {t("fixInPlanner")}

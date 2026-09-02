@@ -188,34 +188,34 @@ export function StepProfile({ data, onUpdate, sheetSeeded = false }: StepProfile
       return {
         text: isHe ? "פטור! עדיין צריך 2 קורסי תוכן באנגלית" : "Exempt! Still need 2 English content courses",
         detail: isHe ? "ציון 134+ — פטור מקורסי שפה, נדרשים 2 קורסים אקדמיים באנגלית" : "Score 134+ — exempt from language courses, 2 academic English courses required",
-        color: "text-emerald-500",
+        color: "text-status-green",
       };
     }
     if (score >= AMIRNET_CONFIG.ADVANCED_B_THRESHOLD) {
       return {
         text: isHe ? "מתקדמים ב׳ — קורס שפה + 2 קורסי תוכן" : "Advanced B — 1 language + 2 content courses",
         detail: isHe ? "ציון 120-133 — קורס שפה אחד + 2 קורסים אקדמיים באנגלית" : "Score 120-133 — 1 language course + 2 academic English courses",
-        color: "text-blue-400",
+        color: "text-status-blue",
       };
     }
     if (score >= AMIRNET_CONFIG.ADVANCED_A_THRESHOLD) {
       return {
         text: isHe ? "מתקדמים א׳ — 2 קורסי שפה" : "Advanced A — 2 language courses",
         detail: isHe ? "ציון 100-119 — 2 קורסי אנגלית (רמת הקבלה המינימלית)" : "Score 100-119 — 2 English courses (minimum admission level)",
-        color: "text-amber-500",
+        color: "text-status-amber",
       };
     }
     if (score >= AMIRNET_CONFIG.BASIC_THRESHOLD) {
       return {
         text: isHe ? "בסיסי — 3 קורסי שפה" : "Basic — 3 language courses",
         detail: isHe ? "ציון 85-99 — 3 קורסי אנגלית נדרשים" : "Score 85-99 — 3 English courses required",
-        color: "text-orange-400",
+        color: "text-status-amber",
       };
     }
     return {
       text: isHe ? "טרום בסיסי — 4-5 קורסי שפה" : "Pre-basic — 4-5 language courses",
       detail: isHe ? "ציון מתחת ל-85 — מחייב 4-5 קורסי אנגלית" : "Score below 85 — requires 4-5 English courses",
-      color: "text-red-400",
+      color: "text-status-red",
     };
   };
 
@@ -235,7 +235,7 @@ export function StepProfile({ data, onUpdate, sheetSeeded = false }: StepProfile
         <h2 className="font-display font-bold text-2xl text-foreground/90">
           {t("quickProfile")}
         </h2>
-        <p className="mt-2 text-foreground/50">{t("quickProfileDesc")}</p>
+        <p className="mt-2 text-foreground/60">{t("quickProfileDesc")}</p>
       </div>
 
       <div className="mt-8 w-full max-w-xl space-y-6">
@@ -245,7 +245,7 @@ export function StepProfile({ data, onUpdate, sheetSeeded = false }: StepProfile
           <h3 className="mb-1 text-sm font-medium text-foreground/70">
             {t("personalTitle")}
           </h3>
-          <p className="mb-3 text-xs text-foreground/40">{t("personalHint")}</p>
+          <p className="mb-3 text-xs text-foreground/60">{t("personalHint")}</p>
           <div className="grid grid-cols-2 gap-3">
             <input
               type="text"
@@ -294,7 +294,7 @@ export function StepProfile({ data, onUpdate, sheetSeeded = false }: StepProfile
           {/* #26 — when the year came off a real grade sheet, say where it came
               from. The student is confirming a reading, not answering blind. */}
           {sheetSeeded && (
-            <p className="mb-3 text-xs text-foreground/45">
+            <p className="mb-3 text-xs text-foreground/60">
               {isHe
                 ? "מילאנו את זה מהגיליון שסרקתם. אם זה לא מדויק — פשוט בחרו אחרת."
                 : "We filled this in from the sheet you scanned. If it's off, just pick another."}
@@ -327,7 +327,7 @@ export function StepProfile({ data, onUpdate, sheetSeeded = false }: StepProfile
           <h3 className="mb-1 text-sm font-medium text-foreground/70">
             {t("yourSemester")}
           </h3>
-          <p className="mb-3 text-xs text-foreground/40">
+          <p className="mb-3 text-xs text-foreground/60">
             {isHe
               ? "הסמסטר שנתכנן יחד עכשיו. ברירת המחדל היא הסמסטר הקרוב לפי לוח השנה האקדמי."
               : "The semester we'll plan together now. The default is the upcoming one on the academic calendar."}
@@ -363,7 +363,7 @@ export function StepProfile({ data, onUpdate, sheetSeeded = false }: StepProfile
           <p className="text-sm text-foreground/75">
             <Bidi text={acadStatusLine} />
           </p>
-          <p className="mt-1 text-xs text-foreground/45">
+          <p className="mt-1 text-xs text-foreground/60">
             <Bidi text={acadNextLine} />
           </p>
         </div>
@@ -373,7 +373,7 @@ export function StepProfile({ data, onUpdate, sheetSeeded = false }: StepProfile
           <h3 className="mb-1 text-sm font-medium text-foreground/70">
             {t("yourFocus")}
           </h3>
-          <p className="mb-3 text-xs text-foreground/40">
+          <p className="mb-3 text-xs text-foreground/60">
             {t("focusHint")}
           </p>
           <div className="grid grid-cols-2 gap-3">
@@ -404,7 +404,7 @@ export function StepProfile({ data, onUpdate, sheetSeeded = false }: StepProfile
           <h3 className="mb-1 text-sm font-medium text-foreground/70">
             {tm("sectionTitle")}
           </h3>
-          <p className="mb-3 text-xs text-foreground/40">{tm("optionalHint")}</p>
+          <p className="mb-3 text-xs text-foreground/60">{tm("optionalHint")}</p>
 
           {/* Collapsed entry button */}
           <button
@@ -418,7 +418,7 @@ export function StepProfile({ data, onUpdate, sheetSeeded = false }: StepProfile
           >
             <Shield className={cn(
               "h-5 w-5 shrink-0",
-              showMiluimDetails || hasGroup ? "text-emerald-500" : "text-foreground/40"
+              showMiluimDetails || hasGroup ? "text-status-green" : "text-foreground/60"
             )} />
             <div className="flex-1 text-start">
               <span className="block">
@@ -428,12 +428,12 @@ export function StepProfile({ data, onUpdate, sheetSeeded = false }: StepProfile
               </span>
             </div>
             {hasGroup && exemptionShown > 0 && (
-              <span className="rounded-full bg-emerald-500/10 px-2.5 py-1 text-[11px] font-bold text-emerald-500">
+              <span className="rounded-full bg-emerald-500/10 px-2.5 py-1 text-[11px] font-bold text-status-green">
                 {tm("collapsedExempt", { credits: exemptionShown })}
               </span>
             )}
             <ChevronDown className={cn(
-              "h-4 w-4 shrink-0 text-foreground/30 transition-transform",
+              "h-4 w-4 shrink-0 text-foreground/60 transition-transform",
               showMiluimDetails && "rotate-180"
             )} />
           </button>
@@ -533,7 +533,7 @@ export function StepProfile({ data, onUpdate, sheetSeeded = false }: StepProfile
                         form on hand. Open by default so answering "yes" leads
                         straight to the days field. */}
                     <details className="rounded-lg border border-border/40 p-3" open>
-                      <summary className="cursor-pointer text-xs font-medium text-foreground/55">
+                      <summary className="cursor-pointer text-xs font-medium text-foreground/60">
                         {tm("or3010Manual")}
                       </summary>
                       <div className="mt-2 space-y-3">
@@ -553,9 +553,9 @@ export function StepProfile({ data, onUpdate, sheetSeeded = false }: StepProfile
                           onUpdate({ miluimDays: v, miluimCombat: isCombat, miluimCareerService: false });
                         }}
                         placeholder={tm("q2DaysPlaceholder")}
-                        className="w-full rounded-lg border border-border bg-card px-3 py-2 text-sm text-foreground placeholder:text-foreground/25 focus:border-foreground/30 focus:outline-none transition-colors"
+                        className="w-full rounded-lg border border-border bg-card px-3 py-2 text-sm text-foreground placeholder:text-foreground/60 focus:border-foreground/30 focus:outline-none transition-colors"
                       />
-                      <p className="text-xs text-foreground/30">{tm("q2DaysHint")}</p>
+                      <p className="text-xs text-foreground/60">{tm("q2DaysHint")}</p>
                     </div>
 
                     {/* Combat */}
@@ -571,7 +571,7 @@ export function StepProfile({ data, onUpdate, sheetSeeded = false }: StepProfile
                           className={cn(
                             "flex items-center justify-center gap-1.5 rounded-lg border px-3 py-2 text-xs transition-all",
                             isCombat
-                              ? "border-amber-500/40 bg-amber-500/5 text-amber-600 font-medium"
+                              ? "border-amber-500/40 bg-amber-500/5 text-status-amber font-medium"
                               : "border-foreground/15 bg-card text-foreground/60 hover:border-foreground/30"
                           )}
                         >
@@ -601,7 +601,7 @@ export function StepProfile({ data, onUpdate, sheetSeeded = false }: StepProfile
                     {/* Result */}
                     {derivedGroup !== "NONE" && (days ?? 0) > 0 && (
                       <div className="rounded-lg border border-emerald-500/20 bg-emerald-500/5 p-2.5 animate-in fade-in duration-200">
-                        <p className="text-xs font-medium text-emerald-500">{tm("resultTitle")}</p>
+                        <p className="text-xs font-medium text-status-green">{tm("resultTitle")}</p>
                         <p className="mt-1 text-sm font-bold text-foreground/80">
                           <Bidi
                             text={
@@ -611,7 +611,7 @@ export function StepProfile({ data, onUpdate, sheetSeeded = false }: StepProfile
                             }
                           />
                         </p>
-                        <p className="mt-0.5 text-[11px] text-foreground/45">
+                        <p className="mt-0.5 text-[11px] text-foreground/60">
                           {tm("resultExemption", {
                             credits: Math.min(
                               MILUIM_CONFIG.GROUPS[derivedGroup].creditExemptionPerYear,
@@ -619,7 +619,7 @@ export function StepProfile({ data, onUpdate, sheetSeeded = false }: StepProfile
                             ),
                           })}
                         </p>
-                        <p className="mt-1.5 text-xs text-foreground/30">{tm("editLater")}</p>
+                        <p className="mt-1.5 text-xs text-foreground/60">{tm("editLater")}</p>
                       </div>
                     )}
                   </div>
@@ -630,24 +630,24 @@ export function StepProfile({ data, onUpdate, sheetSeeded = false }: StepProfile
               <div>
                 <button
                   onClick={() => setShowSpecialCases((v) => !v)}
-                  className="flex w-full items-center gap-1.5 text-[11px] text-foreground/40 hover:text-foreground/60 transition-colors"
+                  className="flex w-full items-center gap-1.5 text-[11px] text-foreground/60 hover:text-foreground/90 transition-colors"
                 >
                   <ChevronDown className={cn("h-3 w-3 transition-transform", showSpecialCases && "rotate-180")} />
                   {tm("specialCasesToggle")}
                 </button>
                 {showSpecialCases && (
                   <div className="mt-2 space-y-1.5 animate-in fade-in duration-200">
-                    <p className="text-xs text-foreground/30"><Bidi text={tm("specialCasesHint")} /></p>
+                    <p className="text-xs text-foreground/60"><Bidi text={tm("specialCasesHint")} /></p>
                     {/* 300+ */}
                     <button
                       onClick={() => setExplicitGroup("GROUP_C")}
                       className="w-full rounded-lg border border-amber-500/20 bg-amber-500/5 px-3 py-2 text-start text-[11px] text-foreground/60 hover:border-amber-500/30 transition-all"
                     >
-                      <span className="flex items-center gap-1.5 font-medium text-amber-500">
+                      <span className="flex items-center gap-1.5 font-medium text-status-amber">
                         <Swords className="h-3 w-3" />
                         <Bidi text={tm("special300")} />
                       </span>
-                      <span className="block mt-0.5 text-foreground/30">{tm("special300Desc")}</span>
+                      <span className="block mt-0.5 text-foreground/60">{tm("special300Desc")}</span>
                     </button>
                     {/* Career service in a service-track program → Group C
                         (owner-confirmed 4.7). A career soldier isn't a "300+
@@ -656,11 +656,11 @@ export function StepProfile({ data, onUpdate, sheetSeeded = false }: StepProfile
                       onClick={() => setExplicitGroup("GROUP_C", true)}
                       className="w-full rounded-lg border border-amber-500/20 bg-amber-500/5 px-3 py-2 text-start text-[11px] text-foreground/60 hover:border-amber-500/30 transition-all"
                     >
-                      <span className="flex items-center gap-1.5 font-medium text-amber-500">
+                      <span className="flex items-center gap-1.5 font-medium text-status-amber">
                         <Shield className="h-3 w-3" />
                         <Bidi text={tm("specialCareer")} />
                       </span>
-                      <span className="block mt-0.5 text-foreground/30">{tm("specialCareerDesc")}</span>
+                      <span className="block mt-0.5 text-foreground/60">{tm("specialCareerDesc")}</span>
                     </button>
                     {/* Bereaved → G */}
                     <button
@@ -668,7 +668,7 @@ export function StepProfile({ data, onUpdate, sheetSeeded = false }: StepProfile
                       className="w-full rounded-lg border border-foreground/15 bg-card px-3 py-2 text-start text-[11px] text-foreground/60 hover:border-foreground/30 transition-all"
                     >
                       <span className="font-medium">{tm("specialBereaved")}</span>
-                      <span className="block text-foreground/30">{tm("specialBereavedDesc")}</span>
+                      <span className="block text-foreground/60">{tm("specialBereavedDesc")}</span>
                     </button>
                     {/* Wounded → G */}
                     <button
@@ -676,7 +676,7 @@ export function StepProfile({ data, onUpdate, sheetSeeded = false }: StepProfile
                       className="w-full rounded-lg border border-foreground/15 bg-card px-3 py-2 text-start text-[11px] text-foreground/60 hover:border-foreground/30 transition-all"
                     >
                       <span className="font-medium">{tm("specialWounded")}</span>
-                      <span className="block text-foreground/30">{tm("specialWoundedDesc")}</span>
+                      <span className="block text-foreground/60">{tm("specialWoundedDesc")}</span>
                     </button>
                     {/* Spouse → B (depends on partner; B as a sensible default, refine manually) */}
                     <button
@@ -684,15 +684,15 @@ export function StepProfile({ data, onUpdate, sheetSeeded = false }: StepProfile
                       className="w-full rounded-lg border border-foreground/15 bg-card px-3 py-2 text-start text-[11px] text-foreground/60 hover:border-foreground/30 transition-all"
                     >
                       <span className="font-medium">{tm("specialSpouse")}</span>
-                      <span className="block text-foreground/30">{tm("specialSpouseDesc")}</span>
+                      <span className="block text-foreground/60">{tm("specialSpouseDesc")}</span>
                     </button>
                     {/* Retroactive / regular-army front-line → opens manual select */}
                     <button
                       onClick={() => setShowManualSelect(true)}
-                      className="w-full rounded-lg border border-foreground/10 bg-foreground/3 px-3 py-2 text-start text-[11px] text-foreground/50 hover:border-foreground/20 transition-all"
+                      className="w-full rounded-lg border border-foreground/10 bg-foreground/3 px-3 py-2 text-start text-[11px] text-foreground/60 hover:border-foreground/20 transition-all"
                     >
                       <span className="font-medium">{tm("specialRetro")}</span>
-                      <span className="block text-foreground/30"><Bidi text={tm("specialRetroDesc")} /></span>
+                      <span className="block text-foreground/60"><Bidi text={tm("specialRetroDesc")} /></span>
                     </button>
                   </div>
                 )}
@@ -702,7 +702,7 @@ export function StepProfile({ data, onUpdate, sheetSeeded = false }: StepProfile
               <div>
                 <button
                   onClick={() => setShowManualSelect((v) => !v)}
-                  className="flex w-full items-center gap-1.5 text-[11px] text-foreground/40 hover:text-foreground/60 transition-colors"
+                  className="flex w-full items-center gap-1.5 text-[11px] text-foreground/60 hover:text-foreground/90 transition-colors"
                 >
                   <ChevronDown className={cn("h-3 w-3 transition-transform", showManualSelect && "rotate-180")} />
                   {tm("changeManually")}
@@ -726,7 +726,7 @@ export function StepProfile({ data, onUpdate, sheetSeeded = false }: StepProfile
                           <div className="flex items-center justify-between">
                             <span className="font-medium"><Bidi text={isHe ? group.nameHe : group.nameEn} /></span>
                             {groupKey !== "NONE" && (
-                              <span className="rounded-full bg-foreground/5 px-1.5 py-0.5 text-[10px] font-mono text-foreground/40">
+                              <span className="rounded-full bg-foreground/5 px-1.5 py-0.5 text-[10px] font-mono text-foreground/70">
                                 {Math.min(group.creditExemptionPerYear, MILUIM_CONFIG.MAX_CREDIT_EXEMPTIONS_DEGREE)} {isHe ? "ש״ס" : "cr."}
                               </span>
                             )}
@@ -734,7 +734,7 @@ export function StepProfile({ data, onUpdate, sheetSeeded = false }: StepProfile
                           {group.descHe && (
                             // The group blurbs carry day RANGES ("21–34",
                             // "14–20") — unisolated they reverse in RTL.
-                            <span className="block mt-0.5 text-xs text-foreground/40">
+                            <span className="block mt-0.5 text-xs text-foreground/60">
                               <Bidi text={isHe ? group.descHe : group.descEn} />
                             </span>
                           )}
@@ -751,12 +751,12 @@ export function StepProfile({ data, onUpdate, sheetSeeded = false }: StepProfile
                   {/* (1) Auto-applied — the exemption */}
                   <div className="rounded-xl border border-emerald-500/25 bg-emerald-500/5 p-3">
                     <div className="flex items-center gap-1.5 mb-1.5">
-                      <BadgeCheck className="h-3.5 w-3.5 text-emerald-500" />
-                      <p className="text-xs font-semibold text-emerald-600">{tm("appliedTitle")}</p>
+                      <BadgeCheck className="h-3.5 w-3.5 text-status-green" />
+                      <p className="text-xs font-semibold text-status-green">{tm("appliedTitle")}</p>
                     </div>
-                    <p className="text-[11px] text-foreground/40 mb-2">{tm("appliedSubtitle")}</p>
+                    <p className="text-[11px] text-foreground/60 mb-2">{tm("appliedSubtitle")}</p>
                     <div className="flex items-start gap-1.5 text-[11px] text-foreground/60">
-                      <Check className="h-3 w-3 text-emerald-400 mt-0.5 shrink-0" />
+                      <Check className="h-3 w-3 text-status-green mt-0.5 shrink-0" />
                       <span>{tm("appliedExemption", { credits: exemptionShown })}</span>
                     </div>
                   </div>
@@ -765,21 +765,21 @@ export function StepProfile({ data, onUpdate, sheetSeeded = false }: StepProfile
                   <div className="rounded-xl border border-foreground/12 bg-foreground/3 p-3">
                     <div className="flex items-center justify-between mb-1.5">
                       <div className="flex items-center gap-1.5">
-                        <FileText className="h-3.5 w-3.5 text-foreground/50" />
+                        <FileText className="h-3.5 w-3.5 text-foreground/60" />
                         <p className="text-xs font-semibold text-foreground/70">{tm("entitlementsTitle")}</p>
                       </div>
-                      <span className="rounded-full bg-foreground/5 px-2 py-0.5 text-[11px] font-medium text-foreground/40">
+                      <span className="rounded-full bg-foreground/5 px-2 py-0.5 text-[11px] font-medium text-foreground/70">
                         {tm("asof")}
                       </span>
                     </div>
-                    <p className="text-[11px] text-foreground/40 mb-2">{tm("entitlementsSubtitle")}</p>
+                    <p className="text-[11px] text-foreground/60 mb-2">{tm("entitlementsSubtitle")}</p>
                     <ul className="space-y-2">
                       {buildEntitlements(data.miluimGroup as MiluimGroupKey, tm).map((ent) => (
                         <li key={ent.key} className="flex items-start gap-1.5">
                           <span className="mt-1 h-1.5 w-1.5 shrink-0 rounded-full bg-foreground/25" />
                           <div className="leading-snug">
                             <span className="text-[11px] font-medium text-foreground/70"><Bidi text={ent.title} /></span>
-                            <span className="block text-xs text-foreground/40"><Bidi text={ent.desc} /></span>
+                            <span className="block text-xs text-foreground/60"><Bidi text={ent.desc} /></span>
                           </div>
                         </li>
                       ))}
@@ -796,13 +796,13 @@ export function StepProfile({ data, onUpdate, sheetSeeded = false }: StepProfile
           <h3 className="mb-2 text-sm font-medium text-foreground/70">
             {isHe ? "ציון אמירנט / פסיכומטרי אנגלית" : "AMIRANT / Psychometric English Score"}
           </h3>
-          <p className="mb-3 text-xs text-foreground/40">
+          <p className="mb-3 text-xs text-foreground/60">
             {isHe
               ? <Bidi text={"הציון קובע כמה קורסי אנגלית תצטרכו. הסולם 50-150 זהה לאמירנט ולפסיכומטרי. בפכ״מ נדרשים 2 קורסי תוכן באנגלית בכל מקרה."} />
               : "Determines how many English courses you need. The 50-150 scale is shared by AMIRANT and Psychometric. PPE requires 2 English content courses regardless."
             }
           </p>
-          <p className="mb-3 text-xs text-foreground/35">
+          <p className="mb-3 text-xs text-foreground/60">
             {isHe
               ? "עוד לא עשיתם אמירנט או לא זוכרים את הציון? אפשר לדלג ולהוסיף אחר כך בהגדרות."
               : "Haven't taken AMIRANT yet or don't recall the score? Skip it and add it later in settings."}
@@ -833,7 +833,7 @@ export function StepProfile({ data, onUpdate, sheetSeeded = false }: StepProfile
                 onUpdate({ amirantScore: Number.isNaN(n) ? null : Math.min(150, Math.max(50, n)) });
               }}
               placeholder={isHe ? "למשל: 134" : "e.g. 134"}
-              className="w-32 rounded-xl border-2 border-border bg-card px-4 py-2.5 text-sm text-foreground placeholder:text-foreground/30 focus:border-foreground/30 focus:outline-none transition-colors"
+              className="w-32 rounded-xl border-2 border-border bg-card px-4 py-2.5 text-sm text-foreground placeholder:text-foreground/60 focus:border-foreground/30 focus:outline-none transition-colors"
             />
             {/* A declared level (dropdown below) OVERRIDES the score everywhere
                 (#23) — so the score-derived label must not contradict it. When a
@@ -860,7 +860,7 @@ export function StepProfile({ data, onUpdate, sheetSeeded = false }: StepProfile
               <Bidi text={amirnetStatus.detail} />
             </p>
           )}
-          <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-[11px] text-foreground/30">
+          <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-[11px] text-foreground/60">
             <span><Bidi text={isHe ? "134+ = פטור" : "134+ = exempt"} /></span>
             <span><Bidi text={isHe ? "120-133 = מתקדמים ב׳" : "120-133 = adv. B"} /></span>
             <span><Bidi text={isHe ? "100-119 = מתקדמים א׳" : "100-119 = adv. A"} /></span>
@@ -871,7 +871,7 @@ export function StepProfile({ data, onUpdate, sheetSeeded = false }: StepProfile
               with no number) but not their score can pick it directly. It wins
               over the score everywhere, so the English rules still fire. */}
           <div className="mt-4">
-            <label htmlFor="onboarding-english-level" className="mb-1.5 block text-xs text-foreground/50">
+            <label htmlFor="onboarding-english-level" className="mb-1.5 block text-xs text-foreground/60">
               {isHe
                 ? "לא יודעים את הציון? בחרו את הרמה מהגיליון (למשל “מתקדמים ב׳”)"
                 : "Don't know the score? Pick your level from the grade sheet"}

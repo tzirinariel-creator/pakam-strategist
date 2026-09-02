@@ -318,7 +318,7 @@ export function ExamSchedule() {
   if (error) {
     return (
       <div className="flex min-h-[40vh] flex-col items-center justify-center gap-3">
-        <AlertTriangle className="size-8 text-red-400" />
+        <AlertTriangle className="size-8 text-status-red" />
         <p className="text-sm text-muted-foreground">{tCommon("error")}</p>
       </div>
     );
@@ -332,7 +332,7 @@ export function ExamSchedule() {
         <CalendarClock className="size-10 text-foreground/20" />
         <div className="text-center">
           <p className="text-base font-medium text-foreground/60">{t("noExams")}</p>
-          <p className="mt-1 max-w-xs text-sm text-foreground/40">{t("noExamsDesc")}</p>
+          <p className="mt-1 max-w-xs text-sm text-foreground/60">{t("noExamsDesc")}</p>
         </div>
       </div>
     );
@@ -356,21 +356,21 @@ export function ExamSchedule() {
         </div>
         {/* Passed */}
         <div className="data-card flex flex-col items-center gap-1 py-3">
-          <span className="font-data text-2xl font-bold text-emerald-400">{stats.passed}</span>
+          <span className="font-data text-2xl font-bold text-status-green">{stats.passed}</span>
           <span className="text-xs text-muted-foreground">{t("passed")}</span>
         </div>
         {/* Next exam countdown */}
         <div className="data-card flex flex-col items-center gap-1 py-3">
           {stats.nextExam ? (
             <>
-              <span className="font-data text-2xl font-bold text-red-400">
+              <span className="font-data text-2xl font-bold text-status-red">
                 {daysUntil(stats.nextExam)}
               </span>
               <span className="text-xs text-muted-foreground">{t("daysToNext")}</span>
             </>
           ) : (
             <>
-              <CheckCircle2 className="size-6 text-emerald-400" />
+              <CheckCircle2 className="size-6 text-status-green" />
               <span className="text-xs text-muted-foreground">{t("allDone")}</span>
             </>
           )}
@@ -380,7 +380,7 @@ export function ExamSchedule() {
       {/* Honesty (A5): exam dates are scraped from the official TAU site and
           can change — surface the source so a countdown is never read as an
           authoritative promise (the no-invented/unsourced-date rule). */}
-      <p className="-mt-2 text-center text-xs text-muted-foreground/70">
+      <p className="-mt-2 text-center text-xs text-muted-foreground">
         {isRTL
           ? "תאריכי-המבחן נאספים מהאתר הרשמי ועשויים להשתנות — ודאו מולו לפני כל מבחן."
           : "Exam dates are gathered from the official site and may change — verify there before each exam."}
@@ -396,7 +396,7 @@ export function ExamSchedule() {
               "flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-medium transition-colors",
               activeTab === "list"
                 ? "bg-foreground/10 text-foreground/80"
-                : "text-muted-foreground hover:text-foreground/60"
+                : "text-muted-foreground hover:text-foreground/90"
             )}
           >
             <List className="size-3.5" />
@@ -409,7 +409,7 @@ export function ExamSchedule() {
               "flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-medium transition-colors",
               activeTab === "gantt"
                 ? "bg-foreground/10 text-foreground/80"
-                : "text-muted-foreground hover:text-foreground/60"
+                : "text-muted-foreground hover:text-foreground/90"
             )}
           >
             <BarChart3 className="size-3.5" />
@@ -449,12 +449,12 @@ export function ExamSchedule() {
               {isExportingXlsx ? (
                 <Loader2 className="size-4 shrink-0 animate-spin" />
               ) : (
-                <FileSpreadsheet className="size-4 shrink-0 text-emerald-500" />
+                <FileSpreadsheet className="size-4 shrink-0 text-status-green" />
               )}
               {isRTL ? "ייצוא ל-Excel (צבעוני)" : "Export to Excel (colored)"}
             </DropdownMenuItem>
             <DropdownMenuItem onSelect={handleExportICS} className="gap-2 py-2.5 text-sm">
-              <CalendarPlus className="size-4 shrink-0 text-indigo-400" />
+              <CalendarPlus className="size-4 shrink-0 text-accent-brand" />
               {t("exportICS")}
             </DropdownMenuItem>
             <DropdownMenuItem onSelect={handlePrint} className="gap-2 py-2.5 text-sm">
@@ -471,7 +471,7 @@ export function ExamSchedule() {
           <StudySkyline plan={timelinePlan} recommendations={timelineRecs} isHe={isRTL} />
         ) : (
           <div className="flex min-h-[200px] flex-col items-center justify-center gap-2 rounded-lg border border-dashed border-border/30 p-6">
-            <CalendarClock className="size-8 text-muted-foreground/30" />
+            <CalendarClock className="size-8 text-muted-foreground" />
             <p className="text-sm text-muted-foreground">{t("noExams")}</p>
           </div>
         )
@@ -481,15 +481,15 @@ export function ExamSchedule() {
       {activeTab === "list" && (examGroups.length === 0 ? (
         // Everything is in the past or already passed → nothing upcoming (#33).
         <div className="flex min-h-[160px] flex-col items-center justify-center gap-3 rounded-lg border border-dashed border-border/40 p-6">
-          <CheckCircle2 className="size-8 text-emerald-400/70" />
-          <p className="text-sm text-foreground/55">
+          <CheckCircle2 className="size-8 text-status-green/70" />
+          <p className="text-sm text-foreground/60">
             {isRTL ? "אין מבחנים קרובים — אתם מעודכנים." : "No upcoming exams — you're all caught up."}
           </p>
         </div>
       ) : (
       <div className="flex flex-col gap-4">
         {/* Legend (#8): what the dot color, Moed-B badge and red mean. */}
-        <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5 rounded-lg border border-border/40 bg-card/30 px-3 py-2 text-[11px] text-foreground/50">
+        <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5 rounded-lg border border-border/40 bg-card/30 px-3 py-2 text-[11px] text-foreground/60">
           {/* The dot is the COURSE's colour, not the discipline's — the same
               one it wears on the weekly grid and the plan board, so the eye
               can carry a course between screens. The old legend listed the
@@ -531,13 +531,13 @@ export function ExamSchedule() {
                   <CalendarClock
                     className={cn(
                       "size-4",
-                      isToday ? "text-red-400" : isSoon ? "text-foreground/80" : "text-muted-foreground",
+                      isToday ? "text-status-red" : isSoon ? "text-foreground/80" : "text-muted-foreground",
                     )}
                   />
                   <span
                     className={cn(
                       "text-sm font-semibold",
-                      isToday ? "text-red-400" : "text-foreground",
+                      isToday ? "text-status-red" : "text-foreground",
                     )}
                   >
                     {group.label}
@@ -555,7 +555,7 @@ export function ExamSchedule() {
                     <span
                       className={cn(
                         "font-data text-xs font-medium",
-                        isToday ? "text-red-400" : isSoon ? "text-foreground/80" : "text-muted-foreground",
+                        isToday ? "text-status-red" : isSoon ? "text-foreground/80" : "text-muted-foreground",
                       )}
                     >
                       {isToday
@@ -619,22 +619,22 @@ export function ExamSchedule() {
                       <div className="shrink-0">
                         {hasPassed && (
                           <div className="flex items-center gap-1 rounded-full bg-emerald-500/10 px-2 py-0.5">
-                            <CheckCircle2 className="size-3.5 text-emerald-400" />
-                            <span className="font-data text-xs font-bold text-emerald-400">
+                            <CheckCircle2 className="size-3.5 text-status-green" />
+                            <span className="font-data text-xs font-bold text-status-green">
                               {exam.grade}
                             </span>
                           </div>
                         )}
                         {hasFailed && (
                           <div className="flex items-center gap-1 rounded-full bg-red-500/10 px-2 py-0.5">
-                            <XCircle className="size-3.5 text-red-400" />
-                            <span className="font-data text-xs font-bold text-red-400">
+                            <XCircle className="size-3.5 text-status-red" />
+                            <span className="font-data text-xs font-bold text-status-red">
                               {exam.grade}
                             </span>
                           </div>
                         )}
                         {!hasPassed && !hasFailed && !isPast && (
-                          <BookOpen className="size-4 text-muted-foreground/50" />
+                          <BookOpen className="size-4 text-muted-foreground" />
                         )}
                       </div>
                     </div>

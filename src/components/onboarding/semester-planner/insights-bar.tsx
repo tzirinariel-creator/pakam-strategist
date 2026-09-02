@@ -58,10 +58,10 @@ const LEVEL_LABELS_EN: Record<HonestLoadLabel, string> = {
 };
 
 const LEVEL_COLORS: Record<HonestLoadLabel, string> = {
-  light: "text-emerald-400",
-  hours: "text-amber-500",
-  credits: "text-amber-500",
-  examCrunch: "text-red-400",
+  light: "text-status-green",
+  hours: "text-status-amber",
+  credits: "text-status-amber",
+  examCrunch: "text-status-red",
 };
 
 // ─── Types ────────────────────────────────────────────────────────────
@@ -447,13 +447,13 @@ export function InsightsBar({
         <div className="rounded-xl border border-border/40 bg-card/30 p-2.5">
           <div className="flex items-center gap-1.5">
             <BookOpen className="h-3.5 w-3.5 text-foreground/80" />
-            <span className="text-[10px] text-foreground/40 truncate">
+            <span className="text-[10px] text-foreground/60 truncate">
               {t("creditsThisSemester")}
             </span>
           </div>
           <div className="mt-1 flex items-baseline gap-1">
             <span className="font-mono text-lg font-bold text-foreground/80">{semesterCredits}</span>
-            <span className="text-[10px] text-foreground/30">{t("nz")}</span>
+            <span className="text-[10px] text-foreground/60">{t("nz")}</span>
           </div>
         </div>
 
@@ -469,7 +469,7 @@ export function InsightsBar({
         >
           <div className="flex items-center gap-1.5">
             <IconComponent className={cn("size-4", LEVEL_COLORS[honestLoad.label])} />
-            <span className="text-[10px] text-foreground/40 truncate">
+            <span className="text-[10px] text-foreground/60 truncate">
               {t("workloadLevel")}
             </span>
           </div>
@@ -482,10 +482,10 @@ export function InsightsBar({
                 carry the weight. (A contradicting "עומס גבוה" sentence used to
                 sit right here whenever the semester ran 17–19 ש״ס, while this
                 very label said "קל".) */}
-            <span className="ms-1 text-[10px] text-foreground/30">
+            <span className="ms-1 text-[10px] text-foreground/60">
               {isHe ? "לפי הספים שלנו" : "by our thresholds"}
             </span>
-            <p className="mt-0.5 text-[10px] text-foreground/40" dir="auto">
+            <p className="mt-0.5 text-[10px] text-foreground/60" dir="auto">
               {isHe
                 ? <>‏<Bidi text={honestLoad.weeklyHours} /> שעות לימוד בשבוע · <Bidi text={honestLoad.credits} /> ש״ס</>
                 : `${honestLoad.weeklyHours}h · ${honestLoad.credits} cr.`}
@@ -494,7 +494,7 @@ export function InsightsBar({
                 a quarter of the catalog carries no meeting rows, and a bare
                 number implied we had counted them. */}
             {unscheduledCount > 0 && (
-              <p className="mt-0.5 text-[10px] leading-tight text-foreground/35">
+              <p className="mt-0.5 text-[10px] leading-tight text-foreground/60">
                 {isHe
                   ? unscheduledCount === 1
                     // Hebrew counts: "1 קורסים" is not a thing a person writes.
@@ -518,18 +518,18 @@ export function InsightsBar({
           <div className="flex items-center justify-between gap-1.5">
             <div className="flex items-center gap-1.5 min-w-0">
               {conflictCount > 0 ? (
-                <AlertTriangle className="h-3.5 w-3.5 shrink-0 text-red-400" />
+                <AlertTriangle className="h-3.5 w-3.5 shrink-0 text-status-red" />
               ) : (
-                <CheckCircle className="h-3.5 w-3.5 shrink-0 text-emerald-400" />
+                <CheckCircle className="h-3.5 w-3.5 shrink-0 text-status-green" />
               )}
-              <span className="text-[10px] text-foreground/40 truncate">
+              <span className="text-[10px] text-foreground/60 truncate">
                 {t("conflicts")}
               </span>
             </div>
             {conflictCount > 0 && (
               <ChevronDown
                 className={cn(
-                  "h-3 w-3 shrink-0 text-foreground/30 transition-transform",
+                  "h-3 w-3 shrink-0 text-foreground/60 transition-transform",
                   showConflictDetails && "rotate-180"
                 )}
               />
@@ -539,18 +539,18 @@ export function InsightsBar({
             <span
               className={cn(
                 "font-mono text-lg font-bold",
-                conflictCount > 0 ? "text-red-400" : "text-emerald-400"
+                conflictCount > 0 ? "text-status-red" : "text-status-green"
               )}
             >
               {conflictCount}
             </span>
-            <p className="text-[10px] text-foreground/30">
+            <p className="text-[10px] text-foreground/60">
               {conflictCount > 0 ? t("conflictsDetected") : t("noConflicts")}
             </p>
             {/* A zero here means "none among the courses we hold times for" —
                 not "your week is clear". Say which one it is. */}
             {unscheduledCount > 0 && (
-              <p className="mt-0.5 text-[10px] leading-tight text-foreground/35">
+              <p className="mt-0.5 text-[10px] leading-tight text-foreground/60">
                 {isHe
                   ? unscheduledCount === 1
                     ? <>נבדק רק מול הקורסים שיש להם שעות (אחד בלי שעות ידועות)</>
@@ -577,8 +577,8 @@ export function InsightsBar({
         {/* Card 4: Degree Progress */}
         <div className="rounded-xl border border-border/40 bg-card/30 p-2.5">
           <div className="flex items-center gap-1.5">
-            <GraduationCap className="h-3.5 w-3.5 text-foreground/40" />
-            <span className="text-[10px] text-foreground/40 truncate">
+            <GraduationCap className="h-3.5 w-3.5 text-foreground/60" />
+            <span className="text-[10px] text-foreground/60 truncate">
               {t("degreeProgress")}
             </span>
           </div>
@@ -586,7 +586,7 @@ export function InsightsBar({
             <span className="font-mono text-lg font-bold text-foreground/70">
               {completedCredits + totalCreditsPlanned}
             </span>
-            <span className="text-[10px] text-foreground/30">/ {CREDIT_REQUIREMENTS.TOTAL}</span>
+            <span className="text-[10px] text-foreground/60">/ {CREDIT_REQUIREMENTS.TOTAL}</span>
           </div>
           <div className="mt-1 h-1 w-full rounded-full bg-foreground/10 overflow-hidden">
             <div
@@ -599,7 +599,7 @@ export function InsightsBar({
           {/* Earned and planned are different kinds of certainty, so the split
               is stated rather than folded into one number. */}
           {completedCredits > 0 && (
-            <p className="mt-1 text-[10px] leading-tight text-foreground/40">
+            <p className="mt-1 text-[10px] leading-tight text-foreground/60">
               <Bidi text={completedCredits} /> {isHe ? "שכבר עשיתם" : "already done"} ·{" "}
               <Bidi text={totalCreditsPlanned} /> {isHe ? "בתכנון" : "planned"}
             </p>
@@ -622,13 +622,13 @@ export function InsightsBar({
                     and names the area without implying it belongs to the
                     semester. (An earlier pass already fixed a "17/60" here that
                     divided one semester by the whole degree's requirement.) */}
-                <span className="text-[11px] leading-tight text-foreground/30">
+                <span className="text-[11px] leading-tight text-foreground/60">
                   {isHe
                     ? `נספר ל${focusAreaCfg.nameHe} — תחום המיקוד שלכם`
                     : `Counts toward ${focusAreaCfg.nameEn} — your focus area`}
                 </span>
               </div>
-              <span className="font-mono text-[11px] text-foreground/30 shrink-0">
+              <span className="font-mono text-[11px] text-foreground/60 shrink-0">
                 <Bidi text={focusAreaCredits} /> {isHe ? "ש״ס" : "cr."}
               </span>
             </div>
@@ -649,11 +649,11 @@ export function InsightsBar({
               <span className="font-mono text-base font-bold text-foreground/80">
                 <Bidi text={honestLoad.weeklyHours} />
               </span>
-              <span className="text-[10px] text-foreground/40">
+              <span className="text-[10px] text-foreground/60">
                 {isHe ? "שע׳/שבוע" : "hrs/wk"}
               </span>
             </div>
-            <p className="text-[10px] text-foreground/30">
+            <p className="text-[10px] text-foreground/60">
               {isHe ? "שעות לימוד" : "Contact hours"}
             </p>
           </div>
@@ -666,9 +666,9 @@ export function InsightsBar({
               <span className="font-mono text-base font-bold text-foreground/80">
                 <Bidi text={honestLoad.credits} />
               </span>
-              <span className="text-[10px] text-foreground/40">{t("nz")}</span>
+              <span className="text-[10px] text-foreground/60">{t("nz")}</span>
             </div>
-            <p className="text-[10px] text-foreground/30">
+            <p className="text-[10px] text-foreground/60">
               {isHe ? "שעות סמסטריאליות" : "Credits"}
             </p>
           </div>
@@ -682,21 +682,21 @@ export function InsightsBar({
                 <>
                   <span className={cn(
                     "font-mono text-base font-bold",
-                    honestLoad.label === "examCrunch" ? "text-red-400" : "text-foreground/80"
+                    honestLoad.label === "examCrunch" ? "text-status-red" : "text-foreground/80"
                   )}>
                     <Bidi text={honestLoad.tightestExamGapDays} />
                   </span>
-                  <span className="text-[10px] text-foreground/40">
+                  <span className="text-[10px] text-foreground/60">
                     {isHe ? "ימים" : "days"}
                   </span>
                 </>
               ) : (
-                <span className="text-[11px] text-foreground/30">
+                <span className="text-[11px] text-foreground/60">
                   {isHe ? "אין נתונים" : "no data"}
                 </span>
               )}
             </div>
-            <p className="text-[10px] text-foreground/30">
+            <p className="text-[10px] text-foreground/60">
               {isHe ? "מרווח מבחנים קצר" : "Tightest exam gap"}
             </p>
           </div>
@@ -706,7 +706,7 @@ export function InsightsBar({
       {/* Conflict details — expanded panel */}
       {showConflictDetails && conflictCount > 0 && (
         <div className="rounded-xl border border-red-400/20 bg-red-400/5 p-3 space-y-2 animate-in fade-in slide-in-from-top-1 duration-200">
-          <p className="text-[10px] font-semibold text-red-400">
+          <p className="text-[10px] font-semibold text-status-red">
             {isHe ? "התנגשויות בין קורסים:" : "Schedule conflicts:"}
           </p>
           {conflicts.map((conflict, idx) => (
@@ -714,14 +714,14 @@ export function InsightsBar({
               key={`${conflict.aName}|${conflict.bName}|${conflict.day}|${conflict.time}|${idx}`}
               className="flex items-start gap-2 rounded-lg bg-red-400/5 px-2.5 py-1.5"
             >
-              <AlertTriangle className="h-3 w-3 shrink-0 text-red-400/60 mt-0.5" />
+              <AlertTriangle className="h-3 w-3 shrink-0 text-status-red/60 mt-0.5" />
               <div className="text-[10px] text-foreground/60 leading-relaxed">
                 <span className="font-medium text-foreground/80">{conflict.aName}</span>
                 {" "}
-                <X className="inline h-2.5 w-2.5 text-red-400" />
+                <X className="inline h-2.5 w-2.5 text-status-red" />
                 {" "}
                 <span className="font-medium text-foreground/80">{conflict.bName}</span>
-                <span className="text-foreground/30 ms-1.5">
+                <span className="text-foreground/60 ms-1.5">
                   ({conflictDayLabel(conflict.day, isHe)}{" "}
                   <bdi dir="ltr">{conflict.time}</bdi>)
                 </span>
@@ -741,9 +741,9 @@ export function InsightsBar({
                 key={idx}
                 className={cn(
                   "flex items-center gap-2 rounded-lg px-2.5 py-1.5 text-[10px]",
-                  insight.type === "positive" && "bg-emerald-500/5 text-emerald-600/70",
-                  insight.type === "neutral" && "bg-foreground/[0.03] text-foreground/40",
-                  insight.type === "warning" && "bg-amber-500/5 text-amber-600/70",
+                  insight.type === "positive" && "bg-emerald-500/5 text-status-green/70",
+                  insight.type === "neutral" && "bg-foreground/[0.03] text-foreground/60",
+                  insight.type === "warning" && "bg-amber-500/5 text-status-amber/70",
                 )}
               >
                 <Icon className="h-3 w-3 shrink-0" />
@@ -777,7 +777,7 @@ export function InsightsBar({
                   className="h-1.5 w-1.5 rounded-full"
                   style={{ backgroundColor: d.cfg?.color }}
                 />
-                <span className="text-[11px] text-foreground/30">
+                <span className="text-[11px] text-foreground/60">
                   {isHe ? d.cfg?.nameHe : d.cfg?.nameEn} ({d.credits})
                 </span>
               </div>

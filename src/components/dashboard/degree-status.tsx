@@ -187,7 +187,7 @@ export function DegreeStatus({
             <p className="text-sm font-bold text-foreground/85">
               {isHe ? "סיימתם את כל הש״ס — כל הכבוד!" : "All credits complete — congratulations!"}
             </p>
-            <p className="text-xs text-foreground/55">
+            <p className="text-xs text-foreground/60">
               {isReferent
                 ? isHe
                   ? "זהו, הש״ס סגורים. נשאר רק החלק הביורוקרטי — לסגור את זה פורמלית מול המזכירות."
@@ -216,7 +216,7 @@ export function DegreeStatus({
             {isHe ? "מהתואר הושלמו" : "of the degree done"}
           </span>
           {remaining <= 0 && (
-            <span className="text-xs text-emerald-500">
+            <span className="text-xs text-status-green">
               {isHe ? "כל הש״ס הושלמו" : "all credits complete"}
             </span>
           )}
@@ -233,11 +233,11 @@ export function DegreeStatus({
                 <span className="font-mono text-3xl font-bold tabular-nums text-foreground/85">
                   <CountUp value={earnedEffective} />
                 </span>
-                <span className="font-mono text-base text-foreground/40">/ {target}</span>
+                <span className="font-mono text-base text-foreground/60">/ {target}</span>
               </bdi>
-              <span className="ms-1 text-sm text-foreground/50">{isHe ? "ש״ס" : "cr."}</span>
+              <span className="ms-1 text-sm text-foreground/60">{isHe ? "ש״ס" : "cr."}</span>
             </div>
-            <p className="mt-0.5 text-xs text-foreground/55">
+            <p className="mt-0.5 text-xs text-foreground/60">
               <Bidi
                 text={
                   remaining > 0
@@ -251,7 +251,7 @@ export function DegreeStatus({
               />
             </p>
             {nearHonors && gpa != null && (
-              <p className="mt-0.5 text-[11px] text-foreground/45">
+              <p className="mt-0.5 text-[11px] text-foreground/60">
                 {/* HONESTY: gpa here is the CUMULATIVE course average, but honors
                     is a per-STUDY-YEAR weighted average (honors.ts). So we must
                     NOT claim "you're in honors range" off the cumulative number —
@@ -294,7 +294,7 @@ export function DegreeStatus({
           />
         )}
       </div>
-      <div className="mt-1.5 flex flex-wrap items-center gap-x-4 gap-y-1 text-[11px] text-foreground/50">
+      <div className="mt-1.5 flex flex-wrap items-center gap-x-4 gap-y-1 text-[11px] text-foreground/60">
         <Legend className="bg-foreground" label={isHe ? `${earned} הושלמו` : `${earned} done`} />
         {planned > 0 && (
           <Legend className="bg-foreground/30" label={isHe ? `${planned} מתוכננים` : `${planned} planned`} />
@@ -314,7 +314,7 @@ export function DegreeStatus({
           type="button"
           onClick={() => setShowDetail((s) => !s)}
           aria-expanded={showDetail}
-          className="mt-3 inline-flex items-center gap-1.5 text-xs font-medium text-foreground/55 transition-colors hover:text-foreground/80"
+          className="mt-3 inline-flex items-center gap-1.5 text-xs font-medium text-foreground/60 transition-colors hover:text-foreground/80"
         >
           <ChevronDown className={cn("size-3.5 transition-transform", showDetail && "rotate-180")} />
           {showDetail
@@ -326,7 +326,7 @@ export function DegreeStatus({
       {/* Per-discipline breakdown — the three PPE legs (hero only). */}
       {isHero && showDetail && disciplines && disciplines.length > 0 && (
         <div className="mt-4">
-          <div className="mb-2 text-[11px] font-medium text-foreground/45">
+          <div className="mb-2 text-[11px] font-medium text-foreground/60">
             {isHe ? "לפי דיסציפלינה" : "By discipline"}
           </div>
           <div className="grid grid-cols-2 gap-x-4 gap-y-2.5 sm:grid-cols-3">
@@ -342,9 +342,9 @@ export function DegreeStatus({
                       />
                       {isHe ? d.nameHe : d.nameEn}
                     </span>
-                    <span className="font-mono tabular-nums text-foreground/50" dir="ltr">
+                    <span className="font-mono tabular-nums text-foreground/60" dir="ltr">
                       {d.earned}/{d.required}
-                      {d.met && <span className="text-emerald-500"> ✓</span>}
+                      {d.met && <span className="text-status-green"> ✓</span>}
                     </span>
                   </div>
                   <div className="mt-1 h-1.5 w-full overflow-hidden rounded-full bg-foreground/8">
@@ -378,7 +378,7 @@ export function DegreeStatus({
                   href="/settings"
                   className="group flex flex-col justify-between rounded-xl border border-dashed border-foreground/25 bg-foreground/[0.02] p-3 transition-colors hover:border-foreground/40 hover:bg-foreground/[0.04]"
                 >
-                  <div className="flex items-center gap-1.5 text-[11px] font-medium text-foreground/55">
+                  <div className="flex items-center gap-1.5 text-[11px] font-medium text-foreground/60">
                     <Target className="size-3.5" />
                     {b.label}
                   </div>
@@ -392,16 +392,16 @@ export function DegreeStatus({
 
             return (
               <div key={b.key} className="rounded-xl border border-border/60 bg-foreground/[0.02] p-3">
-                <div className="flex items-center gap-1.5 text-[11px] font-medium text-foreground/55">
+                <div className="flex items-center gap-1.5 text-[11px] font-medium text-foreground/60">
                   <Icon className="size-3.5" />
                   {b.label}
-                  {met && <CheckCircle2 className="ms-auto size-3.5 text-emerald-400" />}
+                  {met && <CheckCircle2 className="ms-auto size-3.5 text-status-green" />}
                 </div>
                 <div className="mt-1 flex items-baseline gap-1" dir="ltr">
                   <span className="font-mono text-lg font-bold tabular-nums text-foreground/85">
                     {b.current}
                   </span>
-                  <span className="font-mono text-xs text-foreground/40">/ {b.target}</span>
+                  <span className="font-mono text-xs text-foreground/60">/ {b.target}</span>
                 </div>
                 <div className="mt-1.5 h-1.5 w-full overflow-hidden rounded-full bg-foreground/8">
                   <div
@@ -416,7 +416,7 @@ export function DegreeStatus({
                   <p
                     className={cn(
                       "mt-1 text-xs leading-tight",
-                      englishLevel.isExempt ? "text-emerald-500/80" : "text-amber-500/90",
+                      englishLevel.isExempt ? "text-status-green/80" : "text-status-amber/90",
                     )}
                   >
                     {isHe ? englishLevel.nameHe : englishLevel.nameEn}

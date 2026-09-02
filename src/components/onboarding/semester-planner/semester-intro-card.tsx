@@ -28,7 +28,7 @@ const SEMESTER_INTROS: Record<string, SemesterIntroData> = {
     descEn:
       "Core courses in Philosophy, Economics, and Political Science. Guided Reading I and academic thinking.",
     icon: BookOpen,
-    color: "bg-blue-500/10 border-blue-500/20 text-blue-600",
+    color: "bg-blue-500/10 border-blue-500/20 text-status-blue",
     creditRangeHe: "מומלץ: 23-25 ש״ס",
     creditRangeEn: "Recommended: 23-25 credits",
   },
@@ -40,7 +40,7 @@ const SEMESTER_INTROS: Record<string, SemesterIntroData> = {
     descEn:
       "Continuing foundations + first law course + first electives. Your first chance to shape the degree toward your focus area.",
     icon: BookOpen,
-    color: "bg-blue-500/10 border-blue-500/20 text-blue-600",
+    color: "bg-blue-500/10 border-blue-500/20 text-status-blue",
     creditRangeHe: "מומלץ: 27-29 ש״ס",
     creditRangeEn: "Recommended: 27-29 credits",
   },
@@ -52,7 +52,7 @@ const SEMESTER_INTROS: Record<string, SemesterIntroData> = {
     descEn:
       "First seminar (Philosophy or PoliSci), advanced electives, and the integrative course connecting all disciplines.",
     icon: GraduationCap,
-    color: "bg-amber-500/10 border-amber-500/20 text-amber-600",
+    color: "bg-amber-500/10 border-amber-500/20 text-status-amber",
     creditRangeHe: "מומלץ: 15-30 ש״ס",
     creditRangeEn: "Recommended: 15-30 credits",
   },
@@ -64,7 +64,7 @@ const SEMESTER_INTROS: Record<string, SemesterIntroData> = {
     descEn:
       "Second seminar, law courses, and focus area electives. Make sure you meet the 75 overall + 80 PPE GPA threshold.",
     icon: GraduationCap,
-    color: "bg-amber-500/10 border-amber-500/20 text-amber-600",
+    color: "bg-amber-500/10 border-amber-500/20 text-status-amber",
     creditRangeHe: "מומלץ: 16-30 ש״ס",
     creditRangeEn: "Recommended: 16-30 credits",
   },
@@ -88,7 +88,7 @@ const SEMESTER_INTROS: Record<string, SemesterIntroData> = {
     descEn:
       "Final semester. Complete remaining courses, last seminar if needed, and verify you've hit 150 credits + all requirements.",
     icon: Flag,
-    color: "bg-emerald-500/10 border-emerald-500/20 text-emerald-600",
+    color: "bg-emerald-500/10 border-emerald-500/20 text-status-green",
     creditRangeHe: "מומלץ: 10-20 ש״ס",
     creditRangeEn: "Recommended: 10-20 credits",
   },

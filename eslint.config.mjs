@@ -17,6 +17,10 @@ const eslintConfig = defineConfig([
     // that mutate a memoized material — and they are not part of the app or of
     // any build. Linting them turns CI red over code we do not ship.
     ".claude/**",
+    // פרויקט ה-Remotion של הסרטון השיווקי. חבילה נפרדת עם React/TS משלה
+    // ו-tsconfig משלה; הוא לא נבנה עם האפליקציה ולא נפרס איתה.
+    // הוא מקומפל ונבדק דרך `video/` עצמו (`npx tsc --noEmit` שם).
+    "video/**",
   ]),
   {
     // React Compiler diagnostics (enabled by default in Next 16) are surfaced as

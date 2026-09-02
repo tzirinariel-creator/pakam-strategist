@@ -92,13 +92,13 @@ export function BiddingOverlapAlert({
   if (conflicts.length === 0) {
     return (
       <div className="data-card flex items-center gap-2 p-3">
-        <ShieldCheck className="size-4 shrink-0 text-emerald-500" />
+        <ShieldCheck className="size-4 shrink-0 text-status-green" />
         <p className="text-xs text-foreground/70">
           {isHe
             ? "אין חפיפות בין הקורסים שבחרתם — אפשר להגיש את הבידינג בראש שקט."
             : "No time clashes between your courses this semester — safe to bid."}
           {unscheduledCount > 0 && (
-            <span className="text-foreground/45">
+            <span className="text-foreground/60">
               {" "}
               {isHe
                 ? `(${unscheduledCount === 1 ? "לקורס אחד" : `ל-${heNoun(unscheduledCount, "קורס", "קורסים")}`} אין עדיין שעות בידיעון — לא נבדקו.)`
@@ -113,7 +113,7 @@ export function BiddingOverlapAlert({
   return (
     <div className="data-card border-amber-400/30 bg-amber-400/[0.05] p-4">
       <div className="mb-2 flex items-center gap-2">
-        <AlertTriangle className="size-4 shrink-0 text-amber-500" />
+        <AlertTriangle className="size-4 shrink-0 text-status-amber" />
         <h3 className="text-sm font-bold text-foreground/85">
           {isHe
             ? `שימו לב — ${conflicts.length === 1 ? "חפיפה אחת" : conflicts.length === 2 ? "שתי חפיפות" : `${conflicts.length} חפיפות`} בקורסים שלכם`

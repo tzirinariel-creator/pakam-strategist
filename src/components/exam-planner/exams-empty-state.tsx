@@ -77,7 +77,7 @@ export function ExamsEmptyState({
       <div className="flex flex-col items-start gap-3">
         <AcademicStatusLine isHe={isHe} now={now} />
         <p className="flex items-start gap-2 text-sm leading-relaxed text-foreground/65">
-          <FileText className="mt-0.5 size-4 shrink-0 text-foreground/40" />
+          <FileText className="mt-0.5 size-4 shrink-0 text-foreground/60" />
           <span>
             {isHe
               ? "אף קורס בתכנית שלכם לא נבחן בבחינה — כולם מסתיימים בעבודה או ברפרט. אין כאן מבחנים לתכנן, אבל אפשר להוסיף דדליין הגשה למטה והוא יופיע בציר."
@@ -95,7 +95,7 @@ export function ExamsEmptyState({
       <AcademicStatusLine isHe={isHe} now={now} />
       <div className="rounded-lg border border-amber-400/30 bg-amber-400/[0.06] p-3">
         <p className="flex items-center gap-2 text-sm font-semibold text-foreground/85">
-          <CalendarX2 className="size-4 shrink-0 text-amber-500" />
+          <CalendarX2 className="size-4 shrink-0 text-status-amber" />
           {isUnpublished
             ? isHe
               ? `לוח הבחינות של ${yearLabelHe} טרם פורסם`

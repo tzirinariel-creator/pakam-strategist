@@ -100,7 +100,7 @@ export function LineageFirstContribution({ className }: { className?: string }) 
     return (
       <div className={cn("data-card space-y-2 p-4", className)}>
         <p className="flex items-center gap-2 text-sm font-semibold text-foreground/80">
-          <Check className="size-4 shrink-0 text-emerald-500" aria-hidden="true" />
+          <Check className="size-4 shrink-0 text-status-green" aria-hidden="true" />
           <Bidi
             text={
               isHe
@@ -142,7 +142,7 @@ export function LineageFirstContribution({ className }: { className?: string }) 
             }
           />
         </p>
-        <p className="text-xs leading-relaxed text-foreground/55">
+        <p className="text-xs leading-relaxed text-foreground/60">
           <Bidi
             text={
               isHe
@@ -152,7 +152,7 @@ export function LineageFirstContribution({ className }: { className?: string }) 
           />
         </p>
         {reviewedCount > 0 && (
-          <p className="text-xs text-foreground/45">
+          <p className="text-xs text-foreground/60">
             <Bidi
               text={
                 isHe
@@ -178,7 +178,7 @@ export function LineageFirstContribution({ className }: { className?: string }) 
                   courseName: isHe ? c.nameHe : (c.nameEn ?? c.nameHe),
                 })
               }
-              className="inline-flex shrink-0 items-center gap-1.5 rounded-lg bg-accent-brand/10 px-3 py-1.5 text-xs font-semibold text-accent-brand transition-colors hover:bg-accent-brand/20"
+              className="inline-flex shrink-0 items-center gap-1.5 rounded-lg bg-accent-brand/6 px-3 py-1.5 text-xs font-semibold text-accent-brand transition-colors hover:bg-accent-brand/20"
             >
               <PenLine className="size-3.5" aria-hidden="true" />
               {isHe ? "לדירוג" : "Rate"}
@@ -191,7 +191,7 @@ export function LineageFirstContribution({ className }: { className?: string }) 
         <button
           type="button"
           onClick={() => setExpanded((v) => !v)}
-          className="text-xs font-medium text-foreground/50 transition-colors hover:text-foreground/80"
+          className="text-xs font-medium text-foreground/60 transition-colors hover:text-foreground/80"
         >
           {expanded ? (
             isHe ? "הצגה מקוצרת" : "Show fewer"

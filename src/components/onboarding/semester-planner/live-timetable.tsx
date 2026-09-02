@@ -52,7 +52,7 @@ function GridPickHint({ isHe }: { isHe: boolean }) {
           ? "לקורסים עם התג הזה יש כמה קבוצות — הקישו על הבלוק בגריד כדי להחליף שעה."
           : "Courses with this tag offer several groups — tap the block on the grid to swap the time."}
       </span>
-      <span className="shrink-0 text-foreground/35">{isHe ? "הבנתי" : "Got it"}</span>
+      <span className="shrink-0 text-foreground/60">{isHe ? "הבנתי" : "Got it"}</span>
     </button>
   );
 }
@@ -340,7 +340,7 @@ export function LiveTimetable({
     return (
       <div className="flex items-center justify-center gap-2 rounded-lg border border-dashed border-border/30 py-6 text-center">
         <CalendarX2 className="h-4 w-4 text-foreground/20" />
-        <p className="text-xs text-foreground/30">
+        <p className="text-xs text-foreground/60">
           {t("coursesWithoutSchedule", { count: courses.length })}
         </p>
       </div>
@@ -371,7 +371,7 @@ export function LiveTimetable({
           קבוצה") — the planner, where the choosing actually happens, said
           nothing at all. */}
       {defaultedGroupKeys.size > 0 && (
-        <p className="rounded-lg border border-dashed border-amber-500/45 bg-amber-500/[0.06] px-3 py-2 text-[11px] leading-relaxed text-amber-700 dark:text-amber-400">
+        <p className="rounded-lg border border-dashed border-amber-500/45 bg-amber-500/[0.06] px-3 py-2 text-[11px] leading-relaxed text-status-amber">
           {isHe ? (
             <>
               {defaultedGroupKeys.size === 1 ? (
@@ -451,15 +451,15 @@ export function LiveTimetable({
       {/* Warning for courses that couldn't be shown on the timetable */}
       {coursesWithoutSchedule.length > 0 && (
         <div className="flex items-start gap-2 rounded-lg border border-dashed border-amber-500/20 bg-amber-500/5 px-3 py-2">
-          <CalendarX2 className="mt-0.5 h-3.5 w-3.5 shrink-0 text-amber-500/60" />
-          <div className="text-xs leading-relaxed text-amber-600/70">
+          <CalendarX2 className="mt-0.5 h-3.5 w-3.5 shrink-0 text-status-amber/60" />
+          <div className="text-xs leading-relaxed text-status-amber/70">
             <span className="font-medium">
               {t("coursesWithoutSchedule", { count: coursesWithoutSchedule.length })}
             </span>
-            <span className="text-foreground/40">
+            <span className="text-foreground/60">
               {" — "}{coursesWithoutSchedule.join(", ")}
             </span>
-            <p className="mt-0.5 text-foreground/30">
+            <p className="mt-0.5 text-foreground/60">
               {t("coursesWithoutScheduleExplain")}
             </p>
           </div>

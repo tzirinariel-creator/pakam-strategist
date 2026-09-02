@@ -113,7 +113,7 @@ export function PlannerAssistantCard({
               is a good answer, not a problem to manufacture. */}
           <p className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-foreground/60">
             {conflicts > 0 ? (
-              <span className="font-semibold text-amber-600 dark:text-amber-400">
+              <span className="font-semibold text-status-amber">
                 {isHe ? (
                   <>
                     {heNoun(conflicts, "התנגשות", "התנגשויות")} בשבוע שלכם
@@ -123,7 +123,7 @@ export function PlannerAssistantCard({
                 )}
               </span>
             ) : (
-              <span className="inline-flex items-center gap-1 font-semibold text-emerald-600 dark:text-emerald-400">
+              <span className="inline-flex items-center gap-1 font-semibold text-status-green">
                 <CheckCircle2 className="size-3.5" />
                 {isHe ? "אין התנגשויות" : "No clashes"}
               </span>
@@ -142,7 +142,7 @@ export function PlannerAssistantCard({
             )}
           </p>
 
-          <p className="mt-1.5 text-xs leading-relaxed text-foreground/50">
+          <p className="mt-1.5 text-xs leading-relaxed text-foreground/60">
             {isHe
               ? "הוא עובר על כל הקבוצות של כל הקורסים שבחרתם ומחפש שילוב שמסתדר. התוכנית שלכם לא משתנה עד שתאשרו."
               : "It searches every group of every course you picked for a combination that works. Your plan does not change until you accept."}
@@ -158,7 +158,7 @@ export function PlannerAssistantCard({
                   type="button"
                   disabled={busy !== null}
                   onClick={() => run(a.key, a.prefs)}
-                  className="inline-flex items-center gap-1.5 rounded-full border border-accent-brand/30 bg-accent-brand/[0.07] px-3 py-1.5 text-xs font-semibold text-accent-brand transition-colors hover:bg-accent-brand/15 disabled:opacity-50"
+                  className="inline-flex items-center gap-1.5 rounded-full border border-accent-brand/30 bg-accent-brand/[0.07] px-3 py-1.5 text-xs font-semibold text-accent-brand transition-colors hover:bg-accent-brand/6 disabled:opacity-50"
                 >
                   <Icon className="size-3.5" />
                   {busy === a.key

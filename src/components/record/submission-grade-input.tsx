@@ -72,7 +72,7 @@ export function SubmissionGradeInput({
 
   return (
     <div className="mt-1 flex flex-wrap items-center gap-1.5">
-      <span className="text-[10px] text-foreground/45">
+      <span className="text-[10px] text-foreground/60">
         {isHe ? "ציון העבודה" : "Paper grade"}
       </span>
 
@@ -106,7 +106,7 @@ export function SubmissionGradeInput({
               "px-1.5 py-0.5 text-[10px] font-medium transition-colors",
               kind === k
                 ? "bg-foreground text-background"
-                : "text-foreground/50 hover:text-foreground/75",
+                : "text-foreground/60 hover:text-foreground/75",
             )}
           >
             {k === "PAPER" ? (isHe ? "עבודה" : "Paper") : isHe ? "רפרט" : "Referat"}
@@ -115,7 +115,7 @@ export function SubmissionGradeInput({
       </div>
 
       {justSaved && (
-        <Check className="size-3 text-emerald-600 dark:text-emerald-400" aria-hidden="true" />
+        <Check className="size-3 text-status-green" aria-hidden="true" />
       )}
     </div>
   );

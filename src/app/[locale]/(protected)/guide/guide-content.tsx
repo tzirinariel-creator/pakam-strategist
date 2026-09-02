@@ -40,7 +40,7 @@ export function GuideContent() {
         <h1 className="font-display text-2xl font-bold text-foreground/90">
           {isHe ? "פכמיסט מתחיל? מתחילים מכאן" : "New to PPE? Start here"}
         </h1>
-        <p className="mx-auto mt-2 max-w-xl text-sm leading-relaxed text-foreground/55">
+        <p className="mx-auto mt-2 max-w-xl text-sm leading-relaxed text-foreground/60">
           {isHe
             ? "מדריך קצר שיסביר מה זה התואר, איך הוא בנוי, ואיך לתכנן אותו חכם — בלי להילחץ."
             : "A short guide to what the degree is, how it's built, and how to plan it smartly — without the stress."}
@@ -58,7 +58,7 @@ export function GuideContent() {
             <>Philosophy, Economics & Political science — a tri-disciplinary honors degree (often with Law too). 150 credits over 3 years — 30 more than a standard BA.</>
           )}
         </p>
-        <p className="mt-1.5 text-foreground/55">
+        <p className="mt-1.5 text-foreground/60">
           {isHe
             ? "לומדים בשתי פקולטות, מדעי הרוח ומדעי החברה, ולצידן לימודי יסוד במשפטים. לכל פקולטה מזכירות וחוקים משלה. תחום המיקוד שתבחרו קובע גם את הסיווג שלכם בשירות המדינה."
             : "You study across two faculties, Humanities and Social Sciences, plus foundational law studies. Each faculty has its own office and rules. Your focus area even sets your civil-service track."}
@@ -184,9 +184,9 @@ function ToolLi({
       >
         <div className="min-w-0 flex-1">
           <span className="block text-sm font-medium text-foreground/85">{label}</span>
-          <span className="block text-xs text-foreground/50">{desc}</span>
+          <span className="block text-xs text-foreground/60">{desc}</span>
         </div>
-        <Arrow className="size-3.5 shrink-0 text-foreground/30 transition-transform group-hover:translate-x-0.5 rtl:group-hover:-translate-x-0.5" />
+        <Arrow className="size-3.5 shrink-0 text-foreground/60 transition-transform group-hover:translate-x-0.5 rtl:group-hover:-translate-x-0.5" />
       </Link>
     </li>
   );

@@ -17,7 +17,7 @@ export function ExamSeasonWisdom({ isHe }: { isHe: boolean }) {
         <p key={t.id} className="text-sm leading-relaxed text-foreground/75">
           “{t.text}”
           {t.cohortYear && (
-            <span className="text-[11px] text-foreground/40">
+            <span className="text-[11px] text-foreground/60">
               {isHe ? ` — מחזור ${t.cohortYear}` : ` — class of ${t.cohortYear}`}
             </span>
           )}

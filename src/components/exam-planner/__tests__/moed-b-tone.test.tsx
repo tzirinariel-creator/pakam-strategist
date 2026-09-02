@@ -54,7 +54,7 @@ const course = (grade: number, nameHe: string): UserCourseWithCourse => {
 const COURSES = [course(68, "סטטיסטיקה"), course(92, "מיקרו כלכלה א׳"), course(80, "מבוא לפילוסופיה")];
 
 /** The emerald "gain" styling the optimistic cell uses. */
-const GAIN = "text-emerald-600";
+const GAIN = "text-status-green";
 
 describe("the optimistic cell never renders a drop as a gain", () => {
   it("does not go green when the slider sits below the course's own grade", () => {

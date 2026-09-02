@@ -217,7 +217,7 @@ export function StepStanding({ allCourses, isLoadingCourses, onDone, onBack }: S
           <h2 className="font-display text-2xl font-bold text-foreground/90">
             {isHe ? "לפני שנתחיל — איפה אתם בתואר?" : "Before we start — where are you in the degree?"}
           </h2>
-          <p className="mx-auto mt-2 max-w-md text-foreground/50">
+          <p className="mx-auto mt-2 max-w-md text-foreground/60">
             {isHe
               ? "התשובה קובעת מה נבנה יחד. סטודנטים שכבר למדו לא צריכים לבנות מערכת של שנה א׳ מחדש."
               : "Your answer decides what we build together. If you've already studied, you shouldn't have to rebuild a first-year timetable."}
@@ -237,12 +237,12 @@ export function StepStanding({ allCourses, isLoadingCourses, onDone, onBack }: S
             <span className="font-display text-base font-bold text-foreground/90">
               {isHe ? "כבר יש לכם ש״ס" : "I already have credits"}
             </span>
-            <span className="text-sm leading-relaxed text-foreground/55">
+            <span className="text-sm leading-relaxed text-foreground/60">
               {isHe
                 ? "העלו את גיליון הציונים ופכמון יקרא ממנו מה כבר עשיתם, מה נכשל, איפה אתם באנגלית וכמה ש״ס נצברו — ויתחיל מהנקודה שלכם."
                 : "Upload your grade sheet and we'll read what you've done, what you failed, your English status and the credits you've earned — then start from where you actually are."}
             </span>
-            <span className="mt-1 inline-flex items-center gap-1 rounded-full bg-accent-brand/12 px-2.5 py-1 text-[11px] font-semibold text-accent-brand">
+            <span className="mt-1 inline-flex items-center gap-1 rounded-full bg-accent-brand/6 px-2.5 py-1 text-[11px] font-semibold text-accent-brand">
               {isHe ? "הדרך המהירה" : "The fast path"}
             </span>
           </button>
@@ -253,13 +253,13 @@ export function StepStanding({ allCourses, isLoadingCourses, onDone, onBack }: S
             onClick={() => onDone({ choice: "fresh" })}
             className="animate-stagger-2 flex flex-col items-start gap-2 rounded-2xl border-2 border-border bg-card p-5 text-start transition-all hover:border-foreground/30"
           >
-            <span className="flex size-10 items-center justify-center rounded-xl bg-foreground/8 text-foreground/60">
+            <span className="flex size-10 items-center justify-center rounded-xl bg-foreground/8 text-foreground/70">
               <GraduationCap className="size-5" />
             </span>
             <span className="font-display text-base font-bold text-foreground/90">
               {isHe ? "מתחילים את התואר עכשיו" : "I'm starting the degree now"}
             </span>
-            <span className="text-sm leading-relaxed text-foreground/55">
+            <span className="text-sm leading-relaxed text-foreground/60">
               {isHe
                 ? "שנה א׳, בלי קורסים קודמים. נבנה יחד את המערכת של הסמסטר הראשון שלכם."
                 : "Year 1, no previous courses. We'll build your first semester's timetable together."}
@@ -270,7 +270,7 @@ export function StepStanding({ allCourses, isLoadingCourses, onDone, onBack }: S
         <button
           type="button"
           onClick={() => onDone({ choice: "returning" })}
-          className="animate-stagger-3 mt-5 inline-flex items-center gap-1.5 text-sm text-foreground/45 underline-offset-4 transition-colors hover:text-foreground/70 hover:underline"
+          className="animate-stagger-3 mt-5 inline-flex items-center gap-1.5 text-sm text-foreground/60 underline-offset-4 transition-colors hover:text-foreground/70 hover:underline"
         >
           <PenLine className="size-3.5" />
           {isHe
@@ -281,7 +281,7 @@ export function StepStanding({ allCourses, isLoadingCourses, onDone, onBack }: S
         <button
           type="button"
           onClick={onBack}
-          className="mt-6 rounded-lg px-4 py-2 text-sm text-foreground/40 transition-colors hover:bg-foreground/5 hover:text-foreground/60"
+          className="mt-6 rounded-lg px-4 py-2 text-sm text-foreground/70 transition-colors hover:bg-foreground/5 hover:text-foreground/90"
         >
           {isHe ? "חזרה" : "Back"}
         </button>
@@ -302,7 +302,7 @@ export function StepStanding({ allCourses, isLoadingCourses, onDone, onBack }: S
               ? "העלו את גיליון הציונים"
               : "Upload your grade sheet"}
         </h2>
-        <p className="mx-auto mt-2 max-w-md text-foreground/50">
+        <p className="mx-auto mt-2 max-w-md text-foreground/60">
           {scan.kind === "done"
             ? isHe
               ? "זו הפעם היחידה שתעברו על הגיליון — תקנו כאן כל שורה שנקראה לא נכון, והוסיפו קורס שפספסנו. שום דבר לא נשמר עד סוף ההרשמה."
@@ -346,7 +346,7 @@ export function StepStanding({ allCourses, isLoadingCourses, onDone, onBack }: S
               }}
             />
             {scan.kind === "scanning" && (
-              <p className="mt-3 text-center text-xs text-foreground/45">
+              <p className="mt-3 text-center text-xs text-foreground/60">
                 {isHe
                   ? "אנחנו קוראים את הטבלה פעמיים ומשווים בין הקריאות, כדי שציון לא ינחת על הקורס הלא נכון. זה לוקח כמה שניות."
                   : "We read the table twice and compare the readings, so a grade never lands on the wrong course. It takes a few seconds."}
@@ -362,13 +362,13 @@ export function StepStanding({ allCourses, isLoadingCourses, onDone, onBack }: S
         {scan.kind === "failed" && (
           <div className="rounded-2xl border border-amber-500/30 bg-amber-500/[0.06] p-4">
             <div className="flex items-start gap-2.5">
-              <AlertTriangle className="mt-0.5 size-4 shrink-0 text-amber-500" />
+              <AlertTriangle className="mt-0.5 size-4 shrink-0 text-status-amber" />
               <div className="min-w-0">
                 <p className="text-sm font-semibold text-foreground/85">
                   {isHe ? "הסריקה לא הצליחה" : "The scan didn't succeed"}
                 </p>
                 <p className="mt-1 text-sm leading-relaxed text-foreground/60">{scan.message}</p>
-                <p className="mt-2 text-xs text-foreground/45">
+                <p className="mt-2 text-xs text-foreground/60">
                   {isHe
                     ? "לא המצאנו כלום במקום. אפשר לנסות קובץ אחר, או להמשיך ולסמן ידנית — זה לוקח יותר זמן אבל מגיע לאותה תוצאה."
                     : "We invented nothing in its place. Try another file, or continue and mark your courses manually — slower, same result."}
@@ -431,7 +431,7 @@ export function StepStanding({ allCourses, isLoadingCourses, onDone, onBack }: S
           type="button"
           onClick={() => (scan.kind === "scanning" ? undefined : setMode("ask"))}
           disabled={scan.kind === "scanning"}
-          className="mt-6 rounded-lg px-4 py-2 text-sm text-foreground/40 transition-colors hover:bg-foreground/5 hover:text-foreground/60 disabled:opacity-40"
+          className="mt-6 rounded-lg px-4 py-2 text-sm text-foreground/70 transition-colors hover:bg-foreground/5 hover:text-foreground/90 disabled:opacity-40"
         >
           {isHe ? "חזרה" : "Back"}
         </button>
@@ -525,7 +525,7 @@ function StandingSummaryCard({
       {/* Headline standing */}
       <div className="rounded-2xl border border-emerald-500/25 bg-emerald-500/[0.05] p-5">
         <div className="flex items-start gap-3">
-          <span className="flex size-9 shrink-0 items-center justify-center rounded-xl bg-emerald-500/12 text-emerald-500">
+          <span className="flex size-9 shrink-0 items-center justify-center rounded-xl bg-emerald-500/12 text-status-green">
             <Check className="size-5" />
           </span>
           <div className="min-w-0 flex-1">
@@ -558,7 +558,7 @@ function StandingSummaryCard({
                 ? `לפי זה אתם ב${yearLabel} — ונבנה יחד את ${semLabel}`
                 : `That puts you in ${yearLabel} — and we'll build ${semLabel} together`}
             </p>
-            <p className="mt-1 text-xs leading-relaxed text-foreground/50">
+            <p className="mt-1 text-xs leading-relaxed text-foreground/60">
               {/* Ariel, 21.8: "אני לא אוהב את המטא טקסט הזה. המשתמש לא צריך
                   לדעת את התהליכים מאחורי הקלעים ברוב המקרים".
                   He is right. "הסקנו את זה מכותרות-הסמסטר שבגיליון" describes
@@ -609,7 +609,7 @@ function StandingSummaryCard({
       {averageMismatch && (
         <div className="rounded-2xl border border-amber-500/30 bg-amber-500/[0.06] p-4">
           <div className="flex items-start gap-2.5">
-            <AlertTriangle className="mt-0.5 size-4 shrink-0 text-amber-500" />
+            <AlertTriangle className="mt-0.5 size-4 shrink-0 text-status-amber" />
             <div className="min-w-0">
               <p className="text-sm font-semibold text-foreground/85">
                 {isHe
@@ -636,7 +636,7 @@ function StandingSummaryCard({
           <p className="text-sm font-semibold text-foreground/80">
             {isHe ? "ש״ס שכבר צברתם בכל תחום" : "Credits you've earned per area"}
           </p>
-          <p className="mt-0.5 text-xs text-foreground/45">
+          <p className="mt-0.5 text-xs text-foreground/60">
             {isHe
               ? "כולל קורסים שנספרים לכמה תחומים. תחום המיקוד עצמו נבחר במסך הבא."
               : "Includes courses that count toward several areas. You'll pick your focus area on the next screen."}
@@ -647,7 +647,7 @@ function StandingSummaryCard({
                 key={r.id}
                 className={cn(
                   "inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-semibold",
-                  r.cfg?.badgeClass ?? "bg-foreground/8 text-foreground/60",
+                  r.cfg?.badgeClass ?? "bg-foreground/8 text-foreground/70",
                 )}
               >
                 {isHe ? r.cfg?.nameHe : r.cfg?.nameEn}
@@ -705,7 +705,7 @@ function StandingSummaryCard({
               // the sheet says is still being studied. Saying "בלימוד" for it
               // would be asserting something the document never said.
               <li className="flex items-start gap-2">
-                <AlertTriangle className="mt-0.5 size-3.5 shrink-0 text-amber-500" />
+                <AlertTriangle className="mt-0.5 size-3.5 shrink-0 text-status-amber" />
                 <span>
                   <Bidi
                     text={
@@ -771,7 +771,7 @@ function StandingSummaryCard({
             )}
             {summary.uncertain.length > 0 && (
               <li className="flex items-start gap-2">
-                <AlertTriangle className="mt-0.5 size-3.5 shrink-0 text-amber-500" />
+                <AlertTriangle className="mt-0.5 size-3.5 shrink-0 text-status-amber" />
                 <span>
                   <Bidi
                     text={
@@ -803,7 +803,7 @@ function StandingSummaryCard({
               )
             : `${summary.rows.length} rows we read — every one is editable`}
         </summary>
-        <p className="mt-1.5 text-xs leading-relaxed text-foreground/45">
+        <p className="mt-1.5 text-xs leading-relaxed text-foreground/60">
           {isHe
             ? "הסירו סימון משורה שאינה שלכם, תקנו ציון שנקרא לא נכון, ושייכו שורה לקורס הנכון. סף מעבר 60, ובאנגלית 70."
             : "Un-tick a row that isn't yours, fix a grade we misread, and point a row at the right course. The pass bar is 60, and 70 in English."}
@@ -832,18 +832,18 @@ function StandingSummaryCard({
                   : "Unknown semester"}
             </span>
             {group.sheetSemester ? (
-              <span className="font-mono text-[11px] text-foreground/40">
+              <span className="font-mono text-[11px] text-foreground/60">
                 {isHe ? "בגיליון: " : "on the sheet: "}
                 <Bidi text={group.sheetSemester} />
               </span>
             ) : (
-              <span className="text-[11px] text-foreground/40">
+              <span className="text-[11px] text-foreground/60">
                 {isHe
                   ? "שורות שהגיליון לא הצמיד להן כותרת-סמסטר, וקורסים שהוספתם"
                   : "Rows the sheet gave no semester header, plus courses you added"}
               </span>
             )}
-            <span className="ms-auto text-[11px] text-foreground/40">
+            <span className="ms-auto text-[11px] text-foreground/60">
               {isHe
                 ? countPhrase(group.rows.length, "שורה אחת", `${heNounF(group.rows.length, "שורה", "שורות")}`)
                 : `${group.rows.length} ${group.rows.length === 1 ? "row" : "rows"}`}
@@ -890,10 +890,10 @@ function StandingSummaryCard({
                   className={cn(
                     "rounded-full px-2 py-0.5 text-[11px] font-medium",
                     r.status === "COMPLETED"
-                      ? "bg-emerald-500/10 text-emerald-500"
+                      ? "bg-emerald-500/10 text-status-green"
                       : r.status === "FAILED"
-                        ? "bg-amber-500/10 text-amber-500"
-                        : "bg-foreground/8 text-foreground/50",
+                        ? "bg-amber-500/10 text-status-amber"
+                        : "bg-foreground/8 text-foreground/70",
                   )}
                 >
                   {r.status === "COMPLETED"
@@ -917,14 +917,14 @@ function StandingSummaryCard({
                             : "Unclear"}
                 </span>
                 {r.uncertain && (
-                  <span className="rounded-full bg-amber-500/10 px-2 py-0.5 text-[11px] font-medium text-amber-500">
+                  <span className="rounded-full bg-amber-500/10 px-2 py-0.5 text-[11px] font-medium text-status-amber">
                     {isHe ? "לבדיקה" : "Check"}
                   </span>
                 )}
                 {r.manual && (
                   // Never let a course the STUDENT typed look like something we
                   // read off their official document.
-                  <span className="rounded-full bg-accent-brand/10 px-2 py-0.5 text-[11px] font-medium text-accent-brand">
+                  <span className="rounded-full bg-accent-brand/6 px-2 py-0.5 text-[11px] font-medium text-accent-brand">
                     {isHe ? "הוספתם" : "You added"}
                   </span>
                 )}
@@ -933,7 +933,7 @@ function StandingSummaryCard({
                     let the student settle it with one tap, instead of burying
                     the number we already have. */}
                 {included && r.grade == null && r.otherGrade != null && (
-                  <span className="inline-flex items-center gap-1.5 rounded-full bg-amber-500/10 px-2 py-0.5 text-[11px] text-amber-600">
+                  <span className="inline-flex items-center gap-1.5 rounded-full bg-amber-500/10 px-2 py-0.5 text-[11px] text-status-amber">
                     {isHe ? "באחת הקריאות יצא" : "One read gave"}
                     <bdi dir="ltr" className="font-mono font-bold">
                       {r.otherGrade}
@@ -941,7 +941,7 @@ function StandingSummaryCard({
                     <button
                       type="button"
                       onClick={() => onEditRow(i, { grade: r.otherGrade })}
-                      className="rounded font-semibold underline underline-offset-2 hover:text-amber-700"
+                      className="rounded font-semibold underline underline-offset-2 hover:text-status-amber"
                     >
                       {isHe ? "זה הציון" : "That's the grade"}
                     </button>
@@ -957,7 +957,7 @@ function StandingSummaryCard({
                     <button
                       type="button"
                       onClick={() => setEditingRow(i)}
-                      className="inline-flex shrink-0 items-center gap-1 rounded-full border border-emerald-500/35 px-2 py-0.5 text-[11px] font-semibold text-emerald-600 transition-colors hover:bg-emerald-500/10"
+                      className="inline-flex shrink-0 items-center gap-1 rounded-full border border-emerald-500/35 px-2 py-0.5 text-[11px] font-semibold text-status-green transition-colors hover:bg-emerald-500/10"
                     >
                       <PenLine className="size-3" />
                       {isHe ? "להזין ציון" : "Enter a grade"}
@@ -972,7 +972,7 @@ function StandingSummaryCard({
                     "inline-flex shrink-0 items-center gap-1 rounded-md px-1.5 py-1 text-[11px] font-semibold transition-colors",
                     editingRow === i
                       ? "bg-accent-brand/15 text-accent-brand"
-                      : "text-foreground/45 hover:bg-foreground/5 hover:text-foreground/70",
+                      : "text-foreground/70 hover:bg-foreground/5 hover:text-foreground/70",
                   )}
                 >
                   <PenLine className="size-3" />
@@ -1087,7 +1087,7 @@ function StandingSummaryCard({
                         </select>
                       </div>
                     </div>
-                    <p className="text-[11px] leading-relaxed text-foreground/45">
+                    <p className="text-[11px] leading-relaxed text-foreground/60">
                       {isHe
                         ? "ציון תקין הוא 0 עד 100. מה שתתקנו כאן הוא מה שייכנס לתואר שלכם; שורה שאינה שלכם — הסירו את הסימון שלה."
                         : "A valid grade is 0 to 100. What you fix here is what goes into your degree; a row that isn't yours — just un-tick it."}
@@ -1110,14 +1110,14 @@ function StandingSummaryCard({
             {isHe ? "פספסנו קורס שעשיתם? הוסיפו אותו" : "Did we miss a course you took? Add it"}
           </p>
           <div className="relative mt-2">
-            <Search className="pointer-events-none absolute inset-y-0 start-3 my-auto size-4 text-foreground/30" />
+            <Search className="pointer-events-none absolute inset-y-0 start-3 my-auto size-4 text-foreground/60" />
             <input
               type="text"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               aria-label={isHe ? "חיפוש קורס להוספה" : "Search for a course to add"}
               placeholder={isHe ? "שם הקורס או מספרו" : "Course name or code"}
-              className="w-full rounded-lg border border-border bg-card py-2 ps-9 pe-3 text-sm text-foreground placeholder:text-foreground/30 focus:border-foreground/30 focus:outline-none"
+              className="w-full rounded-lg border border-border bg-card py-2 ps-9 pe-3 text-sm text-foreground placeholder:text-foreground/60 focus:border-foreground/30 focus:outline-none"
             />
           </div>
           {searchResults.length > 0 && (
@@ -1132,11 +1132,11 @@ function StandingSummaryCard({
                   }}
                   className="flex w-full items-center gap-2 rounded-md px-2 py-2 text-start transition-colors hover:bg-foreground/5"
                 >
-                  <Plus className="size-3.5 shrink-0 text-emerald-500" />
+                  <Plus className="size-3.5 shrink-0 text-status-green" />
                   <span className="min-w-0 flex-1 truncate text-sm text-foreground/80">
                     {isHe ? c.nameHe : (c.nameEn ?? c.nameHe)}
                   </span>
-                  <span className="shrink-0 font-mono text-[11px] text-foreground/40">
+                  <span className="shrink-0 font-mono text-[11px] text-foreground/60">
                     <bdi dir="ltr">{c.credits}</bdi> {isHe ? "ש״ס" : "cr."}
                   </span>
                 </button>

@@ -96,7 +96,7 @@ export function WhatMovesMyAverage({
           <h3 className="font-display text-base font-bold text-foreground/90">
             {isHe ? "מה באמת יזיז לכם את הממוצע" : "What actually moves your average"}
           </h3>
-          <p className="mt-1 text-xs leading-relaxed text-foreground/55">
+          <p className="mt-1 text-xs leading-relaxed text-foreground/60">
             {isHe ? (
               <>
                 אם כל אחד מהקורסים האלה היה מסתיים ב־
@@ -128,12 +128,12 @@ export function WhatMovesMyAverage({
                     <span className="min-w-0 flex-1 text-balance text-sm font-medium text-foreground/85">
                       {l.courseName}
                     </span>
-                    <span className="shrink-0 text-sm font-bold tabular-nums text-emerald-600 dark:text-emerald-400">
+                    <span className="shrink-0 text-sm font-bold tabular-nums text-status-green">
                       +<Bidi text={l.upside} />
                     </span>
                   </div>
 
-                  <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-[11px] text-foreground/50">
+                  <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-[11px] text-foreground/60">
                     {l.currentGrade != null && (
                       <span>
                         {isHe ? "עכשיו" : "now"} <Bidi text={l.currentGrade} />
@@ -154,7 +154,7 @@ export function WhatMovesMyAverage({
                   {/* The fact that decides whether this is actionable at all. */}
                   {l.kind === "retake" && (
                     <div className="mt-1.5 flex items-center gap-1.5 text-[11px] text-foreground/60">
-                      <CalendarClock className="size-3 shrink-0 text-foreground/35" />
+                      <CalendarClock className="size-3 shrink-0 text-foreground/60" />
                       {moedB ? (
                         // describeSitting already opens with "מועד ב׳" — the
                         // label was being printed twice ("מועד ב׳ · מועד ב׳ ·
@@ -192,8 +192,8 @@ export function WhatMovesMyAverage({
               The flex belongs on a WRAPPER, with the whole sentence as one
               item inside it, so the text flows as text again. */}
           <div className="mt-3 flex items-start gap-1.5">
-            <Info className="mt-0.5 size-3.5 shrink-0 text-foreground/35" />
-            <p className="min-w-0 flex-1 text-xs leading-relaxed text-foreground/55">
+            <Info className="mt-0.5 size-3.5 shrink-0 text-foreground/60" />
+            <p className="min-w-0 flex-1 text-xs leading-relaxed text-foreground/60">
             {isHe ? (
               <>
                 גם אם {shown.length === 1 ? "הקורס הזה היה מסתיים" : "כל הקורסים שלמעלה היו מסתיימים"} ב־

@@ -38,7 +38,7 @@ export function MentorPageClient() {
       <div className="flex flex-col items-center gap-2 pt-1">
         <PersonaCharacter className="size-16 drop-shadow-sm" />
         <h1 className="font-display text-xl font-bold text-foreground/90">{advisorName}</h1>
-        <p className="max-w-sm text-center text-xs leading-relaxed text-foreground/50">
+        <p className="max-w-sm text-center text-xs leading-relaxed text-foreground/60">
           {isReferent
             ? isHe
               ? "שנה ג׳ שכבר עבר את זה — דוגרי, ותמיד מהנתונים האמיתיים שלכם."
@@ -52,7 +52,7 @@ export function MentorPageClient() {
         <button
           type="button"
           onClick={switchPersona}
-          className="inline-flex items-center gap-1.5 rounded-full border border-border/60 px-3 py-1 text-xs text-foreground/55 transition-colors hover:border-foreground/25 hover:text-foreground/80"
+          className="inline-flex items-center gap-1.5 rounded-full border border-border/60 px-3 py-1 text-xs text-foreground/60 transition-colors hover:border-foreground/25 hover:text-foreground/80"
         >
           {isReferent ? (
             <PhilosopherKingIcon className="size-3.5 text-crown-gold-bright" />
@@ -73,7 +73,7 @@ export function MentorPageClient() {
               "inline-flex items-center gap-1.5 rounded-lg px-3.5 py-1.5 text-sm font-medium transition-all",
               mode === "quick"
                 ? "bg-foreground text-background shadow-sm"
-                : "text-foreground/55 hover:text-foreground/80"
+                : "text-foreground/60 hover:text-foreground/80"
             )}
           >
             <PersonaIcon className="size-3.5" />
@@ -86,14 +86,14 @@ export function MentorPageClient() {
               "inline-flex items-center gap-1.5 rounded-lg px-3.5 py-1.5 text-sm font-medium transition-all",
               mode === "ai"
                 ? "bg-accent-brand text-accent-brand-fg shadow-sm"
-                : "text-foreground/55 hover:text-foreground/80"
+                : "text-foreground/60 hover:text-foreground/80"
             )}
           >
             <PersonaIcon className="size-3.5" />
             {advisorName}
           </button>
         </div>
-        <p className="text-center text-xs text-foreground/45">
+        <p className="text-center text-xs text-foreground/60">
           {mode === "quick"
             ? isHe
               ? "תשובות מיידיות מהנתונים שלכם — בלי בינה מלאכותית, תמיד חינם."

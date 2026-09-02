@@ -25,7 +25,7 @@ export function UnofficialNotice({ variant = "full" }: { variant?: "compact" | "
 
   if (variant === "compact") {
     return (
-      <p className="px-2 text-[10px] leading-tight text-foreground/30">
+      <p className="px-2 text-[10px] leading-tight text-foreground/60">
         {isHe
           // 21.8 — the first version said "תמיד לאמת מול הידיעון והמזכירות",
           // which is an instruction manual talking, not a person. Same content,
@@ -38,7 +38,7 @@ export function UnofficialNotice({ variant = "full" }: { variant?: "compact" | "
 
   return (
     <div className="flex items-start gap-2 rounded-xl border border-border/60 bg-foreground/[0.02] p-3">
-      <Info className="mt-0.5 size-4 shrink-0 text-foreground/40" />
+      <Info className="mt-0.5 size-4 shrink-0 text-foreground/60" />
       <div className="text-xs leading-relaxed text-foreground/60">
         <p className="font-semibold text-foreground/75">
           {isHe ? "פכמון הוא לא אתר של האוניברסיטה" : "Pakamon is not a university site"}

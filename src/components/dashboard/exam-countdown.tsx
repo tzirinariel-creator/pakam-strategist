@@ -91,17 +91,17 @@ export function ExamCountdown() {
         {upcomingExams.map((exam, i) => {
           const urgencyColor =
             exam.daysLeft <= 3
-              ? "text-red-400 bg-red-400/10 border-red-400/20"
+              ? "text-status-red bg-red-400/10 border-red-400/20"
               : exam.daysLeft <= 7
-                ? "text-amber-400 bg-amber-400/10 border-amber-400/20"
-                : "text-foreground/60 bg-foreground/5 border-foreground/10";
+                ? "text-status-amber bg-amber-400/10 border-amber-400/20"
+                : "text-foreground/70 bg-foreground/5 border-foreground/10";
 
           const daysBgColor =
             exam.daysLeft <= 3
-              ? "bg-red-400/20 text-red-400"
+              ? "bg-red-400/20 text-status-red"
               : exam.daysLeft <= 7
-                ? "bg-amber-400/20 text-amber-400"
-                : "bg-foreground/10 text-foreground/60";
+                ? "bg-amber-400/20 text-status-amber"
+                : "bg-foreground/10 text-foreground/70";
 
           return (
             <div
@@ -129,7 +129,7 @@ export function ExamCountdown() {
                 <div className="truncate font-medium text-foreground/80">
                   {exam.courseName}
                 </div>
-                <div className="flex items-center gap-2 mt-0.5 text-xs text-foreground/40">
+                <div className="flex items-center gap-2 mt-0.5 text-xs text-foreground/60">
                   <span>
                     {exam.moed === "A" ? t("moedA") : (isHe ? "מועד ב׳" : "Moed B")}
                   </span>
@@ -140,7 +140,7 @@ export function ExamCountdown() {
 
               {/* Today badge */}
               {exam.daysLeft === 0 && (
-                <span className="shrink-0 rounded-full bg-red-400/20 px-2 py-0.5 text-[11px] font-bold text-red-400 animate-pulse">
+                <span className="shrink-0 rounded-full bg-red-400/20 px-2 py-0.5 text-[11px] font-bold text-status-red animate-pulse">
                   {isHe ? "היום" : "Today"}
                 </span>
               )}
@@ -150,7 +150,7 @@ export function ExamCountdown() {
       </div>
 
       {/* Legend — what the colors and A/B labels mean (#8). */}
-      <div className="mt-3 flex flex-wrap items-center gap-x-3 gap-y-1 border-t border-border/40 pt-2 text-xs text-foreground/45">
+      <div className="mt-3 flex flex-wrap items-center gap-x-3 gap-y-1 border-t border-border/40 pt-2 text-xs text-foreground/60">
         <span className="inline-flex items-center gap-1">
           <span className="size-2 rounded-full bg-red-400/70" />
           {isHe ? "עד 3 ימים" : "≤3 days"}
@@ -159,13 +159,13 @@ export function ExamCountdown() {
           <span className="size-2 rounded-full bg-amber-400/70" />
           {isHe ? "עד 7 ימים" : "≤7 days"}
         </span>
-        <span className="text-foreground/35">
+        <span className="text-foreground/60">
           {isHe ? "מועד א׳ = ראשון · מועד ב׳ = חוזר" : "A = first sitting · B = retake"}
         </span>
         {/* A5 — the dates come from the Yedion catalog, one per course. Never
             present a countdown as authoritative without its source: a student
             must confirm against the official timetable before relying on it. */}
-        <span className="basis-full text-foreground/35">
+        <span className="basis-full text-foreground/60">
           {isHe
             ? "התאריכים מהידיעון — ודאו מול מערכת-השעות הרשמית לפני שאתם סומכים עליהם."
             : "Dates are from the Yedion catalog — confirm against the official timetable before relying on them."}

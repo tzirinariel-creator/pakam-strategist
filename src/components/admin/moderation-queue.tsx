@@ -43,7 +43,7 @@ export function ModerationQueue() {
 
   if (queue.isLoading) {
     return (
-      <div className="flex items-center justify-center gap-2 py-16 text-sm text-foreground/50">
+      <div className="flex items-center justify-center gap-2 py-16 text-sm text-foreground/60">
         <Loader2 className="size-4 animate-spin" />
         טוען את תור המודרציה…
       </div>
@@ -59,7 +59,7 @@ export function ModerationQueue() {
           <ShieldCheck className="size-6 text-foreground/60" />
           מודרציית חוות-דעת
         </h1>
-        <p className="mt-1 text-sm text-foreground/50">
+        <p className="mt-1 text-sm text-foreground/60">
           חוות-דעת שהוסתרו אוטומטית (3 דיווחים) או שנצברו עליהן דיווחים. אשרו —
           והן חוזרות להיות גלויות עם ספירת-דיווחים נקייה; מחקו — והן נעלמות לצמיתות.
         </p>
@@ -67,7 +67,7 @@ export function ModerationQueue() {
 
       {items.length === 0 ? (
         <div className="data-card flex items-center gap-3 p-6 text-sm text-foreground/60">
-          <CheckCircle2 className="size-5 text-emerald-500" />
+          <CheckCircle2 className="size-5 text-status-green" />
           התור ריק — אין חוות-דעת מדווחות או מוסתרות.
         </div>
       ) : (
@@ -78,21 +78,21 @@ export function ModerationQueue() {
                 <span className="font-semibold text-foreground/90">
                   {r.courseName ?? r.courseCode}
                 </span>
-                <span className="font-mono text-xs text-foreground/40">
+                <span className="font-mono text-xs text-foreground/60">
                   {r.courseCode}
                 </span>
                 {r.status === "HIDDEN" ? (
-                  <span className="inline-flex items-center gap-1 rounded-full bg-red-500/15 px-2 py-0.5 text-[11px] font-semibold text-red-500">
+                  <span className="inline-flex items-center gap-1 rounded-full bg-red-500/15 px-2 py-0.5 text-[11px] font-semibold text-status-red">
                     <EyeOff className="size-3" />
                     מוסתרת
                   </span>
                 ) : (
-                  <span className="inline-flex items-center gap-1 rounded-full bg-amber-500/15 px-2 py-0.5 text-[11px] font-semibold text-amber-600">
+                  <span className="inline-flex items-center gap-1 rounded-full bg-amber-500/15 px-2 py-0.5 text-[11px] font-semibold text-status-amber">
                     <Flag className="size-3" />
                     גלויה + דיווחים
                   </span>
                 )}
-                <span className="text-xs text-foreground/50">
+                <span className="text-xs text-foreground/60">
                   {r.reportCount} דיווחים
                 </span>
               </div>
@@ -115,7 +115,7 @@ export function ModerationQueue() {
                   {r.tags.map((tag) => (
                     <span
                       key={tag}
-                      className="rounded-full bg-foreground/10 px-2 py-0.5 text-[11px] text-foreground/60"
+                      className="rounded-full bg-foreground/10 px-2 py-0.5 text-[11px] text-foreground/70"
                     >
                       {tag}
                     </span>
@@ -128,7 +128,7 @@ export function ModerationQueue() {
                   type="button"
                   onClick={() => approve.mutate({ reviewId: r.id })}
                   disabled={approve.isPending || remove.isPending}
-                  className="inline-flex items-center gap-1.5 rounded-lg bg-emerald-500/15 px-3 py-1.5 text-xs font-semibold text-emerald-600 transition-colors hover:bg-emerald-500/25 disabled:opacity-50"
+                  className="inline-flex items-center gap-1.5 rounded-lg bg-emerald-500/15 px-3 py-1.5 text-xs font-semibold text-status-green transition-colors hover:bg-emerald-500/25 disabled:opacity-50"
                 >
                   <CheckCircle2 className="size-3.5" />
                   אישור והחזרה לתצוגה
@@ -145,7 +145,7 @@ export function ModerationQueue() {
                     "inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-semibold transition-colors disabled:opacity-50",
                     confirmDeleteId === r.id
                       ? "bg-red-500 text-white hover:bg-red-600"
-                      : "bg-red-500/10 text-red-500 hover:bg-red-500/20",
+                      : "bg-red-500/10 text-status-red hover:bg-red-500/20",
                   )}
                 >
                   <Trash2 className="size-3.5" />
@@ -155,7 +155,7 @@ export function ModerationQueue() {
                   <button
                     type="button"
                     onClick={() => setConfirmDeleteId(null)}
-                    className="text-xs text-foreground/50 hover:text-foreground/80"
+                    className="text-xs text-foreground/60 hover:text-foreground/80"
                   >
                     ביטול
                   </button>
@@ -172,35 +172,35 @@ export function ModerationQueue() {
           <h2 className="font-display text-xl font-bold text-foreground/85">תוכן קהילתי מדווח</h2>
           {cohortQueue.data!.insights.map((r) => (
             <div key={r.id} className="data-card space-y-2 p-4">
-              <div className="flex flex-wrap items-center gap-2 text-xs text-foreground/50">
+              <div className="flex flex-wrap items-center gap-2 text-xs text-foreground/60">
                 <span className="rounded-full bg-foreground/8 px-2 py-0.5">תובנה · {r.stage}</span>
-                <span className={r.status === "HIDDEN" ? "text-red-500" : "text-amber-600"}>
+                <span className={r.status === "HIDDEN" ? "text-status-red" : "text-status-amber"}>
                   {r.status === "HIDDEN" ? "מוסתרת" : "מדווחת"} · {r.reportCount} דיווחים
                 </span>
               </div>
               <p className="rounded-lg bg-foreground/5 p-3 text-sm text-foreground/80">{r.text}</p>
               <div className="flex gap-2">
                 <button type="button" onClick={() => modInsight.mutate({ id: r.id, action: "approve" })}
-                  className="rounded-lg bg-emerald-500/15 px-3 py-1.5 text-xs font-semibold text-emerald-600 hover:bg-emerald-500/25">אישור</button>
+                  className="rounded-lg bg-emerald-500/15 px-3 py-1.5 text-xs font-semibold text-status-green hover:bg-emerald-500/25">אישור</button>
                 <button type="button" onClick={() => modInsight.mutate({ id: r.id, action: "delete" })}
-                  className="rounded-lg bg-red-500/10 px-3 py-1.5 text-xs font-semibold text-red-500 hover:bg-red-500/20">מחיקה</button>
+                  className="rounded-lg bg-red-500/10 px-3 py-1.5 text-xs font-semibold text-status-red hover:bg-red-500/20">מחיקה</button>
               </div>
             </div>
           ))}
           {cohortQueue.data!.plans.map((r) => (
             <div key={r.id} className="data-card space-y-2 p-4">
-              <div className="flex flex-wrap items-center gap-2 text-xs text-foreground/50">
+              <div className="flex flex-wrap items-center gap-2 text-xs text-foreground/60">
                 <span className="rounded-full bg-foreground/8 px-2 py-0.5">מסלול</span>
-                <span className={r.status === "HIDDEN" ? "text-red-500" : "text-amber-600"}>
+                <span className={r.status === "HIDDEN" ? "text-status-red" : "text-status-amber"}>
                   {r.status === "HIDDEN" ? "מוסתר" : "מדווח"} · {r.reportCount} דיווחים
                 </span>
               </div>
               <p className="text-sm font-medium text-foreground/85">{r.title}</p>
               <div className="flex gap-2">
                 <button type="button" onClick={() => modPlan.mutate({ id: r.id, action: "approve" })}
-                  className="rounded-lg bg-emerald-500/15 px-3 py-1.5 text-xs font-semibold text-emerald-600 hover:bg-emerald-500/25">אישור</button>
+                  className="rounded-lg bg-emerald-500/15 px-3 py-1.5 text-xs font-semibold text-status-green hover:bg-emerald-500/25">אישור</button>
                 <button type="button" onClick={() => modPlan.mutate({ id: r.id, action: "delete" })}
-                  className="rounded-lg bg-red-500/10 px-3 py-1.5 text-xs font-semibold text-red-500 hover:bg-red-500/20">מחיקה</button>
+                  className="rounded-lg bg-red-500/10 px-3 py-1.5 text-xs font-semibold text-status-red hover:bg-red-500/20">מחיקה</button>
               </div>
             </div>
           ))}

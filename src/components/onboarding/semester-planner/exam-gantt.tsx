@@ -417,7 +417,7 @@ export function ExamGantt({ courses, now }: ExamGanttProps) {
 
     return (
       <div className="flex flex-col items-center justify-center py-6 text-center">
-        <p className="max-w-md text-xs leading-relaxed text-foreground/45">{message}</p>
+        <p className="max-w-md text-xs leading-relaxed text-foreground/60">{message}</p>
       </div>
     );
   }
@@ -429,17 +429,17 @@ export function ExamGantt({ courses, now }: ExamGanttProps) {
       {/* Toolbar */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <span className="font-display text-xs font-medium text-foreground/50">
+          <span className="font-display text-xs font-medium text-foreground/60">
             {isHe ? "ציר זמן מבחנים" : "Exam Timeline"}
           </span>
           {conflicts.courseIds.size > 0 && (
-            <span className="flex items-center gap-1 rounded-full bg-red-500/10 px-2 py-0.5 text-[11px] font-medium text-red-500">
+            <span className="flex items-center gap-1 rounded-full bg-red-500/10 px-2 py-0.5 text-[11px] font-medium text-status-red">
               <AlertTriangle className="h-2.5 w-2.5" />
               {isHe ? "התנגשות" : "Conflict"}
             </span>
           )}
           {tightGaps.length > 0 && (
-            <span className="flex items-center gap-1 rounded-full bg-amber-500/10 px-2 py-0.5 text-[11px] font-medium text-amber-500">
+            <span className="flex items-center gap-1 rounded-full bg-amber-500/10 px-2 py-0.5 text-[11px] font-medium text-status-amber">
               {isHe ? "צפוף" : "Tight"}
             </span>
           )}
@@ -448,14 +448,14 @@ export function ExamGantt({ courses, now }: ExamGanttProps) {
           <button
             onClick={() => setZoomLevel((z) => Math.max(0.6, z - 0.2))}
             aria-label={isHe ? "הקטנת התצוגה" : "Zoom out"}
-            className="rounded p-1 text-foreground/30 hover:text-foreground/60 hover:bg-foreground/5 transition-all"
+            className="rounded p-1 text-foreground/70 hover:text-foreground/90 hover:bg-foreground/5 transition-all"
           >
             <ZoomOut className="h-3.5 w-3.5" />
           </button>
           <button
             onClick={() => setZoomLevel((z) => Math.min(1.8, z + 0.2))}
             aria-label={isHe ? "הגדלת התצוגה" : "Zoom in"}
-            className="rounded p-1 text-foreground/30 hover:text-foreground/60 hover:bg-foreground/5 transition-all"
+            className="rounded p-1 text-foreground/70 hover:text-foreground/90 hover:bg-foreground/5 transition-all"
           >
             <ZoomIn className="h-3.5 w-3.5" />
           </button>
@@ -481,7 +481,7 @@ export function ExamGantt({ courses, now }: ExamGanttProps) {
                 <th
                   key={`mo-${i}`}
                   colSpan={m.span}
-                  className="overflow-hidden border-e border-b border-border/20 px-1 text-[10px] font-semibold whitespace-nowrap text-foreground/45 py-0.5"
+                  className="overflow-hidden border-e border-b border-border/20 px-1 text-[10px] font-semibold whitespace-nowrap text-foreground/60 py-0.5"
                 >
                   {m.label}
                 </th>
@@ -497,8 +497,8 @@ export function ExamGantt({ courses, now }: ExamGanttProps) {
                 <th
                   key={`dow-${i}`}
                   className={cn(
-                    "border-e border-b border-border/10 text-[10px] font-normal text-foreground/25 py-0.5",
-                    d.isToday && "bg-foreground/5 font-bold text-foreground/60",
+                    "border-e border-b border-border/10 text-[10px] font-normal text-foreground/60 py-0.5",
+                    d.isToday && "bg-foreground/5 font-bold text-foreground/70",
                     d.isWeekend && "bg-foreground/[0.02]",
                   )}
                   style={{ width: `${dayWidth}px`, minWidth: `${dayWidth}px` }}
@@ -510,7 +510,7 @@ export function ExamGantt({ courses, now }: ExamGanttProps) {
             {/* Date number row */}
             <tr>
               <th
-                className="sticky start-0 z-20 border-e border-b border-border/20 bg-card px-2 text-start text-[11px] font-medium text-foreground/40"
+                className="sticky start-0 z-20 border-e border-b border-border/20 bg-card px-2 text-start text-[11px] font-medium text-foreground/60"
                 style={{ width: `${labelWidth}px` }}
               >
                 {isHe ? "קורס" : "Course"}
@@ -524,7 +524,7 @@ export function ExamGantt({ courses, now }: ExamGanttProps) {
                       ? "bg-foreground/8 font-bold text-foreground/80"
                       : d.isWeekend
                         ? "bg-foreground/[0.02] text-foreground/20"
-                        : "text-foreground/30 font-normal",
+                        : "text-foreground/60 font-normal",
                   )}
                   style={{ width: `${dayWidth}px` }}
                 >
@@ -620,7 +620,7 @@ export function ExamGantt({ courses, now }: ExamGanttProps) {
                           >
                             A
                             {clashA && (
-                              <AlertTriangle className="absolute -top-1 -end-1 h-2.5 w-2.5 text-red-500" />
+                              <AlertTriangle className="absolute -top-1 -end-1 h-2.5 w-2.5 text-status-red" />
                             )}
                           </div>
                         )}
@@ -646,7 +646,7 @@ export function ExamGantt({ courses, now }: ExamGanttProps) {
                           >
                             B
                             {clashB && (
-                              <AlertTriangle className="absolute -top-1 -end-1 h-2.5 w-2.5 text-red-500" />
+                              <AlertTriangle className="absolute -top-1 -end-1 h-2.5 w-2.5 text-status-red" />
                             )}
                           </div>
                         )}
@@ -661,19 +661,19 @@ export function ExamGantt({ courses, now }: ExamGanttProps) {
       </div>
 
       {/* Legend */}
-      <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-1 text-[11px] text-foreground/30">
+      <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-1 text-[11px] text-foreground/60">
         <div className="flex items-center gap-1.5">
-          <div className="h-3 w-4 rounded-sm bg-foreground/15 flex items-center justify-center text-[10px] font-bold text-foreground/50">A</div>
+          <div className="h-3 w-4 rounded-sm bg-foreground/15 flex items-center justify-center text-[10px] font-bold text-foreground/70">A</div>
           <span>{isHe ? "מועד א׳" : "Moed A"}</span>
         </div>
         <div className="flex items-center gap-1.5">
-          <div className="h-3 w-4 rounded-sm border border-dashed border-foreground/20 flex items-center justify-center text-[10px] text-foreground/30">B</div>
+          <div className="h-3 w-4 rounded-sm border border-dashed border-foreground/20 flex items-center justify-center text-[10px] text-foreground/60">B</div>
           <span>{isHe ? "מועד ב׳" : "Moed B"}</span>
         </div>
         {conflicts.courseIds.size > 0 && (
           <div className="flex items-center gap-1">
-            <AlertTriangle className="h-2.5 w-2.5 text-red-500" />
-            <span className="text-red-500">{isHe ? "התנגשות" : "Conflict"}</span>
+            <AlertTriangle className="h-2.5 w-2.5 text-status-red" />
+            <span className="text-status-red">{isHe ? "התנגשות" : "Conflict"}</span>
           </div>
         )}
       </div>
@@ -681,8 +681,8 @@ export function ExamGantt({ courses, now }: ExamGanttProps) {
       {/* Tight gap warnings */}
       {tightGaps.length > 0 && (
         <div className="flex items-start gap-2 rounded-lg border border-amber-500/20 bg-amber-500/5 px-3 py-2">
-          <AlertTriangle className="mt-0.5 h-3.5 w-3.5 shrink-0 text-amber-500/60" />
-          <div className="text-xs leading-relaxed text-amber-600/70">
+          <AlertTriangle className="mt-0.5 h-3.5 w-3.5 shrink-0 text-status-amber/60" />
+          <div className="text-xs leading-relaxed text-status-amber/70">
             {isHe
               ? tightGaps.length === 1
                 ? "זוג מבחנים אחד בפער של פחות משלושה ימים"

@@ -385,8 +385,8 @@ export function WeeklyTimetable({
           courses and when. One quiet row, full sentences, no icon per line. */}
       {conflictLines.length > 0 && (
         <div className="flex gap-2 rounded-lg border border-red-500/25 bg-red-500/[0.05] px-3 py-2">
-          <AlertTriangle className="mt-px size-3.5 shrink-0 text-red-500/80" />
-          <ul className="min-w-0 flex-1 space-y-0.5 text-[11px] leading-relaxed text-red-700/90 dark:text-red-300/90">
+          <AlertTriangle className="mt-px size-3.5 shrink-0 text-status-red/80" />
+          <ul className="min-w-0 flex-1 space-y-0.5 text-[11px] leading-relaxed text-status-red/90/90">
             {shownConflictLines.map((line) => (
               <li key={line.key} className="truncate">
                 {line.lead}{" "}
@@ -394,7 +394,7 @@ export function WeeklyTimetable({
               </li>
             ))}
             {conflictLines.length > shownConflictLines.length && (
-              <li className="text-red-700/60 dark:text-red-300/60">
+              <li className="text-status-red/60/60">
                 {isHe
                   ? `ועוד ${conflictLines.length - shownConflictLines.length} חפיפות`
                   : `and ${conflictLines.length - shownConflictLines.length} more`}
@@ -434,7 +434,7 @@ export function WeeklyTimetable({
               >
                 <span>{dayKey != null ? t(`days.${dayKey}`) : ""}</span>
                 {daySlots.length > 0 && (
-                  <span className="text-[11px] font-normal tabular-nums text-muted-foreground/60">
+                  <span className="text-[11px] font-normal tabular-nums text-muted-foreground">
                     {daySlots.length}
                   </span>
                 )}
@@ -447,7 +447,7 @@ export function WeeklyTimetable({
               </div>
 
               {daySlots.length === 0 && dayPreviews.length === 0 ? (
-                <div className="px-3 py-2.5 text-xs text-muted-foreground/40">—</div>
+                <div className="px-3 py-2.5 text-xs text-muted-foreground">—</div>
               ) : (
                 <ul className="divide-y divide-border/50">
                   {daySlots.map((slot) => {
@@ -473,7 +473,7 @@ export function WeeklyTimetable({
                       >
                         <bdi
                           dir="ltr"
-                          className="mt-0.5 shrink-0 text-[11px] leading-tight tabular-nums text-muted-foreground/80"
+                          className="mt-0.5 shrink-0 text-[11px] leading-tight tabular-nums text-muted-foreground"
                         >
                           {slot.startTimeStr}
                           <br />
@@ -491,7 +491,7 @@ export function WeeklyTimetable({
                                   e.stopPropagation();
                                   onPickGroup!(slot.courseCode, e.currentTarget);
                                 }}
-                                className="flex min-h-[32px] shrink-0 items-center gap-1 rounded-md px-1.5 py-1 text-[11px] font-medium text-foreground/55 transition-colors hover:bg-foreground/5 hover:text-accent-brand"
+                                className="flex min-h-[32px] shrink-0 items-center gap-1 rounded-md px-1.5 py-1 text-[11px] font-medium text-foreground/70 transition-colors hover:bg-foreground/5 hover:text-accent-brand"
                                 title={isHe ? "החלף קבוצה" : "Change group"}
                                 aria-label={isHe ? "החלף קבוצה" : "Change group"}
                               >
@@ -503,7 +503,7 @@ export function WeeklyTimetable({
                           <span className="truncate text-[11px] text-muted-foreground">
                             {slot.courseCode} · {typeAndGroup(slot)}
                             {isDefaultedSlot(slot) && (
-                              <span className="text-amber-700 dark:text-amber-400">
+                              <span className="text-status-amber">
                                 {` · ${defaultedLabel}`}
                               </span>
                             )}
@@ -524,7 +524,7 @@ export function WeeklyTimetable({
                             return (
                               <span
                                 key={p.otherId}
-                                className="mt-1 text-[11px] font-medium text-red-600 dark:text-red-400"
+                                className="mt-1 text-[11px] font-medium text-status-red"
                               >
                                 {d.lead}{" "}
                                 <bdi dir="ltr" className="tabular-nums">{d.range}</bdi>
@@ -544,7 +544,7 @@ export function WeeklyTimetable({
                         className="flex gap-2.5 border-2 border-dashed px-3 py-2.5 opacity-75"
                         style={{ borderColor: color }}
                       >
-                        <bdi dir="ltr" className="mt-0.5 shrink-0 text-[11px] leading-tight tabular-nums text-muted-foreground/80">
+                        <bdi dir="ltr" className="mt-0.5 shrink-0 text-[11px] leading-tight tabular-nums text-muted-foreground">
                           {slot.startTimeStr}
                           <br />
                           {slot.endTimeStr}
@@ -610,7 +610,7 @@ export function WeeklyTimetable({
               {hours.map((hour) => (
                 <div
                   key={hour}
-                  className="flex items-start justify-center border-b border-border pt-1 text-[11px] font-medium tabular-nums text-muted-foreground/70"
+                  className="flex items-start justify-center border-b border-border pt-1 text-[11px] font-medium tabular-nums text-muted-foreground"
                   style={{ height: `${ROW_HEIGHT}px` }}
                 >
                   <bdi dir="ltr">{String(hour).padStart(2, "0")}:00</bdi>
@@ -806,7 +806,7 @@ export function WeeklyTimetable({
                       {canPickGroup && (
                         <Repeat
                           aria-hidden
-                          className="mt-px size-3 shrink-0 text-foreground/35"
+                          className="mt-px size-3 shrink-0 text-foreground/60"
                         />
                       )}
                     </div>
@@ -821,7 +821,7 @@ export function WeeklyTimetable({
                       <span className="mt-0.5 truncate text-[11px] text-foreground/70">
                         {isNarrow ? typeLabel(slot.sessionType) : typeAndGroup(slot)}
                         {isDefaulted && (
-                          <span className="text-amber-700 dark:text-amber-400">
+                          <span className="text-status-amber">
                             {` · ${defaultedLabel}`}
                           </span>
                         )}
@@ -904,7 +904,7 @@ export function WeeklyTimetable({
                       {" · "}
                       {typeAndGroup(detailSlot)}
                       {isDefaultedSlot(detailSlot) && (
-                        <span className="text-amber-700 dark:text-amber-400">
+                        <span className="text-status-amber">
                           {` · ${defaultedLabel}`}
                         </span>
                       )}
@@ -936,7 +936,7 @@ export function WeeklyTimetable({
                       return (
                         <span
                           key={p.otherId}
-                          className="mt-0.5 text-[11px] font-medium leading-snug text-red-600 dark:text-red-400"
+                          className="mt-0.5 text-[11px] font-medium leading-snug text-status-red"
                         >
                           {d.lead}{" "}
                           <bdi dir="ltr" className="tabular-nums">{d.range}</bdi>

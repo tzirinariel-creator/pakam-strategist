@@ -2,7 +2,7 @@
 
 import { UnofficialNotice } from "@/components/layout/unofficial-notice";
 import { useState, useCallback } from "react";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { usePathname, Link } from "@/i18n/navigation";
 import {
   Gavel,
@@ -31,25 +31,70 @@ const MOBILE_NAV_ITEMS = [
   { key: "regulations", href: "/regulations", icon: Scale },
 ] as const;
 
-const MORE_MENU_ITEMS = [
-  // First in the drawer while the round is near — it is the one screen with a
-  // deadline on it.
-  { key: "bidding", href: "/bidding", icon: Gavel },
-  { key: "examPlanner", href: "/exam-planner", icon: CalendarClock },
-  { key: "catalog", href: "/catalog", icon: BookOpen },
-  // #41 — the social layer gets ONE door on a phone too. Before this, /cohort
-  // was here and /mentors existed only in the desktop sidebar, so mentoring was
-  // literally unreachable on mobile; השושלת links to both.
-  { key: "lineage", href: "/lineage", icon: Users2 },
-  { key: "record", href: "/record", icon: FolderOpen },
-  { key: "graduation", href: "/graduation", icon: Calculator },
-  { key: "miluim", href: "/miluim", icon: Shield },
-  { key: "guide", href: "/guide", icon: Compass },
-  { key: "settings", href: "/settings", icon: Settings },
+/**
+ * On a phone, ten of the app's fourteen destinations live behind this one
+ * button — and they were a flat 3-column grid of ten equal tiles. The
+ * constitution names exactly this failure ("features that exist but are not
+ * discovered"), and the #41 note in this file is the same bug caught once
+ * already: mentoring was built and unreachable.
+ *
+ * Ten identical tiles is not a menu, it is a wall. Grouping them costs no
+ * screen and gives the eye somewhere to land.
+ *
+ *   HIG · Layout: "Group related items to help people find the information
+ *   they want... use negative space, background shapes, colors, materials, or
+ *   separator lines to show when elements are related."
+ *
+ * The three groups answer three different questions a student actually
+ * arrives with: what do I take, where do I stand, and who else is here.
+ */
+const MORE_MENU_GROUPS = [
+  {
+    key: "studies",
+    he: "מה ללמוד",
+    en: "What to take",
+    items: [
+      // First while the round is near — it is the one screen with a deadline.
+      { key: "bidding", href: "/bidding", icon: Gavel },
+      { key: "catalog", href: "/catalog", icon: BookOpen },
+      { key: "examPlanner", href: "/exam-planner", icon: CalendarClock },
+    ],
+  },
+  {
+    key: "standing",
+    he: "איפה אני עומד",
+    en: "Where I stand",
+    items: [
+      { key: "record", href: "/record", icon: FolderOpen },
+      { key: "graduation", href: "/graduation", icon: Calculator },
+      { key: "miluim", href: "/miluim", icon: Shield },
+    ],
+  },
+  {
+    key: "around",
+    he: "מסביב",
+    en: "Around",
+    items: [
+      // #41 — the social layer gets ONE door on a phone too. Before this,
+      // /cohort was here and /mentors existed only in the desktop sidebar, so
+      // mentoring was literally unreachable on mobile; השושלת links to both.
+      { key: "lineage", href: "/lineage", icon: Users2 },
+      { key: "guide", href: "/guide", icon: Compass },
+      { key: "settings", href: "/settings", icon: Settings },
+    ],
+  },
 ] as const;
+
+/** נגזר מהקבוצות כדי שאיחוד המפתחות יישמר — `t(item.key)` צריך אותו. */
+type MoreItem = (typeof MORE_MENU_GROUPS)[number]["items"][number];
+
+const MORE_MENU_ITEMS: readonly MoreItem[] = MORE_MENU_GROUPS.flatMap(
+  (g) => g.items as readonly MoreItem[],
+);
 
 export function MobileNav() {
   const t = useTranslations("nav");
+  const isHe = useLocale() === "he";
   const pathname = usePathname();
   const [moreOpen, setMoreOpen] = useState(false);
 
@@ -84,9 +129,15 @@ export function MobileNav() {
 
   return (
     <>
-      {/* More menu overlay */}
+      {/*
+        z-[70] ולא z-[60]: ה-FAB של המלך יושב על z-[65], אז במשך כל הזמן
+        שהמגירה הזאת הייתה פתוחה הוא צף מעליה — מעל הרקע המעומעם, מכסה את
+        שורת "לא אתר רשמי", ולחיץ בזמן שהתפריט אמור לחסום הכול.
+        HIG · Modality: חוויה מודאלית מונעת אינטראקציה עם שאר האפליקציה.
+        נמדד ב-375px, לא נראה בעין בדסקטופ כי שם ה-FAB במקום אחר.
+      */}
       {moreOpen && (
-        <div className="fixed inset-0 z-[60] md:hidden">
+        <div className="fixed inset-0 z-[70] md:hidden">
           {/* Backdrop */}
           <div
             className="absolute inset-0 bg-black/60 backdrop-blur-sm"
@@ -110,27 +161,42 @@ export function MobileNav() {
                 </button>
               </div>
 
-              {/* Items */}
-              <div className="grid grid-cols-3 gap-1 p-3">
-                {menuItems.map((item) => {
-                  const Icon = item.icon;
-                  const isActive = pathname.includes(item.href);
-
+              {/* Items, grouped */}
+              <div className="p-3">
+                {MORE_MENU_GROUPS.map((group) => {
+                  const items = group.items.filter(
+                    (i) => i.key !== "miluim" || isReservist,
+                  );
+                  if (items.length === 0) return null;
                   return (
-                    <Link
-                      key={item.key}
-                      href={item.href}
-                      onClick={closeMore}
-                      className={cn(
-                        "flex flex-col items-center gap-1.5 rounded-xl px-2 py-3 text-xs transition-colors min-h-[44px]",
-                        isActive
-                          ? "bg-accent-brand-muted text-accent-brand font-semibold"
-                          : "text-muted-foreground hover:bg-muted hover:text-foreground"
-                      )}
-                    >
-                      <Icon className="h-5 w-5" />
-                      <span className="text-center leading-tight">{t(item.key)}</span>
-                    </Link>
+                    <div key={group.key} className="mb-2 last:mb-0">
+                      <div className="px-2 pb-1 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+                        {isHe ? group.he : group.en}
+                      </div>
+                      <div className="grid grid-cols-3 gap-1">
+                        {items.map((item) => {
+                          const Icon = item.icon;
+                          const isActive = pathname.includes(item.href);
+
+                          return (
+                            <Link
+                              key={item.key}
+                              href={item.href}
+                              onClick={closeMore}
+                              className={cn(
+                                "flex flex-col items-center gap-1.5 rounded-xl px-2 py-3 text-xs transition-colors min-h-[44px]",
+                                isActive
+                                  ? "bg-accent-brand-muted text-accent-brand font-semibold"
+                                  : "text-muted-foreground hover:bg-muted hover:text-foreground"
+                              )}
+                            >
+                              <Icon className="h-5 w-5" />
+                              <span className="text-center leading-tight">{t(item.key)}</span>
+                            </Link>
+                          );
+                        })}
+                      </div>
+                    </div>
                   );
                 })}
               </div>

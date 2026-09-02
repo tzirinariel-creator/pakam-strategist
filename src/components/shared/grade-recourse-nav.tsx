@@ -129,7 +129,7 @@ export function GradeRecourseNav({
               <span
                 className={cn(
                   "mt-0.5 flex size-6 shrink-0 items-center justify-center rounded-md",
-                  here ? "bg-accent-brand/15 text-accent-brand" : "bg-foreground/[0.06] text-foreground/45",
+                  here ? "bg-accent-brand/15 text-accent-brand" : "bg-foreground/[0.06] text-foreground/60",
                 )}
               >
                 <Icon className="size-3.5" />
@@ -140,12 +140,12 @@ export function GradeRecourseNav({
                     {isHe ? tool.he : tool.en}
                   </span>
                   {here && (
-                    <span className="rounded-full bg-accent-brand/10 px-1.5 py-px text-[10px] text-accent-brand">
+                    <span className="rounded-full bg-accent-brand/6 px-1.5 py-px text-[10px] text-accent-brand">
                       {isHe ? "אתם כאן" : "you're here"}
                     </span>
                   )}
                 </span>
-                <span className="mt-0.5 block text-[11px] leading-relaxed text-foreground/50">
+                <span className="mt-0.5 block text-[11px] leading-relaxed text-foreground/60">
                   {isHe ? tool.whenHe : tool.whenEn}
                 </span>
               </span>
@@ -162,7 +162,7 @@ export function GradeRecourseNav({
                   className="flex items-start gap-2.5 rounded-lg px-1 py-1 transition-colors hover:bg-foreground/[0.04]"
                 >
                   {body}
-                  <Arrow className="mt-1.5 size-3.5 shrink-0 text-foreground/25" />
+                  <Arrow className="mt-1.5 size-3.5 shrink-0 text-foreground/60" />
                 </Link>
               )}
             </li>

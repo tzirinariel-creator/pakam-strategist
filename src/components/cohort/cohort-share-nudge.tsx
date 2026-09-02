@@ -108,7 +108,7 @@ export function CohortShareNudge({
   if (variant === "inline") {
     if (justSharedText) {
       return (
-        <p className={cn("flex items-center gap-1.5 text-xs text-emerald-600 dark:text-emerald-400", className)}>
+        <p className={cn("flex items-center gap-1.5 text-xs text-status-green", className)}>
           <Check className="size-3.5 shrink-0" />
           {justSharedText}
         </p>
@@ -154,7 +154,7 @@ export function CohortShareNudge({
           </p>
 
           {justSharedText ? (
-            <p className="mt-2.5 flex items-center gap-1.5 text-xs font-medium text-emerald-600 dark:text-emerald-400">
+            <p className="mt-2.5 flex items-center gap-1.5 text-xs font-medium text-status-green">
               <Check className="size-3.5 shrink-0" />
               {justSharedText}
             </p>
@@ -180,12 +180,12 @@ export function CohortShareNudge({
                 <button
                   type="button"
                   onClick={dismiss}
-                  className="ms-auto text-xs text-foreground/40 transition-colors hover:text-foreground/65"
+                  className="ms-auto text-xs text-foreground/60 transition-colors hover:text-foreground/65"
                 >
                   {isHe ? "לא עכשיו" : "Not now"}
                 </button>
               </div>
-              <p className="mt-2 text-[11px] leading-relaxed text-foreground/40">
+              <p className="mt-2 text-[11px] leading-relaxed text-foreground/60">
                 {isHe
                   ? "בלי שם, אי-אפשר לשחזר מי. ממוצע נחשף רק מ-5 תורמים ומעלה, ואפשר למשוך הכול בכל רגע."
                   : "No name, no way to trace back. An average appears only from 5+ contributors, and you can withdraw anytime."}

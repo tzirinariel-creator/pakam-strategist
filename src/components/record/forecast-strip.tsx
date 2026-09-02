@@ -37,12 +37,12 @@ export function ForecastStrip({
               </span>
               <span className="text-sm font-medium text-foreground/60">{t("forecastTitle")}</span>
             </div>
-            <p className="mt-0.5 text-[11px] text-foreground/45">{t("forecastCaption")}</p>
+            <p className="mt-0.5 text-[11px] text-foreground/60">{t("forecastCaption")}</p>
           </div>
         </div>
       ) : (
         <div className="flex items-center gap-3">
-          <Award className="h-6 w-6 shrink-0 text-amber-500" />
+          <Award className="h-6 w-6 shrink-0 text-status-amber" />
           <div>
             <div className="flex items-baseline gap-2">
               <span className="font-mono text-2xl font-bold text-foreground/85">
@@ -58,7 +58,7 @@ export function ForecastStrip({
 
       {honors.yearlyAverage !== null && (
         <div className="flex items-center gap-2 text-xs">
-          <Award className="h-4 w-4 shrink-0 text-amber-500" />
+          <Award className="h-4 w-4 shrink-0 text-status-amber" />
           <span className="text-foreground/60">
             {honors.gap !== null && honors.gap > 0 ? (
               <Bidi text={t("forecastHonorsGap", { gap: honors.gap.toFixed(1), year: honors.year })} />

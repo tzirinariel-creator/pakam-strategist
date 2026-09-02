@@ -60,10 +60,10 @@ export function QuotaCard({
   };
 
   const stepBtn =
-    "flex size-6 items-center justify-center rounded-md border border-border/60 text-foreground/50 transition-colors hover:bg-foreground/5 hover:text-foreground/80 disabled:opacity-40 disabled:hover:bg-transparent";
+    "flex size-6 items-center justify-center rounded-md border border-border/60 text-foreground/70 transition-colors hover:bg-foreground/5 hover:text-foreground/80 disabled:opacity-40 disabled:hover:bg-transparent";
   return (
     <div className="rounded-xl border border-border/60 bg-foreground/[0.02] p-3.5">
-      <div className="flex items-center gap-1.5 text-[11px] font-medium text-foreground/50">
+      <div className="flex items-center gap-1.5 text-[11px] font-medium text-foreground/60">
         <Icon className="size-3.5" />
         {label}
       </div>
@@ -83,7 +83,7 @@ export function QuotaCard({
           >
             {shown}
           </span>
-          <span className="font-mono text-sm text-foreground/40">{` / ${cap}`}</span>
+          <span className="font-mono text-sm text-foreground/60">{` / ${cap}`}</span>
         </div>
         {onChange && (
           <div className="flex items-center gap-1" dir="ltr">
@@ -108,7 +108,7 @@ export function QuotaCard({
           </div>
         )}
       </div>
-      <p className="mt-0.5 text-[10px] leading-tight text-foreground/45">{hint}</p>
+      <p className="mt-0.5 text-[10px] leading-tight text-foreground/60">{hint}</p>
     </div>
   );
 }

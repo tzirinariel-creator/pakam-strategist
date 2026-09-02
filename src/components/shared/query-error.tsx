@@ -49,7 +49,7 @@ export function QueryErrorState({
       <p className="font-semibold text-foreground/85">
         {isHe ? "לא הצלחנו לטעון את הנתונים" : "We couldn't load your data"}
       </p>
-      <p className="max-w-sm text-sm leading-relaxed text-foreground/55">
+      <p className="max-w-sm text-sm leading-relaxed text-foreground/60">
         {isHe
           ? `זו תקלה אצלנו, לא אצלכם${what ? ` (${what})` : ""} — שום דבר לא נמחק. נסו שוב בעוד רגע.`
           : `This is a problem on our side${what ? ` (${what})` : ""}, not yours — nothing was deleted. Try again in a moment.`}

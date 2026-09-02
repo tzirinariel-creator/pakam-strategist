@@ -92,7 +92,7 @@ export function PlannerContent() {
 
     return (
       <div className="flex min-h-[50vh] flex-col items-center justify-center gap-3">
-        <AlertTriangle className="size-8 text-red-400" />
+        <AlertTriangle className="size-8 text-status-red" />
         <p className="text-sm text-muted-foreground">{error.message}</p>
         {isUnauthorized ? (
           <Link
@@ -251,14 +251,14 @@ export function PlannerContent() {
           role="status"
           className="animate-fade-in flex items-center gap-3 rounded-xl border border-emerald-400/30 bg-emerald-400/[0.07] p-4"
         >
-          <span className="flex size-9 shrink-0 items-center justify-center rounded-full bg-emerald-400/15 text-emerald-500">
+          <span className="flex size-9 shrink-0 items-center justify-center rounded-full bg-emerald-400/15 text-status-green">
             <CheckCircle2 className="size-5" />
           </span>
           <div className="min-w-0 flex-1">
             <p className="text-sm font-semibold text-foreground/85">
               {t("planSavedBannerTitle")}
             </p>
-            <p className="mt-0.5 text-xs text-foreground/55">
+            <p className="mt-0.5 text-xs text-foreground/60">
               {t("planSavedBannerDesc")}
             </p>
           </div>
@@ -266,7 +266,7 @@ export function PlannerContent() {
             type="button"
             onClick={() => setShowSavedBanner(false)}
             aria-label={isHe ? "סגור" : "Close"}
-            className="shrink-0 rounded-md p-1 text-foreground/30 transition-colors hover:text-foreground/60"
+            className="shrink-0 rounded-md p-1 text-foreground/60 transition-colors hover:text-foreground/90"
           >
             <X className="size-4" />
           </button>
@@ -294,8 +294,8 @@ export function PlannerContent() {
               className={cn(
                 "flex items-center gap-1.5 rounded-lg border px-3 py-2 text-xs font-medium transition-colors hover:shadow-sm",
                 regulationQuery.data.passed === regulationQuery.data.totalRules
-                  ? "border-emerald-400/30 bg-emerald-400/5 text-emerald-400 hover:border-emerald-400/50"
-                  : "border-amber-400/30 bg-amber-400/5 text-amber-400 hover:border-amber-400/50"
+                  ? "border-emerald-400/30 bg-emerald-400/5 text-status-green hover:border-emerald-400/50"
+                  : "border-amber-400/30 bg-amber-400/5 text-status-amber hover:border-amber-400/50"
               )}
             >
               <Scale className="h-3.5 w-3.5" />
@@ -350,7 +350,7 @@ export function PlannerContent() {
                     ? `לקראת הבידינג — ${biddingTarget.labelHe} הקרוב`
                     : `Toward the bidding round — the coming ${biddingTarget.semester === "FALL" ? "fall" : "spring"}`}
                 </h2>
-                <span className="text-xs text-foreground/45">
+                <span className="text-xs text-foreground/60">
                   {isHe
                     ? `הסמסטר נפתח ${daysUntilLabel(biddingTarget.daysUntilStart, true)} — הבידינג מתקיים לפני כן`
                     : `Semester starts ${daysUntilLabel(biddingTarget.daysUntilStart, false)} — bidding happens before`}
@@ -379,7 +379,7 @@ export function PlannerContent() {
                   />
                 </>
               ) : (
-                <div className="rounded-xl border border-border/60 bg-foreground/[0.02] p-4 text-xs leading-relaxed text-foreground/55">
+                <div className="rounded-xl border border-border/60 bg-foreground/[0.02] p-4 text-xs leading-relaxed text-foreground/60">
                   {isHe
                     ? `עוד לא תכננתם קורסים ל${biddingTarget.labelHe} הקרוב. גררו קורסים ללוח למעלה — ואז נבדוק לכם חפיפות ונכין רשימת-בדיקה לבידינג.`
                     : "You haven't planned the coming semester yet. Drag courses onto the board above — then we'll check clashes and prep your bidding checklist."}

@@ -50,13 +50,13 @@ export class PlannerErrorBoundary extends Component<Props, State> {
       return (
         <div className="flex min-h-[300px] flex-col items-center justify-center gap-4 text-center">
           <div className="flex h-14 w-14 items-center justify-center rounded-full bg-amber-500/10">
-            <AlertTriangle className="h-7 w-7 text-amber-400" />
+            <AlertTriangle className="h-7 w-7 text-status-amber" />
           </div>
           <div>
             <h3 className="text-sm font-semibold text-foreground/70">
               {isHe ? "משהו השתבש" : "Something went wrong"}
             </h3>
-            <p className="mt-1 text-xs text-foreground/40 max-w-xs">
+            <p className="mt-1 text-xs text-foreground/60 max-w-xs">
               {isHe
                 ? "אל דאגה — הנתונים שלכם שמורים. נסו לרענן."
                 : "Don\u2019t worry \u2014 your data is saved. Try refreshing."}

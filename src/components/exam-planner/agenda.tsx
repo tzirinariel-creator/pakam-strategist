@@ -58,7 +58,7 @@ export function Agenda({
 
   if (upcoming.length === 0) {
     return (
-      <div className="rounded-xl border border-dashed border-border/50 bg-foreground/[0.02] p-8 text-center text-sm text-foreground/45">
+      <div className="rounded-xl border border-dashed border-border/50 bg-foreground/[0.02] p-8 text-center text-sm text-foreground/60">
         {isHe ? "אין משימות קרובות. הוסף מבחנים כדי לבנות תוכנית." : "No upcoming tasks. Add exams to build a plan."}
       </div>
     );
@@ -89,7 +89,7 @@ export function Agenda({
           <span className={cn("text-sm font-bold", isToday ? "text-accent-brand" : "text-foreground/80")}>
             {isToday ? (isHe ? "היום" : "Today") : d.toLocaleDateString(isHe ? "he-IL" : "en-US", { weekday: "long", day: "numeric", month: "short" })}
           </span>
-          {isToday && <span className="text-[11px] text-foreground/45">{d.toLocaleDateString(isHe ? "he-IL" : "en-US", { day: "numeric", month: "short" })}</span>}
+          {isToday && <span className="text-[11px] text-foreground/60">{d.toLocaleDateString(isHe ? "he-IL" : "en-US", { day: "numeric", month: "short" })}</span>}
           {hours > 0 && (
             <span className="ms-auto flex items-center gap-1.5">
               <span className="h-1.5 w-10 overflow-hidden rounded-full bg-foreground/10">
@@ -105,7 +105,7 @@ export function Agenda({
               <button
                 type="button"
                 onClick={() => setAddingDay((a) => (a === key ? null : key))}
-                className="rounded-md px-1.5 py-0.5 text-[11px] font-medium text-foreground/45 transition-colors hover:bg-foreground/10 hover:text-foreground/70"
+                className="rounded-md px-1.5 py-0.5 text-[11px] font-medium text-foreground/70 transition-colors hover:bg-foreground/10 hover:text-foreground/70"
               >
                 {isHe ? "+ לימוד" : "+ study"}
               </button>
@@ -114,7 +114,7 @@ export function Agenda({
               <button
                 type="button"
                 onClick={() => onPushDay(list)}
-                className="rounded-md px-1.5 py-0.5 text-[11px] font-medium text-foreground/45 transition-colors hover:bg-foreground/10 hover:text-foreground/70"
+                className="rounded-md px-1.5 py-0.5 text-[11px] font-medium text-foreground/70 transition-colors hover:bg-foreground/10 hover:text-foreground/70"
               >
                 {isHe ? "דחו יום" : "Push day"}
               </button>
@@ -152,21 +152,21 @@ export function Agenda({
                     {t.completed && <Check className="size-3" />}
                   </button>
                 )}
-                <Icon className={cn("size-3.5 shrink-0", isExam ? "text-accent-brand" : "text-foreground/40")} />
+                <Icon className={cn("size-3.5 shrink-0", isExam ? "text-accent-brand" : "text-foreground/60")} />
                 {/* Not truncated: "לימוד: מיקרו כלכלה ב׳ + תרגיל" needs 174px
                     of the 124 a phone leaves it, and which course you are
                     meant to study is the entire content of the row. */}
-                <span className={cn("min-w-0 flex-1 text-balance text-sm leading-snug", t.completed ? "text-foreground/40 line-through" : "text-foreground/80")}>{t.title}</span>
+                <span className={cn("min-w-0 flex-1 text-balance text-sm leading-snug", t.completed ? "text-foreground/60 line-through" : "text-foreground/80")}>{t.title}</span>
                 {/* The unit was glued to the number ("3שע׳") — the same defect
                     class as the miluim "10ש״ס" fix. A real space, always. */}
-                {h != null && <span className="shrink-0 font-mono text-[11px] tabular-nums text-foreground/45"><bdi dir="ltr">{h}</bdi> {isHe ? "שע׳" : "h"}</span>}
-                <span className="shrink-0 rounded-full bg-foreground/[0.06] px-1.5 py-0.5 text-[11px] text-foreground/50">{isHe ? meta.he : meta.en}</span>
+                {h != null && <span className="shrink-0 font-mono text-[11px] tabular-nums text-foreground/60"><bdi dir="ltr">{h}</bdi> {isHe ? "שע׳" : "h"}</span>}
+                <span className="shrink-0 rounded-full bg-foreground/[0.06] px-1.5 py-0.5 text-[11px] text-foreground/60">{isHe ? meta.he : meta.en}</span>
                 {!isExam && (
-                  <button type="button" onClick={() => onPush(t)} className="shrink-0 rounded-md p-1 text-foreground/30 transition-colors hover:bg-foreground/10 hover:text-foreground/60" title={isHe ? "דחו ביום" : "Push a day"} aria-label={isHe ? "דחו ביום" : "push a day"}>
+                  <button type="button" onClick={() => onPush(t)} className="shrink-0 rounded-md p-1 text-foreground/70 transition-colors hover:bg-foreground/10 hover:text-foreground/90" title={isHe ? "דחו ביום" : "Push a day"} aria-label={isHe ? "דחו ביום" : "push a day"}>
                     <span className="text-xs font-bold">+1</span>
                   </button>
                 )}
-                <button type="button" onClick={() => onDelete(t.id)} className="shrink-0 rounded-md p-1 text-foreground/30 transition-colors hover:bg-red-500/10 hover:text-red-400" aria-label={isHe ? "הסר" : "delete"}>
+                <button type="button" onClick={() => onDelete(t.id)} className="shrink-0 rounded-md p-1 text-foreground/60 transition-colors hover:bg-red-500/10 hover:text-status-red" aria-label={isHe ? "הסר" : "delete"}>
                   <Trash2 className="size-3.5" />
                 </button>
               </div>
@@ -183,7 +183,7 @@ export function Agenda({
       {tail.length > 0 && (
         <>
           {showTail && tail.map(([key, list]) => renderDay(key, list, false))}
-          <button type="button" onClick={() => setShowTail((s) => !s)} className="flex items-center justify-center gap-1.5 rounded-xl border border-border/50 bg-foreground/[0.02] px-4 py-2 text-xs font-medium text-foreground/55 transition-colors hover:bg-foreground/[0.04]">
+          <button type="button" onClick={() => setShowTail((s) => !s)} className="flex items-center justify-center gap-1.5 rounded-xl border border-border/50 bg-foreground/[0.02] px-4 py-2 text-xs font-medium text-foreground/60 transition-colors hover:bg-foreground/[0.04]">
             <ChevronDown className={cn("size-3.5 transition-transform", showTail && "rotate-180")} />
             {showTail ? (isHe ? "הסתר" : "Hide") : isHe ? `שאר התוכנית (${heNoun(tail.length, "יום", "ימים")})` : `Rest of the plan (${tail.length} days)`}
           </button>

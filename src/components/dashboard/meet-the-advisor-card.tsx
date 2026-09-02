@@ -95,7 +95,7 @@ export function MeetTheAdvisorCard() {
         type="button"
         onClick={close}
         aria-label={isHe ? "סגירה" : "Dismiss"}
-        className="absolute end-3 top-3 rounded-md p-1 text-foreground/35 transition-colors hover:bg-foreground/5 hover:text-foreground/70"
+        className="absolute end-3 top-3 rounded-md p-1 text-foreground/70 transition-colors hover:bg-foreground/5 hover:text-foreground/70"
       >
         <X className="size-4" />
       </button>

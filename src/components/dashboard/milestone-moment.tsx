@@ -73,7 +73,7 @@ export function MilestoneMoment(props: Omit<MilestoneInput, "persona"> & { isHe:
         type="button"
         onClick={dismiss}
         aria-label={isHe ? "הבנתי, סגרו" : "Got it, close"}
-        className="shrink-0 rounded-md p-1 text-foreground/25 transition-colors hover:text-foreground/60"
+        className="shrink-0 rounded-md p-1 text-foreground/60 transition-colors hover:text-foreground/90"
       >
         <X className="size-4" />
       </button>

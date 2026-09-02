@@ -66,7 +66,7 @@ export function CohortWisdomSection() {
           : "Real cohort averages — built from students' anonymous contributions"
       }
     >
-      <p className="text-xs leading-relaxed text-foreground/55">
+      <p className="text-xs leading-relaxed text-foreground/60">
         {isHe
           ? "שתפו את הציונים שלכם כנקודות אנונימיות — בלי שם, בלי דרך לשחזר מי — כדי שכולם יראו ממוצעים אמיתיים בקטלוג. ממוצע מוצג רק כשיש מספיק תורמים (5 ומעלה), ואפשר למשוך את הכול בכל רגע."
           : "Share your grades as anonymous points — no name, no way to trace back — so everyone sees real averages in the catalog. An average shows only with enough contributors (5+), and you can withdraw everything anytime."}

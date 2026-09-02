@@ -37,14 +37,14 @@ export function MoedBenefitBanner() {
 
   return (
     <div className="animate-stagger-2 flex items-start gap-3 rounded-xl border border-emerald-500/25 bg-emerald-500/[0.06] p-4">
-      <div className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-emerald-500/15 text-emerald-600">
+      <div className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-emerald-500/15 text-status-green">
         <CalendarCheck className="size-4.5" />
       </div>
       <div className="min-w-0 flex-1">
         <p className="text-sm font-semibold text-foreground/85">
           {isHe ? "הטבת מילואים במבחנים: 2 מתוך 3 מועדים" : "Miluim exam benefit: 2 of 3 sittings"}
         </p>
-        <p className="mt-0.5 text-xs leading-relaxed text-foreground/55">
+        <p className="mt-0.5 text-xs leading-relaxed text-foreground/60">
           {isHe
             ? `${eligible} לגשת ל-2 מתוך 3 מועדי בחינה, והציון הגבוה מביניהם הוא שנשמר — אוטומטית. (אצל מי שאינו מילואימניק, הציון האחרון קובע.) שווה לנצל בקורס שרוצים לשפר.`
             : "As a miluim benefit, you may sit up to 3 exam moadim, and between two of them the HIGHER grade counts — automatically, not the last one (the usual rule). Worth using on a course you want to raise."}

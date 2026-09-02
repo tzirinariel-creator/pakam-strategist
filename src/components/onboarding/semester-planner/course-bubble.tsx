@@ -147,7 +147,7 @@ export function CourseBubble({
 
         {/* English-taught badge */}
         {course.courseType === "ENGLISH" && (
-          <span className="shrink-0 rounded bg-foreground/8 px-1 text-[10px] font-medium text-foreground/50" title={isHe ? "נלמד באנגלית" : "Taught in English"}>
+          <span className="shrink-0 rounded bg-foreground/8 px-1 text-[10px] font-medium text-foreground/70" title={isHe ? "נלמד באנגלית" : "Taught in English"}>
             EN
           </span>
         )}
@@ -155,7 +155,7 @@ export function CourseBubble({
         {/* Prerequisites badge */}
         {course.prerequisites && course.prerequisites.length > 0 && (
           <span
-            className="shrink-0 flex items-center gap-0.5 rounded-full bg-amber-400/10 px-1.5 py-0.5 text-[11px] font-medium text-amber-400/80"
+            className="shrink-0 flex items-center gap-0.5 rounded-full bg-amber-400/10 px-1.5 py-0.5 text-[11px] font-medium text-status-amber/80"
             title={
               isHe
                 ? `דרישות קדם: ${course.prerequisites.join(", ")}`
@@ -169,7 +169,7 @@ export function CourseBubble({
 
         {/* Focus area badge */}
         {recommended && (
-          <span className="shrink-0 rounded-full bg-foreground/8 px-1 py-0 text-[11px] font-medium text-foreground/40">
+          <span className="shrink-0 rounded-full bg-foreground/8 px-1 py-0 text-[11px] font-medium text-foreground/70">
             {isHe ? "מיקוד" : "Focus"}
           </span>
         )}
@@ -177,7 +177,7 @@ export function CourseBubble({
         {/* S3 — cohort recommendation (shown only past the k-anonymity bar) */}
         {cohortRecommended && (
           <span
-            className="shrink-0 rounded-full bg-emerald-500/10 px-1.5 py-0 text-[11px] font-semibold text-emerald-600"
+            className="shrink-0 rounded-full bg-emerald-500/10 px-1.5 py-0 text-[11px] font-semibold text-status-green"
             title={isHe ? "לפחות 60% מהמדרגים במחזור ממליצים (3 מדרגים ומעלה)" : "≥60% of cohort raters recommend (3+ raters)"}
           >
             {isHe ? "מומלץ ע״י המחזור" : "Cohort pick"}
@@ -186,7 +186,7 @@ export function CourseBubble({
 
         {outOfRecommendedYear && (
           <span
-            className="shrink-0 rounded-full border border-amber-500/40 px-1.5 py-0 text-[10px] font-medium text-amber-700 dark:text-amber-400"
+            className="shrink-0 rounded-full border border-amber-500/40 px-1.5 py-0 text-[10px] font-medium text-status-amber"
             title={
               isHe
                 ? "הקטלוג ממליץ עליו לשנה אחרת. פכ״מ פטור מדרישות קדם, אז אפשר לקחת אותו — רק דעו שהוא לא נועד לשנה שלכם."
@@ -204,7 +204,7 @@ export function CourseBubble({
             rather than quietly overstating the week. */}
         {daysLabel && (
           <span
-            className="shrink-0 font-mono text-[10px] text-foreground/25"
+            className="shrink-0 font-mono text-[10px] text-foreground/60"
             title={
               isPickable
                 ? isHe
@@ -219,25 +219,25 @@ export function CourseBubble({
 
         {/* Status icon */}
         {state === "mandatory" && (
-          <Lock className="h-3 w-3 shrink-0 text-foreground/50" />
+          <Lock className="h-3 w-3 shrink-0 text-foreground/60" />
         )}
         {state === "selected" && (
           <Check className="h-3 w-3 shrink-0 text-foreground/80" />
         )}
         {state === "disabled" && (
-          <AlertTriangle className="h-3 w-3 shrink-0 text-foreground/30" />
+          <AlertTriangle className="h-3 w-3 shrink-0 text-foreground/60" />
         )}
 
         {/* Recommended star */}
         {recommended && state === "default" && (
-          <Star className="h-3 w-3 shrink-0 text-foreground/50 fill-foreground/30" />
+          <Star className="h-3 w-3 shrink-0 text-foreground/60 fill-foreground/30" />
         )}
 
         {/* Credits badge */}
         <span
           className={cn(
             "shrink-0 font-mono text-[10px]",
-            state === "selected" ? "text-foreground/70" : "text-foreground/30"
+            state === "selected" ? "text-foreground/70" : "text-foreground/60"
           )}
         >
           {course.credits}

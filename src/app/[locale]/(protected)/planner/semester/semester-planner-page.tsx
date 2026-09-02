@@ -336,7 +336,7 @@ export function SemesterPlannerPage() {
                     the whole span, flipping the Hebrew unit — audit 22.7). */}
                 <span className="font-mono text-xs tabular-nums text-foreground/70">
                   <bdi dir="ltr">{goalBucket.current}/{goalBucket.target}</bdi> {goalBucket.unit}
-                  {goalBucket.met && <span className="text-emerald-500"> ✓</span>}
+                  {goalBucket.met && <span className="text-status-green"> ✓</span>}
                 </span>
               </div>
             )}
@@ -351,11 +351,11 @@ export function SemesterPlannerPage() {
           state (Project 1 step 9). Sticks below the top bar while you edit. */}
       {dirty && (
         <div className="sticky top-[calc(var(--banner-offset,0px)_+_4rem)] z-20 -mx-4 flex flex-wrap items-center gap-x-2 gap-y-0.5 border-y border-amber-400/30 bg-amber-400/[0.08] px-4 py-2 text-xs backdrop-blur-sm md:-mx-6 md:px-6">
-          <Eye className="size-3.5 shrink-0 text-amber-500" />
+          <Eye className="size-3.5 shrink-0 text-status-amber" />
           <span className="font-medium text-foreground/80">
             {isHe ? "תצוגה מקדימה — השינויים עדיין לא נשמרו" : "Preview — your changes aren't saved yet"}
           </span>
-          <span className="text-foreground/45">
+          <span className="text-foreground/60">
             {isHe ? "· המספרים מתעדכנים חי; סיימו את התכנון כדי לשמור" : "· numbers update live; finish planning to save"}
           </span>
         </div>
@@ -382,7 +382,7 @@ export function SemesterPlannerPage() {
         <DialogContent className="max-w-md">
           <DialogHeader>
             <div className="mb-1 flex items-center gap-2">
-              <span className="flex size-9 items-center justify-center rounded-full bg-amber-400/10 text-amber-500">
+              <span className="flex size-9 items-center justify-center rounded-full bg-amber-400/10 text-status-amber">
                 <AlertTriangle className="size-5" />
               </span>
               <DialogTitle className="text-base font-bold">

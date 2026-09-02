@@ -115,7 +115,7 @@ export function CatalogContent() {
       {/* Discovery: the cohort file is WHERE elective-picking wisdom lives */}
       <Link
         href="/cohort"
-        className="animate-stagger-2 inline-flex items-center gap-2 rounded-full border border-accent-brand/30 bg-accent-brand/5 px-3 py-1.5 text-xs font-medium text-accent-brand transition-colors hover:bg-accent-brand/10"
+        className="animate-stagger-2 inline-flex items-center gap-2 rounded-full border border-accent-brand/30 bg-accent-brand/5 px-3 py-1.5 text-xs font-medium text-accent-brand transition-colors hover:bg-accent-brand/6"
       >
         <Users2 className="size-3.5" />
         {locale === "he" ? "מתלבטים איזה קורס בחירה? ראו מה המחזור ממליץ ←" : "Picking an elective? See what the cohort recommends →"}

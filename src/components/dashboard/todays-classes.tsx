@@ -71,8 +71,8 @@ export function TodaysClasses({ currentYear, currentSemester }: TodaysClassesPro
       : null;
     return (
       <div className="data-card flex items-center gap-3 p-4 border-emerald-400/20 bg-emerald-400/5">
-        <BookOpen className="h-5 w-5 text-emerald-400 shrink-0" />
-        <p className="text-sm text-emerald-400">
+        <BookOpen className="h-5 w-5 text-status-green shrink-0" />
+        <p className="text-sm text-status-green">
           {acadNow.phase === "exams"
             ? isHe
               ? "תקופת בחינות — אין יותר שיעורים הסמסטר"
@@ -104,8 +104,8 @@ export function TodaysClasses({ currentYear, currentSemester }: TodaysClassesPro
   if (todaySessions.length === 0) {
     return (
       <div className="data-card flex items-center gap-3 p-4 border-emerald-400/20 bg-emerald-400/5">
-        <BookOpen className="h-5 w-5 text-emerald-400 shrink-0" />
-        <p className="text-sm text-emerald-400">
+        <BookOpen className="h-5 w-5 text-status-green shrink-0" />
+        <p className="text-sm text-status-green">
           {isHe ? `יום ${dayLabel} — אין שיעורים היום` : `${dayLabel} — No classes today`}
         </p>
       </div>
@@ -119,7 +119,7 @@ export function TodaysClasses({ currentYear, currentSemester }: TodaysClassesPro
         <h3 className="font-display text-base font-bold text-foreground/90">
           {t("todaysClasses")}
         </h3>
-        <span className="ms-auto text-xs text-foreground/40">
+        <span className="ms-auto text-xs text-foreground/60">
           {isHe ? `יום ${dayLabel}` : dayLabel}
         </span>
       </div>
@@ -155,11 +155,11 @@ export function TodaysClasses({ currentYear, currentSemester }: TodaysClassesPro
               <div className="shrink-0 text-center">
                 <div dir="ltr" className={cn(
                   "font-mono text-sm font-semibold",
-                  isNow ? "text-emerald-400" : "text-foreground/70"
+                  isNow ? "text-status-green" : "text-foreground/70"
                 )}>
                   {session.startTime ?? "—"}
                 </div>
-                <div dir="ltr" className="font-mono text-[10px] text-foreground/30">
+                <div dir="ltr" className="font-mono text-[10px] text-foreground/60">
                   {session.endTime ?? ""}
                 </div>
               </div>
@@ -177,12 +177,12 @@ export function TodaysClasses({ currentYear, currentSemester }: TodaysClassesPro
                     {courseName}
                   </span>
                   {isNow && (
-                    <span className="shrink-0 rounded-full bg-emerald-400/20 px-1.5 py-0.5 text-[10px] font-medium text-emerald-400">
+                    <span className="shrink-0 rounded-full bg-emerald-400/20 px-1.5 py-0.5 text-[10px] font-medium text-status-green">
                       {isHe ? "עכשיו" : "Now"}
                     </span>
                   )}
                 </div>
-                <div className="flex items-center gap-3 mt-0.5 text-xs text-foreground/40">
+                <div className="flex items-center gap-3 mt-0.5 text-xs text-foreground/60">
                   {session.sessionType && (
                     <span>{typeLabel(session.sessionType)}</span>
                   )}

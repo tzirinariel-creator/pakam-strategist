@@ -618,7 +618,7 @@ export function ExamPlannerContent() {
             />
           </div>
         ))}
-        <p className="text-[10px] leading-relaxed text-foreground/40">
+        <p className="text-[10px] leading-relaxed text-foreground/60">
           {isHe
             ? "התאריך נשמר במכשיר הזה ומסומן כ״תאריך שהזנתם״ — הוא לא מוצג לאף אחד אחר, וכשהאוניברסיטה תפרסם לוח רשמי הוא יגבר עליו."
             : "Saved on this device and labelled as yours — nobody else sees it, and an official published date takes over once it exists."}
@@ -632,7 +632,7 @@ export function ExamPlannerContent() {
       <div className="mb-3 flex items-center gap-2">
         <ListChecks className="size-5 text-accent-brand" />
         <h2 className="font-display text-base font-bold text-foreground/85">{isHe ? "בחרו מבחנים" : "Pick exams"}</h2>
-        {selectedCount > 0 && <span className="ms-auto text-xs text-foreground/50">{selectedCount} {isHe ? "נבחרו" : "selected"}</span>}
+        {selectedCount > 0 && <span className="ms-auto text-xs text-foreground/60">{selectedCount} {isHe ? "נבחרו" : "selected"}</span>}
       </div>
       {/* The ידיעון publishes each sitting's DAY and TIME long before its date.
           This sits OUTSIDE the empty/non-empty branch on purpose: my first
@@ -668,7 +668,7 @@ export function ExamPlannerContent() {
               anything, so it can never read as if it doesn't know the date. */}
           <AcademicStatusLine isHe={isHe} />
           {/* E3′ (note 32) — why Moed A is the default, in one honest line. */}
-          <p className="text-[11px] leading-relaxed text-foreground/45">
+          <p className="text-[11px] leading-relaxed text-foreground/60">
             {isHe
               ? "ברירת המחדל היא מועד א׳ — רוב הסטודנטים ניגשים אליו, ומועד ב׳ נשאר כרשת ביטחון (שימו לב: הציון האחרון קובע)."
               : "Moed A is the default — most students take it, keeping Moed B as the safety net (note: the last grade counts)."}
@@ -709,7 +709,7 @@ export function ExamPlannerContent() {
             <button
               type="button"
               onClick={() => setShowWholeYear(false)}
-              className="w-full rounded-lg border border-border/50 px-3 py-2 text-start text-[11px] text-foreground/55 transition-colors hover:border-foreground/25"
+              className="w-full rounded-lg border border-border/50 px-3 py-2 text-start text-[11px] text-foreground/60 transition-colors hover:border-foreground/25"
             >
               {isHe ? "חזרה למבחנים של הסמסטר הקרוב בלבד" : "Back to the coming semester only"}
             </button>
@@ -732,11 +732,11 @@ export function ExamPlannerContent() {
                 <span className="min-w-0 flex-1 basis-48 truncate text-sm text-foreground/80">{c.name}</span>
                 {/* Never let a student's own date pass for a published one. */}
                 {c.manual && (
-                  <span className="rounded-full border border-border/60 px-1.5 py-0.5 text-[10px] text-foreground/50">
+                  <span className="rounded-full border border-border/60 px-1.5 py-0.5 text-[10px] text-foreground/60">
                     {isHe ? "תאריך שהזנתם" : "your date"}
                   </span>
                 )}
-                <span className="font-mono text-[11px] text-foreground/40">{c.credits} ש״ס</span>
+                <span className="font-mono text-[11px] text-foreground/60">{c.credits} ש״ס</span>
                 <div className="flex overflow-hidden rounded-md border border-border/60 text-xs">
                   {(["A", "B"] as Moed[]).map((m) => {
                     const date = m === "A" ? c.examDateA : c.examDateB;
@@ -750,12 +750,12 @@ export function ExamPlannerContent() {
                         onClick={() => setSelected((s) => ({ ...s, [c.code]: m }))}
                         // E3′ — a missing sitting says so honestly, never a bare dash.
                         title={!date ? (isHe ? "התאריך טרם פורסם" : "Date not published yet") : undefined}
-                        className={cn("flex flex-col items-center px-2.5 py-1 transition-colors disabled:opacity-40", active ? "bg-accent-brand text-accent-brand-fg" : "text-foreground/55 hover:bg-foreground/5")}
+                        className={cn("flex flex-col items-center px-2.5 py-1 transition-colors disabled:opacity-40", active ? "bg-accent-brand text-accent-brand-fg" : "text-foreground/70 hover:bg-foreground/5")}
                       >
                         <span className="flex items-center gap-1 leading-tight">
                           {isHe ? `מועד ${m === "A" ? "א׳" : "ב׳"}` : `Moed ${m}`}
                           {isRec && !active && (
-                            <span className="rounded-full bg-accent-brand/10 px-1 text-[11px] font-semibold text-accent-brand">
+                            <span className="rounded-full bg-accent-brand/6 px-1 text-[11px] font-semibold text-accent-brand">
                               {isHe ? "מומלץ" : "rec."}
                             </span>
                           )}
@@ -769,7 +769,7 @@ export function ExamPlannerContent() {
                 </div>
                 {sel && (
                   <div className="flex basis-full items-center gap-2 pt-1">
-                    <span className="text-[11px] text-foreground/50">{isHe ? "כמה אתם מרגישים מוכנים?" : "How ready do you feel?"}</span>
+                    <span className="text-[11px] text-foreground/60">{isHe ? "כמה אתם מרגישים מוכנים?" : "How ready do you feel?"}</span>
                     <div className="flex overflow-hidden rounded-md border border-border/60">
                       {[1, 2, 3, 4, 5].map((n) => (
                         <button
@@ -779,14 +779,14 @@ export function ExamPlannerContent() {
                           onClick={() => setConfidence((p) => ({ ...p, [c.code]: n }))}
                           className={cn(
                             "px-2 py-0.5 text-xs tabular-nums transition-colors",
-                            confidence[c.code] === n ? "bg-accent-brand text-accent-brand-fg" : "text-foreground/50 hover:bg-foreground/5",
+                            confidence[c.code] === n ? "bg-accent-brand text-accent-brand-fg" : "text-foreground/70 hover:bg-foreground/5",
                           )}
                         >
                           {n}
                         </button>
                       ))}
                     </div>
-                    <span className="text-[10px] text-foreground/35">{isHe ? "פחות מוכנים = יותר שעות" : "less ready = more hours"}</span>
+                    <span className="text-[10px] text-foreground/60">{isHe ? "פחות מוכנים = יותר שעות" : "less ready = more hours"}</span>
                   </div>
                 )}
                 {sel && (() => {
@@ -817,7 +817,7 @@ export function ExamPlannerContent() {
                     : "no history — assumed medium";
                   return (
                     <div className="flex basis-full flex-wrap items-center gap-x-2 gap-y-1">
-                      <span className="text-[11px] text-foreground/50">{isHe ? "שעות לימוד:" : "Study hours:"}</span>
+                      <span className="text-[11px] text-foreground/60">{isHe ? "שעות לימוד:" : "Study hours:"}</span>
                       <input
                         type="number"
                         min={1}
@@ -837,7 +837,7 @@ export function ExamPlannerContent() {
                         className="w-14 rounded-md border border-border/60 bg-transparent px-1.5 py-0.5 text-center font-mono text-xs tabular-nums text-foreground/80 focus:border-accent-brand focus:outline-none"
                       />
                       {exp.overridden ? (
-                        <span className="text-[10px] text-foreground/40">
+                        <span className="text-[10px] text-foreground/60">
                           {isHe ? `קבעתם בעצמכם (ההערכה שלנו: ${exp.estimated} שע׳) · ` : `Your call (our estimate: ${exp.estimated}h) · `}
                           <button
                             type="button"
@@ -848,7 +848,7 @@ export function ExamPlannerContent() {
                           </button>
                         </span>
                       ) : (
-                        <span className="text-[10px] text-foreground/40">
+                        <span className="text-[10px] text-foreground/60">
                           {/* Lead with the ACTUAL budgeted total (what the box
                               shows) so the arithmetic never appears not to add up
                               — the raw credits×perCredit is rounded/floored into
@@ -865,7 +865,7 @@ export function ExamPlannerContent() {
                   type="button"
                   onClick={() => toggleAltAssessment(c.code)}
                   title={isHe ? "אין מבחן בקורס הזה? סמנו — והוא יֵצא מתכנון המבחנים" : "No exam in this course? Mark it out of the exam plan"}
-                  className="rounded-full border border-border/60 px-2 py-0.5 text-[10px] text-foreground/45 transition-colors hover:border-foreground/30 hover:text-foreground/70"
+                  className="rounded-full border border-border/60 px-2 py-0.5 text-[10px] text-foreground/60 transition-colors hover:border-foreground/30 hover:text-foreground/70"
                 >
                   {isHe ? "עבודה במקום מבחן?" : "Paper instead?"}
                 </button>
@@ -873,7 +873,7 @@ export function ExamPlannerContent() {
             );
           })}
           {altAssessment.size > 0 && (
-            <div className="rounded-lg border border-border/40 bg-foreground/[0.02] p-2.5 text-[11px] leading-relaxed text-foreground/55">
+            <div className="rounded-lg border border-border/40 bg-foreground/[0.02] p-2.5 text-[11px] leading-relaxed text-foreground/60">
               <p className="font-semibold text-foreground/65">
                 {isHe ? "בהערכה חלופית / עבודה (לא בתכנון המבחנים):" : "Alternative assessment (out of the exam plan):"}
               </p>
@@ -889,7 +889,7 @@ export function ExamPlannerContent() {
                   </button>
                 </p>
               ))}
-              <p className="mt-1.5 text-foreground/40">
+              <p className="mt-1.5 text-foreground/60">
                 {isHe
                   ? "טיפ: הוסיפו את דדליין-ההגשה דרך \"הוסיפו תאריכים וכלים\" למטה — והוא יופיע בציר לצד המבחנים."
                   : "Tip: add the submission deadline via \"add dates & tools\" below — it shows on the timeline beside the exams."}
@@ -899,7 +899,7 @@ export function ExamPlannerContent() {
           {manualDateRows}
           {/* #39 (12.7) — no build button here: building happens at the END of
               the wizard, after the blocked-days + style questions were answered. */}
-          <p className="mt-2 text-center text-[11px] text-foreground/40">
+          <p className="mt-2 text-center text-[11px] text-foreground/60">
             {isHe ? "אחרי הבחירה — המשיכו בשלבים למעלה עד לבניית התוכנית." : "After picking — continue through the steps above to build the plan."}
           </p>
         </div>
@@ -909,7 +909,7 @@ export function ExamPlannerContent() {
 
   const manualAddCard = (
     <div className="data-card p-4">
-      <label className="mb-1.5 block text-[11px] font-medium text-foreground/55">{isHe ? "הוספה ידנית — מטלה, משמרת או לימוד" : "Add manually — task, shift, or study"}</label>
+      <label className="mb-1.5 block text-[11px] font-medium text-foreground/60">{isHe ? "הוספה ידנית — מטלה, משמרת או לימוד" : "Add manually — task, shift, or study"}</label>
       <div className="flex flex-wrap items-end gap-2">
         <input value={addTitle} onChange={(e) => setAddTitle(e.target.value)} placeholder={isHe ? "למשל: הגשת עבודה במאקרו" : "e.g. Macro assignment due"} className="min-w-0 flex-1 rounded-lg border border-border/60 bg-card px-3 py-2 text-sm focus:border-foreground/30 focus:outline-none" />
         <input type="date" value={addDate} onChange={(e) => setAddDate(e.target.value)} className="rounded-lg border border-border/60 bg-card px-3 py-2 text-sm text-foreground/80 focus:border-foreground/30 focus:outline-none" />
@@ -919,7 +919,7 @@ export function ExamPlannerContent() {
           <option value="study">{isHe ? "לימוד" : "Study"}</option>
         </select>
         {addType === "study" && (
-          <label className="flex items-center gap-1.5 text-[11px] text-foreground/55">
+          <label className="flex items-center gap-1.5 text-[11px] text-foreground/60">
             {isHe ? "שעות:" : "Hours:"}
             <input
               type="number"
@@ -954,14 +954,14 @@ export function ExamPlannerContent() {
               promptEn="Let's think through my exam plan together — ask me what you need, then tell me what you'd change."
               labelHe="לחשוב על זה עם {advisor}"
               labelEn="Think it through with {advisor}"
-              className="ms-auto inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 text-[11px] font-medium text-accent-brand transition-colors hover:bg-accent-brand/10 hover:text-accent-brand"
+              className="ms-auto inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 text-[11px] font-medium text-accent-brand transition-colors hover:bg-accent-brand/6 hover:text-accent-brand"
               iconClassName="size-3"
             />
           )}
         </div>
         <ul className="space-y-1.5">
           {recs.map((r, i) => (
-            <li key={i} className={cn("flex items-start gap-2 text-xs leading-relaxed", r.kind === "clash" || r.kind === "deferB" || r.kind === "capacity" ? "text-amber-600" : "text-foreground/70")}>
+            <li key={i} className={cn("flex items-start gap-2 text-xs leading-relaxed", r.kind === "clash" || r.kind === "deferB" || r.kind === "capacity" ? "text-status-amber" : "text-foreground/70")}>
               {(r.kind === "clash" || r.kind === "deferB" || r.kind === "capacity") && <AlertTriangle className="mt-0.5 size-3.5 shrink-0" />}
               <span>{isHe ? r.textHe : r.textEn}</span>
             </li>
@@ -987,7 +987,7 @@ export function ExamPlannerContent() {
           </div>
           <div>
             <h1 className="font-display text-2xl font-bold text-foreground/85">{headerTitle}</h1>
-            <p className="text-xs text-foreground/50">
+            <p className="text-xs text-foreground/60">
               {isHe ? "לוח לימוד חכם — אחורה מכל מבחן." : "A smart study schedule, reverse-planned from each exam."}
             </p>
           </div>
@@ -1064,7 +1064,7 @@ export function ExamPlannerContent() {
                     previewPlan.exams.length > 0 ? (
                       <StudySkyline plan={previewPlan} recommendations={previewRecs} isHe={isHe} />
                     ) : (
-                      <p className="rounded-xl border border-dashed border-border/50 bg-foreground/[0.02] p-6 text-center text-sm text-foreground/45">
+                      <p className="rounded-xl border border-dashed border-border/50 bg-foreground/[0.02] p-6 text-center text-sm text-foreground/60">
                         {isHe ? "בחרו מבחן כדי לראות תצוגה מקדימה." : "Pick an exam to see a preview."}
                       </p>
                     )
@@ -1138,7 +1138,7 @@ export function ExamPlannerContent() {
                 previewPlan.exams.length > 0 ? (
                   <StudySkyline plan={previewPlan} recommendations={previewRecs} isHe={isHe} />
                 ) : (
-                  <p className="rounded-xl border border-dashed border-border/50 bg-foreground/[0.02] p-6 text-center text-sm text-foreground/45">
+                  <p className="rounded-xl border border-dashed border-border/50 bg-foreground/[0.02] p-6 text-center text-sm text-foreground/60">
                     {isHe ? "חזרו לצעד 1 ובחרו מבחן כדי לראות תצוגה מקדימה." : "Go back to step 1 and pick an exam to see a preview."}
                   </p>
                 )

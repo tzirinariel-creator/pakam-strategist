@@ -50,12 +50,12 @@ export function ProactiveNudgeCard({
         type="button"
         onClick={onDismiss}
         aria-label={isHe ? "הבנתי, אל תזכיר שוב היום" : "Got it, don't remind me today"}
-        className="absolute end-2 top-2 rounded-md p-1 text-foreground/30 transition-colors hover:text-foreground/60"
+        className="absolute end-2 top-2 rounded-md p-1 text-foreground/60 transition-colors hover:text-foreground/90"
       >
         <X className="size-3.5" />
       </button>
       <div className="flex items-start gap-2.5 pe-5">
-        <Icon className={cn("mt-0.5 size-4 shrink-0", critical ? "text-red-400" : "text-amber-500")} />
+        <Icon className={cn("mt-0.5 size-4 shrink-0", critical ? "text-status-red" : "text-status-amber")} />
         <div className="min-w-0 flex-1">
           <p className="text-sm font-bold text-foreground/85">{isHe ? rec.titleHe : rec.titleEn}</p>
           <p className="mt-0.5 text-xs leading-relaxed text-foreground/60">{isHe ? rec.bodyHe : rec.bodyEn}</p>

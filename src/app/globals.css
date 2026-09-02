@@ -130,6 +130,17 @@
   --alert-green: #22C55E;
   --alert-blue: #3B82F6;
 
+  /* Status TEXT — default/fallback only, mirroring `.light`. Same reason the
+     brand tokens are mirrored here: a token declared only inside a theme block
+     resolves to nothing if the pre-paint script in layout.tsx fails to stamp a
+     class, and every status label in the app would render unstyled. */
+  --status-green-text: #047857;
+  --status-amber-text: #9a5b00;
+  --status-red-text: #b91c1c;
+  --status-blue-text: #1d4ed8;
+  --status-purple-text: #7e22ce;
+  --status-teal-text: #0f766e;
+
   /* Status Colors */
   --status-passed: #22C55E;
   --status-failed: #EF4444;
@@ -201,7 +212,12 @@
   --foreground: #18181B;
   --foreground-secondary: #52525B;
   --muted: #F4F4F6;
-  --muted-foreground: #71717A;
+  /* #71717A measured 4.71:1 on the bare canvas — over the line, but only just,
+     and it is almost never on the bare canvas. On bg-foreground/8 it drops to
+     4.02:1 and on /10 to 3.84:1, which is where the chips and the course-code
+     rows actually live. #616169 holds 4.87:1 on the worst surface we put it on
+     and still reads as clearly secondary against #18181B ink. */
+  --muted-foreground: #616169;
   --border: #E8E8EC;
   --border-subtle: #F1F1F4;
   --input: #E4E4E8;
@@ -251,6 +267,23 @@
   --accent-foreground: #18181B;
   --popover: #FFFFFF;
   --popover-foreground: #18181B;
+
+  /* Status text — a fixed shade cannot serve both canvases.
+     Measured, every raw Tailwind shade this app used failed AA in one theme
+     or the other: emerald-400 is 1.89:1 on #FCFCFD, amber-400 is 1.68:1,
+     red-400 is 2.82:1. They were picked in dark mode, where they measure
+     10:1 and look right, and nobody opened the light one. The reverse also
+     bites: amber-700 passes light at 4.91:1 and fails dark at 3.91:1.
+     So status text is a token pair like --accent-brand already is. The
+     -muted/-border values stay raw Tailwind: they are surfaces, not text. */
+  --status-green-text: #047857;  /* 5.35:1 */
+  --status-amber-text: #9a5b00;  /* 5.29:1 */
+  --status-red-text: #b91c1c;    /* 6.31:1 */
+  --status-blue-text: #1d4ed8;   /* 6.54:1 */
+  /* Not statuses — the three components of the final grade (seminars, referat)
+     and the miluim group chips. Same problem, same shape of fix. */
+  --status-purple-text: #7e22ce; /* 6.81:1 */
+  --status-teal-text: #0f766e;   /* 5.34:1 */
 }
 
 /* =========================================
@@ -281,6 +314,14 @@
   --color-accent-foreground: var(--accent-foreground);
   --color-popover: var(--popover);
   --color-popover-foreground: var(--popover-foreground);
+  /* text-status-green / -amber / -red / -blue */
+  --color-status-green: var(--status-green-text);
+  --color-status-amber: var(--status-amber-text);
+  --color-status-red: var(--status-red-text);
+  --color-status-blue: var(--status-blue-text);
+  --color-status-purple: var(--status-purple-text);
+  --color-status-teal: var(--status-teal-text);
+
   --color-crown-gold: var(--crown-gold);
   --color-crown-gold-bright: var(--crown-gold-bright);
   --color-referent-teal: var(--referent-teal);
@@ -707,6 +748,15 @@ h4, h5, h6 {
     radial-gradient(120% 60% at 50% 0%, rgba(120, 118, 200, 0.10) 0%, rgba(120, 118, 200, 0) 60%),
     radial-gradient(120% 70% at 50% 100%, rgba(91, 91, 214, 0.09) 0%, rgba(91, 91, 214, 0) 65%);
 
+  /* Status text — the mirror of the light values. These are the shades the
+     app was already using everywhere; here they are correct (7.4–11.4:1). */
+  --status-green-text: #00d492;  /* 10.13:1 */
+  --status-amber-text: #ffb900;  /* 11.40:1 */
+  --status-red-text: #ff6467;    /*  6.80:1 */
+  --status-blue-text: #51a2ff;   /*  7.45:1 */
+  --status-purple-text: #c27aff; /*  7.04:1 */
+  --status-teal-text: #46ecd5;   /* 13.30:1 */
+
   /* Studio Clarity dark — cool near-black, never flat #000 */
   --background: #0B0B0F;
   --background-secondary: #121217;
@@ -924,4 +974,62 @@ h4, h5, h6 {
 }
 :root:not([data-pk-persona="referent"]) .pk-persona-referent {
   display: none;
+}
+
+/* ── ניגודיות מוגברת (prefers-contrast: more) ─────────────────────────────
+   HIG · Color: "אם אתם מגדירים צבע מותאם, ספקו וריאנט בהיר וכהה — ולכל
+   וריאנט גם אפשרות ניגודיות מוגברת שנותנת הבדל חזותי גבוה משמעותית."
+   HIG · Accessibility: "אם האפליקציה לא מספקת את הניגודיות המינימלית
+   כברירת מחדל, ודאו שלפחות תהיה ערכה בניגודיות גבוהה יותר כשההגדרה
+   Increase Contrast דלוקה."
+
+   ההגדרה הזאת קיימת ב-macOS וב-iOS (נגישות › תצוגה › הגברת ניגודיות)
+   והדפדפן מעביר אותה כ-prefers-contrast. עד עכשיו לא הגבנו לה בכלל.
+
+   הרצפה הרגילה שלנו אחרי התיקון היא /60 = 4.61:1 בבהיר — עוברת AA.
+   כאן היא עולה ל-/75 = 7.71:1, כלומר AAA, והגבולות עולים מקו־שיער
+   שקוף (1.62:1) ל-3.33:1 — הסף שהתקן דורש לגבול שנושא משמעות.
+
+   כל הערכים נמדדו, לא נוחשו. אין כאן טוקן חדש: רק ערכים אחרים
+   לטוקנים הקיימים, כך ששום רכיב לא צריך לדעת שהמצב הזה קיים. */
+@media (prefers-contrast: more) {
+  /* ⚠️ הסלקטור הוא המחלקה, לא ה-attribute. סקריפט האתחול ב-layout.tsx
+     כותב `document.documentElement.className = "… dark"` — הוא לעולם לא
+     מציב `data-theme`. הגרסה הראשונה של הבלוק הזה נכתבה עם
+     `[data-theme="light"]` והייתה קוד מת. `.light`/`.dark` נשמרים ראשונים,
+     וה-attribute נשאר כגיבוי בדיוק כמו בשורה 194. */
+  .light,
+  [data-theme="light"] {
+    --foreground-secondary: #3f3f46;
+    --muted-foreground: #52525b;   /* 4.71:1 → 7.54:1 */
+    --border: #8a8a96;             /* 1.62:1 → 3.33:1 */
+    --border-subtle: #b4b4be;
+    --accent-brand: #4a4abf;       /* 5.24:1 → 6.78:1 */
+    --crown-gold: #8a6416;         /* 3.66:1 → 5.23:1 */
+    --status-green-text: #065f46;  /* 5.35:1 → 7.49:1 */
+    --status-amber-text: #92400e;  /* 5.29:1 → 6.92:1 */
+    --status-red-text: #991b1b;    /* 6.31:1 → 8.10:1 */
+    --status-blue-text: #1e40af;   /* 6.54:1 → 8.51:1 */
+  }
+
+  .dark,
+  [data-theme="dark"] {
+    --foreground-secondary: #d4d4d8;
+    --muted-foreground: #c3c3cb;   /* 5.82:1 → 11.22:1 */
+    --border: rgba(255, 255, 255, 0.34);
+    --border-subtle: rgba(255, 255, 255, 0.2);
+    --accent-brand: #a8a8f2;       /* 6.53:1 → 8.93:1 */
+  }
+
+  /* הטקסט שנשען על שקיפות עולה מדרגה. /60 היא רצפת ה-AA שלנו;
+     כאן היא נעשית /75, שהיא AAA. */
+  .text-foreground\/60 {
+    color: color-mix(in srgb, var(--foreground) 75%, transparent);
+  }
+  .text-foreground\/65 {
+    color: color-mix(in srgb, var(--foreground) 80%, transparent);
+  }
+  .text-foreground\/70 {
+    color: color-mix(in srgb, var(--foreground) 85%, transparent);
+  }
 }

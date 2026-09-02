@@ -474,7 +474,7 @@ export function DashboardContent() {
           <p className="text-sm font-medium text-foreground/70">
             {t("loadingSlowTitle")}
           </p>
-          <p className="text-xs text-foreground/40">
+          <p className="text-xs text-foreground/60">
             {t("loadingSlowDesc")}
           </p>
         </div>
@@ -492,7 +492,7 @@ export function DashboardContent() {
           <button
             type="button"
             onClick={() => setForceDashboard(true)}
-            className="rounded-lg border border-foreground/20 px-5 py-2 text-sm font-medium text-foreground/50 transition-colors hover:bg-foreground/5"
+            className="rounded-lg border border-foreground/20 px-5 py-2 text-sm font-medium text-foreground/70 transition-colors hover:bg-foreground/5"
           >
             {t("continueAnyway")}
           </button>
@@ -506,12 +506,12 @@ export function DashboardContent() {
     return (
       <div className="flex min-h-[60vh] flex-col items-center justify-center gap-4">
         <div className="flex h-16 w-16 items-center justify-center rounded-full bg-red-500/10">
-          <Scale className="h-8 w-8 text-red-400" />
+          <Scale className="h-8 w-8 text-status-red" />
         </div>
         <h2 className="text-xl font-bold text-foreground/80">
           {t("planLoadError")}
         </h2>
-        <p className="max-w-sm text-center text-sm text-foreground/50">
+        <p className="max-w-sm text-center text-sm text-foreground/60">
           {t("planLoadErrorDesc")}
         </p>
         <div className="flex items-center gap-3">
@@ -524,7 +524,7 @@ export function DashboardContent() {
           </button>
           <Link
             href="/planner"
-            className="rounded-lg border border-foreground/20 px-6 py-2.5 text-sm font-medium text-foreground/50 transition-colors hover:bg-foreground/5"
+            className="rounded-lg border border-foreground/20 px-6 py-2.5 text-sm font-medium text-foreground/70 transition-colors hover:bg-foreground/5"
           >
             {t("goToPlanner")}
           </Link>
@@ -576,7 +576,7 @@ export function DashboardContent() {
             <p className="text-sm font-semibold text-foreground/85">
               {isHe ? "חדשים בפכ״מ? יש לנו מדריך שנכתב בדיוק בשבילכם" : "New to PPE? There's a guide written for you"}
             </p>
-            <p className="text-xs text-foreground/55">
+            <p className="text-xs text-foreground/60">
               {isHe
                 ? "כל מה שמבלבל בשנה א׳ — ש״ס, תחום מיקוד, בידינג, אנגלית — מוסבר במקום אחד."
                 : "Everything confusing in year 1 — credits, focus area, bidding, English — explained in one place."}
@@ -593,7 +593,7 @@ export function DashboardContent() {
             type="button"
             onClick={dismissGuideNudge}
             aria-label={isHe ? "סגור" : "Dismiss"}
-            className="shrink-0 rounded-md p-1 text-foreground/30 transition-colors hover:text-foreground/60"
+            className="shrink-0 rounded-md p-1 text-foreground/60 transition-colors hover:text-foreground/90"
           >
             <X className="size-4" />
           </button>
@@ -608,7 +608,7 @@ export function DashboardContent() {
           role="status"
           className="animate-fade-in flex items-center gap-3 rounded-xl border border-emerald-400/30 bg-emerald-400/[0.07] p-4"
         >
-          <span className="flex size-9 shrink-0 items-center justify-center rounded-full bg-emerald-400/15 text-emerald-500">
+          <span className="flex size-9 shrink-0 items-center justify-center rounded-full bg-emerald-400/15 text-status-green">
             <CheckCircle2 className="size-5" />
           </span>
           <div className="min-w-0 flex-1">
@@ -620,7 +620,7 @@ export function DashboardContent() {
                     ? `סגרת ${saveDelta.closedLaneHe} — ${saveDelta.toPct}% מהתואר`
                     : `You closed ${saveDelta.closedLaneEn} — ${saveDelta.toPct}% of the degree`}
                 </p>
-                <p className="mt-0.5 text-xs text-foreground/55">
+                <p className="mt-0.5 text-xs text-foreground/60">
                   {tPlanner("planSavedBannerDesc")}
                 </p>
               </>
@@ -636,7 +636,7 @@ export function DashboardContent() {
                     }
                   />
                 </p>
-                <p className="mt-0.5 text-xs text-foreground/55">
+                <p className="mt-0.5 text-xs text-foreground/60">
                   {isHe ? "ממשיכים לפי התוכנית." : "Keep going per your plan."}
                 </p>
               </>
@@ -645,7 +645,7 @@ export function DashboardContent() {
                 <p className="text-sm font-semibold text-foreground/85">
                   {tPlanner("planSavedBannerTitle")}
                 </p>
-                <p className="mt-0.5 text-xs text-foreground/55">
+                <p className="mt-0.5 text-xs text-foreground/60">
                   {tPlanner("planSavedBannerDesc")}
                 </p>
               </>
@@ -663,7 +663,7 @@ export function DashboardContent() {
               // of students are on their phone at the exact moment a timetable is
               // saved, which is when calendar-sync matters most (#30). Show it on
               // every width.
-              className="inline-flex shrink-0 items-center gap-1.5 rounded-lg bg-emerald-500/10 px-3 py-1.5 text-xs font-semibold text-emerald-500 transition-colors hover:bg-emerald-500/20"
+              className="inline-flex shrink-0 items-center gap-1.5 rounded-lg bg-emerald-500/10 px-3 py-1.5 text-xs font-semibold text-status-green transition-colors hover:bg-emerald-500/20"
             >
               <Calendar className="size-3.5" />
               {isHe ? "המערכת סגורה? סנכרנו ליומן Google" : "Timetable locked? Sync to Google Calendar"}
@@ -673,7 +673,7 @@ export function DashboardContent() {
             type="button"
             onClick={() => setShowSavedBanner(false)}
             aria-label={isHe ? "סגור" : "Close"}
-            className="shrink-0 rounded-md p-1 text-foreground/30 transition-colors hover:text-foreground/60"
+            className="shrink-0 rounded-md p-1 text-foreground/60 transition-colors hover:text-foreground/90"
           >
             <X className="size-4" />
           </button>
@@ -703,7 +703,7 @@ export function DashboardContent() {
           </div>
         </div>
         {profileQuery.data && (
-          <p className="mt-1 text-sm text-foreground/50">
+          <p className="mt-1 text-sm text-foreground/60">
             {/* IDENTITY line = the student's CURRENT standing, shown IDENTICALLY
                 to Settings / regulations / King (audit 22.7 — the header used to
                 show the plan-aware anchor "שנה 3, סמסטר א׳" as an unlabeled
@@ -817,13 +817,13 @@ export function DashboardContent() {
             className="animate-stagger-2 group flex items-center gap-4 rounded-xl border border-foreground/15 bg-foreground/[0.03] p-5 transition-all hover:border-foreground/25 hover:bg-foreground/[0.05]"
           >
             <div className="shrink-0 rounded-lg bg-emerald-500/10 p-2.5">
-              <GraduationCap className="size-5 text-emerald-400" />
+              <GraduationCap className="size-5 text-status-green" />
             </div>
             <div className="min-w-0 flex-1">
               <p className="text-sm font-semibold text-foreground/90">
                 {t("pastCoursesTitle")}
               </p>
-              <p className="mt-0.5 text-xs text-foreground/50">
+              <p className="mt-0.5 text-xs text-foreground/60">
                 {isHe
                   ? pgd(
                       "סמן אותם והזן ציונים כדי לראות את ההתקדמות האמיתית שלך",
@@ -893,7 +893,7 @@ export function DashboardContent() {
             </h2>
             <Link
               href="/exam"
-              className="inline-flex shrink-0 items-center gap-1 text-xs font-medium text-foreground/55 transition-colors hover:text-foreground/80"
+              className="inline-flex shrink-0 items-center gap-1 text-xs font-medium text-foreground/60 transition-colors hover:text-foreground/80"
             >
               {isHe ? "כל הבחינות" : "All exams"}
               <Arrow className="size-3" />

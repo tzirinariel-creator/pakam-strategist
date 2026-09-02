@@ -70,7 +70,7 @@ export function ScanDiagnosticsPanel({ d, isHe }: { d: ScanDiagnostics; isHe: bo
       </p>
 
       {/* The only advice that changes what the reader does. */}
-      <p className="mt-2 text-xs leading-relaxed text-foreground/55">
+      <p className="mt-2 text-xs leading-relaxed text-foreground/60">
         {isHe
           ? semesterText
             ? `אם הקורס שחסר לכם נלמד בסמסטר שלא מופיע למעלה, העמוד הזה של הגיליון לא הגיע אלינו — העלו את ה-PDF המלא במקום צילום של עמוד אחד. אם הסמסטר כן מופיע, סמנו את הקורס ידנית ברשימה למטה.`

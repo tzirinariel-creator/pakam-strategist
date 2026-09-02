@@ -43,12 +43,12 @@ const SEVERITY_STYLE: Record<
   critical: {
     ring: "border-red-400/30 bg-red-400/[0.04]",
     iconWrap: "bg-red-400/10",
-    icon: "text-red-400",
+    icon: "text-status-red",
   },
   warning: {
     ring: "border-amber-400/25 bg-amber-400/[0.03]",
     iconWrap: "bg-amber-400/10",
-    icon: "text-amber-400",
+    icon: "text-status-amber",
   },
   info: {
     ring: "border-foreground/10 bg-foreground/[0.02]",
@@ -58,7 +58,7 @@ const SEVERITY_STYLE: Record<
   success: {
     ring: "border-emerald-400/25 bg-emerald-400/[0.03]",
     iconWrap: "bg-emerald-400/10",
-    icon: "text-emerald-400",
+    icon: "text-status-green",
   },
 };
 
@@ -117,7 +117,7 @@ export function RecommendationsWidget({
                 <p className="text-sm font-semibold text-foreground/85">
                   <Bidi text={isHe ? rec.titleHe : rec.titleEn} />
                 </p>
-                <p className="mt-0.5 text-xs leading-relaxed text-foreground/55">
+                <p className="mt-0.5 text-xs leading-relaxed text-foreground/60">
                   <Bidi text={isHe ? rec.bodyHe : rec.bodyEn} />
                 </p>
                 <span className="mt-1.5 inline-flex items-center gap-1 text-xs font-medium text-foreground/60 transition-colors group-hover:text-foreground/85">

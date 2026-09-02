@@ -458,7 +458,7 @@ export function StepHistory({
               : "Confirm what we read from your sheet"
             : t("historyTitle")}
         </h2>
-        <p className="mt-2 max-w-md text-foreground/50">
+        <p className="mt-2 max-w-md text-foreground/60">
           {sheetSeeded
             ? isHe
               ? "עדיין לא נשמר כלום. מה שתאשרו כאן הוא מה שייכנס לתואר שלכם."
@@ -469,7 +469,7 @@ export function StepHistory({
             we PRE-CHECKED BY ASSUMPTION (past mandatory courses, #18) and have
             to say so. With a sheet we checked exactly what the document shows —
             and nothing beyond it. */}
-        <p className="mx-auto mt-2 max-w-md text-xs text-foreground/40">
+        <p className="mx-auto mt-2 max-w-md text-xs text-foreground/60">
           {sheetSeeded
             ? isHe
               ? "סימנו אך ורק את מה שמופיע בגיליון — לא הוספנו אף קורס מעבר לזה. אם הסורק פספס קורס, הוסיפו אותו למטה; אם סימן קורס שלא עשיתם, הסירו את הסימון."
@@ -482,11 +482,11 @@ export function StepHistory({
 
       <div className="mt-6 w-full max-w-2xl space-y-5">
         {/* Summary chip */}
-        <div className="animate-stagger-2 flex items-center justify-center gap-2 text-xs text-foreground/50">
-          <GraduationCap className="h-4 w-4 text-emerald-500" />
+        <div className="animate-stagger-2 flex items-center justify-center gap-2 text-xs text-foreground/60">
+          <GraduationCap className="h-4 w-4 text-status-green" />
           <span>{t("historySelectedCount", { count: selectedCount })}</span>
           {gradedCount > 0 && (
-            <span className="text-foreground/30">
+            <span className="text-foreground/60">
               · {t("historyGradedCount", { count: gradedCount })}
             </span>
           )}
@@ -504,7 +504,7 @@ export function StepHistory({
                 <p className="text-sm font-semibold text-foreground/85">
                   {isHe ? "יש לכם גיליון ציונים? סרקו אותו" : "Have a grade sheet? Scan it"}
                 </p>
-                <p className="text-xs text-foreground/50">
+                <p className="text-xs text-foreground/60">
                   {isHe
                     ? "נסמן את הקורסים שכבר עשיתם ונמלא ציונים — במקום להקליד ידנית."
                     : "We'll check off the courses you've done and fill in grades — instead of typing."}
@@ -531,7 +531,7 @@ export function StepHistory({
               />
             </div>
             {scanning && (
-              <p className="mt-2 text-xs text-foreground/50" aria-live="polite">
+              <p className="mt-2 text-xs text-foreground/60" aria-live="polite">
                 {scan.hint ?? (isHe ? "לא סוגרים את העמוד." : "Keep this page open.")}
                 {elapsed >= REASSURE_AFTER_S && (
                   <>
@@ -549,7 +549,7 @@ export function StepHistory({
 
         {/* Loading */}
         {isLoadingCourses && (
-          <div className="flex justify-center py-8 text-sm text-foreground/40">
+          <div className="flex justify-center py-8 text-sm text-foreground/60">
             {t("historyLoading")}
           </div>
         )}
@@ -567,7 +567,7 @@ export function StepHistory({
                   {yearLabel(sem.year)} · {semLabel(sem.semester)}
                 </h3>
                 {courses.length === 0 ? (
-                  <p className="text-xs text-foreground/35">
+                  <p className="text-xs text-foreground/60">
                     {t("historyNoMandatory")}
                   </p>
                 ) : (
@@ -627,14 +627,14 @@ export function StepHistory({
                               </span>
                             </div>
                             <div className="flex flex-wrap items-center gap-1.5">
-                              <span className="font-mono text-[10px] text-foreground/40">
+                              <span className="font-mono text-[10px] text-foreground/60">
                                 {course.code}
                               </span>
-                              <span className="font-mono text-[11px] text-foreground/40">
+                              <span className="font-mono text-[11px] text-foreground/60">
                                 · {course.credits} {t("nz")}
                               </span>
                               {isElective && (
-                                <span className="rounded-full bg-foreground/8 px-1.5 py-0.5 text-[11px] font-medium text-foreground/50">
+                                <span className="rounded-full bg-foreground/8 px-1.5 py-0.5 text-[11px] font-medium text-foreground/70">
                                   {t("historyElectiveBadge")}
                                 </span>
                               )}
@@ -650,7 +650,7 @@ export function StepHistory({
                                 </span>
                               )}
                               {isEnglish && (
-                                <span className="inline-flex items-center gap-0.5 rounded-full bg-blue-500/10 px-1.5 py-0.5 text-[11px] font-medium text-blue-500">
+                                <span className="inline-flex items-center gap-0.5 rounded-full bg-blue-500/10 px-1.5 py-0.5 text-[11px] font-medium text-status-blue">
                                   <Languages className="h-2.5 w-2.5" />
                                   {t("historyEnglishBadge")}
                                 </span>
@@ -674,7 +674,7 @@ export function StepHistory({
                                 className={cn(
                                   "w-16 rounded-md border border-border/60 bg-background/50 px-2 py-1.5",
                                   "text-center font-mono text-sm text-foreground",
-                                  "placeholder:text-foreground/25",
+                                  "placeholder:text-foreground/60",
                                   "focus:border-foreground/35 focus:outline-none focus:ring-1 focus:ring-foreground/20"
                                 )}
                               />
@@ -692,7 +692,7 @@ export function StepHistory({
                                 })
                               }
                               aria-label={t("historyRemove")}
-                              className="shrink-0 rounded-md p-1 text-foreground/30 transition-colors hover:bg-red-500/10 hover:text-red-400"
+                              className="shrink-0 rounded-md p-1 text-foreground/60 transition-colors hover:bg-red-500/10 hover:text-status-red"
                             >
                               <X className="h-3.5 w-3.5" />
                             </button>
@@ -713,17 +713,17 @@ export function StepHistory({
               <Plus className="h-4 w-4" />
               {t("historyAddElectiveTitle")}
             </h3>
-            <p className="mb-3 text-xs text-foreground/40">
+            <p className="mb-3 text-xs text-foreground/60">
               {t("historyAddElectiveDesc")}
             </p>
             <div className="relative">
-              <Search className="pointer-events-none absolute inset-y-0 start-3 my-auto h-4 w-4 text-foreground/30" />
+              <Search className="pointer-events-none absolute inset-y-0 start-3 my-auto h-4 w-4 text-foreground/60" />
               <input
                 type="text"
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 placeholder={t("historySearchPlaceholder")}
-                className="w-full rounded-lg border border-border bg-card py-2.5 ps-9 pe-3 text-sm text-foreground placeholder:text-foreground/30 focus:border-foreground/30 focus:outline-none"
+                className="w-full rounded-lg border border-border bg-card py-2.5 ps-9 pe-3 text-sm text-foreground placeholder:text-foreground/60 focus:border-foreground/30 focus:outline-none"
               />
             </div>
             {searchResults.length > 0 && (
@@ -742,7 +742,7 @@ export function StepHistory({
                       onClick={() => addElective(course, defaultElectiveTarget)}
                       className="flex w-full items-center gap-2 rounded-md px-2 py-2 text-start transition-colors hover:bg-foreground/5"
                     >
-                      <Plus className="h-3.5 w-3.5 shrink-0 text-emerald-500" />
+                      <Plus className="h-3.5 w-3.5 shrink-0 text-status-green" />
                       <span className="min-w-0 flex-1 truncate text-sm text-foreground/80">
                         {isHe ? course.nameHe : (course.nameEn ?? course.nameHe)}
                       </span>
@@ -757,11 +757,11 @@ export function StepHistory({
                         </span>
                       )}
                       {isEnglish && (
-                        <span className="shrink-0 rounded-full bg-blue-500/10 px-1.5 py-0.5 text-[11px] font-medium text-blue-500">
+                        <span className="shrink-0 rounded-full bg-blue-500/10 px-1.5 py-0.5 text-[11px] font-medium text-status-blue">
                           {t("historyEnglishBadge")}
                         </span>
                       )}
-                      <span className="shrink-0 font-mono text-[11px] text-foreground/40">
+                      <span className="shrink-0 font-mono text-[11px] text-foreground/60">
                         {course.credits} {t("nz")}
                       </span>
                     </button>
@@ -771,7 +771,7 @@ export function StepHistory({
             )}
             {search.trim().length >= 2 && searchResults.length === 0 && (
               <div className="mt-2 space-y-2">
-                <p className="text-xs text-foreground/35">{t("historyNoResults")}</p>
+                <p className="text-xs text-foreground/60">{t("historyNoResults")}</p>
                 {/* 18:19 (#10 דוגרי) — a course that isn't in the list can still
                     be added: real electives (like דוגרי) live outside the 117
                     PPE catalog. Adds a custom completed course. */}
@@ -808,7 +808,7 @@ export function StepHistory({
                 list, e.g. דוגרי): shown here so they can set a grade / remove. */}
             {Object.values(value).filter((c) => c.customName).length > 0 && (
               <div className="mt-3 space-y-1.5 border-t border-border/40 pt-3">
-                <p className="text-[11px] font-medium text-foreground/45">
+                <p className="text-[11px] font-medium text-foreground/60">
                   {/* #8 — "מי אמר שדוגרי מחוץ לרשימה? זה מאושר לנו". Not being in OUR
                       catalog is not the same as not being approved for your degree,
                       and this label asserted the second while only knowing the
@@ -823,7 +823,7 @@ export function StepHistory({
                       {/* Editable credits — an off-catalog course (e.g. a 4-ש״ס
                           דוגרי) was hard-locked at 2, under-counting total credits,
                           the elective requirement, and its average weight (#18). */}
-                      <span className="shrink-0 text-[11px] text-foreground/40">{t("nz")}</span>
+                      <span className="shrink-0 text-[11px] text-foreground/60">{t("nz")}</span>
                       <input
                         type="number"
                         min={1}
@@ -860,7 +860,7 @@ export function StepHistory({
                           onChange(next);
                         }}
                         aria-label={isHe ? "הסרה" : "Remove"}
-                        className="rounded-md p-1 text-foreground/40 transition-colors hover:bg-foreground/10 hover:text-foreground/70"
+                        className="rounded-md p-1 text-foreground/70 transition-colors hover:bg-foreground/10 hover:text-foreground/70"
                       >
                         <X className="h-3.5 w-3.5" />
                       </button>
@@ -877,7 +877,7 @@ export function StepHistory({
         <button
           type="button"
           onClick={onBack}
-          className="rounded-lg px-4 py-2.5 text-sm text-foreground/50 transition-all hover:bg-foreground/5 hover:text-foreground/70"
+          className="rounded-lg px-4 py-2.5 text-sm text-foreground/70 transition-all hover:bg-foreground/5 hover:text-foreground/70"
         >
           {t("back")}
         </button>

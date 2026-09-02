@@ -123,7 +123,7 @@ export function LineagePact({ className }: { className?: string }) {
         <h2 className="font-display text-xl font-bold text-foreground/85">
           {isHe ? "העסקה, בלי אותיות קטנות" : "The deal, no small print"}
         </h2>
-        <p className="mt-1 text-sm text-foreground/55">
+        <p className="mt-1 text-sm text-foreground/60">
           {isHe
             ? "שיתוף ידע כאן הוא חילופין, לא תרומה לצדקה. זה כל מה שיש בו."
             : "Sharing knowledge here is an exchange, not charity. This is all of it."}
@@ -153,7 +153,7 @@ export function LineagePact({ className }: { className?: string }) {
                   </li>
                 ))}
               </ul>
-              <p className="mt-auto border-t border-border/40 pt-2 text-xs leading-relaxed text-foreground/45">
+              <p className="mt-auto border-t border-border/40 pt-2 text-xs leading-relaxed text-foreground/60">
                 {isHe ? block.footHe : block.footEn}
               </p>
             </div>
@@ -172,7 +172,7 @@ export function LineagePact({ className }: { className?: string }) {
 export function LineagePactStrip({ className }: { className?: string }) {
   const isHe = useLocale() === "he";
   return (
-    <p className={cn("text-xs leading-relaxed text-foreground/50", className)}>
+    <p className={cn("text-xs leading-relaxed text-foreground/60", className)}>
       <Bidi
         text={
           isHe

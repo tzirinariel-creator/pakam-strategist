@@ -35,15 +35,15 @@ import { heNoun } from "@/lib/he-count";
 function groupChip(group: string, isHe: boolean): { label: string; cls: string } {
   const g = MILUIM_CONFIG.GROUPS[group as keyof typeof MILUIM_CONFIG.GROUPS];
   if (!g || group === "NONE") {
-    return { label: isHe ? "ללא" : "None", cls: "bg-foreground/8 text-foreground/50" };
+    return { label: isHe ? "ללא" : "None", cls: "bg-foreground/8 text-foreground/70" };
   }
   const letter = group.replace("GROUP_", "");
   const cls =
     group === "GROUP_C" || group === "GROUP_G"
-      ? "bg-emerald-500/15 text-emerald-600"
+      ? "bg-emerald-500/15 text-status-green"
       : group === "GROUP_B"
-        ? "bg-sky-500/15 text-sky-600"
-        : "bg-foreground/10 text-foreground/60";
+        ? "bg-sky-500/15 text-status-blue"
+        : "bg-foreground/10 text-foreground/70";
   return { label: isHe ? `קבוצה ${letter}` : `Group ${letter}`, cls };
 }
 
@@ -173,16 +173,16 @@ export function MiluimPageContent() {
         {/* ── The service record, semester by semester ── */}
         <div className="data-card p-5">
           <h2 className="flex items-center gap-2 text-sm font-bold text-foreground/80">
-            <CalendarRange className="size-4 text-foreground/50" />
+            <CalendarRange className="size-4 text-foreground/60" />
             {isHe ? "השירות שלכם בתואר, סמסטר-סמסטר" : "Your service during the degree, semester by semester"}
           </h2>
-          <p className="mt-1 text-[11px] leading-relaxed text-foreground/45">
+          <p className="mt-1 text-[11px] leading-relaxed text-foreground/60">
             {isHe
               ? "שורה לכל סמסטר שלמדתם בו — כל שורה היא הקבוצה של אותו סמסטר בלבד. הסכום לכל התואר מופיע בכרטיס שמתחת."
               : "One row per semester you studied in — each row is that semester's group only. The whole-degree totals are in the card below."}
           </p>
           {sortedRows.length === 0 ? (
-            <p className="mt-3 text-xs leading-relaxed text-foreground/50">
+            <p className="mt-3 text-xs leading-relaxed text-foreground/60">
               {isHe
                 ? "עוד אין סמסטרים רשומים. הדרך הקלה: העלו טופס 3010 למטה — נחלק את הימים לסמסטרים בשבילכם."
                 : "No semesters recorded yet. Easiest path: upload Form 3010 below — we'll split the days into semesters for you."}
@@ -191,7 +191,7 @@ export function MiluimPageContent() {
             <div className="mt-3 overflow-x-auto">
               <table className="w-full text-xs">
                 <thead>
-                  <tr className="text-start text-[11px] text-foreground/40">
+                  <tr className="text-start text-[11px] text-foreground/60">
                     <th className="pb-2 pe-3 text-start font-medium">{isHe ? "סמסטר" : "Semester"}</th>
                     <th className="pb-2 pe-3 text-start font-medium">{isHe ? "ימי שירות" : "Days"}</th>
                     <th className="pb-2 pe-3 text-start font-medium">{isHe ? "לחימה" : "Combat"}</th>
@@ -244,7 +244,7 @@ export function MiluimPageContent() {
                                 },
                               );
                             }}
-                            className="rounded-md p-1 text-foreground/30 transition-colors hover:bg-red-500/10 hover:text-red-500 disabled:opacity-40"
+                            className="rounded-md p-1 text-foreground/60 transition-colors hover:bg-red-500/10 hover:text-status-red disabled:opacity-40"
                           >
                             <Trash2 className="size-3.5" />
                           </button>
@@ -259,7 +259,7 @@ export function MiluimPageContent() {
           {/* Any-semester add form — the editor below writes only the CURRENT
               semester; here you can record ANY past semester (verify 14.7). */}
           <div className="mt-3 flex flex-wrap items-end gap-2 rounded-lg border border-border/40 bg-foreground/[0.02] p-2.5">
-            <label className="flex flex-col gap-1 text-[10px] text-foreground/45">
+            <label className="flex flex-col gap-1 text-[10px] text-foreground/60">
               {isHe ? "שנה" : "Year"}
               <select
                 value={addYear}
@@ -271,7 +271,7 @@ export function MiluimPageContent() {
                 ))}
               </select>
             </label>
-            <label className="flex flex-col gap-1 text-[10px] text-foreground/45">
+            <label className="flex flex-col gap-1 text-[10px] text-foreground/60">
               {isHe ? "סמסטר" : "Semester"}
               <select
                 value={addSemester}
@@ -282,7 +282,7 @@ export function MiluimPageContent() {
                 <option value="SPRING">{isHe ? "ב׳" : "Spring"}</option>
               </select>
             </label>
-            <label className="flex flex-col gap-1 text-[10px] text-foreground/45">
+            <label className="flex flex-col gap-1 text-[10px] text-foreground/60">
               {isHe ? "ימי שירות" : "Days"}
               <input
                 type="number"
@@ -294,7 +294,7 @@ export function MiluimPageContent() {
                 className="w-20 rounded-md border border-border/60 bg-card px-2 py-1.5 text-center font-mono text-xs tabular-nums text-foreground/80 focus:outline-none"
               />
             </label>
-            <label className="flex items-center gap-1.5 pb-1.5 text-[11px] text-foreground/55">
+            <label className="flex items-center gap-1.5 pb-1.5 text-[11px] text-foreground/60">
               <input
                 type="checkbox"
                 checked={addCombat}
@@ -313,7 +313,7 @@ export function MiluimPageContent() {
               {isHe ? "הוסיפו סמסטר" : "Add semester"}
             </button>
           </div>
-          <p className="mt-2 text-[11px] leading-relaxed text-foreground/40">
+          <p className="mt-2 text-[11px] leading-relaxed text-foreground/60">
             {isHe
               ? "הקבוצה נקבעת מחדש בכל סמסטר לפי הימים של אותו סמסטר — מוסיפים כאן ידנית או דרך טופס 3010 למטה, ומוחקים שורה בלחיצה (עם ביטול)."
               : "The group is re-assigned each semester from that semester's days — add here or via Form 3010 below; delete a row in one tap (with undo)."}
@@ -325,7 +325,7 @@ export function MiluimPageContent() {
               of the degree. */}
           {preDegreeRows.length > 0 && (
             <details className="mt-3 rounded-lg border border-amber-500/25 bg-amber-500/5 p-2.5">
-              <summary className="cursor-pointer text-[11px] font-medium text-amber-600">
+              <summary className="cursor-pointer text-[11px] font-medium text-status-amber">
                 <Bidi
                   text={
                     isHe
@@ -374,7 +374,7 @@ export function MiluimPageContent() {
                           },
                         )
                       }
-                      className="rounded-md p-1 text-foreground/30 transition-colors hover:bg-red-500/10 hover:text-red-500 disabled:opacity-40"
+                      className="rounded-md p-1 text-foreground/60 transition-colors hover:bg-red-500/10 hover:text-status-red disabled:opacity-40"
                       aria-label={
                         isHe
                           ? `מחקו את ${hebrewYearLabel(r.academicYear)} ${r.semester === "FALL" ? "א׳" : "ב׳"}`
@@ -386,7 +386,7 @@ export function MiluimPageContent() {
                   </li>
                 ))}
               </ul>
-              <p className="mt-1.5 text-[10px] leading-relaxed text-foreground/45">
+              <p className="mt-1.5 text-[10px] leading-relaxed text-foreground/60">
                 {isHe
                   ? `טופס 3010 מפרט את כל שירות המילואים שלכם, גם מלפני התואר. לפי ההגדרות התואר שלכם התחיל ב${startYear != null ? hebrewYearLabel(startYear) : ""}, וההטבות חלות רק על סמסטרים שלמדתם בהם — ולכן השורות האלה לא נספרות. אפשר למחוק אותן; ואם שנת הפתיחה שגויה, תקנו אותה בהגדרות.`
                   : "A Form 3010 lists your entire reserve service, including service from before the degree. Benefits only apply to semesters you studied in, so these rows aren't counted. You can delete them — and if your degree start year is wrong, fix it in settings."}
@@ -398,10 +398,10 @@ export function MiluimPageContent() {
         {/* ── Auto-derived entitlements (#18) ── */}
         <div className="data-card p-5">
           <h2 className="flex items-center gap-2 text-sm font-bold text-foreground/80">
-            <BadgeCheck className="size-4 text-foreground/50" />
+            <BadgeCheck className="size-4 text-foreground/60" />
             {isHe ? "מה מגיע לכם בכל התואר — מחושב לבד" : "Your whole-degree entitlements — computed automatically"}
           </h2>
-          <p className="mt-1 text-[11px] leading-relaxed text-foreground/45">
+          <p className="mt-1 text-[11px] leading-relaxed text-foreground/60">
             {isHe
               ? "המספרים כאן מצטברים על פני כל התואר (ולא לסמסטר הנוכחי), ומחושבים מהסמסטרים שרשומים למעלה."
               : "These numbers are cumulative across the whole degree (not this semester), derived from the semesters listed above."}
@@ -428,7 +428,7 @@ export function MiluimPageContent() {
                   }
                 />
               </p>
-              <p className="text-[11px] text-foreground/45">
+              <p className="text-[11px] text-foreground/60">
                 <Bidi
                   text={
                     isHe
@@ -444,7 +444,7 @@ export function MiluimPageContent() {
                 />
               </p>
               {entitlement.perYear.length > 0 && (
-                <ul className="mt-1.5 space-y-0.5 text-[11px] text-foreground/50">
+                <ul className="mt-1.5 space-y-0.5 text-[11px] text-foreground/60">
                   {entitlement.perYear.map((y) => (
                     <li key={y.academicYear}>
                       {/* The "→" between "C" and the number is a neutral the
@@ -461,7 +461,7 @@ export function MiluimPageContent() {
                   ))}
                 </ul>
               )}
-              <p className="mt-1.5 text-[11px] leading-relaxed text-foreground/45">
+              <p className="mt-1.5 text-[11px] leading-relaxed text-foreground/60">
                 {isHe
                   ? "הזכאות נצברת לפי שנה (לא לפי סמסטר) עד תקרת-התואר. את המימוש עצמו מגישים במדור מילואים, ומעדכנים את המספר בעורך שלמטה."
                   : "The entitlement accrues per YEAR (not per semester) up to the degree cap. Redemption itself is filed at the miluim desk; update the number in the editor below."}
@@ -475,7 +475,7 @@ export function MiluimPageContent() {
                   CREDITS (עד 6 ש״ס per the מתווה); no benefit → say so
                   honestly instead of a fake /5 (verify 14.7). */}
               {binaryBenefit == null ? (
-                <p className="mt-1.5 text-[11px] leading-relaxed text-foreground/45">
+                <p className="mt-1.5 text-[11px] leading-relaxed text-foreground/60">
                   {isHe
                     ? "לקבוצה הנוכחית שלכם המתווה לא מעניק המרות בינארי. אם הקבוצה תשתנה — הזכאות תתעדכן כאן לבד."
                     : "Your current group doesn't grant binary conversions under the outline. If your group changes, this updates automatically."}
@@ -484,9 +484,9 @@ export function MiluimPageContent() {
                 <>
                   <p className="mt-1 text-xl font-bold text-foreground/85">
                     <bdi dir="ltr" className="font-mono">{binaryCreditsUsed}/{binaryBenefit.degreeCap}</bdi>{" "}
-                    <span className="text-xs font-normal text-foreground/45">{isHe ? "ש״ס בתואר" : "credits across the degree"}</span>
+                    <span className="text-xs font-normal text-foreground/60">{isHe ? "ש״ס בתואר" : "credits across the degree"}</span>
                   </p>
-                  <p className="mt-1.5 text-[11px] leading-relaxed text-foreground/45">
+                  <p className="mt-1.5 text-[11px] leading-relaxed text-foreground/60">
                     {isHe ? (
                       <>
                         קבוצה G: המתווה מעניק המרה של עד {binaryBenefit.degreeCap} ש״ס לעובר/לא־עובר. נסכם מהקורסים שסימנתם כבינארי בתיק
@@ -511,7 +511,7 @@ export function MiluimPageContent() {
                         the regulations screen carries the honest over-cap WARNING. */}
                     <bdi dir="ltr">{Math.min(binaryTotal, binaryBenefit.degreeCap)}/{binaryBenefit.degreeCap}</bdi>
                   </p>
-                  <p className="mt-1.5 text-[11px] leading-relaxed text-foreground/45">
+                  <p className="mt-1.5 text-[11px] leading-relaxed text-foreground/60">
                     {isHe ? (
                       <>
                         נספר אוטומטית מהקורסים שסימנתם כבינארי בתיק האקדמי ({heNoun(binaryFromPlan, "קורס", "קורסים")})
@@ -540,7 +540,7 @@ export function MiluimPageContent() {
 
         {/* ── Alternative assessment pointer (#34) ── */}
         <div className="data-card flex flex-wrap items-center gap-3 p-4">
-          <CalendarClock className="size-5 shrink-0 text-foreground/50" />
+          <CalendarClock className="size-5 shrink-0 text-foreground/60" />
           <p className="min-w-0 flex-1 basis-48 text-xs leading-relaxed text-foreground/60">
             {isHe
               ? "יש לכם קורס עם הערכה חלופית במקום מבחן (לפי מתווה תשפ״ו)? בתכנון-המבחנים אפשר לסמן את זה — והקורס יֵצא מציר-המבחנים ויקבל שורת-הגשה משלו."
@@ -557,7 +557,7 @@ export function MiluimPageContent() {
         {/* ── The full editor (relocated from settings): group, days, 3010, playbook ── */}
         <MiluimSection />
 
-        <div className="flex items-center gap-2 text-[11px] text-foreground/40">
+        <div className="flex items-center gap-2 text-[11px] text-foreground/60">
           <ScaleIcon className="size-3.5" />
           {isHe
             ? "הכללים לפי מתווה תשפ״ו והתקנון — במקרה של ספק, מדור מילואים ודיקנט הסטודנטים הם הסמכות."

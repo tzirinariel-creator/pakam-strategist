@@ -385,7 +385,7 @@ export function AnchoredTour({
         type="button"
         onClick={close}
         aria-label={isHe ? "דלגו" : "Skip"}
-        className="absolute end-2 top-2 rounded-md p-1 text-foreground/40 transition-colors hover:bg-foreground/5 hover:text-foreground/70"
+        className="absolute end-2 top-2 rounded-md p-1 text-foreground/70 transition-colors hover:bg-foreground/5 hover:text-foreground/70"
       >
         <X className="size-4" />
       </button>
@@ -399,7 +399,7 @@ export function AnchoredTour({
         <button
           type="button"
           onClick={back}
-          className={cn("flex items-center gap-1 rounded-lg px-2.5 py-1.5 text-sm text-foreground/55 hover:bg-foreground/5", step === 0 && "pointer-events-none opacity-0")}
+          className={cn("flex items-center gap-1 rounded-lg px-2.5 py-1.5 text-sm text-foreground/70 hover:bg-foreground/5", step === 0 && "pointer-events-none opacity-0")}
         >
           <BackChevron className="size-4" />
           {isHe ? "חזרה" : "Back"}
@@ -457,7 +457,7 @@ export function TourReopenButton({ onClick }: { onClick: () => void }) {
       type="button"
       onClick={onClick}
       aria-label={t("reopenAria")}
-      className="inline-flex items-center gap-1.5 rounded-lg border border-border/60 bg-card/40 px-2.5 py-1.5 text-xs font-medium text-foreground/55 transition-colors hover:border-foreground/25 hover:bg-foreground/5 hover:text-foreground/80"
+      className="inline-flex items-center gap-1.5 rounded-lg border border-border/60 bg-card/40 px-2.5 py-1.5 text-xs font-medium text-foreground/70 transition-colors hover:border-foreground/25 hover:bg-foreground/5 hover:text-foreground/80"
     >
       <span
         aria-hidden

@@ -76,7 +76,7 @@ export function AccountSection() {
             change theirs (launch audit 24.7 — the flow used to dead-end here). */}
         <SetPasswordBlock />
 
-        <p className="mt-2 text-sm text-foreground/50">{t("dangerZone")}</p>
+        <p className="mt-2 text-sm text-foreground/60">{t("dangerZone")}</p>
         <div className="flex flex-wrap gap-2">
           {isTestUser && (
             <Button
@@ -136,7 +136,7 @@ function SetPasswordBlock() {
           {isHe ? "סיסמה" : "Password"}
         </p>
       </div>
-      <p className="mt-1 text-xs leading-relaxed text-foreground/55">
+      <p className="mt-1 text-xs leading-relaxed text-foreground/60">
         {isHe
           ? "כאן קובעים סיסמה חדשה — גם אם הגעתם מקישור ״שכחתי סיסמה״. לפחות 8 תווים."
           : "Set a new password here — including after a “forgot password” link. At least 8 characters."}
@@ -169,7 +169,7 @@ function SetPasswordBlock() {
         </Button>
       </div>
       {(tooShort || mismatch) && (
-        <p className="mt-1.5 text-xs text-red-500">
+        <p className="mt-1.5 text-xs text-status-red">
           {tooShort
             ? (isHe ? "הסיסמה קצרה מדי (לפחות 8 תווים)." : "Too short (at least 8 characters).")
             : (isHe ? "הסיסמאות אינן תואמות." : "Passwords don't match.")}
@@ -195,7 +195,7 @@ function DeleteAccountBlock({ onDone }: { onDone: () => void }) {
       <p className="text-sm font-semibold text-destructive">
         {isHe ? "מחיקת החשבון לצמיתות" : "Delete account permanently"}
       </p>
-      <p className="mt-1 text-xs leading-relaxed text-foreground/55">
+      <p className="mt-1 text-xs leading-relaxed text-foreground/60">
         {isHe
           ? "מוחק הכול: תוכנית, ציונים, משימות, שיחות עם היועץ, נתוני מילואים — וגם את התרומות האנונימיות שלכם לחוכמת-המחזור. אין דרך חזרה."
           : "Deletes everything: plan, grades, tasks, advisor chats, miluim data — and your anonymous cohort contributions. There is no way back."}

@@ -67,7 +67,7 @@ export function CohortCourseChip({
     return (
       <span
         className={cn(
-          "inline-flex items-center gap-1 rounded-full bg-accent-brand/10 px-1.5 py-0.5 text-[10px] font-medium text-accent-brand",
+          "inline-flex items-center gap-1 rounded-full bg-accent-brand/6 px-1.5 py-0.5 text-[10px] font-medium text-accent-brand",
           className,
         )}
         title={isHe ? "לפי הסטודנטים באפליקציה" : "From students in the app"}
@@ -99,7 +99,7 @@ export function CohortCourseChip({
     return (
       <span
         className={cn(
-          "inline-flex items-center gap-1 rounded-full bg-accent-brand/10 px-1.5 py-0.5 text-[10px] font-medium text-accent-brand",
+          "inline-flex items-center gap-1 rounded-full bg-accent-brand/6 px-1.5 py-0.5 text-[10px] font-medium text-accent-brand",
           className,
         )}
         title={isHe ? "עוד קצת ונפתח לכולם" : "Almost enough to unlock"}

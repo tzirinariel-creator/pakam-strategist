@@ -64,7 +64,7 @@ export function ThemedLoader({
         </div>
       </div>
       <div className="flex flex-col items-center gap-1">
-        <p className="text-sm text-foreground/55">
+        <p className="text-sm text-foreground/60">
           {label ?? (
             <PersonaSwap
               king={isHe ? "המלך מסדר לכם את הנתונים…" : "The King is arranging your data…"}
@@ -72,7 +72,7 @@ export function ThemedLoader({
             />
           )}
         </p>
-        {sublabel && <p className="text-xs text-foreground/40">{sublabel}</p>}
+        {sublabel && <p className="text-xs text-foreground/60">{sublabel}</p>}
       </div>
     </div>
   );

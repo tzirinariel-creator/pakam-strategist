@@ -57,7 +57,7 @@ export function PersonaPicker({
     <div className="space-y-3">
       {/* Origin story (settings only) — who the King is and why he fits. */}
       {!compact && (
-        <p className="text-xs leading-relaxed text-foreground/55">
+        <p className="text-xs leading-relaxed text-foreground/60">
           {isHe
             ? "המלך הפילוסוף הוא הרעיון של אפלטון ב״פוליטיאה״: מי שמנהיג צריך להוביל לפי ידע, לא לפי ניחוש. בדיוק מה שיועץ־תואר אמור לעשות — ולכן בחרנו בו. שתי הדמויות עונות מאותם נתונים ולפי אותם כללים; ההבדל הוא רק בקול."
             : "The Philosopher King is Plato's idea in the Republic: whoever leads should lead by knowledge, not guesswork — exactly what a degree advisor should do. Both personas answer from the same data under the same rules; only the voice differs."}
@@ -98,13 +98,13 @@ export function PersonaPicker({
                 <div className="flex min-w-0 flex-1 flex-wrap items-center gap-x-2 gap-y-1">
                   <span className="min-w-0 text-sm font-bold text-foreground/85">{name}</span>
                   {tag && (
-                    <span className="ms-auto shrink-0 whitespace-nowrap rounded-full bg-foreground/[0.06] px-2 py-0.5 text-[10px] text-foreground/50">
+                    <span className="ms-auto shrink-0 whitespace-nowrap rounded-full bg-foreground/[0.06] px-2 py-0.5 text-[10px] text-foreground/60">
                       {tag}
                     </span>
                   )}
                 </div>
               </div>
-              <p className="text-xs leading-relaxed text-foreground/55">{desc}</p>
+              <p className="text-xs leading-relaxed text-foreground/60">{desc}</p>
             </button>
           );
         })}

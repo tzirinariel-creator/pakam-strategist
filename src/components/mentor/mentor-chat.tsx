@@ -450,7 +450,7 @@ export function MentorChat() {
                     <p className="truncate text-sm">
                       {session.title ?? t("newChat")}
                     </p>
-                    <p className="text-xs text-muted-foreground/70">
+                    <p className="text-xs text-muted-foreground">
                       {t("messageCount", { count: session.messageCount })}
                     </p>
                   </div>
@@ -504,7 +504,7 @@ export function MentorChat() {
               /* Empty state — clean welcome */
               <div className="flex flex-col items-center justify-center py-20">
                 <div className="mb-5 flex h-14 w-14 items-center justify-center rounded-2xl bg-muted">
-                  <PersonaIcon className="h-7 w-7 text-foreground/50" />
+                  <PersonaIcon className="h-7 w-7 text-foreground/60" />
                 </div>
                 <h3 className="mb-1.5 font-display text-lg font-bold">{personaTitle}</h3>
                 <p className="mb-6 max-w-sm text-center text-sm text-muted-foreground leading-relaxed">
@@ -584,7 +584,7 @@ export function MentorChat() {
                 rows={1}
                 className={cn(
                   "w-full resize-none rounded-xl border border-border bg-muted/50 px-4 py-3 text-sm outline-none transition-colors",
-                  "placeholder:text-muted-foreground/50",
+                  "placeholder:text-muted-foreground",
                   "focus:border-foreground/20 focus:bg-background",
                   "disabled:opacity-50"
                 )}

@@ -28,10 +28,10 @@ import type { Course } from "@/types/degree";
 import type { Discipline } from "@/types/enums";
 
 const DIFFICULTY_META: Record<string, { he: string; en: string; cls: string }> = {
-  easy: { he: "קל", en: "Easy", cls: "text-emerald-500" },
+  easy: { he: "קל", en: "Easy", cls: "text-status-green" },
   moderate: { he: "בינוני", en: "Moderate", cls: "text-foreground/60" },
-  hard: { he: "קשה", en: "Hard", cls: "text-amber-500" },
-  very_hard: { he: "קשה מאוד", en: "Very hard", cls: "text-red-500" },
+  hard: { he: "קשה", en: "Hard", cls: "text-status-amber" },
+  very_hard: { he: "קשה מאוד", en: "Very hard", cls: "text-status-red" },
 };
 
 function formatGradeYear(raw: string | null, isHe: boolean): string | null {
@@ -86,7 +86,7 @@ export function CourseDetailModal({
             <span className="mt-1 size-2.5 shrink-0 rounded-full" style={{ backgroundColor: courseColor(course.code) }} />
             <div className="min-w-0">
               <DialogTitle className="text-start text-base font-bold leading-snug">{name}</DialogTitle>
-              <div className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-0.5 text-xs text-foreground/50">
+              <div className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-0.5 text-xs text-foreground/60">
                 <Bidi text={course.code} />
                 <span>·</span>
                 <span>{course.credits} {isHe ? "ש״ס" : "cr."}</span>
@@ -117,19 +117,19 @@ export function CourseDetailModal({
                 )}
                 {diff && (
                   <div className="flex flex-col">
-                    <span className="text-[10px] text-foreground/40">{isHe ? "קושי (הערכה)" : "Difficulty (est.)"}</span>
+                    <span className="text-[10px] text-foreground/60">{isHe ? "קושי (הערכה)" : "Difficulty (est.)"}</span>
                     <span className={cn("font-bold", diff.cls)}>{isHe ? diff.he : diff.en}</span>
                   </div>
                 )}
               </div>
-              <p className="mt-2 text-[11px] leading-relaxed text-foreground/45">
+              <p className="mt-2 text-[11px] leading-relaxed text-foreground/60">
                 {isHe
                   ? `הנתונים מפרויקט ארזים — סטטיסטיקות ציונים אמיתיות של סטודנטים משנים קודמות${fromYear ? ` (${fromYear})` : ""}. רמת הקושי מחושבת מהממוצע, החציון ואחוז-הנכשלים. לא נתון רשמי של האוניברסיטה.`
                   : `Data from the Arazim project — real student grade statistics from past years${fromYear ? ` (${fromYear})` : ""}. Difficulty is derived from the average, median and fail-rate. Not an official university figure.`}
               </p>
             </div>
           ) : (
-            <p className="rounded-xl border border-dashed border-border/50 bg-foreground/[0.02] p-3 text-xs text-foreground/45">
+            <p className="rounded-xl border border-dashed border-border/50 bg-foreground/[0.02] p-3 text-xs text-foreground/60">
               {isHe ? "אין נתוני ציונים היסטוריים לקורס הזה (שכיח בקורסי משפט וסמינרים)." : "No historical grade data for this course (common for Law courses and seminars)."}
             </p>
           )}
@@ -161,7 +161,7 @@ export function CourseDetailModal({
               Grouped by type, then by group, with the choice stated. */}
           {scheduleOutline.length > 0 && (
             <div>
-              <div className="mb-1.5 text-[10px] font-medium uppercase tracking-wider text-foreground/40">{isHe ? "מערכת שעות" : "Schedule"}</div>
+              <div className="mb-1.5 text-[10px] font-medium uppercase tracking-wider text-foreground/60">{isHe ? "מערכת שעות" : "Schedule"}</div>
               <div className="flex flex-col gap-2.5">
                 {scheduleOutline.map((section) => (
                   <div key={section.sessionType}>
@@ -170,7 +170,7 @@ export function CourseDetailModal({
                         {sessionTypeNameFor(section.sessionType, isHe)}
                       </span>
                       {isChoice(section) && (
-                        <span className="text-[10px] text-foreground/40">
+                        <span className="text-[10px] text-foreground/60">
                           {isHe
                             ? `${heNoun(section.groups.length, "קבוצה", "קבוצות")} — בוחרים אחת`
                             : `${section.groups.length} groups — pick one`}
@@ -183,9 +183,9 @@ export function CourseDetailModal({
                           key={g.groupCode ?? gi}
                           className="flex flex-wrap items-center gap-x-2 gap-y-0.5 text-xs text-foreground/60"
                         >
-                          <Clock className="size-3 shrink-0 text-foreground/30" />
+                          <Clock className="size-3 shrink-0 text-foreground/60" />
                           {g.groupCode && (
-                            <span className="shrink-0 rounded bg-foreground/[0.06] px-1.5 py-px text-[10px] font-medium text-foreground/55">
+                            <span className="shrink-0 rounded bg-foreground/[0.06] px-1.5 py-px text-[10px] font-medium text-foreground/60">
                               <Bidi text={isHe ? `קבוצה ${g.groupCode}` : `Group ${g.groupCode}`} />
                             </span>
                           )}
@@ -207,17 +207,17 @@ export function CourseDetailModal({
           {/* Exam dates */}
           {(course.examDateA || course.examDateB) && (
             <div>
-              <div className="mb-1.5 text-[10px] font-medium uppercase tracking-wider text-foreground/40">{isHe ? "מועדי בחינה" : "Exam dates"}</div>
+              <div className="mb-1.5 text-[10px] font-medium uppercase tracking-wider text-foreground/60">{isHe ? "מועדי בחינה" : "Exam dates"}</div>
               <div className="flex gap-4 text-xs text-foreground/60">
                 {course.examDateA && (
                   <span className="flex items-center gap-1.5">
-                    <Calendar className="size-3 text-red-400/60" />
+                    <Calendar className="size-3 text-status-red/60" />
                     {isHe ? "מועד א׳:" : "A:"} <span className="font-mono text-[10px]" dir="ltr">{new Date(course.examDateA).toLocaleDateString(isHe ? "he-IL" : "en-GB", { day: "2-digit", month: "2-digit", timeZone: "UTC" })}</span>
                   </span>
                 )}
                 {course.examDateB && (
                   <span className="flex items-center gap-1.5">
-                    <Calendar className="size-3 text-amber-400/60" />
+                    <Calendar className="size-3 text-status-amber/60" />
                     {isHe ? "מועד ב׳:" : "B:"} <span className="font-mono text-[10px]" dir="ltr">{new Date(course.examDateB).toLocaleDateString(isHe ? "he-IL" : "en-GB", { day: "2-digit", month: "2-digit", timeZone: "UTC" })}</span>
                   </span>
                 )}
@@ -228,7 +228,7 @@ export function CourseDetailModal({
           {/* Prerequisites — as NAMES, clickable to jump to that course */}
           {course.prerequisites.length > 0 && (
             <div>
-              <div className="mb-1.5 text-[10px] font-medium uppercase tracking-wider text-foreground/40">{isHe ? "דרישות קדם" : "Prerequisites"}</div>
+              <div className="mb-1.5 text-[10px] font-medium uppercase tracking-wider text-foreground/60">{isHe ? "דרישות קדם" : "Prerequisites"}</div>
               <div className="flex flex-wrap gap-1.5">
                 {course.prerequisites.map((code) => {
                   const pre = byCode(code);
@@ -239,11 +239,11 @@ export function CourseDetailModal({
                       onClick={() => onOpenCourse(pre)}
                       className="inline-flex items-center gap-1 rounded-lg border border-border/60 bg-foreground/[0.02] px-2 py-1 text-xs text-foreground/75 transition-colors hover:border-accent-brand/40 hover:text-foreground/90"
                     >
-                      <ArrowLeftRight className="size-3 text-foreground/35" />
+                      <ArrowLeftRight className="size-3 text-foreground/60" />
                       {isHe ? pre.nameHe : (pre.nameEn ?? pre.nameHe)}
                     </button>
                   ) : (
-                    <span key={code} className="rounded-lg bg-foreground/5 px-2 py-1 font-mono text-[10px] text-foreground/50">
+                    <span key={code} className="rounded-lg bg-foreground/5 px-2 py-1 font-mono text-[10px] text-foreground/70">
                       <Bidi text={code} />
                     </span>
                   );
@@ -258,7 +258,7 @@ export function CourseDetailModal({
             promptEn={`Tell me about "${course.nameEn ?? course.nameHe}" (${course.code}) — how hard is it, and how does it fit my degree?`}
             labelHe="שאל את {advisor} על הקורס הזה"
             labelEn="Ask {advisor} about this course"
-            className="inline-flex w-fit items-center gap-1.5 rounded-lg bg-accent-brand/10 px-2.5 py-1.5 text-xs font-medium text-accent-brand transition-colors hover:bg-accent-brand/20"
+            className="inline-flex w-fit items-center gap-1.5 rounded-lg bg-accent-brand/6 px-2.5 py-1.5 text-xs font-medium text-accent-brand transition-colors hover:bg-accent-brand/20"
             iconClassName="size-3.5"
           />
         </div>
@@ -276,9 +276,9 @@ export function CourseDetailModal({
 // that actually reaches other students, and the one that does harm. Same enum,
 // same colour, wording that matches what a person can do about it.
 const VERDICT_META: Record<string, { he: string; heRequired?: string; en: string; enRequired?: string; cls: string }> = {
-  RECOMMEND: { he: "שווה", en: "Worth it", cls: "bg-emerald-500/15 text-emerald-600 dark:text-emerald-400" },
+  RECOMMEND: { he: "שווה", en: "Worth it", cls: "bg-emerald-500/15 text-status-green" },
   NEUTRAL: { he: "ניטרלי", en: "Neutral", cls: "bg-foreground/10 text-foreground/70" },
-  AVOID: { he: "הייתי מדלג", heRequired: "לא נתן לי הרבה", en: "Would skip", enRequired: "Gave me little", cls: "bg-red-500/15 text-red-600 dark:text-red-400" },
+  AVOID: { he: "הייתי מדלג", heRequired: "לא נתן לי הרבה", en: "Would skip", enRequired: "Gave me little", cls: "bg-red-500/15 text-status-red" },
 };
 
 /** The label to print for a stored verdict, given whether the course is required. */
@@ -363,7 +363,7 @@ function CommunityKnowledge({
         <span className="text-[10px] font-bold uppercase tracking-wider text-accent-brand">
           {isHe ? "מפכמון" : "From Pakamon"}
         </span>
-        <span className="text-[10px] text-foreground/40">
+        <span className="text-[10px] text-foreground/60">
           {isHe ? "· לא ממוצע של המחזור" : "· not a cohort average"}
         </span>
       </div>
@@ -386,10 +386,10 @@ function CommunityKnowledge({
   if (errored || !hasAnything) {
     return (
       <div className="rounded-xl border border-dashed border-border/50 bg-foreground/[0.02] p-3">
-        <div className="mb-1 text-[10px] font-medium uppercase tracking-wider text-foreground/40">
+        <div className="mb-1 text-[10px] font-medium uppercase tracking-wider text-foreground/60">
           {isHe ? "מהסטודנטים באפליקציה" : "From students in the app"}
         </div>
-        <p className="text-xs leading-relaxed text-foreground/55">
+        <p className="text-xs leading-relaxed text-foreground/60">
           {isHe
             ? "עדיין אין מידע קהילתי לקורס הזה. למדתם אותו? היו הראשונים לעזור למחזור הבא."
             : "No community info for this course yet. Took it? Be the first to help the next cohort."}
@@ -397,7 +397,7 @@ function CommunityKnowledge({
         <button
           type="button"
           onClick={onContribute}
-          className="mt-2 inline-flex min-h-[36px] items-center gap-1.5 rounded-lg bg-accent-brand/10 px-2.5 py-1.5 text-xs font-medium text-accent-brand transition-colors hover:bg-accent-brand/20"
+          className="mt-2 inline-flex min-h-[36px] items-center gap-1.5 rounded-lg bg-accent-brand/6 px-2.5 py-1.5 text-xs font-medium text-accent-brand transition-colors hover:bg-accent-brand/20"
         >
           <MessageSquarePlus className="size-3.5" />
           {isHe ? "דרגו את הקורס" : "Rate this course"}
@@ -421,7 +421,7 @@ function CommunityKnowledge({
           {communityN > 0 && (
             <>
               {" "}
-              <span className="text-foreground/40">
+              <span className="text-foreground/60">
                 (N=<Bidi text={String(communityN)} />)
               </span>
             </>
@@ -452,7 +452,7 @@ function CommunityKnowledge({
           )}
         </div>
       ) : (
-        <div className="flex flex-wrap items-center gap-2 text-xs text-foreground/55">
+        <div className="flex flex-wrap items-center gap-2 text-xs text-foreground/60">
           <span>{isHe ? "עדיין אין מספיק דירוגים — היו הראשונים." : "Not enough ratings yet — be the first."}</span>
           <button
             type="button"
@@ -478,19 +478,19 @@ function CommunityKnowledge({
                 <> · {isHe ? "טווח" : "range"} <Bidi text={`${grade.p25}–${grade.p75}`} /></>
               )}
               {" "}
-              <span className="text-foreground/40">(N=<Bidi text={String(grade.nGraded)} />)</span>
+              <span className="text-foreground/60">(N=<Bidi text={String(grade.nGraded)} />)</span>
             </p>
             {binaryHigh && grade.binaryShare != null && (
-              <p className="mt-1 text-[11px] text-foreground/50">
+              <p className="mt-1 text-[11px] text-foreground/60">
                 <Bidi text={`${Math.round(grade.binaryShare * 100)}%`} /> {isHe ? "לקחו כ-binary (עובר/נכשל)" : "took it pass/fail"}
               </p>
             )}
-            <p className="mt-1 text-[11px] text-foreground/45">
+            <p className="mt-1 text-[11px] text-foreground/60">
               {isHe ? "מהתורמים באפליקציה, לא ציון רשמי." : "From app contributors, not an official grade."}
             </p>
           </>
         ) : (
-          <p className="text-[11px] text-foreground/50">
+          <p className="text-[11px] text-foreground/60">
             {/* The server now withholds the count below 2, the same way the
                 ratings block beside it always has — "so a single contributor is
                 never exposed". Printing "יש 1" for a niche elective states that
@@ -528,12 +528,12 @@ function CommunityKnowledge({
                 </div>
                 <p className="text-xs leading-relaxed text-foreground/80">{r.tip}</p>
                 <div className="mt-1.5 flex items-center justify-between">
-                  <span className="text-[10px] text-foreground/40">{r.cohortLabel ?? ""}</span>
+                  <span className="text-[10px] text-foreground/60">{r.cohortLabel ?? ""}</span>
                   <button
                     type="button"
                     onClick={() => report.mutate({ reviewId: r.id })}
                     disabled={report.isPending}
-                    className="inline-flex items-center gap-1 text-[10px] text-foreground/35 transition-colors hover:text-red-500 disabled:opacity-50"
+                    className="inline-flex items-center gap-1 text-[10px] text-foreground/60 transition-colors hover:text-status-red disabled:opacity-50"
                     title={isHe ? "דווחו על התוכן" : "Report this"}
                   >
                     <Flag className="size-2.5" />
@@ -549,7 +549,7 @@ function CommunityKnowledge({
       <button
         type="button"
         onClick={onContribute}
-        className="mt-3 inline-flex min-h-[36px] w-full items-center justify-center gap-1.5 rounded-lg border border-accent-brand/30 bg-accent-brand/5 px-2.5 py-1.5 text-xs font-medium text-accent-brand transition-colors hover:bg-accent-brand/15"
+        className="mt-3 inline-flex min-h-[36px] w-full items-center justify-center gap-1.5 rounded-lg border border-accent-brand/30 bg-accent-brand/5 px-2.5 py-1.5 text-xs font-medium text-accent-brand transition-colors hover:bg-accent-brand/6"
       >
         <MessageSquarePlus className="size-3.5" />
         {isHe ? "הוסיפו טיפ / דרגו את הקורס" : "Add a tip / rate this course"}
@@ -562,7 +562,7 @@ function CommunityKnowledge({
 function Stat({ label, value }: { label: string; value: string }) {
   return (
     <div className="flex flex-col">
-      <span className="text-[10px] text-foreground/40">{label}</span>
+      <span className="text-[10px] text-foreground/60">{label}</span>
       <span className="font-mono text-lg font-bold tabular-nums text-foreground/85" dir="ltr">{value}</span>
     </div>
   );

@@ -47,7 +47,7 @@ export function PlacementIssuesCard({
   return (
     <div className="rounded-xl border border-amber-500/35 bg-amber-500/[0.07] p-4">
       <div className="flex items-start gap-2.5">
-        <CalendarX2 className="mt-0.5 size-4 shrink-0 text-amber-600 dark:text-amber-400" />
+        <CalendarX2 className="mt-0.5 size-4 shrink-0 text-status-amber" />
         <div className="min-w-0 flex-1">
           <p className="text-sm font-bold text-foreground/90">
             {isHe ? (
@@ -78,11 +78,11 @@ export function PlacementIssuesCard({
                   <span className="min-w-0 flex-1 basis-48 text-xs">
                     <span className="font-semibold text-foreground/85">{it.nameHe}</span>
                     {it.isMandatory && (
-                      <span className="ms-1.5 rounded bg-foreground/[0.07] px-1.5 py-px text-[10px] text-foreground/55">
+                      <span className="ms-1.5 rounded bg-foreground/[0.07] px-1.5 py-px text-[10px] text-foreground/60">
                         {isHe ? "חובה" : "required"}
                       </span>
                     )}
-                    <span className="mt-0.5 block text-foreground/55">
+                    <span className="mt-0.5 block text-foreground/60">
                       {it.kind === "wrong-semester"
                         ? isHe
                           ? `אצלכם ב${termHe(it.plannedSemester)} · ניתן ב${it.offeredSemesters.map(termHe).join(" / ")}`
@@ -98,7 +98,7 @@ export function PlacementIssuesCard({
                       type="button"
                       disabled={busy}
                       onClick={() => onMove(it.userCourseId, target)}
-                      className="inline-flex shrink-0 items-center gap-1.5 rounded-lg border border-amber-500/40 bg-background px-2.5 py-1.5 text-[11px] font-semibold text-amber-700 transition-colors hover:bg-amber-500/10 disabled:opacity-50 dark:text-amber-400"
+                      className="inline-flex shrink-0 items-center gap-1.5 rounded-lg border border-amber-500/40 bg-background px-2.5 py-1.5 text-[11px] font-semibold text-status-amber transition-colors hover:bg-amber-500/10 disabled:opacity-50"
                     >
                       <ArrowLeftRight className="size-3" />
                       {isHe ? `העבירו ל${termHe(target)}` : `Move to ${termEn(target)}`}

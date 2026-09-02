@@ -52,7 +52,7 @@ export function UnassignedDisciplinePrompt({
   return (
     <div className="rounded-xl border border-amber-500/40 bg-amber-500/5 p-4">
       <div className="flex items-start gap-2.5">
-        <Target className="mt-0.5 size-4 shrink-0 text-amber-600 dark:text-amber-400" />
+        <Target className="mt-0.5 size-4 shrink-0 text-status-amber" />
         <div className="min-w-0">
           <p className="text-sm font-semibold text-foreground/90">
             {isHe ? (
@@ -88,7 +88,7 @@ export function UnassignedDisciplinePrompt({
             </p>
           )}
 
-          <p className="mt-2 text-xs text-foreground/50">
+          <p className="mt-2 text-xs text-foreground/60">
             {names.join(isHe ? ", " : ", ")}
             {more > 0 && (isHe ? ` ועוד ${more}` : ` and ${more} more`)}
           </p>

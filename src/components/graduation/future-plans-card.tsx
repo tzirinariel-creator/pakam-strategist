@@ -75,7 +75,7 @@ export function FuturePlansCard({ facts }: { facts: StudentFacts }) {
           <h3 className="font-display text-base font-bold text-foreground/90">
             {isHe ? "מה אחרי התואר" : "After the degree"}
           </h3>
-          <p className="mt-1 text-xs leading-relaxed text-foreground/55">
+          <p className="mt-1 text-xs leading-relaxed text-foreground/60">
             {isHe
               ? "בחרו כיוון ונראה לכם מה כבר יש לכם שקשור אליו. זה לא בדיקת התאמה — הדרישות של כל תוכנית משתנות משנה לשנה, ואנחנו לא מחזיקים אותן."
               : "Pick a direction and we'll show what you already hold that bears on it. This is not an eligibility check — each programme's requirements change yearly, and we do not hold them."}
@@ -90,7 +90,7 @@ export function FuturePlansCard({ facts }: { facts: StudentFacts }) {
                 aria-pressed={chosen === d.id}
                 className={
                   chosen === d.id
-                    ? "rounded-full border border-accent-brand bg-accent-brand/10 px-3 py-1.5 text-xs font-semibold text-accent-brand"
+                    ? "rounded-full border border-accent-brand bg-accent-brand/6 px-3 py-1.5 text-xs font-semibold text-accent-brand"
                     : "rounded-full border border-border px-3 py-1.5 text-xs font-medium text-foreground/65 transition-colors hover:border-foreground/30"
                 }
               >
@@ -111,10 +111,10 @@ export function FuturePlansCard({ facts }: { facts: StudentFacts }) {
                     s.state === "done" ? Check : s.state === "in-progress" ? CircleDashed : Circle;
                   const tone =
                     s.state === "done"
-                      ? "text-emerald-600 dark:text-emerald-400"
+                      ? "text-status-green"
                       : s.state === "in-progress"
                         ? "text-foreground/60"
-                        : "text-foreground/35";
+                        : "text-foreground/60";
                   return (
                     <li
                       key={s.id}
@@ -142,7 +142,7 @@ export function FuturePlansCard({ facts }: { facts: StudentFacts }) {
                   <p className="text-[11px] font-semibold leading-relaxed text-foreground/80">
                     {isHe ? direction.gate.he : direction.gate.en}
                   </p>
-                  <p className="mt-1 text-[10px] text-foreground/45">
+                  <p className="mt-1 text-[10px] text-foreground/60">
                     {isHe ? direction.gate.sourceHe : direction.gate.sourceEn}
                   </p>
                 </div>
@@ -150,7 +150,7 @@ export function FuturePlansCard({ facts }: { facts: StudentFacts }) {
 
               {/* The boundary, stated where the reader is forming a plan
                   rather than buried at the bottom of the page. */}
-              <p className="mt-2.5 text-[11px] leading-relaxed text-foreground/45">
+              <p className="mt-2.5 text-[11px] leading-relaxed text-foreground/60">
                 {isHe
                   ? "מה שהתוכנית עצמה דורשת — ממוצע מינימלי, קורסי חובה, מבחני כניסה — נמצא רק אצלה. בדקו באתר שלה לפני שמתכננים לפי זה."
                   : "What the programme itself requires — a minimum average, prerequisite courses, entrance exams — lives only with them. Check their site before planning around it."}

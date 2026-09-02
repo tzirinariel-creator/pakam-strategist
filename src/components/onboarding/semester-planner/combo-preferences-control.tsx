@@ -45,7 +45,7 @@ export function ComboPreferencesControl({
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
-        className="w-full rounded-md px-2 py-0.5 text-[10px] font-medium text-foreground/50 transition-colors hover:text-foreground/70"
+        className="w-full rounded-md px-2 py-0.5 text-[10px] font-medium text-foreground/60 transition-colors hover:text-foreground/70"
         aria-expanded={open}
       >
         {isHe ? "יש לי בקשות לשבוע" : "I have constraints"}
@@ -53,7 +53,7 @@ export function ComboPreferencesControl({
       {open && (
         <div className="mt-1 space-y-2 rounded-md border border-border/60 bg-card/50 p-2">
           <div>
-            <p className="text-[10px] text-foreground/50">
+            <p className="text-[10px] text-foreground/60">
               {isHe ? "ימים שהייתם רוצים לשמור פנויים" : "Days you'd like to keep clear"}
             </p>
             <div className="mt-1 flex gap-1">
@@ -69,7 +69,7 @@ export function ComboPreferencesControl({
                       "size-6 rounded-md border text-[10px] font-semibold transition-colors",
                       on
                         ? "border-transparent bg-foreground text-background"
-                        : "border-border/60 text-foreground/50 hover:text-foreground/80",
+                        : "border-border/60 text-foreground/60 hover:text-foreground/80",
                     )}
                   >
                     {isHe ? COMBO_DAY_SHORT_HE[day] : COMBO_DAY_SHORT_EN[day]}
@@ -79,7 +79,7 @@ export function ComboPreferencesControl({
             </div>
           </div>
           <div className="flex items-center gap-2">
-            <label className="flex items-center gap-1 text-[10px] text-foreground/50">
+            <label className="flex items-center gap-1 text-[10px] text-foreground/60">
               {isHe ? "לא לפני" : "Not before"}
               <select
                 value={prefs.earliestHour ?? ""}
@@ -97,7 +97,7 @@ export function ComboPreferencesControl({
                 ))}
               </select>
             </label>
-            <label className="flex items-center gap-1 text-[10px] text-foreground/50">
+            <label className="flex items-center gap-1 text-[10px] text-foreground/60">
               {isHe ? "לא אחרי" : "Not after"}
               <select
                 value={prefs.latestHour ?? ""}
@@ -116,7 +116,7 @@ export function ComboPreferencesControl({
               </select>
             </label>
           </div>
-          <p className="text-[10px] leading-relaxed text-foreground/40">
+          <p className="text-[10px] leading-relaxed text-foreground/60">
             {isHe
               ? "אלה בקשות, לא חוקים: אם הדרך היחידה לכבד אותן היא מערכת עם חפיפה — נעדיף מערכת בלי חפיפה, ונגיד לכם מה לא הסתדר."
               : "These are wishes, not rules: if the only way to honour one is a week with a clash, we'll pick the clash-free week and tell you what we couldn't keep."}

@@ -105,7 +105,7 @@ export function AppearanceSection() {
             <label className="text-sm font-medium text-foreground/80">
               {isHe ? `${labels.short} יציף פער קריטי כשתפתחו אותו` : `Let ${labels.short} surface one critical gap when I open the panel`}
             </label>
-            <p className="mt-0.5 text-xs text-foreground/50">
+            <p className="mt-0.5 text-xs text-foreground/60">
               {isHe ? `אם משהו אצלכם דורש טיפול — ${labels.short} יגיד את זה ברגע שתפתחו אותו. הוא אף פעם לא קופץ מעצמו באמצע העבודה.` : `When you open ${labels.short} and there is something that needs attention — you hear about it. Only on entry, never mid-flow.`}
             </p>
           </div>

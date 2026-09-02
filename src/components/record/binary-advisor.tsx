@@ -125,14 +125,14 @@ export function BinaryAdvisor() {
   return (
     <div className="data-card p-4">
       <div className="mb-1 flex items-center gap-2">
-        <div className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-emerald-400/10 text-emerald-600">
+        <div className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-emerald-400/10 text-status-green">
           <Scale className="size-4.5" />
         </div>
         <div className="min-w-0 flex-1">
           <p className="text-sm font-semibold text-foreground/85">
             {isHe ? "המרה לבינארי — שווה לך?" : "Binary conversion — worth it?"}
           </p>
-          <p className="text-xs text-foreground/50">
+          <p className="text-xs text-foreground/60">
             {isHe
               ? creditsLeft != null
                 ? `כהטבת מילואים (קבוצה G) נשארו לך עד ${creditsLeft} ש״ס להמרה. הנה מה שהיה קורה לממוצע (${current.toFixed(1)}):`
@@ -156,12 +156,12 @@ export function BinaryAdvisor() {
                 "·" separator now sits in the markup itself. */}
             <span className="min-w-0 flex-1 truncate text-foreground/80">
               {course.nameHe}
-              <span className="text-foreground/40">
+              <span className="text-foreground/60">
                 {" · "}
                 <bdi dir="ltr">{course.grade} · {course.credits}</bdi> {isHe ? "ש״ס" : "cr"}
               </span>
             </span>
-            <span className="inline-flex items-center gap-1 rounded-md bg-emerald-400/10 px-2 py-1 font-bold text-emerald-600" dir="ltr">
+            <span className="inline-flex items-center gap-1 rounded-md bg-emerald-400/10 px-2 py-1 font-bold text-status-green" dir="ltr">
               <TrendingUp className="size-3" />
               {newAverage.toFixed(1)} (+{delta.toFixed(1)})
             </span>
@@ -223,7 +223,7 @@ export function BinaryAdvisor() {
         </p>
       )}
 
-      <p className="mt-2.5 text-[11px] leading-snug text-foreground/45">
+      <p className="mt-2.5 text-[11px] leading-snug text-foreground/60">
         {isHe
           ? "חשוב: ההמרה מוסרת את הקורס מהממוצע לתמיד ומאושרת מול האוניברסיטה — לא כאן. סמינרים אינם ניתנים להמרה, ולהצטיינות הבינאריים חייבים להישאר עד 25% מהשעות השנתיות."
           : "Important: conversion permanently removes the course from your average and is approved with the university — not here. Seminars can't be converted, and honors requires binaries stay ≤ 25% of yearly credits."}

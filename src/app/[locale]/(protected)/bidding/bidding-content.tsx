@@ -84,12 +84,12 @@ function TermColumn({
         <h3 className="font-display text-base font-bold text-foreground/90">
           {label}
           {isBiddingTerm && (
-            <span className="ms-2 rounded-full bg-accent-brand/15 px-2 py-0.5 text-[10px] font-semibold text-accent-brand">
+            <span className="ms-2 rounded-full bg-accent-brand/6 px-2 py-0.5 text-[10px] font-semibold text-accent-brand">
               {isHe ? "הסמסטר הקרוב" : "the near term"}
             </span>
           )}
         </h3>
-        <span className="text-xs font-semibold tabular-nums text-foreground/55">
+        <span className="text-xs font-semibold tabular-nums text-foreground/60">
           <Bidi text={term.credits} /> {isHe ? "ש״ס" : "cr."}
         </span>
       </div>
@@ -112,7 +112,7 @@ function TermColumn({
               {/* The CODE leads. It is what you type into the TAU system, and
                   the name is what you recognise — in that order, because on the
                   day the code is the thing being copied. */}
-              <span className="font-data text-[11px] text-foreground/50" dir="ltr">
+              <span className="font-data text-[11px] text-foreground/60" dir="ltr">
                 {c.code}
               </span>
               {/* NOT truncated. Measured at 375px: "כסף מסובב את העולם - אי
@@ -122,11 +122,11 @@ function TermColumn({
                   already wraps, so a second line costs nothing. */}
               <span className="min-w-0 flex-1 basis-40 text-balance text-foreground/85">{c.name}</span>
               {c.isMandatory && (
-                <span className="shrink-0 rounded bg-foreground/[0.07] px-1.5 py-px text-[10px] text-foreground/55">
+                <span className="shrink-0 rounded bg-foreground/[0.07] px-1.5 py-px text-[10px] text-foreground/60">
                   {isHe ? "חובה" : "required"}
                 </span>
               )}
-              <span className="shrink-0 font-mono text-[11px] text-foreground/40">
+              <span className="shrink-0 font-mono text-[11px] text-foreground/60">
                 {c.credits}
               </span>
             </li>
@@ -135,7 +135,7 @@ function TermColumn({
       )}
 
       {term.courses.length > 0 && (
-        <p className="mt-2 text-[11px] text-foreground/45">
+        <p className="mt-2 text-[11px] text-foreground/60">
           {isHe ? (
             <>
               {heNoun(term.courses.length, "קורס", "קורסים")}
@@ -223,7 +223,7 @@ export function BiddingContent() {
               ? `השנה שאתם מגישים עליה — ${YEAR_CONFIG[yearOfStudy as 1 | 2 | 3]?.nameHe ?? `שנה ${yearOfStudy}`}`
               : `The year you're bidding for — ${YEAR_CONFIG[yearOfStudy as 1 | 2 | 3]?.nameEn ?? `year ${yearOfStudy}`}`}
           </h2>
-          <span className="text-xs font-semibold tabular-nums text-foreground/55">
+          <span className="text-xs font-semibold tabular-nums text-foreground/60">
             {isHe ? (
               <>
                 סה״כ <Bidi text={plan.totalCredits} /> ש״ס ·{" "}
@@ -244,7 +244,7 @@ export function BiddingContent() {
 
         {plan.hasEmptyTerm && (
           <div className="flex items-start gap-2 rounded-xl border border-amber-500/35 bg-amber-500/[0.06] p-3">
-            <TriangleAlert className="mt-0.5 size-4 shrink-0 text-amber-600 dark:text-amber-400" />
+            <TriangleAlert className="mt-0.5 size-4 shrink-0 text-status-amber" />
             <p className="text-xs leading-relaxed text-foreground/70">
               {isHe
                 ? "אחד הסמסטרים ריק. הבידינג מגיש את שני הסמסטרים יחד — סמסטר שלא הגשתם עליו בקשה נסגר, ומה שנשאר בו בסבב השני הוא מה שאחרים לא רצו."
@@ -339,7 +339,7 @@ export function BiddingContent() {
       </a>
 
       {/* The line this screen exists to be trusted for. */}
-      <p className="rounded-xl border border-border/50 bg-foreground/[0.02] p-3 text-[11px] leading-relaxed text-foreground/50">
+      <p className="rounded-xl border border-border/50 bg-foreground/[0.02] p-3 text-[11px] leading-relaxed text-foreground/60">
         {isHe
           ? "פכמון לא מנחש כמה נקודות צריך לקורס. האוניברסיטה לא מפרסמת את המכסות, וההנחיות הרשמיות אומרות מפורשות לא להסיק משנים קודמות — אז כל מספר כזה היה ניחוש שעלול לעלות לכם במקום."
           : "Pakamon does not guess how many points a course needs. The university does not publish the quotas, and the official guidance says explicitly not to extrapolate from previous years — so any such number would be a guess that could cost you a seat."}

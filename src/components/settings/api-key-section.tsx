@@ -62,11 +62,11 @@ export function ApiKeySection() {
       description={t("apiKeyDescription")}
     >
       {isDemoUser ? (
-        <p className="text-sm text-foreground/50">{t("apiKeyDemoNote")}</p>
+        <p className="text-sm text-foreground/60">{t("apiKeyDemoNote")}</p>
       ) : hasKey ? (
         <div className="flex flex-col gap-3">
           <div className="flex flex-wrap items-center gap-2 text-sm text-foreground/70">
-            <Check className="size-4 text-emerald-500" />
+            <Check className="size-4 text-status-green" />
             <span>{t("apiKeySet")}</span>
             {masked && (
               <code className="rounded bg-foreground/5 px-2 py-0.5 font-mono text-xs">
@@ -74,11 +74,11 @@ export function ApiKeySection() {
               </code>
             )}
             {provider && (
-              <span className="inline-flex items-center gap-1.5 rounded-full bg-foreground/5 px-2 py-0.5 text-xs text-foreground/60">
+              <span className="inline-flex items-center gap-1.5 rounded-full bg-foreground/5 px-2 py-0.5 text-xs text-foreground/70">
                 {t("apiKeyProvider")}{" "}
                 {provider === "gemini" ? "Google Gemini" : "Anthropic Claude"}
                 {provider === "gemini" && (
-                  <span className="rounded-full bg-emerald-400/15 px-1.5 text-[10px] font-bold text-emerald-600">
+                  <span className="rounded-full bg-emerald-400/15 px-1.5 text-[10px] font-bold text-status-green">
                     {t("apiKeyFreeBadge")}
                   </span>
                 )}
@@ -117,7 +117,7 @@ export function ApiKeySection() {
             <button
               type="button"
               onClick={() => setShowKey((s) => !s)}
-              className="absolute inset-y-0 end-0 flex items-center px-3 text-foreground/50 transition-colors hover:text-foreground"
+              className="absolute inset-y-0 end-0 flex items-center px-3 text-foreground/60 transition-colors hover:text-foreground"
               aria-label={showKey ? "Hide key" : "Show key"}
             >
               {showKey ? (
@@ -133,7 +133,7 @@ export function ApiKeySection() {
               and a SECOND collapsed 4-step guide to the same Google page. The
               duplicates are gone; ConnectGeminiGuide above is the single guide
               and carries the (accurate) privacy disclosure. */}
-          <p className="text-xs text-foreground/40">{t("apiKeyFreeLimits")}</p>
+          <p className="text-xs text-foreground/60">{t("apiKeyFreeLimits")}</p>
           <div className="flex flex-wrap items-center gap-3">
             <Button
               onClick={() => saveMutation.mutate({ apiKey: keyInput })}

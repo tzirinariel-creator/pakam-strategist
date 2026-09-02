@@ -103,9 +103,9 @@ export function CourseRow({
             {/* <bdi> (not dir="ltr") so a custom code containing Hebrew (e.g.
                 CUSTOM-דוגרי) isolates without garbling — a numeric catalog code
                 still renders LTR correctly (#18, RTL iron rule). */}
-            <bdi className="font-mono text-[10px] text-foreground/40">{course.code}</bdi>
+            <bdi className="font-mono text-[10px] text-foreground/60">{course.code}</bdi>
             {isElective && (
-              <span className="rounded-full bg-foreground/8 px-1.5 py-0.5 text-[11px] font-medium text-foreground/50">
+              <span className="rounded-full bg-foreground/8 px-1.5 py-0.5 text-[11px] font-medium text-foreground/70">
                 {t("electiveBadge")}
               </span>
             )}
@@ -121,19 +121,19 @@ export function CourseRow({
               </span>
             )}
             {english && (
-              <span className="inline-flex items-center gap-0.5 rounded-full bg-blue-500/10 px-1.5 py-0.5 text-[11px] font-medium text-blue-500">
+              <span className="inline-flex items-center gap-0.5 rounded-full bg-blue-500/10 px-1.5 py-0.5 text-[11px] font-medium text-status-blue">
                 <Languages className="h-2.5 w-2.5" />
                 {t("englishBadge")}
               </span>
             )}
             {/* Make the silent "not in average" automation visible (#30). */}
             {english && (
-              <span className="inline-flex items-center rounded-full bg-foreground/5 px-1.5 py-0.5 text-[11px] text-foreground/45">
+              <span className="inline-flex items-center rounded-full bg-foreground/5 px-1.5 py-0.5 text-[11px] text-foreground/70">
                 {t("notInAvgEnglish")}
               </span>
             )}
             {isBinary && (
-              <span className="inline-flex items-center rounded-full bg-foreground/5 px-1.5 py-0.5 text-[11px] text-foreground/45">
+              <span className="inline-flex items-center rounded-full bg-foreground/5 px-1.5 py-0.5 text-[11px] text-foreground/70">
                 {t("notInAvgBinary")}
               </span>
             )}
@@ -145,8 +145,8 @@ export function CourseRow({
                 className={cn(
                   "inline-flex items-center rounded-full px-1.5 py-0.5 text-[11px] font-medium",
                   declared
-                    ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400"
-                    : "bg-foreground/8 text-foreground/50",
+                    ? "bg-emerald-500/10 text-status-green"
+                    : "bg-foreground/8 text-foreground/70",
                 )}
                 title={
                   declared
@@ -193,7 +193,7 @@ export function CourseRow({
             <div className="flex flex-wrap items-center gap-1.5 pt-0.5">
               <label
                 htmlFor={`declare-${uc.id}`}
-                className="text-[11px] text-foreground/45"
+                className="text-[11px] text-foreground/60"
               >
                 {t("declareLabel")}
               </label>
@@ -251,7 +251,7 @@ export function CourseRow({
             if (window.confirm(t("removeConfirm"))) onRemove(uc.id);
           }}
           aria-label={`${t("remove")} — ${courseName}`}
-          className="rounded-md p-1.5 text-foreground/30 transition-colors hover:bg-red-500/10 hover:text-red-400"
+          className="rounded-md p-1.5 text-foreground/60 transition-colors hover:bg-red-500/10 hover:text-status-red"
         >
           <Trash2 className="h-4 w-4" />
         </button>

@@ -72,7 +72,7 @@ export function BiddingSeasonCard({
             ? `הבידינג ל${target.labelHe} מתקרב`
             : `Bidding for the coming ${target.semester === "FALL" ? "fall" : "spring"} is near`}
         </p>
-        <p className="text-xs text-foreground/55">
+        <p className="text-xs text-foreground/60">
           {isHe
             ? `ההוראה נפתחת ${daysUntilLabel(target.daysUntilStart, true)}, וההרשמה מתקיימת לפני כן. שווה לסגור את התוכנית ולבדוק חפיפות עכשיו.`
             : `Teaching starts ${daysUntilLabel(target.daysUntilStart, false)} and registration happens before. Finalize your plan and check clashes now.`}

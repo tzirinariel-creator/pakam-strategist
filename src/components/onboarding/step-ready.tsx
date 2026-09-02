@@ -524,7 +524,7 @@ export function StepReady({ data, plannedSemesters, completedCourses, allCourses
                   ? (isHe ? "רושמים את הקורסים שכבר עברתם…" : "Recording your completed courses…")
                   : (isHe ? "רגע אחרון — מסדרים הכול…" : "One moment — wrapping up…")}
           </p>
-          <p className="text-xs text-foreground/40">
+          <p className="text-xs text-foreground/60">
             {savingTooLong
               ? (isHe ? "לוקח קצת יותר מהרגיל — אנחנו עדיין כאן, שומרים." : "Taking a bit longer than usual — still saving.")
               : t("allDoneSavingDesc")}
@@ -541,7 +541,7 @@ export function StepReady({ data, plannedSemesters, completedCourses, allCourses
               setIsSaving(false);
               router.push("/dashboard?from=onboarding");
             }}
-            className="animate-fade-in rounded-lg border border-foreground/20 px-5 py-2 text-sm font-medium text-foreground/50 transition-colors hover:bg-foreground/5"
+            className="animate-fade-in rounded-lg border border-foreground/20 px-5 py-2 text-sm font-medium text-foreground/70 transition-colors hover:bg-foreground/5"
           >
             {t("continueWithoutSaving")}
           </button>
@@ -600,7 +600,7 @@ export function StepReady({ data, plannedSemesters, completedCourses, allCourses
                   ? t("saveFailedTitle")
                   : t("allDone")}
       </h2>
-      <p className="animate-stagger-2 mt-2 text-foreground/50">
+      <p className="animate-stagger-2 mt-2 text-foreground/60">
         {hasSaved
           ? t("allDoneReadyDesc")
           : saveError === "demo"
@@ -621,14 +621,14 @@ export function StepReady({ data, plannedSemesters, completedCourses, allCourses
       {/* Summary card */}
       <div className="animate-stagger-3 mt-8 w-full max-w-sm">
         <div className="data-card space-y-4 p-6">
-          <h3 className="text-sm font-medium text-foreground/40">
+          <h3 className="text-sm font-medium text-foreground/60">
             {t("summary")}
           </h3>
 
           <div className="space-y-3">
             {/* Program */}
             <div className="flex items-center justify-between">
-              <span className="text-sm text-foreground/50">
+              <span className="text-sm text-foreground/60">
                 {t("chooseProgram")}
               </span>
               <span className="text-sm font-medium text-foreground/80">
@@ -638,7 +638,7 @@ export function StepReady({ data, plannedSemesters, completedCourses, allCourses
 
             {/* Year */}
             <div className="flex items-center justify-between">
-              <span className="text-sm text-foreground/50">
+              <span className="text-sm text-foreground/60">
                 {t("yourYear")}
               </span>
               <span className="text-sm font-medium text-foreground/80">
@@ -652,7 +652,7 @@ export function StepReady({ data, plannedSemesters, completedCourses, allCourses
 
             {/* Semester */}
             <div className="flex items-center justify-between">
-              <span className="text-sm text-foreground/50">
+              <span className="text-sm text-foreground/60">
                 {t("yourSemester")}
               </span>
               <span className="text-sm font-medium text-foreground/80">
@@ -662,7 +662,7 @@ export function StepReady({ data, plannedSemesters, completedCourses, allCourses
 
             {/* Focus area */}
             <div className="flex items-center justify-between">
-              <span className="text-sm text-foreground/50">
+              <span className="text-sm text-foreground/60">
                 {t("yourFocus")}
               </span>
               <span
@@ -679,7 +679,7 @@ export function StepReady({ data, plannedSemesters, completedCourses, allCourses
             {plannedSemesters && plannedSemesters.length > 0 && (
               <div className="border-t border-border pt-3 space-y-2">
                 <div className="flex items-center justify-between">
-                  <span className="text-sm text-foreground/50">
+                  <span className="text-sm text-foreground/60">
                     {t("planCoursesCount")}
                   </span>
                   <span className="font-mono tabular text-lg font-bold text-foreground/80">
@@ -687,7 +687,7 @@ export function StepReady({ data, plannedSemesters, completedCourses, allCourses
                   </span>
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="text-sm text-foreground/50">
+                  <span className="text-sm text-foreground/60">
                     {totalCredits > 0 && completedCount > 0
                       ? isHe ? "ש״ס בתכנון" : "Planned credits"
                       : t("totalCreditsLabel")}
@@ -703,10 +703,10 @@ export function StepReady({ data, plannedSemesters, completedCourses, allCourses
                 {completedCount > 0 && (
                   <>
                     <div className="flex items-center justify-between">
-                      <span className="text-sm text-foreground/50">
+                      <span className="text-sm text-foreground/60">
                         {isHe ? "ש״ס שכבר השלמתם" : "Credits already completed"}
                       </span>
-                      <span className="font-mono tabular text-lg font-bold text-emerald-500">
+                      <span className="font-mono tabular text-lg font-bold text-status-green">
                         {completedCredits}
                       </span>
                     </div>
@@ -734,7 +734,7 @@ export function StepReady({ data, plannedSemesters, completedCourses, allCourses
                       ? SEMESTER_CONFIG[sem.semester]?.short
                       : SEMESTER_CONFIG[sem.semester]?.shortEn;
                     return (
-                      <div key={`${sem.year}-${sem.semester}`} className="flex items-center justify-between text-xs text-foreground/40">
+                      <div key={`${sem.year}-${sem.semester}`} className="flex items-center justify-between text-xs text-foreground/60">
                         <span>{yearLabel} · {semLabel}</span>
                         <span className="font-mono">
                           {sem.courseIds.length} {t("courses")} · {semCredits} {t("nz")}
@@ -762,12 +762,12 @@ export function StepReady({ data, plannedSemesters, completedCourses, allCourses
 
             {!hasSchedule ? (
               // Empty guard — saved plan has no schedule sessions.
-              <p className="text-sm text-foreground/50">
+              <p className="text-sm text-foreground/60">
                 {t("syncCalendarEmpty")}
               </p>
             ) : (
               <>
-                <p className="text-xs text-foreground/45">
+                <p className="text-xs text-foreground/60">
                   {t("syncCalendarDesc")}
                 </p>
                 <div className="flex flex-col gap-2.5">
@@ -792,7 +792,7 @@ export function StepReady({ data, plannedSemesters, completedCourses, allCourses
                   </button>
 
                   {/* Always clarify the .ics needs importing; the only-option when Google is off. */}
-                  <p className="text-[11px] text-foreground/35">
+                  <p className="text-[11px] text-foreground/60">
                     {t("syncCalendarICSHint")}
                   </p>
                 </div>
@@ -811,7 +811,7 @@ export function StepReady({ data, plannedSemesters, completedCourses, allCourses
             <h3 className="text-sm font-semibold text-foreground/80">
               {isHe ? "מי ילווה אתכם בתואר?" : "Who will walk the degree with you?"}
             </h3>
-            <p className="text-xs text-foreground/45">
+            <p className="text-xs text-foreground/60">
               {isHe
                 ? "המלך הפילוסוף — הרעיון של אפלטון: להוביל לפי ידע. חזון ואסטרטגיה, ומשפט-חוכמה כשהוא במקומו. הרפרנט — סטודנט שנה ג׳ שכבר עבר את זה: דוגרי, קצר, בלי סמכות מלמעלה. שניהם עונים מאותם נתונים; אפשר להחליף בכל רגע בהגדרות."
                 : "The Philosopher King — Plato's idea of leading by knowledge: vision and strategy, with a line of wisdom when it earns its place. The Referent — a final-year student who's been through it: blunt, short, no authority from above. Both answer from the same data; switch anytime in settings."}
@@ -846,12 +846,12 @@ export function StepReady({ data, plannedSemesters, completedCourses, allCourses
       {saveError && !hasSaved && (
         <div className="animate-stagger-4 mt-8 flex w-full max-w-sm flex-col gap-3">
           <div className="flex items-start gap-2 rounded-lg border border-red-500/20 bg-red-500/5 px-4 py-3 text-start">
-            <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-red-400" />
+            <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-status-red" />
             <div>
-              <p className="text-sm font-medium text-red-400">
+              <p className="text-sm font-medium text-status-red">
                 {saveError === "demo" ? t("demoNotSavedTitle") : t("saveFailedTitle")}
               </p>
-              <p className="mt-0.5 text-xs text-foreground/50">
+              <p className="mt-0.5 text-xs text-foreground/60">
                 {saveError === "demo" ? t("demoNotSavedDesc") : t("saveFailedDesc")}
               </p>
             </div>

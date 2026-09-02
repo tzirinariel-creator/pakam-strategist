@@ -72,8 +72,8 @@ export function MySemester({
             className={cn(
               "text-[10px]",
               defaulted.has(r.sessionType)
-                ? "text-amber-700 dark:text-amber-400"
-                : "text-foreground/40",
+                ? "text-status-amber"
+                : "text-foreground/60",
             )}
           >
             {sessionTypeNameFor(r.sessionType, isHe)} {isHe ? "קבוצה" : "group"}{" "}
@@ -126,14 +126,14 @@ export function MySemester({
           <span className="font-mono text-lg font-bold text-foreground/80">
             {totalCredits}
           </span>
-          <span className="text-[10px] text-foreground/40">{t("nz")}</span>
+          <span className="text-[10px] text-foreground/60">{t("nz")}</span>
         </div>
       </div>
 
       {/* Course list grouped by discipline */}
       <div className="space-y-3">
         {allCourses.length === 0 ? (
-          <p className="py-4 text-center text-xs text-foreground/30">
+          <p className="py-4 text-center text-xs text-foreground/60">
             {t("noCoursesSemester")}
           </p>
         ) : (
@@ -155,10 +155,10 @@ export function MySemester({
                     className="h-2 w-2 shrink-0 rounded-full"
                     style={{ backgroundColor: cfg?.color ?? "gray" }}
                   />
-                  <span className="flex-1 text-[11px] font-semibold text-foreground/50">
+                  <span className="flex-1 text-[11px] font-semibold text-foreground/60">
                     {disciplineName}
                   </span>
-                  <span className="font-mono text-[10px] text-foreground/30">
+                  <span className="font-mono text-[10px] text-foreground/60">
                     {groupCredits} {t("nz")}
                   </span>
                 </div>
@@ -171,19 +171,19 @@ export function MySemester({
                         {/* Real <button> so the detail popover is keyboard-openable
                             (Radix asChild won't make a bare div focusable) (#audit-r4). */}
                         <button type="button" className="flex w-full items-center gap-2 rounded-lg border border-foreground/15 bg-foreground/5 px-2.5 py-1.5 cursor-pointer ms-3 text-start">
-                          <Lock className="h-3 w-3 shrink-0 text-foreground/30" />
+                          <Lock className="h-3 w-3 shrink-0 text-foreground/60" />
                           <span className="flex-1 truncate text-xs text-foreground/70">
                             {isHe
                               ? course.nameHe
                               : (course.nameEn ?? course.nameHe)}
                           </span>
                           {course.courseType === "ENGLISH" && (
-                            <span className="shrink-0 rounded bg-foreground/8 px-1 text-[10px] font-medium text-foreground/50" title={isHe ? "נלמד באנגלית" : "Taught in English"}>EN</span>
+                            <span className="shrink-0 rounded bg-foreground/8 px-1 text-[10px] font-medium text-foreground/70" title={isHe ? "נלמד באנגלית" : "Taught in English"}>EN</span>
                           )}
-                          <span className="shrink-0 rounded-full bg-foreground/8 px-1.5 py-0.5 text-[10px] font-medium text-foreground/50">
+                          <span className="shrink-0 rounded-full bg-foreground/8 px-1.5 py-0.5 text-[10px] font-medium text-foreground/70">
                             {t("mandatory")}
                           </span>
-                          <span className="shrink-0 font-mono text-[10px] text-foreground/30">
+                          <span className="shrink-0 font-mono text-[10px] text-foreground/60">
                             {course.credits}
                           </span>
                         </button>
@@ -210,14 +210,14 @@ export function MySemester({
                             : (course.nameEn ?? course.nameHe)}
                         </span>
                         {course.courseType === "ENGLISH" && (
-                          <span className="shrink-0 rounded bg-foreground/8 px-1 text-[10px] font-medium text-foreground/50" title={isHe ? "נלמד באנגלית" : "Taught in English"}>EN</span>
+                          <span className="shrink-0 rounded bg-foreground/8 px-1 text-[10px] font-medium text-foreground/70" title={isHe ? "נלמד באנגלית" : "Taught in English"}>EN</span>
                         )}
                         {customCourseIds?.has(course.id) && (
-                          <span className="shrink-0 rounded-full bg-foreground/5 px-1.5 py-0.5 text-[10px] font-medium text-foreground/40">
+                          <span className="shrink-0 rounded-full bg-foreground/5 px-1.5 py-0.5 text-[10px] font-medium text-foreground/70">
                             {isHe ? "ידני" : "Custom"}
                           </span>
                         )}
-                        <span className="shrink-0 font-mono text-[10px] text-foreground/30">
+                        <span className="shrink-0 font-mono text-[10px] text-foreground/60">
                           {course.credits}
                         </span>
                         {customCourseIds?.has(course.id) && onDeleteCustomCourse && (
@@ -226,7 +226,7 @@ export function MySemester({
                               e.stopPropagation();
                               onDeleteCustomCourse(course.id);
                             }}
-                            className="shrink-0 rounded-full p-2 sm:p-0.5 text-foreground/30 opacity-60 transition-all hover:bg-red-400/10 hover:text-red-400 hover:opacity-100 focus-visible:opacity-100 focus-visible:ring-2 focus-visible:ring-accent-brand/50 sm:opacity-0 sm:group-hover:opacity-100 sm:focus-visible:opacity-100"
+                            className="shrink-0 rounded-full p-2 sm:p-0.5 text-foreground/60 opacity-60 transition-all hover:bg-red-400/10 hover:text-status-red hover:opacity-100 focus-visible:opacity-100 focus-visible:ring-2 focus-visible:ring-accent-brand/50 sm:opacity-0 sm:group-hover:opacity-100 sm:focus-visible:opacity-100"
                             aria-label={isHe ? "מחיקת קורס ידני" : "Delete custom course"}
                             title={isHe ? "מחיקת קורס ידני" : "Delete custom course"}
                           >
@@ -238,7 +238,7 @@ export function MySemester({
                             e.stopPropagation();
                             onRemoveCourse(course.id);
                           }}
-                          className="shrink-0 rounded-full p-2 sm:p-0.5 text-foreground/30 opacity-60 transition-all hover:bg-red-400/10 hover:text-red-400 hover:opacity-100 focus-visible:opacity-100 focus-visible:ring-2 focus-visible:ring-accent-brand/50 sm:opacity-0 sm:group-hover:opacity-100 sm:focus-visible:opacity-100"
+                          className="shrink-0 rounded-full p-2 sm:p-0.5 text-foreground/60 opacity-60 transition-all hover:bg-red-400/10 hover:text-status-red hover:opacity-100 focus-visible:opacity-100 focus-visible:ring-2 focus-visible:ring-accent-brand/50 sm:opacity-0 sm:group-hover:opacity-100 sm:focus-visible:opacity-100"
                           aria-label={isHe ? "הסר" : "Remove"}
                           title={isHe ? "הסר" : "Remove"}
                         >

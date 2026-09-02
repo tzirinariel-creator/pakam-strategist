@@ -101,7 +101,7 @@ export function Form3010Uploader({
           <p className="text-sm font-semibold text-foreground/75">
             {isHe ? "יש לכם טופס 3010? נמלא את הימים בשבילכם" : "Have a Form 3010? We'll fill the days for you"}
           </p>
-          <p className="text-xs text-foreground/45">
+          <p className="text-xs text-foreground/60">
             {isHe
               ? "מעלים את האישור הרשמי — אנחנו מחלצים את תקופות השירות ומציעים חלוקה לסמסטרים. שום דבר לא נשמר בלי אישור שלכם."
               : "Upload the official confirmation — we extract the service periods and suggest a per-semester split. Nothing is saved without your approval."}
@@ -124,7 +124,7 @@ export function Form3010Uploader({
       </div>
 
       {scanning && (
-        <p className="mt-2 text-xs text-foreground/45" aria-live="polite">
+        <p className="mt-2 text-xs text-foreground/60" aria-live="polite">
           {scan.hint ?? (isHe ? "לא סוגרים את העמוד." : "Keep this page open.")}
           {elapsed >= REASSURE_AFTER_S && (
             <>
@@ -141,7 +141,7 @@ export function Form3010Uploader({
               that overlaps the degree is offered. When we don't know when the
               degree started we say so instead of quietly importing everything. */}
           {summary.startYear == null && (
-            <p className="rounded-lg border border-amber-500/25 bg-amber-500/5 px-3 py-2 text-[11px] leading-relaxed text-amber-600">
+            <p className="rounded-lg border border-amber-500/25 bg-amber-500/5 px-3 py-2 text-[11px] leading-relaxed text-status-amber">
               {isHe
                 ? "אנחנו לא יודעים מתי התחלתם את התואר, אז לא סיננו כלום — הרשימה כוללת את כל השירות שבטופס. אשרו רק סמסטרים שבהם כבר למדתם (שירות שקדם לתואר לא מזכה בהטבות), או קבעו שנת פתיחה בהגדרות ונסננו לבד."
                 : "We don't know when your degree started, so nothing was filtered — the list covers every period on the form. Approve only semesters you actually studied in (pre-degree service grants no benefits), or set your start year in settings and we'll filter it for you."}
@@ -182,7 +182,7 @@ export function Form3010Uploader({
               // delete the account and start again. A dead end that hides the
               // number it is reasoning from is worse than an error.
               <div className="rounded-lg border border-amber-500/25 bg-amber-500/5 px-3 py-2.5">
-                <p className="text-[11px] font-semibold leading-relaxed text-amber-700 dark:text-amber-400">
+                <p className="text-[11px] font-semibold leading-relaxed text-status-amber">
                   {isHe
                     ? `כל השירות שבטופס קדם לתחילת התואר, אז אין מה לייבא.`
                     : "All service on the form predates the start of your degree, so there is nothing to import."}
@@ -211,7 +211,7 @@ export function Form3010Uploader({
                   <button
                     type="button"
                     onClick={() => onSetStartYear(earliestPreDegreeYear)}
-                    className="mt-2 inline-flex items-center gap-1.5 rounded-lg border border-amber-500/40 bg-background px-2.5 py-1.5 text-[11px] font-semibold text-amber-700 transition-colors hover:bg-amber-500/10 dark:text-amber-400"
+                    className="mt-2 inline-flex items-center gap-1.5 rounded-lg border border-amber-500/40 bg-background px-2.5 py-1.5 text-[11px] font-semibold text-status-amber transition-colors hover:bg-amber-500/10"
                   >
                     <Check className="size-3" />
                     {isHe
@@ -221,7 +221,7 @@ export function Form3010Uploader({
                 )}
               </div>
             ) : (
-              <p className="text-xs text-foreground/50">
+              <p className="text-xs text-foreground/60">
                 {isHe
                   ? "לא נמצאו תקופות בטווח הלוחות המוכרים — אפשר להזין ידנית למטה."
                   : "No periods within the known calendars — enter manually below."}
@@ -236,7 +236,7 @@ export function Form3010Uploader({
               <div key={key} className="flex flex-wrap items-center gap-2 rounded-lg border border-border/50 p-2 text-xs">
                 <span className="min-w-0 flex-1 text-foreground/75">
                   <Bidi text={isHe ? `${s.labelHe} · ${s.semester === "FALL" ? "סמסטר א׳" : "סמסטר ב׳"}` : `${s.academicYear} · ${s.semester === "FALL" ? "Fall" : "Spring"}`} />
-                  <span className="text-foreground/40">
+                  <span className="text-foreground/60">
                     {" "}({s.periodCount} {isHe ? "תקופות" : "periods"})
                   </span>
                 </span>
@@ -251,7 +251,7 @@ export function Form3010Uploader({
                   dir="ltr"
                 />
                 {current && current.daysServed !== days && (
-                  <span className="rounded bg-amber-500/10 px-1.5 py-px text-[10px] font-semibold text-amber-600">
+                  <span className="rounded bg-amber-500/10 px-1.5 py-px text-[10px] font-semibold text-status-amber">
                     {isHe ? <>רשום כרגע <bdi dir="ltr">{current.daysServed}</bdi> — יוחלף</> : `Recorded ${current.daysServed} — will replace`}
                   </span>
                 )}
@@ -265,7 +265,7 @@ export function Form3010Uploader({
             // #7/#37 — shown, never offered: the student sees that we READ these
             // rows and deliberately kept them out of the degree.
             <details className="rounded-lg border border-border/40 bg-foreground/[0.02] p-2.5">
-              <summary className="cursor-pointer text-[11px] font-medium text-foreground/55">
+              <summary className="cursor-pointer text-[11px] font-medium text-foreground/60">
                 <Bidi
                   text={
                     isHe
@@ -274,7 +274,7 @@ export function Form3010Uploader({
                   }
                 />
               </summary>
-              <ul className="mt-2 space-y-1 text-[11px] text-foreground/55">
+              <ul className="mt-2 space-y-1 text-[11px] text-foreground/60">
                 {summary.preDegree.map((s) => (
                   <li key={`pre-${s.academicYear}-${s.semester}`}>
                     <Bidi
@@ -287,7 +287,7 @@ export function Form3010Uploader({
                   </li>
                 ))}
               </ul>
-              <p className="mt-1.5 text-[10px] leading-relaxed text-foreground/40">
+              <p className="mt-1.5 text-[10px] leading-relaxed text-foreground/60">
                 {isHe
                   ? "הטופס מכסה את כל שירות המילואים שלכם, וההטבות מחושבות רק על התואר. אם שנת הפתיחה של התואר שגויה — תקנו אותה בהגדרות והעלו את הטופס שוב."
                   : "The form covers your entire reserve service; the benefits only cover the degree. If your degree start year is wrong, fix it in settings and upload the form again."}
@@ -298,14 +298,14 @@ export function Form3010Uploader({
             // #21 (12.7) — the old one-line dump of 14 periods was unreadable.
             // Collapsed by default; opens to a proper table, oldest first.
             <details className="rounded-lg border border-border/40 bg-foreground/[0.02] p-2.5">
-              <summary className="cursor-pointer text-[11px] font-medium text-foreground/55">
+              <summary className="cursor-pointer text-[11px] font-medium text-foreground/60">
                 {isHe
                   ? `עוד ${summary.unmapped.length} תקופות שירות שלא שויכו לסמסטר — לפירוט`
                   : `${summary.unmapped.length} more service period(s) not assigned to a semester — details`}
               </summary>
               <table className="mt-2 w-full text-[11px]">
                 <thead>
-                  <tr className="text-foreground/40">
+                  <tr className="text-foreground/60">
                     <th className="pb-1 pe-3 text-start font-medium">{isHe ? "מתאריך" : "From"}</th>
                     <th className="pb-1 pe-3 text-start font-medium">{isHe ? "עד תאריך" : "To"}</th>
                     <th className="pb-1 text-start font-medium">{isHe ? "ימים" : "Days"}</th>
@@ -331,7 +331,7 @@ export function Form3010Uploader({
                     ))}
                 </tbody>
               </table>
-              <p className="mt-1.5 text-[10px] leading-relaxed text-foreground/40">
+              <p className="mt-1.5 text-[10px] leading-relaxed text-foreground/60">
                 {isHe
                   ? "לא הצלחנו לשייך את התקופות האלה לסמסטר — לוחות-הזמנים שבאפליקציה מתחילים בתשפ״ד. אם שירתם בזמן הלימודים לפני כן, הזינו את הימים ידנית לסמסטר המתאים והם ייספרו. שירות שקדם לתואר לא מזכה בהטבות."
                   : "We couldn't assign these periods to a semester — the app's calendars start at 2023-24. If you served during earlier study semesters, enter those days manually for the right semester and they'll count. Service from before the degree doesn't grant benefits."}

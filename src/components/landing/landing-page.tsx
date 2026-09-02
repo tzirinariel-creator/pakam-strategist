@@ -138,7 +138,7 @@ function PlannerPreview({ isRTL }: { isRTL: boolean }) {
           <Scale className="size-3" />
           {isRTL ? "תקנון" : "Regulations"}
         </span>
-        <span className="inline-flex items-center gap-1 rounded-full bg-emerald-500/15 px-2 py-0.5 font-medium text-emerald-700 dark:text-emerald-400">
+        <span className="inline-flex items-center gap-1 rounded-full bg-emerald-500/15 px-2 py-0.5 font-medium text-status-green">
           <Check className="size-3" />
           {isRTL ? "עומד בתקנון" : "Compliant"}
         </span>

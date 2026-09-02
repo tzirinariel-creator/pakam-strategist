@@ -32,7 +32,7 @@ export function PageHeader({
         </div>
         <div className="min-w-0">
           <h1 className="font-display text-2xl font-bold text-foreground/85">{title}</h1>
-          {subtitle && <p className="text-sm text-foreground/55">{subtitle}</p>}
+          {subtitle && <p className="text-sm text-foreground/60">{subtitle}</p>}
         </div>
       </div>
       {actions && <div className="flex items-center gap-2">{actions}</div>}

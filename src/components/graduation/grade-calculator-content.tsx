@@ -60,24 +60,24 @@ function WeightBreakdownBar({
       weight: GRADE_WEIGHTS.COURSES,
       grade: breakdown.courseAverage,
       contribution: courseContribution,
-      color: "bg-blue-500",
-      textColor: "text-blue-400",
+      color: "bg-blue-600",
+      textColor: "text-status-blue",
     },
     {
       label: t("seminarsWeight"),
       weight: GRADE_WEIGHTS.SEMINAR_PAPERS,
       grade: breakdown.seminarPaperAverage,
       contribution: seminarContribution,
-      color: "bg-purple-500",
-      textColor: "text-purple-400",
+      color: "bg-purple-600",
+      textColor: "text-status-purple",
     },
     {
       label: t("referatWeight"),
       weight: GRADE_WEIGHTS.REFERAT,
       grade: breakdown.referatGrade,
       contribution: referatContribution,
-      color: "bg-teal-500",
-      textColor: "text-teal-400",
+      color: "bg-teal-700",
+      textColor: "text-status-teal",
     },
   ];
 
@@ -166,11 +166,11 @@ function ScoreDashboard({
 
   // Color coding
   const getScoreColor = (s: number) => {
-    if (s >= 90) return "text-emerald-400";
+    if (s >= 90) return "text-status-green";
     if (s >= 80) return "text-foreground/80";
-    if (s >= 70) return "text-amber-400";
-    if (s >= 60) return "text-orange-400";
-    return "text-red-400";
+    if (s >= 70) return "text-status-amber";
+    if (s >= 60) return "text-status-amber";
+    return "text-status-red";
   };
 
   return (
@@ -194,14 +194,14 @@ function ScoreDashboard({
             >
               {score.toFixed(2)}
             </span>
-            <span className="text-lg text-foreground/40">/100</span>
+            <span className="text-lg text-foreground/60">/100</span>
           </div>
         ) : (
           <div className="flex flex-col items-center gap-2">
-            <span className="font-mono text-4xl font-bold text-foreground/20">
+            <span className="font-mono text-4xl font-bold text-foreground/50">
               --.-
             </span>
-            <span className="max-w-[16rem] text-center text-xs text-foreground/40">
+            <span className="max-w-[16rem] text-center text-xs text-foreground/60">
               {isHe
                 ? "ציון הגמר יחושב כשיהיו לכם ציוני סמינריון ורפרט — לקראת סוף התואר"
                 : "Your final score is computed once seminar & referat grades are in — near the end of the degree"}
@@ -213,14 +213,14 @@ function ScoreDashboard({
       {/* GPAs */}
       <div className="flex items-center justify-center gap-8 text-sm">
         <div className="flex flex-col items-center gap-1">
-          <span className="text-xs text-foreground/50">{t("overallGpa")}</span>
+          <span className="text-xs text-foreground/60">{t("overallGpa")}</span>
           <span className="font-display tabular text-xl font-semibold text-foreground/80">
             {overallGpa !== null ? overallGpa.toFixed(1) : "--"}
           </span>
         </div>
         <div className="h-8 w-px bg-border" />
         <div className="flex flex-col items-center gap-1">
-          <span className="text-xs text-foreground/50">
+          <span className="text-xs text-foreground/60">
             {t("coursesWeight")}
           </span>
           <span className="font-display tabular text-xl font-semibold text-foreground/80">
@@ -371,7 +371,7 @@ function ReverseCalculator({
           <h3 className="font-display font-bold text-lg text-foreground/90">
             {t("reverseCalc")}
           </h3>
-          <p className="text-xs text-foreground/50">{t("reverseCalcDesc")}</p>
+          <p className="text-xs text-foreground/60">{t("reverseCalcDesc")}</p>
         </div>
       </div>
 
@@ -428,7 +428,7 @@ function ReverseCalculator({
           )}
           dir="ltr"
         />
-        <div className="flex justify-between text-xs text-foreground/30" dir="ltr">
+        <div className="flex justify-between text-xs text-foreground/60" dir="ltr">
           <span>60</span>
           <span>70</span>
           <span>80</span>
@@ -439,19 +439,19 @@ function ReverseCalculator({
 
       {/* Result */}
       {result.status === "no-remaining" ? (
-        <div className="rounded-lg border border-foreground/10 bg-foreground/[0.03] px-5 py-4 text-center text-sm text-foreground/50">
+        <div className="rounded-lg border border-foreground/10 bg-foreground/[0.03] px-5 py-4 text-center text-sm text-foreground/60">
           {t("noCourses")}
         </div>
       ) : result.status === "impossible" ? (
         <div className="rounded-lg border border-red-400/20 bg-red-400/5 px-5 py-4">
-          <div className="flex items-center gap-2 text-red-400">
+          <div className="flex items-center gap-2 text-status-red">
             <AlertTriangle className="h-4 w-4" />
             <span className="text-sm font-medium">{t("impossible")}</span>
           </div>
         </div>
       ) : result.status === "already-achieved" ? (
         <div className="rounded-lg border border-emerald-400/20 bg-emerald-400/5 px-5 py-4">
-          <div className="flex items-center gap-2 text-emerald-400">
+          <div className="flex items-center gap-2 text-status-green">
             <Check className="h-4 w-4" />
             <span className="text-sm font-medium">{t("possible")}</span>
           </div>
@@ -460,7 +460,7 @@ function ReverseCalculator({
         <div className="rounded-lg border border-foreground/15 bg-foreground/5 px-5 py-4">
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="space-y-1">
-              <span className="text-xs text-foreground/50">
+              <span className="text-xs text-foreground/60">
                 {t("neededAvg")}
               </span>
               <div className="font-display tabular text-3xl font-bold text-foreground/80">
@@ -468,13 +468,13 @@ function ReverseCalculator({
               </div>
             </div>
             <div className="space-y-1">
-              <span className="text-xs text-foreground/50">
+              <span className="text-xs text-foreground/60">
                 {t("remainingCourses")}
               </span>
               <div className="font-mono tabular text-3xl font-bold text-foreground/70">
                 {result.remainingCount}
               </div>
-              <span className="text-xs text-foreground/40">
+              <span className="text-xs text-foreground/60">
                 ({result.remainingCredits} {t("credits")})
               </span>
             </div>
@@ -659,7 +659,7 @@ export function GradeCalculatorContent() {
           <h1 className="font-display font-bold text-3xl text-foreground/80">
             {t("title")}
           </h1>
-          <p className="mt-1 text-foreground/50">{t("subtitle")}</p>
+          <p className="mt-1 text-foreground/60">{t("subtitle")}</p>
         </div>
         {/* Cross-link to My Academic Record (manage completed courses) */}
         <Link
@@ -759,20 +759,20 @@ function HonorsDistanceCard({
         <h3 className="font-display font-bold text-lg text-foreground/90">
           {t("honorsTitle")}
         </h3>
-        <span className="rounded-full bg-foreground/8 px-2 py-0.5 text-[10px] text-foreground/50">
+        <span className="rounded-full bg-foreground/8 px-2 py-0.5 text-[10px] text-foreground/70">
           {t("honorsTag")}
         </span>
       </div>
 
       {d.yearlyAverage === null ? (
-        <p className="text-sm text-foreground/55">{t("honorsNoData", { year: d.year })}</p>
+        <p className="text-sm text-foreground/60">{t("honorsNoData", { year: d.year })}</p>
       ) : (
         <>
           <div className="flex items-baseline gap-3">
             <span className="font-mono text-3xl font-bold text-foreground/85">
               {d.yearlyAverage.toFixed(1)}
             </span>
-            <span className="text-sm text-foreground/55">
+            <span className="text-sm text-foreground/60">
               {t("honorsYearAvg", { year: d.year })} · / {HONORS_YEARLY_BAR}
             </span>
           </div>
@@ -792,9 +792,9 @@ function HonorsDistanceCard({
           </p>
           {/* The three real distinctions, with the numbers Ariel corrected on
               21.8, stated as where the cut HAS fallen rather than as bars. */}
-          <p className="text-xs leading-relaxed text-foreground/45">{t("honorsBands")}</p>
-          <p className="text-xs leading-relaxed text-foreground/40">{t("honorsWhenDecided")}</p>
-          <p className="text-xs text-foreground/40">
+          <p className="text-xs leading-relaxed text-foreground/60">{t("honorsBands")}</p>
+          <p className="text-xs leading-relaxed text-foreground/60">{t("honorsWhenDecided")}</p>
+          <p className="text-xs text-foreground/60">
             {t("honorsBasis", { count: d.courseCount, credits: d.credits })} · {t("honorsBinaryNote")}
           </p>
         </>

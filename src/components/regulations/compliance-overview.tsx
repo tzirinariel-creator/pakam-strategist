@@ -35,7 +35,7 @@ export function ComplianceOverview({ summary }: ComplianceOverviewProps) {
   const level: "blocker" | "attention" | "clear" =
     violations > 0 ? "blocker" : warnings > 0 ? "attention" : "clear";
   const statusColor =
-    level === "blocker" ? "text-red-400" : level === "attention" ? "text-amber-400" : "text-emerald-400";
+    level === "blocker" ? "text-status-red" : level === "attention" ? "text-status-amber" : "text-status-green";
   const StatusIcon = level === "clear" ? ShieldCheck : ShieldAlert;
 
   // Neutral degree-progress figure (non-ERROR requirements satisfied).
@@ -84,8 +84,8 @@ export function ComplianceOverview({ summary }: ComplianceOverviewProps) {
         <div className="absolute inset-0 flex flex-col items-center justify-center gap-1">
           {level === "clear" ? (
             <>
-              <StatusIcon className="h-9 w-9 text-emerald-400" />
-              <span className="text-xs font-medium text-emerald-400">
+              <StatusIcon className="h-9 w-9 text-status-green" />
+              <span className="text-xs font-medium text-status-green">
                 {t("compliantShort")}
               </span>
             </>
@@ -144,7 +144,7 @@ export function ComplianceOverview({ summary }: ComplianceOverviewProps) {
             requirements are still unmet, say so explicitly so a mid-degree
             student doesn't mistake a green badge for graduation. */}
         {level === "clear" && progressMet < progressTotal && (
-          <p className="rounded-lg border border-foreground/10 bg-foreground/[0.03] px-3 py-2 text-xs leading-relaxed text-foreground/55">
+          <p className="rounded-lg border border-foreground/10 bg-foreground/[0.03] px-3 py-2 text-xs leading-relaxed text-foreground/60">
             {isHe
               ? `“תקין” אומר ${pg("שאתה עומד", "שאת עומדת", "שאתם עומדים")} בכל הכללים — לא שסיימת את התואר. עדיין נשארו דרישות להשלים (מסומנות “בתהליך” למטה).`
               : '“Compliant” means you meet every rule — not that you’ve finished the degree. You still have requirements left (marked “in progress” below).'}
@@ -155,18 +155,18 @@ export function ComplianceOverview({ summary }: ComplianceOverviewProps) {
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
           {/* Violations */}
           <div className="flex items-center gap-2 rounded-lg border border-red-400/20 bg-red-400/5 px-3 py-2">
-            <XCircle className="h-4 w-4 text-red-400" />
+            <XCircle className="h-4 w-4 text-status-red" />
             <div className="flex flex-col">
-              <span className="font-data text-lg font-bold text-red-400">{violations}</span>
+              <span className="font-data text-lg font-bold text-status-red">{violations}</span>
               <span className="text-xs text-muted-foreground">{t("violations")}</span>
             </div>
           </div>
 
           {/* Warnings */}
           <div className="flex items-center gap-2 rounded-lg border border-amber-400/20 bg-amber-400/5 px-3 py-2">
-            <AlertTriangle className="h-4 w-4 text-amber-400" />
+            <AlertTriangle className="h-4 w-4 text-status-amber" />
             <div className="flex flex-col">
-              <span className="font-data text-lg font-bold text-amber-400">{warnings}</span>
+              <span className="font-data text-lg font-bold text-status-amber">{warnings}</span>
               <span className="text-xs text-muted-foreground">{t("warning")}</span>
             </div>
           </div>
