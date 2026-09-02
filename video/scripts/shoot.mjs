@@ -54,6 +54,24 @@ for (const s of SCREENS) {
     await page.goto(`${BASE}${s.path}`, { waitUntil: "networkidle", timeout: 45000 });
     // לתת לאנימציות הכניסה (stagger 0.4s) ולשאילתות tRPC להיסגר
     await page.waitForTimeout(3500);
+
+    // רצועת "מצב דמו" היא כרומה, לא מוצר. חותכים אותה כאן ולא ב-CSS של
+    // הסרטון: קיזוז גיאומטרי בצד הרנדר גורר objectFit שחותך את הצדדים,
+    // וזה בדיוק מה שקרה בגרסה הקודמת — הסיידבר נעלם מהפריים.
+    await page.evaluate(() => {
+      for (const el of document.querySelectorAll("div")) {
+        if (!el.textContent?.includes("מצב דמו")) continue;
+        const sticky = el.closest('[class*="sticky"]');
+        if (sticky instanceof HTMLElement) {
+          sticky.style.display = "none";
+          break;
+        }
+      }
+      // גם ה-FAB של המלך — הוא צף מעל הפינה ומכסה תוכן בכל צילום.
+      const fab = document.querySelector('[data-tour="floating-assistant"], .pk-fab');
+      if (fab instanceof HTMLElement) fab.style.visibility = "hidden";
+    });
+    await page.waitForTimeout(300);
     const url = page.url();
     if (s.auth && /\/login/.test(url)) {
       console.log(`  ⚠️  הופנה להתחברות — מדלג`);

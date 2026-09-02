@@ -3,18 +3,20 @@ import { Img, staticFile } from "remotion";
 import { C } from "../theme";
 
 /**
- * צילום מסך אמיתי מהאתר החי, עם תנועת מצלמה מעליו.
+ * צילום מסך אמיתי, עם תנועת מצלמה מעליו.
  *
  * עיקרון Q1 של video-shotcraft: כשמשחזרים עמוד קיים — צילום אמיתי, לא UI
- * שנבנה ביד. הצילומים נלקחים ב-`npm run shoot` מ-pakam-strategist.vercel.app
- * דרך חשבון הדמו (קריאה־בלבד), ב-2x כדי שהטקסט יישאר חד גם בזום.
+ * שנבנה ביד. `npm run shoot` מצלם ב-2x מהשרת המקומי (או מהפרודקשן עם
+ * SHOOT_BASE), דרך חשבון הדמו בקריאה־בלבד.
  *
- * ⚠️ Q2: הטקסטורה נשמרת בגודל המקורי (3840×2160) ומוקטנת בתצוגה. אסור
- * להקטין את הקובץ עצמו — טקסט מטושטש בזום מתחיל תמיד שם.
+ * ⚠️ Q2: הטקסטורה נשמרת ב-3840×2160 ומוקטנת בתצוגה. אסור להקטין את הקובץ
+ * עצמו — טקסט מטושטש בזום מתחיל תמיד שם.
+ *
+ * ⚠️ הצילום הוא 1920×1080 מדויק, ולכן `width`/`height` מפורשים ולא
+ * `objectFit: cover`. עם cover, כל סטייה ביחס הגובה־רוחב של המכולה גורמת
+ * לחיתוך אופקי — וזה מה שהעלים את הסיידבר בגרסה קודמת. רצועת "מצב דמו"
+ * מוסתרת בצד הצילום, לא בקיזוז כאן.
  */
-
-/** גובה רצועת "מצב דמו" בראש הצילום (בפיקסלים של הפריים, לא של הטקסטורה). */
-const DEMO_BANNER = 24;
 
 export type Focus = {
   /** מרכז המסגרת ב-% מרוחב/גובה העמוד. 50/50 = מרכז. */
@@ -27,12 +29,9 @@ export type Focus = {
 export const PageShot: React.FC<{
   src: string;
   focus: Focus;
-  /** חיתוך רצועת הדמו — ברירת מחדל כן, זו כרומה ולא תוכן. */
-  cropBanner?: boolean;
   radius?: number;
   shadow?: string;
-}> = ({ src, focus, cropBanner = true, radius = 0, shadow }) => {
-  const top = cropBanner ? -DEMO_BANNER : 0;
+}> = ({ src, focus, radius = 0, shadow }) => {
   // הזזה כך שנקודת המיקוד תשב במרכז הפריים.
   const tx = (50 - focus.x) * (1920 / 100) * focus.scale;
   const ty = (50 - focus.y) * (1080 / 100) * focus.scale;
@@ -60,12 +59,11 @@ export const PageShot: React.FC<{
           src={staticFile(`shots/${src}`)}
           style={{
             position: "absolute",
-            top,
+            top: 0,
             left: 0,
             width: 1920,
-            height: cropBanner ? 1080 + DEMO_BANNER : 1080,
-            objectFit: "cover",
-            objectPosition: "top center",
+            height: 1080,
+            display: "block",
           }}
         />
       </div>
