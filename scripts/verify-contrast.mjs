@@ -18,6 +18,9 @@ const BASE = process.argv.includes("--base")
   : "http://localhost:3131";
 
 const SCHEME = process.argv.includes("--dark") ? "dark" : "light";
+// 375px הוא הרוחב שהחוקה מחייבת ("רב־זוויתיות"). מסכים צרים מרנדרים
+// רכיבים אחרים לגמרי — סרגל תחתון, צ'יפים דחוסים — שלא נבדקו כלל.
+const MOBILE = process.argv.includes("--mobile");
 
 const PAGES = [
   { name: "נחיתה", path: "/he", auth: false },
@@ -138,13 +141,15 @@ const PROBE = () => {
 
 const browser = await chromium.launch();
 const ctx = await browser.newContext({
-  viewport: { width: 1440, height: 900 },
+  viewport: MOBILE ? { width: 375, height: 812 } : { width: 1440, height: 900 },
+  isMobile: MOBILE,
+  hasTouch: MOBILE,
   locale: "he-IL",
   colorScheme: SCHEME,
 });
 const page = await ctx.newPage();
 
-console.log(`בודק מול ${BASE} · מצב ${SCHEME === "dark" ? "כהה" : "בהיר"} · WCAG AA\n`);
+console.log(`בודק מול ${BASE} · מצב ${SCHEME === "dark" ? "כהה" : "בהיר"} · ${MOBILE ? "375px" : "1440px"} · WCAG AA\n`);
 // סקריפט האתחול ב-layout.tsx קורא localStorage ואז כותב class על <html>.
 // prefers-color-scheme לבדו לא מספיק כשיש העדפה שמורה, אז כופים אותה.
 await ctx.addInitScript((scheme) => {
@@ -163,6 +168,8 @@ for (const p of PAGES) {
   try {
     await page.goto(`${BASE}${p.path}`, { waitUntil: "networkidle", timeout: 60000 });
     await page.waitForTimeout(2500);
+    // ה-overlay של Next בפיתוח נספר כטקסט ומסתיר תוכן — הוא לא חלק מהמוצר.
+    await page.addStyleTag({ content: "nextjs-portal{display:none!important}" });
     if (p.auth && /\/login/.test(page.url())) {
       console.log(`${p.name.padEnd(12)} — הופנה להתחברות, מדלג`);
       continue;
