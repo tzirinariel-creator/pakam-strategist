@@ -20,6 +20,7 @@ import {
   X,
   Users2,
   Shield,
+  Crown,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { api } from "@/lib/trpc/react";
@@ -75,6 +76,19 @@ const MORE_MENU_GROUPS = [
     he: "מסביב",
     en: "Around",
     items: [
+      // Ariel, #10, 2.9: "אין טף טאב שמוביל לחלון הזה עם המלך?"
+      //
+      // There was not. /mentor — the advisor's own full screen — appeared in
+      // the desktop sidebar and NOWHERE in this file: not in the four tabs, not
+      // in this menu. On a phone the only way to it was the floating button,
+      // which opens a panel rather than the page. So the King's screen was
+      // reachable on a laptop and unreachable on the device most students use.
+      //
+      // That is the exact failure the comment above this constant describes and
+      // claims to have fixed once already for mentoring. It happened again to
+      // the app's headline feature, which is what makes it worth a door of its
+      // own rather than a footnote: first in the group, before the guide.
+      { key: "mentor", href: "/mentor", icon: Crown },
       // #41 — the social layer gets ONE door on a phone too. Before this,
       // /cohort was here and /mentors existed only in the desktop sidebar, so
       // mentoring was literally unreachable on mobile; השושלת links to both.

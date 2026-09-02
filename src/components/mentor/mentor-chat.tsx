@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect, useCallback } from "react";
+import { suggestedQuestions } from "@/lib/degree-qa";
 import { useTranslations, useLocale } from "next-intl";
 import { api } from "@/lib/trpc/react";
 import { cn } from "@/lib/utils";
@@ -388,6 +389,17 @@ export function MentorChat() {
 
   const nextSemesterPrompt = t("promptNextSemester");
 
+  // The opening chips. `suggestedQuestions` is the app's one list of what a
+  // student asks; the "what should I take next semester" line stays first
+  // because it is the question this screen was built around, then five that
+  // deliberately differ in KIND — a number, a rule, a comparison, a decision,
+  // a definition — so the set reads as "ask me anything about your degree"
+  // rather than five ways to ask the same thing.
+  const openingPrompts = [
+    nextSemesterPrompt,
+    ...suggestedQuestions(isRTL).filter((q) => q !== nextSemesterPrompt).slice(0, 5),
+  ];
+
   // -------------------------------------------------------------------
   // Render
   // -------------------------------------------------------------------
@@ -510,12 +522,28 @@ export function MentorChat() {
                 <p className="mb-6 max-w-sm text-center text-sm text-muted-foreground leading-relaxed">
                   {t("welcomeDescription")}
                 </p>
-                <button
-                  onClick={() => handleSuggestedPrompt(nextSemesterPrompt)}
-                  className="rounded-lg border border-border bg-card px-5 py-2.5 text-sm text-muted-foreground transition-colors hover:border-foreground/20 hover:text-foreground"
-                >
-                  {nextSemesterPrompt}
-                </button>
+                {/* Ariel, #11, 2.9: "למה אין פה עוד שאלות לדוגמה עם המלך?"
+                    There was one. The app already holds thirteen — the same
+                    list the quick-answers tab offers — and this screen, the one
+                    that opens on an empty box and a blinking cursor, showed a
+                    single chip. An empty chat is the hardest screen in any
+                    product to start using; one example is not an invitation,
+                    it is a hint that there is not much to ask.
+                    Six, drawn from the shared list so there is one source, and
+                    spanning the three kinds of question a student actually
+                    arrives with: my numbers, my rules, my decisions. */}
+                <div className="flex max-w-lg flex-wrap items-center justify-center gap-2">
+                  {openingPrompts.map((q) => (
+                    <button
+                      key={q}
+                      type="button"
+                      onClick={() => handleSuggestedPrompt(q)}
+                      className="rounded-lg border border-border bg-card px-4 py-2.5 text-sm text-muted-foreground transition-colors hover:border-foreground/20 hover:text-foreground"
+                    >
+                      {q}
+                    </button>
+                  ))}
+                </div>
               </div>
             ) : (
               /* Message bubbles */
