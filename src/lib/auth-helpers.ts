@@ -26,3 +26,23 @@ export function authErrorKey(message: string | undefined | null): string | null 
 
   return null;
 }
+
+/**
+ * האם ה-signup הזה נענה על כתובת שכבר רשומה?
+ *
+ * כדי לא לחשוף מי רשום באתר, GoTrue **מדכא** את השגיאה "User already
+ * registered": הוא מחזיר בלי error, בלי session, ועם `identities` ריק על
+ * המשתמש. טופס ההרשמה בדק `data.session` בלבד, ולכן הראה את מסך ה-V הירוק
+ * "בדקו את הדוא״ל — שלחנו קישור אישור" למי שכבר יש לו חשבון. מייל כזה לא
+ * נשלח, כי אין מה לאשר; הסטודנט חיכה, לחץ "שליחת הקישור מחדש", וגם זה נכשל.
+ *
+ * `identities` ריק הוא הסימן היחיד, ולכן הוא כאן — ליד שאר מיפויי השגיאות —
+ * ולא כתנאי אנונימי בתוך ה-handler.
+ */
+export function isAlreadyRegistered(
+  data: { user?: { identities?: unknown } | null; session?: unknown } | null | undefined,
+): boolean {
+  if (!data || data.session) return false;
+  const identities = data.user?.identities;
+  return Array.isArray(identities) && identities.length === 0;
+}

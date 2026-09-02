@@ -58,6 +58,10 @@ export function LoginForm() {
     const message =
       reason === "cancelled"
         ? null // Backing out of Google's consent screen is a choice, not a fault.
+        : reason === "expired"
+          ? isHe
+            ? "הקישור מהמייל כבר לא תקף — הם פגים אחרי זמן קצר, ולפעמים סורק הדואר של המוסד פותח אותם לפנינו. הירשמו שוב עם אותה כתובת ונשלח קישור חדש."
+            : "That email link is no longer valid — they expire quickly, and some mail scanners open them before you do. Sign up again with the same address and we'll send a fresh one."
         : reason === "provider"
           ? isHe
             ? "Google לא השלים את ההתחברות. אפשר לנסות שוב, או להתחבר עם אימייל וסיסמה."

@@ -8,7 +8,7 @@ import { api } from "@/lib/trpc/react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
-import { authErrorKey } from "@/lib/auth-helpers";
+import { authErrorKey, isAlreadyRegistered } from "@/lib/auth-helpers";
 import { Loader2, AlertCircle, CheckCircle, Eye, Mail } from "lucide-react";
 import { AuthHeader } from "@/components/auth/auth-header";
 
@@ -154,6 +154,23 @@ export function SignupForm() {
       if (authError) {
         const key = authErrorKey(authError.message);
         setError(key ? t(key) : t("unexpectedError"));
+        return;
+      }
+
+      // כתובת שכבר רשומה — הדבר היחיד שסופאבייס לא אומר בקול.
+      //
+      // כדי לא לחשוף מי רשום באתר, GoTrue **מדכא** את השגיאה
+      // "User already registered": הוא מחזיר בלי error, בלי session, ועם
+      // `data.user.identities` ריק. הקוד כאן בדק `data.session` בלבד, אז
+      // נפל ל-else והציג את מסך ה-V הירוק "בדקו את הדוא״ל — שלחנו קישור
+      // אישור". מייל כזה לא נשלח, כי אין מה לאשר. הסטודנט מחכה, לוחץ
+      // "שליחת הקישור מחדש", וזה נכשל גם הוא — ואף אחד לא אומר לו את
+      // הדבר היחיד שהיה עוזר: יש לך כבר חשבון, תתחבר.
+      //
+      // המחרוזת כבר קיימת (errUserAlreadyRegistered) ופשוט לא הייתה מגיעה
+      // לכאן, כי לא היה אובייקט שגיאה למפות ממנו.
+      if (isAlreadyRegistered(data)) {
+        setError(t("errUserAlreadyRegistered"));
         return;
       }
 

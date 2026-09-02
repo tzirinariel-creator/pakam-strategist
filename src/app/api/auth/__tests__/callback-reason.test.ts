@@ -15,17 +15,20 @@
 //
 // The routing decision is restated here as the pure function it is.
 
+// 3.9 — הבדיקה הזאת **שכפלה** את הענף מה-route כדי לבדוק אותו, ולכן קיבעה
+// אותו. `error === "access_denied" → "cancelled"` הוא בדיוק מה שהחביא קישור
+// אישור שפג תוקפו: GoTrue מחזיר עליו את אותו access_denied ומניח את הסיבה
+// ב-error_code בלבד, ו"ביטול" מציג בכוונה כלום — אז הסטודנט לחץ על הקישור
+// מהמייל ונחת על מסך התחברות שותק לגמרי.
+//
+// הסיווג עבר לפונקציה אחת, והבדיקה **מייבאת** אותה. אין יותר שני מקורות.
+
 import { describe, it, expect } from "vitest";
+import { classifyCallback } from "@/lib/auth-callback-reason";
 
 type Params = Record<string, string | undefined>;
 
-/** Exactly the branch order in src/app/api/auth/callback/route.ts. */
-function outcome(p: Params, exchangeFails = false): string {
-  const hasCredential = Boolean(p.code || (p.token_hash && p.type));
-  if (hasCredential) return exchangeFails ? "exchange" : "session";
-  if (p.error) return p.error === "access_denied" ? "cancelled" : "provider";
-  return "auth";
-}
+const outcome = (p: Params, exchangeFails = false) => classifyCallback(p, exchangeFails);
 
 describe("the callback distinguishes what actually happened", () => {
   it("a cancelled consent screen is not an error", () => {
@@ -65,5 +68,36 @@ describe("the callback distinguishes what actually happened", () => {
     ]) {
       expect(outcome(p)).not.toBe("auth");
     }
+  });
+
+  // ── 3.9 ──────────────────────────────────────────────────────────────
+  describe("קישור מהמייל שפג תוקפו אינו ביטול", () => {
+    it("otp_expired מסווג בנפרד — 'ביטול' היה מציג מסך שותק", () => {
+      expect(
+        outcome({ error: "access_denied", error_code: "otp_expired", error_description: "Email link is invalid or has expired" }),
+      ).toBe("expired");
+    });
+
+    it("גם בלי error_code, אם התיאור אומר שפג", () => {
+      expect(outcome({ error: "access_denied", error_description: "Token has expired" })).toBe("expired");
+    });
+
+    it("קישור איפוס סיסמה שפג עובר באותו מסלול", () => {
+      expect(outcome({ error: "access_denied", error_code: "otp_expired", type: "recovery" })).toBe("expired");
+    });
+
+    it("ביטול אמיתי נשאר ביטול — התיקון לא בלע אותו", () => {
+      expect(outcome({ error: "access_denied", error_description: "The user denied the request" })).toBe("cancelled");
+      expect(outcome({ error: "access_denied" })).toBe("cancelled");
+    });
+
+    it("שלושת המצבים שונים זה מזה — זו כל הנקודה", () => {
+      const kinds = new Set([
+        outcome({ error: "access_denied" }),
+        outcome({ error: "access_denied", error_code: "otp_expired" }),
+        outcome({ error: "server_error" }),
+      ]);
+      expect(kinds.size).toBe(3);
+    });
   });
 });
