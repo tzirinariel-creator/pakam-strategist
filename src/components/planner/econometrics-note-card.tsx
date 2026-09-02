@@ -15,6 +15,7 @@
 // do. It states who it applies to, and carries its source.
 
 import { useLocale } from "next-intl";
+import { studyYearLabel } from "@/lib/study-year-label";
 import { GraduationCap } from "lucide-react";
 import { econometricsNote, type EconometricsPlanRow } from "@/lib/econometrics-note";
 import { ECONOMETRICS_GATE } from "@/lib/future-plans";
@@ -47,12 +48,12 @@ export function EconometricsNoteCard({
           <p className="mt-1.5 text-xs leading-relaxed text-foreground/60">
             {isHe ? (
               <>
-                הקורס אינו בתכנית שלכם כרגע, ואתם בשנה <Bidi text={note.currentYear} /> — עוד אפשר
-                להוסיף אותו. אם אתם לא מתכננים להמשיך לשם, אין צורך.
+                הקורס אינו בתכנית שלכם כרגע, ואתם ב{studyYearLabel(note.currentYear, true)} — עוד
+                אפשר להוסיף אותו. אם אתם לא מתכננים להמשיך לשם, אין צורך.
               </>
             ) : (
               <>
-                It is not in your plan right now, and you are in year {note.currentYear} — there is
+                It is not in your plan right now, and you are in {studyYearLabel(note.currentYear, false)} — there is
                 still room to add it. If you are not continuing there, you do not need it.
               </>
             )}

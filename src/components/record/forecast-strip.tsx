@@ -1,6 +1,7 @@
 "use client";
 
-import { useTranslations } from "next-intl";
+import { useTranslations, useLocale } from "next-intl";
+import { studyYearLabel } from "@/lib/study-year-label";
 import { Link } from "@/i18n/navigation";
 import { GraduationCap, Award } from "lucide-react";
 import { roundScore } from "@/lib/grade-calculator";
@@ -24,6 +25,7 @@ export function ForecastStrip({
   honors: HonorsDistance;
   t: ReturnType<typeof useTranslations<"record">>;
 }) {
+  const isHe = useLocale() === "he";
   const score = weightedScore != null ? (roundScore(weightedScore) ?? weightedScore) : null;
   return (
     <div className="data-card flex flex-wrap items-center justify-between gap-4 p-5">
@@ -49,7 +51,7 @@ export function ForecastStrip({
                 <Bidi text={(honors.yearlyAverage ?? 0).toFixed(1)} />
               </span>
               <span className="text-sm font-medium text-foreground/60">
-                {t("forecastYearAvg", { year: honors.year })}
+                {t("forecastYearAvg", { year: studyYearLabel(honors.year, isHe) })}
               </span>
             </div>
           </div>
@@ -61,7 +63,7 @@ export function ForecastStrip({
           <Award className="h-4 w-4 shrink-0 text-status-amber" />
           <span className="text-foreground/60">
             {honors.gap !== null && honors.gap > 0 ? (
-              <Bidi text={t("forecastHonorsGap", { gap: honors.gap.toFixed(1), year: honors.year })} />
+              <Bidi text={t("forecastHonorsGap", { gap: honors.gap.toFixed(1), year: studyYearLabel(honors.year, isHe) })} />
             ) : (
               <Bidi text={t("forecastHonorsIn", { year: honors.year })} />
             )}

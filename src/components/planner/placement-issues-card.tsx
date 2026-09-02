@@ -20,6 +20,7 @@
 // press it.
 
 import { useMemo } from "react";
+import { studyYearLabel } from "@/lib/study-year-label";
 import { useLocale } from "next-intl";
 import { CalendarX2, ArrowLeftRight } from "lucide-react";
 import { heNoun } from "@/lib/he-count";
@@ -88,8 +89,8 @@ export function PlacementIssuesCard({
                           ? `אצלכם ב${termHe(it.plannedSemester)} · ניתן ב${it.offeredSemesters.map(termHe).join(" / ")}`
                           : `You have it in ${termEn(it.plannedSemester)} · given in ${it.offeredSemesters.map(termEn).join(" / ")}`
                         : isHe
-                          ? <>אצלכם בשנה <Bidi text={it.plannedYear} /> · ניתן בשנה {it.offeredYears.join(" / ")}</>
-                          : <>You have it in year {it.plannedYear} · given in year {it.offeredYears.join(" / ")}</>}
+                          ? `אצלכם ב${studyYearLabel(it.plannedYear, true)} · ניתן ב${it.offeredYears.map((y) => studyYearLabel(y, true)).join(" / ")}`
+                          : `You have it in ${studyYearLabel(it.plannedYear, false)} · given in ${it.offeredYears.map((y) => studyYearLabel(y, false)).join(" / ")}`}
                     </span>
                   </span>
 

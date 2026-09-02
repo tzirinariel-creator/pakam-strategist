@@ -1,6 +1,7 @@
 "use client";
 
 import { GradeSimulator } from "@/components/graduation/grade-simulator";
+import { studyYearLabel } from "@/lib/study-year-label";
 import { GradeRecourseNav } from "@/components/shared/grade-recourse-nav";
 import { WhatMovesMyAverage } from "@/components/graduation/what-moves-my-average";
 import { FuturePlansCard } from "@/components/graduation/future-plans-card";
@@ -745,6 +746,7 @@ function HonorsDistanceCard({
   allCourses: UserCourseWithCourse[];
   t: ReturnType<typeof useTranslations>;
 }) {
+  const isHe = useLocale() === "he";
   const profileQuery = api.user.getProfile.useQuery();
   const year = deriveYearOfStudy(
     profileQuery.data?.startYear,
@@ -773,7 +775,7 @@ function HonorsDistanceCard({
               {d.yearlyAverage.toFixed(1)}
             </span>
             <span className="text-sm text-foreground/60">
-              {t("honorsYearAvg", { year: d.year })} · / {HONORS_YEARLY_BAR}
+              {t("honorsYearAvg", { year: studyYearLabel(d.year, isHe) })} · / {HONORS_YEARLY_BAR}
             </span>
           </div>
           <div className="h-2 w-full overflow-hidden rounded-full bg-foreground/10">

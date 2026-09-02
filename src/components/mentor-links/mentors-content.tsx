@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { studyYearLabel } from "@/lib/study-year-label";
 import { useLocale } from "next-intl";
 import { UserPlus, Check, X, Eye, ShieldCheck, Mail, Loader2, ChevronLeft } from "lucide-react";
 import { Link } from "@/i18n/navigation";
@@ -265,9 +266,8 @@ function MenteePlan({ menteeUserId, menteeName, isHe, onClose }: {
 
       <div className="mt-4 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
         {grouped.map((g) => {
-          const yearCfg = YEAR_CONFIG[g.year as keyof typeof YEAR_CONFIG];
           const semCfg = SEMESTER_CONFIG[g.semester as keyof typeof SEMESTER_CONFIG];
-          const yearLabel = isHe ? (yearCfg?.nameHe ?? `שנה ${g.year}`) : (yearCfg?.nameEn ?? `Year ${g.year}`);
+          const yearLabel = studyYearLabel(g.year, isHe);
           const semLabel = isHe ? (semCfg?.short ?? g.semester) : (semCfg?.shortEn ?? g.semester);
           return (
             <div key={`${g.year}-${g.semester}`} className="rounded-xl border border-border/60 bg-card/40 p-3">

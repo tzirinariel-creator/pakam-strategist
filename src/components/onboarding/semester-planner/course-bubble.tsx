@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo } from "react";
+import { studyYearLabel, studyYearList } from "@/lib/study-year-label";
 import { useLocale } from "next-intl";
 import { Lock, Check, AlertTriangle, Star, Info, GitBranch } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -194,8 +195,8 @@ export function CourseBubble({
             }
           >
             {isHe
-              ? `מומלץ לשנה ${outOfRecommendedYear.years.join("/")}`
-              : `for year ${outOfRecommendedYear.years.join("/")}`}
+              ? `מומלץ ל${studyYearLabel(outOfRecommendedYear.years[0]!, true)}${outOfRecommendedYear.years.length > 1 ? `/${studyYearList(outOfRecommendedYear.years.slice(1), true)}` : ""}`
+              : `for ${studyYearLabel(outOfRecommendedYear.years[0]!, false)}${outOfRecommendedYear.years.length > 1 ? `/${studyYearList(outOfRecommendedYear.years.slice(1), false)}` : ""}`}
           </span>
         )}
 

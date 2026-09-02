@@ -21,6 +21,7 @@
 // hardest prohibition.
 
 import type { UserCourseWithCourse } from "@/types/degree";
+import { studyYearLabel } from "@/lib/study-year-label";
 
 export type Term = "FALL" | "SPRING";
 
@@ -127,7 +128,7 @@ export function yearPlanAsText(plan: YearPlan, isHe: boolean): string {
   };
 
   return [
-    isHe ? `תכנון שנה ${plan.yearOfStudy}` : `Year ${plan.yearOfStudy} plan`,
+    isHe ? `תכנון ${studyYearLabel(plan.yearOfStudy, true)}` : `${studyYearLabel(plan.yearOfStudy, false)} plan`,
     "",
     ...block(plan.fall),
     ...block(plan.spring),

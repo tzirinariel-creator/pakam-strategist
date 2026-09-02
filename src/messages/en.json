@@ -502,7 +502,7 @@
     "honorsYearAvg": "Your weighted average for year-{year} courses",
     "honorsAtBar": "Your yearly average is in the range where the cut has fallen in past years. That is not a promise: dean's list is roughly the top 3% in PPE, and the lists are settled around March against your own cohort.",
     "honorsGapText": "{gap, plural, one {1 point} other {# points}} of yearly average from the range where the cut has fallen in past years (around 97 for dean's list). It moves every year — it's the top 3% in PPE, not a fixed number.",
-    "honorsNoData": "Not enough grades from year {year} yet to compute a yearly average.",
+    "honorsNoData": "Not enough grades from {year} yet to compute a yearly average.",
     "honorsBinaryNote": "Note: converting more than 25% of a year's hours to binary forfeits honors.",
     "honorsBasis": "Based on {count, plural, one {1 course} other {# courses}} · {credits} credits",
     "honorsBands": "In past years: dean's list around 97 (top ~3% in PPE) · rector's list around 98 (top ~3% of the whole faculty) · degree with honours around 92 (~15% of those finishing).",
@@ -521,8 +521,8 @@
     "summaryNoFocus": "No focus area selected",
     "forecastTitle": "Predicted final grade",
     "forecastCaption": "Based on grades entered so far · as of 2025/26",
-    "forecastHonorsGap": "{gap} pts from the honors average (year {year})",
-    "forecastHonorsIn": "Within the honors average (year {year})",
+    "forecastHonorsGap": "{gap} pts from the honors average ({year})",
+    "forecastHonorsIn": "Within the honors average ({year})",
     "forecastFullLink": "Full breakdown",
     "course": "Course",
     "credits": "credits",
@@ -567,7 +567,7 @@
     "crossLinkFromGrades": "To manage courses you've already taken — open My Academic Record",
     "notInAvgEnglish": "not in the degree average",
     "notInAvgBinary": "binary — not in the degree average",
-    "forecastYearAvg": "Year {year} average"
+    "forecastYearAvg": "{year} average"
   },
   "onboarding": {
     "welcomeTitle": "Your degree, finally organized",
@@ -1067,7 +1067,7 @@
     "allExams": "All exams",
     "daysShort": "d",
     "moedA": "Moed A",
-    "semesterContext": "Semester {semester}, Year {year}",
+    "semesterContext": "Semester {semester}, {year}",
     "editSemesterPlan": "Edit Semester Plan",
     "editSemesterPlanDesc": "Change courses and build a new schedule",
     "loadingSlowTitle": "Loading is a bit slow today",
