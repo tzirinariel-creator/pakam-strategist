@@ -1,5 +1,5 @@
 import { Bidi } from "@/lib/bidi";
-import { heNoun } from "@/lib/he-count";
+import { heNoun, heNounF } from "@/lib/he-count";
 import { sheetSemesterLabel } from "@/lib/sheet-semester-label";
 import type { ScanDiagnostics } from "@/lib/grade-sheet";
 
@@ -51,11 +51,22 @@ export function ScanDiagnosticsPanel({ d, isHe }: { d: ScanDiagnostics; isHe: bo
           <>
             קראנו {heNoun(d.firstReadRows, "שורה", "שורות")} מהקובץ
             {semesterText ? <>, מ־{semesterText}</> : null}:{" "}
-            <Bidi text={d.withGrade} /> {heNoun(d.withGrade, "קורס עם ציון", "קורסים עם ציון")}
+            {/* heNoun מחזיר את המספר בתוך המחרוזת, אז <Bidi text={n}/> לפניו
+                הדפיס אותו פעמיים: "7 7 קורסים עם ציון". וההצמדה השנייה הייתה
+                גרועה יותר — heNoun עם יחיד ורבים זהים ייצר "שעדיין בלימוד אחד"
+                כשהיה קורס אחד. זה המסך הראשון שסטודנט חדש רואה אחרי שהעלה
+                גיליון ציונים. */}
+            <Bidi text={heNoun(d.withGrade, "קורס עם ציון", "קורסים עם ציון")} />
             {d.withoutGrade > 0 && (
               <>
-                {" "}ועוד <Bidi text={d.withoutGrade} />{" "}
-                {heNoun(d.withoutGrade, "שעדיין בלימוד", "שעדיין בלימוד")}
+                {" "}ועוד{" "}
+                {d.withoutGrade === 1 ? (
+                  "אחד שעדיין בלימוד"
+                ) : (
+                  <>
+                    <Bidi text={d.withoutGrade} /> שעדיין בלימוד
+                  </>
+                )}
               </>
             )}
             .
@@ -89,8 +100,9 @@ export function ScanDiagnosticsPanel({ d, isHe }: { d: ScanDiagnostics; isHe: bo
               ) : (
                 <>
                   קראנו את הגיליון פעמיים, ובשתי הקריאות היו{" "}
-                  <Bidi text={d.disputed} />{" "}
-                  {heNoun(d.disputed, "שורה שלא הסכימו עליה", "שורות שלא הסכימו עליהן")} — כדאי
+                  {/* heNounF ולא heNoun — "שורה" נקבה, והיחיד יצא "שורה
+                      שלא הסכימו עליה אחד". */}
+                  <Bidi text={heNounF(d.disputed, "שורה שלא הסכימו עליה", "שורות שלא הסכימו עליהן")} /> — כדאי
                   לבדוק אותן ידנית לפני שמאשרים.
                 </>
               )

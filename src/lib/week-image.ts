@@ -21,6 +21,44 @@
 //  · It carries no grade, no average and no personal identifier. A timetable
 //    gets forwarded; whatever is on it travels with it.
 
+
+// =========================================
+// בידוד LTR בתוך קנבס — אין <bdi> על קנבס
+// =========================================
+// `ctx.direction = "rtl"` מריץ את אלגוריתם ה-bidi המלא על כל מחרוזת. טווח
+// שעות הוא שני מספרים עם מקף ביניהם, והמקף הוא תו נייטרלי — כלומר בפסקה RTL
+// שני הצדדים מתהפכים. הרצתי את זה על קנבס אמיתי ובדקתי את הפיקסלים:
+// הקלט "12:00–14:00" צויר כ-"14:00–12:00". התמונה הזאת היא מה שסטודנט שולח
+// לחבר בוואטסאפ, ומי שקורא אותה רואה שיעור שמתחיל בשתיים ונגמר בשתים־עשרה.
+//
+// ב-JSX הפתרון הוא <bdi dir="ltr">, ולקנבס אין DOM. תווי הבקרה של יוניקוד
+// עושים בדיוק את אותו הדבר: U+2066 פותח בידוד־שמאל־לימין, U+2069 סוגר.
+// אימתתי גם את הכיוון הזה בפיקסלים — עם הבידוד הטווח מצויר נכון.
+const LRI = "\u2066";
+const PDI = "\u2069";
+
+/** עוטף ריצה שמאל־לימין (שעה, טווח, מספר חדר) כך שלא תתהפך בקנבס RTL. */
+export function ltr(text: string): string {
+  return `${LRI}${text}${PDI}`;
+}
+
+/**
+ * החלקים של שורת המטא מתחת לשם הקורס, מהחשוב לפחות־חשוב. מיוצא כדי שאפשר
+ * יהיה לבדוק אותו בלי לצייר קנבס — הבאג היה בהרכבת המחרוזת, לא בציור.
+ */
+export function sessionMetaParts(s: {
+  startTime: string;
+  endTime: string;
+  sessionTypeLabel?: string | null;
+  room?: string | null;
+}): string[] {
+  return [
+    ltr(`${s.startTime}–${s.endTime}`),
+    s.sessionTypeLabel ?? "",
+    s.room ? ltr(s.room) : "",
+  ].filter(Boolean);
+}
+
 export interface WeekImageSession {
   dayOfWeek: string;
   startTime: string;
@@ -229,7 +267,7 @@ export function drawWeekImage(
       // The first card printed "12:00–14:00 · …", which spends the space on
       // punctuation and tells you nothing — the hours are what a person reads
       // here, the room is what they can live without.
-      const parts = [`${s.startTime}–${s.endTime}`, s.sessionTypeLabel, s.room].filter(Boolean) as string[];
+      const parts = sessionMetaParts(s);
       let meta = parts.join(" · ");
       while (parts.length > 1 && ctx.measureText(meta).width > w - 16) {
         parts.pop();

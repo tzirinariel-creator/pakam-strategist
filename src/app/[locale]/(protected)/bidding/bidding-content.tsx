@@ -57,6 +57,7 @@ import { getPlanningAnchor, deriveYearOfStudy } from "@/lib/academic-calendar";
 import { heNoun } from "@/lib/he-count";
 import { Bidi } from "@/lib/bidi";
 import type { UserCourseWithCourse } from "@/types/degree";
+import { QueryErrorState } from "@/components/shared/query-error";
 
 const TERM_HE: Record<string, string> = { FALL: "סמסטר א׳", SPRING: "סמסטר ב׳" };
 const TERM_EN: Record<string, string> = { FALL: "Semester A", SPRING: "Semester B" };
@@ -193,6 +194,29 @@ export function BiddingContent() {
     return <ThemedLoader variant="page" />;
   }
 
+  // שגיאה בצורת ריקנות — והפעם על המסך היקר ביותר בשנה.
+  //
+  // המסך הזה הגן רק על isLoading. כש-getUserPlan נכשל (retry:1 כאן, מתחת
+  // ל-retry:2 הגלובלי שנוסף בדיוק בגלל שסופאבייס מתקררת), הטעינה מסתיימת בלי
+  // data, `courses` נופל ל-[], ושתי עמודות הסמסטרים מציגות לסטודנט עם תוכנית
+  // מלאה: "אין כאן קורסים... זה סמסטר שלא הגשתם עליו בקשה", ומעליהן האזעקה
+  // "אחד הסמסטרים ריק. הבידינג מגיש את שני הסמסטרים יחד — סמסטר שלא הגשתם
+  // עליו בקשה נסגר". כלומר תקלת רשת אצלנו הופכת לטענה עובדתית שקרית על
+  // הבקשה שלו, ארבעה ימים לפני המקצה, בזמן שהכותרת מודיעה "סה״כ 0 ש״ס".
+  if (planQuery.isError || profileQuery.isError) {
+    return (
+      <div className="mx-auto w-full max-w-5xl px-4 py-6">
+        <QueryErrorState
+          what={isHe ? "התוכנית שלכם" : "your plan"}
+          onRetry={() => {
+            void planQuery.refetch();
+            void profileQuery.refetch();
+          }}
+        />
+      </div>
+    );
+  }
+
   return (
     <div className="mx-auto flex w-full max-w-5xl flex-col gap-5 px-4 py-6">
       <header className="flex flex-col gap-1">
@@ -247,7 +271,7 @@ export function BiddingContent() {
             <TriangleAlert className="mt-0.5 size-4 shrink-0 text-status-amber" />
             <p className="text-xs leading-relaxed text-foreground/70">
               {isHe
-                ? "אחד הסמסטרים ריק. הבידינג מגיש את שני הסמסטרים יחד — סמסטר שלא הגשתם עליו בקשה נסגר, ומה שנשאר בו בסבב השני הוא מה שאחרים לא רצו."
+                ? "אחד הסמסטרים ריק. הבידינג מגיש את שני הסמסטרים יחד — סמסטר שלא הגשתם עליו בקשה נסגר, ומה שנשאר בו במקצה השני הוא מה שאחרים לא רצו."
                 : "One semester is empty. The round submits both together — a term you request nothing for fills up, and what's left in round two is what nobody else wanted."}
             </p>
           </div>
@@ -320,10 +344,19 @@ export function BiddingContent() {
       </div>
 
       {/* The copy-out sheet for the round itself. */}
+      {/* הכותרת של המסך מבטיחה "שני הסמסטרים יחד — כי הבידינג מגיש את שניהם
+          באותה פעם", והעמודות מעל מראות את שניהם. הגיליון קיבל סמסטר אחד
+          (הקרוב), וסינן החוצה את כל מה ששייך לשני — כלומר הכפתור "העתיקו סיכום
+          לידיעון" החזיר חצי מהבקשה. */}
       <BiddingWorksheet
         courses={courses}
         targetYear={yearOfStudy}
-        targetSemester={anchor.semester as "FALL" | "SPRING"}
+        targetSemester="FALL"
+      />
+      <BiddingWorksheet
+        courses={courses}
+        targetYear={yearOfStudy}
+        targetSemester="SPRING"
       />
 
       <BiddingExplainer isHe={isHe} />
@@ -348,7 +381,11 @@ export function BiddingContent() {
             {" "}
             {isHe ? (
               <>
-                הסבב נפתח בעוד <Bidi text={phase.daysUntil} /> {heNoun(phase.daysUntil, "יום", "ימים")}.
+                {/* heNoun מחזיר את המספר בתוך המחרוזת. הצמדת <Bidi text={n}/>
+                    לפניו הדפיסה אותו פעמיים — "בעוד 5 5 ימים", חי במסך, ארבעה
+                    ימים לפני המקצה. אותה תבנית בדיוק תוקנה ב-22.8 בעוזר המערכת
+                    ושרדה כאן. */}
+                המקצה נפתח בעוד <Bidi text={heNoun(phase.daysUntil, "יום", "ימים")} />.
               </>
             ) : (
               <>Round opens in {phase.daysUntil} days.</>

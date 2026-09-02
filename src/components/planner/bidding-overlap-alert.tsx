@@ -1,6 +1,7 @@
 "use client";
 
 import { heNoun } from "@/lib/he-count";
+import { SEMESTER_CONFIG } from "@/lib/constants";
 import { useMemo } from "react";
 import { useLocale } from "next-intl";
 import { AlertTriangle, ShieldCheck } from "lucide-react";
@@ -86,6 +87,14 @@ export function BiddingOverlapAlert({
     };
   }, [courses, selectedYear, semester, courseById, isHe]);
 
+  // מסך הבידינג מרכיב את הרכיב הזה פעמיים — פעם לסמסטר א׳ ופעם לב׳ — ואף אחד
+  // מהשניים לא אמר על איזה סמסטר הוא מדבר. התוצאה: או שני כרטיסים ירוקים
+  // זהים בית־בית זה מעל זה, או אזהרת חפיפה שהסטודנט לא יודע לאיזה סמסטר
+  // לשייך — בדיוק במסך שבו הוא מגיש את שניהם יחד.
+  const termHe = SEMESTER_CONFIG[semester]?.nameHe ?? "";
+  const termEn = SEMESTER_CONFIG[semester]?.nameEn ?? "";
+  const termLabel = isHe ? termHe : termEn;
+
   // Nothing meaningful to check with fewer than two scheduled courses.
   if (distinctCourses < 2) return null;
 
@@ -95,8 +104,8 @@ export function BiddingOverlapAlert({
         <ShieldCheck className="size-4 shrink-0 text-status-green" />
         <p className="text-xs text-foreground/70">
           {isHe
-            ? "אין חפיפות בין הקורסים שבחרתם — אפשר להגיש את הבידינג בראש שקט."
-            : "No time clashes between your courses this semester — safe to bid."}
+            ? `${termLabel}: אין חפיפות בין הקורסים שבחרתם — אפשר להגיש בראש שקט.`
+            : `${termLabel}: no time clashes between your courses — safe to bid.`}
           {unscheduledCount > 0 && (
             <span className="text-foreground/60">
               {" "}
@@ -116,8 +125,8 @@ export function BiddingOverlapAlert({
         <AlertTriangle className="size-4 shrink-0 text-status-amber" />
         <h3 className="text-sm font-bold text-foreground/85">
           {isHe
-            ? `שימו לב — ${conflicts.length === 1 ? "חפיפה אחת" : conflicts.length === 2 ? "שתי חפיפות" : `${conflicts.length} חפיפות`} בקורסים שלכם`
-            : `Heads up — ${conflicts.length} clash${conflicts.length > 1 ? "es" : ""} in your courses`}
+            ? `${termLabel} — ${conflicts.length === 1 ? "חפיפה אחת" : conflicts.length === 2 ? "שתי חפיפות" : `${conflicts.length} חפיפות`} בקורסים שלכם`
+            : `${termLabel} — ${conflicts.length} clash${conflicts.length > 1 ? "es" : ""} in your courses`}
         </h3>
       </div>
       <p className="mb-2.5 text-[11px] leading-snug text-foreground/60">

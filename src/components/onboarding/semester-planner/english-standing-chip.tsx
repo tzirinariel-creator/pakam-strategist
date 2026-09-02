@@ -66,8 +66,8 @@ export function EnglishStandingChip({ signal }: { signal: EnglishSignal }) {
           {text ??
             (isHe ? (
               <>
-                אנגלית — נשאר <Bidi text={signal.remaining} />{" "}
-                {heNoun(signal.remaining, "קורס רמה", "קורסי רמה")}
+                אנגלית — נשאר{" "}
+                <Bidi text={heNoun(signal.remaining, "קורס רמה", "קורסי רמה")} />
               </>
             ) : (
               <>
