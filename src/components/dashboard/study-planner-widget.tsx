@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useMemo } from "react";
+import { serverSaid } from "@/lib/server-said";
 import { useTranslations } from "next-intl";
 import {
   Plus,
@@ -77,7 +78,7 @@ export function StudyPlannerWidget({
       toast.success(t("taskCreated"));
       setShowAddModal(false);
     },
-    onError: () => toast.error(t("taskError")),
+    onError: (e) => toast.error(serverSaid(e, t("taskError"))),
   });
 
   const toggleTask = api.studyTask.toggleComplete.useMutation({
@@ -85,7 +86,7 @@ export function StudyPlannerWidget({
       utils.studyTask.list.invalidate();
       toast.success(t("taskUpdated"));
     },
-    onError: () => toast.error(t("taskError")),
+    onError: (e) => toast.error(serverSaid(e, t("taskError"))),
   });
 
   const deleteTask = api.studyTask.delete.useMutation({
@@ -94,7 +95,7 @@ export function StudyPlannerWidget({
       setDeletingId(null);
       toast.success(t("taskDeleted"));
     },
-    onError: () => toast.error(t("taskError")),
+    onError: (e) => toast.error(serverSaid(e, t("taskError"))),
   });
 
   // Process tasks — group into active and completed

@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState, useEffect, useRef, useCallback } from "react";
+import { serverSaid } from "@/lib/server-said";
 import { createPortal } from "react-dom";
 import { useLocale } from "next-intl";
 import { toast } from "sonner";
@@ -163,8 +164,7 @@ export function PlannerLiveTimetable({ courses, currentYear }: PlannerLiveTimeta
   const utils = api.useUtils();
   const updateCourse = api.plan.updateCourse.useMutation({
     onSuccess: () => invalidatePlanData(utils),
-    onError: () =>
-      toast.error(isHe ? "לא הצלחנו לשמור את הקבוצה" : "Couldn't save the group"),
+    onError: (e) => toast.error(serverSaid(e, isHe ? "לא הצלחנו לשמור את הקבוצה" : "Couldn't save the group")),
   });
   const handleSelectSessionGroup = useCallback(
     (courseCode: string, sessionType: string, groupCode: string) => {

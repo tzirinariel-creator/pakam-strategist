@@ -1,6 +1,7 @@
 "use client";
 
 import { KnownSittings } from "@/components/exam-planner/known-sittings";
+import { serverSaid } from "@/lib/server-said";
 import { resolveExamDates } from "@/lib/exam-date-source";
 import { upcomingPeriod, periodLabel } from "@/lib/exam-period";
 import { yedionExamDates } from "@/lib/yedion-assessments";
@@ -80,7 +81,7 @@ export function ExamPlannerContent() {
       void invalidate();
       toast.success(isHe ? `נבנתה תוכנית: ${r.sessions ?? 0} מפגשי לימוד` : `Plan built: ${r.sessions ?? 0} study sessions`);
     },
-    onError: () => advisorError(isHe ? "בניית התוכנית לא הצליחה — נסו שוב. הבחירות שלכם נשמרו." : "Building the plan didn't work — try again. Your picks are kept."),
+    onError: (e) => advisorError(serverSaid(e, isHe ? "בניית התוכנית לא הצליחה — נסו שוב. הבחירות שלכם נשמרו." : "Building the plan didn't work — try again. Your picks are kept.")),
   });
   const createMutation = api.studyTask.create.useMutation({ onSuccess: () => void invalidate() });
   const toggleMutation = api.studyTask.toggleComplete.useMutation({ onSuccess: () => void invalidate() });

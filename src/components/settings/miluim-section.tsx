@@ -1,6 +1,7 @@
 "use client";
 
 import { heNoun } from "@/lib/he-count";
+import { serverSaid } from "@/lib/server-said";
 import { useState, useEffect } from "react";
 import { Shield, Loader2, Check, Swords } from "lucide-react";
 import { useTranslations, useLocale } from "next-intl";
@@ -111,7 +112,7 @@ export function MiluimSection() {
       setTimeout(() => setSaved(false), 2000);
       toast.success(t("saved"));
     },
-    onError: () => advisorError(isHe ? "השמירה לא הצליחה — נסו שוב. שום דבר לא אבד." : "The save didn't go through — try again. Nothing was lost."),
+    onError: (e) => advisorError(serverSaid(e, isHe ? "השמירה לא הצליחה — נסו שוב. שום דבר לא אבד." : "The save didn't go through — try again. Nothing was lost.")),
   });
   // Quiet twins for the 3010 UNDO path — restoring N rows must not fire N
   // "saved" toasts; ONE invalidate at the end.
@@ -149,7 +150,7 @@ export function MiluimSection() {
       void utils.regulation.checkCompliance.invalidate();
       toast.success(t("saved"));
     },
-    onError: () => toast.error(isHe ? "השמירה נכשלה" : "Save failed"),
+    onError: (e) => toast.error(serverSaid(e, isHe ? "השמירה נכשלה" : "Save failed")),
   });
 
   // Derived group preview from the current inputs (mirrors onboarding).

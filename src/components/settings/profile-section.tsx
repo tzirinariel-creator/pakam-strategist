@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useMemo } from "react";
+import { serverSaid } from "@/lib/server-said";
 import { User, Loader2, Check } from "lucide-react";
 import { useTranslations, useLocale } from "next-intl";
 import { toast } from "sonner";
@@ -44,8 +45,11 @@ export function ProfileSection() {
       setTimeout(() => setSaved(false), 2000);
       toast.success(t("profileSaved"));
     },
-    onError: () => {
-      toast.error(t("profileSaveError"));
+    onError: (e) => {
+      // The demo guard, a validation, a quota — the server already said the
+      // true and actionable thing. This used to replace it with "try again",
+      // which on a demo account is advice that can never work.
+      toast.error(serverSaid(e, t("profileSaveError")));
     },
   });
 

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useMemo } from "react";
+import { serverSaid } from "@/lib/server-said";
 import { Link } from "@/i18n/navigation";
 import { useTranslations, useLocale } from "next-intl";
 import {
@@ -263,7 +264,7 @@ export function CalendarContent() {
           ? `${t("syncSuccess")} (${data.synced})`
           : t("syncSuccess"),
       ),
-    onError: () => advisorError(t("syncFailed")),
+    onError: (e) => advisorError(serverSaid(e, t("syncFailed"))),
   });
 
   const isLoading = planLoading;

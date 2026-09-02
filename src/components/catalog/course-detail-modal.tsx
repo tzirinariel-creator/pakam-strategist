@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { serverSaid } from "@/lib/server-said";
 import { useLocale } from "next-intl";
 import { toast } from "sonner";
 import { advisorError } from "@/lib/advisor-toast";
@@ -323,7 +324,7 @@ function CommunityKnowledge({
       void utils.courseKnowledge.getForCourse.invalidate({ courseCode: course.code });
       toast.success(isHe ? "תודה — נבדוק את זה." : "Thanks — we'll review it.");
     },
-    onError: () => advisorError(isHe ? "הדיווח לא נשלח — נסו שוב." : "Report failed. Try again."),
+    onError: (e) => advisorError(serverSaid(e, isHe ? "הדיווח לא נשלח — נסו שוב." : "Report failed. Try again.")),
   });
 
   const data = q.data;

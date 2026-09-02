@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef, useCallback } from "react";
+import { serverSaid } from "@/lib/server-said";
 import { useDraggable } from "@dnd-kit/core";
 import { CSS } from "@dnd-kit/utilities";
 import {
@@ -146,7 +147,7 @@ export function CourseCard({ userCourse, disabled, currentYear }: CourseCardProp
           : isHe ? "נשמר. הקורס נספר לתחום שבחרתם" : "Saved. It now counts toward the field you picked",
       );
     },
-    onError: () => toast.error(tPlanner("statusSaveError")),
+    onError: (e) => toast.error(serverSaid(e, tPlanner("statusSaveError"))),
   });
 
   const {

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef, useCallback } from "react";
+import { serverSaid } from "@/lib/server-said";
 import { PartyPopper, Calendar, BookOpen, Check, RefreshCw, AlertTriangle, Download, CalendarDays } from "lucide-react";
 import { useTranslations, useLocale } from "next-intl";
 import { toast } from "sonner";
@@ -160,7 +161,7 @@ export function StepReady({ data, plannedSemesters, completedCourses, allCourses
   const googleStatus = api.schedule.getGoogleStatus.useQuery(undefined, { enabled: hasSaved });
   const syncToGoogle = api.schedule.syncToGoogle.useMutation({
     onSuccess: () => toast.success(tCal("syncSuccess")),
-    onError: () => advisorError(tCal("syncFailed")),
+    onError: (e) => advisorError(serverSaid(e, tCal("syncFailed"))),
   });
 
   const scheduleSessions = scheduleQuery.data?.sessions ?? [];

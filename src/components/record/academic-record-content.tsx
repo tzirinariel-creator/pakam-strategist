@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState, useCallback, useRef, useEffect } from "react";
+import { serverSaid } from "@/lib/server-said";
 import { useTranslations, useLocale } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import { useSearchParams } from "next/navigation";
@@ -152,7 +153,7 @@ export function AcademicRecordContent() {
           ? isHe
             ? "הקורס כבר נמצא בסמסטר הזה"
             : "This course is already in that semester"
-          : t("saveError"),
+          : serverSaid(e, t("saveError")),
       ),
   });
   const removeCourseMutation = api.plan.removeCourse.useMutation({
@@ -160,14 +161,14 @@ export function AcademicRecordContent() {
       invalidateAll();
       toast.success(t("removed"));
     },
-    onError: () => toast.error(t("saveError")),
+    onError: (e) => toast.error(serverSaid(e, t("saveError"))),
   });
   const addCompletedMutation = api.plan.saveCompletedCourses.useMutation({
     onSuccess: () => {
       invalidateAll();
       toast.success(t("added"));
     },
-    onError: () => toast.error(t("saveError")),
+    onError: (e) => toast.error(serverSaid(e, t("saveError"))),
   });
 
   const handleSaveGrade = useCallback(
