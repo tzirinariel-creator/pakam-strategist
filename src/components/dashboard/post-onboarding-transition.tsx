@@ -41,6 +41,34 @@ export function PostOnboardingTransition({
   const [exhausted, setExhausted] = useState(false);
   const [showContinue, setShowContinue] = useState(false);
 
+  // Ariel, #5, 2.9: "היה פה לופ בסיום של שמירה וחזרה למסך של סגירת תכנון…
+  // הלופ ממשיך בין שני המסכים האלו של הכול מוכן ושל המלך טוען כבר כמה פעמים
+  // - חמור מאוד. והנה נתקעתי ואני אפילו לא יכול ללחוץ על מסך הבית."
+  //
+  // The retry effect below listed [onRetry, onContinue] as its dependencies,
+  // and the dashboard passes both as inline arrows:
+  //     onRetry={() => planQuery.refetch()}
+  // A new function identity on every render. And `refetch()` ITSELF re-renders
+  // the dashboard, because the query's isFetching flips. So:
+  //
+  //     effect runs → schedules a retry → retry refetches → dashboard
+  //     re-renders → onRetry is a NEW function → deps changed → effect tears
+  //     down mid-flight and starts over → …
+  //
+  // The teardown sets `cancelled` and clears the timer, so each cycle abandons
+  // the attempt it was waiting on and restarts the 2s "continue anyway" timer
+  // with it. The screen never settles and never finishes, which is exactly what
+  // he watched: two screens trading places until the page stopped responding.
+  //
+  // Holding the callbacks in refs makes the effect depend on nothing, so it
+  // runs ONCE per mount. Doing it here rather than with useCallback at the call
+  // site is deliberate: this component is the one that cannot survive an
+  // unstable callback, so it should not be able to be handed one.
+  // Only onRetry needs this — onContinue is called from a click handler, where
+  // a fresh identity every render is harmless.
+  const onRetryRef = useRef(onRetry);
+  onRetryRef.current = onRetry;
+
   useEffect(() => {
     // Show "Continue anyway" after 2 seconds — don't block the user
     const continueTimer = setTimeout(() => setShowContinue(true), 2000);
@@ -60,7 +88,7 @@ export function PostOnboardingTransition({
       if (cancelled) return;
       tickCount.current += 1;
       try {
-        await onRetry();
+        await onRetryRef.current();
       } catch {
         /* a failed refetch is just a slow start — keep waiting, same as before */
       }
@@ -79,7 +107,10 @@ export function PostOnboardingTransition({
       if (timer) clearTimeout(timer);
       clearTimeout(continueTimer);
     };
-  }, [onRetry, onContinue]);
+    // Intentionally empty: the callbacks live in refs above, so this effect
+    // runs once per mount and is immune to the caller's render churn.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   if (exhausted) {
     return (
