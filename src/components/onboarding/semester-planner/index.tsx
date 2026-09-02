@@ -43,6 +43,7 @@ import { QuietBoundary } from "@/components/shared/query-error";
 import { ExamGantt } from "./exam-gantt";
 import { getAcademicNow } from "@/lib/academic-calendar";
 import { heNoun } from "@/lib/he-count";
+import { isMandatoryCourse } from "@/lib/course-requirement";
 
 /** Seen-once flag for the in-place planner tour (#17). Cleared alongside the
  *  other first-run flags when onboarding completes, so a reset account gets it
@@ -355,7 +356,7 @@ export function SemesterPlanner({
   const mandatoryCourses = useMemo(() => {
     return mergedCourses.filter((c) => {
       if (completedCourseIds.has(c.id)) return false;
-      if (!(c.courseType === "MANDATORY" || c.isMandatory)) return false;
+      if (!isMandatoryCourse(c)) return false;
       // Must be offered this year/semester
       if (c.yearOffered.length > 0 && !c.yearOffered.includes(currentYear)) return false;
       const offered = c.semesterOffered.map(String);

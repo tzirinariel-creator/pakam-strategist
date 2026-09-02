@@ -12,6 +12,7 @@ import { GradeInput } from "./grade-input";
 import { SubmissionGradeInput, type SubmissionKind } from "./submission-grade-input";
 import { DisciplineBadge } from "./discipline-badge";
 import { isEnglishCourse } from "@/lib/english-standing";
+import { isMandatoryCourse } from "@/lib/course-requirement";
 
 // -----------------------------------------------------------------------
 // One completed-course row.
@@ -71,7 +72,7 @@ export function CourseRow({
     isEnglishCourse(course) || isEnglishLevelCourseName(course.nameHe, course.code);
   const studentAdded = isStudentAddedCourse(course);
   const declared = isDeclaredApproved(uc);
-  const isElective = !(course.courseType === "MANDATORY" || course.isMandatory);
+  const isElective = !isMandatoryCourse(course);
   // Ariel, 21.8: "בוא תמיד ניתן אפשרות לשנות שיוך של קורס בחירה - כי יש כאלו
   // שיש להם כמה אופציות".
   //

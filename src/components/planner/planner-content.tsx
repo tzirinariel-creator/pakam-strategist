@@ -29,6 +29,7 @@ import { Bidi } from "@/lib/bidi";
 import { ReviewNudgeHost } from "@/components/catalog/review-nudge";
 import { CalendarSyncNudge } from "@/components/calendar/calendar-sync-nudge";
 import { daysUntilLabel } from "@/lib/days-until";
+import { isMandatoryCourse } from "@/lib/course-requirement";
 
 export function PlannerContent() {
   const t = useTranslations("planner");
@@ -130,7 +131,7 @@ export function PlannerContent() {
     plannedYear: uc.plannedYear,
     status: uc.status,
     isMandatory:
-      uc.course.courseType === "MANDATORY" || uc.course.isMandatory === true,
+      isMandatoryCourse(uc.course),
   }));
 
   // Year of study is DERIVED from the calendar (#39/#43) — powers the live

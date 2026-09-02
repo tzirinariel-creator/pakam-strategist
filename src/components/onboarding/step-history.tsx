@@ -17,6 +17,7 @@ import { REASSURE_AFTER_S } from "@/lib/scan-progress";
 import { WhereIsMySheet } from "@/components/record/where-is-my-sheet";
 import type { OnboardingData } from "./onboarding-wizard";
 import { heNoun } from "@/lib/he-count";
+import { isMandatoryCourse } from "@/lib/course-requirement";
 
 // ─────────────────────────────────────────────────────────────────────────
 // Past-academic-record step ("מה כבר עשית?" / "Your history").
@@ -145,7 +146,7 @@ export function buildDefaultCompleted(
 
   const out: Record<string, CompletedCourse> = {};
   for (const c of allCourses) {
-    if (!(c.courseType === "MANDATORY" || c.isMandatory)) continue;
+    if (!isMandatoryCourse(c)) continue;
     const p = computePlacement(c);
     if (!p) continue;
     if (!pastKeys.has(`${p.year}-${p.semester}`)) continue;
@@ -396,7 +397,7 @@ export function StepHistory({
       const idx = timelineIndex(sem.year, sem.semester);
       // Mandatory courses whose natural placement is this semester.
       const mandatory = allCourses
-        .filter((c) => c.courseType === "MANDATORY" || c.isMandatory)
+        .filter((c) => isMandatoryCourse(c))
         .filter((c) => {
           const p = computePlacement(c);
           return (
@@ -576,7 +577,7 @@ export function StepHistory({
                       const entry = value[course.code];
                       const checked = Boolean(entry);
                       const isElective = !(
-                        course.courseType === "MANDATORY" || course.isMandatory
+                        isMandatoryCourse(course)
                       );
                       const config = DISCIPLINE_CONFIG[course.discipline];
                       const countsForFocus =

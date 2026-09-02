@@ -20,6 +20,7 @@ import {
 import { useTranslations, useLocale } from "next-intl";
 import { toast } from "sonner";
 import { DisciplineBadge } from "@/components/catalog/discipline-badge";
+import { RequirementMark } from "@/components/shared/requirement-mark";
 import { maybeNudgeCourseReview } from "@/components/catalog/review-nudge";
 import { ALL_DISCIPLINE_IDS, CREDIT_REQUIREMENTS, DISCIPLINE_CONFIG, SEMESTER_CONFIG, YEAR_CONFIG } from "@/lib/constants";
 import { courseColor, courseSurface } from "@/lib/course-color";
@@ -261,6 +262,11 @@ export function CourseCard({ userCourse, disabled, currentYear }: CourseCardProp
 
         <div className="flex items-center gap-2">
           <span className="text-[10px] font-mono text-muted-foreground">{course.code}</span>
+          {/* אורי כהן גפן, שנה א׳ (2.9): "מה שעדיין לא כל כך ברור לי — מה הם
+              הקורסים החובה ומה הבחירה בסמסטר א שנה א". המתכנן הוא המסך שבו
+              בוחרים, והוא היחיד שלא אמר את זה. קורס שהסטודנט הוסיף בעצמו
+              מחזיר null ונשאר בלי תווית — עליו באמת אין לנו תשובה. */}
+          {!studentAdded && <RequirementMark course={course} />}
           <DisciplineBadge
             discipline={userCourse.disciplineOverride ?? course.discipline}
             className="text-[11px] px-1.5 py-0"

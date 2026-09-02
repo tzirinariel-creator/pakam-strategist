@@ -13,6 +13,7 @@ import {
 } from "@/components/ui/table";
 import { DISCIPLINE_CONFIG, SEMESTER_CONFIG, YEAR_CONFIG } from "@/lib/constants";
 import { DisciplineBadge } from "./discipline-badge";
+import { RequirementMark } from "@/components/shared/requirement-mark";
 import { CourseDetailModal } from "./course-detail-modal";
 import { AskAdvisorButton } from "@/components/ui/ask-advisor-button";
 import { CohortCourseChip } from "@/components/cohort/cohort-course-chip";
@@ -498,9 +499,14 @@ export function CourseTable({ courses, allCourses, focusArea, overrides }: Cours
                     </span>
                   )}
                 </div>
-                {/* Show code on mobile under the name */}
-                <span className="text-xs text-muted-foreground sm:hidden">
-                  {course.code}
+                {/* Show code on mobile under the name.
+                    ועימו חובה/בחירה — עמודת "סוג" היא `hidden md:table-cell`,
+                    כלומר בטלפון הסטודנט ראה 27 קורסים לשנה א׳ סמסטר א׳ בלי שום
+                    דרך לדעת אילו שמונה מהם חובה. זו בדיוק ההערה של אורי, ובדיוק
+                    המכשיר שבו הוא קרא אותה. */}
+                <span className="flex items-center gap-1.5 text-xs text-muted-foreground md:hidden">
+                  <span className="sm:hidden">{course.code}</span>
+                  <RequirementMark course={course} />
                 </span>
                 {/* Ask the Philosopher King about this specific course (P2 #7).
                     Reveals on row hover; always visible on touch. */}

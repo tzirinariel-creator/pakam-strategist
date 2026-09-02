@@ -7,6 +7,7 @@ import { cn } from "@/lib/utils";
 import { canTakeCourse, type CourseWithSchedule, type GeneratedPlanCourse } from "@/lib/plan-generator";
 import { CourseBubble, type BubbleState } from "./course-bubble";
 import { api } from "@/lib/trpc/react";
+import { isMandatoryCourse } from "@/lib/course-requirement";
 
 type TabKey = "mandatory" | "elective" | "law" | "seminar";
 
@@ -104,7 +105,7 @@ export function CoursePool({
     for (const c of availableCourses) {
       if (c.courseType === "SEMINAR") seminar.push(c);
       else if (c.courseType === "LAW_FOUNDATION") law.push(c);
-      else if (c.courseType === "MANDATORY" || c.isMandatory) mandatory.push(c);
+      else if (isMandatoryCourse(c)) mandatory.push(c);
       else elective.push(c);
     }
 
