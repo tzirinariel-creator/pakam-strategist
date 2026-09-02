@@ -34,7 +34,15 @@
 
 import { useMemo, useState } from "react";
 import { YEAR_CONFIG } from "@/lib/constants";
-import Link from "next/link";
+// next-intl's Link, NOT next/link (#2, 2.9). The raw one emits the href
+// verbatim, so "/planner/semester" left out the locale, the middleware had to
+// redirect to "/he/planner/semester", and a redirect is a FULL page load — the
+// client router state, and with it the year and semester the student was
+// looking at, is thrown away. Ariel, arriving here from bidding: "זה קפץ
+// לאנשהו, חזרתי ופתאום בום - זה חזר לי לתכנון של סמסטר א׳ שנה א׳".
+// This is the only internal Link on the screen; every other one in the app
+// already comes from here.
+import { Link } from "@/i18n/navigation";
 import { useLocale } from "next-intl";
 import { CalendarClock, ExternalLink, ArrowLeft, TriangleAlert, Copy, Check } from "lucide-react";
 import { api } from "@/lib/trpc/react";
