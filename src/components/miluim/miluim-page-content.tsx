@@ -23,6 +23,7 @@ import {
   deriveCurrentGroup,
   binaryBenefitOf,
   getCurrentAcademicYear,
+  miluimYearOptions,
   splitByDegreeStart,
   type MiluimSemesterLite,
   type MiluimGroupKey,
@@ -127,12 +128,31 @@ export function MiluimPageContent() {
   const [addSemester, setAddSemester] = useState<"FALL" | "SPRING">("FALL");
   const [addDays, setAddDays] = useState<string>("");
   const [addCombat, setAddCombat] = useState(false);
-  // Only years the student was actually enrolled in (#7/#37) — offering
-  // pre-degree years was the manual twin of the 3010 import bug. Unknown
-  // startYear keeps the old 4-year window (we never guess an enrolment date).
-  const yearOptions = [nowYear - 3, nowYear - 2, nowYear - 1, nowYear].filter(
-    (y) => startYear == null || y >= startYear,
-  );
+  // ============================================================
+  // כל שנה שהסטודנט באמת למד בה — לא חלון קבוע של ארבע
+  // ============================================================
+  // 4.9, שלב ג׳ — נמצא במעבר כמשתמש, וזו בדיוק ההערה של אריאל:
+  // *"הסורק נכשל ואין מילוי ידני של תקופות מילואים לסטודנט שנה ג׳ עם
+  // 3-4 סמסטרי מילואים."* המילוי הידני **כן** היה קיים. מה שלא היה זה
+  // שנים לבחור בהן.
+  //
+  // הכלל היה `[nowYear-3 … nowYear]` מסונן ב-`y >= startYear`. שני
+  // הקצוות היו שגויים:
+  //
+  //   • **למעלה:** התקרה הייתה `getCurrentAcademicYear()`, שבחופשה הוא
+  //     עדיין תשפ״ו. כלומר בשבוע ההשקה — ובכל תקופת הבידינג — השנה
+  //     ש**עליה** מתמודדים לא הופיעה ברשימה בכלל.
+  //   • **למטה:** החלון עצר אחרי שלוש שנים אחורה. סטודנט שנה ג׳ שהתחיל
+  //     לפני מילואים ארוכים נחתך.
+  //
+  //   נמדד חי ב-4.9 על חשבון שנה ב׳ (startYear=2025): הרשימה הכילה
+  //   **ערך אחד** — תשפ״ו. אי-אפשר היה להזין שום דבר אחר.
+  //
+  // הכלל הנכון הוא מה שהשאלה באמת שואלת: כל שנה שהסטודנט למד בה, מהשנה
+  // שהתחיל ועד השנה שמתכננים אליה. `startYear` לא ידוע ⇒ חלון של ארבע
+  // אחורה, כי לעולם לא מנחשים תאריך הרשמה (#7/#37 — שנות טרום-תואר הן
+  // התאום הידני של באג ייבוא ה-3010).
+  const yearOptions = miluimYearOptions(startYear);
   const handleAddSemester = () => {
     const days = Number(addDays);
     if (!Number.isFinite(days) || days <= 0) {

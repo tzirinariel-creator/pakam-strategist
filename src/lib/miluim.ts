@@ -1,3 +1,4 @@
+import { getPlanningAnchor } from "@/lib/academic-calendar";
 // =========================================
 // Miluim (military reserve) — pure domain logic
 // =========================================
@@ -42,6 +43,32 @@ export function prefersHigherGrade(group: MiluimGroupKey | null | undefined): bo
  *
  * @param now  Injectable for tests; defaults to the real current date.
  */
+/**
+ * Which academic years may a student record reserve service for? (4.9)
+ *
+ * The question the selector asks is "which semester was this?", so the answer
+ * is every year the student could have studied in: from enrolment through the
+ * year currently being planned.
+ *
+ * Two ends, both of which used to be wrong:
+ *   - the ceiling was the CURRENT academic year, so during the break — launch
+ *     week, the whole bidding period — the upcoming year was missing;
+ *   - the floor was a fixed 3-years-back window, which cut off a third-year
+ *     student who enrolled before a long stretch of service.
+ *
+ * `startYear` unknown ⇒ a 4-year window, because we never guess an enrolment
+ * date (#7/#37: pre-degree years grant no academic benefit).
+ */
+export function miluimYearOptions(
+  startYear: number | null | undefined,
+  now: Date = new Date(),
+): number[] {
+  const last = Math.max(getCurrentAcademicYear(now), getPlanningAnchor(now).startYear);
+  const first = startYear ?? last - 3;
+  const span = Math.max(1, last - first + 1);
+  return Array.from({ length: span }, (_, i) => first + i);
+}
+
 export function getCurrentAcademicYear(now: Date = new Date()): number {
   const month = now.getMonth(); // 0-indexed: 9 = October
   const year = now.getFullYear();
