@@ -1,0 +1,18 @@
+import { chromium } from "playwright";
+const BASE="https://pakam-strategist.vercel.app";
+const b=await chromium.launch();
+const ctx=await b.newContext({viewport:{width:1440,height:1000},locale:"he-IL",timezoneId:"Asia/Jerusalem"});
+const p=await ctx.newPage();
+await p.goto(`${BASE}/he/login`,{waitUntil:"networkidle"});
+await p.getByRole("button",{name:/התחברות עם דוא/}).click();
+await p.locator('input[type=email]').fill("test@pakamon.dev");
+await p.locator('input[type=password]').fill("test123456");
+await p.locator('button[type=submit]').click();
+await p.waitForURL(/dashboard/,{timeout:45000});
+await p.waitForFunction(()=>document.body.innerText.length>1200,{timeout:60000});
+await p.waitForTimeout(6000);
+const t=(await p.locator("body").innerText()).replace(/\n+/g," | ");
+const m=t.match(/פכ״מ · [^|]{0,40}/);
+console.log("שורת הזהות: "+(m?m[0].trim():"—"));
+console.log("בידינג:     "+((t.match(/מקצה 1[^|]{0,40}/)||["—"])[0]).trim());
+await b.close();

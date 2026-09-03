@@ -48,11 +48,28 @@ describe("בחופשת הסמסטר — הרגע שבו נפתח הבידינג"
     });
   }
 
-  it("הסימפטום המקורי: 'היכן הסטודנט נמצא' אינו 'מה הוא מתכנן' — ולכן ההפרדה", () => {
-    const whereTheyAre = deriveYearOfStudy(2024, 1, undefined, now);
-    const whatTheyPlan = plannerOpensOn(2024, now);
-    expect(whereTheyAre).toBe(2);
-    expect(whatTheyPlan).toBe(3);
+  // 4.9 — הבדיקה הזאת קיבעה קודם את ה**פער**: deriveYearOfStudy החזירה 2
+  // ("היכן הסטודנט נמצא") בזמן שהלוח נפתח על 3. ההפרדה הזאת נבנתה כתיקון
+  // נקודתי בלוח.
+  //
+  // ואז מצאתי במעבר כמשתמש שהפער הזה אינו מקומי ללוח: הוא נזל לשורת הזהות
+  // בדף הבית והציג "שנה א׳" לסטודנט שנה ב׳ — כלומר לכל מי שנרשם בשבוע
+  // ההשקה. התיקון עבר לשורש, ל-deriveYearOfStudy עצמה.
+  //
+  // אז מה קרה להבחנה? בחופשה **אין לה צרכן**: isCurrentlyStudying
+  // (semester-clock.ts:56) יוצאת מוקדם כשלא מלמדים, אז שום דבר לא נשען
+  // על "השנה שנגמרה", וכל הצהרה גלויה — הלוח, הבידינג, ההגדרות, שורת
+  // הזהות — מתכוונת לשנה שמתחילה. הבדיקה מקבעת עכשיו את התכונה החזקה
+  // יותר: בחופשה השתיים **מסכימות**, ושתיהן שוות ליעד הבידינג.
+  it("בחופשה — 'היכן אני' ו'מה אני מתכנן' מסכימים, ושניהם יעד הבידינג", () => {
+    for (const startYear of [2026, 2025, 2024]) {
+      const whereTheyAre = deriveYearOfStudy(startYear, 1, undefined, now);
+      const whatTheyPlan = plannerOpensOn(startYear, now);
+      expect(whereTheyAre).toBe(whatTheyPlan);
+      const target = getBiddingTarget(startYear, whereTheyAre);
+      expect(target).not.toBeNull();
+      expect(whereTheyAre).toBe(target!.yearOfStudy);
+    }
   });
 });
 

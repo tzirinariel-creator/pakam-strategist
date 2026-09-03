@@ -331,7 +331,33 @@ export function deriveYearOfStudy(
   now: Date = new Date(),
 ): number {
   if (startYear == null) return storedYear;
-  const nowYear = atStartYear ?? getAcademicNow(now).startYear;
+  // =========================================
+  // בין הסמסטרים מודדים מול העוגן, לא מול השנה שנגמרה
+  // =========================================
+  // שלב ג׳, 4.9 — נמצא במעבר כמשתמש, ושווה לקרוא לאט.
+  //
+  // `step-profile` שומר את העוגן בשפת **התכנון**:
+  //     startYear = getPlanningAnchor().startYear − (year − 1)
+  // ב-4.9, לסטודנט שהצהיר שנה ב׳: 2026 − 1 = 2025.
+  //
+  // הפונקציה הזאת מדדה מול `getAcademicNow().startYear`, שהוא עדיין 2025
+  // — תשפ״ז מתחילה ב-18.10 — והחזירה **1**. כלומר כל מי שנרשם בין
+  // הסמסטרים, בדיוק בשבוע שבו כל סטודנט חוזר ונרשם, הוצג שנה אחת נמוך
+  // מדי בכל מסך.
+  //
+  // ניסיתי קודם לתקן את זה במקור אחד, ב-`getProfile`. זה לא הספיק: 26
+  // אתרי קריאה מריצים את הפונקציה הזאת **שוב** בצד הלקוח, בלי
+  // `atStartYear`, ומוחקים את התיקון. אז התיקון חייב לשבת כאן.
+  //
+  // הכלל עצמו הוא זה שכל שאר האפליקציה כבר מניחה: בחופשה, "השנה שלי"
+  // היא זו שמתחילה. `getPlanningAnchor` הוא מה שקובע על מה הלוח נפתח,
+  // על מה מגישים בידינג, ומה מוצג בהגדרות ובשורת הזהות. קורא שמעביר
+  // `atStartYear` במפורש אינו מושפע.
+  const nowYear =
+    atStartYear ??
+    (getAcademicNow(now).phase === "teaching"
+      ? getAcademicNow(now).startYear
+      : getPlanningAnchor(now).startYear);
   return Math.min(3, Math.max(1, nowYear - startYear + 1));
 }
 
