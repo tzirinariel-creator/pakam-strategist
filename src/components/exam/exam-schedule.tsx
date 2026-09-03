@@ -135,6 +135,44 @@ export function ExamSchedule() {
       ? "no-courses"
       : "no-dates";
 
+  // The board is empty in THREE places — the early return below, the list tab
+  // and the grid tab — and they used to say three different things about the
+  // same fact. One element, used by all three.
+  const emptyBoard = (
+    <>
+      {emptyReason === "no-courses" ? (
+        <>
+          <p className="text-sm font-medium text-foreground/75">
+            {isRTL ? "עוד אין קורסים בתוכנית שלכם" : "No courses in your plan yet"}
+          </p>
+          <p className="max-w-sm text-center text-xs leading-relaxed text-foreground/55">
+            {isRTL
+              ? "הבחינות מופיעות כאן לבד — ברגע שיש קורסים בתוכנית והאוניברסיטה פרסמה להם מועדים."
+              : "Exams appear here on their own, once your plan has courses and the university has published their dates."}
+          </p>
+          <Link href="/planner" className="text-xs font-medium text-primary underline underline-offset-4">
+            {isRTL ? "לתכנון הסמסטר" : "Plan your semester"}
+          </Link>
+        </>
+      ) : emptyReason === "no-dates" ? (
+        <>
+          <p className="text-sm font-medium text-foreground/75">
+            {isRTL ? "המועדים לקורסים שלכם עוד לא פורסמו" : "Dates for your courses aren't published yet"}
+          </p>
+          <p className="max-w-sm text-center text-xs leading-relaxed text-foreground/55">
+            {isRTL
+              ? "יש לכם קורסים בתוכנית, אבל האוניברסיטה עוד לא פרסמה להם מועדי בחינה. נוסיף אותם לכאן לבד כשהם יתפרסמו."
+              : "Your plan has courses, but the university hasn't published their exam dates. They'll appear here on their own."}
+          </p>
+        </>
+      ) : (
+        <p className="text-sm text-foreground/60">
+          {isRTL ? "אין בחינות קרובות — אתם מעודכנים." : "No upcoming exams — you're all caught up."}
+        </p>
+      )}
+    </>
+  );
+
   const examGroups = useMemo<ExamGroup[]>(() => {
     if (!data?.exams) return [];
 
@@ -354,10 +392,11 @@ export function ExamSchedule() {
     return (
       <div className="flex min-h-[40vh] flex-col items-center justify-center gap-4">
         <CalendarClock className="size-10 text-foreground/20" />
-        <div className="text-center">
-          <p className="text-base font-medium text-foreground/60">{t("noExams")}</p>
-          <p className="mt-1 max-w-xs text-sm text-foreground/60">{t("noExamsDesc")}</p>
-        </div>
+        {/* 4.9 — this early return is the one a first-year student actually
+            reaches in September, and it was the last one I noticed. It said
+            "אין בחינות" over a generic line, while two states further down
+            said something else about the same fact. */}
+        <div className="flex flex-col items-center gap-2 text-center">{emptyBoard}</div>
       </div>
     );
   }
@@ -496,36 +535,7 @@ export function ExamSchedule() {
         ) : (
           <div className="flex min-h-[200px] flex-col items-center justify-center gap-2 rounded-lg border border-dashed border-border/30 p-6">
             <CalendarClock className="size-8 text-muted-foreground" />
-            {emptyReason === "no-courses" ? (
-              <>
-                <p className="text-sm font-medium text-foreground/75">
-                  {isRTL ? "עוד אין קורסים בתוכנית שלכם" : "No courses in your plan yet"}
-                </p>
-                <p className="max-w-sm text-center text-xs leading-relaxed text-foreground/55">
-                  {isRTL
-                    ? "הבחינות מופיעות כאן לבד — ברגע שיש קורסים בתוכנית והאוניברסיטה פרסמה להם מועדים."
-                    : "Exams appear here on their own, once your plan has courses and the university has published their dates."}
-                </p>
-                <Link href="/planner" className="text-xs font-medium text-primary underline underline-offset-4">
-                  {isRTL ? "לתכנון הסמסטר" : "Plan your semester"}
-                </Link>
-              </>
-            ) : emptyReason === "no-dates" ? (
-              <>
-                <p className="text-sm font-medium text-foreground/75">
-                  {isRTL ? "המועדים לקורסים שלכם עוד לא פורסמו" : "Dates for your courses aren't published yet"}
-                </p>
-                <p className="max-w-sm text-center text-xs leading-relaxed text-foreground/55">
-                  {isRTL
-                    ? "יש לכם קורסים בתוכנית, אבל האוניברסיטה עוד לא פרסמה להם מועדי בחינה. נוסיף אותם לכאן לבד כשהם יתפרסמו."
-                    : "Your plan has courses, but the university hasn't published their exam dates. They'll appear here on their own."}
-                </p>
-              </>
-            ) : (
-              <p className="text-sm text-foreground/60">
-                {isRTL ? "אין בחינות קרובות — אתם מעודכנים." : "No upcoming exams — you're all caught up."}
-              </p>
-            )}
+            {emptyBoard}
           </div>
         )
       )}
@@ -535,36 +545,7 @@ export function ExamSchedule() {
         // Everything is in the past or already passed → nothing upcoming (#33).
         <div className="flex min-h-[160px] flex-col items-center justify-center gap-3 rounded-lg border border-dashed border-border/40 p-6">
           <CheckCircle2 className="size-8 text-status-green/70" />
-            {emptyReason === "no-courses" ? (
-              <>
-                <p className="text-sm font-medium text-foreground/75">
-                  {isRTL ? "עוד אין קורסים בתוכנית שלכם" : "No courses in your plan yet"}
-                </p>
-                <p className="max-w-sm text-center text-xs leading-relaxed text-foreground/55">
-                  {isRTL
-                    ? "הבחינות מופיעות כאן לבד — ברגע שיש קורסים בתוכנית והאוניברסיטה פרסמה להם מועדים."
-                    : "Exams appear here on their own, once your plan has courses and the university has published their dates."}
-                </p>
-                <Link href="/planner" className="text-xs font-medium text-primary underline underline-offset-4">
-                  {isRTL ? "לתכנון הסמסטר" : "Plan your semester"}
-                </Link>
-              </>
-            ) : emptyReason === "no-dates" ? (
-              <>
-                <p className="text-sm font-medium text-foreground/75">
-                  {isRTL ? "המועדים לקורסים שלכם עוד לא פורסמו" : "Dates for your courses aren't published yet"}
-                </p>
-                <p className="max-w-sm text-center text-xs leading-relaxed text-foreground/55">
-                  {isRTL
-                    ? "יש לכם קורסים בתוכנית, אבל האוניברסיטה עוד לא פרסמה להם מועדי בחינה. נוסיף אותם לכאן לבד כשהם יתפרסמו."
-                    : "Your plan has courses, but the university hasn't published their exam dates. They'll appear here on their own."}
-                </p>
-              </>
-            ) : (
-              <p className="text-sm text-foreground/60">
-                {isRTL ? "אין בחינות קרובות — אתם מעודכנים." : "No upcoming exams — you're all caught up."}
-              </p>
-            )}
+            {emptyBoard}
         </div>
       ) : (
       <div className="flex flex-col gap-4">

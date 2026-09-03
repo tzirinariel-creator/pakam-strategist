@@ -1,0 +1,21 @@
+import { chromium } from "playwright";
+const BASE="https://pakam-strategist.vercel.app";
+const b=await chromium.launch();
+const ctx=await b.newContext({viewport:{width:1440,height:1000},locale:"he-IL",timezoneId:"Asia/Jerusalem"});
+const p=await ctx.newPage();
+await p.goto(`${BASE}/he/login`,{waitUntil:"networkidle"});
+await p.getByRole("button",{name:/התחברות עם דוא/}).click();
+await p.locator('input[type=email]').fill("test@pakamon.dev");
+await p.locator('input[type=password]').fill("test123456");
+await p.locator('button[type=submit]').click();
+await p.waitForURL(/dashboard/,{timeout:45000});
+await p.goto(`${BASE}/he/exam`,{waitUntil:"networkidle"}); await p.waitForTimeout(7000);
+const t=(await p.locator("body").innerText()).replace(/\n+/g," | ");
+const i=t.indexOf("לוח הבחינות");
+console.log("=== מצב ריק ברשימה ===\n", t.slice(i,i+700));
+const g=p.getByRole("tab",{name:/לוח בחינות|ציר זמן/}).nth(1);
+if(await g.count()){ await g.click(); await p.waitForTimeout(3500);
+  const t2=(await p.locator("body").innerText()).replace(/\n+/g," | ");
+  const j=t2.indexOf("לוח הבחינות");
+  console.log("\n=== מצב ריק בטאב השני ===\n", t2.slice(j,j+700)); }
+await b.close();
