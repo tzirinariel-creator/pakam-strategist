@@ -8,7 +8,7 @@
  * קריאה־בלבד, אז אנחנו רק מקבלים session ונכנסים ישירות למסכים.
  */
 import { chromium } from "playwright";
-import { mkdirSync } from "node:fs";
+import { mkdirSync, writeFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
 
@@ -16,6 +16,18 @@ const BASE = process.env.SHOOT_BASE ?? "https://pakam-strategist.vercel.app";
 // fileURLToPath ולא URL.pathname — הנתיב של הפרויקט מכיל עברית ורווחים,
 // ו-.pathname מחזיר אותו מקודד־אחוזים, מה שיוצר תיקייה בשם משובש.
 const OUT = join(dirname(fileURLToPath(import.meta.url)), "..", "public", "shots");
+
+/**
+ * מה למדוד בכל מסך. הסקיל דורש `layout.json` עם קואורדינטות ברמת אלמנט
+ * (Q1) — בלעדיו אי אפשר לבנות גיבור יחיד, כי אין לדעת איפה הוא על הפריים.
+ * הסלקטורים מכוונים לכרטיסים אמיתיים, לא ל-div שרירותי.
+ */
+const MEASURE = {
+  planner: '[data-course-card], [class*="rounded-xl"][class*="border"]',
+  dashboard: '[class*="rounded-xl"][class*="border"], [class*="rounded-2xl"]',
+  catalog: "tbody tr",
+  graduation: '[class*="rounded-xl"][class*="border"]',
+};
 
 const SCREENS = [
   { name: "landing", path: "/he", auth: false, full: true },
@@ -28,6 +40,7 @@ const SCREENS = [
 ];
 
 mkdirSync(OUT, { recursive: true });
+const layout = {};
 
 const browser = await chromium.launch();
 const ctx = await browser.newContext({
@@ -81,11 +94,36 @@ for (const s of SCREENS) {
       path: join(OUT, `${s.name}.png`),
       fullPage: Boolean(s.full),
     });
-    console.log(`  ✓ ${s.name}.png`);
+    // קואורדינטות האלמנטים — בפיקסלים של הפריים (1920×1080), לא של הטקסטורה
+    const sel = MEASURE[s.name];
+    if (sel) {
+      const boxes = await page.evaluate((q) => {
+        const seen = [];
+        for (const el of document.querySelectorAll(q)) {
+          const r = el.getBoundingClientRect();
+          if (r.width < 120 || r.height < 40) continue;
+          if (r.top < 0 || r.bottom > window.innerHeight) continue;
+          seen.push({
+            x: Math.round(r.left), y: Math.round(r.top),
+            w: Math.round(r.width), h: Math.round(r.height),
+            text: (el.textContent ?? "").trim().replace(/\s+/g, " ").slice(0, 46),
+          });
+        }
+        // הגדולים והמרכזיים קודם — מועמד־גיבור סביר יותר
+        return seen.sort((a, b) => b.w * b.h - a.w * a.h).slice(0, 24);
+      }, sel);
+      layout[s.name] = { pageW: 1920, pageH: 1080, boxes };
+      console.log(`  ✓ ${s.name}.png  (${boxes.length} תיבות)`);
+    } else {
+      console.log(`  ✓ ${s.name}.png`);
+    }
   } catch (err) {
     console.log(`  ✗ ${s.name}: ${err.message.split("\n")[0]}`);
   }
 }
 
+writeFileSync(join(OUT, "layout.json"), JSON.stringify(layout, null, 1));
+console.log(`\nlayout.json — ${Object.keys(layout).length} מסכים נמדדו`);
+
 await browser.close();
-console.log("\nסיום.");
+console.log("סיום.");

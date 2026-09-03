@@ -246,7 +246,10 @@ export function CourseCard({ userCourse, disabled, currentYear }: CourseCardProp
         {...(confirmRemove ? {} : { ...attributes, ...listeners })}
         aria-label={isHe ? `גררו את ${courseName} לסידור מחדש` : `Drag ${courseName} to rearrange`}
         className={cn(
-          "shrink-0 rounded p-0.5 ms-0.5 outline-none focus-visible:ring-2 focus-visible:ring-accent-brand/60",
+          // p-1 ולא p-0.5: אייקון 16px + ריפוד 2px = יעד של 20×20, מתחת ל-24px
+          // שדורש WCAG 2.5.8. זו ידית הגרירה של כרטיס קורס — היא מופיעה
+          // פעם אחת לכל קורס בתכנון, כלומר מאות פעמים במסך אחד.
+          "shrink-0 rounded p-1 ms-0.5 outline-none focus-visible:ring-2 focus-visible:ring-accent-brand/60",
           !disabled && !confirmRemove && "cursor-grab active:cursor-grabbing",
         )}
       >

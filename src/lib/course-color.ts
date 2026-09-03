@@ -146,3 +146,4 @@ export function courseEdge(
 ): string {
   return `color-mix(in srgb, ${courseColor(courseKey)} ${percent}%, transparent)`;
 }
+

@@ -473,7 +473,7 @@ export function CourseTable({ courses, allCourses, focusArea, overrides }: Cours
                   <button
                     type="button"
                     onClick={() => setDetailCourse(course)}
-                    className="block text-start text-foreground line-clamp-2 transition-colors hover:text-accent-brand"
+                    className="block text-start text-foreground line-clamp-2 py-0.5 transition-colors hover:text-accent-brand"
                     title={isHe ? "לחצו לפרטי הקורס" : "Click for course details"}
                   >
                     {isFocus && (
