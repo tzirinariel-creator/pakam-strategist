@@ -38,6 +38,7 @@ export async function POST(request: NextRequest) {
           noKey: "Scanning needs a Gemini key — add a free one in settings, or try again later when the shared key is available.",
           unreadable: "Couldn't find dated items — try a sharper photo of the syllabus schedule section.",
           rateLimit: "Scan limit reached for now — try again later.",
+          sharedBusy: "The shared key is busy right now — you have not hit any limit of your own. Try again in a few minutes, or add a free Gemini key in settings for a private quota.",
           badKey: "The Gemini key was rejected — check the key in settings (or remove it to use the shared key).",
           unavailable: "The scanner is temporarily unavailable — please try again later.",
         }
@@ -45,6 +46,7 @@ export async function POST(request: NextRequest) {
           noKey: "הסריקה צריכה מפתח Gemini — הוסיפו מפתח חינמי בהגדרות, או נסו שוב מאוחר יותר כשהמפתח המשותף פנוי.",
           unreadable: "לא נמצאו תאריכים בסילבוס — נסו צילום חד יותר של קטע לוח-הזמנים.",
           rateLimit: "הגעתם למגבלת הסריקות לעכשיו — נסו שוב מאוחר יותר.",
+          sharedBusy: "המפתח המשותף עמוס כרגע — לא הגעתם לשום מגבלה שלכם. אפשר לנסות שוב בעוד כמה דקות, או להוסיף מפתח Gemini חינמי בהגדרות ואז המכסה שלכם פרטית.",
           badKey: "מפתח ה-Gemini נדחה — בדקו את המפתח בהגדרות (או הסירו אותו כדי להשתמש במפתח המשותף).",
           unavailable: "הסורק אינו זמין כרגע — נסו שוב מאוחר יותר.",
         };
@@ -103,6 +105,19 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // אריאל, 3.9 — ביקורת סיכוני השקה שעשיתי בעצמי.
+    //
+    // שני המצבים האלה קיבלו את **אותה** הודעה, "הגעתם למגבלת הסריקות".
+    // הראשון נכון: הסטודנט סרק עשר פעמים היום. השני שקרי: המכסה המשותפת
+    // עמוסה, והוא אולי סרק פעם אחת. לומר לו שהוא הגיע למגבלה שלו זו טענה
+    // שאי־אפשר לפעול לפיה — הוא ימתין ליום הבא במקום לנסות בעוד חמש דקות
+    // או להוסיף מפתח חינמי משלו.
+    //
+    // ומה שראוי שאריאל ידע: `checkRateLimit` שומר מצב **בזיכרון של כל
+    // מכונת Vercel בנפרד** — כתוב במפורש ב-rate-limit.ts. כלומר השומר
+    // הגלובלי של 150 הוא בפועל 150 × מספר המכונות החמות, ואינו חוסם את
+    // המכסה המשותפת. בבוקר עמוס המכסה של Google תיגמר לפניו, וה-429 שלה
+    // ימופה לכאן. לכן ההפרדה בהודעות היא מה שמגן על הסטודנט — לא המספר.
     if (usingSharedKey) {
       const global = checkRateLimit("scan-day:__global__", {
         maxRequests: 150,
@@ -110,7 +125,7 @@ export async function POST(request: NextRequest) {
       });
       if (!global.allowed) {
         return NextResponse.json(
-          { error: errs.rateLimit },
+          { error: errs.sharedBusy },
           { status: 429, headers: { "Retry-After": String(global.resetInSeconds) } },
         );
       }
