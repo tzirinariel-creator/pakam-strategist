@@ -22,6 +22,10 @@ export const S11Lockup: React.FC = () => {
   // האייקון מפנה מקום — בעברית הוא זז ימינה, האותיות נכנסות משמאלו.
   const shift = ramp(frame, [45, 63], [0, 1], { easing: EASE.outSoft });
   const sloganIn = ramp(frame, [96, 112], [0, 1]);
+  // הכתובת נכנסת אחרונה ונשארת עד הפריים האחרון. סרטון שיווקי שלא אומר
+  // לאן ללכת מבזבז את כל מה שקדם לו — וזה בדיוק מה שהיה כאן: 41.8 שניות
+  // מוצר, ואז מסך סיום בלי שום דרך להגיע אליו.
+  const urlIn = ramp(frame, [110, 124], [0, 1]);
 
   return (
     <Stage>
@@ -89,6 +93,22 @@ export const S11Lockup: React.FC = () => {
           }}
         >
           נבנה על ידי סטודנט לפכ״מ, לסטודנטים של פכ״מ
+        </div>
+
+        {/* הכתובת. `dir="ltr"` על ה-span עצמו ולא על השורה — היא לטינית
+            טהורה, בלי מילה עברית לצידה, ולכן זה בטוח כאן. */}
+        <div
+          style={{
+            fontSize: 40,
+            fontWeight: 600,
+            color: C.ink,
+            opacity: urlIn,
+            transform: `translateY(${(1 - urlIn) * 14}px)`,
+            letterSpacing: 0.5,
+            direction: "ltr",
+          }}
+        >
+          pakam-strategist.vercel.app
         </div>
 
         <div
