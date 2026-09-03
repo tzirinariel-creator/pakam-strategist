@@ -254,39 +254,40 @@ export function SemesterSummary({
                 ? "הקישו על הבלוק במערכת השעות שלצד כדי לבחור קבוצה — הבחירה נשמרת מיד."
                 : "Tap a block on the timetable beside this card to choose a group — it saves immediately."}
             </p>
-            <button
-              type="button"
-              onClick={onBack}
-              disabled={isSaving}
-              className="text-[11px] font-semibold text-accent-brand underline-offset-2 transition-colors hover:underline disabled:opacity-50"
-            >
-              {isHe ? "או חזרה לעריכה מלאה" : "Or go back to full editing"}
-            </button>
+            {/* היה כאן קישור טקסט של 17px, "או חזרה לעריכה מלאה", שקורא
+                בדיוק ל-onBack כמו הכפתור "הוספה ועריכה של קורסים" למטה.
+                שני פקדים לאותה פעולה, ואחד מהם קטן מכדי להיראות — וזה
+                מה שאריאל חיפש ולא מצא. נשאר פקד אחד. */}
           </div>
         )}
 
-        {/* CTAs */}
+        {/* =========================================
+            סדר הכפתורים — מדדתי אותו כשעברתי כמשתמש
+            =========================================
+            שלב ג׳, 4.9: נרשמתי כסטודנט שנה א׳, הגעתי לכאן, ומדדתי מה גדול
+            ומה קטן:
+
+              תכננו סמסטר נוסף      373×48  מלא וכהה   ← הראשי
+              סיום ושמירה           373×48  מסגרת
+              הוספה ועריכה של קורסים 373×38  מסגרת
+              או חזרה לעריכה מלאה    103×17  קישור טקסט
+
+            כלומר הכפתור הרם ביותר שולח סטודנט לתכנן **סמסטר אחר** לפני
+            שהוא שמר משהו, והשמירה עצמה חלשה ממנו. זה בדיוק הסידור שאיפשר
+            את "תכננתי את הקורסים וזה נמחק": ההנדלר תוקן, ההיררכיה נשארה.
+
+            ואריאל: *"לא היה לי מובן מאליו בכלל למצוא את הכפתור של העריכה
+            המלאה בגלל שצריך ללחוץ על עוד כפתור אחרי המסך הראשוני."* הוא
+            צדק פעמיים — היו כאן **שני** פקדים לאותה פעולה, ואחד מהם 17px.
+
+            עכשיו: שמירה היא הראשי תמיד. סמסטר נוסף הוא משני. ולעריכה יש
+            פקד אחד. */}
         <div className="flex flex-col gap-2.5 pt-2">
-          {hasMoreSemesters && (
-            <button
-              onClick={onPlanNext}
-              disabled={isSaving}
-              className="bg-foreground flex items-center justify-center gap-2 rounded-xl px-6 py-3 font-bold text-background shadow-sm transition-all hover:scale-[1.02] press-scale disabled:opacity-50"
-            >
-              <Calendar className="h-4 w-4" />
-              {t("planNextSemester")}
-            </button>
-          )}
           <button
             onClick={onFinish}
             disabled={isSaving}
             aria-busy={isSaving}
-            className={cn(
-              "flex items-center justify-center gap-2 rounded-xl px-6 py-3 text-sm font-medium transition-all disabled:cursor-wait",
-              hasMoreSemesters
-                ? "border-2 border-border text-foreground/60 hover:border-foreground/30 hover:text-foreground/80 disabled:opacity-60"
-                : "bg-foreground font-bold text-background shadow-sm hover:scale-[1.02] press-scale disabled:opacity-80"
-            )}
+            className="flex items-center justify-center gap-2 rounded-xl bg-foreground px-6 py-3 font-bold text-background shadow-sm transition-all hover:scale-[1.02] press-scale disabled:cursor-wait disabled:opacity-80"
           >
             {isSaving ? (
               <>
@@ -297,22 +298,30 @@ export function SemesterSummary({
               t("finishPlanning")
             )}
           </button>
+
           {/* גיל, משתמשת אמיתית, 24.8: "נגיד איפה מוסיפים קורסים למערכת" ·
               "זה לא נותן קורסים שזמינים להוסיף" · "חייב את זה כדי לסדר את
               המערכת שעות, כי זה כאילו חובה".
-              This is the ONLY door to the course pool from this screen, and it
-              was the faintest thing on it: 12px, foreground/45, labelled
-              "הצגה ועריכה". Someone looking for where to ADD a course has no
-              reason to read that as the way in. It says what it does now, and
-              looks like a control rather than a footnote. */}
+              זו הדלת היחידה לבריכת הקורסים מהמסך הזה. */}
           <button
             onClick={onBack}
             disabled={isSaving}
-            className="flex items-center justify-center gap-1.5 rounded-xl border border-border/70 px-6 py-2 text-sm font-semibold text-foreground/75 transition-colors hover:border-foreground/30 hover:text-foreground disabled:opacity-50"
+            className="flex items-center justify-center gap-1.5 rounded-xl border border-border/70 px-6 py-2.5 text-sm font-semibold text-foreground/75 transition-colors hover:border-foreground/30 hover:text-foreground disabled:opacity-50"
           >
             <Plus className="h-3.5 w-3.5" />
             {isHe ? "הוספה ועריכה של קורסים" : "Add or edit courses"}
           </button>
+
+          {hasMoreSemesters && (
+            <button
+              onClick={onPlanNext}
+              disabled={isSaving}
+              className="flex items-center justify-center gap-2 rounded-xl border border-border/70 px-6 py-2.5 text-sm font-semibold text-foreground/75 transition-colors hover:border-foreground/30 hover:text-foreground disabled:opacity-50"
+            >
+              <Calendar className="h-4 w-4" />
+              {t("planNextSemester")}
+            </button>
+          )}
         </div>
       </div>
     </div>
