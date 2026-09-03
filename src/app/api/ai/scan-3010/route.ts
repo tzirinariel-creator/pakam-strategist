@@ -153,7 +153,22 @@ export async function POST(request: NextRequest) {
     // A genuinely unreadable form is already answered above (422, line ~105).
     // An UNEXPECTED error here is a server/provider/network failure — don't blame
     // the student's photo ("take a sharper photo") for our outage (#12).
-    console.error("[scan-3010] failed:", e);
-    return NextResponse.json({ error: errs.unavailable }, { status: 503 });
+    //
+    // 3.9 — ואריאל קיבל בדיוק את ה-503 הזה בזרימת ההרשמה. בדקתי את שרשרת
+    // המודלים (חיה, 200 בפרודקשן) ואת המסלול של `startYear: null` (לא זורק),
+    // אז הסיבה **לא ידועה לי**, ובלי הלוג של Vercel אין לי דרך לדעת. מה
+    // שכן אפשר: לצרף קוד קצר לתשובה, כך שצילום מסך הבא יאמר לי מיד מה קרה
+    // במקום לשלוח אותי לנחש שוב. הקוד אינו סוד ואינו חושף כלום.
+    const err = e as { name?: string; message?: string; status?: number };
+    const code =
+      err?.name === "TimeoutError" || /abort|timeout/i.test(err?.message ?? "")
+        ? "timeout"
+        : err?.status
+          ? `provider-${err.status}`
+          : err?.name === "TypeError"
+            ? "shape"
+            : "unknown";
+    console.error(`[scan-3010] failed (code=${code}):`, e);
+    return NextResponse.json({ error: errs.unavailable, code }, { status: 503 });
   }
 }

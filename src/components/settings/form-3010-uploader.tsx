@@ -81,7 +81,7 @@ export function Form3010Uploader({
         body: JSON.stringify({ imageBase64: b64, mimeType: mime, startYear: startYear ?? null }),
       });
       scan.setStage("read");
-      const data = (await res.json()) as { summary?: Form3010Summary; error?: string };
+      const data = (await res.json()) as { summary?: Form3010Summary; error?: string; code?: string };
       if (!res.ok || !data.summary) {
         // אריאל, 3.9: *"טוב לא עובד הסורק אבל למה הוא לא נותן לי למלא ידנית?
         // אם אני סטודנט שנה ג׳ ועשיתי מילואים ב-3 או 4 סמסטרים? זה צריך
@@ -95,7 +95,7 @@ export function Form3010Uploader({
         advisorError(
           res.status === 503 || res.status === 412
             ? isHe
-              ? "הסורק שלנו לא זמין כרגע — זה אצלנו, לא בצילום שלכם. אפשר למלא את הימים ידנית למטה, וזה שווה ערך לגמרי."
+              ? `הסורק שלנו לא זמין כרגע — זה אצלנו, לא בצילום שלכם. אפשר למלא את הימים ידנית למטה, וזה שווה ערך לגמרי.${data.code ? ` (${data.code})` : ""}`
               : "Our scanner is down right now — that's on us, not your photo. You can enter the days by hand below; it counts exactly the same."
             : (data.error ?? (isHe ? "הסריקה לא הצליחה — נסו שוב או צלמו תמונה חדה יותר." : "The scan didn't work — try again or take a sharper photo.")),
         );

@@ -17,6 +17,7 @@ import { WhereIsMySheet } from "@/components/record/where-is-my-sheet";
 import type { CourseWithSchedule } from "@/lib/plan-generator";
 import type { CompletedCourse } from "./step-history";
 import { heNoun, heNounF } from "@/lib/he-count";
+import { sheetSemesterLabel } from "@/lib/sheet-semester-label";
 
 // ─────────────────────────────────────────────────────────────────────────
 // #11 + #26 — the FIRST question of onboarding.
@@ -831,11 +832,28 @@ function StandingSummaryCard({
                   ? "סמסטר לא ידוע"
                   : "Unknown semester"}
             </span>
+            {/* אריאל, 3.9: *"מה זה ה-2025/2 הזה שיש אחרי סריקת הסילבוס?"*
+                והוא שאל את זה כבר ב-21.8 על "1/2025", ואז נבנה
+                `sheetSemesterLabel` והוחל על שורות הסורק. הכותרת הזאת נשארה
+                מדפיסה את החתימה הגולמית, בפונט מונו ו-LTR — כלומר בדיוק
+                נראית כמו מזהה מערכת שהקורא אמור להכיר. אותה שאלה, שתי
+                תשובות, באותו מסך. החתימה נשארת ב-title כי היא מה שקושר את
+                השורה לשורה בגיליון המודפס. */}
             {group.sheetSemester ? (
-              <span className="font-mono text-[11px] text-foreground/60">
-                {isHe ? "בגיליון: " : "on the sheet: "}
-                <Bidi text={group.sheetSemester} />
-              </span>
+              (() => {
+                const label = sheetSemesterLabel(group.sheetSemester, isHe ? "he" : "en");
+                return label ? (
+                  <span className="text-[11px] text-foreground/60" title={label.raw}>
+                    {isHe ? "בגיליון: " : "on the sheet: "}
+                    {label.text}
+                  </span>
+                ) : (
+                  <span className="font-mono text-[11px] text-foreground/60">
+                    {isHe ? "בגיליון: " : "on the sheet: "}
+                    <Bidi text={group.sheetSemester} />
+                  </span>
+                );
+              })()
             ) : (
               <span className="text-[11px] text-foreground/60">
                 {isHe

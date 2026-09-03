@@ -294,9 +294,18 @@ describe("StepStanding #2b — the review is split into the sheet's semesters", 
     const body = document.body.textContent!;
     expect(screen.getByText("שנה א׳ · סמסטר א׳")).toBeInTheDocument();
     expect(screen.getByText("שנה ב׳ · סמסטר ב׳")).toBeInTheDocument();
-    // The raw header is shown too — the student can check it against the sheet.
-    expect(screen.getAllByText("2024/1").length).toBeGreaterThan(0);
-    expect(screen.getAllByText("2025/2").length).toBeGreaterThan(0);
+    // 3.9 — הבדיקה הזאת קיבעה את החתימה הגולמית ("2024/1") על המסך, וזה
+    // בדיוק מה שאריאל שאל עליו פעמיים: *"מה זה ה-2025/2 הזה שיש אחרי
+    // סריקת הסילבוס?"* ו-*"מה זה ה-1/2025 הזה?"* ב-21.8. אז נבנה
+    // `sheetSemesterLabel` והוחל על שורות הסורק — והכותרת הזאת נשארה
+    // גולמית. אותה שאלה, שתי תשובות, באותו מסך.
+    //
+    // עכשיו נבדקת התווית האנושית. החתימה הגולמית עברה ל-`title`, כי היא
+    // עדיין מה שקושר את השורה לגיליון המודפס — רק לא כטקסט ראשי.
+    expect(screen.getAllByText(/סמסטר א׳ · תשפ״ה/).length).toBeGreaterThan(0);
+    expect(screen.getAllByText(/סמסטר ב׳ · תשפ״ו/).length).toBeGreaterThan(0);
+    expect(document.querySelector('[title="2024/1"]')).not.toBeNull();
+    expect(document.querySelector('[title="2025/2"]')).not.toBeNull();
     expect(body.indexOf("שנה א׳ · סמסטר א׳")).toBeLessThan(body.indexOf("שנה ב׳ · סמסטר ב׳"));
   });
 

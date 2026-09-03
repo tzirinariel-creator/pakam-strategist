@@ -39,6 +39,7 @@ export function SignupForm() {
   const t = useTranslations("auth");
   const router = useRouter();
   const locale = useLocale();
+  const isHeUi = locale === "he";
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -309,6 +310,22 @@ export function SignupForm() {
           )}
           {t("loginWithGoogle")}
         </Button>
+        {/* אריאל, 3.9, בזרימת ההרשמה: *"זה שם ממש מפחיד של האתר בהתחברות
+            דרך גוגל.. אפשר להוסיף איזה משהו מרגיע על זה לפני?"*
+
+            מסך ההסכמה של גוגל אומר "מתבצעת התחברות מחדש אל
+            ktpikeinzccnexprdxcv.supabase.co" — מזהה הפרויקט ב-Supabase, שהוא
+            ספק האימות. אין לנו שליטה על מה שגוגל מציגה שם, ולהחליף את זה
+            בדומיין משלנו דורש דומיין בתשלום והגדרת Custom Domain אצל
+            Supabase — החלטה של אריאל, לא שלי, ולא בערב שלפני השקה.
+            מה שכן בידינו: להגיד את זה מראש. סטודנט שמוכן לשם המשונה לא
+            נבהל ממנו; סטודנט שמופתע — נסגר. */}
+        <p className="text-center text-[11px] leading-relaxed text-foreground/55">
+          {isHeUi
+            ? "בלחיצה על הכפתור גוגל תשאל אישור עבור ktpikeinzccnexprdxcv.supabase.co — זה שם ספק האימות שאנחנו משתמשים בו, לא אתר אחר. אנחנו מקבלים משם את הכתובת והשם שלכם ותו לא."
+            : "Google will ask you to approve ktpikeinzccnexprdxcv.supabase.co — that's the sign-in provider we use, not some other site. All it passes us is your email and name."}
+        </p>
+
 
         {/* Divider */}
         <div className="relative">

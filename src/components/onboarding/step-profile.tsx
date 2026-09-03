@@ -855,6 +855,20 @@ export function StepProfile({ data, onUpdate, sheetSeeded = false }: StepProfile
               </span>
             ) : null}
           </div>
+          {/* אריאל, 3.9: *"האם סימנת לי פטור באנגלית כי הבנת שעשיתי מתקדמים ב
+              בציון עובר? סתם מנסה להבין מה המנגנון כאן."*
+
+              שאלה הוגנת לגמרי, והמסך לא ענה עליה: הוא הכריז "רמה מוצהרת:
+              פטור — גוברת על הציון" בלי לומר **מאיפה** הרמה הגיעה. סטודנט
+              שלא יודע אם האפליקציה קראה את זה בגיליון שלו או ניחשה מהציון,
+              לא יכול לדעת אם לתקן. */}
+          {data.englishLevel && (
+            <p className="mt-1 text-[11px] leading-relaxed text-foreground/60">
+              {isHe
+                ? "את הרמה הזאת קראנו מגיליון הציונים שלכם, לא הסקנו אותה מציון אמירם. היא גוברת עליו כי היא הרשמית — ואם היא לא נכונה, אפשר לשנות אותה כאן ובהגדרות."
+                : "We read this level off your grade sheet — we did not infer it from an AMIRAM score. It overrides the score because it's the official one, and if it's wrong you can change it here or in settings."}
+            </p>
+          )}
           {!data.englishLevel && amirnetStatus?.detail && (
             <p className={cn("mt-1.5 text-xs", amirnetStatus.color.replace("text-", "text-") + "/70")}>
               <Bidi text={amirnetStatus.detail} />
