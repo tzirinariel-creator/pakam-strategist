@@ -39,7 +39,7 @@ describe("the milestone card speaks as the advisor the student chose", () => {
   it("no choice stored → the King: his header, his crown, his canon", () => {
     render(<MilestoneMoment {...halfway} />);
     expect(screen.getByText("רגע של המלך")).toBeInTheDocument();
-    expect(screen.getByText(/חצי התואר מאחוריכם/)).toBeInTheDocument();
+    expect(screen.getByText(/עברתם את חצי התואר/)).toBeInTheDocument();
     // The King's line is the one that reads like the King.
     expect(screen.getByText(/מנקודת האמצע/)).toBeInTheDocument();
   });
@@ -52,7 +52,7 @@ describe("the milestone card speaks as the advisor the student chose", () => {
     expect(screen.getByText("רגע של הרפרנט")).toBeInTheDocument();
     expect(screen.queryByText("רגע של המלך")).not.toBeInTheDocument();
     // Same fact (the number), different voice.
-    expect(screen.getByText(/חצי התואר מאחוריכם/)).toBeInTheDocument();
+    expect(screen.getByText(/עברתם את חצי התואר/)).toBeInTheDocument();
     expect(screen.getByText(/לתכנן אחורה מהסוף/)).toBeInTheDocument();
     expect(screen.queryByText(/מנקודת האמצע/)).not.toBeInTheDocument();
   });

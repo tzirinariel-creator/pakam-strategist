@@ -50,37 +50,41 @@ export function reachedMilestones(input: MilestoneInput): Milestone[] {
   const out: Milestone[] = [];
   if (totalCredits <= 0) return out;
 
+  // 4.9 — נמדד חי: סטודנט שנה ג׳ ראה מד "45% מהתואר הושלמו" ומיד מתחתיו
+  // "רבע מהתואר כבר מאחוריכם". הרצועה נכונה (25%–49%), הניסוח לא: הוא
+  // הכריז על הסף כאילו הוא המצב, וסתר את המספר שממש לידו. כל שלוש
+  // הרצועות מנוסחות עכשיו כ"עברתם את X" — נכון בכל מקום בתוך הרצועה.
   const share = earnedCredits / totalCredits;
 
   if (share >= 0.75) {
     out.push({
       id: "credits-75",
       textHe: referent
-        ? `${earnedCredits} מתוך ${totalCredits} ש״ס — שלושה רבעים מהדרך. מכאן זה כבר עניין של לא להתפזר: מה שנשאר הוא בעיקר סדר, לא כמות.`
-        : `${earnedCredits} מתוך ${totalCredits} ש״ס — שלושה רבעים מהדרך. אפלטון דיבר על היציאה מהמערה; אצלכם כבר רואים את האור. עוד מאמץ אחד טוב.`,
+        ? `עברתם את שלושת הרבעים — ${earnedCredits} מתוך ${totalCredits} ש״ס. מכאן זה כבר עניין של לא להתפזר: מה שנשאר הוא בעיקר סדר, לא כמות.`
+        : `עברתם את שלושת הרבעים — ${earnedCredits} מתוך ${totalCredits} ש״ס. אפלטון דיבר על היציאה מהמערה; אצלכם כבר רואים את האור. עוד מאמץ אחד טוב.`,
       textEn: referent
-        ? `${earnedCredits} of ${totalCredits} credits — three quarters of the way. From here it's about order, not volume.`
-        : `${earnedCredits} of ${totalCredits} credits — three quarters of the way. One good push left.`,
+        ? `Past the three-quarter mark — ${earnedCredits} of ${totalCredits} credits. From here it's about order, not volume.`
+        : `Past the three-quarter mark — ${earnedCredits} of ${totalCredits} credits. One good push left.`,
     });
   } else if (share >= 0.5) {
     out.push({
       id: "credits-50",
       textHe: referent
-        ? `חצי התואר מאחוריכם — ${earnedCredits} מתוך ${totalCredits} ש״ס. מהנקודה הזאת כדאי לתכנן אחורה מהסוף, לא רק סמסטר קדימה.`
-        : `חצי התואר מאחוריכם — ${earnedCredits} מתוך ${totalCredits} ש״ס. מנקודת האמצע רואים גם כמה טיפסתם וגם את ההמשך. המשיכו באותו קצב.`,
+        ? `עברתם את חצי התואר — ${earnedCredits} מתוך ${totalCredits} ש״ס. מהנקודה הזאת כדאי לתכנן אחורה מהסוף, לא רק סמסטר קדימה.`
+        : `עברתם את חצי התואר — ${earnedCredits} מתוך ${totalCredits} ש״ס. מנקודת האמצע רואים גם כמה טיפסתם וגם את ההמשך. המשיכו באותו קצב.`,
       textEn: referent
-        ? `Half the degree behind you — ${earnedCredits} of ${totalCredits} credits. From here, plan backwards from the finish, not one semester ahead.`
-        : `Half the degree behind you — ${earnedCredits} of ${totalCredits} credits. Keep the pace.`,
+        ? `Past the halfway mark — ${earnedCredits} of ${totalCredits} credits. From here, plan backwards from the finish, not one semester ahead.`
+        : `Past the halfway mark — ${earnedCredits} of ${totalCredits} credits. Keep the pace.`,
     });
   } else if (share >= 0.25) {
     out.push({
       id: "credits-25",
       textHe: referent
-        ? `רבע מהתואר סגור — ${earnedCredits} מתוך ${totalCredits} ש״ס. הקצב שנקבע עכשיו הוא זה שנשאר, אז שווה להסתכל עליו כבר עכשיו.`
-        : `רבע מהתואר כבר מאחוריכם — ${earnedCredits} מתוך ${totalCredits} ש״ס. אבן על אבן, בדיוק כך נבנה תואר.`,
+        ? `עברתם את הרבע — ${earnedCredits} מתוך ${totalCredits} ש״ס. הקצב שנקבע עכשיו הוא זה שנשאר, אז שווה להסתכל עליו כבר עכשיו.`
+        : `עברתם את הרבע — ${earnedCredits} מתוך ${totalCredits} ש״ס. אבן על אבן, בדיוק כך נבנה תואר.`,
       textEn: referent
-        ? `A quarter of the degree done — ${earnedCredits} of ${totalCredits} credits. The pace you set now is the one that sticks.`
-        : `A quarter of the degree behind you — ${earnedCredits} of ${totalCredits} credits. Stone by stone.`,
+        ? `Past the quarter mark — ${earnedCredits} of ${totalCredits} credits. The pace you set now is the one that sticks.`
+        : `Past the quarter mark — ${earnedCredits} of ${totalCredits} credits. Stone by stone.`,
     });
   }
 

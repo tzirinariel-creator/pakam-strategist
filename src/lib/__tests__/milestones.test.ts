@@ -45,3 +45,24 @@ describe("reachedMilestones", () => {
     expect(reachedMilestones({ ...base, totalCredits: 0, earnedCredits: 10 })).toEqual([]);
   });
 });
+
+// 4.9 — נמדד חי על חשבון שנה ג׳: המד אמר "45% מהתואר הושלמו" והכרטיס
+// שמתחתיו אמר "רבע מהתואר כבר מאחוריכם". הרצועה נכונה, המשפט לא.
+describe("הכרטיס לא סותר את המד שלידו", () => {
+  const at = (earned: number) =>
+    reachedMilestones({ earnedCredits: earned, totalCredits: 150, gradedCount: 5, englishExempt: false, gender: "male" })
+      .find((m) => m.id.startsWith("credits-"))?.textHe ?? "";
+
+  it("ב-45% לא נכתב שרבע מאחוריכם — נכתב שהרבע נעבר", () => {
+    const t = at(68);
+    expect(t).toContain("עברתם את הרבע");
+    expect(t).toContain("68 מתוך 150");
+    expect(t).not.toMatch(/רבע מהתואר (כבר מאחוריכם|סגור)/);
+  });
+
+  it("בכל מקום בתוך הרצועה המשפט נשאר נכון", () => {
+    for (const c of [38, 50, 68, 74]) expect(at(c)).toContain("עברתם את הרבע");
+    for (const c of [75, 90, 111]) expect(at(c)).toContain("עברתם את חצי התואר");
+    for (const c of [113, 140, 150]) expect(at(c)).toContain("עברתם את שלושת הרבעים");
+  });
+});
