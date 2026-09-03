@@ -5,7 +5,7 @@ import { Calendar, CalendarClock, Check, Link2, Loader2, RefreshCw, ShieldCheck,
 import { useTranslations, useLocale } from "next-intl";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
-import { getAcademicNow, deriveYearOfStudy } from "@/lib/academic-calendar";
+import { getCurrentOrUpcomingSemester, deriveYearOfStudy } from "@/lib/academic-calendar";
 import { api } from "@/lib/trpc/react";
 import { useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
@@ -128,7 +128,10 @@ export function GoogleCalendarSection() {
   useEffect(() => {
     if (profileQuery.data) {
       setSyncYear(String(deriveYearOfStudy(profileQuery.data.startYear, profileQuery.data.currentYear ?? 1)));
-      setSyncSemester(getAcademicNow().semester);
+      // 4.9 — בחופשה getAcademicNow עדיין נוקב בסמסטר שנגמר ביוני, אז
+      // מי שמחבר יומן היום היה דוחף לגוגל את מערכת השעות של סמסטר שעבר.
+      // זו ברירת מחדל שאפשר לשנות, אבל ברירת מחדל שגויה נדחפת בפועל.
+      setSyncSemester(getCurrentOrUpcomingSemester().semester);
     }
   }, [profileQuery.data]);
 

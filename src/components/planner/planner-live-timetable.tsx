@@ -7,7 +7,7 @@ import { useLocale } from "next-intl";
 import { toast } from "sonner";
 import { CalendarDays, Maximize2, X } from "lucide-react";
 import { usePlannerStore } from "@/stores/planner-store";
-import { getAcademicNow } from "@/lib/academic-calendar";
+import { getCurrentOrUpcomingSemester } from "@/lib/academic-calendar";
 import { api } from "@/lib/trpc/react";
 import { invalidatePlanData } from "@/lib/trpc/invalidate-plan";
 import { cn } from "@/lib/utils";
@@ -65,7 +65,15 @@ export function PlannerLiveTimetable({ courses, currentYear }: PlannerLiveTimeta
   // profile.currentSemester — the stored value reproduced the #39 "why is
   // מבוא-ללוגיקה here" complaint by defaulting to last semester (audit 22.7).
   // The user's explicit toggle (selectedSemester) still wins.
-  const calendarSemester = getAcademicNow().semester === "SPRING" ? "SPRING" : "FALL";
+  // 4.9 — the previous fix here moved the default OFF the stale stored profile
+  // and onto getAcademicNow (audit 22.7). Between semesters getAcademicNow is
+  // stale in the very same way: it still names סמסטר ב׳, which ended in June.
+  //
+  // Measured live on an iPhone viewport: the toggle opened on ב׳ and the panel
+  // read "אין קורסים בסמסטר הזה" — while the student's 9 ש״ס sat one tap away
+  // in א׳. That empty timetable IS the "המערכת שלי נמחקה" report.
+  const calendarSemester =
+    getCurrentOrUpcomingSemester().semester === "SPRING" ? "SPRING" : "FALL";
   const semester = selectedSemester ?? calendarSemester;
   const setSemester = setSelectedSemester;
 
@@ -201,6 +209,14 @@ export function PlannerLiveTimetable({ courses, currentYear }: PlannerLiveTimeta
                 key={s}
                 type="button"
                 onClick={() => setSemester(s)}
+                // הבחירה סומנה בצבע בלבד — קורא-מסך שמע שני כפתורים זהים
+                // בלי לדעת איזה פעיל.
+                aria-pressed={semester === s}
+                aria-label={
+                  isHe
+                    ? `סמסטר ${SEMESTER_CONFIG[s].short}`
+                    : `${SEMESTER_CONFIG[s].shortEn} semester`
+                }
                 className={cn(
                   "px-2.5 py-1 transition-colors",
                   semester === s
