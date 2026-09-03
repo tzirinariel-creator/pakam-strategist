@@ -999,7 +999,13 @@ export function SemesterPlanner({
             "בחרו את שלכם על המערכת", and until now this grid was mounted
             read-only — the first instruction a student ever got about groups
             pointed at a surface where picking did nothing. Same handler as the
-            editor, so a pick here lands in the same state. */}
+            editor, so a pick here lands in the same state.
+
+            ⚠️ ובלי `onRequestGroupChoice`, ובכוונה. זה המסך היחיד שאין בו
+            GroupRail. כשהעברתי את בחירת הקבוצה מ-popover לפאנל צדדי (3.9)
+            העברתי גם את המסך הזה — והלחיצה פשוט הפסיקה לעשות משהו, כי אין
+            לאן להפנות. תפסתי את זה רק כשעברתי את ההרשמה כמשתמש בשלב ג׳,
+            ולא באף בדיקה. כאן ה-popover נשאר. */}
         <div className="w-full min-w-0 xl:flex-1">
           <LiveTimetable
             courses={allCurrentCourses}
@@ -1008,7 +1014,6 @@ export function SemesterPlanner({
             interactive
             multiGroupCourseCodes={multiGroupCourseCodes}
             onSelectSessionGroup={handleSelectSessionGroup}
-            onRequestGroupChoice={focusGroupChoice}
           />
         </div>
       </div>
