@@ -50,6 +50,8 @@ export function Form3010Uploader({
   const scan = useScanProgress(isHe, "form");
   const { scanning, elapsed } = scan;
   const [summary, setSummary] = useState<Form3010Summary | null>(null);
+  /** הסורק מושבת אצלנו (503/412) — פותח את המילוי הידני ומסביר למה. */
+  const [scannerDown, setScannerDown] = useState(false);
   const [edited, setEdited] = useState<Record<string, number>>({});
 
   // The two years this panel must be able to name when it refuses to import
@@ -81,9 +83,25 @@ export function Form3010Uploader({
       scan.setStage("read");
       const data = (await res.json()) as { summary?: Form3010Summary; error?: string };
       if (!res.ok || !data.summary) {
-        advisorError(data.error ?? (isHe ? "הסריקה לא הצליחה — נסו שוב או צלמו תמונה חדה יותר." : "The scan didn't work — try again or take a sharper photo."));
+        // אריאל, 3.9: *"טוב לא עובד הסורק אבל למה הוא לא נותן לי למלא ידנית?
+        // אם אני סטודנט שנה ג׳ ועשיתי מילואים ב-3 או 4 סמסטרים? זה צריך
+        // לאפשר לי את זה."*
+        //
+        // 503 אומר שהסורק **אצלנו** מושבת, לא שהצילום שלו רע. לומר לסטודנט
+        // "צלמו תמונה חדה יותר" זה לשלוח אותו לצלם שוב ושוב משהו שלא ייקרא
+        // בשום מצב — וזו בדיוק ההודעה שהוא קיבל. המילוי הידני קיים מתחת
+        // לכפתור הזה; ברגע כזה הוא צריך להיאמר בקול.
+        setScannerDown(res.status === 503 || res.status === 412);
+        advisorError(
+          res.status === 503 || res.status === 412
+            ? isHe
+              ? "הסורק שלנו לא זמין כרגע — זה אצלנו, לא בצילום שלכם. אפשר למלא את הימים ידנית למטה, וזה שווה ערך לגמרי."
+              : "Our scanner is down right now — that's on us, not your photo. You can enter the days by hand below; it counts exactly the same."
+            : (data.error ?? (isHe ? "הסריקה לא הצליחה — נסו שוב או צלמו תמונה חדה יותר." : "The scan didn't work — try again or take a sharper photo.")),
+        );
         return;
       }
+      setScannerDown(false);
       setSummary(data.summary);
       setEdited({});
     } catch {
@@ -96,6 +114,21 @@ export function Form3010Uploader({
 
   return (
     <div className="rounded-xl border border-border/60 bg-foreground/[0.02] p-4">
+      {/* הודעה מתמשכת, לא טוסט. טוסט נעלם, והסטודנט נשאר עם כפתור שנכשל
+          ובלי לדעת שיש דרך אחרת שעובדת בדיוק אותו דבר. */}
+      {scannerDown && (
+        <div
+          role="status"
+          className="mb-3 rounded-lg border border-amber-500/40 bg-amber-500/[0.07] p-3 text-xs leading-relaxed text-foreground/75"
+        >
+          <b className="font-semibold">
+            {isHe ? "הסורק שלנו לא זמין כרגע" : "Our scanner is down right now"}
+          </b>{" "}
+          {isHe
+            ? "וזה אצלנו — לא בצילום שלכם, אז אין טעם לצלם שוב. מלאו את מספר הימים ידנית למטה: זה נספר בדיוק אותו דבר, ואת שאר הסמסטרים אפשר להוסיף בעמוד המילואים."
+            : "That's on our side, not your photo — no point re-shooting. Enter the number of days by hand below: it counts exactly the same, and the other semesters can be added on the reserve-duty page."}
+        </div>
+      )}
       <div className="flex flex-wrap items-center gap-3">
         <div className="min-w-0 flex-1">
           <p className="text-sm font-semibold text-foreground/75">

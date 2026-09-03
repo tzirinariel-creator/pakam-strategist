@@ -26,7 +26,28 @@ import type { ChatMessage } from "@/lib/ai/claude-client";
 // live — Google retires Flash models. An optional GEMINI_MODEL env override
 // makes the PRIMARY hot-fixable without a deploy (de-duped so it isn't tried
 // twice). See memory: gemini-model-must-stay-current.
-const DEFAULT_GEMINI_MODELS = ["gemini-2.5-flash-lite", "gemini-2.5-flash"] as const;
+//
+// 3.9 — למה הרשימה כוללת עכשיו גם שמות "latest".
+//
+// אריאל עבר את זרימת ההרשמה כמשתמש וקיבל *"הסורק אינו זמין כרגע"* בהעלאת
+// טופס 3010. זה 503, כלומר הספק ענה 404 על **כל** המודלים ברשימה. שני
+// השמות שהיו כאן מוצמדים לגרסה, וגוגל מוציאה גרסאות Flash משירות — בדיוק
+// מה שקרה ב-3.3.2026 למודל שהיה לפניהם.
+//
+// הצ'יין עצמו היה תקין: הוא מנסה מודל אחר על 404. מה שנשבר זו **הרשימה** —
+// כל האיברים בה מתיישנים באותו קצב, ולכן היום שבו הראשון מת הוא בערך היום
+// שבו השני מת. וכשכולם מתים, לא רק הסורק נופל: המלך נופל איתו.
+//
+// `gemini-flash-lite-latest` ו-`gemini-flash-latest` הם כינויים שגוגל
+// מפנה תמיד לגרסה החיה. הם נשארים **אחרי** המוצמדים, כדי ששום דבר לא
+// ישתנה כל עוד המוצמדים חיים — אבל ברגע שהם ימותו, הכינוי תופס את זה
+// לבד במקום שהאפליקציה תחשיך.
+const DEFAULT_GEMINI_MODELS = [
+  "gemini-2.5-flash-lite",
+  "gemini-flash-lite-latest",
+  "gemini-2.5-flash",
+  "gemini-flash-latest",
+] as const;
 export const GEMINI_MODELS: string[] = Array.from(
   new Set([process.env.GEMINI_MODEL?.trim(), ...DEFAULT_GEMINI_MODELS].filter(Boolean) as string[]),
 );
