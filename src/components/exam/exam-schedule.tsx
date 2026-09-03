@@ -21,6 +21,7 @@ import {
 import { toast } from "sonner";
 import { advisorError } from "@/lib/advisor-toast";
 import { api } from "@/lib/trpc/react";
+import { Link } from "@/i18n/navigation";
 import { cn } from "@/lib/utils";
 import { downloadExamICS } from "@/lib/ics-export";
 import { exportExamPlanXlsx } from "@/lib/xlsx-export";
@@ -110,12 +111,30 @@ export function ExamSchedule() {
   const [isExportingXlsx, setIsExportingXlsx] = useState(false);
   const { data, isLoading, error, refetch } = api.schedule.getExamSchedule.useQuery();
   const profileQuery = api.user.getProfile.useQuery();
+  // 4.9 — the empty state used to be the two words "אין בחינות" and stopped
+  // there. A first-year student opening this in September has no exams yet,
+  // and two words cannot tell them whether the app is broken, still loading,
+  // or simply early. The plan tells us WHICH of the two reasons it is.
+  const planQuery = api.plan.getUserPlan.useQuery();
 
   // Group UPCOMING exams by date. The board previously listed every sitting and
   // merely dimmed past ones (opacity-60), so it stayed cluttered with exams that
   // already happened and with sittings for courses already passed (#33). We now
   // hide them outright, client-side (server-side date-nulling would corrupt the
   // shared Course.examDate* that the dashboard countdown also reads).
+  // Why is the board empty? Three different answers, three different actions:
+  // no courses planned yet · courses planned but the university hasn't
+  // published their dates · everything already sat. Never just "no exams".
+  const plannedCount = (planQuery.data?.courses ?? []).filter(
+    (c) => (c as { status?: string }).status === "PLANNED",
+  ).length;
+  const hasAnyExamRow = (data?.exams?.length ?? 0) > 0;
+  const emptyReason: "no-courses" | "no-dates" | "all-past" = hasAnyExamRow
+    ? "all-past"
+    : plannedCount === 0
+      ? "no-courses"
+      : "no-dates";
+
   const examGroups = useMemo<ExamGroup[]>(() => {
     if (!data?.exams) return [];
 
@@ -477,7 +496,36 @@ export function ExamSchedule() {
         ) : (
           <div className="flex min-h-[200px] flex-col items-center justify-center gap-2 rounded-lg border border-dashed border-border/30 p-6">
             <CalendarClock className="size-8 text-muted-foreground" />
-            <p className="text-sm text-muted-foreground">{t("noExams")}</p>
+            {emptyReason === "no-courses" ? (
+              <>
+                <p className="text-sm font-medium text-foreground/75">
+                  {isRTL ? "עוד אין קורסים בתוכנית שלכם" : "No courses in your plan yet"}
+                </p>
+                <p className="max-w-sm text-center text-xs leading-relaxed text-foreground/55">
+                  {isRTL
+                    ? "הבחינות מופיעות כאן לבד — ברגע שיש קורסים בתוכנית והאוניברסיטה פרסמה להם מועדים."
+                    : "Exams appear here on their own, once your plan has courses and the university has published their dates."}
+                </p>
+                <Link href="/planner" className="text-xs font-medium text-primary underline underline-offset-4">
+                  {isRTL ? "לתכנון הסמסטר" : "Plan your semester"}
+                </Link>
+              </>
+            ) : emptyReason === "no-dates" ? (
+              <>
+                <p className="text-sm font-medium text-foreground/75">
+                  {isRTL ? "המועדים לקורסים שלכם עוד לא פורסמו" : "Dates for your courses aren't published yet"}
+                </p>
+                <p className="max-w-sm text-center text-xs leading-relaxed text-foreground/55">
+                  {isRTL
+                    ? "יש לכם קורסים בתוכנית, אבל האוניברסיטה עוד לא פרסמה להם מועדי בחינה. נוסיף אותם לכאן לבד כשהם יתפרסמו."
+                    : "Your plan has courses, but the university hasn't published their exam dates. They'll appear here on their own."}
+                </p>
+              </>
+            ) : (
+              <p className="text-sm text-foreground/60">
+                {isRTL ? "אין בחינות קרובות — אתם מעודכנים." : "No upcoming exams — you're all caught up."}
+              </p>
+            )}
           </div>
         )
       )}
@@ -487,9 +535,36 @@ export function ExamSchedule() {
         // Everything is in the past or already passed → nothing upcoming (#33).
         <div className="flex min-h-[160px] flex-col items-center justify-center gap-3 rounded-lg border border-dashed border-border/40 p-6">
           <CheckCircle2 className="size-8 text-status-green/70" />
-          <p className="text-sm text-foreground/60">
-            {isRTL ? "אין מבחנים קרובים — אתם מעודכנים." : "No upcoming exams — you're all caught up."}
-          </p>
+            {emptyReason === "no-courses" ? (
+              <>
+                <p className="text-sm font-medium text-foreground/75">
+                  {isRTL ? "עוד אין קורסים בתוכנית שלכם" : "No courses in your plan yet"}
+                </p>
+                <p className="max-w-sm text-center text-xs leading-relaxed text-foreground/55">
+                  {isRTL
+                    ? "הבחינות מופיעות כאן לבד — ברגע שיש קורסים בתוכנית והאוניברסיטה פרסמה להם מועדים."
+                    : "Exams appear here on their own, once your plan has courses and the university has published their dates."}
+                </p>
+                <Link href="/planner" className="text-xs font-medium text-primary underline underline-offset-4">
+                  {isRTL ? "לתכנון הסמסטר" : "Plan your semester"}
+                </Link>
+              </>
+            ) : emptyReason === "no-dates" ? (
+              <>
+                <p className="text-sm font-medium text-foreground/75">
+                  {isRTL ? "המועדים לקורסים שלכם עוד לא פורסמו" : "Dates for your courses aren't published yet"}
+                </p>
+                <p className="max-w-sm text-center text-xs leading-relaxed text-foreground/55">
+                  {isRTL
+                    ? "יש לכם קורסים בתוכנית, אבל האוניברסיטה עוד לא פרסמה להם מועדי בחינה. נוסיף אותם לכאן לבד כשהם יתפרסמו."
+                    : "Your plan has courses, but the university hasn't published their exam dates. They'll appear here on their own."}
+                </p>
+              </>
+            ) : (
+              <p className="text-sm text-foreground/60">
+                {isRTL ? "אין בחינות קרובות — אתם מעודכנים." : "No upcoming exams — you're all caught up."}
+              </p>
+            )}
         </div>
       ) : (
       <div className="flex flex-col gap-4">
