@@ -26,6 +26,7 @@ import type { OnboardingData } from "../onboarding-wizard";
 import { CoursePool } from "./course-pool";
 import { MySemester } from "./my-semester";
 import { GroupRail } from "./group-rail";
+import { Bidi } from "@/lib/bidi";
 import { LiveTimetable, type SessionGroupSelections } from "./live-timetable";
 import { InsightsBar } from "./insights-bar";
 import { BiddingProximityNudge } from "./bidding-proximity-nudge";
@@ -181,7 +182,6 @@ export function SemesterPlanner({
     } catch {
       return null;
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [draftKey]);
 
   // ─── State ─────────────────────────────────────────────────────────
@@ -901,14 +901,23 @@ export function SemesterPlanner({
 
   // ─── Semester picker ──────────────────────────────────────────────
 
-  const ALL_SEMESTERS: Array<{ year: 1 | 2 | 3; semester: "FALL" | "SPRING" }> = [
-    { year: 1, semester: "FALL" },
-    { year: 1, semester: "SPRING" },
-    { year: 2, semester: "FALL" },
-    { year: 2, semester: "SPRING" },
-    { year: 3, semester: "FALL" },
-    { year: 3, semester: "SPRING" },
-  ];
+  /**
+   * ש״ס בסמסטר נתון — הסמסטר הפתוח נספר מהבחירה החיה, וכל השאר מהשמור.
+   * זה המספר שסטודנט מחליט לפיו לפני בידינג, ולכן הוא יושב על הטאב עצמו.
+   */
+  const semesterCredits = useCallback(
+    (year: number, semester: "FALL" | "SPRING"): number => {
+      const ids =
+        year === currentYear && semester === currentSemester
+          ? [...mandatoryIds, ...Array.from(selectedCourseIds).filter((id) => !mandatoryIds.has(id))]
+          : (completedSemesters.find((x) => x.year === year && x.semester === semester)?.courseIds ?? []);
+      let sum = 0;
+      for (const id of ids) sum += mergedCourses.find((c) => c.id === id)?.credits ?? 0;
+      return Math.round(sum * 10) / 10;
+    },
+    [currentYear, currentSemester, mandatoryIds, selectedCourseIds, completedSemesters, mergedCourses],
+  );
+
 
   /** Which semesters have already been planned and saved */
   const completedSemesterKeys = useMemo(() => {
@@ -1042,47 +1051,90 @@ export function SemesterPlanner({
         <p className="mt-1 text-sm text-foreground/60">
           {t("semesterPlannerDesc")}
         </p>
-        {/* Semester picker — jump to any semester */}
-        <div className="mt-3 flex flex-col items-center gap-2">
-          <div className="flex flex-wrap items-center justify-center gap-1.5">
-            {ALL_SEMESTERS.map(({ year, semester }) => {
-              const isActive = year === currentYear && semester === currentSemester;
-              const key = `${year}-${semester}`;
-              const isCompleted = completedSemesterKeys.has(key);
-              const isFar = !isCompleted && horizonOf(year, semester) === "far";
-              const yCfg = YEAR_CONFIG[year];
-              const sCfg = SEMESTER_CONFIG[semester];
-              const label = isHe
-                ? `${yCfg.nameHe} ${sCfg.short}`
-                : `${yCfg.nameEn} ${sCfg.shortEn}`;
+        {/* =========================================
+            שני טאבים של סמסטרים, ומעליהם השנה
+            =========================================
+            אריאל, 3.9, אחרי שעבר את הזרימה כמשתמש ומול ביד-איט:
+            *"למה זה לא כמו בבידאיט שאני יכול בשני טאבים לתכנן את כל השנה
+            לקראת הבידינג? ... זה צריך להיראות כמו בביד-איט מבחינת סגנון
+            כי אנחנו עוד רגע שם כבר!"*
+
+            מה שהיה כאן: שש גלולות שטוחות באותו גודל — "שנה א׳ א׳",
+            "שנה א׳ ב׳", "שנה ב׳ א׳"... כלומר שתי שאלות שונות — *איזו שנה*
+            ו*איזה סמסטר* — מוצגות כרשימה אחת של שישה דברים שווי־ערך.
+            הסטודנט שמגיש בידינג שואל שאלה אחת: מה בסמסטר א׳ ומה בב׳ של
+            השנה שאני מתכנן. ביד-איט עונה עליה בשני טאבים בדיוק.
+
+            אז: השנה למעלה, קטנה ומשנית. הסמסטרים למטה, שני טאבים גדולים,
+            עם ספירת ש״ס על כל אחד — כי זה המספר שמחליטים לפיו. */}
+        <div className="mt-3 flex flex-col items-center gap-2.5">
+          {/* השנה — משנית */}
+          <div className="flex items-center gap-1" role="group" aria-label={isHe ? "שנת לימוד" : "Year of study"}>
+            {([1, 2, 3] as const).map((year) => {
+              const isActiveYear = year === currentYear;
               return (
                 <button
-                  key={key}
+                  key={year}
                   type="button"
-                  onClick={() => handleSwitchSemester(year, semester)}
-                  // Which pill is open was communicated by fill colour only, so
-                  // a screen reader announced six identical buttons.
-                  aria-current={isActive ? "true" : undefined}
-                  title={isFar ? (isHe ? "סמסטר רחוק — עוד יכול להשתנות" : "Far semester — may still change") : undefined}
+                  onClick={() => handleSwitchSemester(year, currentSemester)}
+                  aria-current={isActiveYear ? "true" : undefined}
                   className={cn(
-                    "relative flex items-center gap-1 rounded-full px-2.5 py-1 text-[11px] font-medium transition-all",
-                    isActive
-                      ? "bg-foreground text-background shadow-sm"
-                      : isCompleted
-                        ? "bg-foreground/10 text-foreground/70 hover:bg-foreground/15"
-                        : isFar
-                          ? "border border-dashed border-foreground/20 bg-transparent text-foreground/60 hover:text-foreground/90"
-                          : "bg-foreground/5 text-foreground/70 hover:bg-foreground/10 hover:text-foreground/90"
+                    "rounded-full px-2.5 py-1 text-[11px] font-medium transition-colors",
+                    isActiveYear
+                      ? "bg-foreground/10 text-foreground/90"
+                      : "text-foreground/50 hover:bg-foreground/5 hover:text-foreground/80",
                   )}
                 >
-                  {isCompleted && !isActive && (
-                    <Check className="h-2.5 w-2.5" />
-                  )}
-                  {label}
+                  {isHe ? YEAR_CONFIG[year].nameHe : YEAR_CONFIG[year].nameEn}
                 </button>
               );
             })}
           </div>
+
+          {/* הסמסטרים — ראשיים */}
+          <div
+            className="inline-flex rounded-xl border border-border/70 bg-foreground/[0.03] p-1"
+            role="tablist"
+            aria-label={isHe ? "סמסטר" : "Semester"}
+          >
+            {(["FALL", "SPRING"] as const).map((semester) => {
+              const isActive = semester === currentSemester;
+              const key = `${currentYear}-${semester}`;
+              const isCompleted = completedSemesterKeys.has(key);
+              const credits = semesterCredits(currentYear, semester);
+              const sCfg = SEMESTER_CONFIG[semester];
+              return (
+                <button
+                  key={semester}
+                  type="button"
+                  role="tab"
+                  aria-selected={isActive}
+                  onClick={() => handleSwitchSemester(currentYear, semester)}
+                  className={cn(
+                    "flex min-w-[8.5rem] items-center justify-center gap-2 rounded-lg px-4 py-2 text-sm font-semibold transition-all",
+                    isActive
+                      ? "bg-background text-foreground/90 shadow-sm"
+                      : "text-foreground/55 hover:text-foreground/80",
+                  )}
+                >
+                  {isCompleted && !isActive && <Check className="size-3 text-status-green" />}
+                  <span>{isHe ? sCfg.nameHe : sCfg.nameEn}</span>
+                  {credits > 0 && (
+                    <span
+                      className={cn(
+                        "rounded-full px-1.5 py-0.5 text-[10px] font-medium tabular-nums",
+                        isActive ? "bg-foreground/10 text-foreground/70" : "bg-foreground/5 text-foreground/50",
+                      )}
+                    >
+                      <Bidi text={`${credits} ש״ס`} />
+                    </span>
+                  )}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+        <div className="mt-2 flex flex-col items-center gap-2">
           {/* Soft horizon nudge — only when editing a far semester (E-4). */}
           {activeIsFar && (
             <p className="max-w-md text-[11px] leading-snug text-status-amber/80/70">
