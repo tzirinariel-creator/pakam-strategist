@@ -2,6 +2,7 @@
 
 import { useTranslations, useLocale } from "next-intl";
 import { CheckCircle, Calendar, Feather, Gauge, Weight, Flame, Plus, Pencil, Loader2, Users } from "lucide-react";
+import { isBiddingRelevant } from "@/lib/bidding-calendar";
 import { cn } from "@/lib/utils";
 import { Bidi } from "@/lib/bidi";
 import { calculateHonestLoad, type HonestLoadLabel } from "@/lib/workload-calculator";
@@ -311,6 +312,33 @@ export function SemesterSummary({
             <Plus className="h-3.5 w-3.5" />
             {isHe ? "הוספה ועריכה של קורסים" : "Add or edit courses"}
           </button>
+
+          {/* ================================================================
+              האשף הוביל לכאן, ומסך הבידינג נוזף על מה שיוצא מכאן
+              ================================================================
+              4.9 — האשף מתכנן סמסטר אחד, והכפתור הראשי הוא "סיום ושמירה".
+              רוב הסטודנטים יסיימו עם סמסטר א׳ בלבד, ואז יגיעו למסך הבידינג
+              — שהאשף עצמו שולח אליהם — ויקבלו התראה כתומה: *"אחד הסמסטרים
+              ריק. הבידינג מגיש את שני הסמסטרים יחד."* האפליקציה מובילה
+              אותך למקום ואז אומרת לך שטעית שהגעת אליו.
+
+              המשפט הזה כבר קיים באפליקציה בשני מקומות, פשוט לא במסך שבו
+              ההחלטה נופלת. וסטודנט שנה א׳ בכלל לא רואה את הלוח שנושא אותו,
+              כי סמסטר חובה-כבד פותח אותו ישר על הסיכום.
+
+              **לא הפכתי את היררכיית הכפתורים.** ההערה שלמעלה מתעדת שהסידור
+              ההפוך הוא בדיוק מה שגרם למחיקת התכנון של אריאל ב-2.9. מה
+              שחסר כאן הוא המידע, לא כפתור אחר.
+
+              מוצג רק כשהמקצה באמת קרוב — אותה שאלה, אותה פונקציה משותפת
+              שדף הבית והלוח שואלים דרכה. */}
+          {hasMoreSemesters && isBiddingRelevant() && (
+            <p className="max-w-sm text-center text-xs leading-relaxed text-foreground/55">
+              {isHe
+                ? "הבידינג מגיש את שני הסמסטרים יחד — סמסטר שלא הגשתם עליו בקשה נסגר, ומה שנשאר בו במקצה השני הוא מה שאחרים לא רצו."
+                : "Bidding submits both semesters at once — a semester you didn't bid on closes, and what's left in it at the second round is what nobody else wanted."}
+            </p>
+          )}
 
           {hasMoreSemesters && (
             <button

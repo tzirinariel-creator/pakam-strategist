@@ -19,7 +19,7 @@ import { PhilosopherKingIcon } from "@/components/ui/philosopher-king-icon";
 import { PhilosopherKingCharacter } from "@/components/ui/philosopher-king-character";
 import { cn } from "@/lib/utils";
 import { CATALOG_COURSE_COUNT, CONTACT_EMAIL, CREDIT_REQUIREMENTS, FOCUS_DISCIPLINE_IDS } from "@/lib/constants";
-import { getBiddingPhase } from "@/lib/bidding-calendar";
+import { getBiddingPhase, isBiddingRelevant } from "@/lib/bidding-calendar";
 import { heNoun } from "@/lib/he-count";
 
 // ─── Feature Card Data ──────────────────────────────────────────────
@@ -160,6 +160,28 @@ export function LandingPage() {
   // הרצועה בעברית בלבד: הקהל הוא סטודנטי פכ״מ בת״א, והנוסח האנגלי היה
   // תרגום של משפט שאיש לא קורא. `/en` ממילא מפנה לעברית בכוונה.
   const biddingPhase = isRTL ? getBiddingPhase() : { kind: "after" as const, daysUntil: null };
+  // משפט לכל מצב, מתוך התאריכים בלבד. "פתוח עכשיו" הוא הדחוף שבהם, והוא
+  // דווקא זה שלא הופיע קודם.
+  const biddingDays = biddingPhase.daysUntil;
+  const biddingRound = (biddingPhase as { round?: number }).round ?? 1;
+  const biddingLabel =
+    biddingPhase.kind === "before"
+      ? biddingDays === 0
+        ? `מקצה ${biddingRound} נפתח היום`
+        : `מקצה ${biddingRound} נפתח בעוד ${heNoun(biddingDays!, "יום", "ימים")}`
+      : biddingPhase.kind === "open"
+        ? biddingDays === 0
+          ? `מקצה ${biddingRound} נסגר היום`
+          : `מקצה ${biddingRound} פתוח — נסגר בעוד ${heNoun(biddingDays!, "יום", "ימים")}`
+        : biddingPhase.kind === "awaiting-results"
+          ? biddingDays === 0
+            ? `תוצאות מקצה ${biddingRound} מתפרסמות היום`
+            : `תוצאות מקצה ${biddingRound} בעוד ${heNoun(biddingDays!, "יום", "ימים")}`
+          : biddingPhase.kind === "between-rounds"
+            ? biddingDays === 0
+              ? `מקצה ${biddingRound} נפתח היום`
+              : `מקצה ${biddingRound} נפתח בעוד ${heNoun(biddingDays!, "יום", "ימים")}`
+            : null;
 
   const stats = [
     // Pinned to the real תשפ״ז catalog by a guard test — it read "110+" for
@@ -238,14 +260,18 @@ export function LandingPage() {
                 באנר תמידי הוא קישוט, באנר עם תאריך הוא סיבה. והיא אומרת
                 **רק** מה שאנחנו יודעים: תאריך ומה שהאפליקציה עושה. אף
                 מילה על ניקוד, כי את המכסות האוניברסיטה לא מפרסמת. */}
-            {biddingPhase.kind === "before" && (biddingPhase.daysUntil ?? 99) <= 30 && (
+            {/* 4.9 — הרצועה נכבתה בדיוק ברגע שהיא הכי נחוצה. התנאי היה
+                `kind === "before"`, ובשעה 11:00 ב-7.9 המצב הופך ל-"open"
+                והרצועה נעלמת — בשבוע היחיד שבו הקישור באמת רץ מיד ליד.
+                וגרוע מזה, זה היה תנאי שנכתב כאן מחדש בזמן שכל שאר
+                האפליקציה (דף הבית, התזכורת, time-focus) שואלת את אותה
+                שאלה דרך isBiddingRelevant. עכשיו גם כאן.
+                המשפט עצמו ממשיך לומר **רק** מה שידוע — תאריך ומה
+                שהאפליקציה עושה. אף מילה על ניקוד. */}
+            {isBiddingRelevant() && biddingLabel && (
               <div className="mb-4 inline-flex flex-wrap items-center justify-center gap-x-2 gap-y-1 rounded-full border border-accent-brand/35 bg-accent-brand/[0.07] px-4 py-1.5 text-sm font-medium text-foreground/80 lg:justify-start">
                 <CalendarClock className="size-4 shrink-0 text-accent-brand" />
-                <span className="font-semibold text-accent-brand">
-                  {biddingPhase.daysUntil === 0
-                    ? "מקצה 1 נפתח היום"
-                    : `מקצה 1 נפתח בעוד ${heNoun(biddingPhase.daysUntil!, "יום", "ימים")}`}
-                </span>
+                <span className="font-semibold text-accent-brand">{biddingLabel}</span>
                 <span className="text-foreground/65">
                   כאן מתכננים את שני הסמסטרים ורואים חפיפות לפני שמגישים
                 </span>

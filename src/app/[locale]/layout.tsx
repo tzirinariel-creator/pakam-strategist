@@ -21,9 +21,17 @@ export async function generateMetadata({
   const { locale } = await params;
   const he = locale !== "en";
   const title = he ? "Pakamon | פכמון" : "Pakamon — TAU PPE degree planner";
+  // 4.9 — זה כל מה שסטודנט קורא בכרטיס של וואטסאפ לפני שהוא מחליט אם
+  // ללחוץ, והקישור רץ בקבוצות בדיוק בשבוע הבידינג. הניסוח הקודם — "תכנון
+  // אקדמי חכם" — לא הזכיר בידינג באף מילה, וגם לא מחיר; והשאלה הראשונה
+  // שנשאלת בקבוצה על כל קישור היא "זה בתשלום?".
+  //
+  // **בלי תאריך.** הדף נבנה סטטית, אז "מקצה 1 נפתח ב-7.9" היה קופא
+  // בזמן ה-build וממשיך להופיע אחרי שהמקצה נסגר. הרצועה בדף עצמה כן
+  // נושאת ספירה חיה, כי היא מרונדרת בזמן אמת.
   const description = he
-    ? "תכנון אקדמי חכם לתואר פילוסופיה, כלכלה ומדע המדינה — אוניברסיטת תל אביב"
-    : "Smart academic planning for the Tel Aviv University Philosophy, Economics & Political Science (PPE) degree.";
+    ? "גיליון בידינג עם זיהוי חפיפות, מערכת שעות ותכנון תואר לפכ״מ בת״א. חינם."
+    : "Course-bidding worksheet with clash detection, timetable and degree planning for TAU PPE. Free.";
   const images = [{ url: "/og-image.png", width: 1200, height: 630, alt: "Pakamon" }];
   return {
     title,

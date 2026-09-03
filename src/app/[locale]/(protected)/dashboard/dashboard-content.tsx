@@ -1,7 +1,16 @@
 "use client";
 
 import { useState, useEffect, useRef, useCallback } from "react";
-import { GraduationCap, Scale, ArrowRight, ArrowLeft, Calendar, X, CheckCircle2 } from "lucide-react";
+import {
+  ArrowLeft,
+  ArrowRight,
+  Calendar,
+  CalendarPlus,
+  CheckCircle2,
+  GraduationCap,
+  Scale,
+  X,
+} from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 import { useSearchParams } from "next/navigation";
 import { Link, useRouter } from "@/i18n/navigation";
@@ -886,6 +895,55 @@ export function DashboardContent() {
       {/* #24 (12.7) — the cohort file travels with you: the freshest insight
           from the wall, right on the home screen. */}
       {!tourOpen && hasPlanData && <CohortWisdomTeaser />}
+
+      {/* ==================================================================
+          מצב-הריק שההערה למעלה הבטיחה — ולא היה קיים
+          ==================================================================
+          4.9 — ההערה בשורה 566 כותבת: *"כשהתוכנית שלהם באמת ריקה הם
+          מקבלים את מצב-הריק של דף הבית, שמזמין אותם לתכנן"*. אין כרטיס
+          כזה בקובץ. כל כרטיס בדף הזה חסום ב-hasPlanData, והכרטיס היחיד
+          שמקשר ללוח חסום גם ב-currentYear >= 2 ומבקש **ציונים מהעבר**.
+
+          למי זה קורה: `step-ready` שומר את הפרופיל **לפני** התוכנית. אם
+          שמירת התוכנית נכשלת והסטודנט לוחץ "המשך בלי לשמור", יש לו
+          startYear ואפס קורסים — ואז `isGenuinelyNew` (startYear == null)
+          כבר שקר, האשף לא יחזור אליו לעולם, והוא נוחת על דף בית ריק.
+          בבוקר ההשקה, שלושה ימים לפני המקצה.
+
+          לא נגעתי בתנאי isGenuinelyNew עצמו: ההערה שמעליו מתעדת שזה בדיוק
+          מה שמחק את התכנון של אריאל ב-2.9.
+
+          שני הכרטיסים לא מוצגים יחד — "#22 תיקון 8: בקשה אחת, לא שתיים
+          זו לצד זו". */}
+      {!tourOpen &&
+        !wrapVisible &&
+        planQuery.isSuccess &&
+        !hasPlanData &&
+        !isGenuinelyNew &&
+        !((credits?.earned ?? 0) === 0 && currentYear >= 2) && (
+          <Link
+            href="/planner"
+            className="animate-stagger-2 group flex items-center gap-4 rounded-xl border border-foreground/15 bg-foreground/[0.03] p-5 transition-all hover:border-foreground/25 hover:bg-foreground/[0.05]"
+          >
+            <div className="shrink-0 rounded-lg bg-accent-brand/10 p-2.5">
+              <CalendarPlus className="size-5 text-accent-brand" />
+            </div>
+            <div className="min-w-0 flex-1">
+              <p className="text-sm font-semibold text-foreground/90">
+                {isHe ? "אין קורסים בתוכנית שלכם" : "Your plan has no courses"}
+              </p>
+              <p className="mt-0.5 text-xs leading-relaxed text-foreground/60">
+                {isHe
+                  ? "אם תכננתם ומשהו השתבש בשמירה — התכנון לא נשמר, ואפשר לבנות אותו שוב בלוח. משם גם נבדקות החפיפות לקראת הבידינג."
+                  : "If you planned and the save failed, it wasn't kept — you can rebuild it on the board, which is also where clashes are checked before bidding."}
+              </p>
+            </div>
+            <span className="shrink-0 flex items-center gap-1 text-xs font-medium text-foreground/60">
+              {isHe ? "ללוח" : "To the board"}
+              <Arrow className="size-3" />
+            </span>
+          </Link>
+        )}
 
       {/* Returning-student prompt — year ≥ 2 with nothing marked completed yet.
           Hidden while the rite is up: both ask "enter your past grades" (#22

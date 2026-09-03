@@ -28,11 +28,11 @@ export const metadata: Metadata = {
   ),
   title: "Pakamon | פכמון",
   description:
-    "תכנון אקדמי חכם לתואר פילוסופיה, כלכלה ומדע המדינה — אוניברסיטת תל אביב",
+    "גיליון בידינג עם זיהוי חפיפות, מערכת שעות ותכנון תואר לפכ״מ בת״א. חינם.",
   openGraph: {
     title: "Pakamon | פכמון",
     description:
-      "תכנון אקדמי חכם לתואר פילוסופיה, כלכלה ומדע המדינה — אוניברסיטת תל אביב",
+      "גיליון בידינג עם זיהוי חפיפות, מערכת שעות ותכנון תואר לפכ״מ בת״א. חינם.",
     images: [{ url: "/og-image.png", width: 1200, height: 630, alt: "Pakamon" }],
     locale: "he_IL",
     type: "website",
@@ -41,7 +41,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "Pakamon | פכמון",
     description:
-      "תכנון אקדמי חכם לתואר פילוסופיה, כלכלה ומדע המדינה — אוניברסיטת תל אביב",
+      "גיליון בידינג עם זיהוי חפיפות, מערכת שעות ותכנון תואר לפכ״מ בת״א. חינם.",
     images: ["/og-image.png"],
   },
   // PWA: iOS standalone launch ("add to home screen") with the app title.
