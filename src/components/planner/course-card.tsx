@@ -626,7 +626,13 @@ function CompletionControl({
   );
 
   // ה-cleanup קורא דרך ref כדי שלא יצטרך לרוץ מחדש בכל הקלדה.
-  commitRef.current = commitGrade;
+  //
+  // ההשמה חייבת לשבת ב-useEffect ולא בגוף הרינדור. כתבתי אותה בגוף, ה-lint
+  // המקומי עבר (קאש), וה-CI נפל על `Cannot access refs during render` בשתי
+  // דחיפות רצופות. סשן אחר תפס את זה ואני לא.
+  useEffect(() => {
+    commitRef.current = commitGrade;
+  }, [commitGrade]);
 
   return (
     <Popover>
