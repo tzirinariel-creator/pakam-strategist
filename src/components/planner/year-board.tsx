@@ -23,6 +23,7 @@ import { invalidatePlanData } from "@/lib/trpc/invalidate-plan";
 import type { UserCourseWithCourse } from "@/types/degree";
 import type { Semester } from "@/types/enums";
 import { cn } from "@/lib/utils";
+import { serverSaid } from "@/lib/server-said";
 
 // פכ"מ מתוכנן לסתיו ואביב בלבד. אין סמסטר קיץ בלוח — קורס שמשובץ לקיץ
 // נמחק בשקט בשמירה הבאה (המתכנן לא מכיר קיץ), לכן קיץ אינו יעד-גרירה ולא
@@ -109,7 +110,7 @@ export function YearBoard({
         toast.error(isHe ? "הקורס כבר נמצא בסמסטר הזה" : "This course is already in that semester");
         return;
       }
-      toast.error(tCredits("error") ?? "Error moving course");
+      toast.error(serverSaid(e, tCredits("error") ?? "Error moving course"));
     },
   });
 

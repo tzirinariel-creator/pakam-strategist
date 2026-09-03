@@ -97,8 +97,10 @@ export function CourseCard({ userCourse, disabled, currentYear }: CourseCardProp
       invalidatePlanData(utils);
       toast.success(tPlanner("courseRemoved"));
     },
-    onError: () => {
-      toast.error(tPlanner("removeError"));
+    // serverSaid מעדיף הודעת־שרת מכוונת (FORBIDDEN / CONFLICT / BAD_REQUEST…)
+    // על הנוסח הגנרי. השרת כאן מסביר *למה* אי־אפשר; "נסו שוב" זרק את זה.
+    onError: (e) => {
+      toast.error(serverSaid(e, tPlanner("removeError")));
     },
   });
 
@@ -111,8 +113,8 @@ export function CourseCard({ userCourse, disabled, currentYear }: CourseCardProp
         maybeNudgeCourseReview(course.code, isHe ? course.nameHe : (course.nameEn ?? course.nameHe), isHe);
       }
     },
-    onError: () => {
-      toast.error(tPlanner("statusSaveError"));
+    onError: (e) => {
+      toast.error(serverSaid(e, tPlanner("statusSaveError")));
     },
   });
 
@@ -129,7 +131,7 @@ export function CourseCard({ userCourse, disabled, currentYear }: CourseCardProp
         toast.error(isHe ? "הקורס כבר נמצא בסמסטר הזה" : "This course is already in that semester");
         return;
       }
-      toast.error(tPlanner("statusSaveError"));
+      toast.error(serverSaid(e, tPlanner("statusSaveError")));
     },
   });
   const moveTargets = ([1, 2, 3] as const)
@@ -364,6 +366,7 @@ export function CourseCard({ userCourse, disabled, currentYear }: CourseCardProp
         isBinary={userCourse.isBinary}
         courseType={course.courseType}
         onUpdate={(input) => updateMutation.mutate(input)}
+        isSaving={updateMutation.isPending}
       />
 
       {/* Move to another semester — tap-friendly (drag is desktop-only). */}
@@ -478,6 +481,7 @@ function CompletionControl({
   isBinary,
   courseType,
   onUpdate,
+  isSaving,
 }: {
   userCourseId: string;
   status: CourseStatus;
@@ -485,6 +489,8 @@ function CompletionControl({
   isBinary: boolean;
   courseType: string;
   onUpdate: (input: CompletionUpdate) => void;
+  /** האם הכתיבה עדיין באוויר. בלי זה שום דבר על המסך לא זז בזמן הלחיצה. */
+  isSaving: boolean;
 }) {
   const tPlanner = useTranslations("planner");
   const isHe = useLocale() === "he";
@@ -513,12 +519,21 @@ function CompletionControl({
   const isFailingGrade =
     gradeValue !== "" && !isNaN(gradeNum) && gradeNum < CREDIT_REQUIREMENTS.PASSING_GRADE;
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  /** מה שכבר נשמר בשרת. משמש כדי לא לכתוב פעמיים את אותו דבר ביציאה. */
+  const committedRef = useRef<string>(grade !== null ? String(grade) : "");
+  /** הערך החי, כדי שאפשר יהיה לשמור אותו מתוך cleanup בלי לתלות בו את האפקט. */
+  const liveRef = useRef<string>(grade !== null ? String(grade) : "");
+  const commitRef = useRef<(raw: string) => void>(() => {});
 
   // The parent re-keys this control whenever the server status/grade changes,
   // so local state initializes fresh from props — no sync effect needed.
+  //
+  // ביציאה: אם הסטודנט הקליד ולא איבד פוקוס — למשל סגר את הפופאובר בלחיצה
+  // בחוץ, שלא בהכרח מייצרת blur — הערך היה נעלם. עכשיו הוא נשמר פעם אחת.
   useEffect(() => {
     return () => {
       if (debounceRef.current) clearTimeout(debounceRef.current);
+      if (liveRef.current !== committedRef.current) commitRef.current(liveRef.current);
     };
   }, []);
 
@@ -528,6 +543,8 @@ function CompletionControl({
       // a PLANNED course must never carry a pass/fail conversion.
       if (debounceRef.current) clearTimeout(debounceRef.current);
       setGradeValue("");
+      liveRef.current = "";
+      committedRef.current = "";
       setBinaryOn(false);
       onUpdate({ userCourseId, status: "PLANNED", grade: null, isBinary: false });
     } else {
@@ -537,6 +554,7 @@ function CompletionControl({
 
   const commitGrade = useCallback(
     (raw: string) => {
+      committedRef.current = raw;
       if (raw === "") {
         // Cleared — drop the grade but keep the course COMPLETED.
         onUpdate({ userCourseId, grade: null });
@@ -577,17 +595,38 @@ function CompletionControl({
         next = String(num);
       }
       setGradeValue(next);
-      // Debounce the network write so typing stays smooth.
-      if (debounceRef.current) clearTimeout(debounceRef.current);
-      debounceRef.current = setTimeout(() => commitGrade(next), 600);
+      liveRef.current = next;
+      // אין כאן כתיבה, וזה התיקון.
+      //
+      // קודם כל הקשה תיזמנה כתיבה 600ms אחריה. סטודנט שהקליד "95" ועצר רגע
+      // אחרי ה-9 — לחשוב, להסתכל בגיליון, לענות להודעה — קיבל כתיבה אמיתית
+      // של ציון 9, ו-9 נמוך מרף המעבר, אז הקורס נשמר **נכשל**. "100" עשה את
+      // זה פעמיים בדרך (1, ואז 10). אם הוא סגר את החלון באותו רגע, זה מה
+      // שנשאר במסד: קורס חובה שעבר, מסומן ככישלון, עם ציון 9.
+      //
+      // ציון חלקי אינו ציון. שומרים כשהסטודנט סיים — blur, Enter, או יציאה
+      // מהרכיב — ואז פעם אחת, עם הערך המלא.
     },
-    [commitGrade],
+    [],
   );
 
   const handleGradeBlur = useCallback(() => {
     if (debounceRef.current) clearTimeout(debounceRef.current);
-    commitGrade(gradeValue);
+    if (gradeValue !== committedRef.current) commitGrade(gradeValue);
   }, [commitGrade, gradeValue]);
+
+  const handleGradeKeyDown = useCallback(
+    (e: React.KeyboardEvent<HTMLInputElement>) => {
+      if (e.key === "Enter") {
+        e.preventDefault();
+        handleGradeBlur();
+      }
+    },
+    [handleGradeBlur],
+  );
+
+  // ה-cleanup קורא דרך ref כדי שלא יצטרך לרוץ מחדש בכל הקלדה.
+  commitRef.current = commitGrade;
 
   return (
     <Popover>
@@ -616,16 +655,25 @@ function CompletionControl({
         onPointerDown={(e) => e.stopPropagation()}
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Completed toggle */}
-        <label className="flex items-center gap-2 cursor-pointer text-xs font-medium text-foreground/80">
+        {/* Completed toggle.
+            הרכיב הזה מקבל key חדש בכל שינוי סטטוס/ציון מהשרת, ולכן אין לו
+            עדכון אופטימי — כלום לא זז בזמן הלחיצה. סטודנט על רשת איטית לחץ
+            שוב, ושוב. `aria-busy` + הבהייה + נטרול הכפתור הופכים את ההמתנה
+            לנראית בלי לשקר על התוצאה. */}
+        <label
+          className="flex items-center gap-2 cursor-pointer text-xs font-medium text-foreground/80"
+          aria-busy={isSaving}
+        >
           <button
             type="button"
             role="switch"
             aria-checked={isCompleted}
             onClick={handleToggle}
+            disabled={isSaving}
             className={cn(
               "relative inline-flex h-4 w-7 shrink-0 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-foreground/30",
               isCompleted ? "bg-emerald-500" : "bg-foreground/20",
+              isSaving && "opacity-60",
             )}
           >
             <span
@@ -636,6 +684,11 @@ function CompletionControl({
             />
           </button>
           <span>{tPlanner("markCompleted")}</span>
+          {isSaving && (
+            <span className="ms-auto text-[10px] font-normal text-muted-foreground">
+              {isHe ? "שומר…" : "Saving…"}
+            </span>
+          )}
         </label>
 
         {/* Grade input — only when completed */}
@@ -652,6 +705,7 @@ function CompletionControl({
                   value={gradeValue}
                   onChange={handleGradeChange}
                   onBlur={handleGradeBlur}
+                  onKeyDown={handleGradeKeyDown}
                   placeholder="0–100"
                   dir="ltr"
                   aria-invalid={isFailingGrade}

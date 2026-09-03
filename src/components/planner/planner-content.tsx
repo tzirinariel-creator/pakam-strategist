@@ -30,6 +30,7 @@ import { ReviewNudgeHost } from "@/components/catalog/review-nudge";
 import { CalendarSyncNudge } from "@/components/calendar/calendar-sync-nudge";
 import { daysUntilLabel } from "@/lib/days-until";
 import { isMandatoryCourse } from "@/lib/course-requirement";
+import { serverSaid } from "@/lib/server-said";
 
 export function PlannerContent() {
   const t = useTranslations("planner");
@@ -74,6 +75,13 @@ export function PlannerContent() {
   const placementUtils = api.useUtils();
   const movePlacement = api.plan.updateCourse.useMutation({
     onSuccess: () => invalidatePlanData(placementUtils),
+    // לא היה כאן onError בכלל, ואין מטפל־שגיאות גלובלי למוטציות. הכפתור
+    // "העבירו לסמסטר א׳/ב׳" נכשל בשקט מוחלט: הקורס נשאר במקומו, הכרטיס
+    // ממשיך להציע את אותה העברה, והסטודנט מניח שהוא לחץ לא נכון.
+    onError: (e) =>
+      toast.error(
+        serverSaid(e, isHe ? "לא הצלחנו להעביר את הקורס — נסו שוב" : "Couldn't move the course — try again"),
+      ),
   });
   useEffect(() => {
     if (searchParams.get("saved") === "1") {
