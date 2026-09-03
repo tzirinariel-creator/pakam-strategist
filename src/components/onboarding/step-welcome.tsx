@@ -100,8 +100,17 @@ export function StepWelcome({ onNext, selectedProgram, onProgramSelect }: StepWe
         {t("welcomeSubtitle")}
       </p>
 
-      {/* Feature highlights — 2x2 grid */}
-      <div className="mt-10 grid w-full max-w-lg gap-3 grid-cols-1 sm:grid-cols-2">
+      {/* Feature highlights — 2x2 grid.
+          אריאל, 3.9, בזרימת ההרשמה: *"מתחת ל'כל הקורסים בפנים' במסך הרשמה
+          יש מלא מקום ריק של מלל — זה עיצוב מוזר במסך הזה."*
+
+          הסיבה היא `align-items: stretch`, ברירת המחדל של grid: כל כרטיס
+          נמתח לגובה השורה שלו. הכרטיס של המלך יושב באותה שורה ונושא תג
+          ירוק נוסף ("עובד מיד וחינם"), כלומר הוא גבוה בשורה שלמה — ולכן
+          הכרטיס שלצידו קיבל חור בתחתית, בגובה של טקסט שאינו קיים.
+
+          `items-start` מבטל את המתיחה: כל כרטיס בגובה התוכן שלו. */}
+      <div className="mt-10 grid w-full max-w-lg items-start gap-3 grid-cols-1 sm:grid-cols-2">
         {features.map((feature) => (
           <div
             key={feature.title}
