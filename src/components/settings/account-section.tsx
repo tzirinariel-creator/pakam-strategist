@@ -187,6 +187,10 @@ function DeleteAccountBlock({ onDone }: { onDone: () => void }) {
   const isHe = useLocale() === "he";
   const [confirmText, setConfirmText] = useState("");
   const CONFIRM = isHe ? "מחקו לצמיתות" : "DELETE FOREVER";
+  /** גרשיים, מרכאות ורווחים כפולים לא אמורים להפיל אישור מחיקה. */
+  const normalize = (v: string) =>
+    v.trim().replace(/[״"'׳`]/g, "").replace(/\s+/g, " ").toUpperCase();
+  const confirmMatches = normalize(confirmText) === normalize(CONFIRM);
   const deleteMutation = api.user.deleteAccount.useMutation({
     // The server reports whether the AUTH identity went with the data. When it
     // did not, the account's rows are gone but the login still exists — so
@@ -217,23 +221,51 @@ function DeleteAccountBlock({ onDone }: { onDone: () => void }) {
           ? "מוחק הכול: תוכנית, ציונים, משימות, שיחות עם היועץ, נתוני מילואים — וגם את התרומות האנונימיות שלכם לחוכמת-המחזור. אין דרך חזרה."
           : "Deletes everything: plan, grades, tasks, advisor chats, miluim data — and your anonymous cohort contributions. There is no way back."}
       </p>
-      <div className="mt-2.5 flex flex-wrap items-center gap-2">
+      {/* =========================================
+          למה אריאל "לא הצליח למחוק"
+          =========================================
+          אריאל, 3.9: *"אני לא מצליח למחוק את הנתונים של המשתמש שלי דרך
+          המייל — משהו שם נדפק במחיקה."*
+
+          בדקתי את המחיקה עצמה: הרצתי `user.delete` על החשבון שלו בתוך
+          טרנזקציה שגולגלה לאחור, והיא **הצליחה**. גם על חשבון הבדיקות.
+          כל 21 היחסים ל-User מוגדרים עם onDelete. השרת לא שבור.
+
+          מה שכן שבור: הכפתור מעולם לא נדלק. ההוראה מה להקליד הייתה
+          placeholder בשדה ברוחב 192px — כלומר "הקלידו: מחקו לצמיתות"
+          נחתך באמצע. הסטודנט מקליד משהו, שום דבר לא קורה, ואין שום הודעה
+          שמסבירה למה. זה בדיוק "לוחצים וזה לא עושה כלום".
+
+          אז: המשפט מוצג מעל השדה כטקסט שאפשר לבחור ולהעתיק, השדה רחב,
+          וההשוואה סלחנית — גרשיים, מרכאות ורווחים כפולים לא מפילים אותה. */}
+      <p className="mt-3 text-xs text-foreground/70">
+        {isHe ? "כדי לאשר, הקלידו כאן למטה:" : "To confirm, type this below:"}{" "}
+        <b className="select-all font-semibold text-destructive">{CONFIRM}</b>
+      </p>
+      <div className="mt-1.5 flex flex-wrap items-center gap-2">
         <input
           value={confirmText}
           onChange={(e) => setConfirmText(e.target.value)}
-          placeholder={isHe ? `הקלידו: ${CONFIRM}` : `Type: ${CONFIRM}`}
+          placeholder={CONFIRM}
           aria-label={isHe ? "אישור מחיקת חשבון" : "Confirm account deletion"}
-          className="w-48 rounded-md border border-border bg-card px-3 py-1.5 text-sm focus:border-destructive/50 focus:outline-none"
+          className="w-full max-w-xs rounded-md border border-border bg-card px-3 py-1.5 text-sm focus:border-destructive/50 focus:outline-none"
         />
         <Button
           variant="destructive"
-          disabled={confirmText.trim() !== CONFIRM || deleteMutation.isPending}
+          disabled={!confirmMatches || deleteMutation.isPending}
           onClick={() => deleteMutation.mutate()}
         >
           {deleteMutation.isPending ? <Loader2 className="size-4 animate-spin" /> : <Trash2 className="size-4" />}
           {isHe ? "מחקו את החשבון שלי" : "Delete my account"}
         </Button>
       </div>
+      {confirmText.trim().length > 0 && !confirmMatches && (
+        <p role="status" className="mt-1.5 text-xs text-foreground/60">
+          {isHe
+            ? "המשפט עוד לא תואם, ולכן הכפתור כבוי. אפשר לסמן את המשפט למעלה ולהעתיק אותו."
+            : "That doesn't match yet, so the button stays off. You can select the phrase above and copy it."}
+        </p>
+      )}
     </div>
   );
 }
