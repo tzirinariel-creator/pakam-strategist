@@ -44,6 +44,7 @@ export type DisciplineProgress = {
  */
 export function DegreeStatus({
   credits,
+  creditsFailed,
   isHe,
   variant,
   gpa,
@@ -54,6 +55,13 @@ export function DegreeStatus({
   currentYear = 1,
 }: {
   credits: CreditBreakdown | null;
+  /**
+   * האם השליפה **נכשלה**. בלי זה `credits === null` אמר שני דברים שונים —
+   * "עוד לא הגיע" ו"לא יגיע" — וקיבל את אותה תשובה: שלד פועם. כלומר בכישלון
+   * הכרטיס הראשי בדף הבית ובלוח התכנון פעם לנצח, aria-hidden, בלי טקסט ובלי
+   * כפתור. הסטודנט לא יודע אם לחכות או לרענן.
+   */
+  creditsFailed?: boolean;
   isHe: boolean;
   variant: "hero" | "compact";
   /** Course GPA — only used by the hero variant's soft honors reference. */
@@ -83,6 +91,16 @@ export function DegreeStatus({
   // the hero briefly rendered "0% · 0/150" next to the plan-derived numbers that
   // HAD loaded, a jarring, contradictory flash on the two busiest screens. A new
   // user still sees a truthful 0% once their (non-null) zero-breakdown arrives.
+  if (credits === null && creditsFailed) {
+    return (
+      <p className="text-xs leading-relaxed text-muted-foreground">
+        {isHe
+          ? "לא הצלחנו לטעון את מצב התואר כרגע. רענון של הדף בדרך כלל פותר."
+          : "We couldn't load your degree progress. A refresh usually fixes it."}
+      </p>
+    );
+  }
+
   if (credits === null) {
     return (
       <div className="animate-pulse" aria-hidden="true">

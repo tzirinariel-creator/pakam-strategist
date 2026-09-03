@@ -260,7 +260,7 @@ export function FloatingAssistant() {
               : "בוצע! רמת-האנגלית עודכנה. בדיקת-המסלול כבר מתחשבת בזה.";
             successEn = "Done! Your English level was updated — the track check reflects it.";
             href = "/regulations";
-            ctaHe = "לבדיקת המסלול";
+            ctaHe = "לדרישות התואר";
             break;
           case "ADD_COURSE":
             await addMutation.mutateAsync({
@@ -472,7 +472,7 @@ export function FloatingAssistant() {
     if (p.includes("/catalog"))
       return `הקטלוג פתוח. ${ask} על קורס — כמה הוא קשה, איך הוא משתלב בתחום המיקוד, או דרישות-הקדם.`;
     if (p.includes("/regulations"))
-      return `בדיקת המסלול. ${ask} על כל דרישה — למה היא חשובה, ומה בדיוק לעשות כדי לסגור אותה.`;
+      return `דרישות התואר. ${ask} על כל דרישה — למה היא חשובה, ומה בדיוק לעשות כדי לסגור אותה.`;
     if (p.includes("/graduation") || p.includes("/record"))
       return `התיק האקדמי. ${ask} על הממוצע, על ההצטיינות, או איך לשפר ציון לפני שהוא ננעל.`;
     if (p.includes("/exam"))
@@ -576,7 +576,7 @@ export function FloatingAssistant() {
           ? `היי${name}, אני הרפרנט.\n\nהתוכנית שלך כבר אצלי — הקורסים, הציונים, המילואים והתקנון. אפשר לשאול אותי בשפה רגילה, ואני עונה מהנתונים שלך ולא מהאינטרנט.\n\n${tryLine}: "כמה ש״ס נשארו לי?", "מה הכי דחוף עכשיו?", או "תוסיף לי מיקרו ב׳ לסמסטר הבא" — כן, גם לבצע דברים.\n\nלא אקפוץ יותר מעצמי. כש${pg("תצטרך", "תצטרכי", "תצטרכו")} אותי, אני כאן למטה.`
           : `Hey${name}, I'm the Referent.\n\nI already have your plan — courses, grades, reserve duty and the regulations. Ask me in plain language and I answer from your data, not from the internet.\n\nTry: "how many credits do I have left?", "what's most urgent right now?", or "add Micro B to next semester" — yes, I can act too.\n\nI won't pop up on my own again. I'm down here when you need me.`
         : isHe
-          ? `שלום${name}, אני המלך הפילוסוף.\n\nהתוכנית שלך שמורה אצלי — הקורסים, הציונים, המילואים והתקנון. מכאן אפשר פשוט לשאול אותי דברים בשפה רגילה, ואני עונה מהנתונים שלך, לא מהאינטרנט.\n\n${tryLine}: "כמה ש״ס נשארו לי?", "מה הכי דחוף עכשיו?", או "תוסיף לי מיקרו ב׳ לסמסטר הבא" — כן, גם לבצע דברים.\n\nאני לא קופץ מעצמי יותר. כשתצטרך אותי, אני כאן למטה.`
+          ? `שלום${name}, אני המלך הפילוסוף.\n\nהתוכנית שלך שמורה אצלי — הקורסים, הציונים, המילואים והתקנון. מכאן אפשר פשוט לשאול אותי דברים בשפה רגילה, ואני עונה מהנתונים שלך, לא מהאינטרנט.\n\n${tryLine}: "כמה ש״ס נשארו לי?", "מה הכי דחוף עכשיו?", או "תוסיף לי מיקרו ב׳ לסמסטר הבא" — כן, גם לבצע דברים.\n\nאני לא קופץ מעצמי יותר. כש${pg("תצטרך", "תצטרכי", "תצטרכו")} אותי, אני כאן למטה.`
           : `Hello${name}, I'm the Philosopher King.\n\nI have your plan — courses, grades, reserve duty and the regulations. From here you can just ask me things in plain language, and I answer from your data, not from the internet.\n\nTry: "how many credits do I have left?", "what's most urgent right now?", or "add Micro B to next semester" — yes, I can act too.\n\nI won't pop up on my own again. I'll be down here when you need me.`;
       setMessages([{ role: "assistant", content: hello, source: "rules" }]);
       setOpen(true);

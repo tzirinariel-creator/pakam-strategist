@@ -315,7 +315,7 @@ export function StepHistory({
           const parts: string[] = [];
           if (graded > 0) parts.push(isHe ? `${graded} עם ציון` : `${graded} with a grade`);
           if (added > 0) parts.push(isHe ? `${heNoun(added, "קורס", "קורסים")} שאינם בקטלוג שלנו נוספו` : `${added} courses not in our catalog added`);
-          if (skipped > 0) parts.push(isHe ? `${skipped} נכשלו/פטור — הוסיפו ב״הרשומה״ אחרי ההרשמה` : `${skipped} failed/exempt — add them in the record after signup`);
+          if (skipped > 0) parts.push(isHe ? `${skipped} נכשלו/פטור — הוסיפו ב״תיק האקדמי״ אחרי ההרשמה` : `${skipped} failed/exempt — add them in the record after signup`);
           parts.push(isHe ? "עברו לוודא ולתקן למטה" : "review below");
           toast.success(
             // "נמצאו קורס אחד שהושלמו" — heNoun fixed the noun and left both

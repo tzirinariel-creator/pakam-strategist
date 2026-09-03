@@ -13,6 +13,7 @@ import type { Course } from "@/types/degree";
 import type { Discipline, CourseType } from "@/types/enums";
 import { CONTACT_EMAIL } from "@/lib/constants";
 import { ARAZIM_ENABLED } from "@/lib/arazim/visibility";
+import { effectiveDiscipline } from "@/lib/focus-star";
 
 const DEFAULT_FILTERS: CourseFiltersState = {
   search: "",
@@ -38,9 +39,18 @@ export function CatalogContent() {
       search?: string;
     } = {};
 
-    if (filters.discipline !== "ALL") {
-      input.discipline = filters.discipline;
-    }
+    // תחום מיקוד **לא** נשלח לשרת, ובכוונה.
+    //
+    // השרת משווה מול העמודה בקטלוג, והוא לא מכיר את `disciplineOverride` —
+    // השיוך שהסטודנט עצמו קבע. 123 מ-304 הקורסים הפעילים חסרי תחום, ו-61
+    // מ-67 הסמינרים ביניהם, כי הידיעון מסדר סמינרים לפי ש״ס ולא לפי תחום.
+    // כלומר סטודנט שכבר אמר לנו "הסמינר הזה שלי בפילוסופיה", סינן את
+    // הקטלוג לפילוסופיה — והסמינרים שלו נעלמו. אותו קורס, כוכב דלוק בשורה
+    // ונעדר מהסינון.
+    //
+    // effectiveDiscipline הוא כבר מקור האמת לכוכב ולמחשבון הש״ס. עכשיו גם
+    // לסינון. הקטלוג המלא ממילא נשלף לצד הזה בשביל דרישות הקדם, אז זה לא
+    // מוסיף שליפה.
     if (filters.courseType !== "ALL") {
       input.courseType = filters.courseType;
     }
@@ -83,7 +93,14 @@ export function CatalogContent() {
   }, [plan]);
 
   // Cast the returned data to our Course type
-  const typedCourses = (courses ?? []) as unknown as Course[];
+  const typedCoursesRaw = (courses ?? []) as unknown as Course[];
+  const typedCourses = useMemo(() => {
+    if (filters.discipline === "ALL") return typedCoursesRaw;
+    return typedCoursesRaw.filter(
+      (c) => effectiveDiscipline(c.code, c.discipline, overrides) === filters.discipline,
+    );
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [typedCoursesRaw, filters.discipline, overrides]);
 
   // The FULL (unfiltered) catalog — used only so the course-detail panel can
   // resolve prerequisites to clickable names even when the visible table is

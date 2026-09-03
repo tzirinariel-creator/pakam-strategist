@@ -21,6 +21,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { SectionCard } from "./section-card";
+import { QueryErrorState } from "@/components/shared/query-error";
 
 // ---------------------------------------------------------------
 // Profile Section
@@ -193,6 +194,22 @@ export function ProfileSection() {
     // Never print the same string twice, whatever the label table holds.
     return { value: String(y), label: hebrew === latin ? latin : `${hebrew} · ${latin}` };
   });
+
+  // "שגיאה בצורת ריקנות" — הפגם שהפרויקט הזה כבר תיעד כדומיננטי.
+  // מצב ריק הוא עובדה על הסטודנט; מצב שגיאה הוא עובדה עלינו. לומר את
+  // הראשון כשהשני נכון זו טענה שקרית שהוא פועל לפיה.
+  // כאן זה נקרא: פרופיל ריק לגמרי — אימייל ריק, שם ריק, שנת תחילה ריקה —
+  // עם כפתור "שמרו פרופיל" מנוטרל לצמיתות ובלי מילה אחת של הסבר.
+  if (profileQuery.isError) {
+    return (
+      <SectionCard icon={User} title={t("profile")} description={t("profileDescription")}>
+        <QueryErrorState
+          what={isHe ? "הפרופיל שלכם" : "your profile"}
+          onRetry={() => void profileQuery.refetch()}
+        />
+      </SectionCard>
+    );
+  }
 
   if (profileQuery.isLoading) {
     return (

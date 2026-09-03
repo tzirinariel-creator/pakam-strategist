@@ -200,8 +200,11 @@ export function CourseTable({ courses, allCourses, focusArea, overrides }: Cours
       // Focus-area courses first (when enabled) — the primary ordering, so the
       // student's discipline surfaces above the chosen column sort.
       if (focusFirst && focusArea) {
-        const am = a.discipline === focusArea ? 0 : 1;
-        const bm = b.discipline === focusArea ? 0 : 1;
+        // isFocusCourse ולא `a.discipline === focusArea` — אותו שיוך אישי
+        // שהכוכב בשורה כבר מכבד. בלעדיו הסמינר של הסטודנט קיבל כוכב וצנח
+        // לתחתית הטבלה, מתחת לקורסים שאינם שלו. אותה שורה, שתי תשובות.
+        const am = isFocusCourse(a.code, a.discipline, focusArea, overrides) ? 0 : 1;
+        const bm = isFocusCourse(b.code, b.discipline, focusArea, overrides) ? 0 : 1;
         if (am !== bm) return am - bm;
       }
       // Grade sort: keep courses WITHOUT grade data at the bottom, both
@@ -251,7 +254,7 @@ export function CourseTable({ courses, allCourses, focusArea, overrides }: Cours
       return sortDirection === "asc" ? cmp : -cmp;
     });
     return sorted;
-  }, [gatedCourses, sortField, sortDirection, locale, focusFirst, focusArea]);
+  }, [gatedCourses, sortField, sortDirection, locale, focusFirst, focusArea, overrides]);
 
   function handleSort(field: SortField) {
     if (sortField === field) {

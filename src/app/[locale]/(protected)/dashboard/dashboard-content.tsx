@@ -884,7 +884,7 @@ export function DashboardContent() {
       {/* My status — the unified "where am I in the degree" command center */}
       {hasAnyCourses && (
         <div className="animate-stagger-1" data-tour="status">
-          <MyStatusHero credits={credits} grade={gradeBreakdown} isHe={isHe} topGap={topGap} topGapKnown={regulationQuery.isSuccess} hasFocusArea={hasFocusArea} amiramScore={profileQuery.data?.amiramScore ?? null} declaredEnglishLevel={profileQuery.data?.englishLevel ?? null} currentYear={currentYear} disciplines={disciplineBreakdown} inProgressCount={inProgressCount} />
+          <MyStatusHero credits={credits} creditsFailed={creditsQuery.isError} grade={gradeBreakdown} isHe={isHe} topGap={topGap} topGapKnown={regulationQuery.isSuccess} hasFocusArea={hasFocusArea} amiramScore={profileQuery.data?.amiramScore ?? null} declaredEnglishLevel={profileQuery.data?.englishLevel ?? null} currentYear={currentYear} disciplines={disciplineBreakdown} inProgressCount={inProgressCount} />
           {/* Directly under the focus-area meter, because that is the meter
               these courses are holding back. */}
           <div className="mt-4">

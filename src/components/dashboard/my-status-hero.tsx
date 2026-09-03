@@ -19,6 +19,7 @@ export type { DisciplineProgress };
  */
 export function MyStatusHero({
   credits,
+  creditsFailed,
   grade,
   isHe,
   topGap,
@@ -31,6 +32,8 @@ export function MyStatusHero({
   inProgressCount,
 }: {
   credits: CreditBreakdown | null;
+  /** השליפה נכשלה (להבדיל מ"עוד לא הגיעה") — ראה DegreeStatus. */
+  creditsFailed?: boolean;
   grade: GradeBreakdown;
   isHe: boolean;
   /** The single most pressing unmet requirement, if any. */
@@ -102,6 +105,7 @@ export function MyStatusHero({
       <DegreeStatus
         variant="hero"
         credits={credits}
+        creditsFailed={creditsFailed}
         isHe={isHe}
         gpa={gpa}
         disciplines={disciplines}

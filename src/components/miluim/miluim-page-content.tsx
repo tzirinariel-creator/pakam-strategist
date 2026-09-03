@@ -32,6 +32,8 @@ import { hebrewYearLabel, getAcademicNow } from "@/lib/academic-calendar";
 import { Bidi } from "@/lib/bidi";
 import { cn } from "@/lib/utils";
 import { heNoun } from "@/lib/he-count";
+import { QueryErrorState } from "@/components/shared/query-error";
+import { ThemedLoader } from "@/components/ui/themed-loader";
 
 function groupChip(group: string, isHe: boolean): { label: string; cls: string } {
   const g = MILUIM_CONFIG.GROUPS[group as keyof typeof MILUIM_CONFIG.GROUPS];
@@ -151,6 +153,28 @@ export function MiluimPageContent() {
       ? (a.semester === "FALL" ? 0 : 1) - (b.semester === "FALL" ? 0 : 1)
       : a.academicYear - b.academicYear,
   );
+
+  // "שגיאה בצורת ריקנות" — הפגם שהפרויקט הזה כבר תיעד כדומיננטי.
+  // מצב ריק הוא עובדה על הסטודנט; מצב שגיאה הוא עובדה עלינו. לומר את
+  // הראשון כשהשני נכון זו טענה שקרית שהוא פועל לפיה.
+  // כאן זה נקרא: "עוד אין סמסטרים רשומים" ו"עוד לא נצברו לכם ש״ס" —
+  // למילואימניק שיש לו גם וגם, מתחת לכותרת "מה מגיע לכם בכל התואר".
+  if (semestersQuery.isLoading || profileQuery.isLoading) {
+    return <ThemedLoader />;
+  }
+  if (semestersQuery.isError || profileQuery.isError) {
+    return (
+      <div className="p-4 md:p-6">
+        <QueryErrorState
+          what={isHe ? "רישום המילואים שלכם" : "your reserve-duty record"}
+          onRetry={() => {
+            void semestersQuery.refetch();
+            void profileQuery.refetch();
+          }}
+        />
+      </div>
+    );
+  }
 
   return (
     <div className="flex flex-col gap-6 p-4 md:p-6 animate-fade-in">

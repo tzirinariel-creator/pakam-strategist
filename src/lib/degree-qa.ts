@@ -232,7 +232,7 @@ const HANDLERS: Handler[] = [
           `It's completely fine to feel stressed — a 150-credit degree does that to everyone. ${enGaps} Tell me what exactly worries you — an exam? load? the average? — and we'll break it into steps.`,
         ),
         href: "/regulations",
-        cta: he(c, "לבדיקת המסלול", "Degree check"),
+        cta: he(c, "לדרישות התואר", "Degree requirements"),
       };
     },
   },

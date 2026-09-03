@@ -192,8 +192,12 @@ export function Sidebar() {
             <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-foreground">
               <GraduationCap className="h-5 w-5 text-primary-foreground" />
             </div>
+            {/* "פכ״מ" הוא שם התואר, לא שם האפליקציה. האייקון על מסך הבית
+                אומר "פכמון", לשונית הדפדפן אומרת "פכמון", מסך ההתחברות ודף
+                הנחיתה אומרים "פכמון" — ורק המקום שבו הסטודנט מבלה בפועל
+                אמר משהו אחר. שם שמשתנה בין המסכים הוא שם שלא נתפס. */}
             <span className="font-display text-lg font-bold text-foreground/80">
-              {isRTL ? "פכ״מ" : "PKM"}
+              {isRTL ? "פכמון" : "Pakamon"}
             </span>
           </div>
         )}

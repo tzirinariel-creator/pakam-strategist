@@ -350,7 +350,7 @@ export function PlannerContent() {
           second, differently-styled credit bar of the same number (the
           "three surfaces" confusion). One getCredits shape, one visual. */}
       <div className="animate-stagger-2 data-card p-4">
-        <DegreeStatus variant="compact" credits={breakdown ?? null} isHe={isHe} />
+        <DegreeStatus variant="compact" credits={breakdown ?? null} creditsFailed={creditsQuery.isError} isHe={isHe} />
       </div>
 
       {/* Main content — plan board beside a live timetable. On wide screens they

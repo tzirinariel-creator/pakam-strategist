@@ -111,7 +111,12 @@ export function ComplianceOverview({ summary }: ComplianceOverviewProps) {
               ? t("nonCompliantTitle")
               : level === "attention"
                 ? isHe
-                  ? "אין חסימות — יש דברים לשים לב אליהם"
+                  // "יש דברים לשים לב אליהם" — עברית לא לוקחת מקור חשוף
+                  // כאן. וגם: הכותרת הייתה רבים קשיח, אז מי שיש לו אזהרה
+                  // אחת קרא "יש דברים" מעל רשימה של פריט אחד.
+                  ? warnings === 1
+                    ? "אין חסימות — יש דבר אחד שכדאי לשים לב אליו"
+                    : "אין חסימות — יש כמה דברים שכדאי לשים לב אליהם"
                   : "No blockers — a few things to handle"
                 : isHe
                   ? "עומדים בכל הכללים"
@@ -146,7 +151,11 @@ export function ComplianceOverview({ summary }: ComplianceOverviewProps) {
         {level === "clear" && progressMet < progressTotal && (
           <p className="rounded-lg border border-foreground/10 bg-foreground/[0.03] px-3 py-2 text-xs leading-relaxed text-foreground/60">
             {isHe
-              ? `“תקין” אומר ${pg("שאתה עומד", "שאת עומדת", "שאתם עומדים")} בכל הכללים — לא שסיימת את התואר. עדיין נשארו דרישות להשלים (מסומנות “בתהליך” למטה).`
+              // הפועל השני היה קשיח בזכר־יחיד, אז ברירת המחדל של האפליקציה —
+              // מי שלא בחר לשון — קרא "שאתם עומדים בכל הכללים, לא שסיימת".
+              // רבים ויחיד באותו משפט. וגם: מרכאות מסולסלות אנגליות מתעקלות
+              // לכיוון הלא נכון בשורה עברית; גרשיים הם התו הנכון.
+              ? `״תקין״ אומר ${pg("שאתה עומד", "שאת עומדת", "שאתם עומדים")} בכל הכללים, לא ${pg("שסיימת", "שסיימת", "שסיימתם")} את התואר. נשארו עוד דרישות להשלים, מסומנות ״בתהליך״ למטה.`
               : '“Compliant” means you meet every rule — not that you’ve finished the degree. You still have requirements left (marked “in progress” below).'}
           </p>
         )}

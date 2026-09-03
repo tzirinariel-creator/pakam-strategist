@@ -143,7 +143,7 @@ export function buildCalendarFeed(input: FeedInput): string {
         `grades-open-${fmtDate(input.gradesOpenDate)}@pakamon`,
         input.gradesOpenDate,
         `עדכנו ציונים בפכמון${input.gradesSemesterLabelHe ? ` (${input.gradesSemesterLabelHe})` : ""}`,
-        "הציונים מתחילים להתפרסם — סרקו את הגיליון או הזינו ידנית כדי לעדכן את הממוצע ובדיקת המסלול.",
+        "הציונים מתחילים להתפרסם — סרקו את הגיליון או הזינו ידנית כדי לעדכן את הממוצע ואת דרישות התואר.",
         stamp,
       ),
     );

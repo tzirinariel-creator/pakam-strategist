@@ -24,6 +24,8 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { api } from "@/lib/trpc/react";
+import { usePersona } from "@/components/persona/use-persona";
+import { personaLabels } from "@/lib/persona";
 
 const MOBILE_NAV_ITEMS = [
   { key: "dashboard", href: "/dashboard", icon: LayoutDashboard },
@@ -109,6 +111,15 @@ const MORE_MENU_ITEMS: readonly MoreItem[] = MORE_MENU_GROUPS.flatMap(
 export function MobileNav() {
   const t = useTranslations("nav");
   const isHe = useLocale() === "he";
+
+  // הסטודנט מחליף את היועץ לרפרנט, והכפתור הצף, הברכה שלו, עמוד /mentor
+  // ורשימת הכלים במדריך — כולם עוברים לומר "הרפרנט". רק מגירת "עוד" בטלפון,
+  // שהיא **הדרך היחידה** להגיע לעמוד היועץ מהטלפון, המשיכה לומר "המלך
+  // הפילוסוף", כי היא קוראת מחרוזת קבועה מקובץ השפה. מסך אחד שלא הסכים עם
+  // כל השאר על מי מדבר איתך.
+  const { persona } = usePersona();
+  const advisorName = personaLabels(persona, isHe).name;
+  const label = (key: string) => (key === "mentor" ? advisorName : t(key));
   const pathname = usePathname();
   const [moreOpen, setMoreOpen] = useState(false);
 
@@ -205,7 +216,7 @@ export function MobileNav() {
                               )}
                             >
                               <Icon className="h-5 w-5" />
-                              <span className="text-center leading-tight">{t(item.key)}</span>
+                              <span className="text-center leading-tight">{label(item.key)}</span>
                             </Link>
                           );
                         })}
@@ -260,7 +271,7 @@ export function MobileNav() {
               )}
             >
               <Icon className="h-5 w-5" />
-              <span>{t(item.key)}</span>
+              <span>{label(item.key)}</span>
             </Link>
           );
         })}

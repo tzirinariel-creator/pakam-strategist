@@ -48,6 +48,7 @@ import { planFromStudyTasks, buildPrePlaced } from "@/lib/plan-from-tasks";
 import { downloadGanttCsv, type GanttTask } from "@/lib/excel-export";
 import { exportExamPlanXlsx } from "@/lib/xlsx-export";
 import { cn } from "@/lib/utils";
+import { QueryErrorState } from "@/components/shared/query-error";
 import { dayKey, taskHours, type Moed, type StudyTask } from "@/components/exam-planner/exam-planner-utils";
 import { Agenda } from "@/components/exam-planner/agenda";
 import { Disclosure } from "@/components/exam-planner/disclosure";
@@ -595,7 +596,22 @@ export function ExamPlannerContent() {
     setAddDate("");
   };
 
+  // "שגיאה בצורת ריקנות" — הפגם שהפרויקט הזה כבר תיעד כדומיננטי.
+  // מצב ריק הוא עובדה על הסטודנט; מצב שגיאה הוא עובדה עלינו. לומר את
+  // הראשון כשהשני נכון זו טענה שקרית שהוא פועל לפיה.
+  // כאן זה נקרא "אין לכם עדיין תוכנית לימודים" — ובמסלול השני, תוכנית
+  // שמורה שנזרקת בחזרה לאשף ההקמה.
   if (planQuery.isLoading) return <ThemedLoader />;
+  if (planQuery.isError) {
+    return (
+      <div className="mx-auto w-full max-w-5xl px-4 py-6">
+        <QueryErrorState
+          what={isHe ? "התוכנית שלכם" : "your plan"}
+          onRetry={() => void planQuery.refetch()}
+        />
+      </div>
+    );
+  }
 
   const hasPlan = tasks.length > 0;
 
