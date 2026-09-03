@@ -404,7 +404,28 @@ export function resolveYearOfStudy(
   now: Date = new Date(),
 ): YearResolution {
   if (startYear != null) {
-    const fromAnchor = deriveYearOfStudy(startYear, storedYear, undefined, now);
+    // =========================================
+    // בחופשה מודדים מול העוגן, לא מול השנה שנגמרה
+    // =========================================
+    // שלב ג׳, 4.9 — נמצא במעבר כמשתמש, והוא חמור.
+    //
+    // `step-profile` שומר את העוגן לפי **עוגן התכנון**:
+    //     startYear = getPlanningAnchor().startYear - (year - 1)
+    // ב-4.9 זה 2026 − 1 = 2025 לסטודנט שהצהיר שנה ב׳.
+    //
+    // `deriveYearOfStudy` מודדת מול `getAcademicNow().startYear`, שהוא
+    // עדיין **2025** — כי תשפ״ז מתחילה ב-18.10. אז אותו סטודנט חוזר
+    // כ**שנה א׳**.
+    //
+    // כלומר כל מי שנרשם בין הסמסטרים — כלומר כל מי שנרשם בשבוע ההשקה —
+    // מוצג שנה אחת נמוך מדי, בכל מסך. העליתי גיליון של שנה א׳ מלאה,
+    // האשף עצמו אמר "לפי זה אתם בשנה ב׳", ודף הבית קידם אותי ב"שנה א׳".
+    //
+    // הצד השני כבר תוקן לפני שעה: שורת הזהות בדף הבית מציגה בחופשה את
+    // הסמסטר שמתחיל, כמו שמסך ההגדרות עשה מזמן. זו אותה שאלה בדיוק,
+    // בחצי השני של אותו משפט — ולכן אותה תשובה.
+    const measureAt = getAcademicNow(now).phase === "teaching" ? undefined : getPlanningAnchor(now).startYear;
+    const fromAnchor = deriveYearOfStudy(startYear, storedYear, measureAt, now);
     // גם עם עוגן: אם הגיליון מראה שהוא כבר סיים שנה גבוהה יותר, הגיליון גובר.
     // עוגן שגוי בשנה אחת הוא טעות הקלדה נפוצה בהרשמה; ציונים אינם.
     if (impliedMinYear != null && impliedMinYear > fromAnchor) {

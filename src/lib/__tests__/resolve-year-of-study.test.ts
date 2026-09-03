@@ -38,13 +38,27 @@ describe("עוגן חסר אינו 'שנה א׳'", () => {
   });
 
   it("גיליון נמוך מהעוגן לא מחזיר אחורה", () => {
-    // 3.9.2026 היא חופשת הסמסטר של תשפ״ו, אז השנה האקדמית **הנוכחית** היא
-    // 2025 ו-startYear=2024 נותן שנה ב׳. הרצפה (1) לא מחזירה אחורה.
-    // ההבחנה בין "השנה שאני בה" ל"השנה שאני מתכנן" נשמרת אצל הקורא —
-    // ראה planner-opens-where-bidding-points.test.ts.
+    // בחופשה מודדים מול עוגן התכנון (2026), אז startYear=2024 → שנה ג׳.
+    // הרצפה (1) לא מחזירה אחורה.
     const r = resolveYearOfStudy(2024, 1, 1, NOW);
-    expect(r.year).toBe(2);
+    expect(r.year).toBe(3);
     expect(r.source).toBe("anchor");
+  });
+
+  // 4.9 — הבאג שנמצא במעבר כמשתמש: step-profile שומר את העוגן לפי
+  // getPlanningAnchor (2026), ו-deriveYearOfStudy מדדה מול השנה האקדמית
+  // הנוכחית (2025). כל מי שנרשם בין הסמסטרים הוצג שנה אחת נמוך מדי.
+  it("מי שנרשם בחופשה והצהיר שנה ב׳ — מוצג שנה ב׳", () => {
+    const declared = 2;
+    const startYear = 2026 - (declared - 1); // בדיוק מה ש-step-profile שומר
+    expect(resolveYearOfStudy(startYear, 1, null, NOW).year).toBe(declared);
+  });
+
+  it("וגם שנה א׳ ושנה ג׳ חוזרות כמו שהוצהרו", () => {
+    for (const declared of [1, 2, 3]) {
+      const startYear = 2026 - (declared - 1);
+      expect(resolveYearOfStudy(startYear, 1, null, NOW).year).toBe(declared);
+    }
   });
 
   it("לעולם לא מעל 3 ולא מתחת ל-1", () => {

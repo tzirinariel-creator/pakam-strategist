@@ -755,6 +755,10 @@ export function DashboardContent() {
                 acadNow.semester are exactly what profile-section.tsx renders, so
                 every identity surface now agrees. Planning-forward context lives
                 in the "תכננו את הסמסטר הקרוב" CTAs, labeled as planning. */}
+            {/* השנה מגיעה מ-`profileQuery.data.currentYear`, ש-getProfile
+                כבר תיקן: בחופשה הוא נמדד מול עוגן התכנון, ולא מול השנה
+                האקדמית שנגמרה. שני חצאי המשפט — שנה וסמסטר — נשענים
+                עכשיו על אותו עוגן. */}
             {isHe ? "פכ״מ" : "PPE"} · {YEAR_CONFIG[currentYear as 1 | 2 | 3]?.[isHe ? "nameHe" : "nameEn"] ?? `${isHe ? "שנה" : "Year"} ${currentYear}`}
             {" · "}
             {/* =========================================
