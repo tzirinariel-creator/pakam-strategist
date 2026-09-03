@@ -7,10 +7,10 @@ import { Shield, Loader2, Check, Swords } from "lucide-react";
 import { useTranslations, useLocale } from "next-intl";
 import { toast } from "sonner";
 import { advisorError } from "@/lib/advisor-toast";
-import { getAcademicNow, hebrewYearLabel } from "@/lib/academic-calendar";
+import { getCurrentOrUpcomingSemester, hebrewYearLabel } from "@/lib/academic-calendar";
 import { Bidi } from "@/lib/bidi";
 import { MILUIM_CONFIG } from "@/lib/constants";
-import { deriveGroupFromDays, getCurrentAcademicYear, splitByDegreeStart } from "@/lib/miluim";
+import { deriveGroupFromDays, splitByDegreeStart } from "@/lib/miluim";
 import { MiluimDayCombatInputs } from "@/components/miluim/miluim-day-combat-inputs";
 import { QuotaCard } from "@/components/miluim/quota-card";
 import { api } from "@/lib/trpc/react";
@@ -59,9 +59,14 @@ export function MiluimSection() {
   // row. Deriving it from the stale stored profile.currentSemester wrote the
   // student's days into the wrong (previous) semester row after a rollover, so
   // they granted 0 exemption everywhere despite the preview (#audit-r4).
-  const nowSemester = getAcademicNow().semester;
-  const editorSemester: "FALL" | "SPRING" = nowSemester === "SPRING" ? "SPRING" : "FALL";
-  const academicYear = getCurrentAcademicYear();
+  // 4.9 — the previous fix moved this off the stale stored profile and onto
+  // getAcademicNow. Between semesters getAcademicNow is stale too: measured
+  // live on 4.9 the editor was labelled "תשפ״ו · סמסטר ב׳", a semester that
+  // ended in June, so a student filling in this month's reserve days wrote
+  // them into the wrong row and got no exemption from them.
+  const target = getCurrentOrUpcomingSemester();
+  const editorSemester: "FALL" | "SPRING" = target.semester === "SPRING" ? "SPRING" : "FALL";
+  const academicYear = target.startYear;
   // #7/#37 — every miluim surface reads the SAME degree window, so a row from
   // before the student enrolled can't show up in one place and vanish in
   // another. Unknown startYear ⇒ nothing is filtered (we never guess).

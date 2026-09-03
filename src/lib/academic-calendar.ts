@@ -324,6 +324,41 @@ export function getPlanningAnchor(now: Date = new Date()): { startYear: number; 
  * start-year select is the correction lever for edge cases — critique find).
  * Null anchor → the stored profile year (legacy fallback).
  */
+/**
+ * The semester a student is in, or — during the break — the one they are
+ * heading into.  (4.9)
+ *
+ * Three separate screens hit the same wall this week and each had grown its
+ * own workaround, so the rule now lives here once, with a name:
+ *
+ *   1. the identity line called a second-year student "שנה א׳";
+ *   2. the miluim year selector offered only the year that had ended;
+ *   3. the miluim editor wrote today's reserve days into סמסטר ב׳ of תשפ״ו,
+ *      a semester that finished in June.
+ *
+ * `getAcademicNow()` answers "what is the university doing right now", which
+ * between semesters is *nothing* — it keeps naming the semester that just
+ * ended. Almost every screen is asking a different question: which semester
+ * does this student's next decision belong to. Between semesters that is the
+ * one about to start, which is exactly what `getPlanningAnchor` already
+ * governs for the planner and for bidding.
+ *
+ * Use `getAcademicNow` when you truly mean the calendar's own state (an
+ * "in-progress" badge, a stale-data check). Use this for anything a student
+ * is about to act on.
+ */
+export function getCurrentOrUpcomingSemester(now: Date = new Date()): {
+  startYear: number;
+  semester: "FALL" | "SPRING" | "SUMMER";
+} {
+  const a = getAcademicNow(now);
+  if (a.phase === "teaching" || a.phase === "exams") {
+    return { startYear: a.startYear, semester: a.semester };
+  }
+  const anchor = getPlanningAnchor(now);
+  return { startYear: anchor.startYear, semester: anchor.semester };
+}
+
 export function deriveYearOfStudy(
   startYear: number | null | undefined,
   storedYear: number,

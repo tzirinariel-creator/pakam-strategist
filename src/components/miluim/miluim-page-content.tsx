@@ -29,7 +29,7 @@ import {
   type MiluimGroupKey,
 } from "@/lib/miluim";
 import { MILUIM_CONFIG } from "@/lib/constants";
-import { hebrewYearLabel, getAcademicNow } from "@/lib/academic-calendar";
+import { hebrewYearLabel, getCurrentOrUpcomingSemester } from "@/lib/academic-calendar";
 import { Bidi } from "@/lib/bidi";
 import { cn } from "@/lib/utils";
 import { heNoun } from "@/lib/he-count";
@@ -110,10 +110,20 @@ export function MiluimPageContent() {
   const binaryTotal = binaryFromPlan + binaryExternal;
   // The binary card speaks each group's own unit: B/C in courses (X/5),
   // G in credits (עד 6 ש״ס), and no benefit → say so instead of a fake /5.
+  // 4.9 — between semesters this pointed at the semester that had ENDED, so
+  // a student with a real group C row read "המתווה לא מעניק המרות בינארי".
+  const groupRef = getCurrentOrUpcomingSemester();
   const currentGroup = deriveCurrentGroup(degreeRows, fallbackGroup, {
-    academicYear: getCurrentAcademicYear(),
-    semester: getAcademicNow().semester,
+    academicYear: groupRef.startYear,
+    semester: groupRef.semester,
   });
+  // ...and when there is simply no row for that semester, say THAT. Claiming
+  // "your group grants nothing" is a different sentence from "we have no
+  // record", and only one of them is true.
+  const hasRowForRef = degreeRows.some(
+    (r) => r.academicYear === groupRef.startYear && r.semester === groupRef.semester,
+  );
+  const binaryUnknown = !hasRowForRef && degreeRows.length > 0;
   const binaryBenefit = binaryBenefitOf(currentGroup);
   const binaryCreditsUsed =
     binaryCourses.reduce(
@@ -521,7 +531,13 @@ export function MiluimPageContent() {
               {/* Each group's OWN unit: B/C count courses (X/5); G counts
                   CREDITS (עד 6 ש״ס per the מתווה); no benefit → say so
                   honestly instead of a fake /5 (verify 14.7). */}
-              {binaryBenefit == null ? (
+              {binaryBenefit == null && binaryUnknown ? (
+                <p className="mt-1.5 text-[11px] leading-relaxed text-foreground/60">
+                  {isHe
+                    ? `אין לנו רישום מילואים ל${hebrewYearLabel(groupRef.startYear)} · ${groupRef.semester === "SPRING" ? "סמסטר ב׳" : "סמסטר א׳"}, והקבוצה נקבעת מחדש בכל סמסטר — אז עוד אי-אפשר לומר מה מגיע לכם. הוסיפו את הסמסטר למעלה והמספר יופיע כאן.`
+                    : `We have no reserve record for ${groupRef.startYear}/${groupRef.startYear + 1} · ${groupRef.semester === "SPRING" ? "Spring" : "Fall"}, and the group is set afresh each semester — so we can't yet say what you're entitled to. Add the semester above and the number appears here.`}
+                </p>
+              ) : binaryBenefit == null ? (
                 <p className="mt-1.5 text-[11px] leading-relaxed text-foreground/60">
                   {isHe
                     ? "לקבוצה הנוכחית שלכם המתווה לא מעניק המרות בינארי. אם הקבוצה תשתנה — הזכאות תתעדכן כאן לבד."
