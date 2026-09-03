@@ -91,10 +91,10 @@ export function SharePlanDialog({
             ) : (
               <>
                 <b className="font-semibold">
-                  {dropped.length === 1 ? "One course won't travel" : `${dropped.length} courses won't travel`}
+                  {dropped.length === 1 ? "One course will not travel" : `${dropped.length} courses will not travel`}
                 </b>{" "}
                 — these are courses you added yourself, with no catalog code for the
-                link to carry. Your plan is untouched; only your friend won't see them.
+                link to carry. Your plan is untouched; only your friend will not see them.
               </>
             )}
           </div>

@@ -30,3 +30,14 @@
 
 ## עדכון ידע
 בסוף כל פרוסה: עדכן `docs/משימות-בקרה.md`. תובנה חדשה ששייכת לחוקה/תוכנית — הוסף שם, לא רק בצ'אט. **ידע שנשאר רק בשיחה = ידע שיימחק.**
+
+## שער האיכות — `npm run gate` (ולא לקרוא שורות)
+**3.9: ה-CI נפל פעמיים על main בגלל טעות קריאה שלי, לא בגלל הקוד.** הרצתי
+`npm run lint | tail -2` וקראתי את `"0 errors and 2 warnings potentially
+fixable"` כאילו זה מספר השגיאות. זו שורת ה־**auto-fixable**, ו-
+`rules-of-hooks` ו-`Cannot access refs during render` אינן כאלה. השורה
+האמיתית היא `✖ N problems (X errors, Y warnings)` ו-`tail -2` חתך אותה.
+
+**לכן: `npm run gate`** — מריץ בדיוק את שלושת הצעדים של ה-CI (`npm run lint`
+שהוא `eslint .`, `npx tsc --noEmit`, `npx vitest run`) ובודק **קודי יציאה**.
+לעולם לא להסיק "0 שגיאות" מפלט חתוך. אחרי push: `gh run list --limit 1`.

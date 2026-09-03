@@ -64,6 +64,26 @@ export function CourseDetailModal({
 }) {
   const isHe = useLocale() === "he";
   const [contributeOpen, setContributeOpen] = useState(false);
+  // =========================================
+  // "שאל את המלך על הקורס הזה" — מתוך חלון
+  // =========================================
+  // הכפתור שולח `pk:ask`, והיועץ נפתח ב-z-[66] כלומר **מעל** החלון. אבל
+  // ה-Dialog נשאר פתוח, ו-Radix לוכד בו את הפוקוס — אז השדה של היועץ גלוי
+  // ואי־אפשר להקליד בו. הסטודנט רואה את השאלה שלו ממתינה ולא מצליח לשלוח.
+  // החלון נסגר מעצמו ברגע שנשאלה שאלה.
+  //
+  // ⚠️ ההוק הזה חייב לשבת **מעל** `if (!course) return null` שלמטה.
+  // כתבתי אותו מתחתיו, ה-lint המקומי שלי עבר, וה-CI נפל על
+  // `rules-of-hooks`. זו בדיוק מחלקת הבאג שהלבינה את מסך התכנון פעם —
+  // React סופר הוקים לכל רינדור, ורינדור שדילג על ההוק ואחריו רינדור
+  // שהריץ אותו הוא React #310, כלומר מסך שגיאה לבן.
+  useEffect(() => {
+    if (!course) return;
+    const onAsk = () => onClose();
+    window.addEventListener("pk:ask", onAsk as EventListener);
+    return () => window.removeEventListener("pk:ask", onAsk as EventListener);
+  }, [course, onClose]);
+
   if (!course) return null;
 
   const cfg = DISCIPLINE_CONFIG[course.discipline as Discipline];
@@ -79,21 +99,6 @@ export function CourseDetailModal({
   const byCode = (code: string) => courses.find((c) => c.code === code) ?? null;
   const hasGrade = av.averageGrade != null || av.medianGrade != null || (av.failRate != null && av.failRate >= 1);
 
-  // =========================================
-  // "שאל את המלך על הקורס הזה" — מתוך חלון
-  // =========================================
-  // הכפתור שולח `pk:ask`, והיועץ נפתח ב-z-[66] כלומר **מעל** החלון. אבל
-  // ה-Dialog נשאר פתוח, ו-Radix לוכד בו את הפוקוס — אז השדה של היועץ גלוי
-  // ואי־אפשר להקליד בו. הסטודנט רואה את השאלה שלו ממתינה ולא מצליח לשלוח.
-  //
-  // החלון נסגר מעצמו ברגע שנשאלה שאלה. הוא סיים את תפקידו: הסטודנט עבר
-  // משאלה על הקורס לשיחה עליו.
-  useEffect(() => {
-    if (!course) return;
-    const onAsk = () => onClose();
-    window.addEventListener("pk:ask", onAsk as EventListener);
-    return () => window.removeEventListener("pk:ask", onAsk as EventListener);
-  }, [course, onClose]);
 
   return (
     <Dialog open={!!course} onOpenChange={(o) => !o && onClose()}>
