@@ -8,6 +8,7 @@ import { Link, useRouter } from "@/i18n/navigation";
 import { consumeSharedPlanReturn } from "@/lib/plan-share";
 import { getAcademicNow, deriveYearOfStudy } from "@/lib/academic-calendar";
 import { getTimeFocus } from "@/lib/time-focus";
+import { getPlanningAnchor } from "@/lib/academic-calendar";
 import { nearestUpcomingExam } from "@/lib/days-until";
 import { TimeFocusHero } from "@/components/dashboard/time-focus-hero";
 import { getWrapTarget } from "@/lib/semester-clock";
@@ -756,7 +757,26 @@ export function DashboardContent() {
                 in the "תכננו את הסמסטר הקרוב" CTAs, labeled as planning. */}
             {isHe ? "פכ״מ" : "PPE"} · {YEAR_CONFIG[currentYear as 1 | 2 | 3]?.[isHe ? "nameHe" : "nameEn"] ?? `${isHe ? "שנה" : "Year"} ${currentYear}`}
             {" · "}
-            {acadNow.semester === "FALL" ? (isHe ? "סמסטר א׳" : "Semester A") : (isHe ? "סמסטר ב׳" : "Semester B")}
+            {/* =========================================
+                בחופשה, "הסמסטר שלי" הוא זה שמתחיל — לא זה שנגמר
+                =========================================
+                שלב ג׳, 4.9: נרשמתי כסטודנט שנה א׳ שמתחיל **סמסטר א׳**, בניתי
+                מערכת של סמסטר א׳, שמרתי — ודף הבית קידם אותי בברכה
+                "פכ״מ · שנה א׳ · **סמסטר ב׳**".
+
+                השורה קראה את `acadNow.semester`, שהוא הסמסטר של הלוח האקדמי.
+                ב-4.9 אנחנו בחופשה שאחרי אביב תשפ״ו, אז הוא SPRING — הסמסטר
+                שהסתיים. בזמן לימודים זה נכון ומדויק. בחופשה זה סותר את כל
+                השאר על המסך: המערכת שנבנתה היא של סמסטר א׳, המקצה הוא על
+                סמסטר א׳, וה-CTA אומר "תכננו את הסמסטר הקרוב".
+
+                בחופשה מוצג הסמסטר שמתחיל, מעוגן ב-getPlanningAnchor —
+                אותה פונקציה שקובעת על מה הלוח נפתח ועל מה מגישים בידינג,
+                כך שכל ההצהרות על המסך מגיעות ממקור אחד. */}
+            {(() => {
+              const shown = acadNow.phase === "teaching" ? acadNow.semester : getPlanningAnchor().semester;
+              return shown === "FALL" ? (isHe ? "סמסטר א׳" : "Semester A") : (isHe ? "סמסטר ב׳" : "Semester B");
+            })()}
             {/* אריאל, 3.9: החשבון שלו הראה "שנה א׳" בכל מסך בזמן שהוא שנה ב׳.
                 במסד: startYear=null, ואפס קורסים. deriveYearOfStudy נופלת
                 במקרה הזה על הערך השמור — 1 — וכל האפליקציה מכריזה "שנה א׳"
