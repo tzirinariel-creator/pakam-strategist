@@ -12,12 +12,15 @@ import {
   ArrowLeft,
   ArrowRight,
   Check,
+  CalendarClock,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { PhilosopherKingIcon } from "@/components/ui/philosopher-king-icon";
 import { PhilosopherKingCharacter } from "@/components/ui/philosopher-king-character";
 import { cn } from "@/lib/utils";
 import { CATALOG_COURSE_COUNT, CONTACT_EMAIL, CREDIT_REQUIREMENTS, FOCUS_DISCIPLINE_IDS } from "@/lib/constants";
+import { getBiddingPhase } from "@/lib/bidding-calendar";
+import { heNoun } from "@/lib/he-count";
 
 // ─── Feature Card Data ──────────────────────────────────────────────
 // The King has his own dedicated dark band above the grid; the grid holds the
@@ -154,6 +157,9 @@ export function LandingPage() {
   const locale = useLocale();
   const isRTL = locale === "he";
   const Arrow = isRTL ? ArrowLeft : ArrowRight;
+  // הרצועה בעברית בלבד: הקהל הוא סטודנטי פכ״מ בת״א, והנוסח האנגלי היה
+  // תרגום של משפט שאיש לא קורא. `/en` ממילא מפנה לעברית בכוונה.
+  const biddingPhase = isRTL ? getBiddingPhase() : { kind: "after" as const, daysUntil: null };
 
   const stats = [
     // Pinned to the real תשפ״ז catalog by a guard test — it read "110+" for
@@ -219,6 +225,33 @@ export function LandingPage() {
         <div className="relative mx-auto grid max-w-6xl items-center gap-12 lg:grid-cols-[1.05fr_0.95fr] lg:gap-10">
           {/* Text column */}
           <div className="animate-rise text-center lg:text-start">
+            {/* =========================================
+                הבידינג — הסיבה שסטודנט פכ״מ נכנס דווקא השבוע
+                =========================================
+                ביקורת השיווק שעשיתי בעצמי, 3.9: דף הנחיתה לא מזכיר בידינג
+                באף מילה. חיפשתי "בידינג", "מכרז", "מקצה" ו"רישום לקורסים"
+                בכל טקסטי הדף — אפס. וזה הדבר האחד שדחוף עכשיו: מקצה 1
+                נפתח ב-7.9, כלומר בתוך ימים. סטודנט שמגיע לדף ורואה רק
+                "תכנון תואר" לא מבין למה לפתוח את זה **היום**.
+
+                הרצועה מופיעה רק כשהמקצה בתוך 30 יום, ונעלמת מעצמה אחריו —
+                באנר תמידי הוא קישוט, באנר עם תאריך הוא סיבה. והיא אומרת
+                **רק** מה שאנחנו יודעים: תאריך ומה שהאפליקציה עושה. אף
+                מילה על ניקוד, כי את המכסות האוניברסיטה לא מפרסמת. */}
+            {biddingPhase.kind === "before" && (biddingPhase.daysUntil ?? 99) <= 30 && (
+              <div className="mb-4 inline-flex flex-wrap items-center justify-center gap-x-2 gap-y-1 rounded-full border border-accent-brand/35 bg-accent-brand/[0.07] px-4 py-1.5 text-sm font-medium text-foreground/80 lg:justify-start">
+                <CalendarClock className="size-4 shrink-0 text-accent-brand" />
+                <span className="font-semibold text-accent-brand">
+                  {biddingPhase.daysUntil === 0
+                    ? "מקצה 1 נפתח היום"
+                    : `מקצה 1 נפתח בעוד ${heNoun(biddingPhase.daysUntil!, "יום", "ימים")}`}
+                </span>
+                <span className="text-foreground/65">
+                  כאן מתכננים את שני הסמסטרים ורואים חפיפות לפני שמגישים
+                </span>
+              </div>
+            )}
+
             <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-crown-gold/30 bg-card px-4 py-1.5 text-sm font-medium text-foreground/75 shadow-sm">
               <PhilosopherKingIcon className="size-4 text-crown-gold" />
               {t("badge")}
