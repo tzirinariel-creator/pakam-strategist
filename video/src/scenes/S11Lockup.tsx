@@ -3,6 +3,7 @@ import { useCurrentFrame } from "remotion";
 import { C, HE } from "../theme";
 import { EASE, ramp } from "../lib/anim";
 import { CrownMark, Stage } from "../ui/Kit";
+import { GoldDust, GroupPhoto } from "../ui/GroupPhoto";
 
 /**
  * ס׳11 · 37.4–41.8 (132f) · סיום
@@ -29,6 +30,18 @@ export const S11Lockup: React.FC = () => {
 
   return (
     <Stage>
+      {/*
+        כלל Q8: הסיום הוא "תמונה קבוצתית של השקה" — כל פיצ'ר שהוצג שולח
+        נציג מכיוון אחר, וההרמה תואמת את שיא האנרגיה של הסרט. הכלל מוסיף
+        ש"גרסה ראשונה של סיום כמעט תמיד שמרנית מדי". הגרסה הקודמת כאן
+        הייתה lockup שקט על קנבס ריק — בדיוק זה.
+
+        הנציגים נכנסים ראשונים ונעצרים לגמרי כשהצירוף נוחת, כדי שהוא
+        יישאר הגיבור ולא יתחרה בהם.
+      */}
+      <GroupPhoto start={0} />
+      <GoldDust start={40} color={C.crownGold} />
+
       <div
         style={{
           position: "absolute",
@@ -39,6 +52,7 @@ export const S11Lockup: React.FC = () => {
           justifyContent: "center",
           gap: 40,
           ...HE,
+          zIndex: 2,
         }}
       >
         <div style={{ display: "flex", flexDirection: "row", alignItems: "center", gap: 24 }}>

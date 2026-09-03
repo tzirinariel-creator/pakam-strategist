@@ -23,9 +23,13 @@ import { Info } from "lucide-react";
 export function UnofficialNotice({ variant = "full" }: { variant?: "compact" | "full" }) {
   const isHe = useLocale() === "he";
 
+  // text-xs ולא text-[10px]: `קו-עיצובי.md` קובע ש"משפט שלם לעולם לא מתחת
+  // ל-12px", ומנמק בדיוק את המקרה הזה — "כנות בגופן 9px היא לא כנות".
+  // זו אזהרת הכנות המרכזית של המוצר, והיא הופיעה בכל מסך בגופן שנועד
+  // לתוויות של מילה בודדת.
   if (variant === "compact") {
     return (
-      <p className="px-2 text-[10px] leading-tight text-foreground/60">
+      <p className="px-2 text-xs leading-snug text-foreground/60">
         {isHe
           // 21.8 — the first version said "תמיד לאמת מול הידיעון והמזכירות",
           // which is an instruction manual talking, not a person. Same content,

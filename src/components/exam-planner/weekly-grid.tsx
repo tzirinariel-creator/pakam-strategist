@@ -63,6 +63,25 @@ function tint(hex: string | null, alpha: string): string {
   return `${hex}${alpha}`;
 }
 
+/**
+ * The same course colour, made readable as TEXT on the tint above.
+ *
+ * The twelve course colours are documented at the top of `globals.css` as
+ * clearing **3:1** against the white card — the threshold for a dot or a
+ * hairline. These chips used them for the label itself, on a 13% tint of the
+ * same hue, and the worst of the twelve (lime `#65A30D`) measured 2.70:1.
+ * A colour specified for graphics was carrying text.
+ *
+ * 65% of the hue mixed into `--foreground` holds 4.96:1 in the worst case and
+ * still reads unmistakably as that course. `--foreground` rather than a
+ * literal, so the same expression darkens on the light canvas and lightens on
+ * the dark one — where the 400-weight band already passes on its own.
+ */
+function textOnTint(hex: string | null): string {
+  if (!hex || !/^#[0-9a-fA-F]{6}$/.test(hex)) return "inherit";
+  return `color-mix(in srgb, ${hex} 65%, var(--foreground))`;
+}
+
 export interface GridTask {
   id: string;
   title: string;
@@ -122,11 +141,13 @@ function StudyChip({
       {...(draggable ? attributes : {})}
       {...(draggable ? listeners : {})}
       className={cn(
-        "group/chip flex items-center gap-1 rounded-md px-1.5 py-1 text-[10px] font-medium leading-tight",
+        // py-1.5: הצ'יפ נגרר, כלומר הוא יעד מגע לכל דבר, ו-22px נופל מתחת
+        // ל-24px של WCAG 2.5.8.
+        "group/chip flex items-center gap-1 rounded-md px-1.5 py-1.5 text-[10px] font-medium leading-tight",
         draggable && "cursor-grab touch-none active:cursor-grabbing focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-brand/60",
         isDragging && "opacity-40",
       )}
-      style={{ backgroundColor: tint(color, "22"), color: color ?? "inherit" }}
+      style={{ backgroundColor: tint(color, "22"), color: color ? textOnTint(color) : "inherit" }}
       title={isHe ? `${label} · ${hours} שעות` : `${label} · ${hours}h`}
     >
       <span className="min-w-0 flex-1 truncate">{label}</span>
@@ -360,7 +381,7 @@ export function WeeklyGrid({
                         <div
                           key={`ex-${i}`}
                           className="flex items-center gap-1 rounded-md px-1.5 py-1 text-[10px] font-bold"
-                          style={{ backgroundColor: tint(ex.color, "26"), color: ex.color }}
+                          style={{ backgroundColor: tint(ex.color, "26"), color: textOnTint(ex.color) }}
                           title={isHe ? `מבחן: ${ex.courseName} (מועד ${ex.moed === "A" ? "א׳" : "ב׳"})` : `Exam: ${ex.courseName} (Moed ${ex.moed})`}
                         >
                           <GraduationCap className="size-2.5 shrink-0" />
@@ -410,7 +431,7 @@ export function WeeklyGrid({
                               type="button"
                               onClick={(e) => e.stopPropagation()}
                               aria-label={isHe ? "הוסיפו בלוק לימוד" : "Add a study block"}
-                              className="mt-auto flex items-center justify-center gap-0.5 rounded-md border border-dashed border-foreground/15 py-0.5 text-[10px] text-foreground/60 transition-colors hover:border-accent-brand/40 hover:text-accent-brand"
+                              className="mt-auto flex items-center justify-center gap-0.5 rounded-md border border-dashed border-foreground/15 py-1 text-[10px] text-foreground/60 transition-colors hover:border-accent-brand/40 hover:text-accent-brand"
                             >
                               <Plus className="size-3" />
                               {isHe ? "לימוד" : "Study"}

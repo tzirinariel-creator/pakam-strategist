@@ -1,7 +1,8 @@
 import React from "react";
 import { AbsoluteFill, Sequence, Audio, staticFile } from "remotion";
 import { C } from "./theme";
-import { S01Converge } from "./scenes/S01Converge";
+import { SoundBed } from "./Sound";
+import { S01_DURATION, S01Hero } from "./scenes/S01Hero";
 import { S02BrandInk } from "./scenes/S02BrandInk";
 import { S03CraneRise } from "./scenes/S03CraneRise";
 import { S04DeckDeal } from "./scenes/S04DeckDeal";
@@ -19,7 +20,7 @@ import { S11Lockup } from "./scenes/S11Lockup";
  * בכללי R1/R2 (hold של שנייה, 0.5s עצירה אחרי תנועה קבוצתית).
  */
 export const SHOTS = [
-  { id: "S01", card: "bezier-source-converge-merge", frames: 168, Comp: S01Converge },
+  { id: "S01", card: "spotlight-hero-card", frames: S01_DURATION, Comp: S01Hero },
   { id: "S02", card: "brand-ink-open", frames: 83, Comp: S02BrandInk },
   { id: "S03", card: "crane-rise-reveal", frames: 150, Comp: S03CraneRise },
   { id: "S04", card: "deck-deal-flyin", frames: 78, Comp: S04DeckDeal },
@@ -52,6 +53,9 @@ export const Promo: React.FC<PromoProps> = ({ bgm = false }) => {
           </Sequence>
         );
       })}
+
+      {/* הצליל. הסקיל מתייחס אליו כחצי מהמלאכה, והוא היה חסר לגמרי. */}
+      <SoundBed />
 
       {/* המוזיקה מושבתת כברירת מחדל — ספריית ה-BGM של הסקיל היא היפ-הופ/האוס
           ואינה תואמת את הטון של המוצר. ראו README. */}

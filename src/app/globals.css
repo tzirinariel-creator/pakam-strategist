@@ -239,6 +239,14 @@
      indigo surfaces, where it measures 7.43:1. */
   --crown-gold: #A97C1F;
 
+  /* The Referent's teal had the crown's bug, one persona over. #79C2B5
+     measures 9.54:1 on the dark canvas and 2.01:1 on the light one — under
+     even the 3:1 floor for a graphic that carries meaning, and it is the mark
+     that tells a student which advisor they are talking to. Same fix as the
+     crown directly above: darkened for light only, the dark value left in
+     :root where it is already correct. */
+  --referent-teal: #357E6F;
+
   /* The ambient canvas (Lookit reference). Warm at the top, cool at the
      bottom, both barely there — at these alphas it reads as depth rather than
      as colour, which is the point. */
