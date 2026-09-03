@@ -635,12 +635,19 @@ function StandingSummaryCard({
       {focusRows.length > 0 && (
         <div className="rounded-2xl border border-border bg-card/50 p-4">
           <p className="text-sm font-semibold text-foreground/80">
-            {isHe ? "ש״ס שכבר צברתם בכל תחום" : "Credits you've earned per area"}
+            {/* שלב ג׳, מעבר ב׳: הכרטיס למעלה אמר "39 ש״ס נצברו", וכאן הופיעו
+                מדע המדינה 14 · פילוסופיה 12 · כלכלה 10 = 36. סטודנט שמחסר
+                נשאר עם שלושה ש״ס לא מוסברים.
+                הכוונה נכונה: `focusRows` רץ על FOCUS_DISCIPLINE_IDS בלבד,
+                כי תחום המיקוד נבחר משלושת אלה. מה שהיה שגוי זו התווית —
+                "בכל תחום" מבטיחה פירוט מלא. עכשיו היא אומרת מה זה באמת,
+                ומסבירה למה הסכום קטן מהסך. */}
+            {isHe ? "ש״ס בשלושת תחומי המיקוד" : "Credits in the three focus areas"}
           </p>
           <p className="mt-0.5 text-xs text-foreground/60">
             {isHe
-              ? "כולל קורסים שנספרים לכמה תחומים. תחום המיקוד עצמו נבחר במסך הבא."
-              : "Includes courses that count toward several areas. You'll pick your focus area on the next screen."}
+              ? "רק שלושת התחומים שמהם בוחרים מיקוד — ולכן הסכום כאן קטן מסך הש״ס שצברתם, שכולל גם קורסי פכ״מ ייעודיים, משפטים ואנגלית. קורס שנספר לכמה תחומים מופיע בכולם. את המיקוד עצמו בוחרים במסך הבא."
+              : "Only the three areas a focus can be chosen from — so this adds up to less than your total, which also includes PPE-specific, law and English courses. A course counting toward several areas appears in each. You'll pick the focus itself on the next screen."}
           </p>
           <div className="mt-3 flex flex-wrap gap-2">
             {focusRows.map((r) => (
