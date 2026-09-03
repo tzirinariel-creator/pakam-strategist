@@ -1,6 +1,7 @@
 import { fetchRequestHandler } from "@trpc/server/adapters/fetch";
 import { appRouter } from "@/server/trpc/router";
 import { createTRPCContext } from "@/server/trpc/init";
+import { trpcCacheControl } from "@/lib/trpc-cache-policy";
 
 // Vercel Hobby plan: max 60s. Needed for sync batches.
 export const maxDuration = 60;
@@ -34,8 +35,17 @@ const handler = (req: Request) =>
     // responses without explicit directives, so this was not exploitable on
     // our own edge — but the path from a TAU student to Vercel runs through
     // campus proxies we do not control. Say `private, no-store` explicitly.
-    responseMeta: () => ({
-      headers: { "cache-control": "private, no-store" },
+    // ברירת המחדל היא private, no-store; הקטלוג הציבורי הוא היוצא היחיד,
+    // והכלל עצמו יושב ב-lib/trpc-cache-policy.ts עם הבדיקות שמקבעות אותו —
+    // בעיקר זו שאומרת שאצווה מעורבת נשארת private.
+    responseMeta: ({ paths, type, errors }) => ({
+      headers: {
+        "cache-control": trpcCacheControl({
+          paths,
+          type,
+          errorCount: errors.length,
+        }),
+      },
     }),
     // Always log server-side (SEC1): in production the client now gets a masked
     // 500 message (see errorFormatter), so the real error must land in the
