@@ -24,6 +24,8 @@ import type { SessionGroupSelections } from "./semester-planner/live-timetable";
 import { PersonaPicker } from "@/components/persona/persona-picker";
 import { setPersona } from "@/components/persona/use-persona";
 import { PhilosopherKingCharacter } from "@/components/ui/philosopher-king-character";
+import { getBiddingPhase } from "@/lib/bidding-calendar";
+import { heNoun } from "@/lib/he-count";
 
 interface StepReadyProps {
   data: OnboardingData;
@@ -43,6 +45,7 @@ export function StepReady({ data, plannedSemesters, completedCourses, allCourses
   const t = useTranslations("onboarding");
   const locale = useLocale();
   const isHe = locale === "he";
+  const biddingPhase = getBiddingPhase();
   const router = useRouter();
   const [isSaving, setIsSaving] = useState(false);
   const [hasSaved, setHasSaved] = useState(false);
@@ -833,13 +836,37 @@ export function StepReady({ data, plannedSemesters, completedCourses, allCourses
             {t("goToDashboard")}
           </button>
 
-          <button
-            onClick={() => router.push("/catalog")}
-            className="flex items-center justify-center gap-2 rounded-xl border-2 border-border px-6 py-3 text-sm font-medium text-foreground/70 transition-all hover:border-foreground/30 hover:text-foreground/90"
-          >
-            <BookOpen className="h-4 w-4" />
-            {t("exploreCatalog")}
-          </button>
+          {/* =========================================
+              מה עושים אחרי "הכול מוכן"
+              =========================================
+              אריאל, 3.9, אחרי שסיים את הזרימה כמשתמש:
+              *"ואז לא היה לי איזה סיור באתר או משימות וגרוע מכך — זה לא
+              גרם לי פתאום להתעסק בבידינג או להבין מה לעשות עם התכנון שלי
+              ביחס לבידינג."*
+
+              הפעולה השנייה כאן הייתה "עיינו בקטלוג" — קבועה, בלי קשר לתאריך.
+              סטודנט שסיים לתכנן ארבעה ימים לפני שהמקצה נפתח לא צריך לעיין
+              בקטלוג; הוא צריך לדעת שיש מקצה, מתי, ומה להגיש. כשהמקצה קרוב,
+              הדלת הזאת מובילה לשם ואומרת כמה ימים נשארו. */}
+          {biddingPhase.kind === "before" && (biddingPhase.daysUntil ?? 99) <= 30 ? (
+            <button
+              onClick={() => router.push("/bidding")}
+              className="flex items-center justify-center gap-2 rounded-xl border-2 border-accent-brand/40 px-6 py-3 text-sm font-semibold text-accent-brand transition-all hover:bg-accent-brand/[0.06]"
+            >
+              <Calendar className="h-4 w-4" />
+              {isHe
+                ? `לבידינג — נפתח בעוד ${heNoun(biddingPhase.daysUntil!, "יום", "ימים")}`
+                : `To bidding — opens in ${biddingPhase.daysUntil} days`}
+            </button>
+          ) : (
+            <button
+              onClick={() => router.push("/catalog")}
+              className="flex items-center justify-center gap-2 rounded-xl border-2 border-border px-6 py-3 text-sm font-medium text-foreground/70 transition-all hover:border-foreground/30 hover:text-foreground/90"
+            >
+              <BookOpen className="h-4 w-4" />
+              {t("exploreCatalog")}
+            </button>
+          )}
         </div>
       )}
 

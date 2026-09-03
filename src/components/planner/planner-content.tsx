@@ -22,6 +22,7 @@ import { DegreeStatus } from "@/components/dashboard/degree-status";
 import { api } from "@/lib/trpc/react";
 import { deriveYearOfStudy, getPlanningAnchor } from "@/lib/academic-calendar";
 import { getBiddingTarget } from "@/lib/bidding-target";
+import { getBiddingPhase } from "@/lib/bidding-calendar";
 import { ThemedLoader } from "@/components/ui/themed-loader";
 import { cn } from "@/lib/utils";
 import { Link } from "@/i18n/navigation";
@@ -171,6 +172,10 @@ export function PlannerContent() {
   // #13/#15 (12.7) — bidding concerns the NEXT teaching semester (what you
   // actually submit requests for), never the running one.
   const biddingTarget = getBiddingTarget(profileQuery.data?.startYear, profileQuery.data?.currentYear ?? 1);
+  // `daysUntilStart` של biddingTarget מודד את תחילת **ההוראה** (18.10), לא
+  // את פתיחת המקצה (7.9). ההבדל ביניהם הוא כחודש וחצי, וזה בדיוק ההפרש
+  // שהיה מכבה את התווית הדחופה בימים שבהם היא הדבר החשוב על המסך.
+  const biddingPhase = getBiddingPhase();
   const biddingCourseCount = biddingTarget
     ? courses.filter(
         (uc) =>
@@ -335,12 +340,32 @@ export function PlannerContent() {
             {isHe ? "שתף" : "Share"}
           </button>
           <SharePlanDialog open={shareOpen} onOpenChange={setShareOpen} courses={sharedCourses} detail={shareDetail} />
+          {/* =========================================
+              הדלת לעורך היא הפעולה הראשית, לא צ'יפ ליד "שתף"
+              =========================================
+              אריאל, 3.9, אחרי שעבר את הזרימה כמשתמש:
+              *"לא היה לי מובן מאליו בכלל למצוא את הכפתור של העריכה המלאה
+              בגלל שצריך ללחוץ על עוד כפתור אחרי המסך הראשוני"*, ולפני זה
+              *"למה ואיך המשתמש אמור להבין שהוא צריך לעבור למערכת תכנון
+              ועריכת קורסים? זה סתם מבלבל."*
+
+              שתי בעיות באותו קישור. הראשונה: משקל. הוא היה מסגרת אפורה
+              באותו גודל בדיוק כמו "שתף" — כלומר הדבר היחיד שסטודנט באמת
+              בא לעשות נראה כמו כלי־עזר. השנייה: התווית. "עריכת מערכת
+              הסמסטר" מתארת מנגנון, ולא אומרת למה ללחוץ עליו דווקא עכשיו.
+
+              כשהמקצה קרוב, התווית אומרת את הדבר שבאמת דחוף — ושני
+              הסמסטרים, כי הבידינג מגיש את שניהם יחד. */}
           <Link
             href="/planner/semester"
-            className="flex items-center gap-2 rounded-lg border border-border/40 bg-card/40 px-4 py-2 text-sm text-foreground/60 transition-colors hover:border-foreground/20 hover:bg-card/60 hover:text-foreground/80"
+            className="flex items-center gap-2 rounded-lg bg-foreground px-4 py-2 text-sm font-semibold text-primary-foreground transition-opacity hover:opacity-90"
           >
             <CalendarDays className="h-4 w-4" />
-            {t("modifySemesterPlan")}
+            {biddingPhase.kind === "before" && (biddingPhase.daysUntil ?? 99) <= 30
+              ? isHe
+                ? "תכננו את שני הסמסטרים לבידינג"
+                : "Plan both semesters for bidding"
+              : t("modifySemesterPlan")}
           </Link>
         </div>
       </div>
