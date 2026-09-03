@@ -757,6 +757,22 @@ export function DashboardContent() {
             {isHe ? "פכ״מ" : "PPE"} · {YEAR_CONFIG[currentYear as 1 | 2 | 3]?.[isHe ? "nameHe" : "nameEn"] ?? `${isHe ? "שנה" : "Year"} ${currentYear}`}
             {" · "}
             {acadNow.semester === "FALL" ? (isHe ? "סמסטר א׳" : "Semester A") : (isHe ? "סמסטר ב׳" : "Semester B")}
+            {/* אריאל, 3.9: החשבון שלו הראה "שנה א׳" בכל מסך בזמן שהוא שנה ב׳.
+                במסד: startYear=null, ואפס קורסים. deriveYearOfStudy נופלת
+                במקרה הזה על הערך השמור — 1 — וכל האפליקציה מכריזה "שנה א׳"
+                בביטחון מלא, בלי לרמוז שזה ניחוש ובלי להציע לתקן.
+                עכשיו כשזה ניחוש, זה נאמר, ויש לאן ללחוץ. */}
+            {profileQuery.data?.yearIsGuess && (
+              <>
+                {" · "}
+                <Link
+                  href="/settings"
+                  className="underline decoration-dotted underline-offset-2 hover:text-foreground/80"
+                >
+                  {isHe ? "לא ידוע לנו — עדכנו את שנת הפתיחה" : "We don't know yet — set your start year"}
+                </Link>
+              </>
+            )}
           </p>
         )}
         {/* The degree-progress bar lives in the "My status" hero below — no

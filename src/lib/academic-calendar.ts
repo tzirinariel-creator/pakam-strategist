@@ -372,3 +372,50 @@ export function getTeachingRange(
   const last = TAU_CALENDARS[TAU_CALENDARS.length - 1]![semester];
   return { start: last.teachingStart, end: last.teachingEnd };
 }
+
+// =========================================
+// שנת הלימוד, כשגם הגיליון מדבר
+// =========================================
+// אריאל, 3.9: *"והנה עכשיו שחזרתי הוא מתכנן לי את שנה א׳ שכבר סיימתי
+// והעליתי סילבוס שלה!"*
+//
+// `deriveYearOfStudy` עונה על שאלה אחת בלבד: כמה שנים עברו מאז שהתואר
+// התחיל. כשהעוגן חסר היא מחזירה את הערך השמור, שהוא 1 כברירת מחדל — ואז
+// כל מסך באפליקציה מכריז "שנה א׳" בלי לסייג. סטודנט שהעלה גיליון עם שנה
+// שלמה של ציונים רואה את האפליקציה מציעה לו לתכנן את מה שכבר עשה.
+//
+// לגיליון יש תשובה משלו. קורס שהושלם ומתויק לשנה N אומר שהסטודנט הגיע
+// לפחות לשנה N. זו טענה שמרנית — היא לא מקדמת אותו לשנה הבאה, רק מסרבת
+// להחזיר אותו אחורה — והיא מבוססת על נתון שהוא עצמו נתן.
+
+export type YearResolution = {
+  /** השנה להצגה ולתכנון. */
+  year: number;
+  /** מאיפה היא הגיעה — כדי שהמסך יוכל לומר את האמת על עצמו. */
+  source: "anchor" | "completed-courses" | "stored-default";
+  /** true כשאין לנו עוגן ואין קורסים — כלומר זהו ניחוש שצריך לסייג. */
+  isGuess: boolean;
+};
+
+export function resolveYearOfStudy(
+  startYear: number | null | undefined,
+  storedYear: number,
+  impliedMinYear?: number | null,
+  now: Date = new Date(),
+): YearResolution {
+  if (startYear != null) {
+    const fromAnchor = deriveYearOfStudy(startYear, storedYear, undefined, now);
+    // גם עם עוגן: אם הגיליון מראה שהוא כבר סיים שנה גבוהה יותר, הגיליון גובר.
+    // עוגן שגוי בשנה אחת הוא טעות הקלדה נפוצה בהרשמה; ציונים אינם.
+    if (impliedMinYear != null && impliedMinYear > fromAnchor) {
+      return { year: Math.min(3, impliedMinYear), source: "completed-courses", isGuess: false };
+    }
+    return { year: fromAnchor, source: "anchor", isGuess: false };
+  }
+  if (impliedMinYear != null) {
+    return { year: Math.min(3, Math.max(1, impliedMinYear)), source: "completed-courses", isGuess: false };
+  }
+  // אין עוגן ואין קורסים. מחזירים את השמור, **ומסמנים שזה ניחוש** — כדי
+  // שהמסך יציע לתקן במקום להכריז.
+  return { year: Math.min(3, Math.max(1, storedYear)), source: "stored-default", isGuess: true };
+}

@@ -373,6 +373,7 @@ export function SemesterPlannerPage() {
         initialDisciplineOverrides={initialDisciplineOverrides}
         isSaving={savePlan.isPending}
         onDirty={() => setDirty(true)}
+        draftScopeId={profileQuery.data?.id ?? null}
       />
 
       {/* Unsaved-changes guard — the back-arrow's silent discard was the heart

@@ -116,6 +116,12 @@ interface SemesterPlannerProps {
    *  standalone /planner/semester page warn before a silent exit-without-saving
    *  (#18). Onboarding omits it — its own nav handles unsaved state. */
   onDirty?: () => void;
+  /**
+   * מזהה המשתמש, לתיחום הטיוטה. בלעדיו טיוטה של סטודנט אחד משוחזרת אצל מי
+   * שנרשם אחריו על אותו מחשב — בדיוק המלכודת שהאשף כבר נתקל בה ופתר.
+   * `undefined` → "anon", וזה המקרה היחיד שבו שיתוף אינו מזיק.
+   */
+  draftScopeId?: string | null;
 }
 
 // ─── Component ───────────────────────────────────────────────────────
@@ -126,6 +132,7 @@ export function SemesterPlanner({
   isLoadingCourses,
   completedRows,
   onFinish,
+  draftScopeId,
   externalCompletedCourseIds,
   initialPlannedSemesters,
   initialSessionGroupSelections,
@@ -142,9 +149,44 @@ export function SemesterPlanner({
   // restored plan into "current" vs "already-planned other" semesters.
   const initialCurrentKey = `${data.year}-${data.semester}`;
 
+  // =========================================
+  // טיוטה — כדי ששום יציאה מהמסך לא תמחק תכנון
+  // =========================================
+  // אריאל, 3.9: *"חייב שתהיה פה איזה שמירה זמנית של מה שהיה מהסילבוס
+  // ואיזשהו פתרון לבאג הזה."*
+  //
+  // האשף שומר את עצמו ב-localStorage כבר מ-#13. הלוח העצמאי
+  // (`/planner/semester`) — שהוא בדיוק המסך שאליו מגיעים מדף הבית —
+  // **לא שמר כלום**. הבחירה חיה ב-React state עד "סיימתי", אז כל ניווט
+  // החוצה, כל רענון, וכל לחיצה על קישור בתוך המסך מחקו את הכול.
+  //
+  // המפתח כולל את מזהה המשתמש. בלעדיו טיוטה של סטודנט אחד הייתה משוחזרת
+  // אצל מי שנרשם אחריו על אותו מחשב — אותה מלכודת שהאשף כבר נתקל בה.
+  const draftKey = `pakamon-planner-draft:${draftScopeId ?? "anon"}`;
+  const draft = useMemo(() => {
+    if (typeof window === "undefined") return null;
+    try {
+      const raw = localStorage.getItem(draftKey);
+      if (!raw) return null;
+      const d = JSON.parse(raw) as {
+        year?: number;
+        semester?: "FALL" | "SPRING";
+        selected?: string[];
+        others?: PlannedSemester[];
+        savedAt?: number;
+      };
+      // טיוטה בת יותר משבוע היא כמעט תמיד שריד, לא כוונה.
+      if (!d.savedAt || Date.now() - d.savedAt > 7 * 24 * 3600 * 1000) return null;
+      return d;
+    } catch {
+      return null;
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [draftKey]);
+
   // ─── State ─────────────────────────────────────────────────────────
-  const [currentYear, setCurrentYear] = useState(data.year);
-  const [currentSemester, setCurrentSemester] = useState<"FALL" | "SPRING">(data.semester);
+  const [currentYear, setCurrentYear] = useState(draft?.year ?? data.year);
+  const [currentSemester, setCurrentSemester] = useState<"FALL" | "SPRING">(draft?.semester ?? data.semester);
   // #7 (12.7) — the app must KNOW the date: if the semester the student says
   // they're "in" has already finished teaching (e.g. registering on 12.7 and
   // picking סמסטר ב׳), say so honestly instead of silently planning a semester
@@ -162,12 +204,16 @@ export function SemesterPlanner({
     const cur = (initialPlannedSemesters ?? []).find(
       (s) => `${s.year}-${s.semester}` === initialCurrentKey
     );
+    // הטיוטה גוברת על התוכנית השמורה: היא חדשה יותר ומייצגת עבודה שלא
+    // הספיקה להישמר, וזו בדיוק העבודה שנעלמה.
+    if (draft?.selected) return new Set(draft.selected);
     return new Set(cur?.courseIds ?? []);
   });
   // Seed the "other planned semesters" from an existing plan so a save doesn't
   // drop the semesters the student isn't editing this session.
   const [completedSemesters, setCompletedSemesters] = useState<PlannedSemester[]>(
     () =>
+      draft?.others ??
       (initialPlannedSemesters ?? []).filter(
         (s) => `${s.year}-${s.semester}` !== initialCurrentKey
       )
@@ -613,6 +659,26 @@ export function SemesterPlanner({
     handleSwitchSemester(nextYear, nextSemester);
   }, [currentYear, currentSemester, markDirty, handleSwitchSemester]);
 
+  // כתיבת הטיוטה בכל שינוי. `selectedCourseIds` ו-`completedSemesters` הם
+  // כל מה שהלוח לא יכול לשחזר מהשרת, ולכן הם כל מה שנשמר.
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    try {
+      localStorage.setItem(
+        draftKey,
+        JSON.stringify({
+          year: currentYear,
+          semester: currentSemester,
+          selected: Array.from(selectedCourseIds),
+          others: completedSemesters,
+          savedAt: Date.now(),
+        }),
+      );
+    } catch {
+      /* מכסת אחסון מלאה — הלוח ממשיך לעבוד, פשוט בלי רשת ביטחון */
+    }
+  }, [draftKey, currentYear, currentSemester, selectedCourseIds, completedSemesters]);
+
   const handleAddCustomCourse = useCallback(
     (course: CustomCourseDraft) => {
       markDirty();
@@ -828,8 +894,10 @@ export function SemesterPlanner({
       }
     }
 
+    // התוכנית נשמרת בשרת — הטיוטה סיימה את תפקידה.
+    try { localStorage.removeItem(draftKey); } catch { /* לא קריטי */ }
     onFinish(allSemesters, sessionGroupSelections, overrides, registered);
-  }, [completedSemesters, currentYear, currentSemester, mandatoryIds, selectedCourseIds, onFinish, sessionGroupSelections, customCourses, disciplineOverrides, registerCustom, isHe]);
+  }, [completedSemesters, currentYear, currentSemester, mandatoryIds, selectedCourseIds, onFinish, sessionGroupSelections, customCourses, disciplineOverrides, registerCustom, isHe, draftKey]);
 
   // ─── Semester picker ──────────────────────────────────────────────
 
@@ -1046,7 +1114,15 @@ export function SemesterPlanner({
           student reaches AFTER planning. Said here, while they are choosing,
           and it names the full planner so that screen is discoverable at all. */}
       <div className="animate-stagger-1 flex w-full max-w-7xl flex-col gap-3">
-        <BiddingProximityNudge />
+        {/* ההערה מבצעת את מה שהיא ממליצה, בתוך הלוח. קודם היא הייתה קישור
+            שיוצא מהמסך, והבחירה של הסטודנט — שחיה ב-state עד "סיימתי" —
+            נמחקה בקליק. */}
+        <BiddingProximityNudge
+          otherSemesterLabel={currentSemester === "FALL" ? "סמסטר ב׳" : "סמסטר א׳"}
+          onSwitchToOther={() =>
+            handleSwitchSemester(currentYear, currentSemester === "FALL" ? "SPRING" : "FALL")
+          }
+        />
         <EnglishStandingChip
           signal={englishPlannerSignal(data.englishLevel, data.amirantScore, completedRows ?? [])}
         />

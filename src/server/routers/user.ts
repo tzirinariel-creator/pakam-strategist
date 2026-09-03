@@ -3,7 +3,7 @@ import { createClient } from "@supabase/supabase-js";
 import {
   getAcademicNow,
   getPlanningAnchor,
-  deriveYearOfStudy,
+  deriveYearOfStudy, resolveYearOfStudy,
   hebrewYearLabel,
 } from "@/lib/academic-calendar";
 import { TRPCError } from "@trpc/server";
@@ -67,7 +67,49 @@ export const userRouter = createTRPCRouter({
         updatedAt: true,
       },
     });
-    return user;
+    if (!user) return user;
+
+    // =========================================
+    // רצפת שנת הלימוד — מה שהסטודנט כבר סיים
+    // =========================================
+    // אריאל, 3.9, אחרי שעבר את כל הזרימה כמשתמש: *"והנה עכשיו שחזרתי הוא
+    // מתכנן לי את שנה א׳ שכבר סיימתי והעליתי סילבוס שלה!"*
+    //
+    // `deriveYearOfStudy(startYear, stored)` מחזיר את `stored` כש-startYear
+    // הוא null — ו-`stored` הוא 1 כברירת מחדל. כלומר משתמש שהעוגן שלו חסר
+    // הוא **לנצח שנה א׳**, בכל מסך: דף הבית, הבידינג, לוח התכנון. שום דבר
+    // לא אומר לו שזה ניחוש, ושום דבר לא מציע לתקן. זה בדיוק מה שאריאל חווה,
+    // ואיתו כל סטודנט שאיפס פרופיל או שהעוגן שלו לא נכתב מסיבה כלשהי.
+    //
+    // הגיליון שהוא כבר העלה יודע את התשובה. קורס שהושלם ומתויק לשנה N אומר
+    // שהסטודנט הגיע לפחות לשנה N — זו טענה שמרנית ונכונה, ואינה ניחוש.
+    const completed = await ctx.db.userCourse.findMany({
+      where: { userId: user.id, status: "COMPLETED" },
+      select: { plannedYear: true },
+    });
+    const impliedMinYear = completed.length
+      ? Math.min(3, Math.max(1, ...completed.map((c) => c.plannedYear)))
+      : null;
+
+    // התיקון מוחל **כאן**, על `currentYear`, ולא ב-26 מקומות הקריאה.
+    //
+    // כל אחד מהם מעביר את `profile.currentYear` בתור ה-fallback ל-
+    // `deriveYearOfStudy`, וכשהעוגן חסר זה בדיוק הערך שחוזר. תיקון של
+    // מספר אחד במקור מגיע לדף הבית, לבידינג, ללוח, למלך, ליומן ולמחשבון
+    // הגמר — בלי ניתוח של 26 אתרים בערב שלפני השקה. העוגן, כשהוא קיים,
+    // ממשיך לגבור בדיוק כמו קודם.
+    const resolved = resolveYearOfStudy(user.startYear, user.currentYear ?? 1, impliedMinYear);
+
+    return {
+      ...user,
+      currentYear: resolved.year,
+      /** השנה שאי־אפשר להיות מתחתיה לפי מה שכבר הושלם. null = אין נתונים. */
+      impliedMinYear,
+      /** מאיפה הגיעה השנה: עוגן · קורסים שהושלמו · ברירת מחדל שמורה. */
+      yearSource: resolved.source,
+      /** true = אין עוגן ואין קורסים, כלומר תווית השנה היא ניחוש שצריך לסייג. */
+      yearIsGuess: resolved.isGuess,
+    };
   }),
 
   /**

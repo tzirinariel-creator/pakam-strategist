@@ -23,11 +23,20 @@
 
 import { useLocale } from "next-intl";
 import { CalendarClock, ArrowLeft, ArrowRight } from "lucide-react";
-import { Link } from "@/i18n/navigation";
 import { Bidi } from "@/lib/bidi";
 import { getBiddingPhase } from "@/lib/bidding-calendar";
 
-export function BiddingProximityNudge({ now = new Date() }: { now?: Date }) {
+export function BiddingProximityNudge({
+  now = new Date(),
+  otherSemesterLabel,
+  onSwitchToOther,
+}: {
+  now?: Date;
+  /** שם הסמסטר השני של אותה שנה, לתווית הכפתור. */
+  otherSemesterLabel?: string;
+  /** מעבר לסמסטר השני **בתוך הלוח**, בלי לעזוב אותו. */
+  onSwitchToOther?: () => void;
+}) {
   const isHe = useLocale() === "he";
   const phase = getBiddingPhase(now);
   const Arrow = isHe ? ArrowLeft : ArrowRight;
@@ -73,23 +82,28 @@ export function BiddingProximityNudge({ now = new Date() }: { now?: Date }) {
               : "PPE registration runs through several departments, and some of them register for a whole year rather than a semester — meaning semester B courses are chosen now. Worth planning both semesters before it opens, not only the near one."}
           </p>
 
-          {/* #17. This pointed at /planner, which for a student with nothing
-              saved renders the onboarding welcome copy and a single "go home"
-              button — exactly the dead end in Ariel's screenshot. The screen
-              that answers "the round opens in N days" is /bidding: both
-              semesters, the real dates, and a list to copy into the TAU system.
+          {/* אריאל, 3.9, אחרי שעבר את הזרימה כמשתמש:
+              *"כשבאמצע התכנון עברתי לאיזה לחצן ששמת של תכנון בידינג ואז חזרתי
+              — זה מחק לי את מה שהיה כבר לפני על בסיס הסילבוס"*, ואחר כך
+              *"ובכללי אין סיבה לאיזה לחצן צדדי"*.
 
-              Kept as a link and not a button: this sits inside the semester
-              board, whose unsaved selection lives in React state until Finish
-              writes it. Leaving mid-edit is the student's call to make
-              deliberately, so the label says where it goes. */}
-          <Link
-            href="/bidding"
-            className="mt-2.5 inline-flex items-center gap-1.5 text-xs font-semibold text-accent-brand hover:underline"
-          >
-            {isHe ? "למסך הבידינג — התאריכים ושני הסמסטרים" : "To the bidding screen — dates and both semesters"}
-            <Arrow className="size-3.5" />
-          </Link>
+              הוא צודק בשני חלקי המשפט. זה היה `<Link href="/bidding">` בתוך
+              לוח שהבחירה שלו חיה ב-React state עד "סיימתי" — כלומר קליק אחד
+              על עצה טובה מחק תכנון שלם. וההערה עצמה מיותרת ככפתור: היא
+              ממליצה לתכנן את שני הסמסטרים, והלוח **הוא** המקום שבו עושים
+              את זה.
+
+              אז הקישור הפך לכפתור שמבצע את ההמלצה במקום, בלי לעזוב. */}
+          {onSwitchToOther && otherSemesterLabel && (
+            <button
+              type="button"
+              onClick={onSwitchToOther}
+              className="mt-2.5 inline-flex items-center gap-1.5 rounded-lg border border-accent-brand/40 px-2.5 py-1.5 text-xs font-semibold text-accent-brand transition-colors hover:bg-accent-brand/10"
+            >
+              {isHe ? `לתכנן גם את ${otherSemesterLabel}` : `Plan ${otherSemesterLabel} too`}
+              <Arrow className="size-3.5" />
+            </button>
+          )}
         </div>
       </div>
     </div>

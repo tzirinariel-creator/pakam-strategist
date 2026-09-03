@@ -1,6 +1,6 @@
 /** @vitest-environment jsdom */
 import { describe, it, expect, vi, afterEach } from "vitest";
-import { render, screen, cleanup } from "@testing-library/react";
+import { render, screen, cleanup, fireEvent } from "@testing-library/react";
 import { BiddingProximityNudge } from "../bidding-proximity-nudge";
 
 vi.mock("next-intl", () => ({ useLocale: () => "he" }));
@@ -19,19 +19,41 @@ describe("BiddingProximityNudge", () => {
     expect(screen.getByText(/הבידינג נפתח בעוד/)).toBeTruthy();
   });
 
-  it("points at the screen that answers the countdown it just printed", () => {
-    // This asserted `/planner`, and that was the defect (#17). Ariel clicked
-    // this very headline and landed on /planner's zero-course branch — the
-    // onboarding welcome copy and a single "לדף הבית" button: "וגם תכלס זה לא
-    // באמת עובד ואין איזה מסך ייעודי וזה גרוע".
-    //
-    // A green test held it there, because it asserted the DESTINATION rather
-    // than the promise. A card headlined "הבידינג נפתח בעוד N ימים" owes the
-    // student the screen about the round — the dates and both semesters — not
-    // a planner that may greet them as though they had never signed up.
+  // 3.9 — הבדיקה הזאת קיבעה `href="/bidding"`, וזה היה הפגם השני של אותו
+  // כרטיס. אריאל עבר את הזרימה כמשתמש וכתב: *"כשבאמצע התכנון עברתי לאיזה
+  // לחצן ששמת של תכנון בידינג ואז חזרתי — זה מחק לי את מה שהיה כבר לפני על
+  // בסיס הסילבוס"*, ואחר כך *"ובכללי אין סיבה לאיזה לחצן צדדי"*.
+  //
+  // הכרטיס יושב בתוך לוח שהבחירה שלו חיה ב-React state עד "סיימתי". קישור
+  // שיוצא מהמסך הוא מחיקה בקליק אחד. והעצה עצמה — "תכננו את שני הסמסטרים" —
+  // היא בדיוק מה שהלוח יודע לעשות בעצמו.
+  //
+  // אז הבדיקה מקבעת עכשיו את ההבטחה ולא את היעד: הכרטיס **לא מנווט**, והוא
+  // מבצע את ההמלצה במקום.
+  it("לא מנווט לשום מקום — יציאה מהלוח מוחקת את הבחירה", () => {
     render(<BiddingProximityNudge now={new Date("2026-08-21T09:00:00+03:00")} />);
-    const link = screen.getByRole("link");
-    expect(link.getAttribute("href")).toBe("/bidding");
+    expect(screen.queryByRole("link")).toBeNull();
+  });
+
+  it("מבצע את ההמלצה בתוך הלוח: מעבר לסמסטר השני", () => {
+    const onSwitchToOther = vi.fn();
+    render(
+      <BiddingProximityNudge
+        now={new Date("2026-08-21T09:00:00+03:00")}
+        otherSemesterLabel="סמסטר ב׳"
+        onSwitchToOther={onSwitchToOther}
+      />,
+    );
+    const button = screen.getByRole("button", { name: /סמסטר ב׳/ });
+    fireEvent.click(button);
+    expect(onSwitchToOther).toHaveBeenCalledTimes(1);
+    // ועדיין לא ניווט.
+    expect(screen.queryByRole("link")).toBeNull();
+  });
+
+  it("בלי callback אין כפתור — לא מציעים פעולה שאין לה מימוש", () => {
+    render(<BiddingProximityNudge now={new Date("2026-08-21T09:00:00+03:00")} />);
+    expect(screen.queryByRole("button")).toBeNull();
   });
 
   it("says nothing once bidding is over", () => {
