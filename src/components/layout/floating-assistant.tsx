@@ -890,6 +890,7 @@ export function FloatingAssistant() {
       {/* FAB — sits above the mobile bottom-nav; mirrors to the inline-end. */}
       {!open && (
         <button
+          data-print-hide
           ref={fabRef}
           type="button"
           data-tour="king"

@@ -1033,3 +1033,64 @@ h4, h5, h6 {
     color: color-mix(in srgb, var(--foreground) 85%, transparent);
   }
 }
+
+/* =========================================
+   הדפסה — הדף, לא האפליקציה
+   =========================================
+   אריאל, 3.9 (מוורקפלו הכפתורים): תפריט הייצוא בלוח הבחינות מציע "הדפסה",
+   וזה קורא ל-`window.print()`. בלי גיליון הדפסה, מה שיוצא מהמדפסת הוא כל
+   הממשק: הסיידבר הקבוע, שורת הבאנר, הניווט התחתון בטלפון והכפתור הצף של
+   היועץ — כולם `position: fixed`, כלומר מוטבעים מעל התוכן בכל עמוד. הטבלה
+   עצמה יוצאת מוסטת וחתוכה. סטודנט שמדפיס לוח בחינות כדי לתלות אותו מעל
+   השולחן מקבל דף לא שמיש.
+
+   העיקרון: להדפסה נשאר מה שאדם ביקש להחזיק בידו. הכרום, שהוא כלי־ניווט,
+   אינו זה. `!important` כאן במקום ב-`hidden` של Tailwind, כי מדובר בביטול
+   של `position: fixed` שנקבע ב-utility. */
+@media print {
+  /* כל מה שצף — יורד. */
+  aside,
+  nav,
+  [data-print-hide],
+  [data-tour="floating-assistant"] {
+    display: none !important;
+  }
+
+  /* הסיידבר דוחף את התוכן פנימה ב-margin. בהדפסה אין סיידבר. */
+  main,
+  body > div,
+  [class*="ms-16"],
+  [class*="ms-64"] {
+    margin-inline-start: 0 !important;
+    margin-inline-end: 0 !important;
+  }
+
+  /* גלילה פנימית חותכת טבלאות בהדפסה — הן צריכות לזרום על פני עמודים. */
+  [class*="overflow-y-auto"],
+  [class*="overflow-x-auto"],
+  [class*="overflow-auto"] {
+    overflow: visible !important;
+    max-height: none !important;
+  }
+
+  /* רקעים כהים ושקיפויות בזבוז דיו, ולפעמים טקסט לבן על לבן. */
+  * {
+    background: transparent !important;
+    box-shadow: none !important;
+    color: #111 !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  /* שורה של מבחן לא נחצית בין שני עמודים. */
+  tr,
+  li,
+  [class*="data-card"] {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+
+  @page {
+    margin: 12mm;
+  }
+}

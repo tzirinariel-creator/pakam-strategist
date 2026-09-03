@@ -85,6 +85,20 @@ export function consumeSharedPlanReturn(): string | null {
 const SEM_CHAR: Record<SharedCourse["s"], string> = { FALL: "F", SPRING: "S", SUMMER: "U" };
 const CHAR_SEM: Record<string, SharedCourse["s"]> = { F: "FALL", S: "SPRING", U: "SUMMER" };
 
+/**
+ * הקורסים שלא ייכנסו לקישור — וכמה מהם.
+ *
+ * `encodePlan` מסנן קוד שאינו בתבנית `NNNN-NNNN`, כלומר קורס שהסטודנט
+ * הוסיף בעצמו (קורס מותאם בלוח, או שורה שסורק הציונים לא הצליח להצמיד)
+ * **נופל בשקט**. החבר שפותח את הקישור מקבל תוכנית חסרה, והמונה בכותרת
+ * שלו סופר רק את מה ששרד — כלומר גם הוא לא יודע שמשהו חסר.
+ *
+ * מיוצא כדי שהדיאלוג יוכל לומר את זה לפני שהקישור עוזב את המכשיר.
+ */
+export function unshareableCourses(courses: SharedCourse[]): SharedCourse[] {
+  return courses.filter((c) => !(typeof c?.c === "string" && /^\d{4}-?\d{4}$/.test(c.c)));
+}
+
 export function encodePlan(courses: SharedCourse[]): string {
   const packed =
     "2|" +

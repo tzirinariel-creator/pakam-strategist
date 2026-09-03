@@ -12,7 +12,7 @@ import {
   DialogTitle,
   DialogDescription,
 } from "@/components/ui/dialog";
-import { encodePlan, type SharedCourse } from "@/lib/plan-share";
+import { encodePlan, unshareableCourses, type SharedCourse } from "@/lib/plan-share";
 
 /**
  * Share dialog (#3/#16) — replaces the old silent copy-to-clipboard. Shows the
@@ -34,6 +34,11 @@ export function SharePlanDialog({
   detail?: PlanShareCourse[];
 }) {
   const isHe = useLocale() === "he";
+
+  // הקורסים שלא ייכנסו לקישור. `encodePlan` מסנן כל קוד שאינו NNNN-NNNN,
+  // כלומר קורס שהסטודנט הוסיף בעצמו נופל **בשקט** — והחבר שפותח את הקישור
+  // מקבל תוכנית חסרה בלי שאף אחד מהשניים יודע. נאמר כאן, לפני השליחה.
+  const dropped = unshareableCourses(courses);
 
   const shareUrl = () =>
     `${window.location.origin}/${isHe ? "he" : "en"}/shared-plan?d=${encodePlan(courses)}`;
@@ -71,6 +76,29 @@ export function SharePlanDialog({
         <p className="text-xs text-foreground/60">
           {isHe ? "בלי ציונים, בלי פרטים אישיים." : "No grades, no personal details."}
         </p>
+        {dropped.length > 0 && (
+          <div className="rounded-lg border border-amber-500/35 bg-amber-500/[0.06] p-2.5 text-xs leading-relaxed text-foreground/75">
+            {isHe ? (
+              <>
+                <b className="font-semibold">
+                  {dropped.length === 1
+                    ? "קורס אחד לא ייכנס לקישור"
+                    : `${dropped.length} קורסים לא ייכנסו לקישור`}
+                </b>{" "}
+                — אלה קורסים שהוספתם בעצמכם, ואין להם קוד מהקטלוג שהקישור יכול
+                לשאת. התוכנית שלכם לא נוגעת; רק החבר שיפתח לא יראה אותם.
+              </>
+            ) : (
+              <>
+                <b className="font-semibold">
+                  {dropped.length === 1 ? "One course won't travel" : `${dropped.length} courses won't travel`}
+                </b>{" "}
+                — these are courses you added yourself, with no catalog code for the
+                link to carry. Your plan is untouched; only your friend won't see them.
+              </>
+            )}
+          </div>
+        )}
         <div className="flex flex-col gap-2">
           <button
             type="button"

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { serverSaid } from "@/lib/server-said";
 import { useLocale } from "next-intl";
 import { toast } from "sonner";
@@ -78,6 +78,22 @@ export function CourseDetailModal({
   const scheduleOutline = courseScheduleOutline(sessions);
   const byCode = (code: string) => courses.find((c) => c.code === code) ?? null;
   const hasGrade = av.averageGrade != null || av.medianGrade != null || (av.failRate != null && av.failRate >= 1);
+
+  // =========================================
+  // "שאל את המלך על הקורס הזה" — מתוך חלון
+  // =========================================
+  // הכפתור שולח `pk:ask`, והיועץ נפתח ב-z-[66] כלומר **מעל** החלון. אבל
+  // ה-Dialog נשאר פתוח, ו-Radix לוכד בו את הפוקוס — אז השדה של היועץ גלוי
+  // ואי־אפשר להקליד בו. הסטודנט רואה את השאלה שלו ממתינה ולא מצליח לשלוח.
+  //
+  // החלון נסגר מעצמו ברגע שנשאלה שאלה. הוא סיים את תפקידו: הסטודנט עבר
+  // משאלה על הקורס לשיחה עליו.
+  useEffect(() => {
+    if (!course) return;
+    const onAsk = () => onClose();
+    window.addEventListener("pk:ask", onAsk as EventListener);
+    return () => window.removeEventListener("pk:ask", onAsk as EventListener);
+  }, [course, onClose]);
 
   return (
     <Dialog open={!!course} onOpenChange={(o) => !o && onClose()}>

@@ -40,6 +40,7 @@ import { Badge } from "@/components/ui/badge";
 import { StudySkyline } from "@/components/exam-planner/study-skyline";
 import { generateExamPlan, analyzeExamPeriod, type ExamInput } from "@/lib/exam-planner";
 import type { Semester } from "@/types/enums";
+import { QueryErrorState } from "@/components/shared/query-error";
 
 // ─── Types ───────────────────────────────────────────────────────────
 
@@ -107,7 +108,7 @@ export function ExamSchedule() {
 
   const [activeTab, setActiveTab] = useState<"list" | "gantt">("list");
   const [isExportingXlsx, setIsExportingXlsx] = useState(false);
-  const { data, isLoading, error } = api.schedule.getExamSchedule.useQuery();
+  const { data, isLoading, error, refetch } = api.schedule.getExamSchedule.useQuery();
   const profileQuery = api.user.getProfile.useQuery();
 
   // Group UPCOMING exams by date. The board previously listed every sitting and
@@ -316,10 +317,14 @@ export function ExamSchedule() {
   }
 
   if (error) {
+    // מצב השגיאה כאן היה המילה "שגיאה" ותו לא — בלי הסבר, בלי כפתור ניסיון
+    // חוזר, בלי קישור. המהלך היחיד שנשאר לסטודנט הוא החץ אחורה של הדפדפן.
     return (
-      <div className="flex min-h-[40vh] flex-col items-center justify-center gap-3">
-        <AlertTriangle className="size-8 text-status-red" />
-        <p className="text-sm text-muted-foreground">{tCommon("error")}</p>
+      <div className="mx-auto w-full max-w-3xl px-4 py-6">
+        <QueryErrorState
+          what={isRTL ? "לוח הבחינות שלכם" : "your exam schedule"}
+          onRetry={() => void refetch()}
+        />
       </div>
     );
   }
