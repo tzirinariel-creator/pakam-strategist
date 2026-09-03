@@ -220,12 +220,21 @@ export function CatalogContent() {
                 : "Average grade and difficulty — from the Arazim project (real grade statistics collected from past years), not an official university figure"}
             </p>
           )}
-          <a
-            href={`mailto:${CONTACT_EMAIL}?subject=${encodeURIComponent(isHe ? "קורס חסר בקטלוג פכמון" : "Missing course in the Pakamon catalog")}`}
-            className="w-fit text-foreground/70 underline underline-offset-2 transition-colors hover:text-foreground/90"
-          >
-            {isHe ? "לא מצאתם קורס? דווחו לנו" : "Missing a course? Let us know"}
-          </a>
+          {/* אריאל, #50: "לוחצים על דיווח על בעיה או רעיון וזה לא עושה כלום.
+              בוא פשוט נשאיר את המייל". בהגדרות זה תוקן; כאן זה נשאר —
+              mailto חשוף שהתווית שלו אפילו לא רומזת שמדובר במייל, והכתובת
+              עצמה לא מופיעה בשום מקום על המסך. במחשב בלי לקוח דואר מוגדר
+              לא קורה כלום: אין חלון, אין שגיאה, אין כתובת להעתיק.
+              אז אותו פתרון: הכתובת עצמה, גלויה. */}
+          <p className="w-fit text-foreground/70">
+            {isHe ? "לא מצאתם קורס? כתבו לי — " : "Missing a course? Write to me — "}
+            <a
+              href={`mailto:${CONTACT_EMAIL}?subject=${encodeURIComponent(isHe ? "קורס חסר בקטלוג פכמון" : "Missing course in the Pakamon catalog")}`}
+              className="font-mono underline underline-offset-2 transition-colors hover:text-foreground/90"
+            >
+              <bdi dir="ltr">{CONTACT_EMAIL}</bdi>
+            </a>
+          </p>
         </div>
       )}
     </div>

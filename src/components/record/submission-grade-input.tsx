@@ -45,6 +45,7 @@ export function SubmissionGradeInput({
   courseName: string;
 }) {
   const [value, setValue] = useState(initialGrade == null ? "" : String(initialGrade));
+  const [invalid, setInvalid] = useState(false);
   // A seminar defaults to a paper — the far commoner case — but the student can
   // say referat, and the two carry different weights (18% vs 4%), so guessing
   // silently would put the mark in the wrong bucket.
@@ -60,13 +61,24 @@ export function SubmissionGradeInput({
   }, [savedSignal]);
 
   const commit = (nextKind: SubmissionKind = kind) => {
+
     const trimmed = value.trim();
     if (trimmed === "") {
       if (initialGrade != null) onSave(userCourseId, null, nextKind);
       return;
     }
-    const n = Number(trimmed);
-    if (!Number.isFinite(n) || n < 0 || n > 100) return;
+    // "95%" או "955" — `return` שקט. השדה המשיך להציג בדיוק את מה שהוקלד,
+    // בלי וי ובלי שגיאה, והציון לא נשמר. ציון העבודה הסמינריונית הוא 18%
+    // מציון התואר, אז המסך המשיך לדווח ממוצע שמניח עבודה שלא נספרה.
+    // מספר שאפשר לחלץ ממנו ספרות — נחלץ. מה שלא — נאמר.
+    const digits = trimmed.replace(/[^\d.]/g, "");
+    const n = Number(digits);
+    if (digits === "" || !Number.isFinite(n) || n < 0 || n > 100) {
+      setInvalid(true);
+      return;
+    }
+    setInvalid(false);
+    setValue(String(n));
     onSave(userCourseId, n, nextKind);
   };
 
@@ -75,11 +87,20 @@ export function SubmissionGradeInput({
       <span className="text-[10px] text-foreground/60">
         {isHe ? "ציון העבודה" : "Paper grade"}
       </span>
+      {invalid && (
+        <span role="alert" className="order-last w-full text-[10px] text-status-red">
+          {isHe ? "ציון הוא מספר בין 0 ל-100" : "A grade is a number from 0 to 100"}
+        </span>
+      )}
 
       <input
         inputMode="numeric"
         value={value}
-        onChange={(e) => setValue(e.target.value)}
+        onChange={(e) => {
+          setValue(e.target.value);
+          if (invalid) setInvalid(false);
+        }}
+        aria-invalid={invalid}
         onBlur={() => commit()}
         onKeyDown={(e) => {
           if (e.key === "Enter") (e.target as HTMLInputElement).blur();

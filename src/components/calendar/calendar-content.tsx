@@ -386,12 +386,15 @@ export function CalendarContent() {
               {t("noScheduleDesc")}
             </p>
           </div>
-          <a
-            href={`/${locale}/planner`}
+          {/* <a> גולמי על מסלול פנימי = טעינת עמוד מלאה: מסך לבן, אימות
+              מחדש, וכל השאילתות נשלפות שוב. זה גם השורש של חוסם השקה קודם
+              בפרויקט הזה, שבו הראוטר נהרס והמתכנן נפתח על ברירות מחדל. */}
+          <Link
+            href="/planner"
             className="mt-2 inline-flex items-center gap-2 rounded-lg border border-foreground/20 bg-foreground/10 px-4 py-2 text-sm font-medium text-foreground/80 transition-colors hover:bg-foreground/15"
           >
             {t("goToPlanner")}
-          </a>
+          </Link>
         </div>
       </div>
     );

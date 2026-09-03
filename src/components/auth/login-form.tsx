@@ -168,13 +168,25 @@ export function LoginForm() {
   };
 
   const handleDemoLogin = async () => {
+    const isHe = locale === "he";
     setError(null);
     setDemoLoading(true);
     try {
       const res = await fetch("/api/auth/demo-login", { method: "POST" });
       if (!res.ok) {
-        const data = await res.json().catch(() => ({ error: "Demo login failed" }));
-        setError(data.error ?? t("unexpectedError"));
+        // כל מחרוזת שהראוט הזה יכול להחזיר היא אנגלית — "Too many requests",
+        // "Demo login is not configured", "Demo login failed" — והן הודפסו
+        // כמות שהן על מסך עברי, RTL, למי שרק רצה להציץ בלי להירשם.
+        // הסטטוס אומר את אותו הדבר בלי לדלוף אנגלית.
+        setError(
+          res.status === 429
+            ? isHe
+              ? "יותר מדי ניסיונות כרגע. נסו שוב בעוד רגע."
+              : "Too many attempts right now. Try again in a moment."
+            : isHe
+              ? "הדמו לא זמין כרגע. אפשר להירשם רגיל, וזה לוקח פחות מדקה."
+              : "The demo isn't available right now. Signing up takes under a minute.",
+        );
         return;
       }
       // Land on the dashboard (the "המצב שלי" wow screen) AND trigger the demo
