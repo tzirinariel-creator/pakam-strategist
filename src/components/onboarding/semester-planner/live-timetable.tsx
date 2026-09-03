@@ -80,6 +80,16 @@ interface LiveTimetableProps {
   /** Persists a group pick. Same signature as the sidebar selector, so both
    *  paths write to the exact same state. */
   onSelectSessionGroup?: (courseCode: string, sessionType: string, groupCode: string) => void;
+  /**
+   * לחיצה על בלוק בלוח מבקשת מההורה להראות את אפשרויות הקבוצה של הקורס
+   * **בפאנל הקבוע בצד**, במקום להקפיץ חלון מעל הלוח.
+   *
+   * אריאל, 3.9, מול ביד-איט: *"שהבחירה בין קבוצות נורא נוחה ומובנת מאליה
+   * וזה לא קופץ כזה."* חלון צף מעל לוח שעות מכסה בדיוק את הדבר שהסטודנט
+   * מנסה לראות — איך השבוע ייראה עם הקבוצה הזאת. פאנל בצד לא מכסה כלום.
+   * כשה-callback קיים, ה-popover אינו נטען בכלל.
+   */
+  onRequestGroupChoice?: (courseCode: string) => void;
 }
 
 /**
@@ -96,6 +106,7 @@ export function LiveTimetable({
   interactive,
   multiGroupCourseCodes,
   onSelectSessionGroup,
+  onRequestGroupChoice,
 }: LiveTimetableProps) {
   const t = useTranslations("onboarding");
   const locale = useLocale();
@@ -397,15 +408,20 @@ export function LiveTimetable({
         onPickGroup={
           pickingEnabled
             ? (courseCode, anchor) => {
-                const point = anchorPoint(anchor);
-                setPicker((prev) => ({
-                  courseCode,
-                  nonce: (prev?.nonce ?? 0) + 1,
-                  top: point?.top ?? 0,
-                  left: point?.left ?? 0,
-                  width: point?.width ?? 0,
-                  height: point?.height ?? 0,
-                }));
+                if (onRequestGroupChoice) {
+                  // הפאנל בצד. הלוח נשאר גלוי, וזה כל העניין.
+                  onRequestGroupChoice(courseCode);
+                } else {
+                  const point = anchorPoint(anchor);
+                  setPicker((prev) => ({
+                    courseCode,
+                    nonce: (prev?.nonce ?? 0) + 1,
+                    top: point?.top ?? 0,
+                    left: point?.left ?? 0,
+                    width: point?.width ?? 0,
+                    height: point?.height ?? 0,
+                  }));
+                }
                 // First real interaction retires the P1′ hint permanently.
                 try {
                   localStorage.setItem("pk-grid-pick-hint", "done");
@@ -424,7 +440,7 @@ export function LiveTimetable({
           hidden trigger. Anchored to a centred point over the grid. Only rendered
           in interactive mode with a persist handler, so the read-only calendar
           path never mounts any of this. */}
-      {interactive && onSelectSessionGroup && pickerCourse && (
+      {interactive && !onRequestGroupChoice && onSelectSessionGroup && pickerCourse && (
         <GroupPickerPopover
           key={`${picker!.courseCode}-${picker!.nonce}`}
           course={pickerCourse}

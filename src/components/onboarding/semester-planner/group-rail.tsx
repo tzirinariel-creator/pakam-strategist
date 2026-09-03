@@ -27,7 +27,7 @@
 // instant — so the "preview before you commit" affordance previewed and
 // committed at once.
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useLocale } from "next-intl";
 import { CheckCircle2, ChevronDown, Users } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -56,6 +56,16 @@ interface GroupRailProps {
   currentSemester: "FALL" | "SPRING";
   sessionGroupSelections: SessionGroupSelections;
   onSelectSessionGroup: (courseCode: string, sessionType: string, groupCode: string) => void;
+  /**
+   * הקורס שהסטודנט הרגע לחץ עליו **על הלוח**. הכרטיס שלו נפתח ונגלל לתצוגה.
+   *
+   * אריאל, 3.9, מול ביד-איט: *"שהבחירה בין קבוצות נורא נוחה ומובנת מאליה
+   * וזה לא קופץ כזה — חייב לעשות את זה הרבה יותר ככה אחרת לאנשים לא יהיה
+   * נוח."* לחיצה על בלוק בלוח פתחה `GroupPickerPopover` — חלון צף מעל
+   * הלוח. בביד-איט הבחירה יושבת בפאנל קבוע בצד, והלוח משתנה לידה.
+   * עכשיו לחיצה על בלוק פונה לפאנל הזה במקום להקפיץ חלון.
+   */
+  focusCourseCode?: string | null;
 }
 
 interface CourseChoices {
@@ -80,8 +90,10 @@ export function GroupRail({
   currentSemester,
   sessionGroupSelections,
   onSelectSessionGroup,
+  focusCourseCode,
 }: GroupRailProps) {
   const isHe = useLocale() === "he";
+  const rowRefs = useRef<Record<string, HTMLDivElement | null>>({});
 
   // Sessions already fixed on the grid, per course — the clash baseline. Built
   // from the grid courses so what's flagged matches what's drawn.
@@ -140,6 +152,15 @@ export function GroupRail({
   const toggle = (code: string, isOpen: boolean) =>
     setOverrides((prev) => ({ ...prev, [code]: !isOpen }));
 
+  // לחיצה על בלוק בלוח: פתיחת הכרטיס של אותו קורס וגלילה אליו. `block:
+  // "nearest"` ולא `"center"` — הפאנל דביק עם גלילה משלו, ומרכוז היה מזיז
+  // את הלוח מתחת לאצבע של הסטודנט בדיוק ברגע שהוא מסתכל עליו.
+  useEffect(() => {
+    if (!focusCourseCode) return;
+    setOverrides((prev) => ({ ...prev, [focusCourseCode]: true }));
+    rowRefs.current[focusCourseCode]?.scrollIntoView({ block: "nearest", behavior: "smooth" });
+  }, [focusCourseCode]);
+
   if (perCourse.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center gap-2 py-10 text-center">
@@ -163,9 +184,13 @@ export function GroupRail({
         return (
           <div
             key={course.code}
+            ref={(el) => {
+              rowRefs.current[course.code] = el;
+            }}
             className={cn(
-              "rounded-xl border bg-card/30",
+              "rounded-xl border bg-card/30 transition-shadow",
               unchosen > 0 ? "border-amber-500/40" : "border-border/50",
+              focusCourseCode === course.code && "ring-2 ring-accent-brand/50",
             )}
           >
             <button

@@ -238,6 +238,20 @@ export function SemesterPlanner({
   // picked a tab, so we open on whichever is the real work right now (pure
   // derivation below — no effect ever writes this, so it can't desync).
   const [railTabPref, setRailTabPref] = useState<"courses" | "groups" | null>(null);
+  /**
+   * הקורס שהסטודנט לחץ עליו על הלוח, כדי שהפאנל בצד יפתח אותו.
+   *
+   * אריאל, 3.9, מול ביד-איט: *"שהבחירה בין קבוצות נורא נוחה ומובנת מאליה
+   * וזה לא קופץ כזה."* קודם זה היה חלון צף מעל הלוח — כלומר הוא כיסה
+   * בדיוק את מה שהסטודנט מנסה לראות: איך השבוע ייראה עם הקבוצה הזאת.
+   */
+  const [gridFocusCourse, setGridFocusCourse] = useState<string | null>(null);
+  const focusGroupChoice = useCallback((courseCode: string) => {
+    setRailTabPref("groups");
+    // מפתח חדש בכל לחיצה, כך שלחיצה חוזרת על אותו קורס גם גוללת אליו שוב.
+    setGridFocusCourse(null);
+    requestAnimationFrame(() => setGridFocusCourse(courseCode));
+  }, []);
   // Discipline overrides: courseId → discipline key. Seeded from the SAVED plan
   // so an edit-and-resave can't wipe an attribution the student already made
   // (#8) — these are now persisted, not a local colouring trick.
@@ -994,6 +1008,7 @@ export function SemesterPlanner({
             interactive
             multiGroupCourseCodes={multiGroupCourseCodes}
             onSelectSessionGroup={handleSelectSessionGroup}
+            onRequestGroupChoice={focusGroupChoice}
           />
         </div>
       </div>
@@ -1290,6 +1305,7 @@ export function SemesterPlanner({
                   currentSemester={currentSemester}
                   sessionGroupSelections={sessionGroupSelections}
                   onSelectSessionGroup={handleSelectSessionGroup}
+                  focusCourseCode={gridFocusCourse}
                 />
               )}
             </div>
@@ -1360,6 +1376,7 @@ export function SemesterPlanner({
                 interactive
                 multiGroupCourseCodes={multiGroupCourseCodes}
                 onSelectSessionGroup={handleSelectSessionGroup}
+                onRequestGroupChoice={focusGroupChoice}
               />
               {allCurrentCourses.length === 0 && (
                 <div className="flex flex-col items-center justify-center py-8 text-center">
