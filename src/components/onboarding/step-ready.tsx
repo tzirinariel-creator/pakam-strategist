@@ -535,7 +535,24 @@ export function StepReady({ data, plannedSemesters, completedCourses, allCourses
     // healthy save showed "saving…", "taking longer", and an escape hatch all at
     // once — three messages that contradict each other. This is a stuck-save
     // rescue, not a progress hint; it should be rare.
-    const timer = setTimeout(() => setSavingTooLong(true), 20000);
+    //
+    // L1 (אריאל, 4.9): *"היה מסך טעינה בהתחלה שלא עבד לי איזה 3 פעמים אחרי
+    // ההרשמה"*. 20 שניות עדיין היו בתוך ההתפלגות התקינה. מדדתי את השמירה
+    // בנתיב הכבד בפרודקשן (גיליון עם 11 קורסים) בארבע הרצות:
+    // **16.3s · 14.2s · 31.1s** מהלחיצה ועד "הכול מוכן". כלומר הסף נדלק על
+    // שמירה בריאה, ואמר לסטודנט "לוקח קצת יותר מהרגיל" בזמן שהיא התנהלה
+    // בדיוק כרגיל — האפליקציה הודיעה על עצמה שהיא לא עובדת.
+    //
+    // תקציב הזמן של השמירה עצמה הוא 80 שניות (15s פרופיל ‖ מילואים + 20s
+    // היסטוריה + 20s תוכנית + 25s קורסים מותאמים); אחריו היא נכשלת ומציגה
+    // מצב שגיאה אמיתי. 40 שניות יושבות מעבר לגרועה שבהרצות שמדדתי ועדיין
+    // בחצי הראשון של התקציב, אז מי שבאמת תקוע מקבל דלת — ומי שלא, לא
+    // מקבל אזהרה על כלום.
+    //
+    // מה שהמדידה **לא** פותרת: השמירה עצמה עוברת ארבע נסיעות שרת טוריות,
+    // וכל אחת מהן משלמת פרנקפורט↔סידני (`vercel.json` = fra1, המסד
+    // ap-southeast-2). זו שאלת תשתית לאריאל, לא החלטה שלי — ראה חלק י׳.
+    const timer = setTimeout(() => setSavingTooLong(true), 40000);
     return () => clearTimeout(timer);
   }, [isSaving]);
 
