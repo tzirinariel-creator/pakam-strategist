@@ -502,6 +502,21 @@
    "shot": "015-P-y1-390-המחזור.png",
    "chars": 1145,
    "done": true
+  },
+  "/he/mentors": {
+   "label": "חונכים",
+   "actions": [
+    {
+     "name": "הזמנה",
+     "ok": true,
+     "why": "מושבת כצפוי"
+    }
+   ],
+   "issues": [],
+   "at": "2026-09-04T19:00:18.273Z",
+   "shot": "016-P-y1-390-חונכים.png",
+   "chars": 408,
+   "done": true
   }
  }
 }
