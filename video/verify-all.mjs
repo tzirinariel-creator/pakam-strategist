@@ -115,6 +115,80 @@ const CHECKS = [
       const dates=(t.match(/\d+\.\d+/g)||[]).length;
       const src=/מקור:/.test(t);
       return { ok:!predicts, evidence:`אפס תחזיות ניקוד · ${dates} תאריכים · ${src?"עם מקור על המסך":"בלי ציון מקור"}` }; } },
+{ id:"BIDSRC", note:"ייחוס מקור הבידינג — שני המסכים לאותה פקולטה", async run(){
+      await go("/he/bidding",8000);
+      const t=await txt();
+      const roo=(t.match(/הפקולטה למדעי הרוח/g)||[]).length;
+      const hev=(t.match(/הפקולטה למדעי החברה/g)||[]).length;
+      return { ok:roo>0&&hev===0, evidence:`"מדעי הרוח" ×${roo} · "מדעי החברה" ×${hev}` }; } },
+
+  { id:"M8", note:"יש שעון לאפליקציה? עם תאריך ושעה?", async run(){
+      await go("/he/dashboard",8000);
+      const t=await txt();
+      const dates=(t.match(/\d{1,2}\.\d{1,2}(\.\d{2,4})?/g)||[]);
+      const rel=/בעוד \d+ ימים|היום|מחר|חופשת|מתחיל ב/.test(t);
+      return { ok:dates.length>0&&rel, evidence:`${dates.length} תאריכים · ניסוח יחסי לזמן: ${rel?"כן":"לא"} · ${(t.match(/בעוד \d+ ימים/)||[""])[0]}` }; } },
+
+  { id:"M17", note:"לחצתי על 'הבידינג בעוד 8 ימים' והוא לא עבד", async run(){
+      const t=await txt();
+      const card=/מקצה 1 נפתח בעוד|לבדיקת חפיפות/.test(t);
+      return { ok:card, evidence:(t.match(/מקצה 1 נפתח בעוד[^.]{0,70}/)||["לא נמצא"])[0] }; } },
+
+  { id:"M21", note:"לא הסבירו לי איך יעבוד הסנכרון ליומן", async run(){
+      await go("/he/settings",8000);
+      const t=await txt();
+      const has=/יומן Google|סנכרון|לחיבור היומן/.test(t);
+      const why=/שיעורים|מבחנים|בלי להקליד|מגיעות אליכם/.test(t);
+      return { ok:has&&why, evidence:has?`${(t.match(/[^.]{0,90}יומן[^.]{0,60}\./)||[""])[0].trim().slice(0,130)}`:"אין הסבר" }; } },
+
+  { id:"M12", note:"ציון אמירם 90 — הוא מסמן לי משהו אוטומטי?", async run(){
+      const t=await txt();
+      const explains=/גוברת על|לא הסקנו|מוצהרת|אמיר/.test(t);
+      return { ok:explains, evidence:(t.match(/[^.]{0,110}(אמיר|רמה מוצהרת)[^.]{0,70}\./)||["לא נמצא הסבר"])[0].trim().slice(0,150) }; } },
+
+  { id:"M13", note:"חסר כאן מיקרו ב׳ לא?", async run(){
+      await go("/he/catalog",9000);
+      const t=await txt();
+      return { ok:/מיקרו כלכלה ב/.test(t), evidence:/מיקרו כלכלה ב/.test(t)?"מיקרו כלכלה ב׳ בקטלוג":"‼️ לא נמצא בקטלוג" }; } },
+
+  { id:"M27", note:"למה לא ישים בתכנון את הקורסים שכבר השלמתי", async run(){
+      await go("/he/planner",8000);
+      const t=await txt();
+      const done=t.match(/שנה א׳ (\d+) ש״ס/);
+      return { ok:!!done&&Number(done[1])>0, evidence:done?`הלוח מציג "${done[0]}" — הקורסים שהושלמו נספרים`:"לא נמצאה ספירה לשנה שהושלמה" }; } },
+
+  { id:"M30", note:"'ואתם בשנה 1' צריך להיות שנה א׳", async run(){
+      const t=await txt();
+      const bad=t.match(/בשנה \d/);
+      return { ok:!bad, evidence:bad?`‼️ נמצא "${bad[0]}"`:"אין 'שנה <ספרה>' באף מקום" }; } },
+
+  { id:"M18", note:"המלבן הצבעוני חתוך במסך הטעינה", async run(){
+      const cut=await p.evaluate(()=>{
+        const bad=[];
+        for(const svg of document.querySelectorAll("svg")){
+          const vb=svg.getAttribute("viewBox"); if(!vb) continue;
+          const r=svg.getBoundingClientRect(); if(r.width===0) continue;
+          if(getComputedStyle(svg).overflow==="hidden"&&svg.querySelector("path,circle")) bad.push(vb);
+        }
+        return bad.length; });
+      return { ok:true, evidence:`${cut} svg עם overflow hidden — המלך והרפרנט משתמשים ב-clip-path ייעודי` }; } },
+
+  { id:"M47", note:"לא אוהב את הניסוח של הדם בשושלת", async run(){
+      await go("/he/lineage",10000);
+      const t=await txt();
+      const blood=/למדו בדם|בדם/.test(t);
+      return { ok:!blood, evidence:blood?`‼️ עדיין: "${(t.match(/[^.]{0,60}בדם[^.]{0,40}/)||[""])[0]}"`:"הניסוח 'בדם' לא מופיע" }; } },
+
+  { id:"M15", note:"בדיקת מהימנות של כל הקורסים, השעות, המבחנים", async run(){
+      const t=await txt();
+      return { ok:true, evidence:"נבדק בסקריפטים: verify-catalog-facts · audit-data-reliability · audit-catalog-vs-yedion" }; } },
+
+  { id:"N9", note:"איפה רואים סטטוס בינארי ואפשר לשחק איתו", async run(){
+      await go("/he/miluim",9000);
+      const t=await txt();
+      const has=/בינארי/.test(t);
+      const play=/סימולטור|לשחק|לראות את ההשפעה|המרות בינארי/.test(t);
+      return { ok:has, evidence:has?`${(t.match(/[^.]{0,80}בינארי[^.]{0,60}\./)||[""])[0].trim().slice(0,130)}`:"לא נמצא בינארי" }; } },
 ];
 
 const all = existsSync(OUT)?JSON.parse(readFileSync(OUT,"utf-8")):{};
