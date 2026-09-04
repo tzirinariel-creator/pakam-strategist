@@ -65,6 +65,36 @@ export function StepReady({ data, plannedSemesters, completedCourses, allCourses
   const upsertMiluimSemester = api.user.upsertMiluimSemester.useMutation();
   const utils = api.useUtils();
 
+  // ========================================================================
+  // L3 (אריאל, 4.9): "כשסיימתי ושמרתי זה כתב לי שלא נשמרו קורסים — עד
+  // שעשיתי רענן וזה כן הראה ששמר"
+  // ========================================================================
+  // שוחזר ונמדד בנתיב הכבד (11 קורסים מגיליון). הרצף, מרגע הלחיצה על
+  // "סיום ושמירה", בלי שנגעתי במסך:
+  //
+  //   14.0s  getCredits + getGraduationScore + getProfile מתבטלים ונטענים
+  //   14.2s  "הכול מוכן" מופיע
+  //   17.8s  הפינאלה נעלמת מעצמה ובמקומה דף הבית שאומר
+  //          "אין קורסים בתוכנית שלכם — התכנון לא נשמר"
+  //          בזמן שהווידג'ט שלידו אומר "21 מתוכננים" ו-39 ש״ס.
+  //   plan.getUserPlan נטען מחדש 0 פעמים בכל הרצף.
+  //
+  // ההערה בשלב 3 למטה מגינה על הפינאלה בכך שהיא לא מבטלת את getUserPlan —
+  // אבל `getProfile` מפיל אותה בדיוק באותה דרך: `dashboard-content` גוזר
+  // ממנו את `isGenuinelyNew` (startYear == null), וברגע שהפרופיל השמור חוזר
+  // עם startYear התנאי מתהפך, שער האשף נסגר, והפינאלה נעקרת — עם קאש תוכנית
+  // ריק ומיושן שאיש לא ריענן. זה גם הסבר ל"התוכנית שלי נמחקה": הנתונים היו
+  // שם כל הזמן.
+  //
+  // לכן ביטול הקאש של הפרופיל עובר לרגע שבו הסטודנט **עוזב** את הפינאלה.
+  // לא נגעתי ב-`isGenuinelyNew` עצמו — ההערה שמעליו מתעדת שהוא מה שמחק את
+  // התכנון של אריאל ב-2.9.
+  const leave = (href: string) => {
+    utils.user.getProfile.invalidate();
+    utils.plan.getUserPlan.invalidate();
+    router.push(href);
+  };
+
   // Build the flat course list from planned semesters
   const courseMap = new Map(allCourses.map((c) => [c.id, c]));
   // Codes already captured as completed in the history step — these are saved
@@ -400,7 +430,8 @@ export function StepReady({ data, plannedSemesters, completedCourses, allCourses
       // the celebration.
       utils.plan.getCredits.invalidate();
       utils.plan.getGraduationScore.invalidate();
-      utils.user.getProfile.invalidate();
+      // getProfile עבר ל-`leave()` למעלה: ביטול שלו כאן מפיל את הפינאלה
+      // דרך `isGenuinelyNew`, בדיוק כמו getUserPlan (L3, 4.9).
 
       setHasSaved(true);
 
@@ -543,7 +574,7 @@ export function StepReady({ data, plannedSemesters, completedCourses, allCourses
               // onboarding, so the welcome tour still fires (#18: a slow save
               // + this escape used to silently kill the tour).
               setIsSaving(false);
-              router.push("/dashboard?from=onboarding");
+              leave("/dashboard?from=onboarding");
             }}
             className="animate-fade-in rounded-lg border border-foreground/20 px-5 py-2 text-sm font-medium text-foreground/70 transition-colors hover:bg-foreground/5"
           >
@@ -829,7 +860,7 @@ export function StepReady({ data, plannedSemesters, completedCourses, allCourses
       {hasSaved && (
         <div className="animate-stagger-4 mt-4 flex w-full max-w-sm flex-col gap-3">
           <button
-            onClick={() => router.push("/dashboard?from=onboarding")}
+            onClick={() => leave("/dashboard?from=onboarding")}
             className="flex items-center justify-center gap-2 rounded-xl bg-foreground px-6 py-3.5 font-bold text-background shadow-sm transition-all hover:scale-[1.02] press-scale"
           >
             <Calendar className="h-5 w-5" />
@@ -850,7 +881,7 @@ export function StepReady({ data, plannedSemesters, completedCourses, allCourses
               הדלת הזאת מובילה לשם ואומרת כמה ימים נשארו. */}
           {biddingPhase.kind === "before" && (biddingPhase.daysUntil ?? 99) <= 30 ? (
             <button
-              onClick={() => router.push("/bidding")}
+              onClick={() => leave("/bidding")}
               className="flex items-center justify-center gap-2 rounded-xl border-2 border-accent-brand/40 px-6 py-3 text-sm font-semibold text-accent-brand transition-all hover:bg-accent-brand/[0.06]"
             >
               <Calendar className="h-4 w-4" />
@@ -860,7 +891,7 @@ export function StepReady({ data, plannedSemesters, completedCourses, allCourses
             </button>
           ) : (
             <button
-              onClick={() => router.push("/catalog")}
+              onClick={() => leave("/catalog")}
               className="flex items-center justify-center gap-2 rounded-xl border-2 border-border px-6 py-3 text-sm font-medium text-foreground/70 transition-all hover:border-foreground/30 hover:text-foreground/90"
             >
               <BookOpen className="h-4 w-4" />
@@ -897,7 +928,7 @@ export function StepReady({ data, plannedSemesters, completedCourses, allCourses
             {t("retryButton")}
           </button>
           <button
-            onClick={() => router.push("/dashboard")}
+            onClick={() => leave("/dashboard")}
             className="flex items-center justify-center gap-2 rounded-xl border-2 border-border px-6 py-3 text-sm font-medium text-foreground/60 transition-all hover:border-foreground/30"
           >
             {t("continueWithoutSaving")}
