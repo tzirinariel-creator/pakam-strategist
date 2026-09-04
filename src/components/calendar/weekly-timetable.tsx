@@ -6,6 +6,7 @@ import { AlertTriangle, MapPin, Repeat, User } from "lucide-react";
 import { courseColor } from "@/lib/course-color";
 import { sessionTypeNameFor } from "@/lib/group-options";
 import { cn } from "@/lib/utils";
+import { heNounF } from "@/lib/he-count";
 import {
   dedupeMeetings,
   findConflictPairs,
@@ -407,8 +408,9 @@ export function WeeklyTimetable({
             ))}
             {conflictLines.length > shownConflictLines.length && (
               <li className="text-status-red/60/60">
+                {/* W3 — "ועוד 1 חפיפות". */}
                 {isHe
-                  ? `ועוד ${conflictLines.length - shownConflictLines.length} חפיפות`
+                  ? `ועוד ${heNounF(conflictLines.length - shownConflictLines.length, "חפיפה", "חפיפות")}`
                   : `and ${conflictLines.length - shownConflictLines.length} more`}
               </li>
             )}

@@ -212,6 +212,19 @@ export function MySemester({
                         {course.courseType === "ENGLISH" && (
                           <span className="shrink-0 rounded bg-foreground/8 px-1 text-[10px] font-medium text-foreground/70" title={isHe ? "נלמד באנגלית" : "Taught in English"}>EN</span>
                         )}
+                        {/* ==========================================
+                            U6 — אורי, סטודנט שנה א׳ אמיתי:
+                            *"מה שעדיין לא ברור לי — מה הם קורסי החובה ומה
+                            הבחירה בסמסטר א׳ שנה א׳"*
+                            ==========================================
+                            קורס חובה נשא תג "חובה" ומנעול; קורס בחירה לא
+                            נשא **כלום**. כלומר "בחירה" נאמר בהיעדר סימון,
+                            והסטודנט צריך להסיק אותו מהעדרו של תג. זה בדיוק
+                            מה שאורי לא הצליח לעשות. עכשיו שתי הקטגוריות
+                            אומרות את שמן. */}
+                        <span className="shrink-0 rounded-full bg-foreground/5 px-1.5 py-0.5 text-[10px] font-medium text-foreground/60">
+                          {t("elective")}
+                        </span>
                         {customCourseIds?.has(course.id) && (
                           <span className="shrink-0 rounded-full bg-foreground/5 px-1.5 py-0.5 text-[10px] font-medium text-foreground/70">
                             {isHe ? "ידני" : "Custom"}

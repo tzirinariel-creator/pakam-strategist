@@ -117,7 +117,11 @@ describe("Hebrew copy, mechanically", () => {
 
   it("never puts a bare placeholder in front of a counted noun", () => {
     // `${n} קורסים` renders "1 קורסים". Fixed units (ש״ס, שעות) do not inflate.
-    const COUNTED = /\$\{[^}]+\}\s*(קורסים|ימים|סמסטרים|דברים|מבחנים|תרומות|מדרגים|נקודות)/;
+    // W3 — "1 קורסים" בכפתור הסיום. סרקתי את כל הקוד: 79 מ-80 המועמדים הם
+    // ש״ס (יחידה קבועה שלא מוטה), ושלושה היו אמיתיים. שניים תוקנו ב-4.9
+    // ("1 מטלות מחכות שם", "ועוד 1 חפיפות") ושמותיהם נוספו כאן, כדי
+    // שהמשפחה הזאת לא תחזור דרך ניסוח חדש.
+    const COUNTED = /\$\{[^}]+\}\s*(קורסים|ימים|סמסטרים|דברים|מבחנים|תרומות|מדרגים|נקודות|מטלות|חפיפות|שאלות|הערות|תוכניות|קבוצות)/;
     const bad = STRINGS.filter((s) => COUNTED.test(s.text) && !isPluralArm(s.context));
     expect(bad.map((b) => `${b.file}:${b.line} — ${b.text}`)).toEqual([]);
   });

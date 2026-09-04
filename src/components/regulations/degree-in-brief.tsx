@@ -2,7 +2,7 @@
 
 import { GraduationCap } from "lucide-react";
 import { Bidi } from "@/lib/bidi";
-import { heNoun } from "@/lib/he-count";
+import { heList, heNoun } from "@/lib/he-count";
 import { CREDIT_REQUIREMENTS, SEMINAR_REQUIREMENTS } from "@/lib/constants";
 import { getActiveProgram } from "@/lib/programs/registry";
 import { YEAR_CONFIG } from "@/lib/constants";
@@ -34,6 +34,10 @@ export function DegreeInBrief({
     .map((d) => d.nameHe);
   const left = Math.max(0, R.TOTAL - earnedCredits);
   const yearLabel = YEAR_CONFIG[currentYear as keyof typeof YEAR_CONFIG]?.nameHe ?? `שנה ${currentYear}`;
+  const SPELLED: Record<number, string> = { 1: "קורס תוכן אחד באנגלית", 2: "שני קורסי תוכן באנגלית", 3: "שלושה קורסי תוכן באנגלית" };
+  const englishCoursesPhrase =
+    SPELLED[R.ENGLISH_MIN_COURSES] ??
+    heNoun(R.ENGLISH_MIN_COURSES, "קורס תוכן באנגלית", "קורסי תוכן באנגלית");
 
   const parts: { credits: number; title: string; body: string }[] = [
     {
@@ -62,7 +66,9 @@ export function DegreeInBrief({
             מה התואר הזה דורש, בקצרה
           </h2>
           <p className="mt-1 text-sm leading-relaxed text-foreground/70">
-            פכ״מ הוא <b><Bidi text={String(R.TOTAL)} /> ש״ס</b> בשלושה חוגים — {disciplines.join(", ")} —
+            {/* עברית מחברת רשימה עם ו׳ לפני האחרון. `disciplines.join(", ")` נתן
+                "פילוסופיה, כלכלה, מדע המדינה" — נכון באנגלית, לא בעברית. */}
+            פכ״מ הוא <b><Bidi text={String(R.TOTAL)} /> ש״ס</b> בשלושה חוגים — {heList(disciplines)} —
             והם מתחלקים כך:
           </p>
 
@@ -81,7 +87,10 @@ export function DegreeInBrief({
           <p className="mt-3 text-sm leading-relaxed text-foreground/70">
             ושתי דרישות שחוצות את החלוקה הזאת:{" "}
             <b>תחום מיקוד</b> — לפחות <Bidi text={String(R.FOCUS_AREA_MIN)} /> ש״ס באחד החוגים,
-            ו<b>{heNoun(R.ENGLISH_MIN_COURSES, "קורס תוכן באנגלית", "קורסי תוכן באנגלית")}</b> —
+            {/* "ו2 קורסי תוכן" — ספרה שמודבקת לו׳ החיבור. זה בדיוק מה
+                שאריאל מזהה כ"עברית שנראית של מחשב", אז המספרים הקטנים
+                נכתבים במילים. */}
+            ו<b>{englishCoursesPhrase}</b> —
             אלה לא קורסי רמה, וגם מי שקיבל פטור מאנגלית עדיין חייב אותם.
           </p>
 

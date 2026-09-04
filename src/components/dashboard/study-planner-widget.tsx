@@ -256,9 +256,12 @@ export function StudyPlannerWidget({
                   : `Your plan starts ${planStartLabel}`}
               </p>
               <p className="mt-0.5 text-xs text-foreground/60">
+                {/* W3 — "1 מטלות מחכות שם". גם הפועל מוטה: מטלה אחת **מחכה**. */}
                 {isHe
-                  ? `${activeTasks.length} מטלות מחכות שם — אין מה לעשות איתן היום.`
-                  : `${activeTasks.length} tasks waiting there — nothing to do about them today.`}
+                  ? activeTasks.length === 1
+                    ? "מטלה אחת מחכה שם — אין מה לעשות איתה היום."
+                    : `${activeTasks.length} מטלות מחכות שם — אין מה לעשות איתן היום.`
+                  : `${activeTasks.length} ${activeTasks.length === 1 ? "task" : "tasks"} waiting there — nothing to do about ${activeTasks.length === 1 ? "it" : "them"} today.`}
               </p>
             </div>
             <Arrow className="size-4 shrink-0 text-foreground/60" />
