@@ -31,16 +31,29 @@ const go = async (path,ms=6000)=>{
 };
 const txt = async ()=> (await p.locator("body").innerText()).replace(/\s+/g," ");
 
+/** דף הנחיתה נמדד תמיד מהקשר לא-מחובר — מחובר, /he מפנה ללוח. */
+const landing = async () => {
+  const ctx = await b.newContext({ viewport:{width:1440,height:1100}, locale:"he-IL" });
+  const lp = await ctx.newPage();
+  await lp.goto(`${BASE}/he`,{waitUntil:"networkidle"});
+  await lp.waitForFunction(()=>document.body.innerText.replace(/\s+/g," ").length>700,{timeout:40000}).catch(()=>{});
+  await lp.waitForTimeout(3500);
+  return { lp, close:()=>ctx.close() };
+};
+
 /** בדיקה = { id, note (הציטוט של אריאל), run: async () => ({ok, evidence}) } */
 const CHECKS = [
   { id:"M1", note:"דף הנחיתה יפה ויוקרתי · בלי עברית שבורה", async run(){
-      await p.goto(`${BASE}/he`,{waitUntil:"networkidle"}); await settle(4000);
-      const t=await txt();
+      const { lp, close } = await landing();
+      const t=(await lp.locator("body").innerText()).replace(/\s+/g," ");
       const oldCopy=/המלך הפילוסוף כלול — תמיד חינם|ומישהו שסוף-סוף סופר לכם/.test(t);
-      return { ok:!oldCopy && /שלושה חוגים, לוח אחד/.test(t), evidence:(t.match(/שלושה חוגים[^.]*\./)||["—"])[0] }; } },
+      const r={ ok:!oldCopy && /שלושה חוגים, לוח אחד/.test(t), evidence:(t.match(/שלושה חוגים[^.]*\./)||["—"])[0] };
+      await close(); return r; } },
 
   { id:"M2", note:"מסך הפתיחה בנקודות — עיצוב יפה ואלגנטי", async run(){
-      const cards=await p.evaluate(()=>[...document.querySelectorAll("h3")].filter(h=>/דרישות התואר|תכנון 3 שנים|כל הקורסים בפנים|המלך הפילוסוף|מערכת שעות|קטלוג קורסים/.test(h.innerText)).length);
+      const { lp, close } = await landing();
+      const cards=await lp.evaluate(()=>[...document.querySelectorAll("h3")].filter(h=>/דרישות התואר|תכנון 3 שנים|כל הקורסים בפנים|המלך הפילוסוף|מערכת שעות|קטלוג קורסים/.test(h.innerText)).length);
+      await close();
       return { ok:cards>=3, evidence:`${cards} כרטיסים עם כותרת ואייקון, לא רשימת נקודות` }; } },
 
   { id:"M6", note:"העמוד אחרי ההרשמה והעברית בו", async run(){
