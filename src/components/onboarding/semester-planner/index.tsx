@@ -2,7 +2,7 @@
 
 import { useMemo, useState, useCallback, useEffect, useRef } from "react";
 import { useTranslations, useLocale } from "next-intl";
-import { CalendarDays, Info, Download, Check, BarChart3 } from "lucide-react";
+import { CalendarDays, Info, Download, Check, BarChart3, GraduationCap } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { SEMESTER_CONFIG, YEAR_CONFIG } from "@/lib/constants";
@@ -239,7 +239,28 @@ export function SemesterPlanner({
   // effect ever flips this, so the R3 sync-regression class can't reappear.
   const [summaryPref, setSummaryPref] = useState<boolean | null>(null);
   const setShowSummary = setSummaryPref;
-  const [showDegreeModal, setShowDegreeModal] = useState(true);
+  // ============================================================
+  // החלון הזה נפתח בכל כניסה, לא פעם אחת
+  // ============================================================
+  // 4.9 — אריאל, תוך כדי שימוש: *"זה לא קפץ מיידית לתכנון שנתי אלא העביר
+  // אותי דרך עוד מסך ביניים."* תיקנתי את מסך הסיכום, נכנסתי שוב לאמת,
+  // **וצילמתי חלון חוסם**. `useState(true)` פתח אותו בכל mount — כלומר
+  // בכל פעם שסטודנט בא לתכנן הוא נדרש לסגור חלון קודם.
+  //
+  // התוכן עצמו טוב ואסור לאבד אותו: הוא בדיוק מה שאורי, סטודנט שנה א׳
+  // אמיתי, אמר שלא הבין — *"מה הם קורסי החובה ומה הבחירה"*. אז הוא נשאר,
+  // רק מפסיק לחסום: נפתח פעם אחת למכשיר, ואחר כך יש כפתור שפותח אותו.
+  const DEGREE_INFO_KEY = "pakamon-degree-info-seen";
+  const [showDegreeModal, setShowDegreeModal] = useState(false);
+  useEffect(() => {
+    try {
+      if (localStorage.getItem(DEGREE_INFO_KEY) !== "1") setShowDegreeModal(true);
+    } catch { /* אין localStorage — פשוט לא נפתח מעצמו */ }
+  }, []);
+  const closeDegreeModal = useCallback(() => {
+    setShowDegreeModal(false);
+    try { localStorage.setItem(DEGREE_INFO_KEY, "1"); } catch { /* לא קריטי */ }
+  }, []);
   const [customCourses, setCustomCourses] = useState<CustomCourseDraft[]>([]);
   const [showCustomCourseModal, setShowCustomCourseModal] = useState(false);
   // Session group selections: courseCode → { sessionType → groupCode }
@@ -1039,7 +1060,7 @@ export function SemesterPlanner({
   return (
     <div className="flex flex-col items-center gap-4">
       {/* Degree info modal — shows once before planning */}
-      <Dialog open={showDegreeModal} onOpenChange={setShowDegreeModal}>
+      <Dialog open={showDegreeModal} onOpenChange={(o) => (o ? setShowDegreeModal(true) : closeDegreeModal())}>
         <DialogContent className="max-w-lg">
           <DialogHeader>
             <DialogTitle className="text-lg font-bold">
@@ -1048,7 +1069,7 @@ export function SemesterPlanner({
           </DialogHeader>
           <DegreeInfoCard />
           <button
-            onClick={() => setShowDegreeModal(false)}
+            onClick={closeDegreeModal}
             className="mt-2 w-full rounded-xl bg-foreground px-6 py-3 text-sm font-bold text-background transition-all hover:opacity-90 press-scale"
           >
             {t("gotItLetsGo")}
@@ -1085,6 +1106,18 @@ export function SemesterPlanner({
         <p className="mt-1 text-sm text-foreground/60">
           {t("semesterPlannerDesc")}
         </p>
+        {/* הדלת חזרה למידע על התואר. החלון מפסיק להיפתח מעצמו אחרי הפעם
+            הראשונה, והתוכן שלו הוא בדיוק מה שאורי — סטודנט שנה א׳ אמיתי —
+            אמר שלא הבין: "מה הם קורסי החובה ומה הבחירה". בלי הכפתור הזה
+            הוא היה נעלם אחרי סגירה אחת. */}
+        <button
+          type="button"
+          onClick={() => setShowDegreeModal(true)}
+          className="mt-2 inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs font-medium text-foreground/60 transition-colors hover:bg-foreground/5 hover:text-foreground/85"
+        >
+          <GraduationCap className="size-3.5" />
+          {t("aboutPPE")}
+        </button>
         {/* =========================================
             שני טאבים של סמסטרים, ומעליהם השנה
             =========================================
