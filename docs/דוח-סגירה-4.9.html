@@ -1,0 +1,490 @@
+<title>פכמון לפני הבידינג</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Rubik:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+  /* ── טוקנים: נלקחו מהאפליקציה עצמה, לא נבחרו מחדש ──
+     --accent-brand #5b5bd6 · --crown-gold #c99a3b · הרקע הבהיר rgb(252,252,253)
+     הכהה rgb(11,11,15) · --status-green-text · --status-amber-text          */
+  :root {
+    --ground: #fbfbfd;
+    --surface: #ffffff;
+    --surface-2: #f4f4f8;
+    --ink: #18181b;
+    --ink-2: #55555f;
+    --ink-3: #7b7b87;
+    --line: #e4e4ec;
+    --brand: #5b5bd6;
+    --brand-deep: #312e81;
+    --gold: #c99a3b;
+    --good: #157f4b;
+    --wait: #9a5b00;
+    --shadow: 0 1px 2px rgba(24, 24, 27, .05), 0 8px 24px -12px rgba(49, 46, 129, .18);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --ground: #0b0b0f;
+      --surface: #131319;
+      --surface-2: #1b1b23;
+      --ink: #ececee;
+      --ink-2: #a9a9b6;
+      --ink-3: #82828f;
+      --line: #2a2a35;
+      --brand: #8b8bea;
+      --brand-deep: #b4b4f2;
+      --gold: #f2c879;
+      --good: #4ade9b;
+      --wait: #ffb900;
+      --shadow: 0 1px 2px rgba(0, 0, 0, .4), 0 8px 24px -12px rgba(0, 0, 0, .7);
+    }
+  }
+  :root[data-theme="dark"] {
+    --ground: #0b0b0f;
+    --surface: #131319;
+    --surface-2: #1b1b23;
+    --ink: #ececee;
+    --ink-2: #a9a9b6;
+    --ink-3: #82828f;
+    --line: #2a2a35;
+    --brand: #8b8bea;
+    --brand-deep: #b4b4f2;
+    --gold: #f2c879;
+    --good: #4ade9b;
+    --wait: #ffb900;
+    --shadow: 0 1px 2px rgba(0, 0, 0, .4), 0 8px 24px -12px rgba(0, 0, 0, .7);
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--ground);
+    color: var(--ink);
+    font-family: Rubik, "Segoe UI", system-ui, sans-serif;
+    font-weight: 400;
+    line-height: 1.65;
+    direction: rtl;
+    text-align: right;
+    -webkit-font-smoothing: antialiased;
+  }
+  .num { font-family: "JetBrains Mono", ui-monospace, monospace; font-variant-numeric: tabular-nums; }
+  .wrap { max-width: 46rem; margin: 0 auto; padding: 2.5rem 1.25rem 5rem; }
+  @media (min-width: 40rem) { .wrap { padding: 4rem 2rem 6rem; } }
+
+  h1, h2, h3 { text-wrap: balance; margin: 0; font-weight: 600; letter-spacing: -.01em; }
+  p { margin: 0; }
+  .stack { display: flex; flex-direction: column; }
+
+  /* ── פתיחה ── */
+  .eyebrow {
+    font-size: .75rem; font-weight: 500; letter-spacing: .08em;
+    color: var(--ink-3); text-transform: none;
+  }
+  h1 { font-size: clamp(1.75rem, 5vw, 2.5rem); line-height: 1.2; margin-top: .5rem; }
+  .lede { font-size: 1.0625rem; color: var(--ink-2); margin-top: .875rem; max-width: 34rem; }
+
+  /* ── פסק הדין ── */
+  .verdict {
+    margin-top: 2rem; padding: 1.25rem 1.375rem;
+    background: var(--surface); border: 1px solid var(--line);
+    border-inline-start: 3px solid var(--good);
+    border-radius: .75rem; box-shadow: var(--shadow);
+  }
+  .verdict p { font-size: 1.0625rem; font-weight: 500; }
+  .verdict .sub { font-size: .9375rem; font-weight: 400; color: var(--ink-2); margin-top: .5rem; }
+
+  /* ── מספרים ── */
+  .figures {
+    margin-top: 1.75rem; display: grid; gap: 1px;
+    background: var(--line); border: 1px solid var(--line);
+    border-radius: .75rem; overflow: hidden;
+    grid-template-columns: repeat(2, 1fr);
+  }
+  @media (min-width: 34rem) { .figures { grid-template-columns: repeat(4, 1fr); } }
+  .fig { background: var(--surface); padding: 1rem .875rem; }
+  .fig b { display: block; font-family: "JetBrains Mono", monospace; font-variant-numeric: tabular-nums;
+           font-size: 1.5rem; font-weight: 600; line-height: 1.1; }
+  .fig span { display: block; font-size: .75rem; color: var(--ink-3); margin-top: .375rem; line-height: 1.4; }
+
+  /* ── סעיפים ── */
+  section { margin-top: 3rem; }
+  h2 {
+    font-size: 1.25rem; padding-bottom: .625rem;
+    border-bottom: 1px solid var(--line);
+  }
+  h2 .of { color: var(--ink-3); font-weight: 400; font-size: .875rem; margin-inline-start: .5rem; }
+
+  /* ── רשימת התיקונים ── */
+  .fixes { margin-top: 1.25rem; display: flex; flex-direction: column; gap: 1.125rem; }
+  .fix { display: grid; grid-template-columns: auto 1fr; gap: .75rem; align-items: start; }
+  .tick { color: var(--good); font-size: 1rem; line-height: 1.7; }
+  .fix h3 { font-size: 1rem; font-weight: 600; }
+  .fix p { font-size: .9375rem; color: var(--ink-2); margin-top: .25rem; }
+  .fix .said {
+    display: block; font-size: .875rem; color: var(--ink-3);
+    border-inline-start: 2px solid var(--line); padding-inline-start: .75rem;
+    margin-top: .5rem;
+  }
+
+  /* ── החלטות ── */
+  .decisions { margin-top: 1.25rem; display: flex; flex-direction: column; gap: 1rem; }
+  .dec {
+    background: var(--surface); border: 1px solid var(--line);
+    border-radius: .75rem; padding: 1.125rem 1.25rem; box-shadow: var(--shadow);
+  }
+  .chip {
+    display: inline-block; font-size: .6875rem; font-weight: 600;
+    padding: .1875rem .5rem; border-radius: 999px; letter-spacing: .02em;
+  }
+  .chip-now { color: var(--wait); background: color-mix(in srgb, var(--wait) 12%, transparent); }
+  .chip-after { color: var(--ink-3); background: var(--surface-2); }
+  .chip-you { color: var(--brand); background: color-mix(in srgb, var(--brand) 12%, transparent); }
+  .dec h3 { font-size: 1.0625rem; margin-top: .625rem; }
+  .dec p { font-size: .9375rem; color: var(--ink-2); margin-top: .5rem; }
+  .rec {
+    margin-top: .75rem; padding-top: .75rem; border-top: 1px dashed var(--line);
+    font-size: .9375rem;
+  }
+  .rec b { color: var(--ink); font-weight: 600; }
+
+  table { width: 100%; border-collapse: collapse; margin-top: .75rem; font-size: .875rem; }
+  th, td { text-align: right; padding: .4375rem .5rem; border-bottom: 1px solid var(--line); }
+  th { font-weight: 500; color: var(--ink-3); font-size: .8125rem; }
+  td.n { font-family: "JetBrains Mono", monospace; font-variant-numeric: tabular-nums; }
+  .fail { color: var(--wait); font-weight: 600; }
+  .pass { color: var(--good); font-weight: 600; }
+
+  /* ── איך נבדק ── */
+  .method { margin-top: 1.25rem; display: flex; flex-direction: column; gap: .875rem; }
+  .m { font-size: .9375rem; color: var(--ink-2); }
+  .m b { color: var(--ink); font-weight: 600; }
+
+  .honest {
+    margin-top: 1.25rem; padding: 1.125rem 1.25rem;
+    background: var(--surface-2); border-radius: .75rem;
+    font-size: .9375rem; color: var(--ink-2);
+  }
+  .honest h3 { font-size: 1rem; color: var(--ink); margin-bottom: .5rem; }
+  .honest ul { margin: .5rem 0 0; padding-inline-start: 1.125rem; }
+  .honest li { margin-top: .375rem; }
+
+  footer {
+    margin-top: 3.5rem; padding-top: 1.25rem; border-top: 1px solid var(--line);
+    font-size: .8125rem; color: var(--ink-3);
+  }
+  code {
+    font-family: "JetBrains Mono", monospace; font-size: .8125em;
+    background: var(--surface-2); padding: .0625rem .3125rem; border-radius: .25rem;
+    direction: ltr; display: inline-block;
+  }
+</style>
+
+<div class="wrap">
+
+  <p class="eyebrow">דוח סגירה · 4 בספטמבר 2026 · המקצה נפתח ב-7.9 בשעה 11:00</p>
+  <h1>פכמון לפני הבידינג</h1>
+  <p class="lede">
+    עברתי על הלוח פריט-פריט, תיקנתי, פרסתי, ובדקתי כל תיקון על המסך החי אחרי הפריסה.
+    זה מה שיצא.
+  </p>
+
+  <div class="verdict">
+    <p>האפליקציה מוכנה למקצה. אין באג חוסם ידוע.</p>
+    <p class="sub">
+      ששת הפריטים שנשארו פתוחים הם <b>החלטות שלך</b> ומחקר — לא תקלות.
+      שלוש מהן אני ממליץ לדחות לאחרי 7.9, ואחת שווה עשר דקות עכשיו.
+    </p>
+  </div>
+
+  <div class="figures">
+    <div class="fig"><b>151</b><span>מתוך 157 פריטים בלוח, כל אחד עם הוכחה</span></div>
+    <div class="fig"><b>114</b><span>פעולות בסיור, אפס נכשלו</span></div>
+    <div class="fig"><b>0</b><span>גלישה או שגיאות JS ב-60 מדידות</span></div>
+    <div class="fig"><b>2,341</b><span>בדיקות ירוקות, CI ירוק</span></div>
+  </div>
+
+  <section>
+    <h2>מה היה שבור ותוקן <span class="of">הדברים שסטודנט היה נתקל בהם</span></h2>
+    <div class="fixes">
+
+      <div class="fix">
+        <span class="tick">✓</span>
+        <div>
+          <h3>האפליקציה אמרה לך שהתכנון לא נשמר — והוא כן נשמר</h3>
+          <span class="said">"כשסיימתי ושמרתי זה כתב לי שלא נשמרו קורסים — עד שעשיתי רענן וזה כן הראה ששמר"</span>
+          <p>
+            שחזרתי את זה. אחרי "סיום ושמירה", <b>בלי שנגעתי במסך</b>, מסך הסיום "הכול מוכן"
+            נעלם מעצמו אחרי 3.6 שניות, ובמקומו דף בית שאמר "אין קורסים בתוכנית שלכם" —
+            בזמן שהמד שלידו, על אותו מסך, הראה <span class="num">39</span> ש״ס ו-<span class="num">21</span> מתוכננים.
+            הקורסים היו במסד כל הזמן. עכשיו מסך הסיום נשאר עד שאתה עוזב אותו.
+          </p>
+        </div>
+      </div>
+
+      <div class="fix">
+        <span class="tick">✓</span>
+        <div>
+          <h3>מסך הטעינה שנראה תקוע</h3>
+          <span class="said">"היה מסך טעינה בהתחלה שלא עבד לי איזה 3 פעמים אחרי ההרשמה"</span>
+          <p>
+            מדדתי את השמירה ארבע פעמים: <span class="num">14</span>, <span class="num">16</span> ו-<span class="num">31</span> שניות,
+            דרך שלושה מסכי טעינה — בדיוק ה"3 פעמים". ומה שהחמיר: אחרי <span class="num">20</span> שניות
+            נדלקה הודעה "לוקח קצת יותר מהרגיל" — כלומר <b>האפליקציה הודיעה על עצמה שהיא לא עובדת,
+            בזמן שהיא עבדה בדיוק כרגיל</b>. הסף עלה ל-<span class="num">40</span>.
+          </p>
+        </div>
+      </div>
+
+      <div class="fix">
+        <span class="tick">✓</span>
+        <div>
+          <h3>המספר בסימולציה היה מוסתר בדיוק כשצריך אותו</h3>
+          <span class="said">"אם הציון יחסית למטה, אין לי דרך לראות את ההשפעה שלו על הממוצע. אז מה זה עוזר?"</span>
+          <p>
+            התיקון היה כתוב בקוד, והבדיקה שכתבתי אמרה שהוא עובד. ואז צילמתי:
+            הכותרת יושבת ב-<span class="num">32</span> פיקסלים והסרגל העליון תופס
+            <span class="num">0</span>–<span class="num">64</span>. המספר היה <b>מתחת</b> לסרגל.
+            אותו פגם היה גם ברצועת ההסבר של גרף העומס.
+          </p>
+        </div>
+      </div>
+
+      <div class="fix">
+        <span class="tick">✓</span>
+        <div>
+          <h3>אורי שאל מה חובה ומה בחירה, והתשובה הייתה בנויה ולא על המסך</h3>
+          <span class="said">אורי, שנה א׳: "מה שעדיין לא ברור לי — מה הם קורסי החובה ומה הבחירה בסמסטר א׳ שנה א׳"</span>
+          <p>
+            רצתי כמוהו וראיתי: הוא נוחת על רשימה של שמונה קורסים <b>בלי שום סימון</b>,
+            ליד משפט שאומר "רוב הסמסטר הזה חובה" בלי לומר אילו.
+            והדבר החד — הקוד שעונה על השאלה שלו קיים, וההערה בראשו מצטטת אותו מילה במילה.
+            הוא היה בשימוש בקטלוג, ולא בשני המסכים של המתכנן.
+          </p>
+        </div>
+      </div>
+
+      <div class="fix">
+        <span class="tick">✓</span>
+        <div>
+          <h3>הלוח שנראה בלתי נגמר, והיה פשוט ריק</h3>
+          <span class="said">"ושוב לוח מבחנים בלתי נגמר. אתה בכלל עובר כסטודנט על האפליקציה?"</span>
+          <p>
+            שלושה דברים: הלוח נפתח על שבוע ריק לגמרי; באמצע נמתחו שבועיים ריקים בזמן שהגרף
+            שמעליו כבר מקפל אותם ואומר "17 ימים חופשיים"; והכותרת <b>שיקרה בשלושה ימים</b> —
+            אמרה שהתוכנית מתחילה ב-24.12 כשהיא מתחילה ב-27.12.
+          </p>
+        </div>
+      </div>
+
+      <div class="fix">
+        <span class="tick">✓</span>
+        <div>
+          <h3>מחוון הגרירה שביקשת להחליף 900 פעם</h3>
+          <span class="said">"הסקאלה והמחשבון המוזרים בתכנון הציון נראים מיושנים ושבורים"</span>
+          <p>
+            הוחלף בשדה מספר עם ± בשני המקומות שבהם היה. שלוש בעיות נעלמו יחד: אי-אפשר היה לכוון
+            מספר מדויק, בעברית הוא נגרר לכיוון ההפוך, והידית הייתה <span class="num">20</span> פיקסלים
+            במקום <span class="num">24</span>. ובאותה הערה — סרגל המשקלים צייר פלחים צבעוניים
+            ל-18% ול-4% <b>שאין להם נתון</b>. עכשיו הם משבצות ריקות עם משפט שמסביר.
+          </p>
+        </div>
+      </div>
+
+      <div class="fix">
+        <span class="tick">✓</span>
+        <div>
+          <h3>ההסבר בכניסה לדרישות התואר — שהיה מסומן כבוצע ולא היה קיים</h3>
+          <span class="said">"למה שבכניסה לדרישות התואר לא יהיה הסבר כללי בצורה פשוטה ומותאמת אישית?"</span>
+          <p>
+            בלוח זה היה מסומן "נוסף הסבר בראש המסך". פתחתי — אין הסבר. המסך נפתח על מונים:
+            "12 מתוך 27 דרישות הושלמו". קראתי גם את הקוד, ואין בו בלוק כזה.
+            עכשיו יש: 150 ש״ס בשלושה חוגים, החלוקה ל-103/12/35, שתי הדרישות שחוצות אותה,
+            ושורה אישית — "אתם בשנה ב׳, עם 39 מתוך 150 ש״ס".
+          </p>
+        </div>
+      </div>
+
+      <div class="fix">
+        <span class="tick">✓</span>
+        <div>
+          <h3>חמש מחלקות עיצוב שנשרו בשקט</h3>
+          <p>
+            זה לא היה ברשימה של אף אחד. חמישה מקומות כתובים <code dir="ltr">text-status-red/90/90</code> —
+            שני מְשַׁנֵּי־שקיפות. הדפדפן לא מבין את זה, <b>המחלקה נושרת</b>, והאלמנט יורש את
+            צבע האב. חמישתם ישבו על טקסט שנושא אזהרה, כלומר במקום היחיד שבו הצבע הוא המסר.
+            אין שגיאת בנייה ואין שגיאת קוד — זה נתפס רק במדידה.
+          </p>
+        </div>
+      </div>
+
+      <div class="fix">
+        <span class="tick">✓</span>
+        <div>
+          <h3>שני דברים שאישרת ונשארו לא בוצעו</h3>
+          <p>
+            מצאתי אותם בפרק "מה שאריאל אישר ועוד לא בוצע".
+            <b>מכסת הסריקות</b> ספרה סריקה אחת בזמן שהיא שורפת שלוש קריאות — כלומר
+            10 ליום היו בפועל 30. עכשיו היא סופרת 3, והמגבלות לא ירדו כמו שביקשת.
+            <b>דלת הדמו</b> הייתה קיימת ועובדת, אבל רק בטופסי ההרשמה — כלומר רק אחרי
+            שהמבקר כבר החליט להירשם. היא עכשיו בדף הנחיתה, ו"חינם" עלה מהתחתית אל ליד הכפתור.
+          </p>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <section>
+    <h2>מה שאני צריך ממך <span class="of">שש החלטות, כל אחת עם מדידה</span></h2>
+    <div class="decisions">
+
+      <div class="dec">
+        <span class="chip chip-now">שווה עכשיו · 10 דקות</span>
+        <h3>הכתר של המלך כמעט לא נראה במצב כהה</h3>
+        <p>
+          מצאתי את זה ברצף המסכם, כשמדדתי ניגודיות גם בכהה ולא רק בבהיר.
+          רקע הכפתור <b>מתבהר</b> במצב כהה והכתר לא זז, אז הזהב מאבד את הרקע שמתחתיו.
+          זה הכפתור הצף של המלך — כלומר זה קורה ב-12 מסכים, וזה סמל המותג.
+        </p>
+        <table>
+          <tr><th>ערכה</th><th>רקע הכפתור</th><th>הכתר</th><th>יחס</th></tr>
+          <tr><td>בהיר</td><td class="n">#5b5bd6</td><td class="n">#f2c879</td><td class="n pass">3.40:1 ✓</td></tr>
+          <tr><td>כהה</td><td class="n">#8b8bea</td><td class="n">#f2c879</td><td class="n fail">1.91:1 ✗</td></tr>
+        </table>
+        <p class="rec">
+          <b>ההמלצה שלי:</b> להצמיד את הכפתור הצף לאינדיגו הכהה הקבוע גם במצב כהה —
+          בדיוק מה שדף הנחיתה כבר עושה, ובדיוק ההנחה שכתובה בהערה שליד הצבע בקוד.
+          <b>הכתר נשאר זהב כמו שתכננת</b>, והיחס חוזר ל-7.43:1.
+          לא נגעתי כי זה צבע מותג — תגיד מילה ואבצע.
+        </p>
+      </div>
+
+      <div class="dec">
+        <span class="chip chip-now">אחרי שתהיה ער · 20 דקות</span>
+        <h3>החיבור למסד — הפריט היחיד שאישרת ולא ביצעתי</h3>
+        <p>
+          החיבור עובר בפורט <code dir="ltr">5432</code>, שהוא מצב שבו כל מכונה תופסת חיבור
+          ייעודי לכל אורך חייה. ב-7.9 בשעה 11:00, כשעשרות סטודנטים נכנסים באותה דקה,
+          Vercel מרים עשרות מכונות והחיבורים נגמרים. הפורט המיועד לזה הוא
+          <code dir="ltr">6543</code>.
+        </p>
+        <p class="rec">
+          <b>לא ביצעתי כי אמרת "כשאתה ער".</b> זה שינוי תשתית בפרודקשן, הפיך בשתי דקות,
+          אבל אם הוא נשבר האתר למטה עד שמישהו מחזיר. <b>תגיד "כן" ואבצע מיד</b> —
+          אחליף, אפרוס, אעבור מסך-מסך, ואם משהו נשבר אחזיר.
+        </p>
+      </div>
+
+      <div class="dec">
+        <span class="chip chip-after">אחרי 7.9</span>
+        <h3>ניגודיות הטקסט המשני — 66 מקומות, וכולם אותו מספר</h3>
+        <p>
+          <span class="num">66</span> כשלי ניגודיות בערכה הבהירה, וכולם <b>בדיוק</b>
+          <span class="num"> 4.49</span> מול סף של <span class="num">4.50</span>.
+          זה הטקסט המשני התקני של האפליקציה, והוא חוטא בשערה בכל מסך.
+          בערכה הכהה: <span class="num">0</span> כשלים.
+        </p>
+        <p class="rec">
+          <b>ההמלצה שלי: לא לפני 7.9.</b> התיקון הוא <b>ערך אחד</b> — להכהות מעט את צבע
+          הטקסט בערכה הבהירה, וכל 66 עוברים יחד. אבל אותו ערך מזיז כל טקסט באפליקציה,
+          וזה משהו שצריך לראות על כל מסך לפני ששחררים. עשרים דקות, אחרי המקצה.
+        </p>
+      </div>
+
+      <div class="dec">
+        <span class="chip chip-after">אחרי 7.9 — וזה הגדול</span>
+        <h3>למה השמירה לוקחת 15 עד 31 שניות</h3>
+        <p>
+          השמירה היא ארבע נסיעות שרת טוריות, וכל אחת משלמת <b>פרנקפורט↔סידני</b> —
+          הפונקציות רצות בפרנקפורט והמסד יושב בסידני. מדדתי: עמוד סטטי
+          <span class="num">0.18</span> שניות, נקודת קצה שנוגעת במסד
+          <span class="num">0.6</span>–<span class="num">0.73</span> <b>חמה</b>.
+          זה מייקר כל קריאה באפליקציה, לא רק את השמירה.
+        </p>
+        <p class="rec">
+          <b>ההמלצה שלי: לא לגעת לפני 7.9, וכן אחריה.</b> הכיוון הנכון הוא להעביר את המסד
+          לאירופה — לא את הפונקציות לסידני, כי הסטודנטים בישראל ופרנקפורט קרובה אליהם.
+          זו הגירה של Supabase, לא משהו לעשות שלושה ימים לפני מקצה.
+          <b>זה השיפור הגדול ביותר שיש כאן.</b>
+        </p>
+      </div>
+
+      <div class="dec">
+        <span class="chip chip-you">שאלה קטנה אליך</span>
+        <h3>"מבוא לכלכלה" מסומן בחירה</h3>
+        <p>
+          <code dir="ltr">1011-1001</code> הוא היחיד מ-16 הקורסים שמסומן בחירה, והוא דרישת הקדם
+          למיקרו ולמאקרו שכן מסומנים חובה. בדקתי מול הידיעון: הוא לא שם, ואין שום קורס
+          1011 ברמה הזאת. <b>אין לי מקור שסותר את הקטלוג, אז לא נגעתי.</b>
+          מה שהסטודנט רואה בינתיים: "5 ש״ס שלכם לא נספרים לאף תחום מיקוד", עם הסבר ואפשרות
+          לשייך ידנית — כלומר האפליקציה כנה ולא שוברת כלום.
+        </p>
+        <p class="rec"><b>אתה מכיר את התואר. תגיד מה נכון ואתקן בחמש דקות.</b></p>
+      </div>
+
+      <div class="dec">
+        <span class="chip chip-you">חסום עליי טכנית</span>
+        <h3>קובץ האקסל ששלחת</h3>
+        <p>
+          ל-macOS יש הגנת פרטיות על תיקיית ההורדות שחוסמת אותי מלפתוח קבצים שם —
+          אני רואה את השם ולא את התוכן.
+        </p>
+        <p class="rec">
+          שורה אחת בטרמינל ואני קורא מיד:<br>
+          <code dir="ltr">cp ~/Downloads/"תכנון תואר - אריאל צירין פכמ.xlsx" docs/</code>
+        </p>
+      </div>
+
+    </div>
+  </section>
+
+  <section>
+    <h2>איך זה נבדק <span class="of">כדי שתדע כמה לסמוך על המספרים למעלה</span></h2>
+    <div class="method">
+      <p class="m">
+        <b>הסיור:</b> שלוש פרסונות — שנה א׳, ב׳ וג׳ — כפול דסקטופ ונייד, כפול 20 פעולות.
+        <span class="num">114</span> עברו, <span class="num">0</span> נכשלו.
+        הפרסונות נבנו <b>דרך הממשק בלבד</b>, לא בכתיבה ישירה למסד — כי בבוקר כתיבה ישירה
+        דילגה על חישוב קבוצת המילואים והולידה "באג" שלא היה קיים.
+      </p>
+      <p class="m">
+        <b>הכלל שהחלתי:</b> "לחצתי" אינה הוכחה. כל פעולה מודדת ערך לפני ואחרי —
+        בלוקי לימוד <span class="num">73</span>←<span class="num">72</span>,
+        ממוצע <span class="num">86.46</span>←<span class="num">87.07</span>,
+        40 ימי לחימה ← קבוצה C, שורות מילואים <span class="num">4</span>←<span class="num">3</span>
+        תוך <span class="num">4.1</span> שניות.
+      </p>
+      <p class="m">
+        <b>הרצף המסכם:</b> 15 מסכים × 2 רוחבים × 2 ערכות = <span class="num">60</span> מדידות.
+        אפס גלישה אופקית, אפס שגיאות JavaScript, בכל צירוף.
+      </p>
+      <p class="m">
+        <b>וכל תיקון נבדק אחרי הפריסה, לא לפניה</b> — עם צילום מסך.
+        <span class="num">49</span> קומיטים היום, ו-CI ירוק על כולם.
+      </p>
+    </div>
+
+    <div class="honest">
+      <h3>ומה שכדאי שתדע על הבדיקה עצמה</h3>
+      <p>ארבע פעמים הכלי שלי דיווח על באג שלא היה קיים. בכל ארבע עצרתי ובדקתי לפני שדיווחתי לך:</p>
+      <ul>
+        <li>"מסך השושלת שבור" — הגלאי חיפש את המילה "שגיאה", שיכולה להופיע בטקסט לגיטימי. חמש כניסות טריות: נקי.</li>
+        <li>"מחיקת מילואים לא עובדת" — חיכיתי 3 שניות לפעולה שלוקחת 4.1.</li>
+        <li>"שגיאת שרת בשמירת מילואים" — השרת דחה <b>נכון</b> שנה שקודמת לתחילת התואר, עם הודעה שאומרת איך לתקן.</li>
+        <li>"מתג הערכה שבור" — הוא מחזור של שלושה מצבים, והתווית מתארת את היעד הבא. תקין.</li>
+      </ul>
+      <p style="margin-top:.75rem">
+        ושתי טעויות שלי שראוי שתדע עליהן: <b>שמונה מ-11 כשלי הניגודיות החמורים היו צבעים
+        שאני בחרתי באותו יום</b> בלי למדוד — תיקנתי את כולם. ופעם אחת הרצתי את הסיור על
+        הפרסונה הלא נכונה והתוצאות נכתבו מעל ריצה מאומתת; המנוע בודק עכשיו שהמצב על המסך
+        תואם למה שביקשתי, ומסרב אם לא.
+      </p>
+    </div>
+  </section>
+
+  <footer>
+    הלוח המלא, פריט-פריט, ב-<code dir="ltr">docs/בקרה-סופית-להשקה.md</code> ·
+    תוצאות הסיור ב-<code dir="ltr">docs/סיור-תוצאות.json</code> ·
+    הצילומים ב-<code dir="ltr">video/shots/</code>
+  </footer>
+
+</div>
