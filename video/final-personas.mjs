@@ -75,13 +75,19 @@ const measure = async () =>
         // עם overflow-x. תא שחורג מהמסך בתוך מיכל כזה אינו באג — הוא
         // הדרך הנכונה. הגלאי דיווח "bdi 09:00–10:00 חורג" בזמן שהגוף
         // עצמו לא גלש בכלל; זו הייתה התרעת שווא.
-        let scroller = false;
+        // גלילה **או חיתוך**. במדידה של 5.9 הגלאי דיווח על bdi עם טווח
+        // שעות ב-left=-24, כאילו הוא בורח מהמסך — אבל הוא יושב בתוך
+        // `li.truncate` (overflow:hidden + nowrap + ellipsis), כלומר
+        // ההורה חותך אותו והוא לא מוצג שם לעולם. הגוף לא גלש באף מדידה.
+        // קיצור מכוון אינו גלישה, ומיכל שחותך מסיים את הסיפור בדיוק
+        // כמו מיכל שגולל.
+        let contained = false;
         for (let a = el.parentElement; a && a !== document.body; a = a.parentElement) {
           const ox = getComputedStyle(a).overflowX;
-          if (ox === "auto" || ox === "scroll") { scroller = true; break; }
+          if (ox === "auto" || ox === "scroll" || ox === "hidden" || ox === "clip") { contained = true; break; }
         }
         const s = (el.innerText || "").trim().slice(0, 28);
-        if (!scroller && s && out.overflow.length < 6) out.overflow.push(`${el.tagName.toLowerCase()} "${s}" חורג`);
+        if (!contained && s && out.overflow.length < 6) out.overflow.push(`${el.tagName.toLowerCase()} "${s}" חורג`);
       }
       // RTL: dir="ltr" על טקסט שמכיל עברית — bdi הוא הפתרון הנכון
       if (el.getAttribute("dir") === "ltr" && el.tagName !== "BDI") {
