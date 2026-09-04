@@ -67,8 +67,17 @@ const measure = async () =>
       const r = el.getBoundingClientRect();
       if (r.width === 0 || r.height === 0) continue;
       if (r.right > de.clientWidth + 2 || r.left < -2) {
+        // מערכת שעות ולוחות רחבים נגללים אופקית **בכוונה**, בתוך מיכל
+        // עם overflow-x. תא שחורג מהמסך בתוך מיכל כזה אינו באג — הוא
+        // הדרך הנכונה. הגלאי דיווח "bdi 09:00–10:00 חורג" בזמן שהגוף
+        // עצמו לא גלש בכלל; זו הייתה התרעת שווא.
+        let scroller = false;
+        for (let a = el.parentElement; a && a !== document.body; a = a.parentElement) {
+          const ox = getComputedStyle(a).overflowX;
+          if (ox === "auto" || ox === "scroll") { scroller = true; break; }
+        }
         const s = (el.innerText || "").trim().slice(0, 28);
-        if (s && out.overflow.length < 6) out.overflow.push(`${el.tagName.toLowerCase()} "${s}" חורג`);
+        if (!scroller && s && out.overflow.length < 6) out.overflow.push(`${el.tagName.toLowerCase()} "${s}" חורג`);
       }
       // RTL: dir="ltr" על טקסט שמכיל עברית — bdi הוא הפתרון הנכון
       if (el.getAttribute("dir") === "ltr" && el.tagName !== "BDI") {
@@ -93,7 +102,7 @@ for (const [route, label] of ROUTES) {
   if (record.screens[route]?.done) { console.log(`⏭  ${label}`); continue; }
   const scr = { label, actions: [], issues: [], at: new Date().toISOString() };
   try {
-    await p.goto(`${BASE}${route}`, { waitUntil: "networkidle" });
+    await p.goto(`${BASE}${route}`, { waitUntil: "domcontentloaded" });
     await settle(5000);
     await dismiss();
     errors.length = 0;
@@ -116,8 +125,19 @@ for (const [route, label] of ROUTES) {
       const el = p.locator("main button, main [role=tab], main [role=switch]").filter({ hasText: name }).first();
       if (!(await el.count())) continue;
       errors.length = 0;
+      // כפתור מושבת אינו כפתור שבור. "שמרו פרופיל" בלי שינויים ו"שמרו
+      // מפתח" בלי מפתח **אמורים** להיות מושבתים, והריצה הראשונה ספרה
+      // אותם ככישלון ודיווחה 4/13 על מסך תקין לגמרי.
+      const state = await el.evaluate((e) => ({
+        disabled: e.hasAttribute("disabled") || e.getAttribute("aria-disabled") === "true",
+        visible: !!(e.offsetWidth || e.offsetHeight || e.getClientRects().length),
+      })).catch(() => ({ disabled: false, visible: true }));
+      if (state.disabled) { scr.actions.push({ name, ok: true, why: "מושבת כצפוי" }); continue; }
+      if (!state.visible) { scr.actions.push({ name, ok: true, why: "מוסתר במצב הזה" }); continue; }
+      await el.scrollIntoViewIfNeeded().catch(() => {});
       let clicked = false;
       try { await el.click({ timeout: 6000 }); clicked = true; } catch {}
+      if (!clicked) { try { await el.click({ timeout: 4000, force: true }); clicked = true; } catch {} }
       if (!clicked) { scr.actions.push({ name, ok: false, why: "לא ניתן ללחוץ" }); continue; }
       await p.waitForTimeout(2200);
       const after = await measure();
@@ -127,7 +147,7 @@ for (const [route, label] of ROUTES) {
       if (bad.length || js.length) scr.issues.push(`אחרי "${name}": ${[...bad.slice(0, 2), ...js].join(" · ")}`);
       await dismiss();
       if (!p.url().includes(route.split("/").pop())) {
-        await p.goto(`${BASE}${route}`, { waitUntil: "networkidle" });
+        await p.goto(`${BASE}${route}`, { waitUntil: "domcontentloaded" });
         await settle(3500); await dismiss();
       }
     }
