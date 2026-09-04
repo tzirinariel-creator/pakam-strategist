@@ -29,6 +29,7 @@ import { Bidi } from "@/lib/bidi";
 import { moedBOutcome, courseWeightInAverage } from "@/lib/moed-b-decision";
 import { countsTowardAverage } from "@/lib/grade-calculator";
 import type { UserCourseWithCourse } from "@/types/degree";
+import { GradeStepper } from "@/components/ui/grade-stepper";
 
 export function MoedBDecisionCard({
   courses,
@@ -120,20 +121,15 @@ export function MoedBDecisionCard({
             </select>
           </label>
 
-          <label className="mt-3 block">
-            <span className="mb-1 block text-[11px] font-medium text-foreground/60">
-              {isHe ? `אם במועד ב׳ תקבלו ${optimistic}` : `If the retake scores ${optimistic}`}
-            </span>
-            <input
-              type="range"
-              min={Math.min(100, (active.grade ?? 0) + 1)}
-              max={100}
-              value={optimistic}
-              onChange={(e) => setOptimistic(Number(e.target.value))}
-              className="w-full accent-[var(--accent-brand)]"
-              aria-label={isHe ? "ציון משוער במועד ב׳" : "Estimated second-sitting grade"}
-            />
-          </label>
+          {/* M37/N12/T11 — המחוון הוחלף בשדה מספר עם ±. ראה `GradeStepper`. */}
+          <GradeStepper
+            className="mt-3"
+            value={optimistic}
+            onChange={setOptimistic}
+            min={Math.min(100, (active.grade ?? 0) + 1)}
+            label={isHe ? "אם במועד ב׳ תקבלו" : "If the retake scores"}
+            ariaLabel={isHe ? "ציון משוער במועד ב׳" : "Estimated second-sitting grade"}
+          />
 
           <div className="mt-3 grid gap-2 sm:grid-cols-3">
             <Cell

@@ -57,14 +57,20 @@ const COURSES = [course(68, "סטטיסטיקה"), course(92, "מיקרו כלכ
 const GAIN = "text-status-green";
 
 describe("the optimistic cell never renders a drop as a gain", () => {
-  it("does not go green when the slider sits below the course's own grade", () => {
+  it("does not go green when the estimated grade sits below the course's own grade", () => {
     const { container } = render(
       <MoedBDecisionCard courses={COURSES} keepsHigherGrade={false} />,
     );
 
-    // Move the optimistic slider down while the low course is selected.
-    const slider = container.querySelector('input[type="range"]');
-    if (slider) fireEvent.change(slider, { target: { value: "75" } });
+    // מזיזים את הציון המשוער למטה בזמן שהקורס הנמוך בחור.
+    //
+    // הפקד היה `input[type=range]` עד M37/N12/T11 והוא היום שדה מספר.
+    // השורה הקודמת כאן הייתה `if (slider) fireEvent.change(...)` — כלומר
+    // ברגע שהמחוון הוסר הבדיקה **המשיכה לעבור בלי לבדוק כלום**. בדיקה
+    // שמדלגת בשקט גרועה מבדיקה שנופלת, אז הפקד נדרש במפורש.
+    const grade = container.querySelector('input[type="number"]');
+    expect(grade, "בורר הציון המשוער לא נמצא — הבדיקה הזאת לא בודקת כלום בלעדיו").not.toBeNull();
+    fireEvent.change(grade!, { target: { value: "75" } });
 
     // Now switch to the course scored 92 — the case that shipped broken.
     const select = container.querySelector("select");

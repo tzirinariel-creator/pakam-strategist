@@ -23,6 +23,8 @@ import {
 import { api } from "@/lib/trpc/react";
 import { ThemedLoader } from "@/components/ui/themed-loader";
 import { cn } from "@/lib/utils";
+import { heList } from "@/lib/he-count";
+import { GradeStepper } from "@/components/ui/grade-stepper";
 import { Bidi } from "@/lib/bidi";
 import { GRADE_WEIGHTS } from "@/lib/constants";
 import { roundScore, countsTowardAverage, courseTypeCountsTowardAverage, canonicalAttempts } from "@/lib/grade-calculator";
@@ -82,17 +84,31 @@ function WeightBreakdownBar({
     },
   ];
 
+  const missing = segments.filter((s) => s.grade === null);
+
   return (
     <div className="space-y-4">
-      {/* Stacked bar */}
+      {/* ==================================================================
+          M37 — *"המחשבונים המוזרים האלו — הם עדכניים? הכרחיים? לא מבין
+          מהם כלום"*, ובצילום שלו (עמ׳ 16) רואים בדיוק למה.
+          ==================================================================
+          הסרגל צייר **שלושה פלחים צבעוניים מלאים** — 78% קורסים, 18%
+          סמינריונים, 4% רפרט — בזמן שלשניים האחרונים אין שום נתון, ומתחתם
+          כתוב "--". פלח צבעוני מלא הוא הצהרה: "יש כאן משהו". `opacity-30`
+          לא מבטל את ההצהרה, הוא רק מחליש אותה, ובעין זה נקרא כמו נתון
+          חיוור ולא כמו היעדר נתון.
+          עיקרון 1 של הפרויקט: האפליקציה לא ממציאה כלום. אין ציון ⇒ אין
+          פלח — משבצת ריקה עם מסגרת מקווקוות, שאומרת "המשקל הזה קיים, הציון
+          עוד לא". המשקל עצמו נשאר כתוב, כי הוא עובדה מהתקנון. */}
       <div className="flex h-6 w-full overflow-hidden rounded-full bg-foreground/5">
         {segments.map((seg) => (
           <div
             key={seg.label}
             className={cn(
-              "flex items-center justify-center text-[10px] font-bold text-white transition-all duration-700",
-              seg.color,
-              seg.grade === null && "opacity-30"
+              "flex items-center justify-center text-[10px] font-bold transition-all duration-700",
+              seg.grade !== null
+                ? cn(seg.color, "text-white")
+                : "border border-dashed border-foreground/25 bg-transparent text-foreground/45",
             )}
             style={{ width: `${seg.weight * 100}%` }}
           >
@@ -100,6 +116,12 @@ function WeightBreakdownBar({
           </div>
         ))}
       </div>
+
+      {missing.length > 0 && (
+        <p className="text-[11px] leading-relaxed text-foreground/55">
+          {heList(missing.map((m) => m.label))} — {missing.length === 1 ? "המשקל שלו קיים בתקנון, אבל עוד אין לכם בו ציון, אז המשבצת ריקה." : "המשקלים שלהם קיימים בתקנון, אבל עוד אין לכם בהם ציון, אז המשבצות ריקות."}
+        </p>
+      )}
 
       {/* Legend */}
       <div className="grid gap-3 sm:grid-cols-3">
@@ -376,15 +398,14 @@ function ReverseCalculator({
         </div>
       </div>
 
-      {/* Target slider */}
+      {/* M37 · N12 · T11 — היעד נבחר בשדה מספר עם ±, לא במחוון גרירה.
+          אריאל: *"הסקאלה והמחשבון המוזרים בתכנון הציון נראים מיושנים
+          ושבורים. אמרתי 900 פעם"*. הנימוק המלא ב-`GradeStepper`. */}
       <div className="space-y-3">
         <div className="flex items-center justify-between">
           <label className="text-sm font-medium text-foreground/70">
             {t("targetScore")}
           </label>
-          <span className="font-mono tabular text-2xl font-bold text-foreground/80">
-            {target}
-          </span>
         </div>
         {/* Where the number came from. Without this the target is a figure the
             app picked and the student cannot check — the same complaint as the
@@ -404,38 +425,12 @@ function ReverseCalculator({
             )}
           </p>
         )}
-        <input
-          type="range"
-          min={sliderMin}
-          max={100}
-          step={1}
-          aria-label={t("targetScore")}
+        <GradeStepper
           value={target}
-          onChange={(e) => setTarget(parseInt(e.target.value, 10))}
-          className={cn(
-            "w-full cursor-pointer appearance-none rounded-full h-2",
-            "bg-foreground/10",
-            "[&::-webkit-slider-thumb]:appearance-none",
-            "[&::-webkit-slider-thumb]:h-5 [&::-webkit-slider-thumb]:w-5",
-            "[&::-webkit-slider-thumb]:rounded-full",
-            "[&::-webkit-slider-thumb]:bg-foreground",
-            "[&::-webkit-slider-thumb]:shadow-md",
-            "[&::-webkit-slider-thumb]:cursor-pointer",
-            "[&::-moz-range-thumb]:h-5 [&::-moz-range-thumb]:w-5",
-            "[&::-moz-range-thumb]:rounded-full",
-            "[&::-moz-range-thumb]:bg-foreground",
-            "[&::-moz-range-thumb]:border-0",
-            "[&::-moz-range-thumb]:cursor-pointer"
-          )}
-          dir="ltr"
+          onChange={setTarget}
+          min={sliderMin}
+          ariaLabel={t("targetScore")}
         />
-        <div className="flex justify-between text-xs text-foreground/60" dir="ltr">
-          <span>60</span>
-          <span>70</span>
-          <span>80</span>
-          <span>90</span>
-          <span>100</span>
-        </div>
       </div>
 
       {/* Result */}

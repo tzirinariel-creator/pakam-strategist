@@ -134,8 +134,14 @@ function reverseCard(): HTMLElement {
   return screen.getByText("reverseCalc").closest(".data-card") as HTMLElement;
 }
 
-function slider(): HTMLElement {
-  return within(reverseCard()).getByRole("slider");
+/**
+ * בורר היעד. היה `input[type=range]` (role=slider) עד M37/N12/T11 — אריאל
+ * ביקש שדה מספר עם ± במקום מחוון גרירה, אז היום זה role=spinbutton.
+ * כל השאר בבדיקות האלה זהה: min/max/value ו-fireEvent.change עובדים באותה
+ * צורה בדיוק על שני הפקדים, ולכן ההגנות עצמן לא השתנו.
+ */
+function targetInput(): HTMLElement {
+  return within(reverseCard()).getByRole("spinbutton");
 }
 
 beforeEach(() => {
@@ -159,9 +165,9 @@ describe("ReverseCalculator honesty guards (#44 QA-8)", () => {
 
     const card = reverseCard();
     // remaining = [cC] only. completed=20 ש״ס (grade 70) → sum 1400, total 30.
-    // The slider no longer opens on a hardcoded 80 (#12) — it opens above the
-    // student's own average — so drive it to the target this guard is about.
-    fireEvent.change(slider(), { target: { value: "80" } });
+    // הבורר לא נפתח על 80 קבוע (#12) — הוא נפתח מעל הממוצע של הסטודנט —
+    // אז מזיזים אותו ליעד שההגנה הזאת עוסקת בו.
+    fireEvent.change(targetInput(), { target: { value: "80" } });
     // neededAvg = (80*30 - 1400) / 10 = 100.0  → "possible".
     // If the retake leaked into remaining: count 2, "(30 credits)", neededAvg 86.7.
     expect(within(card).getByText("neededAvg")).toBeInTheDocument();
@@ -187,9 +193,9 @@ describe("ReverseCalculator honesty guards (#44 QA-8)", () => {
     const card = reverseCard();
     // Correct divisor = 10 ש״ס (only cC). total 30.
     // This guard is about the DIVISOR, not about any particular target. The
-    // slider no longer opens on a hardcoded 80 and will not travel below the
+    // הבורר לא נפתח על 80 קבוע ולא יורד מתחת ל-
     // student's own average (#12) — theirs is 90 — so drive it to 92.
-    fireEvent.change(slider(), { target: { value: "92" } });
+    fireEvent.change(targetInput(), { target: { value: "92" } });
     // neededAvg = (92*30 - 1800) / 10 = 96.0. count 1.
     // If seminar/English/binary leaked into the divisor it would be 32 credits,
     // and the answer would read 30.0 instead.
@@ -215,7 +221,7 @@ describe("ReverseCalculator honesty guards (#44 QA-8)", () => {
     expect(within(card).queryByText("impossible")).toBeNull();
 
     // Push the target to 100: neededAvg = (100*40 - 2400)/10 = 160 → "impossible".
-    fireEvent.change(slider(), { target: { value: "100" } });
+    fireEvent.change(targetInput(), { target: { value: "100" } });
     expect(within(reverseCard()).getByText("impossible")).toBeInTheDocument();
     expect(within(reverseCard()).queryByText("neededAvg")).toBeNull();
   });
@@ -234,12 +240,12 @@ describe("ReverseCalculator honesty guards (#44 QA-8)", () => {
     ];
     render(<GradeCalculatorContent />);
 
-    const bar = slider() as HTMLInputElement;
+    const bar = targetInput() as HTMLInputElement;
     // Average is 100, so there is nowhere above to go: floor and value are 100.
     expect(Number(bar.min)).toBeGreaterThanOrEqual(99);
     expect(Number(bar.value)).toBeGreaterThanOrEqual(Number(bar.min));
 
-    // And the old absurdity is gone: no target on this slider produces a
+    // And the old absurdity is gone: no target on this control produces a
     // "needed average" beneath the grades already earned.
     fireEvent.change(bar, { target: { value: bar.min } });
     const after = reverseCard();

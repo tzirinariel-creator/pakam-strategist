@@ -32,6 +32,7 @@ import type { ExamPlanResult } from "@/lib/exam-planner";
 import { shortCourseName } from "@/lib/xlsx-export";
 import { cn } from "@/lib/utils";
 import { heNoun } from "@/lib/he-count";
+import { planWeekSegments } from "@/components/exam-planner/exam-planner-utils";
 
 // LOCAL-midnight day helpers — copied from study-skyline.tsx. MUST be local
 // (never toISOString/UTC): for Israel (UTC+2/+3) a local-midnight Date
@@ -302,17 +303,11 @@ export function WeeklyGrid({
       }
       busy.push(has);
     }
-    // רצף של שבוע ריק בודד לא שווה שורת-קיפול — היא לא קצרה מהשורה עצמה.
-    const MIN_RUN = 2;
-    const out: ({ kind: "week"; w: number } | { kind: "gap"; from: number; to: number })[] = [];
-    for (let w = 0; w < weeks; ) {
-      if (busy[w]) { out.push({ kind: "week", w }); w += 1; continue; }
-      let end = w;
-      while (end + 1 < weeks && !busy[end + 1]) end += 1;
-      if (end - w + 1 >= MIN_RUN) { out.push({ kind: "gap", from: w, to: end }); w = end + 1; }
-      else { out.push({ kind: "week", w }); w += 1; }
-    }
-    return out;
+    // הלוגיקה עצמה יושבת ב-`planWeekSegments` ונבדקת שם: התוכנית שבניתי
+    // בפרודקשן ליום הזה מכילה **שבוע ריק אחד בלבד**, כלומר היא לא מפעילה
+    // את הקיפול. קוד שלא מופעל בנתיב שבדקתי חייב בדיקה משלו, אחרת "עובד"
+    // הוא ניחוש.
+    return planWeekSegments(weeks, (w) => busy[w] ?? false);
   }, [weeks, weekStart, taskByDay, examByDay]);
 
   const sensors = useSensors(
