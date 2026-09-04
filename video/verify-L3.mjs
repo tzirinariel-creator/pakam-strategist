@@ -23,9 +23,23 @@ await p.getByRole("button", { name: /^הבא$/ }).first().click();
 await p.waitForTimeout(4000);
 
 console.log("שומר…");
+const tSave = Date.now();
 await p.getByRole("button", { name: /^סיום ושמירה$/ }).first().click();
+// L1: על שמירה בריאה אסור שתופיע האזהרה "לוקח קצת יותר מהרגיל"
+let warned = null;
+const watch = (async () => {
+  while (Date.now() - tSave < 120000) {
+    const t = await p.locator("body").innerText().catch(() => "");
+    if (/לוקח קצת יותר מהרגיל/.test(t) && warned === null) warned = (Date.now() - tSave) / 1000;
+    if (/הכול מוכן/.test(t)) return;
+    await p.waitForTimeout(400);
+  }
+})();
 await p.waitForFunction(() => /הכול מוכן/.test(document.body.innerText), { timeout: 120000 });
-console.log("✅ הפינאלה 'הכול מוכן' הופיעה");
+await watch;
+const saveSecs = (Date.now() - tSave) / 1000;
+console.log(`✅ הפינאלה 'הכול מוכן' הופיעה אחרי ${saveSecs.toFixed(1)}s`);
+console.log(`L1 — אזהרת "לוקח קצת יותר מהרגיל": ${warned === null ? "✅ לא הופיעה" : `❌ הופיעה ב-${warned}s`}`);
 
 // הפינאלה חייבת להחזיק. לפני התיקון היא נעלמה מעצמה אחרי 3.6 שניות.
 await p.waitForTimeout(20000);
