@@ -54,6 +54,7 @@
     "resetEmailSent": "If that address exists, we sent a password reset link",
     "resetEmailError": "Couldn't send a reset link — try again",
     "errInvalidCredentials": "Wrong email or password — check and try again",
+    "errNetwork": "Can't reach the server right now — check your connection and try again in a moment",
     "errEmailNotConfirmed": "Email not verified yet — click the confirmation link we sent you",
     "errUserAlreadyRegistered": "That email is already registered — try logging in instead",
     "errWeakPassword": "Password must be at least 6 characters",

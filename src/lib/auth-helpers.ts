@@ -24,6 +24,21 @@ export function authErrorKey(message: string | undefined | null): string | null 
   if (m.includes("email rate limit exceeded") || m.includes("rate limit"))
     return "errRateLimit";
 
+  // כשל רשת — ולא סיסמה שגויה. 5.9: חסימת־קצב של Supabase חוזרת **בלי
+  // כותרות CORS**, הדפדפן מדווח על חסימה, ו-supabase-js מחזיר "Failed to
+  // fetch". ההודעה לא זוהתה, המסך נפל ל-loginFailed — "בדקו את הפרטים" —
+  // כלומר האפליקציה האשימה סטודנט שהפרטים שלו נכונים. באוניברסיטה, עם
+  // רשת עמוסה ביום רישום, זה בדיוק הרגע שבו אסור לשלוח מישהו לבדוק את
+  // הסיסמה שלו.
+  if (
+    m.includes("failed to fetch") ||
+    m.includes("networkerror") ||
+    m.includes("load failed") ||
+    m.includes("network request failed") ||
+    m.includes("fetch failed")
+  )
+    return "errNetwork";
+
   return null;
 }
 
