@@ -33,6 +33,21 @@ interface RateLimitOptions {
   maxRequests: number;
   /** Time window in seconds */
   windowSeconds: number;
+  /**
+   * כמה יחידות הבקשה הזאת **באמת** צורכת. ברירת המחדל 1.
+   *
+   * אריאל אישר, 4.9: *"מכסת הסריקות: לחייב 3 במונה. **לא** להוריד את
+   * המגבלות."*
+   *
+   * הרקע: `scan-grades` קורא ל-Gemini **שלוש פעמים** (קריאה, אימות
+   * צולב, ומפקד שורות) והמונה ספר אחת. עם 10 סריקות למשתמש ליום ו-150
+   * גלובלי, המשמעות הייתה עד 450 קריאות בפועל מול מכסה חינמית של
+   * ~1,000 שמשותפת גם למלך. המספר במונה פשוט לא אמר את האמת.
+   *
+   * החיוב הנכון גורם לשומר שלנו להיעצר **לפני** שגוגל עוצרת — כלומר
+   * הסטודנט מקבל את ההודעה הנכונה שלנו במקום כשל אטום משם.
+   */
+  cost?: number;
 }
 
 interface RateLimitResult {
@@ -53,28 +68,32 @@ export function checkRateLimit(
 
   const existing = rateLimitMap.get(key);
 
+  const cost = Math.max(1, options.cost ?? 1);
+
   if (!existing || now > existing.resetTime) {
     // New window
-    rateLimitMap.set(key, { count: 1, resetTime: now + windowMs });
+    rateLimitMap.set(key, { count: cost, resetTime: now + windowMs });
     return {
       allowed: true,
-      remaining: options.maxRequests - 1,
+      remaining: Math.max(0, options.maxRequests - cost),
       resetInSeconds: options.windowSeconds,
     };
   }
 
-  if (existing.count >= options.maxRequests) {
+  // נבדק מול העלות המלאה: בקשה ששווה 3 לא תתחיל כשנשארו 2, כי היא
+  // תשרוף אצל גוגל שלוש קריאות בכל מקרה.
+  if (existing.count + cost > options.maxRequests) {
     return {
       allowed: false,
-      remaining: 0,
+      remaining: Math.max(0, options.maxRequests - existing.count),
       resetInSeconds: Math.ceil((existing.resetTime - now) / 1000),
     };
   }
 
-  existing.count++;
+  existing.count += cost;
   return {
     allowed: true,
-    remaining: options.maxRequests - existing.count,
+    remaining: Math.max(0, options.maxRequests - existing.count),
     resetInSeconds: Math.ceil((existing.resetTime - now) / 1000),
   };
 }

@@ -926,7 +926,11 @@
     "finalCta": {
       "title": "Signing up takes less time than finding a course in the Yedion",
       "note": "Free. No credit card, no subscription — and it stays that way."
-    }
+    },
+    "ctaFree": "Free, no credit card",
+    "ctaPeek": "Take a look without signing up",
+    "ctaPeekBusy": "Opening demo…",
+    "ctaPeekFailed": "The demo isn't available right now. Signing up takes under a minute."
   },
   "about": {
     "title": "About",

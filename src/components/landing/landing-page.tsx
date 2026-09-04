@@ -1,6 +1,8 @@
 "use client";
 
+import { useState } from "react";
 import { useTranslations, useLocale } from "next-intl";
+import { useRouter } from "@/i18n/navigation";
 import { Link } from "@/i18n/navigation";
 import {
   GraduationCap,
@@ -154,6 +156,31 @@ function PlannerPreview({ isRTL }: { isRTL: boolean }) {
 
 export function LandingPage() {
   const t = useTranslations("landing");
+  const router = useRouter();
+  const [peeking, setPeeking] = useState(false);
+  const [peekError, setPeekError] = useState<string | null>(null);
+
+  /** דלת הדמו — אותה קריאה שטופס ההתחברות עושה, ואותה נחיתה עם ?reset=demo. */
+  const handlePeek = async () => {
+    setPeekError(null);
+    setPeeking(true);
+    try {
+      const res = await fetch("/api/auth/demo-login", { method: "POST" });
+      if (!res.ok) {
+        // הראוט מחזיר אנגלית בלבד ("Too many requests", "Demo login failed"),
+        // והדף הזה עברי ו-RTL. הסטטוס אומר את אותו הדבר בלי לדלוף אנגלית.
+        setPeekError(t("ctaPeekFailed"));
+        return;
+      }
+      router.push("/dashboard?reset=demo");
+      router.refresh();
+    } catch {
+      setPeekError(t("ctaPeekFailed"));
+    } finally {
+      setPeeking(false);
+    }
+  };
+
   const locale = useLocale();
   const isRTL = locale === "he";
   const Arrow = isRTL ? ArrowLeft : ArrowRight;
@@ -310,6 +337,35 @@ export function LandingPage() {
               <Button variant="outline" size="lg" className="w-full px-8 sm:w-auto" asChild>
                 <Link href="/login">{t("ctaLogin")}</Link>
               </Button>
+            </div>
+
+            {/* ==================================================================
+                שני פריטי שיווק שאריאל אישר (חלק י׳ · פריט 8, ב׳ ו-ג׳)
+                ==================================================================
+                (ג) **"חינם" הופיע רק בתחתית העמוד** — אחרי "שאלות נפוצות",
+                כלומר אחרי שרוב הקוראים כבר החליטו. זו עובדה על המוצר, והיא
+                שייכת ליד הכפתור שמבקשים בו החלטה.
+
+                (ב) **דלת הדמו קיימת ועובדת ולא הייתה מסומנת בדף הנחיתה.**
+                היא הייתה רק בטופסי ההתחברות וההרשמה — כלומר רק אחרי שהמבקר
+                כבר בחר להירשם. סטודנט שרוצה לראות מה יש כאן לפני שהוא מוסר
+                מייל לא מצא איך.
+                אותו `POST /api/auth/demo-login` בדיוק, ואותה נחיתה על
+                `?reset=demo` שמאפסת את חשבון ההדגמה — כדי שכל מבקר יראה
+                תוכנית מלאה ולא את השאריות של הקודם. */}
+            <div className="mt-3 flex flex-col items-center gap-1.5 text-center lg:items-start lg:text-start">
+              <button
+                type="button"
+                onClick={handlePeek}
+                disabled={peeking}
+                className="text-sm font-medium text-accent-brand underline underline-offset-4 transition-colors hover:text-accent-brand-hover disabled:opacity-60"
+              >
+                {peeking ? t("ctaPeekBusy") : t("ctaPeek")}
+              </button>
+              <p className="text-xs text-muted-foreground">{t("ctaFree")}</p>
+              {peekError && (
+                <p role="alert" className="text-xs text-status-red">{peekError}</p>
+              )}
             </div>
 
             {/* Stat strip — grounding, honest counts (not invented metrics) */}

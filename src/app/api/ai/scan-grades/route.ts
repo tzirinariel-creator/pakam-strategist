@@ -14,6 +14,9 @@ import { generateGeminiVision } from "@/lib/ai/gemini-client";
 import { detectProvider } from "@/lib/ai/provider";
 import { decrypt, encrypt } from "@/lib/crypto";
 import { checkRateLimit } from "@/lib/rate-limit";
+
+/** כמה קריאות Gemini סריקת גיליון אחת באמת שורפת — קריאה, אימות צולב, ומפקד. */
+const GEMINI_CALLS_PER_SCAN = 3;
 import { isDemoEmail, DEMO_READONLY_MESSAGE } from "@/server/trpc/demo";
 import {
   parseExtraction,
@@ -142,9 +145,14 @@ export async function POST(request: NextRequest) {
     // failed attempt (bad input 400, no key 412) never burns one of the 10
     // daily scans. checkRateLimit increments the counter, so it must run only on
     // a genuine scan attempt. (verification 4.7)
+    // עלות 3: הסריקה הזאת קוראת ל-Gemini שלוש פעמים (שורות 182, 214, 249).
+    // המגבלה נשארת 10 — כלומר שלוש סריקות מלאות ליום, וזה מה שהיא באמת
+    // הייתה כל הזמן. הורדת המגבלה עצמה הייתה חוסמת סטודנט אמיתי ביום
+    // ההשקה, וזה הכשל ההפוך.
     const perUser = checkRateLimit(`scan-day:${authUser.id}`, {
       maxRequests: 10,
       windowSeconds: 86_400,
+      cost: GEMINI_CALLS_PER_SCAN,
     });
     if (!perUser.allowed) {
       return NextResponse.json(
@@ -170,6 +178,7 @@ export async function POST(request: NextRequest) {
       const global = checkRateLimit("scan-day:__global__", {
         maxRequests: 150,
         windowSeconds: 86_400,
+        cost: GEMINI_CALLS_PER_SCAN,
       });
       if (!global.allowed) {
         return NextResponse.json(
