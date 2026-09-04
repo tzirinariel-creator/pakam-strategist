@@ -92,7 +92,7 @@ export function GradeStepper({
             "14:00–12:00" ששבר את השיתוף. `Bidi` עוטף כל רצף כזה ב-bdi
             מבודד — ולא `dir="ltr"` על האלמנט, שהוא אסור על טקסט שיש בו
             מילה עברית (חוקי הברזל). */}
-        <span className="text-[11px] text-foreground/50">
+        <span className="text-[11px] text-foreground/70">
           <Bidi text={`${min}–${max}`} />
         </span>
       </div>

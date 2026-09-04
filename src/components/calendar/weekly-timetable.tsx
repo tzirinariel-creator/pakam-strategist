@@ -399,7 +399,7 @@ export function WeeklyTimetable({
       {conflictLines.length > 0 && (
         <div className="flex gap-2 rounded-lg border border-red-500/25 bg-red-500/[0.05] px-3 py-2">
           <AlertTriangle className="mt-px size-3.5 shrink-0 text-status-red/80" />
-          <ul className="min-w-0 flex-1 space-y-0.5 text-[11px] leading-relaxed text-status-red/90/90">
+          <ul className="min-w-0 flex-1 space-y-0.5 text-[11px] leading-relaxed text-status-red">
             {shownConflictLines.map((line) => (
               <li key={line.key} className="truncate">
                 {line.lead}{" "}
@@ -407,7 +407,7 @@ export function WeeklyTimetable({
               </li>
             ))}
             {conflictLines.length > shownConflictLines.length && (
-              <li className="text-status-red/60/60">
+              <li className="text-status-red">
                 {/* W3 — "ועוד 1 חפיפות". */}
                 {isHe
                   ? `ועוד ${heNounF(conflictLines.length - shownConflictLines.length, "חפיפה", "חפיפות")}`

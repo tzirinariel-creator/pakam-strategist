@@ -1204,7 +1204,7 @@ export function SemesterPlanner({
         <div className="mt-2 flex flex-col items-center gap-2">
           {/* Soft horizon nudge — only when editing a far semester (E-4). */}
           {activeIsFar && (
-            <p className="max-w-md text-[11px] leading-snug text-status-amber/80/70">
+            <p className="max-w-md text-[11px] leading-snug text-status-amber">
               {isHe
                 ? "זה סמסטר רחוק יחסית — סביר שדברים עוד ישתנו. אפשר לתכנן, רק כדאי להתמקד קודם בסמסטר הקרוב."
                 : "This is a far-off semester — things will likely still change. Plan if you like, but focus on the upcoming one first."}

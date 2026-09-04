@@ -99,7 +99,7 @@ export function DegreeInBrief({
               ההפרש הוא קורס שטרם פורסם, וזה נאמר כאן במקום להשאיר אותו
               כפער שהוא יגלה לבד. */}
           {R.MANDATORY_UNPUBLISHED > 0 && (
-            <p className="mt-2 text-xs leading-relaxed text-foreground/55">
+            <p className="mt-2 text-xs leading-relaxed text-foreground/70">
               הערה קטנה על החובה: בקטלוג תמצאו כרגע{" "}
               <Bidi text={String(R.MANDATORY_TOTAL)} /> ש״ס חובה ולא{" "}
               <Bidi text={String(R.MANDATORY_OFFICIAL)} />. ההפרש —{" "}
@@ -118,7 +118,7 @@ export function DegreeInBrief({
                 <>השלמתם את מכסת הש״ס.</>
               )}
             </p>
-            <p className="mt-1 text-xs text-foreground/55">
+            <p className="mt-1 text-xs text-foreground/70">
               המספרים מתקנון פכ״מ ומהקטלוג הפעיל. מה שלמטה הוא הבדיקה שלכם מולם, כלל אחר כלל.
             </p>
           </div>

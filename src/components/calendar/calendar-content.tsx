@@ -528,7 +528,7 @@ export function CalendarContent() {
 
       {/* Honest ידיעון note — next year's schedule isn't published yet */}
       {yedionCaveat && semesterCourses.length > 0 && viewMode !== "exams" && (
-        <p className="-mt-2 text-xs leading-relaxed text-status-amber/80/80">
+        <p className="-mt-2 text-xs leading-relaxed text-status-amber">
           {locale === "he"
             ? `שימו לב: השעות והמיקומים לסמסטר הקרוב מוצגים לפי ידיעון ${hebrewYearLabel(yedionCaveat.published)} — ידיעון ${hebrewYearLabel(yedionCaveat.upcoming)} טרם פורסם, וייתכנו עדכונים.`
             : `Heads up: next semester's hours and rooms follow the ${yedionCaveat.published}/${yedionCaveat.published + 1} catalog — the ${yedionCaveat.upcoming}/${yedionCaveat.upcoming + 1} one isn't published yet, so details may shift.`}

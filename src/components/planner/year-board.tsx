@@ -342,7 +342,7 @@ export function YearBoard({
                 ? "יש קורסים שמשובצים לסמסטר קיץ"
                 : "Some courses are placed in a summer semester"}
             </p>
-            <p className="mt-0.5 text-xs text-status-amber/80/70">
+            <p className="mt-0.5 text-xs text-status-amber">
               {isHe
                 ? "פכ״מ מתוכנן לסתיו ולאביב בלבד. כדי שהקורסים האלה לא יאבדו, העבירו אותם לאביב."
                 : "This degree is planned for fall and spring only. Move these to spring so they aren't lost."}

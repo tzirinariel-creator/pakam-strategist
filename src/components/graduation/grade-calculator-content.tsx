@@ -108,7 +108,7 @@ function WeightBreakdownBar({
               "flex items-center justify-center text-[10px] font-bold transition-all duration-700",
               seg.grade !== null
                 ? cn(seg.color, "text-white")
-                : "border border-dashed border-foreground/25 bg-transparent text-foreground/45",
+                : "border border-dashed border-foreground/35 bg-transparent text-foreground/70",
             )}
             style={{ width: `${seg.weight * 100}%` }}
           >
@@ -118,7 +118,7 @@ function WeightBreakdownBar({
       </div>
 
       {missing.length > 0 && (
-        <p className="text-[11px] leading-relaxed text-foreground/55">
+        <p className="text-[11px] leading-relaxed text-foreground/70">
           {heList(missing.map((m) => m.label))} — {missing.length === 1 ? "המשקל שלו קיים בתקנון, אבל עוד אין לכם בו ציון, אז המשבצת ריקה." : "המשקלים שלהם קיימים בתקנון, אבל עוד אין לכם בהם ציון, אז המשבצות ריקות."}
         </p>
       )}
@@ -422,7 +422,7 @@ function ReverseCalculator({
             app picked and the student cannot check — the same complaint as the
             per-course hint in the simulator (#37). */}
         {currentAvg != null && (
-          <p className="text-xs text-foreground/50">
+          <p className="text-xs text-foreground/70">
             {isHe ? (
               <>
                 ממוצע הקורסים שלכם עכשיו <Bidi text={currentAvg.toFixed(1)} />. משם מתחילים,

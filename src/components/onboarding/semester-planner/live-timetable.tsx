@@ -468,7 +468,10 @@ export function LiveTimetable({
       {coursesWithoutSchedule.length > 0 && (
         <div className="flex items-start gap-2 rounded-lg border border-dashed border-amber-500/20 bg-amber-500/5 px-3 py-2">
           <CalendarX2 className="mt-0.5 h-3.5 w-3.5 shrink-0 text-status-amber/60" />
-          <div className="text-xs leading-relaxed text-status-amber/70">
+          {/* T5 — `--status-amber-text` נמדד 5.29:1 בבהיר, אבל `/70` מוריד
+              אותו ל-**2.99:1**. הטוקן היה נכון; מְשַׁנֶּה־השקיפות ביטל אותו.
+              אותה משפחה בדיוק כמו צבעי הקורסים שנשאו טקסט בצ׳יפים. */}
+          <div className="text-xs leading-relaxed text-status-amber">
             <span className="font-medium">
               {t("coursesWithoutSchedule", { count: coursesWithoutSchedule.length })}
             </span>
