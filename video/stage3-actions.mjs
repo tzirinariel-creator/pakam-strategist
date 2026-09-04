@@ -76,9 +76,22 @@ const ACTIONS = [
       const qs=await p.evaluate(()=>[...document.querySelectorAll("button")].map(b=>b.innerText.trim()).filter(x=>/\?$/.test(x)&&x.length>6));
       if(!qs.length) return { ok:false, evidence:"נפתח בלי שאלות מוצעות" };
       await p.getByRole("button",{name:qs[0]}).first().click().catch(()=>{});
-      await p.waitForTimeout(9000);
+      await p.waitForTimeout(11000);
       const t=await T();
-      return { ok:true, evidence:`נשאל "${qs[0].slice(0,44)}" · המסך גדל ל-${t.length} תווים` }; } },
+      // א.3.1 ביומן — "סנכרון היומן והלוח על המלך". בקוד יש עוגן תאריך
+      // ותקופת בחינות; שעות השיעורים לא נראו בהקשר. שאלה ישירה מכריעה.
+      let clock="לא נשאל";
+      const box=p.locator('textarea, input[type="text"]').last();
+      if (await box.count()) {
+        await box.fill("מה התאריך היום ומתי השיעורים שלי השבוע?").catch(()=>{});
+        await p.keyboard.press("Enter").catch(()=>{});
+        await p.waitForTimeout(14000);
+        const a=await T();
+        const hasDate=/\d{1,2}\.\d{1,2}/.test(a.slice(t.length));
+        const hasHour=/\d{1,2}:\d{2}/.test(a.slice(t.length));
+        clock=`תאריך בתשובה: ${hasDate?"כן":"לא"} · שעות: ${hasHour?"כן":"לא"}`;
+      }
+      return { ok:true, evidence:`נשאל "${qs[0].slice(0,40)}" · המסך גדל ל-${t.length} תווים · ${clock}` }; } },
 
   { id:"חיבור-יומן", where:"/he/settings", async run(){
       await go("/he/settings",9000);
