@@ -63,6 +63,19 @@ interface SemesterPlannerProps {
   data: OnboardingData;
   allCourses: CourseWithSchedule[];
   isLoadingCourses: boolean;
+  /**
+   * האם להיכנס ישר לעורך במקום למסך הסיכום. (4.9)
+   *
+   * מסך "המערכת המומלצת מוכנה" נכון כ**מסך אישור** בסוף האשף, כשהרכבנו
+   * סמסטר חובה-כבד והסטודנט רק מאשר. הוא **שגוי כמסך כניסה**: מי שלוחץ
+   * "תכננו את שני הסמסטרים לבידינג" מהלוח ביקש לתכנן, לא לאשר — והוא
+   * נחת על עוד מסך לפני זה.
+   *
+   * אריאל, 4.9, תוך כדי שימוש: *"כשבאתי לתכנן את הסמסטרים זה לא קפץ
+   * מיידית לתכנון שנתי אלא העביר אותי דרך עוד מסך ביניים."* זו גם ההערה
+   * שהוא נתן כמה פעמים כ"למה יש שני מסכים".
+   */
+  startInEditor?: boolean;
   /** Completed rows, so the planner can state the student's English standing. */
   completedRows?: { nameHe: string; courseCode?: string | null; grade: number | null; status?: string; credits?: number | null }[];
   /**
@@ -131,6 +144,7 @@ export function SemesterPlanner({
   data,
   allCourses,
   isLoadingCourses,
+  startInEditor = false,
   completedRows,
   onFinish,
   draftScopeId,
@@ -458,7 +472,7 @@ export function SemesterPlanner({
     () => isMandatoryHeavy(allCurrentCourses),
     [allCurrentCourses]
   );
-  const showSummary = summaryPref ?? (!isLoadingCourses && mandatoryHeavy);
+  const showSummary = summaryPref ?? (!startInEditor && !isLoadingCourses && mandatoryHeavy);
 
   // Course codes that offer a real group CHOICE (a session type with >1 group)
   // this semester — reuses the same detector the sidebar SessionGroupSelector

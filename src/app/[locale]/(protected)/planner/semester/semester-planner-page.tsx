@@ -366,6 +366,9 @@ export function SemesterPlannerPage() {
         data={data}
         allCourses={plannerCourses}
         isLoadingCourses={coursesQuery.isLoading}
+        // מהלוח נכנסים כדי **לתכנן**, לא כדי לאשר. מסך הסיכום נשאר זמין
+        // מתוך העורך ("סיום ושמירה" מוביל אליו), אבל הוא לא חוסם את הכניסה.
+        startInEditor
         onFinish={handleFinish}
         externalCompletedCourseIds={externalCompletedCourseIds}
         initialPlannedSemesters={initialPlannedSemesters}
