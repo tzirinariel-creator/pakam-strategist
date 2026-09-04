@@ -26,23 +26,29 @@ try {
   out.לפני = (await M()).slice(0, 220);
   console.log("לפני ההזנה:", out.לפני.slice(0, 150));
 
-  // הזנת שני סמסטרי מילואים דרך "הוסיפו סמסטר"
-  for (let i = 0; i < 2; i++) {
+  // שתי שורות: תשפ״ה = שנה א׳ · תשפ״ו = שנה ב׳ (הסטודנט התחיל בתשפ״ה).
+  // השנה והסמסטר הם קבוצות כפתורים, לא רשימות — לוחצים, לא בוחרים.
+  const SPEC = [{ year: "תשפ״ה", sem: "א׳", days: 40 },
+                { year: "תשפ״ו", sem: "א׳", days: 25 }];
+  for (let i = 0; i < SPEC.length; i++) {
     const add = p.getByRole("button", { name: /הוסיפו סמסטר/ }).first();
-    if (!(await add.count())) { console.log("אין כפתור 'הוסיפו סמסטר'"); break; }
-    await add.click(); await p.waitForTimeout(2200);
-  }
-  const nums = p.locator('main input[type="number"]');
-  const cnt = await nums.count();
-  console.log(`שדות ימים על המסך: ${cnt}`);
-  // 40 ימים → קבוצה C · 25 ימים → קבוצה B
-  const days = [40, 25];
-  for (let i = 0; i < Math.min(cnt, 2); i++) {
-    await nums.nth(i).fill(String(days[i])).catch(() => {});
-    await p.waitForTimeout(600);
+    if (!(await add.count())) break;
+    await add.click(); await p.waitForTimeout(2500);
+    // השורה החדשה היא האחרונה; מגבילים את הבחירה אליה
+    const rows = p.locator('main input[type="number"]');
+    const idx = (await rows.count()) - 1;
+    const row = rows.nth(idx).locator("xpath=ancestor::*[self::div][3]");
+    const yBtn = row.getByRole("button", { name: new RegExp(`^${SPEC[i].year}$`) }).first();
+    if (await yBtn.count()) { await yBtn.click(); await p.waitForTimeout(700); }
+    else console.log(`  ⚠️  לא נמצא כפתור שנה ${SPEC[i].year} בשורה`);
+    const sBtn = row.getByRole("button", { name: new RegExp(`^${SPEC[i].sem}$`) }).first();
+    if (await sBtn.count()) { await sBtn.click(); await p.waitForTimeout(700); }
+    await rows.nth(idx).fill(String(SPEC[i].days)).catch(() => {});
+    await p.waitForTimeout(800);
+    console.log(`  שורה ${i + 1}: ${SPEC[i].year} · סמסטר ${SPEC[i].sem} · ${SPEC[i].days} ימים`);
   }
   const save = p.getByRole("button", { name: /שמירת מילואים/ }).first();
-  if (await save.count()) { await save.click(); await p.waitForTimeout(6000); }
+  if (await save.count()) { await save.click(); await p.waitForTimeout(7000); }
 
   await go("/he/miluim", 10000);
   const t = await M();

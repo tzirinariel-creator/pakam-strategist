@@ -3,6 +3,22 @@
 // ============================================================
 import { chromium } from "playwright";
 import { fileURLToPath } from "node:url";
+import { readFileSync, existsSync } from "node:fs";
+
+// טעינת .env — ההתחברות דרך ה-API צריכה את כתובת Supabase ואת מפתח anon.
+for (const f of [".env.local", ".env"]) {
+  const path = fileURLToPath(new URL(`../${f}`, import.meta.url));
+  if (!existsSync(path)) continue;
+  for (const line of readFileSync(path, "utf-8").split("\n")) {
+    const t = line.trim();
+    if (!t || t.startsWith("#")) continue;
+    const i = t.indexOf("=");
+    if (i > 0) {
+      const k = t.slice(0, i).trim();
+      if (!process.env[k]) process.env[k] = t.slice(i + 1).trim().replace(/^"|"$/g, "");
+    }
+  }
+}
 
 export const BASE = "https://pakam-strategist.vercel.app";
 export const SHOTS = fileURLToPath(new URL("./shots/", import.meta.url));
@@ -28,8 +44,53 @@ export async function openApp({ width = 1440, height = 1000, mobile = false } = 
   return { b, ctx, p, errors };
 }
 
+/**
+ * התחברות דרך ה-API והזרקת הסשן לדפדפן.
+ *
+ * 5.9: אחרי ~55 התחברויות אוטומטיות בלילה אחד, Supabase חסם בקצב. החסימה
+ * חוזרת **בלי כותרות CORS**, הדפדפן מדווח על חסימת CORS, והטופס נתקע —
+ * כלומר הכלי שלי הפך לרעש שמפריע לעצמו, ובדרך גם שרף מכסת אימות אמיתית.
+ *
+ * מילוי טופס אינו מה שנבדק כאן; הוא רק אמצעי להגיע למסך מחובר. אז מביאים
+ * טוקן פעם אחת דרך `/auth/v1/token` ומניחים אותו במפתח שבו supabase-js
+ * מחפש אותו. המסלול הזה **נבדק בנפרד** ב-verify-all (M31) ובסיורים.
+ */
 export async function login(p, email = "test@pakamon.dev", pass = "test123456") {
-  await p.goto(`${BASE}/he/login`, { waitUntil: "networkidle" });
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const anon = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+  if (url && anon) {
+    const res = await fetch(`${url}/auth/v1/token?grant_type=password`, {
+      method: "POST",
+      headers: { apikey: anon, "Content-Type": "application/json" },
+      body: JSON.stringify({ email, password: pass }),
+    });
+    if (res.ok) {
+      const session = await res.json();
+      // האפליקציה משתמשת ב-@supabase/ssr, שקורא את הסשן מ**עוגייה** —
+      // localStorage לבדו מחזיר את המשתמש למסך ההתחברות. הערך מקודד
+      // base64- בדיוק כפי שהספרייה כותבת אותו, ומפוצל לנתחים אם הוא ארוך.
+      const ref = new URL(url).hostname.split(".")[0];
+      const raw = "base64-" + Buffer.from(JSON.stringify(session), "utf-8").toString("base64");
+      const CHUNK = 3180;
+      const cookies = [];
+      if (raw.length <= CHUNK) {
+        cookies.push({ name: `sb-${ref}-auth-token`, value: raw });
+      } else {
+        for (let i = 0, n = 0; i < raw.length; i += CHUNK, n++)
+          cookies.push({ name: `sb-${ref}-auth-token.${n}`, value: raw.slice(i, i + CHUNK) });
+      }
+      await p.context().addCookies(
+        cookies.map((c) => ({ ...c, domain: new URL(BASE).hostname, path: "/",
+                              httpOnly: false, secure: true, sameSite: "Lax" }))
+      );
+      await p.goto(`${BASE}/he/dashboard`, { waitUntil: "domcontentloaded" });
+      await p.waitForFunction(() => document.body.innerText.length > 600, null, { timeout: 45000 }).catch(() => {});
+      await p.waitForTimeout(3000);
+      return;
+    }
+  }
+  // נפילה חזרה לטופס — וגם המסלול הזה נשאר נבדק
+  await p.goto(`${BASE}/he/login`, { waitUntil: "domcontentloaded" });
   await p.getByRole("button", { name: /התחברות עם דוא/ }).click();
   await p.locator("input[type=email]").fill(email);
   await p.locator("input[type=password]").fill(pass);
