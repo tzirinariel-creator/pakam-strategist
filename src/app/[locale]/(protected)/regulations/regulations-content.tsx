@@ -7,6 +7,8 @@ import { api } from "@/lib/trpc/react";
 import { ThemedLoader } from "@/components/ui/themed-loader";
 import { Link } from "@/i18n/navigation";
 import { ComplianceOverview } from "@/components/regulations/compliance-overview";
+import { DegreeInBrief } from "@/components/regulations/degree-in-brief";
+import { deriveYearOfStudy } from "@/lib/academic-calendar";
 import { RuleList } from "@/components/regulations/rule-list";
 import { PageHeader } from "@/components/ui/page-header";
 
@@ -21,6 +23,15 @@ export function RegulationsContent() {
     refetch,
     isFetching,
   } = api.regulation.checkCompliance.useQuery();
+
+  // M33 — ההסבר נשען על אותם שדות שדף הבית מציג, לא על חישוב שני שלו.
+  const creditsQuery = api.plan.getCredits.useQuery(undefined, { staleTime: 60 * 1000 });
+  const profileQuery = api.user.getProfile.useQuery(undefined, { staleTime: 60 * 1000 });
+  const earnedCredits = creditsQuery.data?.breakdown?.earned ?? 0;
+  const currentYear = deriveYearOfStudy(
+    profileQuery.data?.startYear,
+    profileQuery.data?.currentYear ?? 1,
+  );
 
   return (
     <div className="flex flex-col gap-6 p-4 md:p-6 animate-fade-in">
@@ -98,6 +109,9 @@ export function RegulationsContent() {
           נבדוק אוטומטית"), so nothing new is claimed and nothing is lost. */}
       {summary && summary.courseCount > 0 && (
         <>
+          {/* M33 — ההסבר קודם למונים. סטודנט שנכנס לכאן שואל "מה נדרש
+              ממני", ולא "כמה מתוך 27 כללים עברתי". */}
+          <DegreeInBrief currentYear={currentYear} earnedCredits={earnedCredits} />
           <ComplianceOverview summary={summary} />
 
           {/* The full notice belongs on THIS screen above all others: it is the
