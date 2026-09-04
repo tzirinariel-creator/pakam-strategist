@@ -1,0 +1,18 @@
+import { openApp, login, shot, BASE } from "./tour-lib.mjs";
+const { b, p } = await openApp({ width: 1440, height: 1100 });
+const settle=async(ms=8000)=>{await p.waitForTimeout(ms);await p.waitForFunction(()=>!document.querySelector("[class*=animate-pulse]"),{timeout:45000}).catch(()=>{});};
+await login(p); await settle();
+const t=(await p.locator("body").innerText()).replace(/\s+/g," ");
+console.log("═══ M35 — מצב החשבון ═══");
+console.log("תחום מיקוד:", (t.match(/תחום מיקוד[^·|]{0,40}/)||["?"])[0]);
+console.log("ש״ס לא משויכים:", /לא נספרים לאף תחום/.test(t)?"יש כרטיס":"אין כרטיס");
+console.log("שורת המצב:", (t.match(/פכ״מ · שנה [אבג]׳[^|]{0,30}/)||["?"])[0]);
+console.log("המד:", (t.match(/(\d+) \/ 150/)||["?"])[0]);
+console.log("\n═══ M29 — מקורות במסך הבידינג ═══");
+await p.goto(`${BASE}/he/bidding`,{waitUntil:"networkidle"}); await settle(7000);
+const tb=(await p.locator("body").innerText()).replace(/\s+/g," ");
+const src=tb.match(/מקור[^.|]{0,90}/g);
+console.log("אזכורי מקור:", src?src.join(" ||| "):"(אין)");
+console.log("פקולטה/ידיעון:", (tb.match(/[^.]{0,60}(הפקולטה|הידיעון)[^.]{0,60}/g)||[]).slice(0,2).join(" ||| ")||"(אין)");
+console.log(await shot(p,"ZZ-bidding-src",{full:true}));
+await b.close();
