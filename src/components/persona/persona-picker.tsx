@@ -98,7 +98,7 @@ export function PersonaPicker({
                 <div className="flex min-w-0 flex-1 flex-wrap items-center gap-x-2 gap-y-1">
                   <span className="min-w-0 text-sm font-bold text-foreground/85">{name}</span>
                   {tag && (
-                    <span className="ms-auto shrink-0 whitespace-nowrap rounded-full bg-foreground/[0.06] px-2 py-0.5 text-[10px] text-foreground/60">
+                    <span className="ms-auto shrink-0 whitespace-nowrap rounded-full bg-foreground/[0.06] px-2 py-0.5 text-[10px] text-foreground/70">
                       {tag}
                     </span>
                   )}

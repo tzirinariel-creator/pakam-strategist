@@ -150,7 +150,13 @@ const PROBE = (isMobile) => {
       }
       // שם נגיש: טקסט, aria-label, aria-labelledby או title
       const hasText = (el.textContent ?? "").trim().length > 0;
-      const hasName = hasText || el.getAttribute("aria-label") || el.getAttribute("aria-labelledby") || el.getAttribute("title");
+      // ...**וגם `<label for=id>` או `<label>` עוטף**, שהם הדרך התקנית
+      // לתת שם לשדה קלט. 4.9: הכלי דיווח על חמישה שדות "בלי שם", וארבעה
+      // מהם היו מתויגים כהלכה (settings-email, settings-first-name…).
+      // דיווח כוזב בכלי מדידה גרוע מאי-מדידה — הוא מטביע את האמיתי.
+      const labelled =
+        (el.id && document.querySelector(`label[for="${CSS.escape(el.id)}"]`)) || el.closest("label");
+      const hasName = hasText || el.getAttribute("aria-label") || el.getAttribute("aria-labelledby") || el.getAttribute("title") || (labelled && (labelled.innerText || "").trim());
       if (!hasName) out.label.push({ tag: el.tagName, cls });
     }
   }

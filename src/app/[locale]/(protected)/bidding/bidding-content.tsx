@@ -123,7 +123,7 @@ function TermColumn({
                   already wraps, so a second line costs nothing. */}
               <span className="min-w-0 flex-1 basis-40 text-balance text-foreground/85">{c.name}</span>
               {c.isMandatory && (
-                <span className="shrink-0 rounded bg-foreground/[0.07] px-1.5 py-px text-[10px] text-foreground/60">
+                <span className="shrink-0 rounded bg-foreground/[0.07] px-1.5 py-px text-[10px] text-foreground/70">
                   {isHe ? "חובה" : "required"}
                 </span>
               )}

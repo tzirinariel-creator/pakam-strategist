@@ -79,7 +79,7 @@ export function PlacementIssuesCard({
                   <span className="min-w-0 flex-1 basis-48 text-xs">
                     <span className="font-semibold text-foreground/85">{it.nameHe}</span>
                     {it.isMandatory && (
-                      <span className="ms-1.5 rounded bg-foreground/[0.07] px-1.5 py-px text-[10px] text-foreground/60">
+                      <span className="ms-1.5 rounded bg-foreground/[0.07] px-1.5 py-px text-[10px] text-foreground/70">
                         {isHe ? "חובה" : "required"}
                       </span>
                     )}

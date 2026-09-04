@@ -139,6 +139,9 @@ export function DegreeAssistant() {
         <input
           value={input}
           onChange={(e) => setInput(e.target.value)}
+          /* placeholder לבדו אינו שם נגיש יציב — הוא נעלם ברגע שמקלידים,
+             וקורא-מסך שחוזר לשדה שומע שדה בלי שם. */
+          aria-label={isHe ? "שאלה למלך הפילוסוף" : "Question for the Philosopher King"}
           placeholder={isHe ? gendered(normalizeGender(profileQuery.data?.gender), { m: "כתוב שאלה על התואר…", f: "כתבי שאלה על התואר…", n: "כתבו שאלה על התואר…" }) : "Type a question about your degree…"}
           className="flex-1 rounded-xl border border-border/60 bg-card px-4 py-2.5 text-sm text-foreground placeholder:text-foreground/60 focus:border-foreground/30 focus:outline-none focus:ring-1 focus:ring-foreground/20"
         />
