@@ -510,7 +510,11 @@ export function StudySkyline({ plan, recommendations, isHe, now, onDayClick, onM
       )}
 
       {/* ── Band 1 · Verdict rail (sticky, never scrolls) ── */}
-      <div className="sticky top-0 z-10 flex flex-col gap-2 border-b border-border/60 bg-card/95 p-3 backdrop-blur sm:flex-row sm:items-stretch sm:gap-0">
+      {/* אותו פגם שנמצא ב-M41: `top-0` נדבק לראש **העמוד**, וסרגל
+          האפליקציה הוא `fixed h-16 z-30` מעליו. הרצועה הזאת נושאת את
+          "מתחילים מ / העומס היום / היום הכי עמוס" — בדיוק מה שהסקייליין
+          אמור להסביר (M45) — ובגלילה היא נעלמה מתחת לסרגל. */}
+      <div className="sticky top-[calc(var(--banner-offset,0px)_+_4rem)] z-10 flex flex-col gap-2 border-b border-border/60 bg-card/95 p-3 backdrop-blur sm:flex-row sm:items-stretch sm:gap-0">
         {/* Start */}
         <div className="flex items-center gap-2 sm:flex-1 sm:pe-4">
           <Flag className="size-4 shrink-0 text-accent-brand" />

@@ -187,8 +187,18 @@ export function GradeSimulator({
           nudging a course far down the page could not see the average at all.
           
           The delta is printed, and the block sticks to the top of the viewport
-          while the list scrolls under it. */}
-      <div className="sticky top-0 z-10 -mx-4 -mt-4 flex items-start justify-between gap-3 rounded-t-2xl bg-card/95 px-4 pb-3 pt-4 backdrop-blur">
+          while the list scrolls under it.
+
+          4.9 — ואז אימתתי את זה חי, וזה **לא עבד**. הבלוק אכן נדבק, אבל
+          ל-`top-0` של העמוד, בזמן שסרגל האפליקציה הוא `fixed h-16 z-30`.
+          מדדתי בפרודקשן אחרי גלילה של 2,263px: הבלוק ב-0px עם z-10,
+          הכותרת מתחילה ב-32px, והסרגל תופס 0–64px עם z-30. כלומר המספר
+          שההערה הזאת קיימת בשבילו ישב **מתחת** לסרגל, בדיוק ברגע שאריאל
+          תיאר — כשגוללים לקורס שלמטה.
+          המדידה התוכניתית שלי אמרה "בתוך המסך" (bottom=98 > 0) ועברה.
+          הצילום הראה את האמת. הסף הנכון הוא הקבוע שכבר בשימוש במתכנן
+          הסמסטר: גובה הסרגל ועוד גובה הבאנרים. */}
+      <div className="sticky top-[calc(var(--banner-offset,0px)_+_4rem)] z-10 -mx-4 -mt-4 flex items-start justify-between gap-3 rounded-t-2xl bg-card/95 px-4 pb-3 pt-4 backdrop-blur">
         <div>
           <p className="text-xs text-foreground/60">
             {isHe ? "ממוצע בסימולציה" : "Simulated average"}
