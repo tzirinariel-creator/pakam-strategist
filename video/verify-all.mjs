@@ -20,7 +20,15 @@ const REDO = process.argv.includes("--redo");
 const { b, p, errors } = await openApp({ width: 1440, height: 1100 });
 const settle = async (ms=5000)=>{ await p.waitForTimeout(ms); await p.waitForFunction(()=>!document.querySelector("[class*=animate-pulse]"),{timeout:45000}).catch(()=>{}); };
 const dismiss = async ()=>{ for(let i=0;i<3;i++){ if(!(await p.locator("[data-slot=dialog-overlay]").count()))return; const c=p.getByRole("button",{name:/^(הבנתי, בואו נתכנן|הבנתי|סגור|Close)$/}).first(); if(await c.count())await c.click().catch(()=>{}); else await p.keyboard.press("Escape"); await p.waitForTimeout(800);} };
-const go = async (path,ms=6000)=>{ await p.goto(`${BASE}${path}`,{waitUntil:"networkidle"}); await settle(ms); await dismiss(); };
+const go = async (path,ms=6000)=>{
+  await p.goto(`${BASE}${path}`,{waitUntil:"networkidle"});
+  // המתנה לתוכן, לא לשעון. בריצה של 5.9 תשע בדיקות "נכשלו" על עמודים
+  // שפשוט עוד לא נטענו — BIDSRC דיווח על אפס אזכורים לשתי הפקולטות, כלומר
+  // גוף ריק. שעון קבוע מודד את הסבלנות שלי, לא את המסך.
+  await p.waitForFunction(()=>document.body.innerText.replace(/\s+/g," ").length>700,{timeout:40000}).catch(()=>{});
+  await settle(ms);
+  await dismiss();
+};
 const txt = async ()=> (await p.locator("body").innerText()).replace(/\s+/g," ");
 
 /** בדיקה = { id, note (הציטוט של אריאל), run: async () => ({ok, evidence}) } */
@@ -44,7 +52,7 @@ const CHECKS = [
       return { ok:!/בלי שתצטרכו לעשות כלום/.test(t), evidence:"הניסוח הישן לא מופיע" }; } },
 
   { id:"M31", note:"השם 'בדיקת מסלול' לא טוב", async run(){
-      await login(p); await settle(6000);
+      await go("/he/dashboard",6000);
       const nav=await p.evaluate(()=>[...document.querySelectorAll("a")].map(a=>a.innerText.trim()));
       return { ok:!nav.includes("בדיקת מסלול") && nav.includes("דרישות התואר"), evidence:`בסרגל: ${nav.filter(Boolean).slice(0,12).join(" · ")}` }; } },
 
@@ -68,8 +76,8 @@ const CHECKS = [
   { id:"M35", note:"שיוך קורסים לתחום מיקוד · משימות מרוכזות", async run(){
       await go("/he/dashboard",8000);
       const t=await txt();
-      const has=/לא נספרים לאף תחום מיקוד/.test(t);
-      const door=await p.locator("a,button").filter({hasText:/לשייך/}).count();
+      const has=/בחרו תחום מיקוד|תחום המיקוד קובע/.test(t);
+      const door=await p.locator("a,button").filter({hasText:/לבחירת תחום מיקוד|לשייך/}).count();
       return { ok:has&&door>0, evidence:has?`"${(t.match(/[^.]*לא נספרים לאף תחום מיקוד[^.]*/)||[""])[0].trim().slice(0,90)}" · ${door} דלתות`:"אין כרטיס שיוך" }; } },
 
   { id:"M5", note:"הסטודנט לא נחשף לפיצ'רים · לא ידעתי שיש תכנון מבחנים", async run(){
@@ -137,9 +145,13 @@ const CHECKS = [
   { id:"M21", note:"לא הסבירו לי איך יעבוד הסנכרון ליומן", async run(){
       await go("/he/settings",8000);
       const t=await txt();
-      const has=/יומן Google|סנכרון|לחיבור היומן/.test(t);
-      const why=/שיעורים|מבחנים|בלי להקליד|מגיעות אליכם/.test(t);
-      return { ok:has&&why, evidence:has?`${(t.match(/[^.]{0,90}יומן[^.]{0,60}\./)||[""])[0].trim().slice(0,130)}`:"אין הסבר" }; } },
+      // רק main: הסרגל מכיל קישור "יומן", ורג'קס על כל הגוף תפס אותו
+      // במקום את ההסבר וקבע "אין הסבר" על מסך שההסבר מודפס בו במלואו.
+      const t2=(await p.locator("main").innerText()).replace(/\s+/g," ");
+      const card=/תזכורות ליומן שלכם/.test(t2);
+      const why=/הירשמו פעם אחת/.test(t2);
+      const tip=/ב-iPhone בחרו/.test(t2);
+      return { ok:card&&why, evidence:card?`"${(t2.match(/תזכורות ליומן שלכם[^]{0,150}/)||[""])[0].trim()}"${tip?" · עם טיפ לאייפון":""}`:"אין כרטיס יומן" }; } },
 
   { id:"M12", note:"ציון אמירם 90 — הוא מסמן לי משהו אוטומטי?", async run(){
       const t=await txt();
@@ -191,13 +203,24 @@ const CHECKS = [
       return { ok:has, evidence:has?`${(t.match(/[^.]{0,80}בינארי[^.]{0,60}\./)||[""])[0].trim().slice(0,130)}`:"לא נמצא בינארי" }; } },
 ];
 
+await login(p);
+await p.waitForTimeout(5000);
+console.log(`מחובר · ${p.url()}`);
+
 const all = existsSync(OUT)?JSON.parse(readFileSync(OUT,"utf-8")):{};
 let pass=0,fail=0,skip=0;
 for (const c of CHECKS) {
   if (ONLY.length && !ONLY.includes(c.id)) continue;
   if (!REDO && all[c.id]?.ok) { skip++; continue; }
   let r; const t0=Date.now();
-  try { r = await c.run(); } catch(e){ r={ok:false,evidence:`חריגה: ${String(e).slice(0,120)}`}; }
+  // ניסיון שני לפני שכשל נרשם. בדיקה כאן קוראת מסך חי, ומסך חי לפעמים
+  // מגיע לאט; ההבדל בין "הפיצ'ר חסר" ל"העמוד עוד לא נטען" הוא ריצה נוספת.
+  for (let attempt=1; attempt<=2; attempt++) {
+    try { r = await c.run(); } catch(e){ r={ok:false,evidence:`חריגה: ${String(e).slice(0,120)}`}; }
+    if (r.ok || attempt===2) break;
+    await p.reload({waitUntil:"networkidle"}).catch(()=>{});
+    await settle(6000); await dismiss();
+  }
   r.note=c.note; r.secs=+((Date.now()-t0)/1000).toFixed(1); r.at=new Date().toISOString();
   try { r.shot=(await shot(p,`V-${c.id}`)).split("/").pop(); } catch {}
   if (errors.length){ r.js=[...new Set(errors)].slice(0,2); errors.length=0; }
