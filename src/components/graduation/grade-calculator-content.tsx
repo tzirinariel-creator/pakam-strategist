@@ -127,7 +127,14 @@ function WeightBreakdownBar({
       <div className="grid gap-3 sm:grid-cols-3">
         {segments.map((seg) => (
           <div key={seg.label} className="flex items-center gap-2 text-sm">
-            <div className={cn("h-3 w-3 rounded-sm", seg.color)} />
+            {/* המקרא הוא מפתח־צבע לסרגל. אם הסרגל מצייר את הפלח ריק, עיגול
+                צבעוני כאן מבטיח צבע שאין — אותה סתירה בקטן. */}
+            <div
+              className={cn(
+                "h-3 w-3 rounded-sm",
+                seg.grade !== null ? seg.color : "border border-dashed border-foreground/30",
+              )}
+            />
             <div className="flex flex-col">
               <span className="text-xs font-medium text-foreground/70">
                 {seg.label}
@@ -288,8 +295,12 @@ function ReverseCalculator({
   //
   // A reverse calculator only answers one question — "what do I need in what's
   // left to get HIGHER than I am now" — so it now opens on the next whole point
-  // above the student's current average, and the slider will not travel below
-  // that average, because every target underneath it is already met.
+  // above the student's current average, and the target cannot go below that
+  // average, because every target underneath it is already met.
+  //
+  // (The control itself is no longer a slider — M37/N12/T11 replaced it with a
+  // number field + ±. The floor below is the same floor; only the widget that
+  // respects it changed.)
   const currentAvg = useMemo(() => {
     const done = canonicalAttempts(allCourses.filter(countsTowardAverage), {
       preferHigherGrade: preferHigherGradeFlag,
@@ -299,7 +310,7 @@ function ReverseCalculator({
     return done.reduce((s, c) => s + (c.grade ?? 0) * c.course.credits, 0) / cr;
   }, [allCourses, preferHigherGradeFlag]);
 
-  const sliderMin = currentAvg == null ? 60 : Math.min(99, Math.floor(currentAvg));
+  const targetFloor = currentAvg == null ? 60 : Math.min(99, Math.floor(currentAvg));
   const defaultTarget = currentAvg == null ? 85 : Math.min(100, Math.floor(currentAvg) + 1);
   const [target, setTarget] = useState(defaultTarget);
   // A student who enters their first grades mid-session must not be left with a
@@ -414,13 +425,13 @@ function ReverseCalculator({
           <p className="text-xs text-foreground/50">
             {isHe ? (
               <>
-                ממוצע הקורסים שלכם עכשיו <Bidi text={currentAvg.toFixed(1)} />. הסרגל מתחיל שם,
+                ממוצע הקורסים שלכם עכשיו <Bidi text={currentAvg.toFixed(1)} />. משם מתחילים,
                 כי כל יעד נמוך יותר כבר הושג.
               </>
             ) : (
               <>
-                Your course average is <Bidi text={currentAvg.toFixed(1)} /> right now. The slider
-                starts there, because every target below it is already met.
+                Your course average is <Bidi text={currentAvg.toFixed(1)} /> right now. That is
+                where the target starts, because every target below it is already met.
               </>
             )}
           </p>
@@ -428,7 +439,7 @@ function ReverseCalculator({
         <GradeStepper
           value={target}
           onChange={setTarget}
-          min={sliderMin}
+          min={targetFloor}
           ariaLabel={t("targetScore")}
         />
       </div>
