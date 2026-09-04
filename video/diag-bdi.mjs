@@ -7,7 +7,7 @@ const { b, p } = await openApp({ width: W, height: W < 700 ? 844 : 1100 });
 const probe = async (tag) => {
   const r = await p.evaluate((t) => {
     const de = document.documentElement, out = [];
-    for (const el of document.querySelectorAll("bdi")) {
+    for (const el of document.querySelectorAll("bdi, div, span, td, th")) {
       const box = el.getBoundingClientRect();
       if (!box.width) continue;
       if (box.right <= de.clientWidth + 2 && box.left >= -2) continue;
@@ -17,16 +17,17 @@ const probe = async (tag) => {
         chain.push(`${a.tagName.toLowerCase()}${a.className && typeof a.className === "string" ? "." + a.className.trim().split(/\s+/).slice(0,3).join(".") : ""} [w=${Math.round(ab.width)} l=${Math.round(ab.left)} ox=${cs.overflowX} minW=${cs.minWidth} ws=${cs.whiteSpace}]`);
         if (chain.length >= 7) break;
       }
-      out.push({ txt: el.innerText.trim(), left: Math.round(box.left), right: Math.round(box.right), chain });
+      if (el.children.length > 2) continue; // רק העלים, לא כל מיכל שמכיל אותם
+      out.push({ tag: el.tagName.toLowerCase(), txt: el.innerText.trim().slice(0, 34), left: Math.round(box.left), right: Math.round(box.right), chain });
     }
     const bs = getComputedStyle(document.body);
     return { tag: t, vw: de.clientWidth, bodyPad: `${bs.paddingInlineStart}/${bs.paddingInlineEnd}`,
-             bodyMargin: `${bs.marginInlineStart}/${bs.marginInlineEnd}`, found: out.slice(0, 2) };
+             bodyMargin: `${bs.marginInlineStart}/${bs.marginInlineEnd}`, found: out.slice(0, 3) };
   }, tag);
   console.log(`\n=== ${r.tag} · רוחב ${r.vw} · ריפוד גוף ${r.bodyPad} · שוליים ${r.bodyMargin}`);
   if (!r.found.length) { console.log("  אין bdi חורג"); return; }
   for (const f of r.found) {
-    console.log(`  <bdi>"${f.txt}"  left=${f.left} right=${f.right}`);
+    console.log(`  <${f.tag}>"${f.txt}"  left=${f.left} right=${f.right}`);
     f.chain.forEach((c, i) => console.log(`    ${"  ".repeat(i)}↑ ${c}`));
   }
 };
