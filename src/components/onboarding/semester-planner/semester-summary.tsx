@@ -9,6 +9,7 @@ import { calculateHonestLoad, type HonestLoadLabel } from "@/lib/workload-calcul
 import { SEMESTER_CONFIG, YEAR_CONFIG, CREDIT_REQUIREMENTS } from "@/lib/constants";
 import type { CourseWithSchedule } from "@/lib/plan-generator";
 import { heNoun } from "@/lib/he-count";
+import { RequirementMark } from "@/components/shared/requirement-mark";
 
 // P3′ — the summary speaks the HONEST load language (worst real pain), not a
 // magic 0-100 level. Same vocabulary as the insights bar.
@@ -197,11 +198,27 @@ export function SemesterSummary({
               {isHe ? "הקורסים בסמסטר הזה:" : "Courses this semester:"}
             </p>
             <ul className="space-y-1">
+              {/* ==============================================
+                  U6 — אורי כהן גפן, שנה א׳, משתמש אמיתי:
+                  *"מה שעדיין לא כל כך ברור לי — מה הם הקורסים החובה
+                  ומה הבחירה בסמסטר א שנה א"*
+                  ==============================================
+                  `course-requirement.ts` נכתב בדיוק לשאלה הזאת, וההערה
+                  שבראשו מצטטת אותה — אבל **המסך הזה לא קרא לו**. וזה
+                  המסך שאורי רואה: סטודנט שנה א׳ בסמסטר חובה־כבד נוחת
+                  כאן, על רשימה של שמונה קורסים בלי שום סימון. הכרטיס
+                  אפילו אומר "רוב הסמסטר הזה חובה" — ולא אומר אילו.
+                  ההיררכיה של הכפתורים למטה לא נגעתי בה. */}
               {courses.map((c) => (
                 <li key={c.id} className="flex items-center justify-between gap-2 text-xs">
                   <span className="min-w-0 flex-1 text-balance text-foreground/75">
                     {isHe ? c.nameHe : (c.nameEn ?? c.nameHe)}
                   </span>
+                  {/* `RequirementMark` ולא תג משלי: הוא כבר בשימוש בקטלוג
+                      ובכרטיס הקורס במתכנן, וההיררכיה שלו (משקל ולא גוון)
+                      נבחרה במפורש כדי לא להוסיף צבע רביעי לשורה — U4, גיל:
+                      "בתחושה שלה זה יחסית עמוס". שפה אחת בכל המסכים. */}
+                  <RequirementMark course={c} />
                   <span className="shrink-0 font-mono text-[10px] text-foreground/60">
                     {c.credits} {isHe ? "ש״ס" : "cr."}
                   </span>

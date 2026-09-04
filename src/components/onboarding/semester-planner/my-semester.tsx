@@ -2,6 +2,7 @@
 
 import { useMemo } from "react";
 import { useTranslations, useLocale } from "next-intl";
+import { RequirementMark } from "@/components/shared/requirement-mark";
 import { Lock, X, Trash2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { DISCIPLINE_CONFIG } from "@/lib/constants";
@@ -222,9 +223,10 @@ export function MySemester({
                             והסטודנט צריך להסיק אותו מהעדרו של תג. זה בדיוק
                             מה שאורי לא הצליח לעשות. עכשיו שתי הקטגוריות
                             אומרות את שמן. */}
-                        <span className="shrink-0 rounded-full bg-foreground/5 px-1.5 py-0.5 text-[10px] font-medium text-foreground/60">
-                          {t("elective")}
-                        </span>
+                        {/* אותו סימון בדיוק כמו בקטלוג ובכרטיס הקורס. הוא
+                            מחזיר null לקורס שהסטודנט הוסיף בעצמו — שם אין
+                            לנו תשובה, ולהדביק "בחירה" יהיה המצאה. */}
+                        {!customCourseIds?.has(course.id) && <RequirementMark course={course} />}
                         {customCourseIds?.has(course.id) && (
                           <span className="shrink-0 rounded-full bg-foreground/5 px-1.5 py-0.5 text-[10px] font-medium text-foreground/70">
                             {isHe ? "ידני" : "Custom"}
