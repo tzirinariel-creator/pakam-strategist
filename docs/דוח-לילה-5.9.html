@@ -1,0 +1,295 @@
+<title>לילה לפני ההשקה</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Frank+Ruhl+Libre:wght@500;700;900&family=Assistant:wght@300;400;600;700&display=swap">
+<style>
+  :root {
+    --ground: #FBFAFD;
+    --card: #FFFFFF;
+    --ink: #191823;
+    --ink-soft: #4A4757;
+    --muted: #737086;
+    --rule: #E5E2EE;
+    --brand: #4F3FBF;
+    --brand-soft: #EEEBFB;
+    --good: #146B54;
+    --good-soft: #E4F2EE;
+    --warn: #9A5E00;
+    --warn-soft: #FBEFDC;
+    --bad: #A81F17;
+    --bad-soft: #FBE7E5;
+    --shadow: 0 1px 2px rgba(25, 24, 35, .05), 0 8px 24px -12px rgba(25, 24, 35, .12);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --ground: #131219;
+      --card: #1C1B25;
+      --ink: #F2F1F7;
+      --ink-soft: #C3C0D2;
+      --muted: #918DA5;
+      --rule: #2E2C3B;
+      --brand: #A99BF5;
+      --brand-soft: #241F3D;
+      --good: #6FD3B4;
+      --good-soft: #14302A;
+      --warn: #F0B65C;
+      --warn-soft: #33260F;
+      --bad: #F58A80;
+      --bad-soft: #341A18;
+      --shadow: 0 1px 2px rgba(0, 0, 0, .3), 0 8px 24px -12px rgba(0, 0, 0, .5);
+    }
+  }
+  :root[data-theme="dark"] {
+    --ground: #131219;
+    --card: #1C1B25;
+    --ink: #F2F1F7;
+    --ink-soft: #C3C0D2;
+    --muted: #918DA5;
+    --rule: #2E2C3B;
+    --brand: #A99BF5;
+    --brand-soft: #241F3D;
+    --good: #6FD3B4;
+    --good-soft: #14302A;
+    --warn: #F0B65C;
+    --warn-soft: #33260F;
+    --bad: #F58A80;
+    --bad-soft: #341A18;
+    --shadow: 0 1px 2px rgba(0, 0, 0, .3), 0 8px 24px -12px rgba(0, 0, 0, .5);
+  }
+
+  html { direction: rtl; }
+  body {
+    background: var(--ground);
+    color: var(--ink);
+    font-family: "Assistant", "Segoe UI", system-ui, sans-serif;
+    font-size: 17px;
+    line-height: 1.72;
+    -webkit-font-smoothing: antialiased;
+  }
+  .wrap { max-width: 46rem; margin: 0 auto; padding: 3.5rem 1.25rem 6rem; }
+
+  h1, h2, h3 { font-family: "Frank Ruhl Libre", Georgia, serif; text-wrap: balance; margin: 0; }
+  h1 { font-size: clamp(2rem, 6vw, 2.9rem); font-weight: 900; letter-spacing: -.015em; line-height: 1.16; }
+  h2 {
+    font-size: clamp(1.35rem, 3.6vw, 1.65rem); font-weight: 700; margin: 3.5rem 0 .5rem;
+    padding-top: 1.4rem; border-top: 1px solid var(--rule);
+  }
+  h3 { font-size: 1.08rem; font-weight: 700; margin: 1.9rem 0 .3rem; }
+  p { margin: .75rem 0; }
+  strong { font-weight: 700; }
+  a { color: var(--brand); }
+
+  .eyebrow {
+    font-size: .78rem; font-weight: 700; letter-spacing: .1em;
+    color: var(--muted); text-transform: uppercase; margin-bottom: .7rem;
+  }
+  .lede { font-size: 1.16rem; color: var(--ink-soft); margin-top: 1rem; }
+
+  .strip { display: grid; grid-template-columns: repeat(auto-fit, minmax(9rem, 1fr)); gap: .75rem; margin: 2.2rem 0 .5rem; }
+  .stat { background: var(--card); border: 1px solid var(--rule); border-radius: .8rem; padding: .9rem 1rem; box-shadow: var(--shadow); }
+  .stat b { display: block; font-family: "Frank Ruhl Libre", serif; font-size: 1.85rem; font-weight: 900; line-height: 1.1; font-variant-numeric: tabular-nums; }
+  .stat span { font-size: .82rem; color: var(--muted); }
+
+  .card { background: var(--card); border: 1px solid var(--rule); border-radius: .9rem; padding: 1.15rem 1.3rem; margin: 1.3rem 0; box-shadow: var(--shadow); }
+  .card > :first-child { margin-top: 0; }
+  .card > :last-child { margin-bottom: 0; }
+  .card.act { border-inline-start: 4px solid var(--brand); background: var(--brand-soft); border-color: transparent; }
+  .card.bad { border-inline-start: 4px solid var(--bad); background: var(--bad-soft); border-color: transparent; }
+  .card.good { border-inline-start: 4px solid var(--good); background: var(--good-soft); border-color: transparent; }
+
+  .tag { display: inline-block; font-size: .72rem; font-weight: 700; padding: .12rem .55rem; border-radius: 1rem; vertical-align: .1em; }
+  .tag.good { background: var(--good-soft); color: var(--good); }
+  .tag.warn { background: var(--warn-soft); color: var(--warn); }
+  .tag.bad { background: var(--bad-soft); color: var(--bad); }
+
+  .scroll { overflow-x: auto; margin: 1.2rem 0; }
+  table { border-collapse: collapse; width: 100%; font-size: .93rem; }
+  th, td { text-align: start; padding: .6rem .7rem; border-bottom: 1px solid var(--rule); vertical-align: top; }
+  th { font-weight: 700; color: var(--muted); font-size: .78rem; letter-spacing: .04em; text-transform: uppercase; }
+  td.num { font-variant-numeric: tabular-nums; white-space: nowrap; }
+
+  code { font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: .87em; background: var(--brand-soft); color: var(--ink); padding: .08em .38em; border-radius: .3rem; }
+  blockquote { margin: 1.1rem 0; padding-inline-start: 1rem; border-inline-start: 3px solid var(--rule); color: var(--ink-soft); font-style: italic; }
+  ul { margin: .7rem 0; padding-inline-start: 1.3rem; }
+  li { margin: .35rem 0; }
+  .foot { margin-top: 4rem; padding-top: 1.2rem; border-top: 1px solid var(--rule); color: var(--muted); font-size: .88rem; }
+</style>
+
+<div class="wrap">
+  <p class="eyebrow">פכמון · הלילה שבין 4 ל-5 בספטמבר</p>
+  <h1>מה קרה בזמן שישנת</h1>
+  <p class="lede">שתי מטרות נתת לי: לוודא שכל הערה שלך יושמה, ולעשות בדיקה אחרונה כמשתמש. שתיהן בוצעו. באמצע האתר נפל, והחזרתי אותו.</p>
+
+  <div class="card good">
+    <p style="margin:0">ביקשת קודם כול לא להרוס כלום. אז שתדע במדויק: <strong>נגעתי בשורה אחת של קוד מוצר כל הלילה</strong> — גודל בריכת החיבורים, שהוא מה שהחזיר את האתר. כל השאר היה כלי בדיקה, מדידות ותיעוד. אפשר לראות את זה בהיסטוריה: מאז התיקון ההוא, <strong>אפס קבצים תחת <code>src/</code></strong>.</p>
+  </div>
+
+  <div class="strip">
+    <div class="stat"><b>28/28</b><span>הערות אומתו על מסך חי</span></div>
+    <div class="stat"><b>155</b><span>ירוקים בלוח (מ-151)</span></div>
+    <div class="stat"><b>0</b><span>שגיאות JavaScript</span></div>
+    <div class="stat"><b>2</b><span>דברים לפני 7.9</span></div>
+  </div>
+
+  <h2>קודם כול — האתר נפל, וחזר</h2>
+  <div class="card bad">
+    <p><strong>ב-00:40 בערך פכמון הפסיק לענות.</strong> לא נהיה איטי — נפל. כל מסך שצריך נתונים החזיר שגיאה.</p>
+    <p>הסיבה: המסד מרשה 15 חיבורים בסך הכול, וכל מכונה של Vercel תפסה 5 לעצמה. שלוש מכונות פעילות מיצו את המכסה, והרביעית כבר לא קיבלה כלום.</p>
+  </div>
+
+  <p>פרסתי מחדש — זה מיחזר את המכונות ושחרר את החיבורים, והאתר חזר תוך דקות. אחר כך הקטנתי כל מכונה מ-5 חיבורים ל-2, כך ש<strong>שבע מכונות יכולות לחיות יחד במקום שלוש</strong>.</p>
+
+  <p>הלילה זה קרה בגלל הבדיקות שלי. <strong>ב-7.9 ב-11:00 זה יקרה בגלל סטודנטים</strong> — ואז לא יהיה מי שיפרוס מחדש.</p>
+
+  <div class="card good">
+    <p style="margin:0">מאז התיקון האתר החזיק <strong>שבע שעות של עומס בדיקות רצוף</strong> — עשרות סשני דפדפן, מאות מעברי מסך — עם ניטור בריאות אוטומטי לכל אורכן. <strong>אפס נפילות.</strong></p>
+  </div>
+
+  <div class="card act">
+    <h3>הדבר היחיד שמחכה לך — דקה עבודה</h3>
+    <p>ב-Vercel, במשתני הסביבה, ב-<code>DATABASE_URL</code>: החלף <code>:5432</code> ל-<code>:6543</code> והוסף <code>?pgbouncer=true</code> בסוף. ואז פרוס מחדש.</p>
+    <p>זה מעביר את המסד למצב שבו חיבור חוזר לבריכה אחרי כל פעולה, במקום להיתפס לכל חיי המכונה. <strong>בדקתי שזה עובד לפני שאני מבקש ממך לגעת</strong> — כולל טרנזקציות ושאילתות מקבילות, שתי הנקודות הרגישות. להרצה חוזרת: <code>npx tsx scripts/probe-transaction-mode.ts</code></p>
+    <p>לא עשיתי את זה בעצמי כי ביקשת שינויי תשתית כשאתה ער — ואם זה נשבר בזמן שאתה ישן, האתר למטה ואין מי שיחזיר.</p>
+  </div>
+
+  <h3>ובדרך התגלה קיר שני מאותה משפחה</h3>
+  <p>בזמן שהכנתי משתמשי בדיקה, סריקת גיליון הציונים נכשלה שלוש פעמים ברצף. <strong>המפתח המשותף של Gemini מחזיר 429 — נגמרה המכסה</strong>, והוא נשרף מהבדיקות שלי בלבד. כל סריקה עולה שלוש קריאות.</p>
+  <p>יש שרשרת גיבוי של ארבעה מודלים, והיא מה שמחזיק את השירות חי. אבל <strong>ב-7.9 הרבה סטודנטים יסרקו גיליונות באותה שעה</strong>, ויפגשו את אותו קיר. שווה שתבדוק את המכסה בחשבון Google לפני ההשקה.</p>
+
+  <h2>המטרה הראשונה שלך: כל הערה אומתה</h2>
+  <p><strong>28 מתוך 28.</strong> כל אחת נבדקה על המסך החי בפרודקשן — לא בקוד. הרשימה המלאה עם הציטוט שלך והראיה יושבת ב-<code>docs/אימות-הערות-5.9.json</code>.</p>
+
+  <h3>ותשע מהן נראו "לא מיושמות" — וזו הייתה טעות שלי</h3>
+  <p>בריצה הראשונה תשע הערות חזרו אדומות: אין כרטיס תחום מיקוד, אין תאריכים, אין הסבר על סנכרון היומן, "מיקרו ב׳ לא נמצא בקטלוג".</p>
+  <p>לפני שדיווחתי, בדקתי. <strong>ההתחברות ישבה בתוך בדיקה שהמנוע דילג עליה</strong> — ולכן תשעה מסכים מוגנים נבדקו בלי להיות מחובר. מה שנמדד היה דף הכניסה.</p>
+  <p>כל התשע מיושמות במלואן. כמה דוגמאות מהמסך עצמו:</p>
+  <ul>
+    <li>מקור הבידינג — <em>"התאריכים מתוך ההנחיות הרשמיות של הפקולטה למדעי הרוח לתשפ״ז"</em></li>
+    <li>השעון — אחד-עשר תאריכים על הלוח, וכרטיס שסופר לאחור כמה ימים נשארו למקצה הראשון</li>
+    <li>אמירם — <em>"אם אתם יודעים את הרמה, בחרו אותה — היא גוברת על ציון אמירנט"</em></li>
+    <li>מיקרו ב׳ — <code>1011-2109</code>, ומופיע בחיפוש בקטלוג</li>
+    <li>בינארי — "המרות בינארי, מצטבר לכל התואר", בעמוד המילואים</li>
+  </ul>
+
+  <h2>השורש: הכלים שלי מדדו לא נכון</h2>
+  <p>אחרי שתיקנתי את ההתחברות, חיפשתי למה זה קרה מלכתחילה. מצאתי משהו גדול יותר.</p>
+  <div class="card">
+    <p>בכל כלי הבדיקה שלי כתבתי המתנות בצורה <code>waitForFunction(fn, {timeout: 150000})</code>. החתימה האמיתית מצפה לשלושה חלקים, והאובייקט נבלע באמצע — כך ש<strong>כל 39 ההמתנות קיבלו 30 שניות במקום מה שכתבתי</strong>. רובן עטופות ב"התעלם משגיאה", ולכן הן נכשלו בשקט והסקריפט המשיך לקרוא עמוד שעוד לא נטען.</p>
+  </div>
+  <p>זה ייצר ערב שלם של באגים מדומים: עמודים "ריקים", טקסט חסר, וזריעת משתמש שנפלה והשאירה חשבון ריק מתויג "שנה ב׳".</p>
+  <p>תיקנתי את כל 39, והוספתי שלושה שערים כדי שזה לא יחזור:</p>
+  <ul>
+    <li><strong>שער פרסונה</strong> — הסיור קורא את שנת הלימוד מהמסך לפני שהוא מתחיל, ויוצא אם היא לא מה שביקשתי. <em>סיור מתויג לא נכון גרוע מסיור שלא רץ, כי הוא נראה כמו ראיה.</em> הוא כבר עצר ריצה שגויה אחת.</li>
+    <li><strong>גלאי גלישה שמכיר גלילה מכוונת</strong> — מערכת שעות וטבלת קטלוג נגללות לצדדים בכוונה. בלי זה דיווחתי 12 "באגים" שלא היו.</li>
+    <li><strong>הבחנה בין כפתור מושבת לכפתור שבור</strong> — "שמרו פרופיל" בלי שינויים אמור להיות מושבת. ההגדרות עלו מ-4/13 ל-13/13.</li>
+  </ul>
+
+  <h2>המטרה השנייה שלך: הסיור כמשתמש</h2>
+  <p>שלושה סטודנטים — שנה א׳, ב׳ ו-ג׳ — כל אחד בתהליך נפרד, על מחשב ועל טלפון. בכל מסך נלחץ <strong>כל</strong> כפתור, לשונית ומתג שקיים עליו, לא רשימה שהכנתי מראש. אחרי כל לחיצה נמדדו גלישה, הפרות כיוון-כתיבה, טקסט שבור ושגיאות JavaScript, וצולם מסך.</p>
+  <p>כל פרסונה נבנתה דרך מסלולי הכתיבה של המוצר עצמו, לא בזריקה למסד: שנה א׳ עברה את אשף ההיכרות במלואו; שנה ב׳ ו-ג׳ קיבלו את שנת הלימוד דרך ההגדרות, ולשנה ג׳ נוספו <strong>עשרה קורסים דרך מסך התיק</strong> — כי סטודנט שנה ג׳ בלי היסטוריה לא מפעיל את מחשבון ציון הגמר, את הבינארי ואת הסמינרים, שהם בדיוק מה שהפרסונה הזו באה לבדוק.</p>
+
+  <div class="strip">
+    <div class="stat"><b id="s-screens">100</b><span>מעברי מסך</span></div>
+    <div class="stat"><b id="s-actions">449</b><span>פקדים נלחצו</span></div>
+    <div class="stat"><b id="s-issues">0</b><span>באגים אמיתיים</span></div>
+    <div class="stat"><b>0</b><span>שגיאות JavaScript</span></div>
+  </div>
+
+  <p id="tour-text">הממצאים כולם הצביעו על אותו חשד: אלמנט עם טווח שעות שנמדד מחוץ לגבול המסך, במסך התכנון. חזר בכל הפרסונות ובשני הרוחבים — עקבי מספיק כדי להיות אמיתי.</p>
+
+  <div class="card">
+    <p style="margin-top:0"><strong>אז מדדתי אותו, במקום לתקן על סמך ניחוש.</strong> וזו התוצאה:</p>
+    <blockquote style="font-style:normal;margin:.6rem 0"><code>bdi "10:00–12:00" · רוחב 66 · left=-24</code><br><code>↑ li.truncate · רוחב 298 · overflow-x: hidden · white-space: nowrap</code></blockquote>
+    <p><strong>האלמנט אכן יוצא מהמיכל — והמיכל חותך אותו.</strong> ה-<code>li</code> נושא את המחלקה <code>truncate</code>, כלומר קיצור מכוון עם שלוש נקודות. שום דבר לא מוצג מחוץ למסגרת, הגוף לא גלש באף מדידה, ואין גלילה אופקית בשום מסך.</p>
+    <p>במילים אחרות: <strong>זו הייתה מדידה שגויה שלי, לא באג באפליקציה.</strong> הגלאי שלי ידע לדלג על מיכלים שנגללים, ולא על מיכלים שחותכים — ושורת החפיפה בחלונית הצרה מקוצרת בכוונה.</p>
+    <p style="margin-bottom:0">תיקנתי את הגלאי, והרצתי את אותם מסכים בדיוק שוב עם הגרסה המתוקנת. <strong>אפס ממצאים</strong> — כולל מסך התכנון, שהוא זה שדיווח בכל שש הריצות הקודמות.</p>
+  </div>
+
+  <p>מה שנשאר לשיקולך, בלי שאני קורא לזה באג: בחלונית מערכת השעות, השורה שמזהירה על חפיפה ארוכה מ-298 פיקסלים, ולכן <em>שעת החפיפה</em> היא מה שנחתך. המידע עצמו מופיע במלואו במסך הבידינג. אם תרצה שהשעה תשרוד את הקיצור — זה שינוי קטן, ואעשה אותו כשתגיד.</p>
+
+  <h3>מה שהמכונה לא מודדת — הסתכלתי בעצמי</h3>
+  <p>גלישה ושגיאות אפשר למדוד; "הגיוני וקוהרנטי" לא. עברתי על הצילומים. שלוש דוגמאות למה שראיתי:</p>
+  <ul>
+    <li><strong>מסך הבידינג</strong> תפס חפיפה אמיתית ואמר אותה במילים של סטודנט: "חפיפה ביום רביעי בין כתיבה ומחקר במדע המדינה לפוליטיקה ומשטר בישראל". וכשסמסטר ב׳ ריק הוא לא מאשים — "אם התכוונתם לקחת סמסטר קל, זה בסדר גמור".</li>
+    <li><strong>השושלת</strong> מסבירה למה אין עדיין ממוצעים: "11 תרומות כבר נאספו… ממוצע של קורס נפתח רק כשיש 5 תורמים לאותו קורס. זה לא ריק, זה מתחת לסף".</li>
+    <li><strong>מסך התכנון</strong> של שנה ב׳ מציע מיוזמתו: "ממשיכים לכלכלה מתקדמת? ביה״ס דורש אקונומטריקה… הקורס אינו בתכנית שלכם כרגע, ואתם בשנה ב׳ — עוד אפשר להוסיף אותו", עם מקור מתוארך.</li>
+  </ul>
+
+  <h3>הפעולות שהסיור לא יכול ללחוץ מעצמו</h3>
+  <p>יש פעולות שדורשות רצף ולא לחיצה אחת — שינוי ציון, המרה בינארית, שאלה ליועץ. כל אחת נבדקה בנפרד, עם צילום לפני ואחרי ואימות שהנתון באמת השתנה:</p>
+  <div class="scroll">
+    <table>
+      <thead><tr><th>הפעולה</th><th>מה קרה בפועל</th></tr></thead>
+      <tbody>
+        <tr><td><strong>שינוי ציון</strong></td><td>השדה עבר מריק ל-<span style="font-variant-numeric:tabular-nums">88</span>, והתיק עודכן.</td></tr>
+        <tr><td><strong>שאלה ליועץ</strong></td><td>נשאל ונענה — המסך גדל ב-<span style="font-variant-numeric:tabular-nums">3,475</span> תווים של תשובה.</td></tr>
+        <tr><td><strong>חיבור יומן</strong></td><td>שני המסלולים קיימים: מנוי ICS <em>וגם</em> חיבור Google.</td></tr>
+        <tr><td><strong>המרה בינארית</strong></td><td>אמר את האמת ולא המציא: "לקבוצה הנוכחית שלכם המתווה לא מעניק המרות בינארי".</td></tr>
+        <tr><td><strong>הדפסה</strong></td><td>קיימת בתפריט הייצוא של לוח הבחינות, עם גיליון הדפסה ייעודי שמסיר את הסרגל ופותח טבלאות כדי שיזרמו על פני עמודים.</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p>שלוש בדיקות נוספות חזרו ריקות — <strong>ושוב, בגלל הכלי ולא האפליקציה</strong>: חיפשתי כפתור מחיקה לפי טקסט, והוא אייקון פח עם תווית נגישות בלבד; חיפשתי כפתור שפותח טופס הוספה, והטופס פתוח מלכתחילה. תיקנתי והרצתי שוב — <strong>כל תשע הפעולות אומתו</strong>. ההסרה נלחצה בפועל על "סטטיסטיקה לפכ״מ + תרגיל" והקורס נעלם מהתיק; במקומו נוסף "כלכלה התנהגותית" דרך החיפוש. שניהם אומתו במסך נפרד אחרי רענון.</p>
+
+  <h3>הפעולה האחת שלא לחצתי — ולמה</h3>
+  <p><strong>מחיקת החשבון.</strong> זו התלונה שלך מ-2.9 ("הוא אפילו לא נותן לי למחוק את המשתמש"), ובלוח היא רשומה כ"השרת נבדק, הכפתור לא נלחץ בפועל".</p>
+  <p>קראתי את הקוד לעומק והוא נכתב היטב: ארבעה שלבי מחיקה, כל אחד מזהה את עצמו, וכשמשהו נכשל ההודעה אומרת <em>מה באמת קרה לנתונים</em> ולא "משהו השתבש". יש גם מקרה שקל לפספס — אם זהות ההתחברות לא נמחקת, המסך אומר את האמת: "כל הנתונים שלכם נמחקו. הכניסה עצמה עוד קיימת אצל ספק ההתחברות".</p>
+  <p>ללחוץ עליו פירושו למחוק את חשבון הבדיקה — <strong>ואני לא פותח חשבונות</strong>, אז לא הייתי יכול להחזיר אותו, וכל הכלים שבניתי הלילה היו נשארים בלי חשבון לעבוד איתו. זו הפעולה היחידה מתוך הרשימה שנשארה לא נלחצה. לחיצה שלך תיקח חצי דקה, ואם תרצה שאעשה זאת — תגיד לי שאתה בסדר עם פתיחת החשבון מחדש.</p>
+
+  <h3>בנוסף: כל קישור באפליקציה</h3>
+  <p>הסיור לוחץ כפתורים; קישורים הם ניווט. בדקתי אותם בנפרד — <strong>57 קישורים פנימיים ב-16 מסכים</strong>, ולאן כל אחד באמת מוביל. כולם נוחתים על מסך תקין. אחד חשף פער אמיתי: <code>/he/mentor</code>, דף היועץ שהלוח והמדריך מקשרים אליו, <strong>לא היה ברשימת המסכים שלי</strong> — כתבתי אותה מהזיכרון. הוא נוסף וסויר.</p>
+
+  <h2>הלוח: 151 ← 155</h2>
+  <p>שלושה פריטים סומנו "חסום — צריך את אריאל". <strong>אף אחד מהם לא היה חסום באמת.</strong> חיכיתי לך על דברים שיכולתי לעשות לבד.</p>
+
+  <div class="scroll">
+    <table>
+      <thead><tr><th>מה</th><th>מה התברר</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><strong>קובץ האקסל</strong><br><span class="tag good">נסגר</span></td>
+          <td>הלוח כתב "חסום טכנית, צריך ממך שורה אחת". הרצתי בדיוק את הפקודה שהשורה עצמה הציעה — והקובץ נפתח.</td>
+        </tr>
+        <tr>
+          <td><strong>הסקילים</strong><br><span class="tag good">נסגר</span></td>
+          <td>שניהם כבר עובדים ולא צריך ממך כלום. חיפשתי סקילים נוספים בנגישות, ביצועים ובדיקות — אין מה להתקין.</td>
+        </tr>
+        <tr>
+          <td><strong>ביד-איט</strong><br><span class="tag good">נחקר</span></td>
+          <td>לא מתחרים על אותו דבר. הוא בונה מערכת שעות לכל האוניברסיטה; אין בו דרישות תואר, ציונים או ציון גמר.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>והאקסל שלך אישר את הליבה</h3>
+  <p>הגיליון נכתב על ידיך מהידיעון, לפני האפליקציה ובלי קשר אליה — ולכן הוא בדיקה חיצונית אמיתית:</p>
+  <div class="card good">
+    <ul>
+      <li><strong>נוסחת ציון הגמר</strong> — 0.78 שיעורים · 0.18 סמינרים · 0.04 רפרט. זהה בדיוק למה שהאפליקציה מחשבת.</li>
+      <li><strong>מבנה התואר</strong> — 103 חובה + 12 סמינרים + 35 בחירה = 150.</li>
+      <li><strong>פילוח החובה</strong> — 29 ייעודי לפכ״מ, 18 פילוסופיה.</li>
+    </ul>
+    <p style="margin-bottom:0"><strong>ציון הגמר של כל סטודנט מחושב נכון.</strong> זה הדבר החשוב ביותר שהגיליון הוכיח.</p>
+  </div>
+
+  <h2>מה מחכה להחלטה שלך</h2>
+  <p>אף אחד מאלה אינו תקלה. כולם שאלות שאסור לי להכריע לבד.</p>
+  <div class="scroll">
+    <table>
+      <thead><tr><th>הנושא</th><th>מה צריך ממך</th></tr></thead>
+      <tbody>
+        <tr><td><strong>פורט המסד</strong></td><td>השינוי שלמעלה. הכי דחוף, ולפני 7.9.</td></tr>
+        <tr><td><strong>מכסת ה-AI</strong></td><td>המפתח המשותף כבר מחזיר 429 מהבדיקות שלי. הצצה למכסה בחשבון Google לפני ההשקה.</td></tr>
+        <tr><td><strong>איחוד מסך הבידינג</strong></td><td>הבקשה שחזרת עליה הכי הרבה. מסך הבידינג כבר מרכז הכול חוץ מדבר אחד — אי אפשר לערוך בו. להזיז את העורך לשם פירושו שני מסלולי-שמירה לאותם נתונים, וזה בדיוק המבנה שמחק לך את התכנון ב-2.9. ההמלצה שלי בפנים.</td></tr>
+        <tr><td><strong>"משבר האקלים"</strong></td><td>אצלך בגיליון הוא כלכלה עם חלופות; בקטלוג הוא כללי בלי שיוך. לא שיניתי — הגיליון הוא רישום אישי, לא הידיעון.</td></tr>
+        <tr><td><strong>נתוני בידינג מהעבר</strong></td><td>זה מה שיש בביד-איט ואין בנו. שים לב להבחנה: הוא <em>מציג עבר</em>, לא <em>מנבא</em>. הכלל שלך אוסר לנבא.</td></tr>
+        <tr><td><strong>תאריכי הבידינג</strong></td><td>מצוטטים מהמסמכים שייצאת ב-13.8. אני חסום מאתר הפקולטה, אז לא יכולתי לאמת מולו. שווה הצצה של חצי דקה שהם לא השתנו.</td></tr>
+        <tr><td><strong>שתי החלטות ותיקות</strong></td><td>מחוון הציונים ב-RTL, ו-<code>text-[10px]</code> ב-219 מקומות. שתיהן רשומות אצלך כהחלטות בעלים ולא נגעתי בהן.</td></tr>
+        <tr><td><strong>"עמוס בכותרות"</strong></td><td>ההערה של גיל. גיליתי שרק שלושה מסכים משתמשים ברכיב הכותרת המשותף ושאר המסכים בונים כותרת משלהם — אבל <strong>לא מדדתי</strong> אם זה מה שהוא הרגיש. זה הפריט היחיד בלוח שנשאר צהוב, וכתבתי לו כלי מדידה שמחכה.</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <p class="foot">כל מה שכתוב כאן נמדד על פרודקשן החי, לא בקוד. הצילומים ב-<code>video/shots/</code>, הנתונים הגולמיים ב-<code>docs/</code>. הפירוט המלא: <code>נפילת-המסד-5.9.md</code> · <code>D15-מה-למדתי-מהאקסל.md</code> · <code>G12-פכמון-מול-ביד-איט.md</code> · <code>H16-איחוד-מסך-הבידינג.md</code></p>
+</div>
