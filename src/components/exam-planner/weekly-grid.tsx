@@ -9,7 +9,7 @@
 // Phases 2-5 add a capacity model, self-confidence, topic-level and a rebalance
 // loop that respects locked blocks; this phase is the editable table itself.
 
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import {
   DndContext,
   PointerSensor,
@@ -21,7 +21,7 @@ import {
   useDroppable,
   type DragEndEvent,
 } from "@dnd-kit/core";
-import { GraduationCap, Plus, X } from "lucide-react";
+import { ChevronDown, GraduationCap, Plus, X } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -31,6 +31,7 @@ import {
 import type { ExamPlanResult } from "@/lib/exam-planner";
 import { shortCourseName } from "@/lib/xlsx-export";
 import { cn } from "@/lib/utils";
+import { heNoun } from "@/lib/he-count";
 
 // LOCAL-midnight day helpers — copied from study-skyline.tsx. MUST be local
 // (never toISOString/UTC): for Israel (UTC+2/+3) a local-midnight Date
@@ -254,9 +255,15 @@ export function WeeklyGrid({
     // when the plan has no blocks yet, and folding that fallback into the
     // anchor put the window back in September for a plan that is nothing but
     // January exams — the very case being fixed.
+    // ...ובלי ה-3 ימים אחורה. הצמדת-ראשון כבר נותנת ריצה טבעית של 0-6
+    // ימים, ולהוריד עוד שלושה מעליה זה בדיוק מה שדחף שבוע **שלם וריק**
+    // לראש הלוח: התוכנית מתחילה ב-27.12 שהוא יום ראשון, `-3` הזיז ל-24.12,
+    // וההצמדה חזרה ל-20.12 — כלומר שורה ראשונה של שבעה תאים "+ לימוד"
+    // ריקים, מעל באנר שאומר שהתוכנית מתחילה מאוחר יותר. עכשיו הלוח נפתח
+    // בשבוע שבו התוכנית באמת מתחילה.
     const anchors = [...sessionDates, ...examDates];
     const planStart = anchors.length ? Math.min(...anchors) : today.getTime();
-    const rangeStart = startOfDay(addDays(new Date(planStart), -3));
+    const rangeStart = startOfDay(new Date(planStart));
     const ws = addDays(rangeStart, -rangeStart.getDay());
     // The ceiling moves with the window, not with the calendar.
     //
@@ -271,6 +278,42 @@ export function WeeklyGrid({
     const totalDays = Math.ceil((horizon - ws.getTime()) / 86_400_000) + 1;
     return { weekStart: ws, weeks: Math.max(1, Math.ceil(totalDays / 7)) };
   }, [plan.sessions, plan.exams, today]);
+
+  // ====================================================================
+  // M44 — "ושוב לוח מבחנים בלתי נגמר. אתה בכלל עובר כסטודנט על האפליקציה?"
+  // ====================================================================
+  // הצמדת ההתחלה לתוכנית כבר תוקנה למעלה, אבל היא מטפלת רק בקצה. באמצע
+  // התוכנית עדיין נמתחו שבועות ריקים לגמרי — בסיור שלי 4.9 היו שני שבועות
+  // שלמים (2.2-13.2) של 14 תאי "+ לימוד" ותו לא, בין אשכול מאקרו/מיקרו
+  // לאשכול הפילוסופיה. הלוח לא ארוך; הוא **ריק**.
+  //
+  // הסקייליין שמעליו כבר יודע לקפל את זה ואומר "17 ימים חופשיים 2-18".
+  // הלוח מצייר את אותם ימים בדיוק, תא-תא. אז רצף של שבועות ריקים מתקפל
+  // כאן לשורה אחת שאומרת מה יש שם — **וניתן לפתוח אותה**, כי בתא ריק אפשר
+  // להוסיף לימוד, וקיפול שמוחק יכולת הוא לא קיצור אלא אובדן.
+  const [openRuns, setOpenRuns] = useState<Set<number>>(() => new Set());
+  const segments = useMemo(() => {
+    const busy: boolean[] = [];
+    for (let w = 0; w < weeks; w++) {
+      let has = false;
+      for (let d = 0; d < 7 && !has; d++) {
+        const k = dayKey(addDays(weekStart, w * 7 + d));
+        has = (taskByDay.get(k)?.length ?? 0) > 0 || (examByDay.get(k)?.length ?? 0) > 0;
+      }
+      busy.push(has);
+    }
+    // רצף של שבוע ריק בודד לא שווה שורת-קיפול — היא לא קצרה מהשורה עצמה.
+    const MIN_RUN = 2;
+    const out: ({ kind: "week"; w: number } | { kind: "gap"; from: number; to: number })[] = [];
+    for (let w = 0; w < weeks; ) {
+      if (busy[w]) { out.push({ kind: "week", w }); w += 1; continue; }
+      let end = w;
+      while (end + 1 < weeks && !busy[end + 1]) end += 1;
+      if (end - w + 1 >= MIN_RUN) { out.push({ kind: "gap", from: w, to: end }); w = end + 1; }
+      else { out.push({ kind: "week", w }); w += 1; }
+    }
+    return out;
+  }, [weeks, weekStart, taskByDay, examByDay]);
 
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 6 } }),
@@ -296,6 +339,19 @@ export function WeeklyGrid({
         </span>
       </div>
 
+      {/* ==================================================================
+          M45 — *"שני דברים שאי אפשר להבין מהם שום דבר"*
+          ==================================================================
+          השניים היו הסקייליין והלוח הזה. לסקייליין נוסף מקרא; הלוח נשאר בלי
+          אחד — כותרת, שורת הוראות ("גררו · הוסיפו · מחקו"), ואז 70 תאים.
+          ההוראות אומרות מה **אפשר לעשות** ולא מה **רואים**. שורה אחת שאומרת
+          מה תא, מה המספר, ומאיפה הצבע — לפני הרשת, לא אחריה. */}
+      <p className="mb-2 text-[11px] leading-relaxed text-foreground/60">
+        {isHe
+          ? "כל תא הוא יום אחד. הצ׳יפ הוא קורס שמתוכנן ללמוד בו, והמספר שעליו הוא שעות הלימוד. צבע הקורס זהה לצבע שלו במערכת השעות ובלוח הבחינות, ויום שיש בו מבחן מסומן בכובע."
+          : "Each cell is one day. A chip is a course planned for it, and the number on it is study hours. A course keeps the same colour here, in the timetable and on the exam board; a day with an exam is marked with a cap."}
+      </p>
+
       <DndContext sensors={sensors} onDragEnd={handleDragEnd}>
         <div dir={isHe ? "rtl" : "ltr"} className="overflow-x-auto">
           <div className="min-w-[560px] space-y-2">
@@ -314,7 +370,32 @@ export function WeeklyGrid({
               ))}
             </div>
 
-            {Array.from({ length: weeks }).map((_, w) => (
+            {segments.flatMap((seg) => {
+              if (seg.kind === "gap" && !openRuns.has(seg.from)) {
+                const from = addDays(weekStart, seg.from * 7);
+                const to = addDays(weekStart, seg.to * 7 + 6);
+                const days = (seg.to - seg.from + 1) * 7;
+                const fmt = (d: Date) => `${d.getDate()}.${d.getMonth() + 1}`;
+                return [(
+                  <button
+                    key={`gap-${seg.from}`}
+                    type="button"
+                    onClick={() => setOpenRuns((prev) => new Set(prev).add(seg.from))}
+                    className="flex w-full items-center justify-center gap-2 rounded-lg border border-dashed border-border/50 bg-foreground/[0.015] px-3 py-2.5 text-xs text-foreground/60 transition-colors hover:border-foreground/25 hover:text-foreground/80"
+                  >
+                    <ChevronDown className="size-3.5 shrink-0" />
+                    <span>
+                      {isHe
+                        ? `${heNoun(days, "יום חופשי", "ימים חופשיים")} · ${fmt(from)}–${fmt(to)} — אין מה ללמוד. להצגה`
+                        : `${days} free days · ${fmt(from)}–${fmt(to)} — nothing to study. Show`}
+                    </span>
+                  </button>
+                )];
+              }
+              const range = seg.kind === "gap"
+                ? Array.from({ length: seg.to - seg.from + 1 }, (_, i) => seg.from + i)
+                : [seg.w];
+              return range.map((w) => (
               <div key={w} className="grid grid-cols-7 gap-1.5">
                 {Array.from({ length: 7 }).map((_, d) => {
                   const day = addDays(weekStart, w * 7 + d);
@@ -455,7 +536,8 @@ export function WeeklyGrid({
                   );
                 })}
               </div>
-            ))}
+              ));
+            })}
           </div>
         </div>
       </DndContext>

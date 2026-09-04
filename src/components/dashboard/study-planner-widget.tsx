@@ -193,7 +193,13 @@ export function StudyPlannerWidget({
         <div className="flex items-center gap-3 mb-4">
           <CalendarDays className="h-5 w-5 text-foreground/60" />
           <h3 className="text-base font-semibold text-foreground/80">{t("title")}</h3>
-          {totalCount > 0 && (
+          {/* M54 — *"סתכל את התכנון לימודים הזה וכמה הוא לא אומר כלום"*.
+              רשימת 77 השורות הזהות כבר הוחלפה בסיכום אחד. מה שנשאר מהצילום
+              שלו הוא המונה: **"0/77"** ליד תוכנית שמתחילה בעוד 115 יום.
+              יחס־התקדמות על עבודה שאי־אפשר להתחיל בה עדיין קורא ככישלון,
+              לא כמידע — והשורה מתחתיו כבר אומרת "77 מטלות מחכות שם". אז
+              המונה מופיע כשיש מה למנות. */}
+          {totalCount > 0 && planStartsInDays == null && (
             <span dir="ltr" className="ms-auto text-xs text-foreground/60">
               {completedCount}/{totalCount}
             </span>
@@ -204,7 +210,7 @@ export function StudyPlannerWidget({
             className={cn(
               "flex items-center gap-1 rounded-lg px-2.5 py-1 text-xs font-medium transition-all hover:scale-105 press-scale",
               "bg-foreground/10 text-foreground/70 hover:bg-foreground/15",
-              totalCount === 0 && "ms-auto"
+              (totalCount === 0 || planStartsInDays != null) && "ms-auto"
             )}
           >
             <Plus className="h-3.5 w-3.5" />

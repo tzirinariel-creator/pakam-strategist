@@ -122,6 +122,15 @@ export interface SkylineModel {
    */
   startsInDays: number;
   windowStart: Date | null;
+  /**
+   * היום הראשון שבאמת יש בו משהו — בלוק לימוד או מבחן.
+   *
+   * M44 (אריאל): הבאנר אמר *"התוכנית בנויה — היא פשוט מתחילה רק ב-24.12"*
+   * בזמן שהבלוק הראשון בתוכנית היה ב-**27.12**. 24.12 הוא `windowStart`,
+   * כלומר איפה שהגרף **נפתח** — שלושה ימי ריצה לפני. משפט שאומר "התוכנית
+   * מתחילה ב-" חייב לנקוב בתאריך של התוכנית, לא של הגרף.
+   */
+  firstBusyDate: Date | null;
 }
 
 /** Pure, testable: turn an ExamPlanResult into the day-by-day skyline model. */
@@ -138,7 +147,7 @@ export function buildSkylineModel(
     return {
       items: [], maxDayHours: 0, todayHours: 0, todayCourses: 0,
       peak: null, firstExam: null, hasOverload: false, courses: [],
-      startsInDays: 0, windowStart: null,
+      startsInDays: 0, windowStart: null, firstBusyDate: null,
     };
   }
 
@@ -259,6 +268,7 @@ export function buildSkylineModel(
     /** How far off the chart's first day is. 0 ⇒ it opens today. */
     startsInDays,
     windowStart,
+    firstBusyDate,
     peak: peakItem ? { weekday: peakItem.date.getDay(), date: peakItem.date, hours: peakItem.sumHours } : null,
     firstExam: { courseName: first.courseName, color: first.color, days: Math.max(0, daysBetween(today, first.examDate)), moed: first.moed },
     hasOverload: false, // set by caller from recommendations
@@ -479,20 +489,20 @@ export function StudySkyline({ plan, recommendations, isHe, now, onDayClick, onM
       {/* The plan starts months out — say so, rather than let the reader
           conclude nothing was built. Threshold at a week: inside that, "the
           chart opens in 3 days" is noise. */}
-      {model.startsInDays > 7 && model.windowStart && (
+      {model.startsInDays > 7 && model.firstBusyDate && (
         <div className="border-b border-accent-brand/25 bg-accent-brand/[0.06] px-3 py-2.5 text-xs leading-relaxed text-foreground/70">
           {isHe ? (
             <>
               <b>התוכנית בנויה</b> — היא פשוט מתחילה רק ב־
-              <Bidi text={`${model.windowStart.getDate()}.${model.windowStart.getMonth() + 1}`} />,{" "}
-              {hebCountdown(model.startsInDays)}. עד אז אין מה ללמוד למבחנים האלה, אז הלוח
-              נפתח שם ולא היום.
+              <Bidi text={`${model.firstBusyDate.getDate()}.${model.firstBusyDate.getMonth() + 1}`} />,{" "}
+              {hebCountdown(Math.max(0, daysBetween(startOfDay(now ?? new Date()), model.firstBusyDate)))}. עד אז
+              אין מה ללמוד למבחנים האלה, אז הלוח נפתח שם ולא היום.
             </>
           ) : (
             <>
               <b>The plan is built</b> — it simply does not begin until{" "}
-              {model.windowStart.getDate()}.{model.windowStart.getMonth() + 1}, in{" "}
-              {model.startsInDays} days. There is nothing to study for these exams before
+              {model.firstBusyDate.getDate()}.{model.firstBusyDate.getMonth() + 1}, in{" "}
+              {Math.max(0, daysBetween(startOfDay(now ?? new Date()), model.firstBusyDate))} days. There is nothing to study for these exams before
               then, so the chart opens there rather than today.
             </>
           )}
