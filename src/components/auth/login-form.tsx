@@ -121,15 +121,21 @@ export function LoginForm() {
       if (authError) {
         const key = authErrorKey(authError.message);
         setError(key ? t(key) : t("loginFailed"));
+        setLoading(false);
         return;
       }
 
-      // Redirect to dashboard after successful login
+      // Redirect to dashboard after successful login.
+      //
+      // א.1.3 — הספינר נעלם לפני שהעמוד נטען. `router.push` של next-intl
+      // מחזיר `void`, לא Promise: הוא רק מזמין ניווט. `finally` רץ מיד
+      // אחריו, כיבה את הספינר, והכפתור חזר להיראות לחיץ בזמן שהדשבורד עוד
+      // בדרך — סטודנט על רשת סלולרית איטית רואה "שום דבר לא קרה" ולוחץ שוב.
+      // לכן במסלול ההצלחה **לא** מכבים: הרכיב מתפרק עם הניווט וזה מכבה אותו.
       router.push("/dashboard");
       router.refresh();
     } catch {
       setError(t("unexpectedError"));
-    } finally {
       setLoading(false);
     }
   };
