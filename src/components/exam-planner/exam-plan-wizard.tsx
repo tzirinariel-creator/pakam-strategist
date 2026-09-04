@@ -395,7 +395,7 @@ export function MoedPrinciplesCard({ isHe }: { isHe: boolean }) {
           </li>
         ))}
       </ul>
-      <p className="mt-3 border-t border-border/40 pt-2.5 text-[11px] leading-relaxed text-foreground/60">
+      <p className="mt-3 border-t border-border/40 pt-2.5 text-xs leading-relaxed text-foreground/60">
         {isHe
           ? "לא ננחש תאריכים שלא פורסמו ולא נחזה כמה מבחן יהיה קשה — ההחלטה שלכם, על בסיס העקרונות והעבר האמיתי."
           : "We won't guess unpublished dates or predict how hard an exam will be — the call is yours, based on these principles and your real history."}

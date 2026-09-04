@@ -620,7 +620,7 @@ export function ExamPlannerContent() {
   const manualDateRows =
     datelessCourses.length === 0 ? null : (
       <div className="space-y-1.5 rounded-lg border border-border/50 p-2.5">
-        <p className="text-[11px] font-semibold text-foreground/60">
+        <p className="text-xs font-semibold text-foreground/60">
           {isHe ? "קורסים ללא תאריך בקטלוג — הזינו תאריך משלכם:" : "Courses with no catalog date — enter your own:"}
         </p>
         {datelessCourses.map((c) => (
@@ -635,7 +635,7 @@ export function ExamPlannerContent() {
             />
           </div>
         ))}
-        <p className="text-[10px] leading-relaxed text-foreground/60">
+        <p className="text-xs leading-relaxed text-foreground/60">
           {isHe
             ? "התאריך נשמר במכשיר הזה ומסומן כ״תאריך שהזנתם״ — הוא לא מוצג לאף אחד אחר, וכשהאוניברסיטה תפרסם לוח רשמי הוא יגבר עליו."
             : "Saved on this device and labelled as yours — nobody else sees it, and an official published date takes over once it exists."}
@@ -685,7 +685,7 @@ export function ExamPlannerContent() {
               anything, so it can never read as if it doesn't know the date. */}
           <AcademicStatusLine isHe={isHe} />
           {/* E3′ (note 32) — why Moed A is the default, in one honest line. */}
-          <p className="text-[11px] leading-relaxed text-foreground/60">
+          <p className="text-xs leading-relaxed text-foreground/60">
             {isHe
               ? "ברירת המחדל היא מועד א׳ — רוב הסטודנטים ניגשים אליו, ומועד ב׳ נשאר כרשת ביטחון (שימו לב: הציון האחרון קובע)."
               : "Moed A is the default — most students take it, keeping Moed B as the safety net (note: the last grade counts)."}

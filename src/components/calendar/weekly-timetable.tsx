@@ -307,7 +307,19 @@ export function WeeklyTimetable({
   // Stats — derived from the rendered slots so counts match what's shown.
   const totalSessions = slots.length;
   const uniqueCourses = new Set(slots.map((s) => s.courseCode)).size;
+  // ============================================================
+  // אותו עיגול כמו מחשבון העומס — אחרת שני המסכים סותרים זה את זה
+  // ============================================================
+  // 4.9, נמצא בסיור צילומי המסך: מסך "המערכת המומלצת מוכנה" הציג
+  // **"27 שעות/שבוע"** בכותרת הגריד ו**"26.5 שעות לימוד בשבוע"** בכרטיס
+  // שלצידו, לאותו שבוע בדיוק.
+  //
+  // הסכום עצמו זהה. `workload-calculator` מעגל לחצי שעה (26.5) והגריד
+  // עיגל לשלם, ו-Math.round(26.5) הוא 27. ההערה ב-workload-calculator
+  // שורות 70-74 מתעדת שאריאל דיווח על בדיוק אותה סתירה ב-13.8, ושמאז
+  // "שני המשטחים מסכימים לפי בנייה" — הם הסכימו בחישוב ונחלקו בתצוגה.
   const totalHours = slots.reduce((sum, s) => sum + (s.endHour - s.startHour), 0);
+  const totalHoursLabel = Math.round(totalHours * 2) / 2;
 
   const dayLabel = (day: number) => {
     const key = DAY_KEYS[day];
@@ -363,7 +375,7 @@ export function WeeklyTimetable({
       <div className="flex flex-wrap items-center gap-x-2.5 gap-y-1 text-xs text-muted-foreground">
         <span>
           <span className="font-semibold text-foreground/70 tabular-nums">
-            {Math.round(totalHours)}
+            {totalHoursLabel}
           </span>{" "}
           {t("hrsPerWeek")}
         </span>

@@ -129,7 +129,7 @@ export function BiddingOverlapAlert({
             : `${termLabel} — ${conflicts.length} clash${conflicts.length > 1 ? "es" : ""} in your courses`}
         </h3>
       </div>
-      <p className="mb-2.5 text-[11px] leading-snug text-foreground/60">
+      <p className="mb-2.5 text-xs leading-snug text-foreground/60">
         {isHe
           ? 'אי-אפשר להירשם לשני קורסים שחופפים בשעות. באותו מקצה ישובץ זה עם הניקוד הגבוה והנקודות של השני יעברו הלאה; במקצה השני קורס חופף גם מבטל שיבוץ שכבר קיבלתם. כדאי לתקן לפני שמגישים:'
           : 'In bidding, requesting two overlapping courses auto-cancels the first ("last request wins"). Worth fixing before you bid:'}

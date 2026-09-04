@@ -55,7 +55,7 @@ export function ConnectGeminiGuide() {
             );
           })}
         </ol>
-        <p className="mt-2 text-[11px] leading-snug text-foreground/60">
+        <p className="mt-2 text-xs leading-snug text-foreground/60">
           {isHe
             ? "אין לכם מפתח? העוזר עדיין עובד דרך המפתח המשותף החינמי של האפליקציה (עם מכסה יומית משותפת). מפתח אישי פשוט נותן לכם מכסה משלכם."
             : "No key? The assistant still works through the app's shared free key (with a shared daily quota). A personal key simply gives you your own quota."}
@@ -68,7 +68,7 @@ export function ConnectGeminiGuide() {
           <ShieldCheck className="size-3.5 text-status-green" />
           {isHe ? "מה נשלח ולאן? (פרטיות בגובה העיניים)" : "What gets sent where? (privacy, plainly)"}
         </p>
-        <ul className="space-y-1 text-[11px] leading-relaxed text-foreground/60">
+        <ul className="space-y-1 text-xs leading-relaxed text-foreground/60">
           <li>
             {isHe
               ? "כששואלים את העוזר, נשלחים ל-Google Gemini: השאלה שלכם + תמצית נתוני-התואר שלכם (ש״ס, ממוצע, קורסים, דרישות) — כדי שהתשובה תהיה אישית."

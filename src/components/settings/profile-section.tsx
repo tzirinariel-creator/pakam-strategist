@@ -407,7 +407,7 @@ export function ProfileSection() {
           </p>
           {/* "What IS a focus area and why choose one" — the #6/#29 question a
               first-year student actually asks, answered where the choice is. */}
-          <div className="rounded-lg border border-border/50 bg-foreground/[0.02] p-2.5 text-[11px] leading-relaxed text-foreground/60">
+          <div className="rounded-lg border border-border/50 bg-foreground/[0.02] p-2.5 text-xs leading-relaxed text-foreground/60">
             {isHe
               ? "מה זה בכלל? מתוך שלוש הדיסציפלינות של פכ״מ בוחרים אחת להעמקה — לפחות 60 ש״ס ממנה בתואר. הבחירה קובעת גם את הסיווג בשירות המדינה, והיא משפיעה על אילו קורסי-בחירה כדאי לקחת. אפשר להתלבט בשנה א׳ ולבחור אחר-כך — האפליקציה תסמן לכם אילו קורסים נספרים לכל כיוון."
               : "What is this? Of PPE's three disciplines you pick one to specialize in — at least 60 credits from it across the degree. It also sets your civil-service classification and shapes which electives are worth taking. It's fine to stay undecided in year 1 — the app marks which courses count toward each direction."}

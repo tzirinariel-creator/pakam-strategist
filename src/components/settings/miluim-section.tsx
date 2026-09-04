@@ -315,7 +315,7 @@ export function MiluimSection() {
             <h4 className="mb-1 text-sm font-medium text-foreground/70">
               {isHe ? "השירות שלכם מאז תחילת התואר" : "Your service since the degree began"}
             </h4>
-            <p className="mb-2 text-[11px] text-foreground/60">
+            <p className="mb-2 text-xs text-foreground/60">
               {isHe
                 ? "שורה לכל סמסטר — הקבוצה נקבעת מחדש בכל סמסטר לפי הימים שבו."
                 : "One row per semester — the group is re-derived each semester from that semester's days."}

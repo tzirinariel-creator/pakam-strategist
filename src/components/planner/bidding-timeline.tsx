@@ -217,7 +217,7 @@ export function BiddingTimeline({
             </a>
           </div>
 
-          <p className="mt-2 text-[10px] leading-relaxed text-foreground/60">
+          <p className="mt-2 text-xs leading-relaxed text-foreground/60">
             {isHe
               ? "התאריכים מתוך ההנחיות הרשמיות של הפקולטה למדעי הרוח לתשפ״ז. פכמון לא מנחש כמה נקודות צריך — המכסה לא מתפרסמת, וגם ההנחיות עצמן אומרות שאין להסיק מתוצאות שנים קודמות."
               : "Dates from the Faculty of Humanities' official 2026/27 guidelines. Pakamon never guesses how many points a course needs — the quota isn't published, and the guidelines themselves say past results shouldn't be extrapolated."}

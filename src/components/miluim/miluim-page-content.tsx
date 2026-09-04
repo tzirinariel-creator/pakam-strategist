@@ -233,7 +233,7 @@ export function MiluimPageContent() {
             <CalendarRange className="size-4 text-foreground/60" />
             {isHe ? "השירות שלכם בתואר, סמסטר-סמסטר" : "Your service during the degree, semester by semester"}
           </h2>
-          <p className="mt-1 text-[11px] leading-relaxed text-foreground/60">
+          <p className="mt-1 text-xs leading-relaxed text-foreground/60">
             {isHe
               ? "שורה לכל סמסטר שלמדתם בו — כל שורה היא הקבוצה של אותו סמסטר בלבד. הסכום לכל התואר מופיע בכרטיס שמתחת."
               : "One row per semester you studied in — each row is that semester's group only. The whole-degree totals are in the card below."}
@@ -370,7 +370,7 @@ export function MiluimPageContent() {
               {isHe ? "הוסיפו סמסטר" : "Add semester"}
             </button>
           </div>
-          <p className="mt-2 text-[11px] leading-relaxed text-foreground/60">
+          <p className="mt-2 text-xs leading-relaxed text-foreground/60">
             {isHe
               ? "הקבוצה נקבעת מחדש בכל סמסטר לפי הימים של אותו סמסטר — מוסיפים כאן ידנית או דרך טופס 3010 למטה, ומוחקים שורה בלחיצה (עם ביטול)."
               : "The group is re-assigned each semester from that semester's days — add here or via Form 3010 below; delete a row in one tap (with undo)."}
@@ -458,7 +458,7 @@ export function MiluimPageContent() {
             <BadgeCheck className="size-4 text-foreground/60" />
             {isHe ? "מה מגיע לכם בכל התואר — מחושב לבד" : "Your whole-degree entitlements — computed automatically"}
           </h2>
-          <p className="mt-1 text-[11px] leading-relaxed text-foreground/60">
+          <p className="mt-1 text-xs leading-relaxed text-foreground/60">
             {isHe
               ? "המספרים כאן מצטברים על פני כל התואר (ולא לסמסטר הנוכחי), ומחושבים מהסמסטרים שרשומים למעלה."
               : "These numbers are cumulative across the whole degree (not this semester), derived from the semesters listed above."}
@@ -518,7 +518,7 @@ export function MiluimPageContent() {
                   ))}
                 </ul>
               )}
-              <p className="mt-1.5 text-[11px] leading-relaxed text-foreground/60">
+              <p className="mt-1.5 text-xs leading-relaxed text-foreground/60">
                 {isHe
                   ? "הזכאות נצברת לפי שנה (לא לפי סמסטר) עד תקרת-התואר. את המימוש עצמו מגישים במדור מילואים, ומעדכנים את המספר בעורך שלמטה."
                   : "The entitlement accrues per YEAR (not per semester) up to the degree cap. Redemption itself is filed at the miluim desk; update the number in the editor below."}
@@ -538,7 +538,7 @@ export function MiluimPageContent() {
                     : `We have no reserve record for ${groupRef.startYear}/${groupRef.startYear + 1} · ${groupRef.semester === "SPRING" ? "Spring" : "Fall"}, and the group is set afresh each semester — so we can't yet say what you're entitled to. Add the semester above and the number appears here.`}
                 </p>
               ) : binaryBenefit == null ? (
-                <p className="mt-1.5 text-[11px] leading-relaxed text-foreground/60">
+                <p className="mt-1.5 text-xs leading-relaxed text-foreground/60">
                   {isHe
                     ? "לקבוצה הנוכחית שלכם המתווה לא מעניק המרות בינארי. אם הקבוצה תשתנה — הזכאות תתעדכן כאן לבד."
                     : "Your current group doesn't grant binary conversions under the outline. If your group changes, this updates automatically."}

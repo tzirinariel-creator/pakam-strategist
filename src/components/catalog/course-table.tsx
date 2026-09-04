@@ -312,7 +312,7 @@ export function CourseTable({ courses, allCourses, focusArea, overrides }: Cours
               <button
                 type="button"
                 onClick={() => handleSort("code")}
-                className="inline-flex items-center gap-1 text-foreground/80 font-bold bg-transparent appearance-none cursor-pointer select-none"
+                className="py-1.5 -my-1.5 inline-flex items-center gap-1 text-foreground/80 font-bold bg-transparent appearance-none cursor-pointer select-none"
               >
                 {t("code")}
                 {sortIcon("code")}
@@ -327,7 +327,7 @@ export function CourseTable({ courses, allCourses, focusArea, overrides }: Cours
               <button
                 type="button"
                 onClick={() => handleSort("nameHe")}
-                className="inline-flex items-center gap-1 text-foreground/80 font-bold bg-transparent appearance-none cursor-pointer select-none"
+                className="py-1.5 -my-1.5 inline-flex items-center gap-1 text-foreground/80 font-bold bg-transparent appearance-none cursor-pointer select-none"
               >
                 {t("courseName")}
                 {sortIcon("nameHe")}
@@ -342,7 +342,7 @@ export function CourseTable({ courses, allCourses, focusArea, overrides }: Cours
               <button
                 type="button"
                 onClick={() => handleSort("discipline")}
-                className="inline-flex items-center gap-1 text-foreground/80 font-bold bg-transparent appearance-none cursor-pointer select-none"
+                className="py-1.5 -my-1.5 inline-flex items-center gap-1 text-foreground/80 font-bold bg-transparent appearance-none cursor-pointer select-none"
               >
                 {t("discipline")}
                 {sortIcon("discipline")}
@@ -357,7 +357,7 @@ export function CourseTable({ courses, allCourses, focusArea, overrides }: Cours
               <button
                 type="button"
                 onClick={() => handleSort("courseType")}
-                className="inline-flex items-center gap-1 text-foreground/80 font-bold bg-transparent appearance-none cursor-pointer select-none"
+                className="py-1.5 -my-1.5 inline-flex items-center gap-1 text-foreground/80 font-bold bg-transparent appearance-none cursor-pointer select-none"
               >
                 {t("type")}
                 {sortIcon("courseType")}
@@ -372,7 +372,7 @@ export function CourseTable({ courses, allCourses, focusArea, overrides }: Cours
               <button
                 type="button"
                 onClick={() => handleSort("credits")}
-                className="inline-flex items-center gap-1 text-foreground/80 font-bold bg-transparent appearance-none cursor-pointer select-none"
+                className="py-1.5 -my-1.5 inline-flex items-center gap-1 text-foreground/80 font-bold bg-transparent appearance-none cursor-pointer select-none"
               >
                 {t("creditsCol")}
                 {sortIcon("credits")}
@@ -397,7 +397,7 @@ export function CourseTable({ courses, allCourses, focusArea, overrides }: Cours
                       ? "נתוני פרויקט ארזים — סטטיסטיקות ציונים אמיתיות משנים קודמות, לא ציון רשמי של האוניברסיטה"
                       : "Arazim Project data — real grade statistics from past years, not an official university grade"
                   }
-                  className="inline-flex items-center gap-1 text-foreground/80 font-bold bg-transparent appearance-none cursor-pointer select-none"
+                  className="py-1.5 -my-1.5 inline-flex items-center gap-1 text-foreground/80 font-bold bg-transparent appearance-none cursor-pointer select-none"
                 >
                   {isHe ? "ממוצע היסטורי" : "Historical avg"}
                   {sortIcon("averageGrade")}
@@ -419,7 +419,7 @@ export function CourseTable({ courses, allCourses, focusArea, overrides }: Cours
               <button
                 type="button"
                 onClick={() => handleSort("yearOffered")}
-                className="inline-flex items-center gap-1 text-foreground/80 font-bold bg-transparent appearance-none cursor-pointer select-none"
+                className="py-1.5 -my-1.5 inline-flex items-center gap-1 text-foreground/80 font-bold bg-transparent appearance-none cursor-pointer select-none"
               >
                 {t("yearCol")}
                 {sortIcon("yearOffered")}
@@ -434,7 +434,7 @@ export function CourseTable({ courses, allCourses, focusArea, overrides }: Cours
               <button
                 type="button"
                 onClick={() => handleSort("semesterOffered")}
-                className="inline-flex items-center gap-1 text-foreground/80 font-bold bg-transparent appearance-none cursor-pointer select-none"
+                className="py-1.5 -my-1.5 inline-flex items-center gap-1 text-foreground/80 font-bold bg-transparent appearance-none cursor-pointer select-none"
               >
                 {t("semesterCol")}
                 {sortIcon("semesterOffered")}
