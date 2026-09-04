@@ -81,7 +81,23 @@ export async function runTour(actions) {
   await login(p);
   await ctx.settle(6000);
 
-  let pass = 0, fail = 0, skip = 0;
+  // ── שער הפרסונה ─────────────────────────────────────────────
+  // 4.9: הרצתי `tour-y2.mjs` בזמן שהחשבון היה במצב שנה א׳, והתוצאות
+  // נכתבו תחת `y2-desktop` **מעל** ריצה מאומתת. אף שגיאה לא נזרקה —
+  // הכלי פשוט תייג את הנתונים הלא נכונים. אז הוא בודק עכשיו שהמצב על
+  // המסך תואם למה שביקשתי, ומסרב אם לא.
+  const state = await ctx.txt();
+  const yearOnScreen = (state.match(/שנה ([אבג])׳/) || [])[1];
+  const want = { y1: "א", y2: "ב", y3: "ג" }[PERSONA];
+  if (want && yearOnScreen && yearOnScreen !== want) {
+    console.log(`\n‼️  עצירה: ביקשת פרסונה ${PERSONA} (שנה ${want}׳) והחשבון מציג שנה ${yearOnScreen}׳.`);
+    console.log(`   הרץ קודם:  npm run reset:test && node video/persona-seed.mjs --persona ${PERSONA}`);
+    await b.close();
+    return { pass: 0, fail: 0, skip: 0, na: 0, aborted: true };
+  }
+  console.log(`(מצב החשבון: שנה ${yearOnScreen ?? "?"}׳ — תואם)`);
+
+  let pass = 0, fail = 0, skip = 0, na = 0;
   for (const a of actions) {
     if (ONLY.length && !ONLY.includes(a.id)) continue;
     if (!REDO && all[KEY][a.id]?.ok) { skip += 1; continue; }
@@ -97,16 +113,19 @@ export async function runTour(actions) {
     if (errors.length) { r.js = [...new Set(errors)].slice(0, 3); errors.length = 0; }
     all[KEY][a.id] = { name: a.name, ...r };
     save(all);                                   // ← אחרי כל פעולה, לא בסוף
-    r.ok ? pass++ : fail++;
-    console.log(`${r.ok ? "✅" : "❌"} ${a.id.padEnd(22)} ${a.name}`);
+    // `na` = הפעולה לא רלוונטית למצב הפרסונה (סימולציה בלי ציונים,
+    // תכנון מבחנים בלי מועדים). זה לא כישלון וגם לא הצלחה — לסמן אותו
+    // כאחד מהם זה לשקר בשתי הדרכים.
+    if (r.na) { na++; } else if (r.ok) { pass++; } else { fail++; }
+    console.log(`${r.na ? "➖" : r.ok ? "✅" : "❌"} ${a.id.padEnd(22)} ${a.name}`);
     if (r.note) console.log(`     ${r.note}`);
     if (r.evidence) console.log(`     הוכחה: ${r.evidence}`);
     if (r.js) console.log(`     ✗ JS: ${r.js.join(" | ")}`);
   }
 
-  console.log(`\n── ${KEY}: ${pass} עברו · ${fail} נכשלו · ${skip} דולגו ──`);
+  console.log(`\n── ${KEY}: ${pass} עברו · ${fail} נכשלו · ${na} לא רלוונטיים · ${skip} דולגו ──`);
   await b.close();
-  return { pass, fail, skip };
+  return { pass, fail, skip, na };
 }
 
 export { measure };

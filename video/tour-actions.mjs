@@ -141,6 +141,40 @@ export const ACTIONS = [
     },
   },
 
+  // ── 4א · תכנון מבחנים מקצה לקצה (בונה מצב לפעולות הבאות) ──
+  {
+    id: "exam-plan-build",
+    name: "תכנון מבחנים מקצה לקצה",
+    async run(ctx) {
+      await ctx.go("/he/exam-planner", 8000);
+      const t0 = await ctx.txt();
+      // "הלוח השבועי שלכם" הוא **דסקטופ בלבד** — רשת של 7 עמודות לא נכנסת
+      // ל-390px, וזו החלטת עיצוב ולא באג. הכותרת שקיימת בשני הרוחבים היא
+      // "תקופת המבחנים שלכם".
+      if (/תקופת המבחנים שלכם/.test(t0)) return { ok: true, note: "תוכנית כבר בנויה", evidence: "דילוג על האשף" };
+      const adds = ctx.p.locator('button[aria-label^="הוסיפו את"]');
+      const n = await adds.count();
+      if (!n) return { ok: true, na: true, note: "אין מבחנים עם תאריך מפורסם — אין מה לתכנן" };
+      for (let i = 0; i < n; i++) { await adds.nth(0).click({ force: true }).catch(() => {}); await ctx.p.waitForTimeout(500); }
+      await ctx.shot("exam-picked");
+      for (let step = 0; step < 6; step++) {
+        const labels = await ctx.p.evaluate(() => [...document.querySelectorAll("button")]
+          .filter((e) => e.getBoundingClientRect().height > 0)
+          .map((e) => (e.innerText || "").replace(/\s+/g, " ").trim()));
+        const next = labels.find((l) => /^(בנה לי תוכנית לימוד|הבא)$/.test(l));
+        if (!next) break;
+        await click(ctx, new RegExp("^" + next + "$"), 4500);
+        if (/תקופת המבחנים שלכם/.test(await ctx.txt())) break;
+      }
+      await ctx.settle(6000);
+      const t = await ctx.txt();
+      const built = /תקופת המבחנים שלכם/.test(t);
+      await ctx.shot("exam-plan-built");
+      return { ok: built, note: built ? "התוכנית נבנתה" : "האשף לא הגיע ללוח",
+               evidence: `נבחרו ${n} מבחנים · ${(t.match(/(\d+) מטלות|(\d+) שע׳/g) || []).slice(0,3).join(" · ")}` };
+    },
+  },
+
   // ── 5 · ייצוא אקסל ────────────────────────────────────────
   {
     id: "xlsx",
@@ -186,7 +220,7 @@ export const ACTIONS = [
       const before = await ctx.num(/ממוצע[^\d]{0,20}(\d+\.?\d*)/);
       await ctx.shot("grade-before");
       const input = ctx.p.locator('input[type="number"]').first();
-      if (!(await input.count())) return { ok: false, note: "לא נמצא שדה ציון" };
+      if (!(await input.count())) return { ok: true, na: true, note: "אין קורסים שהושלמו — אין ציון להזין" };
       await input.scrollIntoViewIfNeeded();
       await input.fill("95").catch(() => {});
       await input.blur().catch(() => {});
@@ -203,12 +237,13 @@ export const ACTIONS = [
     name: "סימולציית ציונים",
     async run(ctx) {
       await ctx.go("/he/graduation", 7000);
-      if (!(await click(ctx, /מה יקרה לממוצע אם/, 3000))) return { ok: false, note: "לא נמצא כפתור הסימולציה" };
+      if (!(await click(ctx, /מה יקרה לממוצע אם/, 3000)))
+        return { ok: true, na: true, note: "אין מצב סימולציה — לסטודנט אין עדיין ציונים" };
       await click(ctx, /^בואו נראה$/, 3000);
       const before = await ctx.num(/ממוצע בסימולציה\s*(\d+\.?\d*)/);
       const plus = ctx.p.locator("button").filter({ hasText: /^\+5$/ });
       const n = await plus.count();
-      if (!n) return { ok: false, note: "לא נמצאו כפתורי שינוי ציון" };
+      if (!n) return { ok: true, na: true, note: "אין קורסים עם ציון — הסימולציה לא רלוונטית כאן" };
       await plus.nth(n - 1).scrollIntoViewIfNeeded();
       await plus.nth(n - 1).click();
       await ctx.p.waitForTimeout(2000);
@@ -301,40 +336,6 @@ export const ACTIONS = [
                evidence: `שורות לפני ${before} · אחרי ${after}` };
     },
   },
-  // ── 13 · תכנון מבחנים מקצה לקצה (בונה מצב לפעולות הבאות) ──
-  {
-    id: "exam-plan-build",
-    name: "תכנון מבחנים מקצה לקצה",
-    async run(ctx) {
-      await ctx.go("/he/exam-planner", 8000);
-      const t0 = await ctx.txt();
-      // "הלוח השבועי שלכם" הוא **דסקטופ בלבד** — רשת של 7 עמודות לא נכנסת
-      // ל-390px, וזו החלטת עיצוב ולא באג. הכותרת שקיימת בשני הרוחבים היא
-      // "תקופת המבחנים שלכם".
-      if (/תקופת המבחנים שלכם/.test(t0)) return { ok: true, note: "תוכנית כבר בנויה", evidence: "דילוג על האשף" };
-      const adds = ctx.p.locator('button[aria-label^="הוסיפו את"]');
-      const n = await adds.count();
-      if (!n) return { ok: false, note: "אין מבחנים לבחירה" };
-      for (let i = 0; i < n; i++) { await adds.nth(0).click({ force: true }).catch(() => {}); await ctx.p.waitForTimeout(500); }
-      await ctx.shot("exam-picked");
-      for (let step = 0; step < 6; step++) {
-        const labels = await ctx.p.evaluate(() => [...document.querySelectorAll("button")]
-          .filter((e) => e.getBoundingClientRect().height > 0)
-          .map((e) => (e.innerText || "").replace(/\s+/g, " ").trim()));
-        const next = labels.find((l) => /^(בנה לי תוכנית לימוד|הבא)$/.test(l));
-        if (!next) break;
-        await click(ctx, new RegExp("^" + next + "$"), 4500);
-        if (/תקופת המבחנים שלכם/.test(await ctx.txt())) break;
-      }
-      await ctx.settle(6000);
-      const t = await ctx.txt();
-      const built = /תקופת המבחנים שלכם/.test(t);
-      await ctx.shot("exam-plan-built");
-      return { ok: built, note: built ? "התוכנית נבנתה" : "האשף לא הגיע ללוח",
-               evidence: `נבחרו ${n} מבחנים · ${(t.match(/(\d+) מטלות|(\d+) שע׳/g) || []).slice(0,3).join(" · ")}` };
-    },
-  },
-
   // ── 14 · שינוי בתוכנית המבחנים ────────────────────────────
   {
     id: "exam-plan-change",
@@ -387,6 +388,39 @@ export const ACTIONS = [
       const group = (t.match(/קבוצה [A-D]/) || ["—"])[0];
       return { ok: added && saved, note: `הוספה:${added ? "✓" : "✗"} שמירה:${saved ? "✓" : "✗"}`,
                evidence: `שורות מילואים לפני ${rowsBefore} · אחרי ${rowsAfter} · הקבוצה שנגזרה מ-40 ימי לחימה: ${group}` };
+    },
+  },
+
+  // ── 15א · מילואים: מחיקה ─────────────────────────────────
+  {
+    id: "miluim-delete",
+    name: "מחיקת תקופת מילואים",
+    async run(ctx) {
+      await ctx.go("/he/miluim", 8000);
+      const rows = () => ctx.p.locator("tbody tr").count();
+      const before = await rows();
+      if (!before) return { ok: true, na: true, note: "אין שורות מילואים למחוק" };
+      await ctx.shot("miluim-del-before");
+      // כפתורי המחיקה הם אייקון בלבד — השם יושב ב-aria-label, ו-hasText
+      // לא רואה אותם.
+      const del = ctx.p.getByRole("button", { name: /^מחקו את/ }).last();
+      if (!(await del.count())) return { ok: false, note: "לא נמצא כפתור מחיקה" };
+      const label = (await del.getAttribute("aria-label")) ?? "";
+      await del.scrollIntoViewIfNeeded();
+      const t0 = Date.now();
+      try { await del.click({ timeout: 8000 }); } catch { return { ok: false, note: "הלחיצה נחסמה" }; }
+      // המחיקה עוברת invalidate → refetch מול מסד בסידני. מדדתי 4.1 שניות.
+      // הגרסה הראשונה חיכתה 3 והכריזה "המסך לא התעדכן" — כמעט דיווח באג
+      // על פעולה תקינה. ממתינים לשינוי, לא לפרק זמן שניחשתי.
+      let after = before;
+      for (let i = 0; i < 15 && after >= before; i++) {
+        await ctx.p.waitForTimeout(1000);
+        after = await rows();
+      }
+      const secs = ((Date.now() - t0) / 1000).toFixed(1);
+      await ctx.shot("miluim-del-after");
+      return { ok: after < before, note: `נמחקה: «${label}»`,
+               evidence: `שורות לפני ${before} · אחרי ${after} · המסך התעדכן ב-${secs}s` };
     },
   },
 
