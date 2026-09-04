@@ -351,7 +351,7 @@ export function GradeSimulator({
                     type="button"
                     onClick={() => nudge(uc, n)}
                     disabled={excluded}
-                    className="rounded-lg bg-foreground px-2.5 py-1 font-mono text-xs font-semibold text-background disabled:opacity-30"
+                    className="inline-flex min-h-6 min-w-6 items-center justify-center rounded-lg bg-foreground px-2.5 py-1 font-mono text-xs font-semibold text-background disabled:opacity-30"
                   >
                     <Bidi text={n > 0 ? `+${n}` : String(n)} />
                   </button>

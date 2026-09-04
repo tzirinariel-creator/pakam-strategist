@@ -105,7 +105,7 @@ export function Agenda({
               <button
                 type="button"
                 onClick={() => setAddingDay((a) => (a === key ? null : key))}
-                className="rounded-md px-1.5 py-0.5 text-[11px] font-medium text-foreground/70 transition-colors hover:bg-foreground/10 hover:text-foreground/70"
+                className="inline-flex min-h-6 items-center rounded-md px-2 py-0.5 text-[11px] font-medium text-foreground/70 transition-colors hover:bg-foreground/10 hover:text-foreground/70"
               >
                 {isHe ? "+ לימוד" : "+ study"}
               </button>
@@ -114,7 +114,7 @@ export function Agenda({
               <button
                 type="button"
                 onClick={() => onPushDay(list)}
-                className="rounded-md px-1.5 py-0.5 text-[11px] font-medium text-foreground/70 transition-colors hover:bg-foreground/10 hover:text-foreground/70"
+                className="inline-flex min-h-6 items-center rounded-md px-2 py-0.5 text-[11px] font-medium text-foreground/70 transition-colors hover:bg-foreground/10 hover:text-foreground/70"
               >
                 {isHe ? "דחו יום" : "Push day"}
               </button>
