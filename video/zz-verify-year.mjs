@@ -9,7 +9,7 @@ await p.locator('input[type=email]').fill("test@pakamon.dev");
 await p.locator('input[type=password]').fill("test123456");
 await p.locator('button[type=submit]').click();
 await p.waitForURL(/dashboard/,{timeout:45000});
-await p.waitForFunction(()=>document.body.innerText.length>1200,{timeout:60000});
+await p.waitForFunction(()=>document.body.innerText.length>1200, null,{timeout:60000});
 await p.waitForTimeout(6000);
 const t=(await p.locator("body").innerText()).replace(/\n+/g," | ");
 const m=t.match(/פכ״מ · [^|]{0,40}/);

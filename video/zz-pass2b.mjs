@@ -13,7 +13,7 @@ await p.locator('input[type=email]').fill("test@pakamon.dev");
 await p.locator('input[type=password]').fill("test123456");
 await p.locator('button[type=submit]').click();
 await p.waitForURL(/dashboard/,{timeout:45000});
-await p.waitForFunction(()=>document.body.innerText.length>900,{timeout:60000});
+await p.waitForFunction(()=>document.body.innerText.length>900, null,{timeout:60000});
 await p.waitForTimeout(4000);
 say("✅ חזרתי — הטיוטה של האשף אמורה לשחזר את הגיליון");
 say(`   מסך: ${(await p.locator("body").innerText()).replace(/\n+/g," | ").slice(120,420)}`);

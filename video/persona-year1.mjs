@@ -10,7 +10,7 @@ import { openApp, login, shot, measure, report, BASE } from "./tour-lib.mjs";
 const MOBILE = process.argv.includes("--mobile");
 const { b, p, errors } = await openApp(MOBILE ? { width: 390, height: 844, mobile: true } : { width: 1440, height: 1100 });
 const tag = MOBILE ? "M" : "D";
-const settle = async (ms = 4000) => { await p.waitForTimeout(ms); await p.waitForFunction(() => !document.querySelector("[class*=animate-pulse]"), { timeout: 45000 }).catch(() => {}); };
+const settle = async (ms = 4000) => { await p.waitForTimeout(ms); await p.waitForFunction(() => !document.querySelector("[class*=animate-pulse]"), null, { timeout: 45000 }).catch(() => {}); };
 const txt = async () => (await p.locator("body").innerText()).replace(/\s+/g, " ");
 const ready = async (re, ms = 90000) => { try { await p.waitForFunction((x) => !document.querySelector("[class*=animate-pulse]") && new RegExp(x).test(document.body.innerText), re.source, { timeout: ms }); return true; } catch { return false; } };
 const res = [];

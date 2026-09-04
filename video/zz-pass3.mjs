@@ -11,7 +11,7 @@ p.on("pageerror",e=>note(`page error: ${String(e).slice(0,110)}`));
 const T=async()=>(await p.locator("body").innerText()).replace(/\n+/g," | ");
 const visit=async(path,label,waitFor)=>{
   await p.goto(`${BASE}${path}`,{waitUntil:"domcontentloaded"});
-  try{ await p.waitForFunction(()=>document.body.innerText.length>800,{timeout:45000}); }catch{}
+  try{ await p.waitForFunction(()=>document.body.innerText.length>800, null,{timeout:45000}); }catch{}
   await p.waitForTimeout(4000);
   const t=await T();
   say(`\n══ ${label} (${path})`);

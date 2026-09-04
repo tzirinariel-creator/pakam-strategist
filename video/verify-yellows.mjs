@@ -6,7 +6,7 @@
 // ============================================================
 import { openApp, login, shot, measure, report, BASE } from "./tour-lib.mjs";
 const { b, p, errors } = await openApp({ width: 1440, height: 1200 });
-const settle = async (ms = 5000) => { await p.waitForTimeout(ms); await p.waitForFunction(() => !document.querySelector("[class*=animate-pulse]"), { timeout: 45000 }).catch(() => {}); };
+const settle = async (ms = 5000) => { await p.waitForTimeout(ms); await p.waitForFunction(() => !document.querySelector("[class*=animate-pulse]"), null, { timeout: 45000 }).catch(() => {}); };
 const txt = async () => (await p.locator("body").innerText()).replace(/\s+/g, " ");
 const go = async (path) => { await p.goto(`${BASE}${path}`, { waitUntil: "networkidle" }); await settle(6000); };
 const out = [];

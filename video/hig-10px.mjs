@@ -1,6 +1,6 @@
 import { openApp, login, BASE } from "./tour-lib.mjs";
 const { b, p } = await openApp({ width: 1440, height: 1000 });
-const settle=async(ms=7000)=>{await p.waitForTimeout(ms);await p.waitForFunction(()=>!document.querySelector("[class*=animate-pulse]"),{timeout:45000}).catch(()=>{});};
+const settle=async(ms=7000)=>{await p.waitForTimeout(ms);await p.waitForFunction(()=>!document.querySelector("[class*=animate-pulse]"), null,{timeout:45000}).catch(()=>{});};
 await login(p); await settle();
 await p.goto(`${BASE}/he/exam-planner`,{waitUntil:"networkidle"}); await settle();
 for(let i=0;i<3;i++){ if(!(await p.locator("[data-slot=dialog-overlay]").count()))break; const c=p.getByRole("button",{name:/^(הבנתי, בואו נתכנן|הבנתי|סגור|Close)$/}).first(); if(await c.count())await c.click().catch(()=>{}); else await p.keyboard.press("Escape"); await p.waitForTimeout(800);}

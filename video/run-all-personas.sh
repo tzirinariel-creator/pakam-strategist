@@ -8,8 +8,21 @@ for P in y1 y2 y3; do
   echo ""
   echo "████████ פרסונה $P ████████"
   if [ "$P" != "y1" ]; then
-    npm run reset:test 2>&1 | tail -1
-    node video/persona-seed.mjs --persona "$P" 2>&1 | tail -4
+    # הזריעה של y2/y3 סורקת גיליון ציונים דרך ה-AI, ו-429 מ-Gemini מפיל
+    # אותה בחריגת זמן. שלושה ניסיונות, ואם כולם נכשלו — **מדלגים על
+    # הפרסונה** במקום לסייר על חשבון ריק ולתייג אותו "שנה ב׳".
+    ok=0
+    for attempt in 1 2 3; do
+      npm run reset:test 2>&1 | tail -1
+      if node video/persona-seed.mjs --persona "$P" 2>&1 | tail -4 | grep -q "מצב סופי"; then
+        ok=1; break
+      fi
+      echo "  ↻ זריעת $P נכשלה (ניסיון $attempt)"
+    done
+    if [ "$ok" -eq 0 ]; then
+      echo "❌ זריעת $P נכשלה שלוש פעמים — מדלג על הפרסונה, בלי נתונים מתויגים לא נכון"
+      continue
+    fi
   fi
   for W in 1440 390; do
     echo "──── $P · ${W}px ────"

@@ -15,7 +15,7 @@ const arg = (f, d) => (process.argv.includes(f) ? process.argv[process.argv.inde
 const P = arg("--persona", "y2");
 
 const { b, p, errors } = await openApp({ width: 1440, height: 1100 });
-const settle = async (ms = 4000) => { await p.waitForTimeout(ms); await p.waitForFunction(() => !document.querySelector("[class*=animate-pulse]"), { timeout: 45000 }).catch(() => {}); };
+const settle = async (ms = 4000) => { await p.waitForTimeout(ms); await p.waitForFunction(() => !document.querySelector("[class*=animate-pulse]"), null, { timeout: 45000 }).catch(() => {}); };
 const ready = async (re, ms = 90000) => { try { await p.waitForFunction((x) => !document.querySelector("[class*=animate-pulse]") && new RegExp(x).test(document.body.innerText), re.source, { timeout: ms }); return true; } catch { return false; } };
 const txt = async () => (await p.locator("body").innerText()).replace(/\s+/g, " ");
 const click = async (re, ms = 3000) => { const e = p.getByRole("button", { name: re }).first(); if (!(await e.count())) return false; try { await e.click({ timeout: 8000 }); } catch { return false; } await p.waitForTimeout(ms); return true; };
@@ -41,7 +41,11 @@ if (/בואו נתחיל/.test(await txt())) {
     await p.getByRole("button", { name: /כבר יש לכם ש/ }).first().click();
     await ready(/העלו את גיליון|בחרו קובץ/, 40000);
     await p.locator("input[type=file]").first().setInputFiles(SHEET);
-    await p.waitForFunction(() => /קראנו|לא הצלחנו/.test(document.body.innerText), { timeout: 150000 });
+    // החתימה היא waitForFunction(fn, arg, options). בלי ה-null באמצע,
+    // ה-{timeout} נבלע כארגומנט לפונקציה וחלה ברירת המחדל — 30 שניות
+    // במקום 150. סריקת הגיליון עוברת דרך Gemini, ובזמן 429 היא לוקחת
+    // יותר מ-30; כך נפלה זריעת y2 ב-5.9 והשאירה חשבון ריק מתויג "שנה ב׳".
+    await p.waitForFunction(() => /קראנו|לא הצלחנו/.test(document.body.innerText), null, { timeout: 150000 });
     await p.waitForTimeout(2500);
     console.log("✅ הגיליון נסרק:", ((await txt()).match(/קראנו \d+ קורסים? שהושלמו/) || ["?"])[0]);
     await click(/^נכון — המשיכו מכאן$/, 4000);
@@ -50,7 +54,7 @@ if (/בואו נתחיל/.test(await txt())) {
   await click(/^הבא$/, 4500);
   console.log("שומר…");
   await p.getByRole("button", { name: /^סיום ושמירה$/ }).first().click();
-  await p.waitForFunction(() => /הכול מוכן/.test(document.body.innerText), { timeout: 150000 });
+  await p.waitForFunction(() => /הכול מוכן/.test(document.body.innerText), null, { timeout: 150000 });
   console.log("✅ האשף הסתיים");
   await click(/לדף הבית/, 8000);
 } else {

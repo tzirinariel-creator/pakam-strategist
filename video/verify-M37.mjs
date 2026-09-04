@@ -1,7 +1,7 @@
 // אימות M37/N12/T11 חי אחרי הפריסה
 import { openApp, login, shot, BASE } from "./tour-lib.mjs";
 const { b, p, errors } = await openApp({ width: 1440, height: 1200 });
-const settle = async (ms = 5000) => { await p.waitForTimeout(ms); await p.waitForFunction(() => !document.querySelector("[class*=animate-pulse]"), { timeout: 40000 }).catch(() => {}); };
+const settle = async (ms = 5000) => { await p.waitForTimeout(ms); await p.waitForFunction(() => !document.querySelector("[class*=animate-pulse]"), null, { timeout: 40000 }).catch(() => {}); };
 await login(p); await settle();
 
 for (const [path, name] of [["/he/graduation", "מחשבון-ציון-גמר"], ["/he/exam-planner", "מתכנן-מבחנים"]]) {

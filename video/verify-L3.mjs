@@ -15,7 +15,7 @@ await ready(/כבר יש לכם ש/, 40000);
 await p.getByRole("button", { name: /כבר יש לכם ש/ }).first().click();
 await ready(/העלו את גיליון|בחרו קובץ/, 40000);
 await p.locator("input[type=file]").first().setInputFiles(SHEET);
-await p.waitForFunction(() => /קראנו|לא הצלחנו/.test(document.body.innerText), { timeout: 150000 });
+await p.waitForFunction(() => /קראנו|לא הצלחנו/.test(document.body.innerText), null, { timeout: 150000 });
 await p.waitForTimeout(2500);
 await p.getByRole("button", { name: /^נכון — המשיכו מכאן$/ }).first().click();
 await p.waitForTimeout(4000);
@@ -35,7 +35,7 @@ const watch = (async () => {
     await p.waitForTimeout(400);
   }
 })();
-await p.waitForFunction(() => /הכול מוכן/.test(document.body.innerText), { timeout: 120000 });
+await p.waitForFunction(() => /הכול מוכן/.test(document.body.innerText), null, { timeout: 120000 });
 await watch;
 const saveSecs = (Date.now() - tSave) / 1000;
 console.log(`✅ הפינאלה 'הכול מוכן' הופיעה אחרי ${saveSecs.toFixed(1)}s`);
@@ -53,7 +53,7 @@ const label = (await go.count()) ? (await go.innerText()).trim() : "(לא נמצ
 console.log(`\nלוחץ על «${label}»`);
 if (await go.count()) await go.click();
 await p.waitForTimeout(12000);
-await p.waitForFunction(() => !document.querySelector("[class*=animate-pulse]"), { timeout: 60000 }).catch(() => {});
+await p.waitForFunction(() => !document.querySelector("[class*=animate-pulse]"), null, { timeout: 60000 }).catch(() => {});
 const t = await txt();
 const lie = /אין קורסים בתוכנית שלכם/.test(t);
 const planned = (t.match(/(\d+) מתוכננים/) || [])[1] || "?";

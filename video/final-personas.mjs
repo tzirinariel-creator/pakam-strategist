@@ -44,9 +44,9 @@ const FORBIDDEN = /מחיקת החשבון|מחק את החשבון|התנתקו
 
 const { b, p, errors } = await openApp({ width: WIDTH, height: WIDTH < 700 ? 844 : 1100 });
 const settle = async (ms = 4000) => {
-  await p.waitForFunction(() => document.body.innerText.replace(/\s+/g, " ").length > 500, { timeout: 40000 }).catch(() => {});
+  await p.waitForFunction(() => document.body.innerText.replace(/\s+/g, " ").length > 500, null, { timeout: 40000 }).catch(() => {});
   await p.waitForTimeout(ms);
-  await p.waitForFunction(() => !document.querySelector("[class*=animate-pulse]"), { timeout: 40000 }).catch(() => {});
+  await p.waitForFunction(() => !document.querySelector("[class*=animate-pulse]"), null, { timeout: 40000 }).catch(() => {});
 };
 const dismiss = async () => {
   for (let i = 0; i < 3; i++) {
@@ -97,6 +97,23 @@ const save = () => writeFileSync(OUT, JSON.stringify(record, null, 1), "utf-8");
 console.log(`═══ סיור ${PERSONA} · ${WIDTH}px ═══`);
 await login(p);
 await p.waitForTimeout(5000);
+
+// שער הפרסונה. ב-5.9 זריעת y2 נפלה בחריגת זמן (ה-AI החזיר 429 והסריקה
+// לא הספיקה), החשבון נשאר ריק — והסיור המשיך לרוץ ותייג חשבון ריק
+// כ"שנה ב׳". סיור מתויג לא נכון גרוע מסיור שלא רץ, כי הוא נראה כמו ראיה.
+{
+  await p.goto(`${BASE}/he/dashboard`, { waitUntil: "domcontentloaded" });
+  await settle(6000);
+  const seen = await p.locator("body").innerText();
+  const want = { y1: "שנה א׳", y2: "שנה ב׳", y3: "שנה ג׳" }[PERSONA];
+  if (!seen.includes(want)) {
+    const got = (seen.match(/שנה [א-ג]׳/) || ["לא נמצאה שנה"])[0];
+    console.log(`❌ שער הפרסונה: ביקשתי ${PERSONA} (${want}), החשבון מראה "${got}". לא רץ.`);
+    await b.close();
+    process.exit(2);
+  }
+  console.log(`✓ שער הפרסונה: החשבון הוא ${want}`);
+}
 
 for (const [route, label] of ROUTES) {
   if (record.screens[route]?.done) { console.log(`⏭  ${label}`); continue; }

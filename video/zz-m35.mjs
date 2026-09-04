@@ -1,6 +1,6 @@
 import { openApp, login, shot, BASE } from "./tour-lib.mjs";
 const { b, p } = await openApp({ width: 1440, height: 1100 });
-const settle=async(ms=8000)=>{await p.waitForTimeout(ms);await p.waitForFunction(()=>!document.querySelector("[class*=animate-pulse]"),{timeout:45000}).catch(()=>{});};
+const settle=async(ms=8000)=>{await p.waitForTimeout(ms);await p.waitForFunction(()=>!document.querySelector("[class*=animate-pulse]"), null,{timeout:45000}).catch(()=>{});};
 await login(p); await settle();
 const t=(await p.locator("body").innerText()).replace(/\s+/g," ");
 console.log("═══ M35 — מצב החשבון ═══");

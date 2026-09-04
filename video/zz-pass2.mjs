@@ -14,7 +14,7 @@ await p.locator('input[type=email]').fill("test@pakamon.dev");
 await p.locator('input[type=password]').fill("test123456");
 await p.locator('button[type=submit]').click();
 await p.waitForURL(/dashboard/,{timeout:45000});
-await p.waitForFunction(()=>document.body.innerText.length>900,{timeout:60000});
+await p.waitForFunction(()=>document.body.innerText.length>900, null,{timeout:60000});
 await settle();
 say("✅ התחברות");
 
@@ -37,7 +37,7 @@ if(await fi.count()){
   const t=Date.now();
   await fi.first().setInputFiles(`${OUT}/sheet.png`);
   say("⏳ סורק…");
-  await p.waitForFunction(()=>/נמצאו|שורות|לא הצלחנו|אינו זמין|הסריקה/.test(document.body.innerText),{timeout:120000}).catch(()=>say("   (פסק זמן בהמתנה לתוצאה)"));
+  await p.waitForFunction(()=>/נמצאו|שורות|לא הצלחנו|אינו זמין|הסריקה/.test(document.body.innerText), null,{timeout:120000}).catch(()=>say("   (פסק זמן בהמתנה לתוצאה)"));
   say(`⏱  סריקה: ${((Date.now()-t)/1000).toFixed(1)}s`);
   await settle(3000);
   await p.screenshot({path:`${OUT}/03-scan-result.png`,fullPage:true});

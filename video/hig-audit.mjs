@@ -2,7 +2,7 @@
 import { openApp, login, BASE } from "./tour-lib.mjs";
 const MOBILE = process.argv.includes("--mobile");
 const { b, p } = await openApp(MOBILE ? { width: 390, height: 844, mobile: true } : { width: 1440, height: 1000 });
-const settle = async (ms=6000)=>{await p.waitForTimeout(ms);await p.waitForFunction(()=>!document.querySelector("[class*=animate-pulse]"),{timeout:45000}).catch(()=>{});};
+const settle = async (ms=6000)=>{await p.waitForTimeout(ms);await p.waitForFunction(()=>!document.querySelector("[class*=animate-pulse]"), null,{timeout:45000}).catch(()=>{});};
 const dismiss = async () => { for(let i=0;i<3;i++){ if(!(await p.locator("[data-slot=dialog-overlay]").count()))return; const c=p.getByRole("button",{name:/^(הבנתי, בואו נתכנן|הבנתי|סגור|Close)$/}).first(); if(await c.count())await c.click().catch(()=>{}); else await p.keyboard.press("Escape"); await p.waitForTimeout(800);} };
 
 const audit = () => p.evaluate(() => {

@@ -94,7 +94,7 @@ for (let i = 0; i < 10; i++) {
   say(`   → «${hit}»`);
   await p.getByRole("button", { name: new RegExp("^" + hit.replace(/[.*+?^${}()|[\]\\]/g, "\\$&") + "$") }).first().click().catch(() => {});
   await p.waitForTimeout(4000);
-  await p.waitForFunction(() => !document.querySelector("[class*=animate-pulse]"), { timeout: 30000 }).catch(() => {});
+  await p.waitForFunction(() => !document.querySelector("[class*=animate-pulse]"), null, { timeout: 30000 }).catch(() => {});
 }
 say(await shot(p, "H04-before-save"));
 

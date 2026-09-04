@@ -55,7 +55,7 @@ const rows = [];
 for (const [path, name] of PAGES) {
   await p.goto(`${BASE}${path}`, { waitUntil: "networkidle" });
   await p.waitForTimeout(4000);
-  await p.waitForFunction(() => !document.querySelector("[class*=animate-pulse]"), { timeout: 45000 }).catch(() => {});
+  await p.waitForFunction(() => !document.querySelector("[class*=animate-pulse]"), null, { timeout: 45000 }).catch(() => {});
   // סוגרים חלון מודאלי שנפתח פעם למכשיר
   for (let i = 0; i < 2; i++) {
     if (!(await p.locator("[data-slot=dialog-overlay]").count())) break;

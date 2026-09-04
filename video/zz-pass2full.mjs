@@ -16,7 +16,7 @@ await p.locator('input[type=email]').fill("test@pakamon.dev");
 await p.locator('input[type=password]').fill("test123456");
 await p.locator('button[type=submit]').click();
 await p.waitForURL(/dashboard/,{timeout:45000});
-await p.waitForFunction(()=>document.body.innerText.length>900,{timeout:60000});
+await p.waitForFunction(()=>document.body.innerText.length>900, null,{timeout:60000});
 await p.waitForTimeout(3500);
 
 const go=p.getByRole("button",{name:/בואו נתחיל/}).first();
@@ -24,7 +24,7 @@ if(await go.count()){await go.click();await p.waitForTimeout(3000);}
 const card=p.locator('text=/כבר יש לכם ש/').first();
 await card.click(); await p.waitForTimeout(4000);
 await p.locator('input[type=file]').first().setInputFiles(`${OUT}/sheet.png`);
-await p.waitForFunction(()=>/קראנו \d+ קורסים/.test(document.body.innerText),{timeout:120000});
+await p.waitForFunction(()=>/קראנו \d+ קורסים/.test(document.body.innerText), null,{timeout:120000});
 say("✅ 1 · הגיליון נסרק");
 
 await p.getByRole("button",{name:/נכון — המשיכו/}).first().click();

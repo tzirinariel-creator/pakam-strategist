@@ -39,7 +39,7 @@ export async function runTour(actions) {
     p, errors, MOBILE, BASE, KEY,
     settle: async (ms = 3500) => {
       await p.waitForTimeout(ms);
-      await p.waitForFunction(() => !document.querySelector("[class*=animate-pulse]"), { timeout: 45000 }).catch(() => {});
+      await p.waitForFunction(() => !document.querySelector("[class*=animate-pulse]"), null, { timeout: 45000 }).catch(() => {});
     },
     txt: async () => (await p.locator("body").innerText()).replace(/\s+/g, " ").trim(),
     go: async (path, ms = 5000) => {

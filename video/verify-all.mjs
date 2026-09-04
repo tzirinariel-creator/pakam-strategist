@@ -18,14 +18,14 @@ const ONLY = (arg("--only","")||"").split(",").filter(Boolean);
 const REDO = process.argv.includes("--redo");
 
 const { b, p, errors } = await openApp({ width: 1440, height: 1100 });
-const settle = async (ms=5000)=>{ await p.waitForTimeout(ms); await p.waitForFunction(()=>!document.querySelector("[class*=animate-pulse]"),{timeout:45000}).catch(()=>{}); };
+const settle = async (ms=5000)=>{ await p.waitForTimeout(ms); await p.waitForFunction(()=>!document.querySelector("[class*=animate-pulse]"), null,{timeout:45000}).catch(()=>{}); };
 const dismiss = async ()=>{ for(let i=0;i<3;i++){ if(!(await p.locator("[data-slot=dialog-overlay]").count()))return; const c=p.getByRole("button",{name:/^(הבנתי, בואו נתכנן|הבנתי|סגור|Close)$/}).first(); if(await c.count())await c.click().catch(()=>{}); else await p.keyboard.press("Escape"); await p.waitForTimeout(800);} };
 const go = async (path,ms=6000)=>{
   await p.goto(`${BASE}${path}`,{waitUntil:"networkidle"});
   // המתנה לתוכן, לא לשעון. בריצה של 5.9 תשע בדיקות "נכשלו" על עמודים
   // שפשוט עוד לא נטענו — BIDSRC דיווח על אפס אזכורים לשתי הפקולטות, כלומר
   // גוף ריק. שעון קבוע מודד את הסבלנות שלי, לא את המסך.
-  await p.waitForFunction(()=>document.body.innerText.replace(/\s+/g," ").length>700,{timeout:40000}).catch(()=>{});
+  await p.waitForFunction(()=>document.body.innerText.replace(/\s+/g," ").length>700, null,{timeout:40000}).catch(()=>{});
   await settle(ms);
   await dismiss();
 };
@@ -36,7 +36,7 @@ const landing = async () => {
   const ctx = await b.newContext({ viewport:{width:1440,height:1100}, locale:"he-IL" });
   const lp = await ctx.newPage();
   await lp.goto(`${BASE}/he`,{waitUntil:"networkidle"});
-  await lp.waitForFunction(()=>document.body.innerText.replace(/\s+/g," ").length>700,{timeout:40000}).catch(()=>{});
+  await lp.waitForFunction(()=>document.body.innerText.replace(/\s+/g," ").length>700, null,{timeout:40000}).catch(()=>{});
   await lp.waitForTimeout(3500);
   return { lp, close:()=>ctx.close() };
 };
