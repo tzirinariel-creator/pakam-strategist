@@ -105,9 +105,14 @@ const CHECKS = [
 
   { id:"N7", note:"להבליט את אופציית האקסל", async run(){
       await go("/he/exam-planner",8000);
-      const btn=await p.locator("button,a").filter({hasText:/הורידו כאקסל/}).count();
       const t=await txt();
-      return { ok:btn>0, evidence:btn?`הכפתור "הורידו כאקסל" בראש המסך · ${/שלושה גיליונות|לוח שבועי/.test(t)?"עם הסבר על שלושת הגיליונות":"בלי הסבר"}`:"לא נמצא" }; } },
+      // ההבלטה היא הכרטיס בראש המסך, לא כפתור ההורדה — הכפתור מופיע רק
+      // אחרי שנבנתה תוכנית, ובחשבון טרי אין כזו. הבדיקה חיפשה את הכפתור
+      // ודיווחה "לא נמצא" על מסך שהאקסל מובלט בו בכרטיס שלם.
+      const card=/יוצא גם כקובץ אקסל|כקובץ אקסל/.test(t);
+      const detail=/שלושה גיליונות|לוח שבועי|טבלת מבחנים|אג׳נדה/.test(t);
+      const btn=await p.locator("button,a").filter({hasText:/הורידו כאקסל|ייצוא|הורדה/}).count();
+      return { ok:card, evidence:card?`כרטיס "יוצא גם כקובץ אקסל" בראש המסך${detail?" · עם פירוט שלושת הגיליונות":""}${btn?` · ${btn} פקדי הורדה`:" · כפתור ההורדה מופיע אחרי בניית תוכנית"}`:"לא נמצא כרטיס אקסל" }; } },
 
   { id:"N8", note:"בידינג במקום המרכז · 'שנה 2' → 'שנה ב׳'", async run(){
       const nav=await p.evaluate(()=>[...document.querySelectorAll("a")].map(a=>a.innerText.trim()));
