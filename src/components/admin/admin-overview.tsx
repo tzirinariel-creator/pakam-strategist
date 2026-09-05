@@ -105,15 +105,24 @@ function Section({
   );
 }
 
-/** שורת מונה קטנה — תווית מימין, מספר משמאל, קו מפריד. */
+/** שורת מונה קטנה — תווית מימין, מספר משמאל, קו מפריד.
+ *  אפס מעומעם בכוונה: ברשימה של שש-עשרה שורות, חצי מהן אפס בשבוע ההשקה,
+ *  והעין צריכה למצוא את מה שכן קרה. האפס עדיין שם — הוא עובדה — רק שקט. */
 function Stat({ label, value, hint }: { label: string; value: number | string; hint?: string }) {
+  const isZero = value === 0;
   return (
     <div className="flex items-baseline justify-between gap-3 border-b border-border/30 py-1.5 last:border-0">
-      <span className="min-w-0 text-xs text-foreground/70">
+      <span className={cn("min-w-0 text-xs", isZero ? "text-foreground/45" : "text-foreground/70")}>
         {label}
         {hint && <span className="ms-1 text-[10px] text-foreground/50">{hint}</span>}
       </span>
-      <span className="shrink-0 font-mono text-sm font-semibold tabular-nums text-foreground/85" dir="ltr">
+      <span
+        className={cn(
+          "shrink-0 font-mono text-sm tabular-nums",
+          isZero ? "font-normal text-foreground/40" : "font-semibold text-foreground/85",
+        )}
+        dir="ltr"
+      >
         {typeof value === "number" ? n(value) : value}
       </span>
     </div>
@@ -260,19 +269,33 @@ export function AdminOverview() {
         subtitle="לפי שעון ישראל. עמודה ריקה היא יום בלי אף הרשמה — לא נתון חסר."
         className="animate-stagger-3"
       >
-        <div className="flex h-32 items-end gap-[3px]" role="img" aria-label={`גרף הרשמות: ${d.signupsByDay.map((x) => `${x.date} ${x.count}`).join(", ")}`}>
+        {/* `h-full` על עמודת העטיפה הוא הדבר שגורם לגרף להיות גרף.
+            בלעדיו `items-end` מכווץ כל עמודה לגובה התוכן, וגובה באחוזים
+            נפתר מול הורה בגובה auto — כלומר אפס. הגרף רונדר כקופסה ריקה. */}
+        <div
+          className="flex h-32 items-end gap-[3px]"
+          role="img"
+          aria-label={`גרף הרשמות ל-30 יום: ${d.signupsByDay.filter((x) => x.count > 0).map((x) => `${x.date} — ${x.count}`).join(", ") || "אף הרשמה"}`}
+        >
           {d.signupsByDay.map((x) => (
-            <div key={x.date} className="group relative flex flex-1 flex-col justify-end" title={`${x.date} · ${x.count}`}>
+            <div
+              key={x.date}
+              className="group flex h-full flex-1 flex-col justify-end"
+              title={`${x.date} · ${x.count}`}
+            >
               <div
                 className={cn(
                   "w-full rounded-t transition-all",
-                  x.count > 0 ? "bg-accent-brand/70 group-hover:bg-accent-brand" : "bg-foreground/8",
+                  x.count > 0 ? "bg-accent-brand/70 group-hover:bg-accent-brand" : "bg-foreground/10",
                 )}
-                style={{ height: x.count > 0 ? `${Math.max(6, (x.count / maxDay) * 100)}%` : "3px" }}
+                style={{ height: x.count > 0 ? `${Math.max(8, (x.count / maxDay) * 100)}%` : "3px" }}
               />
             </div>
           ))}
         </div>
+        {d.signupsByDay.every((x) => x.count === 0) && (
+          <p className="text-xs text-foreground/60">אף אחד לא נרשם ב-30 הימים האחרונים.</p>
+        )}
         <div className="flex items-center justify-between text-[10px] text-foreground/55">
           <span>{dateHe(d.signupsByDay[0]!.date)}</span>
           <span>שיא יומי: <bdi dir="ltr">{n(maxDay)}</bdi></span>
@@ -545,7 +568,7 @@ export function AdminOverview() {
       {/* ── הנרשמים האחרונים ── */}
       <Section
         icon={CalendarClock}
-        title="עשרים וחמישה הנרשמים האחרונים"
+        title={d.recentUsers.length === d.users.total ? "כל הנרשמים" : `${n(d.recentUsers.length)} הנרשמים האחרונים`}
         subtitle="מייל ושם — כדי שתוכל לענות למי שכותב לך. ציונים לא מוצגים כאן, בכוונה."
         className="animate-stagger-4"
       >
