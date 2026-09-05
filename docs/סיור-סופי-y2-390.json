@@ -299,6 +299,100 @@
    "shot": "010-P-y2-390-יומן.png",
    "chars": 2074,
    "done": true
+  },
+  "/he/catalog": {
+   "label": "קטלוג קורסים",
+   "actions": [
+    {
+     "name": "כל התחומים",
+     "ok": true,
+     "issues": [],
+     "js": []
+    },
+    {
+     "name": "כל סוגי הקורסים",
+     "ok": true,
+     "issues": [],
+     "js": []
+    },
+    {
+     "name": "כל השנים",
+     "ok": true,
+     "issues": [],
+     "js": []
+    },
+    {
+     "name": "קוד",
+     "ok": true,
+     "why": "מוסתר במצב הזה"
+    },
+    {
+     "name": "שם הקורס",
+     "ok": true,
+     "issues": [],
+     "js": []
+    },
+    {
+     "name": "תחום",
+     "ok": true,
+     "issues": [],
+     "js": []
+    },
+    {
+     "name": "סוג",
+     "ok": true,
+     "issues": [],
+     "js": []
+    },
+    {
+     "name": "ש״ס",
+     "ok": true,
+     "issues": [],
+     "js": []
+    },
+    {
+     "name": "שנה",
+     "ok": true,
+     "issues": [],
+     "js": []
+    }
+   ],
+   "issues": [],
+   "at": "2026-09-05T03:54:51.981Z",
+   "shot": "011-P-y2-390-קטלוג קורסים.png",
+   "chars": 24711,
+   "done": true
+  },
+  "/he/lineage": {
+   "label": "השושלת",
+   "actions": [
+    {
+     "name": "לדירוג",
+     "ok": true,
+     "issues": [],
+     "js": []
+    },
+    {
+     "name": "הצגת כל 12 הקורסים",
+     "ok": true,
+     "issues": [],
+     "js": []
+    }
+   ],
+   "issues": [],
+   "at": "2026-09-05T03:55:38.980Z",
+   "shot": "012-P-y2-390-השושלת.png",
+   "chars": 3153,
+   "done": true
+  },
+  "/he/guide": {
+   "label": "מדריך מתחיל",
+   "actions": [],
+   "issues": [],
+   "at": "2026-09-05T03:55:55.463Z",
+   "shot": "013-P-y2-390-מדריך מתחיל.png",
+   "chars": 3358,
+   "done": true
   }
  }
 }
