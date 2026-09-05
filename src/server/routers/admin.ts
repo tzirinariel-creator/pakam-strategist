@@ -175,10 +175,21 @@ export const adminRouter = createTRPCRouter({
         }
 
         // Update sync log — save BOTH diff and scrapeData for later applyChanges
+        //
+        // 6.9 — `status` היה קבוע "success" כל עוד הפונקציה לא זרקה, ולכן
+        // ריצה שבה **כל** הקורסים נכשלו (3 מתוך 3, 401 מהפרוקסי) נרשמה
+        // כהצלחה. מסך הניהול הציג "הצליח" בראש ושלוש שגיאות מתחתיו —
+        // ובדיוק על זה אריאל אמר "משהו מוזר של סנכרון". ריצה שלא הצליחה
+        // לבדוק ולו קורס אחד אינה הצלחה.
+        const allFailed =
+          scrapeResults.length > 0 && diff.errors.length === scrapeResults.length;
         await ctx.db.syncLog.update({
           where: { id: syncLog.id },
           data: {
-            status: "success",
+            status: allFailed ? "failed" : "success",
+            errorMessage: allFailed
+              ? `כל ${diff.errors.length} הקורסים נכשלו · ${diff.errors[0]?.error ?? ""}`
+              : null,
             completedAt: new Date(),
             coursesChecked: scrapeResults.length,
             changesFound:

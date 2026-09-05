@@ -8,6 +8,8 @@
 // bypass TAU's cloud IP blocking.
 // =========================================
 
+import { env } from "@/lib/env";
+
 const BASE_URL = "https://ims.tau.ac.il/tal";
 const USER_AGENT = "PakamSync/1.0 (+https://pakam-strategist.vercel.app)";
 const MAX_RETRIES = 3; // up to 2 retries (3 attempts) on network errors and 5xx/429
@@ -17,7 +19,21 @@ const TIMEOUT_MS = 15_000; // 15s per request (TAU can be slow from EU)
 // Proxy configuration — ScrapingBee
 // =========================================
 
-const SCRAPINGBEE_API_KEY = process.env.SCRAPINGBEE_API_KEY;
+// =========================================================================
+// 6.9 — הסנכרון נכשל 401 על כל קורס, והסיבה היא תו אחד
+// =========================================================================
+// המפתח הזה נשמר בפרודקשן **עם תו שורה חדשה בסוף**, והוא נכנס לכתובת
+// כפרמטר שאילתה. `URLSearchParams` מקודד אותו כ-`%0A`, ScrapingBee מקבל
+// מפתח שאינו קיים, ומחזיר 401. מדדתי את שניהם מול ScrapingBee עם המפתח
+// האמיתי של פרודקשן:
+//
+//     גולמי (URL מכיל %0A)  → HTTP 401 UNAUTHORIZED
+//     חתוך                   → HTTP 200 OK
+//
+// זה בדיוק "Syllabus fetch failed: 401 UNAUTHORIZED" שהופיע במסך הסנכרון
+// על כל שלושת הקורסים שנבדקו. אותה משפחת באגים כמו GOOGLE_REDIRECT_URI
+// (lib/env.ts) — ערך שמגיע מבחוץ הוא קלט, ומחתכים אותו.
+const SCRAPINGBEE_API_KEY = env("SCRAPINGBEE_API_KEY");
 
 // When using proxy, ScrapingBee handles rate limiting on their end,
 // so we can use a shorter delay. Direct requests keep the polite 1.5s.
@@ -36,7 +52,7 @@ const REQUEST_DELAY_MS = SCRAPINGBEE_API_KEY ? 500 : 1500;
  */
 function buildProxiedUrl(targetUrl: string): string {
   if (!SCRAPINGBEE_API_KEY) return targetUrl;
-  const usePremium = process.env.SCRAPINGBEE_PREMIUM === "true";
+  const usePremium = env("SCRAPINGBEE_PREMIUM") === "true";
   const params = new URLSearchParams({
     api_key: SCRAPINGBEE_API_KEY,
     url: targetUrl,

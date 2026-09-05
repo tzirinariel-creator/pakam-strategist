@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { checkRateLimit } from "@/lib/rate-limit";
 import { timingSafeEqualStr } from "@/lib/crypto";
+import { env } from "@/lib/env";
 
 /**
  * POST /api/setup-demo-users
@@ -147,8 +148,10 @@ export async function POST(request: Request) {
   }
 
   // ── Config check ──
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  // env() — אותו תו בלתי-נראה בסוף ערכי הסביבה (lib/env.ts). כאן הוא לא
+  // הזיק בפועל; החיתוך הוא הגנה, לא תיקון.
+  const supabaseUrl = env("NEXT_PUBLIC_SUPABASE_URL");
+  const serviceRoleKey = env("SUPABASE_SERVICE_ROLE_KEY");
 
   if (!supabaseUrl || !serviceRoleKey) {
     return NextResponse.json(

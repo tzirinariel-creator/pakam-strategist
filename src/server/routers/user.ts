@@ -13,6 +13,7 @@ import { getAllDisciplineIds } from "@/lib/programs/registry";
 import { deriveGroupFromDays, isDegreeAcademicYear } from "@/lib/miluim";
 import { dedupeHashFor } from "./course-knowledge";
 import { calendarFeedToken } from "@/lib/calendar-feed-token";
+import { env } from "@/lib/env";
 
 // Discipline enum covering ALL registered programs (PPE, Law, etc.)
 const disciplineEnum = z.enum(getAllDisciplineIds());
@@ -509,8 +510,12 @@ export const userRouter = createTRPCRouter({
     // throw: the app data is already gone, and turning that into an error would
     // tell the student nothing was deleted when in fact everything was. Report
     // it instead so the client can say the one true thing.
-    const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
-    const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+    // env() ולא process.env — שני הערכים האלה נשמרו בפרודקשן עם תו שורה
+    // חדשה בסוף (ראו lib/env.ts). **בדקתי, וכאן זה לא הזיק** — supabase-js
+    // סלחן לגבי שניהם. אבל השלב הזה הוא היחיד באפליקציה שמוחק זהות, וזה
+    // לא המקום להישען על סלחנות של ספרייה.
+    const url = env("NEXT_PUBLIC_SUPABASE_URL");
+    const serviceKey = env("SUPABASE_SERVICE_ROLE_KEY");
     if (!url || !serviceKey) {
       console.error("[deleteAccount] SUPABASE_SERVICE_ROLE_KEY missing — auth user not deleted");
       return { ok: true, authDeleted: false };

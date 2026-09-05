@@ -16,6 +16,26 @@ import { api } from "@/lib/trpc/react";
 import { cn } from "@/lib/utils";
 import type { CourseDiff, FieldChange } from "@/lib/scraper/types";
 
+/**
+ * תרגום שגיאת-סנכרון לשפה שאפשר לפעול לפיה.
+ *
+ * המחרוזת הגולמית מגיעה מהשרת ונשארת על המסך — היא מה שמאפשר לאבחן.
+ * אבל "Syllabus fetch failed: 401 UNAUTHORIZED" לא אומר לאף אחד מה קרה
+ * ומה לעשות, ובמסך ניהול זה ההבדל בין תקלה שמטפלים בה לתקלה שמתרגלים
+ * אליה. מוחזר null כשאין לנו הסבר — עדיף שקט מניחוש.
+ */
+function explainSyncError(raw: string): string | null {
+  if (/\b401\b|UNAUTHORIZED/i.test(raw))
+    return "מפתח הפרוקסי (ScrapingBee) נדחה. זו לא תקלה בידיעון — בדקו את SCRAPINGBEE_API_KEY במשתני הסביבה.";
+  if (/\b403\b|FORBIDDEN/i.test(raw))
+    return "הידיעון חסם את הבקשה. בדרך כלל חסימת IP — הפרוקסי אמור לעקוף אותה.";
+  if (/\b429\b/.test(raw)) return "יותר מדי בקשות בזמן קצר. כדאי להמתין ולנסות שוב.";
+  if (/timeout|timed out|AbortError/i.test(raw))
+    return "הידיעון לא ענה בזמן. לרוב זמני.";
+  if (/\b5\d\d\b/.test(raw)) return "שרת הידיעון החזיר שגיאה מצידו. לא משהו שאנחנו יכולים לתקן.";
+  return null;
+}
+
 // =========================================
 // Severity badge component
 // =========================================
@@ -319,7 +339,8 @@ export function SyncDashboard() {
               {runSync.isError ? "הסנכרון נכשל" : "הסנכרון האחרון נתקל בבעיות"}
             </p>
             <p className="mt-1 text-status-amber/70">
-              ייתכן שמדובר בבעיית תקשורת זמנית מול שרתי הידיעון. נסה שוב מאוחר יותר.
+              ייתכן שזו בעיית תקשורת זמנית מול שרתי הידיעון — אפשר לנסות שוב. אם כל
+              הקורסים מחזירים 401, זה מפתח הפרוקסי ולא הידיעון.
             </p>
           </div>
         </div>
@@ -446,13 +467,32 @@ export function SyncDashboard() {
         </div>
       )}
 
-      {/* No changes */}
-      {diff && diff.updated.length === 0 && (
+      {/* =====================================================================
+          "הכול מעודכן" — רק כשבאמת נבדק משהו
+          =====================================================================
+          6.9 — התנאי היה `updated.length === 0` בלבד, ולכן ריצה שבה כל
+          שלושת הקורסים החזירו 401 הציגה וי ירוק ו"הכול מעודכן — אין
+          שינויים", ומיד מתחתיו רשימת שלוש שגיאות. אישור ירוק על סמך
+          בדיקה שלא קרתה הוא הדבר המסוכן במסך ניהול: הוא מרגיע במקום
+          להתריע. עכשיו יש שלושה מצבים נפרדים, וכל אחד אומר את האמת שלו. */}
+      {diff && diff.updated.length === 0 && diff.errors.length === 0 && diff.unchanged.length > 0 && (
         <div className="data-card flex flex-col items-center gap-2 py-12 text-center">
           <CheckCircle2 className="h-10 w-10 text-status-green/40" />
           <p className="text-foreground/60">הכול מעודכן — אין שינויים</p>
           <p className="text-xs text-foreground/60">
             {diff.unchanged.length} קורסים נבדקו ונמצאו זהים לידיעון
+          </p>
+        </div>
+      )}
+
+      {/* לא נבדק אף קורס בהצלחה — לא "מעודכן", פשוט לא ידוע */}
+      {diff && diff.unchanged.length === 0 && diff.updated.length === 0 && diff.errors.length > 0 && (
+        <div className="data-card flex flex-col items-center gap-2 py-10 text-center">
+          <AlertCircle className="h-10 w-10 text-status-red/50" />
+          <p className="font-medium text-foreground/75">אף קורס לא נבדק בהצלחה</p>
+          <p className="max-w-md text-xs leading-relaxed text-foreground/60">
+            כל {diff.errors.length} הניסיונות נכשלו, אז אין לנו מה להגיד על מצב הקטלוג מהריצה
+            הזאת — לא שהוא מעודכן ולא שאינו. הפירוט למטה.
           </p>
         </div>
       )}
@@ -480,10 +520,18 @@ export function SyncDashboard() {
               className="flex items-start gap-2 rounded-lg border border-red-500/10 bg-red-500/5 p-2 text-xs"
             >
               <AlertCircle className="mt-0.5 h-3 w-3 shrink-0 text-status-red" />
-              <div>
+              {/* השגיאה הגולמית נשארת — היא מה שמאפשר לאבחן. מעליה משפט
+                  אחד בעברית שאומר מה זה אומר בפועל, כי "Syllabus fetch
+                  failed: 401 UNAUTHORIZED" לא אומר לאיש מה לעשות. */}
+              <div className="min-w-0">
                 <span className="font-mono text-status-red/80">{err.code}</span>
                 <span className="mx-1.5 text-foreground/20">—</span>
                 <span className="text-foreground/60">{err.error}</span>
+                {explainSyncError(err.error) && (
+                  <p className="mt-0.5 text-[11px] leading-relaxed text-foreground/55">
+                    {explainSyncError(err.error)}
+                  </p>
+                )}
               </div>
             </div>
           ))}
