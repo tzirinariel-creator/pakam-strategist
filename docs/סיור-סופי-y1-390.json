@@ -298,6 +298,164 @@
    "shot": "011-P-y1-390-מדריך מתחיל.png",
    "chars": 3358,
    "done": true
+  },
+  "/he/settings": {
+   "label": "הגדרות",
+   "actions": [
+    {
+     "name": "לשון נקבה",
+     "ok": true,
+     "issues": [],
+     "js": []
+    },
+    {
+     "name": "לשון זכר",
+     "ok": true,
+     "issues": [],
+     "js": []
+    },
+    {
+     "name": "ניטרלי",
+     "ok": true,
+     "issues": [],
+     "js": []
+    },
+    {
+     "name": "לא יודעים — גזרו מהציון",
+     "ok": true,
+     "issues": [],
+     "js": []
+    },
+    {
+     "name": "עוד לא החלטתי",
+     "ok": true,
+     "issues": [],
+     "js": []
+    },
+    {
+     "name": "תשפ״ז · 2026/27",
+     "ok": true,
+     "issues": [],
+     "js": []
+    },
+    {
+     "name": "שמרו פרופיל",
+     "ok": true,
+     "issues": [],
+     "js": []
+    },
+    {
+     "name": "שמרו מפתח",
+     "ok": true,
+     "why": "מושבת כצפוי"
+    },
+    {
+     "name": "שתפו את הציונים שלי",
+     "ok": true,
+     "issues": [],
+     "js": []
+    },
+    {
+     "name": "משכו את כל התרומות שלי",
+     "ok": true,
+     "issues": [],
+     "js": []
+    },
+    {
+     "name": "העתקת קישור",
+     "ok": true,
+     "issues": [],
+     "js": []
+    },
+    {
+     "name": "חברו ל-Google Calendar",
+     "ok": true,
+     "issues": [],
+     "js": []
+    },
+    {
+     "name": "אוטומטי",
+     "ok": true,
+     "issues": [],
+     "js": []
+    }
+   ],
+   "issues": [],
+   "at": "2026-09-05T03:40:27.059Z",
+   "shot": "012-P-y1-390-הגדרות.png",
+   "chars": 4860,
+   "done": true
+  },
+  "/he/cohort": {
+   "label": "המחזור",
+   "actions": [
+    {
+     "name": "לשנה א׳",
+     "ok": true,
+     "issues": [],
+     "js": []
+    },
+    {
+     "name": "לפני בידינג",
+     "ok": true,
+     "issues": [],
+     "js": []
+    },
+    {
+     "name": "לפני מבחנים",
+     "ok": true,
+     "issues": [],
+     "js": []
+    },
+    {
+     "name": "בחירת מיקוד",
+     "ok": true,
+     "issues": [],
+     "js": []
+    },
+    {
+     "name": "כללי",
+     "ok": true,
+     "issues": [],
+     "js": []
+    },
+    {
+     "name": "שיתוף",
+     "ok": true,
+     "why": "מושבת כצפוי"
+    },
+    {
+     "name": "פרסום המסלול שלי",
+     "ok": true,
+     "why": "מושבת כצפוי"
+    },
+    {
+     "name": "הסרת המסלול שפרסמתי",
+     "ok": true,
+     "issues": [],
+     "js": []
+    }
+   ],
+   "issues": [],
+   "at": "2026-09-05T03:41:20.773Z",
+   "shot": "013-P-y1-390-המחזור.png",
+   "chars": 1145,
+   "done": true
+  },
+  "/he/mentors": {
+   "label": "חונכים",
+   "actions": [
+    {
+     "name": "הזמנה",
+     "ok": true,
+     "why": "מושבת כצפוי"
+    }
+   ],
+   "issues": [],
+   "at": "2026-09-05T03:41:43.442Z",
+   "shot": "014-P-y1-390-חונכים.png",
+   "chars": 408,
+   "done": true
   }
  }
 }
