@@ -1,0 +1,7424 @@
+[
+ {
+  "page": "נחיתה",
+  "contrast": [],
+  "graphic": [
+   {
+    "ratio": 1.91,
+    "cls": "size-5 shrink-0 text-crown-gold-bright",
+    "label": "פתחו את המלך הפילוסוף"
+   }
+  ],
+  "touch": [
+   {
+    "w": 32,
+    "h": 32,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "",
+    "cls": "rounded-lg p-2 text-muted-foreground transition-colors hover:bg-"
+   },
+   {
+    "w": 32,
+    "h": 32,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "",
+    "cls": "rounded-lg p-2 text-muted-foreground transition-colors hover:bg-"
+   },
+   {
+    "w": 65,
+    "h": 30,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "?סיור",
+    "cls": "inline-flex items-center gap-1.5 rounded-lg border border-border"
+   },
+   {
+    "w": 106,
+    "h": 32,
+    "min": 44,
+    "tag": "A",
+    "text": "לבדיקת חפיפות",
+    "cls": "shrink-0 rounded-lg bg-foreground px-3.5 py-2 text-xs font-semib"
+   },
+   {
+    "w": 24,
+    "h": 24,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "",
+    "cls": "absolute end-3 top-3 rounded-md p-1 text-foreground/60 transitio"
+   },
+   {
+    "w": 259,
+    "h": 42,
+    "min": 44,
+    "tag": "A",
+    "text": "התוכנית בנויה",
+    "cls": "flex items-start gap-2.5 rounded-lg border border-transparent bg"
+   },
+   {
+    "w": 259,
+    "h": 42,
+    "min": 44,
+    "tag": "A",
+    "text": "הציונים בפנים",
+    "cls": "flex items-start gap-2.5 rounded-lg border border-transparent bg"
+   },
+   {
+    "w": 259,
+    "h": 42,
+    "min": 44,
+    "tag": "A",
+    "text": "תחום המיקוד נבחר",
+    "cls": "flex items-start gap-2.5 rounded-lg border border-transparent bg"
+   },
+   {
+    "w": 259,
+    "h": 42,
+    "min": 44,
+    "tag": "A",
+    "text": "יש לכם תוכנית למידה",
+    "cls": "flex items-start gap-2.5 rounded-lg border border-transparent bg"
+   },
+   {
+    "w": 92,
+    "h": 17,
+    "min": 44,
+    "tag": "A",
+    "text": "למערכת הבידינג",
+    "cls": "inline-flex items-center gap-1 text-[11px] font-medium text-acce"
+   },
+   {
+    "w": 85,
+    "h": 17,
+    "min": 44,
+    "tag": "A",
+    "text": "הדרכה מצולמת",
+    "cls": "inline-flex items-center gap-1 text-[11px] text-foreground/60 ho"
+   },
+   {
+    "w": 201,
+    "h": 32,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "שתפו את הקורסים שסיימתי",
+    "cls": "inline-flex items-center justify-center whitespace-nowrap text-s"
+   },
+   {
+    "w": 66,
+    "h": 16,
+    "min": 44,
+    "tag": "A",
+    "text": "לתיק המחזור",
+    "cls": "text-xs font-medium text-foreground/60 underline-offset-2 transi"
+   },
+   {
+    "w": 44,
+    "h": 16,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "לא עכשיו",
+    "cls": "ms-auto text-xs text-foreground/60 transition-colors hover:text-"
+   },
+   {
+    "w": 200,
+    "h": 36,
+    "min": 44,
+    "tag": "A",
+    "text": "תכננו את הסמסטר הקרוב",
+    "cls": "inline-flex items-center gap-1.5 rounded-lg bg-accent-brand px-3"
+   },
+   {
+    "w": 132,
+    "h": 16,
+    "min": 44,
+    "tag": "A",
+    "text": "פירוט מלא של הדרישות",
+    "cls": "inline-flex items-center gap-1 text-xs font-medium text-foregrou"
+   },
+   {
+    "w": 24,
+    "h": 24,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "",
+    "cls": "shrink-0 rounded-md p-1 text-foreground/60 transition-colors hov"
+   },
+   {
+    "w": 73,
+    "h": 16,
+    "min": 44,
+    "tag": "A",
+    "text": "כל הבחינות",
+    "cls": "inline-flex shrink-0 items-center gap-1 text-xs font-medium text"
+   },
+   {
+    "w": 71,
+    "h": 24,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "הוספה",
+    "cls": "flex items-center gap-1 rounded-lg px-2.5 py-1 text-xs font-medi"
+   },
+   {
+    "w": 26,
+    "h": 26,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "",
+    "cls": "-me-1 -mt-1 shrink-0 rounded-md p-1.5 text-foreground/70 transit"
+   }
+  ],
+  "size": [
+   {
+    "text": "שנה״ל נפתחת · ביטול רישום עד · שבוע שינו",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-3 text-[11px] leading-relaxed text-foreground/60"
+   }
+  ],
+  "focus": [],
+  "label": [],
+  "counts": {
+   "text": 105,
+   "interactive": 34
+  },
+  "overflow": null
+ },
+ {
+  "page": "מסך הבית",
+  "contrast": [],
+  "graphic": [
+   {
+    "ratio": 1.91,
+    "cls": "size-5 shrink-0 text-crown-gold-bright",
+    "label": "פתחו את המלך הפילוסוף"
+   }
+  ],
+  "touch": [
+   {
+    "w": 32,
+    "h": 32,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "",
+    "cls": "rounded-lg p-2 text-muted-foreground transition-colors hover:bg-"
+   },
+   {
+    "w": 32,
+    "h": 32,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "",
+    "cls": "rounded-lg p-2 text-muted-foreground transition-colors hover:bg-"
+   },
+   {
+    "w": 65,
+    "h": 30,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "?סיור",
+    "cls": "inline-flex items-center gap-1.5 rounded-lg border border-border"
+   },
+   {
+    "w": 106,
+    "h": 32,
+    "min": 44,
+    "tag": "A",
+    "text": "לבדיקת חפיפות",
+    "cls": "shrink-0 rounded-lg bg-foreground px-3.5 py-2 text-xs font-semib"
+   },
+   {
+    "w": 24,
+    "h": 24,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "",
+    "cls": "absolute end-3 top-3 rounded-md p-1 text-foreground/60 transitio"
+   },
+   {
+    "w": 259,
+    "h": 42,
+    "min": 44,
+    "tag": "A",
+    "text": "התוכנית בנויה",
+    "cls": "flex items-start gap-2.5 rounded-lg border border-transparent bg"
+   },
+   {
+    "w": 259,
+    "h": 42,
+    "min": 44,
+    "tag": "A",
+    "text": "הציונים בפנים",
+    "cls": "flex items-start gap-2.5 rounded-lg border border-transparent bg"
+   },
+   {
+    "w": 259,
+    "h": 42,
+    "min": 44,
+    "tag": "A",
+    "text": "תחום המיקוד נבחר",
+    "cls": "flex items-start gap-2.5 rounded-lg border border-transparent bg"
+   },
+   {
+    "w": 259,
+    "h": 42,
+    "min": 44,
+    "tag": "A",
+    "text": "יש לכם תוכנית למידה",
+    "cls": "flex items-start gap-2.5 rounded-lg border border-transparent bg"
+   },
+   {
+    "w": 92,
+    "h": 17,
+    "min": 44,
+    "tag": "A",
+    "text": "למערכת הבידינג",
+    "cls": "inline-flex items-center gap-1 text-[11px] font-medium text-acce"
+   },
+   {
+    "w": 85,
+    "h": 17,
+    "min": 44,
+    "tag": "A",
+    "text": "הדרכה מצולמת",
+    "cls": "inline-flex items-center gap-1 text-[11px] text-foreground/60 ho"
+   },
+   {
+    "w": 201,
+    "h": 32,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "שתפו את הקורסים שסיימתי",
+    "cls": "inline-flex items-center justify-center whitespace-nowrap text-s"
+   },
+   {
+    "w": 66,
+    "h": 16,
+    "min": 44,
+    "tag": "A",
+    "text": "לתיק המחזור",
+    "cls": "text-xs font-medium text-foreground/60 underline-offset-2 transi"
+   },
+   {
+    "w": 44,
+    "h": 16,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "לא עכשיו",
+    "cls": "ms-auto text-xs text-foreground/60 transition-colors hover:text-"
+   },
+   {
+    "w": 200,
+    "h": 36,
+    "min": 44,
+    "tag": "A",
+    "text": "תכננו את הסמסטר הקרוב",
+    "cls": "inline-flex items-center gap-1.5 rounded-lg bg-accent-brand px-3"
+   },
+   {
+    "w": 132,
+    "h": 16,
+    "min": 44,
+    "tag": "A",
+    "text": "פירוט מלא של הדרישות",
+    "cls": "inline-flex items-center gap-1 text-xs font-medium text-foregrou"
+   },
+   {
+    "w": 24,
+    "h": 24,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "",
+    "cls": "shrink-0 rounded-md p-1 text-foreground/60 transition-colors hov"
+   },
+   {
+    "w": 73,
+    "h": 16,
+    "min": 44,
+    "tag": "A",
+    "text": "כל הבחינות",
+    "cls": "inline-flex shrink-0 items-center gap-1 text-xs font-medium text"
+   },
+   {
+    "w": 71,
+    "h": 24,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "הוספה",
+    "cls": "flex items-center gap-1 rounded-lg px-2.5 py-1 text-xs font-medi"
+   },
+   {
+    "w": 26,
+    "h": 26,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "",
+    "cls": "-me-1 -mt-1 shrink-0 rounded-md p-1.5 text-foreground/70 transit"
+   }
+  ],
+  "size": [
+   {
+    "text": "שנה״ל נפתחת · ביטול רישום עד · שבוע שינו",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-3 text-[11px] leading-relaxed text-foreground/60"
+   }
+  ],
+  "focus": [],
+  "label": [],
+  "counts": {
+   "text": 105,
+   "interactive": 34
+  },
+  "overflow": null
+ },
+ {
+  "page": "מתכנן",
+  "contrast": [],
+  "graphic": [
+   {
+    "ratio": 1.91,
+    "cls": "size-5 shrink-0 text-crown-gold-bright",
+    "label": "פתחו את המלך הפילוסוף"
+   }
+  ],
+  "touch": [
+   {
+    "w": 32,
+    "h": 32,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "",
+    "cls": "rounded-lg p-2 text-muted-foreground transition-colors hover:bg-"
+   },
+   {
+    "w": 32,
+    "h": 32,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "",
+    "cls": "rounded-lg p-2 text-muted-foreground transition-colors hover:bg-"
+   },
+   {
+    "w": 79,
+    "h": 34,
+    "min": 44,
+    "tag": "A",
+    "text": "16/27",
+    "cls": "flex items-center gap-1.5 rounded-lg border px-3 py-2 text-xs fo"
+   },
+   {
+    "w": 77,
+    "h": 38,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "שתף",
+    "cls": "flex items-center gap-2 rounded-lg border border-border/40 bg-ca"
+   },
+   {
+    "w": 158,
+    "h": 38,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "סמסטר א׳12 ש״ס",
+    "cls": "flex flex-1 items-center justify-center gap-2 rounded-md px-3 py"
+   },
+   {
+    "w": 156,
+    "h": 36,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "סמסטר ב׳7 ש״ס",
+    "cls": "flex flex-1 items-center justify-center gap-2 rounded-md px-3 py"
+   },
+   {
+    "w": 24,
+    "h": 24,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "",
+    "cls": "shrink-0 rounded p-1 ms-0.5 outline-none focus-visible:ring-2 fo"
+   },
+   {
+    "w": 22,
+    "h": 22,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "",
+    "cls": "shrink-0 flex items-center justify-center rounded-md p-1 transit"
+   },
+   {
+    "w": 24,
+    "h": 24,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "",
+    "cls": "flex size-6 shrink-0 items-center justify-center rounded-lg text"
+   },
+   {
+    "w": 20,
+    "h": 20,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "",
+    "cls": "absolute -top-1.5 -end-1.5 z-20 flex items-center justify-center"
+   },
+   {
+    "w": 24,
+    "h": 24,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "",
+    "cls": "shrink-0 rounded p-1 ms-0.5 outline-none focus-visible:ring-2 fo"
+   },
+   {
+    "w": 22,
+    "h": 22,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "",
+    "cls": "shrink-0 flex items-center justify-center rounded-md p-1 transit"
+   },
+   {
+    "w": 24,
+    "h": 24,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "",
+    "cls": "flex size-6 shrink-0 items-center justify-center rounded-lg text"
+   },
+   {
+    "w": 20,
+    "h": 20,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "",
+    "cls": "absolute -top-1.5 -end-1.5 z-20 flex items-center justify-center"
+   },
+   {
+    "w": 24,
+    "h": 24,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "",
+    "cls": "shrink-0 rounded p-1 ms-0.5 outline-none focus-visible:ring-2 fo"
+   },
+   {
+    "w": 22,
+    "h": 22,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "",
+    "cls": "shrink-0 flex items-center justify-center rounded-md p-1 transit"
+   },
+   {
+    "w": 24,
+    "h": 24,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "",
+    "cls": "flex size-6 shrink-0 items-center justify-center rounded-lg text"
+   },
+   {
+    "w": 20,
+    "h": 20,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "",
+    "cls": "absolute -top-1.5 -end-1.5 z-20 flex items-center justify-center"
+   },
+   {
+    "w": 24,
+    "h": 24,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "",
+    "cls": "shrink-0 rounded p-1 ms-0.5 outline-none focus-visible:ring-2 fo"
+   },
+   {
+    "w": 22,
+    "h": 22,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "",
+    "cls": "shrink-0 flex items-center justify-center rounded-md p-1 transit"
+   },
+   {
+    "w": 24,
+    "h": 24,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "",
+    "cls": "flex size-6 shrink-0 items-center justify-center rounded-lg text"
+   },
+   {
+    "w": 20,
+    "h": 20,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "",
+    "cls": "absolute -top-1.5 -end-1.5 z-20 flex items-center justify-center"
+   },
+   {
+    "w": 24,
+    "h": 24,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "",
+    "cls": "shrink-0 rounded p-1 ms-0.5 outline-none focus-visible:ring-2 fo"
+   },
+   {
+    "w": 22,
+    "h": 22,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "",
+    "cls": "shrink-0 flex items-center justify-center rounded-md p-1 transit"
+   },
+   {
+    "w": 24,
+    "h": 24,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "",
+    "cls": "flex size-6 shrink-0 items-center justify-center rounded-lg text"
+   },
+   {
+    "w": 20,
+    "h": 20,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "",
+    "cls": "absolute -top-1.5 -end-1.5 z-20 flex items-center justify-center"
+   },
+   {
+    "w": 309,
+    "h": 34,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "הוסיפו קורס",
+    "cls": "flex w-full items-center justify-center gap-1.5 rounded-lg borde"
+   },
+   {
+    "w": 126,
+    "h": 31,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "העבירו לסמסטר ב׳",
+    "cls": "inline-flex shrink-0 items-center gap-1.5 rounded-lg border bord"
+   },
+   {
+    "w": 92,
+    "h": 17,
+    "min": 44,
+    "tag": "A",
+    "text": "למערכת הבידינג",
+    "cls": "inline-flex items-center gap-1 text-[11px] font-medium text-acce"
+   },
+   {
+    "w": 85,
+    "h": 17,
+    "min": 44,
+    "tag": "A",
+    "text": "הדרכה מצולמת",
+    "cls": "inline-flex items-center gap-1 text-[11px] text-foreground/60 ho"
+   },
+   {
+    "w": 30,
+    "h": 24,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "א׳",
+    "cls": "px-2.5 py-1 transition-colors bg-foreground text-background"
+   },
+   {
+    "w": 29,
+    "h": 24,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "ב׳",
+    "cls": "px-2.5 py-1 transition-colors text-foreground/70 hover:bg-foregr"
+   },
+   {
+    "w": 28,
+    "h": 28,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "",
+    "cls": "flex size-7 items-center justify-center rounded-md border border"
+   },
+   {
+    "w": 106,
+    "h": 28,
+    "min": 44,
+    "tag": "A",
+    "text": "לחיבור היומן",
+    "cls": "inline-flex items-center gap-1.5 rounded-lg bg-accent-brand px-3"
+   },
+   {
+    "w": 44,
+    "h": 16,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "לא, תודה",
+    "cls": "ms-auto text-xs text-foreground/60 transition-colors hover:text-"
+   }
+  ],
+  "size": [
+   {
+    "text": "מהודעת מזכירות פכ״מ, אוגוסט 2026",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-1.5 text-[11px] text-foreground/60"
+   },
+   {
+    "text": "העבירו לסמסטר ב׳",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "inline-flex shrink-0 items-center gap-1.5 rounded-lg border bord"
+   },
+   {
+    "text": "שנה״ל נפתחת · ביטול רישום עד · שבוע שינו",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-3 text-[11px] leading-relaxed text-foreground/60"
+   },
+   {
+    "text": "מתוכם ש״ס חובה — לא נתונים לבחירה",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-0.5 text-[11px] text-foreground/60"
+   },
+   {
+    "text": "מתוכם ש״ס חובה — לא נתונים לבחירה",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-0.5 text-[11px] text-foreground/60"
+   },
+   {
+    "text": "שנה ג׳ · מתעדכן כשמזיזים קורסים בלוח",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "text-[11px] text-foreground/60"
+   },
+   {
+    "text": "1011-3310 · תרגול · קבוצה 01",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "truncate text-[11px] text-muted-foreground"
+   },
+   {
+    "text": "ד\"ר קרולינה אנדראה סילבה קסורלה",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-0.5 truncate text-[11px] text-muted-foreground"
+   },
+   {
+    "text": "ביה\"ס לכלכלה ע\"ש ברגלס, 012",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-0.5 flex items-center gap-1 truncate text-[11px] text-muted-f"
+   },
+   {
+    "text": "0651-3001 · סמינר · קבוצה 01",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "truncate text-[11px] text-muted-foreground"
+   },
+   {
+    "text": "ד\"ר יוסף מזור, ד\"ר עידית בן אור",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-0.5 truncate text-[11px] text-muted-foreground"
+   },
+   {
+    "text": "הפקולטה למדעי הרוח בנין יצחק ורוזה גילמן",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-0.5 flex items-center gap-1 truncate text-[11px] text-muted-f"
+   }
+  ],
+  "focus": [],
+  "label": [],
+  "counts": {
+   "text": 151,
+   "interactive": 48
+  },
+  "overflow": null
+ },
+ {
+  "page": "יומן",
+  "contrast": [],
+  "graphic": [
+   {
+    "ratio": 1.91,
+    "cls": "size-5 shrink-0 text-crown-gold-bright",
+    "label": "פתחו את המלך הפילוסוף"
+   }
+  ],
+  "touch": [
+   {
+    "w": 32,
+    "h": 32,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "",
+    "cls": "rounded-lg p-2 text-muted-foreground transition-colors hover:bg-"
+   },
+   {
+    "w": 32,
+    "h": 32,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "",
+    "cls": "rounded-lg p-2 text-muted-foreground transition-colors hover:bg-"
+   },
+   {
+    "w": 124,
+    "h": 32,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "מערכת שעות",
+    "cls": "flex items-center gap-1.5 rounded-md px-3 py-1.5 text-sm font-me"
+   },
+   {
+    "w": 86,
+    "h": 32,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "בחינות",
+    "cls": "flex items-center gap-1.5 rounded-md px-3 py-1.5 text-sm font-me"
+   },
+   {
+    "w": 161,
+    "h": 33,
+    "min": 44,
+    "tag": "SELECT",
+    "text": "שנה א׳ — סמסטר א׳שנה א׳ ",
+    "cls": "rounded-lg border border-border bg-card px-3 py-1.5 text-sm text"
+   },
+   {
+    "w": 40,
+    "h": 28,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "הורדת קובץ יומן (.ics)",
+    "cls": "flex items-center gap-1.5 rounded-lg border border-border bg-car"
+   },
+   {
+    "w": 40,
+    "h": 28,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "שיתוף כתמונה",
+    "cls": "flex items-center gap-1.5 rounded-lg border border-border bg-car"
+   },
+   {
+    "w": 40,
+    "h": 28,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "כטקסט",
+    "cls": "flex items-center gap-1.5 rounded-lg border border-border bg-car"
+   },
+   {
+    "w": 153,
+    "h": 32,
+    "min": 44,
+    "tag": "A",
+    "text": "חברו ליומן Google",
+    "cls": "flex items-center gap-1.5 rounded-lg bg-emerald-500/10 px-3 py-1"
+   }
+  ],
+  "size": [
+   {
+    "text": "1011-3310 · תרגול · קבוצה 01",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "truncate text-[11px] text-muted-foreground"
+   },
+   {
+    "text": "ד\"ר קרולינה אנדראה סילבה קסורלה",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-0.5 truncate text-[11px] text-muted-foreground"
+   },
+   {
+    "text": "ביה\"ס לכלכלה ע\"ש ברגלס, 012",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-0.5 flex items-center gap-1 truncate text-[11px] text-muted-f"
+   },
+   {
+    "text": "0651-3001 · סמינר · קבוצה 01",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "truncate text-[11px] text-muted-foreground"
+   },
+   {
+    "text": "ד\"ר יוסף מזור, ד\"ר עידית בן אור",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-0.5 truncate text-[11px] text-muted-foreground"
+   },
+   {
+    "text": "הפקולטה למדעי הרוח בנין יצחק ורוזה גילמן",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-0.5 flex items-center gap-1 truncate text-[11px] text-muted-f"
+   }
+  ],
+  "focus": [],
+  "label": [],
+  "counts": {
+   "text": 33,
+   "interactive": 15
+  },
+  "overflow": null
+ },
+ {
+  "page": "קטלוג",
+  "contrast": [],
+  "graphic": [
+   {
+    "ratio": 1.91,
+    "cls": "size-5 shrink-0 text-crown-gold-bright",
+    "label": "פתחו את המלך הפילוסוף"
+   }
+  ],
+  "touch": [
+   {
+    "w": 32,
+    "h": 32,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "",
+    "cls": "rounded-lg p-2 text-muted-foreground transition-colors hover:bg-"
+   },
+   {
+    "w": 32,
+    "h": 32,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "",
+    "cls": "rounded-lg p-2 text-muted-foreground transition-colors hover:bg-"
+   },
+   {
+    "w": 327,
+    "h": 30,
+    "min": 44,
+    "tag": "A",
+    "text": "מתלבטים איזה קורס בחירה?",
+    "cls": "animate-stagger-2 inline-flex items-center gap-2 rounded-full bo"
+   },
+   {
+    "w": 327,
+    "h": 36,
+    "min": 44,
+    "tag": "INPUT",
+    "text": "",
+    "cls": "file:text-foreground placeholder:text-muted-foreground selection"
+   },
+   {
+    "w": 327,
+    "h": 36,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "כל התחומים",
+    "cls": "data-[placeholder]:text-muted-foreground [&_svg:not([class*='tex"
+   },
+   {
+    "w": 327,
+    "h": 36,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "כל סוגי הקורסים",
+    "cls": "data-[placeholder]:text-muted-foreground [&_svg:not([class*='tex"
+   },
+   {
+    "w": 327,
+    "h": 36,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "כל השנים",
+    "cls": "data-[placeholder]:text-muted-foreground [&_svg:not([class*='tex"
+   },
+   {
+    "w": 14,
+    "h": 14,
+    "min": 44,
+    "tag": "INPUT",
+    "text": "",
+    "cls": "size-3.5"
+   },
+   {
+    "w": 82,
+    "h": 32,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "שם הקורס",
+    "cls": "py-1.5 -my-1.5 inline-flex items-center gap-1 text-foreground/80"
+   },
+   {
+    "w": 52,
+    "h": 32,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "תחום",
+    "cls": "py-1.5 -my-1.5 inline-flex items-center gap-1 text-foreground/80"
+   },
+   {
+    "w": 47,
+    "h": 32,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "ש״ס",
+    "cls": "py-1.5 -my-1.5 inline-flex items-center gap-1 text-foreground/80"
+   },
+   {
+    "w": 176,
+    "h": 24,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "סטטיסטיקה לפכ״מ + תרגיל",
+    "cls": "block text-start text-foreground line-clamp-2 py-0.5 transition-"
+   },
+   {
+    "w": 116,
+    "h": 24,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "מתמטיקה לפכ״מ",
+    "cls": "block text-start text-foreground line-clamp-2 py-0.5 transition-"
+   },
+   {
+    "w": 145,
+    "h": 24,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "מאקרו כלכלה + תרגיל",
+    "cls": "block text-start text-foreground line-clamp-2 py-0.5 transition-"
+   },
+   {
+    "w": 266,
+    "h": 24,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "מיקרו כלכלה א׳ - החלטות ",
+    "cls": "block text-start text-foreground line-clamp-2 py-0.5 transition-"
+   },
+   {
+    "w": 153,
+    "h": 24,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "מיקרו כלכלה ג׳ + תרגיל",
+    "cls": "block text-start text-foreground line-clamp-2 py-0.5 transition-"
+   },
+   {
+    "w": 183,
+    "h": 24,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "מבוא לאקונומטריקה + תרגי",
+    "cls": "block text-start text-foreground line-clamp-2 py-0.5 transition-"
+   },
+   {
+    "w": 155,
+    "h": 24,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "מיקרו כלכלה ב׳ + תרגיל",
+    "cls": "block text-start text-foreground line-clamp-2 py-0.5 transition-"
+   },
+   {
+    "w": 141,
+    "h": 24,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "אקונומטריקה יישומית",
+    "cls": "block text-start text-foreground line-clamp-2 py-0.5 transition-"
+   },
+   {
+    "w": 133,
+    "h": 24,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "חשבונאות לכלכלנים",
+    "cls": "block text-start text-foreground line-clamp-2 py-0.5 transition-"
+   },
+   {
+    "w": 272,
+    "h": 24,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "תיאוריה כלכלית בעידן הכל",
+    "cls": "block text-start text-foreground line-clamp-2 py-0.5 transition-"
+   },
+   {
+    "w": 97,
+    "h": 24,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "כלכלה ניסויית",
+    "cls": "block text-start text-foreground line-clamp-2 py-0.5 transition-"
+   },
+   {
+    "w": 454,
+    "h": 24,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "כלכלת ישראל-רפורמות מבני",
+    "cls": "block text-start text-foreground line-clamp-2 py-0.5 transition-"
+   },
+   {
+    "w": 312,
+    "h": 24,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "כלכלה כתיאוריה חברתית: ב",
+    "cls": "block text-start text-foreground line-clamp-2 py-0.5 transition-"
+   },
+   {
+    "w": 167,
+    "h": 24,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "כלכלה, רווחה ומה שביניהן",
+    "cls": "block text-start text-foreground line-clamp-2 py-0.5 transition-"
+   },
+   {
+    "w": 181,
+    "h": 24,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "International Economics",
+    "cls": "block text-start text-foreground line-clamp-2 py-0.5 transition-"
+   },
+   {
+    "w": 171,
+    "h": 24,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "Industrial Organization",
+    "cls": "block text-start text-foreground line-clamp-2 py-0.5 transition-"
+   },
+   {
+    "w": 257,
+    "h": 24,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "צמיחה כלכלית: תיאוריה, מ",
+    "cls": "block text-start text-foreground line-clamp-2 py-0.5 transition-"
+   },
+   {
+    "w": 90,
+    "h": 24,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "כלכלת סייבר",
+    "cls": "block text-start text-foreground line-clamp-2 py-0.5 transition-"
+   },
+   {
+    "w": 193,
+    "h": 24,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "Topics in Macroeconomics",
+    "cls": "block text-start text-foreground line-clamp-2 py-0.5 transition-"
+   },
+   {
+    "w": 182,
+    "h": 24,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "Development Economics",
+    "cls": "block text-start text-foreground line-clamp-2 py-0.5 transition-"
+   },
+   {
+    "w": 177,
+    "h": 24,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "נושאים בכלכלת אינפורמציה",
+    "cls": "block text-start text-foreground line-clamp-2 py-0.5 transition-"
+   },
+   {
+    "w": 86,
+    "h": 24,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "צדק חלוקתי",
+    "cls": "block text-start text-foreground line-clamp-2 py-0.5 transition-"
+   },
+   {
+    "w": 463,
+    "h": 24,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "תולדות המחשבה הכלכלית: נ",
+    "cls": "block text-start text-foreground line-clamp-2 py-0.5 transition-"
+   },
+   {
+    "w": 218,
+    "h": 24,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "Options and Financial Ma",
+    "cls": "block text-start text-foreground line-clamp-2 py-0.5 transition-"
+   },
+   {
+    "w": 159,
+    "h": 24,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "שיטות מתמטיות בכלכלה",
+    "cls": "block text-start text-foreground line-clamp-2 py-0.5 transition-"
+   },
+   {
+    "w": 164,
+    "h": 24,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "כלכלה התנהגותית לניהול",
+    "cls": "block text-start text-foreground line-clamp-2 py-0.5 transition-"
+   },
+   {
+    "w": 98,
+    "h": 24,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "משפט וכלכלה",
+    "cls": "block text-start text-foreground line-clamp-2 py-0.5 transition-"
+   },
+   {
+    "w": 129,
+    "h": 24,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "מבוא לתיאוריה קווירית",
+    "cls": "block text-start text-foreground line-clamp-2 py-0.5 transition-"
+   },
+   {
+    "w": 249,
+    "h": 24,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "מבוא לפילוסופיה פמיניסטי",
+    "cls": "block text-start text-foreground line-clamp-2 py-0.5 transition-"
+   },
+   {
+    "w": 326,
+    "h": 24,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "כסף מסובב את העולם - אי ",
+    "cls": "block text-start text-foreground line-clamp-2 py-0.5 transition-"
+   },
+   {
+    "w": 251,
+    "h": 24,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "מהי יהדות? מבוא למחשבת י",
+    "cls": "block text-start text-foreground line-clamp-2 py-0.5 transition-"
+   },
+   {
+    "w": 220,
+    "h": 24,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "מהי גזענות? היסטוריה, תא",
+    "cls": "block text-start text-foreground line-clamp-2 py-0.5 transition-"
+   },
+   {
+    "w": 170,
+    "h": 24,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "קורס חירום : מהי דמוקרטי",
+    "cls": "block text-start text-foreground line-clamp-2 py-0.5 transition-"
+   },
+   {
+    "w": 198,
+    "h": 24,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "המלחמה: בתנ״ך ובמחשבת יש",
+    "cls": "block text-start text-foreground line-clamp-2 py-0.5 transition-"
+   },
+   {
+    "w": 465,
+    "h": 24,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "אלוהים מחפש משמעות: חקר ",
+    "cls": "block text-start text-foreground line-clamp-2 py-0.5 transition-"
+   },
+   {
+    "w": 285,
+    "h": 24,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "שפינוזה ומנדלסון - קריאו",
+    "cls": "block text-start text-foreground line-clamp-2 py-0.5 transition-"
+   },
+   {
+    "w": 372,
+    "h": 24,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "מבוא להגות יהודית בעת הח",
+    "cls": "block text-start text-foreground line-clamp-2 py-0.5 transition-"
+   },
+   {
+    "w": 437,
+    "h": 24,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "מבוא להגות היהודית בעת ה",
+    "cls": "block text-start text-foreground line-clamp-2 py-0.5 transition-"
+   },
+   {
+    "w": 177,
+    "h": 24,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "קריאה במורה הנבוכים לרמב",
+    "cls": "block text-start text-foreground line-clamp-2 py-0.5 transition-"
+   },
+   {
+    "w": 127,
+    "h": 24,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "אתיקה בעידן הדיגיטלי",
+    "cls": "block text-start text-foreground line-clamp-2 py-0.5 transition-"
+   },
+   {
+    "w": 406,
+    "h": 24,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "סקס, סמים, אימהות ויהודי",
+    "cls": "block text-start text-foreground line-clamp-2 py-0.5 transition-"
+   },
+   {
+    "w": 95,
+    "h": 24,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "פילוסופיה ושואה",
+    "cls": "block text-start text-foreground line-clamp-2 py-0.5 transition-"
+   },
+   {
+    "w": 113,
+    "h": 24,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "א״ד גורדון ובני שיחו",
+    "cls": "block text-start text-foreground line-clamp-2 py-0.5 transition-"
+   },
+   {
+    "w": 140,
+    "h": 24,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "הלכה כפילוסופיה יהודית",
+    "cls": "block text-start text-foreground line-clamp-2 py-0.5 transition-"
+   },
+   {
+    "w": 361,
+    "h": 24,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "ארתור שפונהאואר והשפעתו ",
+    "cls": "block text-start text-foreground line-clamp-2 py-0.5 transition-"
+   },
+   {
+    "w": 128,
+    "h": 24,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "מבוא ללוגיקה + תרגיל",
+    "cls": "block text-start text-foreground line-clamp-2 py-0.5 transition-"
+   },
+   {
+    "w": 156,
+    "h": 24,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "מבוא לפילוסופיה של השפה",
+    "cls": "block text-start text-foreground line-clamp-2 py-0.5 transition-"
+   },
+   {
+    "w": 146,
+    "h": 24,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "מבוא לפילוסופיה של הדת",
+    "cls": "block text-start text-foreground line-clamp-2 py-0.5 transition-"
+   },
+   {
+    "w": 158,
+    "h": 24,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "מבוא לפילוסופיה של המוסר",
+    "cls": "block text-start text-foreground line-clamp-2 py-0.5 transition-"
+   },
+   {
+    "w": 144,
+    "h": 24,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "מבוא לפילוסופיה פוליטית",
+    "cls": "block text-start text-foreground line-clamp-2 py-0.5 transition-"
+   },
+   {
+    "w": 129,
+    "h": 24,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "מבוא לפילוסופיה יוונית",
+    "cls": "block text-start text-foreground line-clamp-2 py-0.5 transition-"
+   },
+   {
+    "w": 135,
+    "h": 24,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "מבוא לפילוסופיה חדשה",
+    "cls": "block text-start text-foreground line-clamp-2 py-0.5 transition-"
+   },
+   {
+    "w": 187,
+    "h": 24,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "מבוא לתורת ההכרה ומטאפיז",
+    "cls": "block text-start text-foreground line-clamp-2 py-0.5 transition-"
+   },
+   {
+    "w": 133,
+    "h": 24,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "מבוא לפילוסופיה הודית",
+    "cls": "block text-start text-foreground line-clamp-2 py-0.5 transition-"
+   },
+   {
+    "w": 131,
+    "h": 24,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "מבוא לפילוסופיה סינית",
+    "cls": "block text-start text-foreground line-clamp-2 py-0.5 transition-"
+   },
+   {
+    "w": 230,
+    "h": 24,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "מבוא לאסתטיקה ופילוסופיה",
+    "cls": "block text-start text-foreground line-clamp-2 py-0.5 transition-"
+   },
+   {
+    "w": 218,
+    "h": 24,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "מיומנויות יסוד: קריאה מו",
+    "cls": "block text-start text-foreground line-clamp-2 py-0.5 transition-"
+   },
+   {
+    "w": 176,
+    "h": 24,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "פילוסופיה יוונית - שיעור",
+    "cls": "block text-start text-foreground line-clamp-2 py-0.5 transition-"
+   },
+   {
+    "w": 181,
+    "h": 24,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "פילוסופיה חדשה - שיעור ה",
+    "cls": "block text-start text-foreground line-clamp-2 py-0.5 transition-"
+   },
+   {
+    "w": 186,
+    "h": 24,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "שיעור יסוד: הגורגיאס של ",
+    "cls": "block text-start text-foreground line-clamp-2 py-0.5 transition-"
+   },
+   {
+    "w": 190,
+    "h": 24,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "שיעור יסוד: פילוסופיה בה",
+    "cls": "block text-start text-foreground line-clamp-2 py-0.5 transition-"
+   },
+   {
+    "w": 189,
+    "h": 24,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "מבוא לפילוסופיה של המאה ",
+    "cls": "block text-start text-foreground line-clamp-2 py-0.5 transition-"
+   },
+   {
+    "w": 236,
+    "h": 24,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "פילוסופיה של המאה ה-19 -",
+    "cls": "block text-start text-foreground line-clamp-2 py-0.5 transition-"
+   },
+   {
+    "w": 196,
+    "h": 24,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "פילוסופיה של הדת — שיעור",
+    "cls": "block text-start text-foreground line-clamp-2 py-0.5 transition-"
+   },
+   {
+    "w": 179,
+    "h": 24,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "פילוסופיה הודית - שיעור ",
+    "cls": "block text-start text-foreground line-clamp-2 py-0.5 transition-"
+   },
+   {
+    "w": 177,
+    "h": 24,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "פילוסופיה סינית - שיעור ",
+    "cls": "block text-start text-foreground line-clamp-2 py-0.5 transition-"
+   },
+   {
+    "w": 214,
+    "h": 24,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "שיעור יסוד: פילוסופיה של",
+    "cls": "block text-start text-foreground line-clamp-2 py-0.5 transition-"
+   },
+   {
+    "w": 263,
+    "h": 24,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "שיעור יסוד: סוגיות בפילו",
+    "cls": "block text-start text-foreground line-clamp-2 py-0.5 transition-"
+   },
+   {
+    "w": 235,
+    "h": 24,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "אפיסטמולוגיה ומטפיזיקה —",
+    "cls": "block text-start text-foreground line-clamp-2 py-0.5 transition-"
+   },
+   {
+    "w": 277,
+    "h": 24,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "אסתטיקה ופילוסופיה של הא",
+    "cls": "block text-start text-foreground line-clamp-2 py-0.5 transition-"
+   },
+   {
+    "w": 207,
+    "h": 24,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "פילוסופיה של השפה — שיעו",
+    "cls": "block text-start text-foreground line-clamp-2 py-0.5 transition-"
+   },
+   {
+    "w": 115,
+    "h": 24,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "שיעור יסוד: ניהיליזם",
+    "cls": "block text-start text-foreground line-clamp-2 py-0.5 transition-"
+   },
+   {
+    "w": 249,
+    "h": 24,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "Elementary Course: the E",
+    "cls": "block text-start text-foreground line-clamp-2 py-0.5 transition-"
+   },
+   {
+    "w": 318,
+    "h": 24,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "שיעור יסוד: חכמת הזיקנה ",
+    "cls": "block text-start text-foreground line-clamp-2 py-0.5 transition-"
+   },
+   {
+    "w": 319,
+    "h": 24,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "Elementary Course: Hegel",
+    "cls": "block text-start text-foreground line-clamp-2 py-0.5 transition-"
+   },
+   {
+    "w": 205,
+    "h": 24,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "פילוסופיה של המוסר - שיע",
+    "cls": "block text-start text-foreground line-clamp-2 py-0.5 transition-"
+   },
+   {
+    "w": 236,
+    "h": 24,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "Elementary Course: Moral",
+    "cls": "block text-start text-foreground line-clamp-2 py-0.5 transition-"
+   },
+   {
+    "w": 399,
+    "h": 24,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "שיעור יסוד: הרמן כהן ומר",
+    "cls": "block text-start text-foreground line-clamp-2 py-0.5 transition-"
+   },
+   {
+    "w": 401,
+    "h": 24,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "שיעור יסוד: רמב״ם פינת י",
+    "cls": "block text-start text-foreground line-clamp-2 py-0.5 transition-"
+   },
+   {
+    "w": 197,
+    "h": 24,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "ברוך שפינוזה: מאמר תיאלו",
+    "cls": "block text-start text-foreground line-clamp-2 py-0.5 transition-"
+   },
+   {
+    "w": 67,
+    "h": 24,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "זהות אישית",
+    "cls": "block text-start text-foreground line-clamp-2 py-0.5 transition-"
+   },
+   {
+    "w": 222,
+    "h": 24,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "תודעה-עולם-ואחרים: ברנדו",
+    "cls": "block text-start text-foreground line-clamp-2 py-0.5 transition-"
+   },
+   {
+    "w": 71,
+    "h": 24,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "Genealogy",
+    "cls": "block text-start text-foreground line-clamp-2 py-0.5 transition-"
+   },
+   {
+    "w": 329,
+    "h": 24,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "מחשבה כחיים: עיונים בהגו",
+    "cls": "block text-start text-foreground line-clamp-2 py-0.5 transition-"
+   },
+   {
+    "w": 198,
+    "h": 24,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "Schopenhauer and Nietzsc",
+    "cls": "block text-start text-foreground line-clamp-2 py-0.5 transition-"
+   },
+   {
+    "w": 321,
+    "h": 24,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "נומוס ופיסיס: צדק אנושי ",
+    "cls": "block text-start text-foreground line-clamp-2 py-0.5 transition-"
+   },
+   {
+    "w": 223,
+    "h": 24,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "אלוהים: תפקידו במטפיזיקה",
+    "cls": "block text-start text-foreground line-clamp-2 py-0.5 transition-"
+   },
+   {
+    "w": 184,
+    "h": 24,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "ולטר בנימין: פנטזיה, זכר",
+    "cls": "block text-start text-foreground line-clamp-2 py-0.5 transition-"
+   },
+   {
+    "w": 209,
+    "h": 24,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "שיעור קריאה: קונפוציוס -",
+    "cls": "block text-start text-foreground line-clamp-2 py-0.5 transition-"
+   },
+   {
+    "w": 204,
+    "h": 24,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "שיעור קריאה: אוגוסטינוס ",
+    "cls": "block text-start text-foreground line-clamp-2 py-0.5 transition-"
+   },
+   {
+    "w": 250,
+    "h": 24,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "שיעור קריאה: חנה ארנדט -",
+    "cls": "block text-start text-foreground line-clamp-2 py-0.5 transition-"
+   },
+   {
+    "w": 466,
+    "h": 24,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "שיעור קריאה: פרידריך ויל",
+    "cls": "block text-start text-foreground line-clamp-2 py-0.5 transition-"
+   },
+   {
+    "w": 244,
+    "h": 24,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "שיעור קריאה: אדמונד הוסר",
+    "cls": "block text-start text-foreground line-clamp-2 py-0.5 transition-"
+   },
+   {
+    "w": 211,
+    "h": 24,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "שיעור קריאה: אנרי ברגסון",
+    "cls": "block text-start text-foreground line-clamp-2 py-0.5 transition-"
+   },
+   {
+    "w": 365,
+    "h": 24,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "שיעור קריאה: מרטין היידג",
+    "cls": "block text-start text-foreground line-clamp-2 py-0.5 transition-"
+   },
+   {
+    "w": 299,
+    "h": 24,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "שיעור קריאה: אדמונד הוסר",
+    "cls": "block text-start text-foreground line-clamp-2 py-0.5 transition-"
+   },
+   {
+    "w": 382,
+    "h": 24,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "שיעור קריאה: אן קונווי -",
+    "cls": "block text-start text-foreground line-clamp-2 py-0.5 transition-"
+   },
+   {
+    "w": 447,
+    "h": 24,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "שיעור קריאה: ניקולו מקיא",
+    "cls": "block text-start text-foreground line-clamp-2 py-0.5 transition-"
+   },
+   {
+    "w": 208,
+    "h": 24,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "מבוא עכשווי לפילוסופיה ש",
+    "cls": "block text-start text-foreground line-clamp-2 py-0.5 transition-"
+   },
+   {
+    "w": 125,
+    "h": 24,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "לוגיקה - שיעור המשך",
+    "cls": "block text-start text-foreground line-clamp-2 py-0.5 transition-"
+   },
+   {
+    "w": 191,
+    "h": 24,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "פילוסופיה פוליטית - שיעו",
+    "cls": "block text-start text-foreground line-clamp-2 py-0.5 transition-"
+   },
+   {
+    "w": 124,
+    "h": 24,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "שיעור יסוד: סולידריות",
+    "cls": "block text-start text-foreground line-clamp-2 py-0.5 transition-"
+   },
+   {
+    "w": 226,
+    "h": 24,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "שיעור יסוד: פילוסופית הד",
+    "cls": "block text-start text-foreground line-clamp-2 py-0.5 transition-"
+   },
+   {
+    "w": 171,
+    "h": 24,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "שיעור יסוד: פילוסופיה סט",
+    "cls": "block text-start text-foreground line-clamp-2 py-0.5 transition-"
+   },
+   {
+    "w": 424,
+    "h": 24,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "המאה התשע עשרה באירופה: ",
+    "cls": "block text-start text-foreground line-clamp-2 py-0.5 transition-"
+   },
+   {
+    "w": 233,
+    "h": 24,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "וצדק לכולם? ארה״ב במאות ",
+    "cls": "block text-start text-foreground line-clamp-2 py-0.5 transition-"
+   },
+   {
+    "w": 213,
+    "h": 24,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "מבוא לתולדות המזה״ת בעת ",
+    "cls": "block text-start text-foreground line-clamp-2 py-0.5 transition-"
+   },
+   {
+    "w": 224,
+    "h": 24,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "תולדות העמים המוסלמים, 6",
+    "cls": "block text-start text-foreground line-clamp-2 py-0.5 transition-"
+   },
+   {
+    "w": 471,
+    "h": 24,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "רעיונות נודדים ועולמות ש",
+    "cls": "block text-start text-foreground line-clamp-2 py-0.5 transition-"
+   },
+   {
+    "w": 309,
+    "h": 24,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "תחנות יסוד בהיסטוריה של ",
+    "cls": "block text-start text-foreground line-clamp-2 py-0.5 transition-"
+   },
+   {
+    "w": 101,
+    "h": 24,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "קריאה מודרכת א׳",
+    "cls": "block text-start text-foreground line-clamp-2 py-0.5 transition-"
+   },
+   {
+    "w": 101,
+    "h": 24,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "קריאה מודרכת ב׳",
+    "cls": "block text-start text-foreground line-clamp-2 py-0.5 transition-"
+   },
+   {
+    "w": 154,
+    "h": 24,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "פילוסופיה של מדעי החברה",
+    "cls": "block text-start text-foreground line-clamp-2 py-0.5 transition-"
+   },
+   {
+    "w": 260,
+    "h": 24,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "כלכלה פוליטית בינלאומית ",
+    "cls": "block text-start text-foreground line-clamp-2 py-0.5 transition-"
+   },
+   {
+    "w": 273,
+    "h": 24,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "תולדות המחשבה הכלכלית בע",
+    "cls": "block text-start text-foreground line-clamp-2 py-0.5 transition-"
+   },
+   {
+    "w": 250,
+    "h": 24,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "Democratic Theory and So",
+    "cls": "block text-start text-foreground line-clamp-2 py-0.5 transition-"
+   },
+   {
+    "w": 215,
+    "h": 24,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "תרגיל צמוד לפילוסופיה פו",
+    "cls": "block text-start text-foreground line-clamp-2 py-0.5 transition-"
+   },
+   {
+    "w": 261,
+    "h": 24,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "התכנית לכלכלת חברה וסביב",
+    "cls": "block text-start text-foreground line-clamp-2 py-0.5 transition-"
+   },
+   {
+    "w": 69,
+    "h": 24,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "סמינר פכ״מ",
+    "cls": "block text-start text-foreground line-clamp-2 py-0.5 transition-"
+   },
+   {
+    "w": 84,
+    "h": 24,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "סמינר פכ״מ ב׳",
+    "cls": "block text-start text-foreground line-clamp-2 py-0.5 transition-"
+   },
+   {
+    "w": 442,
+    "h": 24,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "לאומיות ורב-תרבותיות: תי",
+    "cls": "block text-start text-foreground line-clamp-2 py-0.5 transition-"
+   },
+   {
+    "w": 252,
+    "h": 24,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "המטאפיזיקה של הזמן בפילו",
+    "cls": "block text-start text-foreground line-clamp-2 py-0.5 transition-"
+   },
+   {
+    "w": 174,
+    "h": 24,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "היסטוריה של הפיזיקה החדש",
+    "cls": "block text-start text-foreground line-clamp-2 py-0.5 transition-"
+   },
+   {
+    "w": 276,
+    "h": 24,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "מהי הלשון? תשובות מן הפי",
+    "cls": "block text-start text-foreground line-clamp-2 py-0.5 transition-"
+   },
+   {
+    "w": 324,
+    "h": 24,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "מדע, מטפיזיקה וטכנולוגיה",
+    "cls": "block text-start text-foreground line-clamp-2 py-0.5 transition-"
+   },
+   {
+    "w": 174,
+    "h": 24,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "גישות חקר לתרבות הדיגיטל",
+    "cls": "block text-start text-foreground line-clamp-2 py-0.5 transition-"
+   },
+   {
+    "w": 169,
+    "h": 24,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "פילוסופיה של בינה מלאכות",
+    "cls": "block text-start text-foreground line-clamp-2 py-0.5 transition-"
+   },
+   {
+    "w": 293,
+    "h": 24,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "אל היש ומעבר לו. פרקים ב",
+    "cls": "block text-start text-foreground line-clamp-2 py-0.5 transition-"
+   },
+   {
+    "w": 298,
+    "h": 24,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "היסטוריה אינטלקטואלית ב׳",
+    "cls": "block text-start text-foreground line-clamp-2 py-0.5 transition-"
+   },
+   {
+    "w": 232,
+    "h": 24,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "מדע, מיתולוגיה ופנטזיה ב",
+    "cls": "block text-start text-foreground line-clamp-2 py-0.5 transition-"
+   },
+   {
+    "w": 251,
+    "h": 24,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "אינדוקציה, תהליכי שינוי,",
+    "cls": "block text-start text-foreground line-clamp-2 py-0.5 transition-"
+   },
+   {
+    "w": 367,
+    "h": 24,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "ספקנות, חשיבה ביקורתית ו",
+    "cls": "block text-start text-foreground line-clamp-2 py-0.5 transition-"
+   },
+   {
+    "w": 367,
+    "h": 24,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "לחשוב מקום - לחשוב שפה: ",
+    "cls": "block text-start text-foreground line-clamp-2 py-0.5 transition-"
+   },
+   {
+    "w": 299,
+    "h": 24,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "מקריות והכרח בהיסטוריה י",
+    "cls": "block text-start text-foreground line-clamp-2 py-0.5 transition-"
+   },
+   {
+    "w": 484,
+    "h": 24,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "כיצד מחלוקות בבלשנות, פס",
+    "cls": "block text-start text-foreground line-clamp-2 py-0.5 transition-"
+   },
+   {
+    "w": 483,
+    "h": 24,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "הכרה, רציונליות, ויצירתי",
+    "cls": "block text-start text-foreground line-clamp-2 py-0.5 transition-"
+   },
+   {
+    "w": 221,
+    "h": 24,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "המלחמה כבעיה בהגות המאה ",
+    "cls": "block text-start text-foreground line-clamp-2 py-0.5 transition-"
+   },
+   {
+    "w": 143,
+    "h": 24,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "מבוא לתיאוריה ביקורתית",
+    "cls": "block text-start text-foreground line-clamp-2 py-0.5 transition-"
+   },
+   {
+    "w": 196,
+    "h": 24,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "פילוסופיה של המדע למתקדמ",
+    "cls": "block text-start text-foreground line-clamp-2 py-0.5 transition-"
+   },
+   {
+    "w": 230,
+    "h": 24,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "שאלות יסוד בהיסטוריה של ",
+    "cls": "block text-start text-foreground line-clamp-2 py-0.5 transition-"
+   },
+   {
+    "w": 158,
+    "h": 24,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "היסטוריה אינטלקטואלית א׳",
+    "cls": "block text-start text-foreground line-clamp-2 py-0.5 transition-"
+   },
+   {
+    "w": 159,
+    "h": 24,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "מבוא למחשבה הומאניסטית",
+    "cls": "block text-start text-foreground line-clamp-2 py-0.5 transition-"
+   },
+   {
+    "w": 287,
+    "h": 24,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "האני: מאני חושב פילוסופי",
+    "cls": "block text-start text-foreground line-clamp-2 py-0.5 transition-"
+   },
+   {
+    "w": 115,
+    "h": 24,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "יסודות בניתוח רטורי",
+    "cls": "block text-start text-foreground line-clamp-2 py-0.5 transition-"
+   },
+   {
+    "w": 301,
+    "h": 24,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "אתגרים לחוזה החברתי בעיד",
+    "cls": "block text-start text-foreground line-clamp-2 py-0.5 transition-"
+   },
+   {
+    "w": 388,
+    "h": 24,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "הבניית דימוי של אישי ציב",
+    "cls": "block text-start text-foreground line-clamp-2 py-0.5 transition-"
+   },
+   {
+    "w": 393,
+    "h": 24,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "לנצל את הלב כדי לנצח את ",
+    "cls": "block text-start text-foreground line-clamp-2 py-0.5 transition-"
+   },
+   {
+    "w": 385,
+    "h": 24,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "שפת הפעולה: גלגולי מושג ",
+    "cls": "block text-start text-foreground line-clamp-2 py-0.5 transition-"
+   },
+   {
+    "w": 269,
+    "h": 24,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "פסיכואנליזה של אהבה וזוג",
+    "cls": "block text-start text-foreground line-clamp-2 py-0.5 transition-"
+   },
+   {
+    "w": 261,
+    "h": 24,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "סוגיות עכשוויות בכלכלה -",
+    "cls": "block text-start text-foreground line-clamp-2 py-0.5 transition-"
+   },
+   {
+    "w": 224,
+    "h": 24,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "תפישת הביטחון הישראלית ב",
+    "cls": "block text-start text-foreground line-clamp-2 py-0.5 transition-"
+   },
+   {
+    "w": 254,
+    "h": 24,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "מבוא לחשיבה אסטרטגית - ה",
+    "cls": "block text-start text-foreground line-clamp-2 py-0.5 transition-"
+   },
+   {
+    "w": 359,
+    "h": 24,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "המסע הארוך מצדק לחוק: מק",
+    "cls": "block text-start text-foreground line-clamp-2 py-0.5 transition-"
+   },
+   {
+    "w": 232,
+    "h": 24,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "המערכת הביטחונית ביישוב,",
+    "cls": "block text-start text-foreground line-clamp-2 py-0.5 transition-"
+   },
+   {
+    "w": 155,
+    "h": 24,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "המלחמה בתרבות האנושית",
+    "cls": "block text-start text-foreground line-clamp-2 py-0.5 transition-"
+   },
+   {
+    "w": 271,
+    "h": 24,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "הלוטוס והחרב: אלימות ומל",
+    "cls": "block text-start text-foreground line-clamp-2 py-0.5 transition-"
+   },
+   {
+    "w": 231,
+    "h": 24,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "מיסטיקה, פוליטיקה וג׳יני",
+    "cls": "block text-start text-foreground line-clamp-2 py-0.5 transition-"
+   },
+   {
+    "w": 353,
+    "h": 24,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "קלאסיקה מכוננת, כלי חדש:",
+    "cls": "block text-start text-foreground line-clamp-2 py-0.5 transition-"
+   },
+   {
+    "w": 311,
+    "h": 24,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "מבוא למדעי הדתות: אנתרופ",
+    "cls": "block text-start text-foreground line-clamp-2 py-0.5 transition-"
+   },
+   {
+    "w": 294,
+    "h": 24,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "מבוא למדעי הדתות: פילוסו",
+    "cls": "block text-start text-foreground line-clamp-2 py-0.5 transition-"
+   },
+   {
+    "w": 298,
+    "h": 24,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "מבוא למדעי הדתות: דתות ה",
+    "cls": "block text-start text-foreground line-clamp-2 py-0.5 transition-"
+   },
+   {
+    "w": 98,
+    "h": 24,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "דיני איכות סביבה",
+    "cls": "block text-start text-foreground line-clamp-2 py-0.5 transition-"
+   },
+   {
+    "w": 133,
+    "h": 24,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "מבוא לחשיבה סביבתית",
+    "cls": "block text-start text-foreground line-clamp-2 py-0.5 transition-"
+   },
+   {
+    "w": 255,
+    "h": 24,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "Introduction to Sustaina",
+    "cls": "block text-start text-foreground line-clamp-2 py-0.5 transition-"
+   },
+   {
+    "w": 124,
+    "h": 24,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "מבוא לקיימות עירונית",
+    "cls": "block text-start text-foreground line-clamp-2 py-0.5 transition-"
+   },
+   {
+    "w": 281,
+    "h": 24,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "סמינר בכלכלה יישומית: סי",
+    "cls": "block text-start text-foreground line-clamp-2 py-0.5 transition-"
+   },
+   {
+    "w": 214,
+    "h": 24,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "סמינר בנושאים בכלכלת עבו",
+    "cls": "block text-start text-foreground line-clamp-2 py-0.5 transition-"
+   },
+   {
+    "w": 211,
+    "h": 24,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "סמינר מדיניות ציבורית בש",
+    "cls": "block text-start text-foreground line-clamp-2 py-0.5 transition-"
+   },
+   {
+    "w": 219,
+    "h": 24,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "פריקונומיקס: סמינר בכלכל",
+    "cls": "block text-start text-foreground line-clamp-2 py-0.5 transition-"
+   },
+   {
+    "w": 127,
+    "h": 24,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "סמינר בכלכלה ניסויית",
+    "cls": "block text-start text-foreground line-clamp-2 py-0.5 transition-"
+   },
+   {
+    "w": 128,
+    "h": 24,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "סמינר באי שוויון כלכלי",
+    "cls": "block text-start text-foreground line-clamp-2 py-0.5 transition-"
+   },
+   {
+    "w": 131,
+    "h": 24,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "סמינר בכלכלה עירונית",
+    "cls": "block text-start text-foreground line-clamp-2 py-0.5 transition-"
+   },
+   {
+    "w": 258,
+    "h": 24,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "סמינר בכלכלת חינוך, עבוד",
+    "cls": "block text-start text-foreground line-clamp-2 py-0.5 transition-"
+   },
+   {
+    "w": 175,
+    "h": 24,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "סמינר בתיאוריה מיקרו כלכ",
+    "cls": "block text-start text-foreground line-clamp-2 py-0.5 transition-"
+   },
+   {
+    "w": 275,
+    "h": 24,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "מאקרו כלכלה: פירמות, עוב",
+    "cls": "block text-start text-foreground line-clamp-2 py-0.5 transition-"
+   },
+   {
+    "w": 254,
+    "h": 24,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "סמינר בכלכלת אינפורמציה ",
+    "cls": "block text-start text-foreground line-clamp-2 py-0.5 transition-"
+   },
+   {
+    "w": 297,
+    "h": 24,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "סמינר במודלים של מידע בא",
+    "cls": "block text-start text-foreground line-clamp-2 py-0.5 transition-"
+   },
+   {
+    "w": 123,
+    "h": 24,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "תורת המוסר והמדינה",
+    "cls": "block text-start text-foreground line-clamp-2 py-0.5 transition-"
+   },
+   {
+    "w": 123,
+    "h": 24,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "תורת המוסר והמדינה",
+    "cls": "block text-start text-foreground line-clamp-2 py-0.5 transition-"
+   },
+   {
+    "w": 173,
+    "h": 24,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "מנהיגות ותהליכי דמוקרטיז",
+    "cls": "block text-start text-foreground line-clamp-2 py-0.5 transition-"
+   },
+   {
+    "w": 136,
+    "h": 24,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "לאומיות, זהות ופופוליזם",
+    "cls": "block text-start text-foreground line-clamp-2 py-0.5 transition-"
+   },
+   {
+    "w": 229,
+    "h": 24,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "סוגרים חשבון: בנקים, אזר",
+    "cls": "block text-start text-foreground line-clamp-2 py-0.5 transition-"
+   },
+   {
+    "w": 341,
+    "h": 24,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "יחסי ישראל-ארה״ב על רקע ",
+    "cls": "block text-start text-foreground line-clamp-2 py-0.5 transition-"
+   },
+   {
+    "w": 131,
+    "h": 24,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "Middle East Politics",
+    "cls": "block text-start text-foreground line-clamp-2 py-0.5 transition-"
+   },
+   {
+    "w": 315,
+    "h": 24,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "ביטחון אונתולוגי וישראל:",
+    "cls": "block text-start text-foreground line-clamp-2 py-0.5 transition-"
+   },
+   {
+    "w": 322,
+    "h": 24,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "דמוקרטיה ובינה מלאכותית:",
+    "cls": "block text-start text-foreground line-clamp-2 py-0.5 transition-"
+   },
+   {
+    "w": 301,
+    "h": 24,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "אתיקה ופוליטיקה של בינה ",
+    "cls": "block text-start text-foreground line-clamp-2 py-0.5 transition-"
+   },
+   {
+    "w": 139,
+    "h": 24,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "טכנולוגיה, חברה, מדינה",
+    "cls": "block text-start text-foreground line-clamp-2 py-0.5 transition-"
+   },
+   {
+    "w": 289,
+    "h": 24,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "Democracy, Autocracy and",
+    "cls": "block text-start text-foreground line-clamp-2 py-0.5 transition-"
+   },
+   {
+    "w": 131,
+    "h": 24,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "Middle East Politics",
+    "cls": "block text-start text-foreground line-clamp-2 py-0.5 transition-"
+   },
+   {
+    "w": 282,
+    "h": 24,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "States, State Building, ",
+    "cls": "block text-start text-foreground line-clamp-2 py-0.5 transition-"
+   },
+   {
+    "w": 289,
+    "h": 24,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "Democracy, Autocracy and",
+    "cls": "block text-start text-foreground line-clamp-2 py-0.5 transition-"
+   },
+   {
+    "w": 160,
+    "h": 24,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "יחסי צבא-מדינה דמוקרטיים",
+    "cls": "block text-start text-foreground line-clamp-2 py-0.5 transition-"
+   },
+   {
+    "w": 236,
+    "h": 24,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "מדוע סכסוכים מתחילים ואי",
+    "cls": "block text-start text-foreground line-clamp-2 py-0.5 transition-"
+   },
+   {
+    "w": 341,
+    "h": 24,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "יחסי ישראל-ארה״ב על רקע ",
+    "cls": "block text-start text-foreground line-clamp-2 py-0.5 transition-"
+   },
+   {
+    "w": 171,
+    "h": 24,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "כיצד להסביר את האנטישמיו",
+    "cls": "block text-start text-foreground line-clamp-2 py-0.5 transition-"
+   },
+   {
+    "w": 466,
+    "h": 24,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "סובייקטיביות בעידן הנאול",
+    "cls": "block text-start text-foreground line-clamp-2 py-0.5 transition-"
+   },
+   {
+    "w": 261,
+    "h": 24,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "תקשורת פוליטית ומנהיגות ",
+    "cls": "block text-start text-foreground line-clamp-2 py-0.5 transition-"
+   },
+   {
+    "w": 466,
+    "h": 24,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "סובייקטיביות בעידן הנאול",
+    "cls": "block text-start text-foreground line-clamp-2 py-0.5 transition-"
+   },
+   {
+    "w": 322,
+    "h": 24,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "דמוקרטיה ובינה מלאכותית:",
+    "cls": "block text-start text-foreground line-clamp-2 py-0.5 transition-"
+   },
+   {
+    "w": 194,
+    "h": 24,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "הזהות החוקתית של מדינת י",
+    "cls": "block text-start text-foreground line-clamp-2 py-0.5 transition-"
+   },
+   {
+    "w": 194,
+    "h": 24,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "הזהות החוקתית של מדינת י",
+    "cls": "block text-start text-foreground line-clamp-2 py-0.5 transition-"
+   },
+   {
+    "w": 209,
+    "h": 24,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "משפט ממשל ושינוי חברתי -",
+    "cls": "block text-start text-foreground line-clamp-2 py-0.5 transition-"
+   },
+   {
+    "w": 301,
+    "h": 24,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "Improving Governance Thr",
+    "cls": "block text-start text-foreground line-clamp-2 py-0.5 transition-"
+   },
+   {
+    "w": 194,
+    "h": 24,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "פוליטיקה ומשטר בישראל + ",
+    "cls": "block text-start text-foreground line-clamp-2 py-0.5 transition-"
+   },
+   {
+    "w": 163,
+    "h": 24,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "כתיבה ומחקר במדע המדינה",
+    "cls": "block text-start text-foreground line-clamp-2 py-0.5 transition-"
+   },
+   {
+    "w": 163,
+    "h": 24,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "פוליטיקה השוואתית + תרגי",
+    "cls": "block text-start text-foreground line-clamp-2 py-0.5 transition-"
+   },
+   {
+    "w": 166,
+    "h": 24,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "מנהל ציבורי ומדיניות ציב",
+    "cls": "block text-start text-foreground line-clamp-2 py-0.5 transition-"
+   },
+   {
+    "w": 195,
+    "h": 24,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "אסטרטגיה בעידן המודרני +",
+    "cls": "block text-start text-foreground line-clamp-2 py-0.5 transition-"
+   },
+   {
+    "w": 143,
+    "h": 24,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "מדיניות ומדינאות מעשית",
+    "cls": "block text-start text-foreground line-clamp-2 py-0.5 transition-"
+   },
+   {
+    "w": 135,
+    "h": 24,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "תיאוריות של אינטגרציה",
+    "cls": "block text-start text-foreground line-clamp-2 py-0.5 transition-"
+   },
+   {
+    "w": 86,
+    "h": 24,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "אירופה במשבר",
+    "cls": "block text-start text-foreground line-clamp-2 py-0.5 transition-"
+   },
+   {
+    "w": 140,
+    "h": 24,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "דילמות בלוחמה מודרנית",
+    "cls": "block text-start text-foreground line-clamp-2 py-0.5 transition-"
+   },
+   {
+    "w": 145,
+    "h": 24,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "לאומיות וסכסוכים אתניים",
+    "cls": "block text-start text-foreground line-clamp-2 py-0.5 transition-"
+   },
+   {
+    "w": 320,
+    "h": 24,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "הפוליטיקה של הכסף ושל מש",
+    "cls": "block text-start text-foreground line-clamp-2 py-0.5 transition-"
+   },
+   {
+    "w": 102,
+    "h": 24,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "טרור ומוסר ציבורי",
+    "cls": "block text-start text-foreground line-clamp-2 py-0.5 transition-"
+   },
+   {
+    "w": 181,
+    "h": 24,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "סוגיות בביטחון לאומי של ",
+    "cls": "block text-start text-foreground line-clamp-2 py-0.5 transition-"
+   },
+   {
+    "w": 389,
+    "h": 24,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "אסטרטגיית ההרתעה ביחב״ל:",
+    "cls": "block text-start text-foreground line-clamp-2 py-0.5 transition-"
+   },
+   {
+    "w": 261,
+    "h": 24,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "תקשורת פוליטית ומנהיגות ",
+    "cls": "block text-start text-foreground line-clamp-2 py-0.5 transition-"
+   },
+   {
+    "w": 148,
+    "h": 24,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "אתגרים חברתיים ומדיניות",
+    "cls": "block text-start text-foreground line-clamp-2 py-0.5 transition-"
+   },
+   {
+    "w": 304,
+    "h": 24,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "השאלה אודות הטכנולוגיה ב",
+    "cls": "block text-start text-foreground line-clamp-2 py-0.5 transition-"
+   },
+   {
+    "w": 150,
+    "h": 24,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "מבוא לפסיכולוגיה פוליטית",
+    "cls": "block text-start text-foreground line-clamp-2 py-0.5 transition-"
+   },
+   {
+    "w": 365,
+    "h": 24,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "מאימפריה למשטר צבאי: פרק",
+    "cls": "block text-start text-foreground line-clamp-2 py-0.5 transition-"
+   },
+   {
+    "w": 409,
+    "h": 24,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "Power and Prosperity: Th",
+    "cls": "block text-start text-foreground line-clamp-2 py-0.5 transition-"
+   },
+   {
+    "w": 107,
+    "h": 24,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "מומחים בפוליטיקה",
+    "cls": "block text-start text-foreground line-clamp-2 py-0.5 transition-"
+   },
+   {
+    "w": 301,
+    "h": 24,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "Improving Governance Thr",
+    "cls": "block text-start text-foreground line-clamp-2 py-0.5 transition-"
+   },
+   {
+    "w": 172,
+    "h": 24,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "תאוריות של התנהגות פוליט",
+    "cls": "block text-start text-foreground line-clamp-2 py-0.5 transition-"
+   },
+   {
+    "w": 215,
+    "h": 24,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "סוגיות מתקדמות בפוליטיקה",
+    "cls": "block text-start text-foreground line-clamp-2 py-0.5 transition-"
+   },
+   {
+    "w": 283,
+    "h": 24,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "בין שוק למדינה: שירותים ",
+    "cls": "block text-start text-foreground line-clamp-2 py-0.5 transition-"
+   },
+   {
+    "w": 191,
+    "h": 24,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "הרעיון של האוניברסיטה הל",
+    "cls": "block text-start text-foreground line-clamp-2 py-0.5 transition-"
+   },
+   {
+    "w": 187,
+    "h": 24,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "המערכת הבינלאומית בהתהוו",
+    "cls": "block text-start text-foreground line-clamp-2 py-0.5 transition-"
+   },
+   {
+    "w": 98,
+    "h": 24,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "תקשורת פוליטית",
+    "cls": "block text-start text-foreground line-clamp-2 py-0.5 transition-"
+   },
+   {
+    "w": 218,
+    "h": 24,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "סוגיות אקטואליות בפילוסו",
+    "cls": "block text-start text-foreground line-clamp-2 py-0.5 transition-"
+   },
+   {
+    "w": 199,
+    "h": 24,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "מושג הריבונות בפילוסופיה",
+    "cls": "block text-start text-foreground line-clamp-2 py-0.5 transition-"
+   },
+   {
+    "w": 336,
+    "h": 24,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "מנהיגות, דמוקרטיה ופוליט",
+    "cls": "block text-start text-foreground line-clamp-2 py-0.5 transition-"
+   },
+   {
+    "w": 233,
+    "h": 24,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "דמוקרטיות בנות זמננו: בי",
+    "cls": "block text-start text-foreground line-clamp-2 py-0.5 transition-"
+   },
+   {
+    "w": 49,
+    "h": 24,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "רטוריקה",
+    "cls": "block text-start text-foreground line-clamp-2 py-0.5 transition-"
+   },
+   {
+    "w": 243,
+    "h": 24,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "מדע, טכנולוגיה ורפואה בר",
+    "cls": "block text-start text-foreground line-clamp-2 py-0.5 transition-"
+   },
+   {
+    "w": 144,
+    "h": 24,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "התחדשות הסדר הגלובלי",
+    "cls": "block text-start text-foreground line-clamp-2 py-0.5 transition-"
+   },
+   {
+    "w": 82,
+    "h": 24,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "ריבוד ואי שוויון",
+    "cls": "block text-start text-foreground line-clamp-2 py-0.5 transition-"
+   },
+   {
+    "w": 296,
+    "h": 24,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "תיאוריות סוציולוגיות: מה",
+    "cls": "block text-start text-foreground line-clamp-2 py-0.5 transition-"
+   },
+   {
+    "w": 71,
+    "h": 24,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "מגדר וחברה",
+    "cls": "block text-start text-foreground line-clamp-2 py-0.5 transition-"
+   },
+   {
+    "w": 208,
+    "h": 24,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "שלטון מקומי ועירוניות - ",
+    "cls": "block text-start text-foreground line-clamp-2 py-0.5 transition-"
+   },
+   {
+    "w": 206,
+    "h": 24,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "מורה נבוכים למנהל הציבור",
+    "cls": "block text-start text-foreground line-clamp-2 py-0.5 transition-"
+   },
+   {
+    "w": 182,
+    "h": 24,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "מדיניות מקיימת בשלטון המ",
+    "cls": "block text-start text-foreground line-clamp-2 py-0.5 transition-"
+   },
+   {
+    "w": 192,
+    "h": 24,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "מבוא למדיניות תכנון ועיצ",
+    "cls": "block text-start text-foreground line-clamp-2 py-0.5 transition-"
+   },
+   {
+    "w": 189,
+    "h": 24,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "היבטים משפטיים של תכנון ",
+    "cls": "block text-start text-foreground line-clamp-2 py-0.5 transition-"
+   },
+   {
+    "w": 80,
+    "h": 24,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "כלכלת ישראל",
+    "cls": "block text-start text-foreground line-clamp-2 py-0.5 transition-"
+   },
+   {
+    "w": 282,
+    "h": 24,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "מימדים חברתיים של מהפכת ",
+    "cls": "block text-start text-foreground line-clamp-2 py-0.5 transition-"
+   },
+   {
+    "w": 82,
+    "h": 24,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "מדיניות הגירה",
+    "cls": "block text-start text-foreground line-clamp-2 py-0.5 transition-"
+   },
+   {
+    "w": 126,
+    "h": 24,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "יסודות המימון -תואר I",
+    "cls": "block text-start text-foreground line-clamp-2 py-0.5 transition-"
+   },
+   {
+    "w": 80,
+    "h": 24,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "יסודות השיווק",
+    "cls": "block text-start text-foreground line-clamp-2 py-0.5 transition-"
+   },
+   {
+    "w": 154,
+    "h": 24,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "תולדות המחשבה הכלכלית",
+    "cls": "block text-start text-foreground line-clamp-2 py-0.5 transition-"
+   },
+   {
+    "w": 180,
+    "h": 24,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "פרויקט Growth (משלב עשיי",
+    "cls": "block text-start text-foreground line-clamp-2 py-0.5 transition-"
+   },
+   {
+    "w": 249,
+    "h": 24,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "Derivatives, Risk and Fi",
+    "cls": "block text-start text-foreground line-clamp-2 py-0.5 transition-"
+   },
+   {
+    "w": 103,
+    "h": 24,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "מבוא למשפט רומי",
+    "cls": "block text-start text-foreground line-clamp-2 py-0.5 transition-"
+   },
+   {
+    "w": 201,
+    "h": 24,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "משפט ופילוסופיה בספרות ו",
+    "cls": "block text-start text-foreground line-clamp-2 py-0.5 transition-"
+   },
+   {
+    "w": 140,
+    "h": 24,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "צדק מעברי ומפנה חומרי",
+    "cls": "block text-start text-foreground line-clamp-2 py-0.5 transition-"
+   },
+   {
+    "w": 135,
+    "h": 24,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "משפט, עירוניות ותרבות",
+    "cls": "block text-start text-foreground line-clamp-2 py-0.5 transition-"
+   },
+   {
+    "w": 74,
+    "h": 24,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "משפט חוקתי",
+    "cls": "block text-start text-foreground line-clamp-2 py-0.5 transition-"
+   },
+   {
+    "w": 81,
+    "h": 24,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "משפט ישראלי",
+    "cls": "block text-start text-foreground line-clamp-2 py-0.5 transition-"
+   },
+   {
+    "w": 56,
+    "h": 24,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "דיני נזיקין",
+    "cls": "block text-start text-foreground line-clamp-2 py-0.5 transition-"
+   },
+   {
+    "w": 139,
+    "h": 24,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "פוליטיקה, כלכלה, חברה",
+    "cls": "block text-start text-foreground line-clamp-2 py-0.5 transition-"
+   },
+   {
+    "w": 91,
+    "h": 24,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "חקיקה ורגולציה",
+    "cls": "block text-start text-foreground line-clamp-2 py-0.5 transition-"
+   },
+   {
+    "w": 107,
+    "h": 24,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "מבוא למשפט עברי",
+    "cls": "block text-start text-foreground line-clamp-2 py-0.5 transition-"
+   },
+   {
+    "w": 60,
+    "h": 24,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "דיני עונשין",
+    "cls": "block text-start text-foreground line-clamp-2 py-0.5 transition-"
+   },
+   {
+    "w": 55,
+    "h": 24,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "פרוצדורה",
+    "cls": "block text-start text-foreground line-clamp-2 py-0.5 transition-"
+   },
+   {
+    "w": 98,
+    "h": 24,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "תיאוריה משפטית",
+    "cls": "block text-start text-foreground line-clamp-2 py-0.5 transition-"
+   },
+   {
+    "w": 147,
+    "h": 24,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "מבוא למשפט עברי מורחב",
+    "cls": "block text-start text-foreground line-clamp-2 py-0.5 transition-"
+   },
+   {
+    "w": 121,
+    "h": 24,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "מבוא למשפט מוסלמי",
+    "cls": "block text-start text-foreground line-clamp-2 py-0.5 transition-"
+   },
+   {
+    "w": 50,
+    "h": 24,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "דיני קניין",
+    "cls": "block text-start text-foreground line-clamp-2 py-0.5 transition-"
+   },
+   {
+    "w": 73,
+    "h": 24,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "דיני תאגידים",
+    "cls": "block text-start text-foreground line-clamp-2 py-0.5 transition-"
+   },
+   {
+    "w": 125,
+    "h": 24,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "משפט בינלאומי פומבי",
+    "cls": "block text-start text-foreground line-clamp-2 py-0.5 transition-"
+   },
+   {
+    "w": 75,
+    "h": 24,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "משפט מנהלי",
+    "cls": "block text-start text-foreground line-clamp-2 py-0.5 transition-"
+   },
+   {
+    "w": 61,
+    "h": 24,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "דיני עבודה",
+    "cls": "block text-start text-foreground line-clamp-2 py-0.5 transition-"
+   },
+   {
+    "w": 57,
+    "h": 24,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "דיני רווחה",
+    "cls": "block text-start text-foreground line-clamp-2 py-0.5 transition-"
+   },
+   {
+    "w": 100,
+    "h": 24,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "משפט ופילוסופיה",
+    "cls": "block text-start text-foreground line-clamp-2 py-0.5 transition-"
+   },
+   {
+    "w": 121,
+    "h": 24,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "משפט, חברה ותרבות",
+    "cls": "block text-start text-foreground line-clamp-2 py-0.5 transition-"
+   },
+   {
+    "w": 74,
+    "h": 24,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "מגדר ומשפט",
+    "cls": "block text-start text-foreground line-clamp-2 py-0.5 transition-"
+   },
+   {
+    "w": 98,
+    "h": 24,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "משפט והיסטוריה",
+    "cls": "block text-start text-foreground line-clamp-2 py-0.5 transition-"
+   },
+   {
+    "w": 89,
+    "h": 24,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "הגבלים עסקיים",
+    "cls": "block text-start text-foreground line-clamp-2 py-0.5 transition-"
+   },
+   {
+    "w": 266,
+    "h": 24,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "המקצוע המשפטי - תיאוריה,",
+    "cls": "block text-start text-foreground line-clamp-2 py-0.5 transition-"
+   },
+   {
+    "w": 129,
+    "h": 24,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "משפט השלטון המקומי",
+    "cls": "block text-start text-foreground line-clamp-2 py-0.5 transition-"
+   },
+   {
+    "w": 61,
+    "h": 24,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "דיני סביבה",
+    "cls": "block text-start text-foreground line-clamp-2 py-0.5 transition-"
+   },
+   {
+    "w": 70,
+    "h": 24,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "מימון חברות",
+    "cls": "block text-start text-foreground line-clamp-2 py-0.5 transition-"
+   },
+   {
+    "w": 227,
+    "h": 24,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "A Political History of t",
+    "cls": "block text-start text-foreground line-clamp-2 py-0.5 transition-"
+   },
+   {
+    "w": 389,
+    "h": 24,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "From Pythagoras to Googl",
+    "cls": "block text-start text-foreground line-clamp-2 py-0.5 transition-"
+   },
+   {
+    "w": 90,
+    "h": 24,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "Queer Theory",
+    "cls": "block text-start text-foreground line-clamp-2 py-0.5 transition-"
+   },
+   {
+    "w": 173,
+    "h": 24,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "What are the Humanities?",
+    "cls": "block text-start text-foreground line-clamp-2 py-0.5 transition-"
+   },
+   {
+    "w": 374,
+    "h": 24,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "Sustainable Growth Strat",
+    "cls": "block text-start text-foreground line-clamp-2 py-0.5 transition-"
+   },
+   {
+    "w": 457,
+    "h": 24,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "Digital Capitalism: From",
+    "cls": "block text-start text-foreground line-clamp-2 py-0.5 transition-"
+   },
+   {
+    "w": 241,
+    "h": 24,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "Modernity: Origin, Visio",
+    "cls": "block text-start text-foreground line-clamp-2 py-0.5 transition-"
+   },
+   {
+    "w": 473,
+    "h": 24,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "Listening to God: the Co",
+    "cls": "block text-start text-foreground line-clamp-2 py-0.5 transition-"
+   },
+   {
+    "w": 432,
+    "h": 24,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "Jewish and Islamic Philo",
+    "cls": "block text-start text-foreground line-clamp-2 py-0.5 transition-"
+   },
+   {
+    "w": 268,
+    "h": 24,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "Introduction to Modern J",
+    "cls": "block text-start text-foreground line-clamp-2 py-0.5 transition-"
+   },
+   {
+    "w": 222,
+    "h": 24,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "Introduction to Greek Ph",
+    "cls": "block text-start text-foreground line-clamp-2 py-0.5 transition-"
+   },
+   {
+    "w": 461,
+    "h": 24,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "Nationalism, Memory and ",
+    "cls": "block text-start text-foreground line-clamp-2 py-0.5 transition-"
+   },
+   {
+    "w": 120,
+    "h": 24,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "אשנב למדעי המחשב",
+    "cls": "block text-start text-foreground line-clamp-2 py-0.5 transition-"
+   },
+   {
+    "w": 222,
+    "h": 24,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "משבר האקלים וקיימות: מבט",
+    "cls": "block text-start text-foreground line-clamp-2 py-0.5 transition-"
+   },
+   {
+    "w": 216,
+    "h": 24,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "צעדים ראשונים במדעי המחש",
+    "cls": "block text-start text-foreground line-clamp-2 py-0.5 transition-"
+   },
+   {
+    "w": 304,
+    "h": 24,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "פוליטיקה אנושית: מוות, ח",
+    "cls": "block text-start text-foreground line-clamp-2 py-0.5 transition-"
+   },
+   {
+    "w": 128,
+    "h": 24,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "מבוא למדעי הנתונים 1",
+    "cls": "block text-start text-foreground line-clamp-2 py-0.5 transition-"
+   },
+   {
+    "w": 130,
+    "h": 24,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "מבוא למדעי הנתונים 2",
+    "cls": "block text-start text-foreground line-clamp-2 py-0.5 transition-"
+   },
+   {
+    "w": 185,
+    "h": 24,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "שיעור קריאה או יסוד בפיל",
+    "cls": "block text-start text-foreground line-clamp-2 py-0.5 transition-"
+   }
+  ],
+  "size": [
+   {
+    "text": "שאלו את המלך על זה",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-1 inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 tex"
+   },
+   {
+    "text": "שאלו את המלך על זה",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-1 inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 tex"
+   },
+   {
+    "text": "שאלו את המלך על זה",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-1 inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 tex"
+   },
+   {
+    "text": "שאלו את המלך על זה",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-1 inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 tex"
+   },
+   {
+    "text": "שאלו את המלך על זה",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-1 inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 tex"
+   },
+   {
+    "text": "שאלו את המלך על זה",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-1 inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 tex"
+   },
+   {
+    "text": "שאלו את המלך על זה",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-1 inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 tex"
+   },
+   {
+    "text": "שאלו את המלך על זה",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-1 inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 tex"
+   },
+   {
+    "text": "שאלו את המלך על זה",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-1 inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 tex"
+   },
+   {
+    "text": "שאלו את המלך על זה",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-1 inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 tex"
+   },
+   {
+    "text": "שאלו את המלך על זה",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-1 inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 tex"
+   },
+   {
+    "text": "שאלו את המלך על זה",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-1 inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 tex"
+   },
+   {
+    "text": "שאלו את המלך על זה",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-1 inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 tex"
+   },
+   {
+    "text": "שאלו את המלך על זה",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-1 inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 tex"
+   },
+   {
+    "text": "שאלו את המלך על זה",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-1 inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 tex"
+   },
+   {
+    "text": "שאלו את המלך על זה",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-1 inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 tex"
+   },
+   {
+    "text": "שאלו את המלך על זה",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-1 inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 tex"
+   },
+   {
+    "text": "שאלו את המלך על זה",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-1 inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 tex"
+   },
+   {
+    "text": "שאלו את המלך על זה",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-1 inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 tex"
+   },
+   {
+    "text": "שאלו את המלך על זה",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-1 inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 tex"
+   },
+   {
+    "text": "שאלו את המלך על זה",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-1 inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 tex"
+   },
+   {
+    "text": "שאלו את המלך על זה",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-1 inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 tex"
+   },
+   {
+    "text": "שאלו את המלך על זה",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-1 inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 tex"
+   },
+   {
+    "text": "שאלו את המלך על זה",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-1 inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 tex"
+   },
+   {
+    "text": "שאלו את המלך על זה",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-1 inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 tex"
+   },
+   {
+    "text": "שאלו את המלך על זה",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-1 inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 tex"
+   },
+   {
+    "text": "שאלו את המלך על זה",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-1 inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 tex"
+   },
+   {
+    "text": "שאלו את המלך על זה",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-1 inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 tex"
+   },
+   {
+    "text": "שאלו את המלך על זה",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-1 inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 tex"
+   },
+   {
+    "text": "שאלו את המלך על זה",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-1 inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 tex"
+   },
+   {
+    "text": "שאלו את המלך על זה",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-1 inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 tex"
+   },
+   {
+    "text": "שאלו את המלך על זה",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-1 inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 tex"
+   },
+   {
+    "text": "שאלו את המלך על זה",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-1 inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 tex"
+   },
+   {
+    "text": "שאלו את המלך על זה",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-1 inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 tex"
+   },
+   {
+    "text": "שאלו את המלך על זה",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-1 inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 tex"
+   },
+   {
+    "text": "שאלו את המלך על זה",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-1 inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 tex"
+   },
+   {
+    "text": "שאלו את המלך על זה",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-1 inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 tex"
+   },
+   {
+    "text": "שאלו את המלך על זה",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-1 inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 tex"
+   },
+   {
+    "text": "שאלו את המלך על זה",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-1 inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 tex"
+   },
+   {
+    "text": "שאלו את המלך על זה",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-1 inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 tex"
+   },
+   {
+    "text": "שאלו את המלך על זה",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-1 inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 tex"
+   },
+   {
+    "text": "שאלו את המלך על זה",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-1 inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 tex"
+   },
+   {
+    "text": "שאלו את המלך על זה",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-1 inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 tex"
+   },
+   {
+    "text": "שאלו את המלך על זה",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-1 inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 tex"
+   },
+   {
+    "text": "שאלו את המלך על זה",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-1 inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 tex"
+   },
+   {
+    "text": "שאלו את המלך על זה",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-1 inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 tex"
+   },
+   {
+    "text": "שאלו את המלך על זה",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-1 inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 tex"
+   },
+   {
+    "text": "שאלו את המלך על זה",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-1 inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 tex"
+   },
+   {
+    "text": "שאלו את המלך על זה",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-1 inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 tex"
+   },
+   {
+    "text": "שאלו את המלך על זה",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-1 inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 tex"
+   },
+   {
+    "text": "שאלו את המלך על זה",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-1 inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 tex"
+   },
+   {
+    "text": "שאלו את המלך על זה",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-1 inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 tex"
+   },
+   {
+    "text": "שאלו את המלך על זה",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-1 inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 tex"
+   },
+   {
+    "text": "שאלו את המלך על זה",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-1 inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 tex"
+   },
+   {
+    "text": "שאלו את המלך על זה",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-1 inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 tex"
+   },
+   {
+    "text": "שאלו את המלך על זה",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-1 inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 tex"
+   },
+   {
+    "text": "שאלו את המלך על זה",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-1 inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 tex"
+   },
+   {
+    "text": "שאלו את המלך על זה",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-1 inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 tex"
+   },
+   {
+    "text": "שאלו את המלך על זה",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-1 inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 tex"
+   },
+   {
+    "text": "שאלו את המלך על זה",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-1 inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 tex"
+   },
+   {
+    "text": "שאלו את המלך על זה",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-1 inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 tex"
+   },
+   {
+    "text": "שאלו את המלך על זה",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-1 inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 tex"
+   },
+   {
+    "text": "שאלו את המלך על זה",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-1 inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 tex"
+   },
+   {
+    "text": "שאלו את המלך על זה",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-1 inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 tex"
+   },
+   {
+    "text": "שאלו את המלך על זה",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-1 inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 tex"
+   },
+   {
+    "text": "שאלו את המלך על זה",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-1 inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 tex"
+   },
+   {
+    "text": "שאלו את המלך על זה",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-1 inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 tex"
+   },
+   {
+    "text": "שאלו את המלך על זה",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-1 inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 tex"
+   },
+   {
+    "text": "שאלו את המלך על זה",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-1 inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 tex"
+   },
+   {
+    "text": "שאלו את המלך על זה",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-1 inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 tex"
+   },
+   {
+    "text": "שאלו את המלך על זה",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-1 inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 tex"
+   },
+   {
+    "text": "שאלו את המלך על זה",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-1 inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 tex"
+   },
+   {
+    "text": "שאלו את המלך על זה",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-1 inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 tex"
+   },
+   {
+    "text": "שאלו את המלך על זה",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-1 inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 tex"
+   },
+   {
+    "text": "שאלו את המלך על זה",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-1 inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 tex"
+   },
+   {
+    "text": "שאלו את המלך על זה",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-1 inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 tex"
+   },
+   {
+    "text": "שאלו את המלך על זה",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-1 inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 tex"
+   },
+   {
+    "text": "שאלו את המלך על זה",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-1 inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 tex"
+   },
+   {
+    "text": "שאלו את המלך על זה",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-1 inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 tex"
+   },
+   {
+    "text": "שאלו את המלך על זה",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-1 inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 tex"
+   },
+   {
+    "text": "שאלו את המלך על זה",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-1 inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 tex"
+   },
+   {
+    "text": "שאלו את המלך על זה",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-1 inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 tex"
+   },
+   {
+    "text": "שאלו את המלך על זה",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-1 inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 tex"
+   },
+   {
+    "text": "שאלו את המלך על זה",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-1 inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 tex"
+   },
+   {
+    "text": "שאלו את המלך על זה",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-1 inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 tex"
+   },
+   {
+    "text": "שאלו את המלך על זה",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-1 inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 tex"
+   },
+   {
+    "text": "שאלו את המלך על זה",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-1 inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 tex"
+   },
+   {
+    "text": "שאלו את המלך על זה",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-1 inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 tex"
+   },
+   {
+    "text": "שאלו את המלך על זה",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-1 inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 tex"
+   },
+   {
+    "text": "שאלו את המלך על זה",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-1 inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 tex"
+   },
+   {
+    "text": "שאלו את המלך על זה",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-1 inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 tex"
+   },
+   {
+    "text": "שאלו את המלך על זה",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-1 inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 tex"
+   },
+   {
+    "text": "שאלו את המלך על זה",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-1 inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 tex"
+   },
+   {
+    "text": "שאלו את המלך על זה",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-1 inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 tex"
+   },
+   {
+    "text": "שאלו את המלך על זה",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-1 inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 tex"
+   },
+   {
+    "text": "שאלו את המלך על זה",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-1 inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 tex"
+   },
+   {
+    "text": "שאלו את המלך על זה",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-1 inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 tex"
+   },
+   {
+    "text": "שאלו את המלך על זה",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-1 inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 tex"
+   },
+   {
+    "text": "שאלו את המלך על זה",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-1 inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 tex"
+   },
+   {
+    "text": "שאלו את המלך על זה",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-1 inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 tex"
+   },
+   {
+    "text": "שאלו את המלך על זה",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-1 inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 tex"
+   },
+   {
+    "text": "שאלו את המלך על זה",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-1 inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 tex"
+   },
+   {
+    "text": "שאלו את המלך על זה",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-1 inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 tex"
+   },
+   {
+    "text": "שאלו את המלך על זה",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-1 inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 tex"
+   },
+   {
+    "text": "שאלו את המלך על זה",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-1 inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 tex"
+   },
+   {
+    "text": "שאלו את המלך על זה",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-1 inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 tex"
+   },
+   {
+    "text": "שאלו את המלך על זה",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-1 inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 tex"
+   },
+   {
+    "text": "שאלו את המלך על זה",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-1 inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 tex"
+   },
+   {
+    "text": "שאלו את המלך על זה",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-1 inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 tex"
+   },
+   {
+    "text": "שאלו את המלך על זה",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-1 inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 tex"
+   },
+   {
+    "text": "שאלו את המלך על זה",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-1 inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 tex"
+   },
+   {
+    "text": "שאלו את המלך על זה",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-1 inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 tex"
+   },
+   {
+    "text": "שאלו את המלך על זה",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-1 inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 tex"
+   },
+   {
+    "text": "שאלו את המלך על זה",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-1 inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 tex"
+   },
+   {
+    "text": "שאלו את המלך על זה",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-1 inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 tex"
+   },
+   {
+    "text": "שאלו את המלך על זה",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-1 inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 tex"
+   },
+   {
+    "text": "שאלו את המלך על זה",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-1 inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 tex"
+   },
+   {
+    "text": "שאלו את המלך על זה",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-1 inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 tex"
+   },
+   {
+    "text": "שאלו את המלך על זה",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-1 inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 tex"
+   },
+   {
+    "text": "שאלו את המלך על זה",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-1 inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 tex"
+   },
+   {
+    "text": "שאלו את המלך על זה",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-1 inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 tex"
+   },
+   {
+    "text": "שאלו את המלך על זה",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-1 inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 tex"
+   },
+   {
+    "text": "שאלו את המלך על זה",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-1 inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 tex"
+   },
+   {
+    "text": "שאלו את המלך על זה",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-1 inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 tex"
+   },
+   {
+    "text": "שאלו את המלך על זה",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-1 inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 tex"
+   },
+   {
+    "text": "שאלו את המלך על זה",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-1 inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 tex"
+   },
+   {
+    "text": "שאלו את המלך על זה",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-1 inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 tex"
+   },
+   {
+    "text": "שאלו את המלך על זה",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-1 inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 tex"
+   },
+   {
+    "text": "שאלו את המלך על זה",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-1 inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 tex"
+   },
+   {
+    "text": "שאלו את המלך על זה",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-1 inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 tex"
+   },
+   {
+    "text": "שאלו את המלך על זה",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-1 inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 tex"
+   },
+   {
+    "text": "שאלו את המלך על זה",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-1 inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 tex"
+   },
+   {
+    "text": "שאלו את המלך על זה",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-1 inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 tex"
+   },
+   {
+    "text": "שאלו את המלך על זה",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-1 inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 tex"
+   },
+   {
+    "text": "שאלו את המלך על זה",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-1 inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 tex"
+   },
+   {
+    "text": "שאלו את המלך על זה",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-1 inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 tex"
+   },
+   {
+    "text": "שאלו את המלך על זה",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-1 inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 tex"
+   },
+   {
+    "text": "שאלו את המלך על זה",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-1 inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 tex"
+   },
+   {
+    "text": "שאלו את המלך על זה",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-1 inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 tex"
+   },
+   {
+    "text": "שאלו את המלך על זה",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-1 inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 tex"
+   },
+   {
+    "text": "שאלו את המלך על זה",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-1 inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 tex"
+   },
+   {
+    "text": "שאלו את המלך על זה",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-1 inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 tex"
+   },
+   {
+    "text": "שאלו את המלך על זה",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-1 inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 tex"
+   },
+   {
+    "text": "שאלו את המלך על זה",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-1 inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 tex"
+   },
+   {
+    "text": "שאלו את המלך על זה",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-1 inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 tex"
+   },
+   {
+    "text": "שאלו את המלך על זה",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-1 inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 tex"
+   },
+   {
+    "text": "שאלו את המלך על זה",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-1 inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 tex"
+   },
+   {
+    "text": "שאלו את המלך על זה",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-1 inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 tex"
+   },
+   {
+    "text": "שאלו את המלך על זה",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-1 inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 tex"
+   },
+   {
+    "text": "שאלו את המלך על זה",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-1 inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 tex"
+   },
+   {
+    "text": "שאלו את המלך על זה",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-1 inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 tex"
+   },
+   {
+    "text": "שאלו את המלך על זה",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-1 inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 tex"
+   },
+   {
+    "text": "שאלו את המלך על זה",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-1 inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 tex"
+   },
+   {
+    "text": "שאלו את המלך על זה",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-1 inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 tex"
+   },
+   {
+    "text": "שאלו את המלך על זה",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-1 inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 tex"
+   },
+   {
+    "text": "שאלו את המלך על זה",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-1 inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 tex"
+   },
+   {
+    "text": "שאלו את המלך על זה",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-1 inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 tex"
+   },
+   {
+    "text": "שאלו את המלך על זה",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-1 inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 tex"
+   },
+   {
+    "text": "שאלו את המלך על זה",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-1 inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 tex"
+   },
+   {
+    "text": "שאלו את המלך על זה",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-1 inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 tex"
+   },
+   {
+    "text": "שאלו את המלך על זה",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-1 inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 tex"
+   },
+   {
+    "text": "שאלו את המלך על זה",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-1 inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 tex"
+   },
+   {
+    "text": "שאלו את המלך על זה",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-1 inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 tex"
+   },
+   {
+    "text": "שאלו את המלך על זה",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-1 inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 tex"
+   },
+   {
+    "text": "שאלו את המלך על זה",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-1 inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 tex"
+   },
+   {
+    "text": "שאלו את המלך על זה",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-1 inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 tex"
+   },
+   {
+    "text": "שאלו את המלך על זה",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-1 inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 tex"
+   },
+   {
+    "text": "שאלו את המלך על זה",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-1 inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 tex"
+   },
+   {
+    "text": "שאלו את המלך על זה",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-1 inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 tex"
+   },
+   {
+    "text": "שאלו את המלך על זה",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-1 inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 tex"
+   },
+   {
+    "text": "שאלו את המלך על זה",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-1 inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 tex"
+   },
+   {
+    "text": "שאלו את המלך על זה",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-1 inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 tex"
+   },
+   {
+    "text": "שאלו את המלך על זה",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-1 inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 tex"
+   },
+   {
+    "text": "שאלו את המלך על זה",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-1 inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 tex"
+   },
+   {
+    "text": "שאלו את המלך על זה",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-1 inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 tex"
+   },
+   {
+    "text": "שאלו את המלך על זה",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-1 inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 tex"
+   },
+   {
+    "text": "שאלו את המלך על זה",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-1 inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 tex"
+   },
+   {
+    "text": "שאלו את המלך על זה",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-1 inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 tex"
+   },
+   {
+    "text": "שאלו את המלך על זה",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-1 inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 tex"
+   },
+   {
+    "text": "שאלו את המלך על זה",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-1 inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 tex"
+   },
+   {
+    "text": "שאלו את המלך על זה",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-1 inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 tex"
+   },
+   {
+    "text": "שאלו את המלך על זה",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-1 inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 tex"
+   },
+   {
+    "text": "שאלו את המלך על זה",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-1 inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 tex"
+   },
+   {
+    "text": "שאלו את המלך על זה",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-1 inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 tex"
+   },
+   {
+    "text": "שאלו את המלך על זה",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-1 inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 tex"
+   },
+   {
+    "text": "שאלו את המלך על זה",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-1 inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 tex"
+   },
+   {
+    "text": "שאלו את המלך על זה",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-1 inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 tex"
+   },
+   {
+    "text": "שאלו את המלך על זה",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-1 inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 tex"
+   },
+   {
+    "text": "שאלו את המלך על זה",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-1 inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 tex"
+   },
+   {
+    "text": "שאלו את המלך על זה",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-1 inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 tex"
+   },
+   {
+    "text": "שאלו את המלך על זה",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-1 inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 tex"
+   },
+   {
+    "text": "שאלו את המלך על זה",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-1 inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 tex"
+   },
+   {
+    "text": "שאלו את המלך על זה",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-1 inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 tex"
+   },
+   {
+    "text": "שאלו את המלך על זה",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-1 inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 tex"
+   },
+   {
+    "text": "שאלו את המלך על זה",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-1 inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 tex"
+   },
+   {
+    "text": "שאלו את המלך על זה",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-1 inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 tex"
+   },
+   {
+    "text": "שאלו את המלך על זה",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-1 inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 tex"
+   },
+   {
+    "text": "שאלו את המלך על זה",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-1 inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 tex"
+   },
+   {
+    "text": "שאלו את המלך על זה",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-1 inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 tex"
+   },
+   {
+    "text": "שאלו את המלך על זה",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-1 inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 tex"
+   },
+   {
+    "text": "שאלו את המלך על זה",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-1 inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 tex"
+   },
+   {
+    "text": "שאלו את המלך על זה",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-1 inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 tex"
+   },
+   {
+    "text": "שאלו את המלך על זה",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-1 inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 tex"
+   },
+   {
+    "text": "שאלו את המלך על זה",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-1 inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 tex"
+   },
+   {
+    "text": "שאלו את המלך על זה",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-1 inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 tex"
+   },
+   {
+    "text": "שאלו את המלך על זה",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-1 inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 tex"
+   },
+   {
+    "text": "שאלו את המלך על זה",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-1 inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 tex"
+   },
+   {
+    "text": "שאלו את המלך על זה",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-1 inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 tex"
+   },
+   {
+    "text": "שאלו את המלך על זה",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-1 inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 tex"
+   },
+   {
+    "text": "שאלו את המלך על זה",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-1 inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 tex"
+   },
+   {
+    "text": "שאלו את המלך על זה",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-1 inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 tex"
+   },
+   {
+    "text": "שאלו את המלך על זה",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-1 inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 tex"
+   },
+   {
+    "text": "שאלו את המלך על זה",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-1 inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 tex"
+   },
+   {
+    "text": "שאלו את המלך על זה",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-1 inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 tex"
+   },
+   {
+    "text": "שאלו את המלך על זה",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-1 inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 tex"
+   },
+   {
+    "text": "שאלו את המלך על זה",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-1 inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 tex"
+   },
+   {
+    "text": "שאלו את המלך על זה",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-1 inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 tex"
+   },
+   {
+    "text": "שאלו את המלך על זה",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-1 inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 tex"
+   },
+   {
+    "text": "שאלו את המלך על זה",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-1 inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 tex"
+   },
+   {
+    "text": "שאלו את המלך על זה",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-1 inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 tex"
+   },
+   {
+    "text": "שאלו את המלך על זה",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-1 inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 tex"
+   },
+   {
+    "text": "שאלו את המלך על זה",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-1 inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 tex"
+   },
+   {
+    "text": "שאלו את המלך על זה",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-1 inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 tex"
+   },
+   {
+    "text": "שאלו את המלך על זה",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-1 inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 tex"
+   },
+   {
+    "text": "שאלו את המלך על זה",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-1 inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 tex"
+   },
+   {
+    "text": "שאלו את המלך על זה",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-1 inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 tex"
+   },
+   {
+    "text": "שאלו את המלך על זה",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-1 inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 tex"
+   },
+   {
+    "text": "שאלו את המלך על זה",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-1 inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 tex"
+   },
+   {
+    "text": "שאלו את המלך על זה",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-1 inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 tex"
+   },
+   {
+    "text": "שאלו את המלך על זה",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-1 inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 tex"
+   },
+   {
+    "text": "שאלו את המלך על זה",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-1 inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 tex"
+   },
+   {
+    "text": "שאלו את המלך על זה",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-1 inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 tex"
+   },
+   {
+    "text": "שאלו את המלך על זה",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-1 inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 tex"
+   },
+   {
+    "text": "שאלו את המלך על זה",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-1 inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 tex"
+   },
+   {
+    "text": "שאלו את המלך על זה",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-1 inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 tex"
+   },
+   {
+    "text": "שאלו את המלך על זה",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-1 inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 tex"
+   },
+   {
+    "text": "שאלו את המלך על זה",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-1 inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 tex"
+   },
+   {
+    "text": "שאלו את המלך על זה",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-1 inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 tex"
+   },
+   {
+    "text": "שאלו את המלך על זה",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-1 inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 tex"
+   },
+   {
+    "text": "שאלו את המלך על זה",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-1 inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 tex"
+   },
+   {
+    "text": "שאלו את המלך על זה",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-1 inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 tex"
+   },
+   {
+    "text": "שאלו את המלך על זה",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-1 inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 tex"
+   },
+   {
+    "text": "שאלו את המלך על זה",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-1 inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 tex"
+   },
+   {
+    "text": "שאלו את המלך על זה",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-1 inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 tex"
+   },
+   {
+    "text": "שאלו את המלך על זה",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-1 inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 tex"
+   },
+   {
+    "text": "שאלו את המלך על זה",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-1 inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 tex"
+   },
+   {
+    "text": "שאלו את המלך על זה",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-1 inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 tex"
+   },
+   {
+    "text": "שאלו את המלך על זה",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-1 inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 tex"
+   },
+   {
+    "text": "שאלו את המלך על זה",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-1 inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 tex"
+   },
+   {
+    "text": "שאלו את המלך על זה",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-1 inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 tex"
+   },
+   {
+    "text": "שאלו את המלך על זה",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-1 inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 tex"
+   },
+   {
+    "text": "שאלו את המלך על זה",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-1 inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 tex"
+   },
+   {
+    "text": "שאלו את המלך על זה",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-1 inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 tex"
+   },
+   {
+    "text": "שאלו את המלך על זה",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-1 inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 tex"
+   },
+   {
+    "text": "שאלו את המלך על זה",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-1 inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 tex"
+   },
+   {
+    "text": "שאלו את המלך על זה",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-1 inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 tex"
+   },
+   {
+    "text": "שאלו את המלך על זה",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-1 inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 tex"
+   },
+   {
+    "text": "שאלו את המלך על זה",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-1 inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 tex"
+   },
+   {
+    "text": "שאלו את המלך על זה",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-1 inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 tex"
+   },
+   {
+    "text": "שאלו את המלך על זה",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-1 inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 tex"
+   },
+   {
+    "text": "שאלו את המלך על זה",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-1 inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 tex"
+   },
+   {
+    "text": "שאלו את המלך על זה",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-1 inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 tex"
+   },
+   {
+    "text": "שאלו את המלך על זה",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-1 inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 tex"
+   },
+   {
+    "text": "שאלו את המלך על זה",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-1 inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 tex"
+   },
+   {
+    "text": "שאלו את המלך על זה",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-1 inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 tex"
+   },
+   {
+    "text": "שאלו את המלך על זה",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-1 inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 tex"
+   },
+   {
+    "text": "שאלו את המלך על זה",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-1 inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 tex"
+   },
+   {
+    "text": "שאלו את המלך על זה",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-1 inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 tex"
+   },
+   {
+    "text": "שאלו את המלך על זה",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-1 inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 tex"
+   },
+   {
+    "text": "שאלו את המלך על זה",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-1 inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 tex"
+   },
+   {
+    "text": "שאלו את המלך על זה",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-1 inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 tex"
+   },
+   {
+    "text": "שאלו את המלך על זה",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-1 inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 tex"
+   },
+   {
+    "text": "שאלו את המלך על זה",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-1 inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 tex"
+   },
+   {
+    "text": "שאלו את המלך על זה",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-1 inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 tex"
+   },
+   {
+    "text": "שאלו את המלך על זה",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-1 inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 tex"
+   },
+   {
+    "text": "שאלו את המלך על זה",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-1 inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 tex"
+   },
+   {
+    "text": "שאלו את המלך על זה",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-1 inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 tex"
+   },
+   {
+    "text": "שאלו את המלך על זה",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-1 inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 tex"
+   },
+   {
+    "text": "שאלו את המלך על זה",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-1 inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 tex"
+   },
+   {
+    "text": "שאלו את המלך על זה",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-1 inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 tex"
+   },
+   {
+    "text": "שאלו את המלך על זה",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-1 inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 tex"
+   },
+   {
+    "text": "שאלו את המלך על זה",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-1 inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 tex"
+   },
+   {
+    "text": "שאלו את המלך על זה",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-1 inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 tex"
+   },
+   {
+    "text": "שאלו את המלך על זה",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-1 inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 tex"
+   },
+   {
+    "text": "שאלו את המלך על זה",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-1 inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 tex"
+   },
+   {
+    "text": "שאלו את המלך על זה",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-1 inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 tex"
+   },
+   {
+    "text": "שאלו את המלך על זה",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-1 inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 tex"
+   },
+   {
+    "text": "שאלו את המלך על זה",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-1 inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 tex"
+   },
+   {
+    "text": "שאלו את המלך על זה",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-1 inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 tex"
+   },
+   {
+    "text": "שאלו את המלך על זה",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-1 inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 tex"
+   },
+   {
+    "text": "שאלו את המלך על זה",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-1 inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 tex"
+   },
+   {
+    "text": "שאלו את המלך על זה",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-1 inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 tex"
+   },
+   {
+    "text": "שאלו את המלך על זה",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-1 inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 tex"
+   },
+   {
+    "text": "שאלו את המלך על זה",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-1 inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 tex"
+   },
+   {
+    "text": "שאלו את המלך על זה",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-1 inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 tex"
+   },
+   {
+    "text": "שאלו את המלך על זה",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-1 inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 tex"
+   },
+   {
+    "text": "שאלו את המלך על זה",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-1 inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 tex"
+   },
+   {
+    "text": "שאלו את המלך על זה",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-1 inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 tex"
+   },
+   {
+    "text": "שאלו את המלך על זה",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-1 inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 tex"
+   },
+   {
+    "text": "שאלו את המלך על זה",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-1 inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 tex"
+   },
+   {
+    "text": "שאלו את המלך על זה",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-1 inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 tex"
+   },
+   {
+    "text": "שאלו את המלך על זה",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-1 inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 tex"
+   },
+   {
+    "text": "שאלו את המלך על זה",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-1 inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 tex"
+   },
+   {
+    "text": "שאלו את המלך על זה",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-1 inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 tex"
+   }
+  ],
+  "focus": [],
+  "label": [],
+  "counts": {
+   "text": 1543,
+   "interactive": 626
+  },
+  "overflow": null
+ },
+ {
+  "page": "ציון גמר",
+  "contrast": [],
+  "graphic": [
+   {
+    "ratio": 1.91,
+    "cls": "size-5 shrink-0 text-crown-gold-bright",
+    "label": "פתחו את המלך הפילוסוף"
+   }
+  ],
+  "touch": [
+   {
+    "w": 32,
+    "h": 32,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "",
+    "cls": "rounded-lg p-2 text-muted-foreground transition-colors hover:bg-"
+   },
+   {
+    "w": 32,
+    "h": 32,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "",
+    "cls": "rounded-lg p-2 text-muted-foreground transition-colors hover:bg-"
+   },
+   {
+    "w": 114,
+    "h": 30,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "תואר שני בכלכלה",
+    "cls": "rounded-full border border-border px-3 py-1.5 text-xs font-mediu"
+   },
+   {
+    "w": 68,
+    "h": 30,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "משפטים",
+    "cls": "rounded-full border border-border px-3 py-1.5 text-xs font-mediu"
+   },
+   {
+    "w": 103,
+    "h": 30,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "מדיניות ציבורית",
+    "cls": "rounded-full border border-border px-3 py-1.5 text-xs font-mediu"
+   },
+   {
+    "w": 96,
+    "h": 30,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "לימודים בחו״ל",
+    "cls": "rounded-full border border-border px-3 py-1.5 text-xs font-mediu"
+   },
+   {
+    "w": 168,
+    "h": 30,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "מגזר ציבורי / משרדי ממשל",
+    "cls": "rounded-full border border-border px-3 py-1.5 text-xs font-mediu"
+   },
+   {
+    "w": 103,
+    "h": 30,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "עוד לא החלטתי",
+    "cls": "rounded-full border border-border px-3 py-1.5 text-xs font-mediu"
+   },
+   {
+    "w": 327,
+    "h": 38,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "מה יקרה לממוצע אם…",
+    "cls": "inline-flex items-center gap-2 rounded-lg border border-border p"
+   },
+   {
+    "w": 32,
+    "h": 32,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "",
+    "cls": "flex size-8 shrink-0 items-center justify-center rounded-lg bord"
+   },
+   {
+    "w": 80,
+    "h": 36,
+    "min": 44,
+    "tag": "INPUT",
+    "text": "",
+    "cls": "h-9 w-20 rounded-lg border border-foreground/15 bg-background te"
+   },
+   {
+    "w": 32,
+    "h": 32,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "",
+    "cls": "flex size-8 shrink-0 items-center justify-center rounded-lg bord"
+   }
+  ],
+  "size": [
+   {
+    "text": "מועד ב׳ · יום חמישי, 09:00 ·",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": ""
+   },
+   {
+    "text": "מועד ב׳ · יום ראשון, 09:00 ·",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": ""
+   },
+   {
+    "text": "מועד ב׳ · יום שלישי, 09:00 ·",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": ""
+   },
+   {
+    "text": "מועד ב׳ · יום שישי, 08:30 ·",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": ""
+   },
+   {
+    "text": "לפני שמחליטים משהו — לראות כמה ציון אחד ",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-0.5 block text-[11px] leading-relaxed text-foreground/60"
+   },
+   {
+    "text": "כשיש עוד מועד לקורס הזה, והשאלה היא אם ש",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-0.5 block text-[11px] leading-relaxed text-foreground/60"
+   },
+   {
+    "text": "עבודות סמינריוניות (18%) ורפרט (4%) — המ",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "text-[11px] leading-relaxed text-foreground/70"
+   },
+   {
+    "text": "הערכה, לא רף",
+    "px": 10,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "rounded-full bg-foreground/8 px-2 py-0.5 text-[10px] text-foregr"
+   }
+  ],
+  "focus": [],
+  "label": [],
+  "counts": {
+   "text": 94,
+   "interactive": 21
+  },
+  "overflow": null
+ },
+ {
+  "page": "תקנון",
+  "contrast": [],
+  "graphic": [
+   {
+    "ratio": 1.91,
+    "cls": "size-5 shrink-0 text-crown-gold-bright",
+    "label": "פתחו את המלך הפילוסוף"
+   }
+  ],
+  "touch": [
+   {
+    "w": 32,
+    "h": 32,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "",
+    "cls": "rounded-lg p-2 text-muted-foreground transition-colors hover:bg-"
+   },
+   {
+    "w": 32,
+    "h": 32,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "",
+    "cls": "rounded-lg p-2 text-muted-foreground transition-colors hover:bg-"
+   },
+   {
+    "w": 81,
+    "h": 38,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "רעננו",
+    "cls": "flex items-center gap-2 rounded-md border border-foreground/20 b"
+   }
+  ],
+  "size": [],
+  "focus": [],
+  "label": [],
+  "counts": {
+   "text": 104,
+   "interactive": 29
+  },
+  "overflow": null
+ },
+ {
+  "page": "תיק אקדמי",
+  "contrast": [],
+  "graphic": [
+   {
+    "ratio": 1.91,
+    "cls": "size-5 shrink-0 text-crown-gold-bright",
+    "label": "פתחו את המלך הפילוסוף"
+   }
+  ],
+  "touch": [
+   {
+    "w": 32,
+    "h": 32,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "",
+    "cls": "rounded-lg p-2 text-muted-foreground transition-colors hover:bg-"
+   },
+   {
+    "w": 32,
+    "h": 32,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "",
+    "cls": "rounded-lg p-2 text-muted-foreground transition-colors hover:bg-"
+   },
+   {
+    "w": 132,
+    "h": 17,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "שאלו את המלך איך לשפר",
+    "cls": "mt-1 flex items-center gap-1 text-[11px] font-medium text-accent"
+   },
+   {
+    "w": 112,
+    "h": 36,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "העלו וסרקו",
+    "cls": "inline-flex items-center gap-1.5 rounded-lg bg-accent-brand px-3"
+   },
+   {
+    "w": 80,
+    "h": 34,
+    "min": 44,
+    "tag": "INPUT",
+    "text": "",
+    "cls": "w-20 rounded-md border bg-background/50 px-2 py-1.5 font-mono te"
+   },
+   {
+    "w": 28,
+    "h": 28,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "",
+    "cls": "rounded-md p-1.5 text-foreground/60 transition-colors hover:bg-r"
+   },
+   {
+    "w": 80,
+    "h": 34,
+    "min": 44,
+    "tag": "INPUT",
+    "text": "",
+    "cls": "w-20 rounded-md border bg-background/50 px-2 py-1.5 font-mono te"
+   },
+   {
+    "w": 28,
+    "h": 28,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "",
+    "cls": "rounded-md p-1.5 text-foreground/60 transition-colors hover:bg-r"
+   },
+   {
+    "w": 80,
+    "h": 34,
+    "min": 44,
+    "tag": "INPUT",
+    "text": "",
+    "cls": "w-20 rounded-md border bg-background/50 px-2 py-1.5 font-mono te"
+   },
+   {
+    "w": 28,
+    "h": 28,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "",
+    "cls": "rounded-md p-1.5 text-foreground/60 transition-colors hover:bg-r"
+   },
+   {
+    "w": 80,
+    "h": 34,
+    "min": 44,
+    "tag": "INPUT",
+    "text": "",
+    "cls": "w-20 rounded-md border bg-background/50 px-2 py-1.5 font-mono te"
+   },
+   {
+    "w": 28,
+    "h": 28,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "",
+    "cls": "rounded-md p-1.5 text-foreground/60 transition-colors hover:bg-r"
+   },
+   {
+    "w": 80,
+    "h": 34,
+    "min": 44,
+    "tag": "INPUT",
+    "text": "",
+    "cls": "w-20 rounded-md border bg-background/50 px-2 py-1.5 font-mono te"
+   },
+   {
+    "w": 28,
+    "h": 28,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "",
+    "cls": "rounded-md p-1.5 text-foreground/60 transition-colors hover:bg-r"
+   },
+   {
+    "w": 80,
+    "h": 34,
+    "min": 44,
+    "tag": "INPUT",
+    "text": "",
+    "cls": "w-20 rounded-md border bg-background/50 px-2 py-1.5 font-mono te"
+   },
+   {
+    "w": 28,
+    "h": 28,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "",
+    "cls": "rounded-md p-1.5 text-foreground/60 transition-colors hover:bg-r"
+   },
+   {
+    "w": 80,
+    "h": 34,
+    "min": 44,
+    "tag": "INPUT",
+    "text": "",
+    "cls": "w-20 rounded-md border bg-background/50 px-2 py-1.5 font-mono te"
+   },
+   {
+    "w": 28,
+    "h": 28,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "",
+    "cls": "rounded-md p-1.5 text-foreground/60 transition-colors hover:bg-r"
+   },
+   {
+    "w": 80,
+    "h": 34,
+    "min": 44,
+    "tag": "INPUT",
+    "text": "",
+    "cls": "w-20 rounded-md border bg-background/50 px-2 py-1.5 font-mono te"
+   },
+   {
+    "w": 28,
+    "h": 28,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "",
+    "cls": "rounded-md p-1.5 text-foreground/60 transition-colors hover:bg-r"
+   },
+   {
+    "w": 80,
+    "h": 34,
+    "min": 44,
+    "tag": "INPUT",
+    "text": "",
+    "cls": "w-20 rounded-md border bg-background/50 px-2 py-1.5 font-mono te"
+   },
+   {
+    "w": 28,
+    "h": 28,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "",
+    "cls": "rounded-md p-1.5 text-foreground/60 transition-colors hover:bg-r"
+   },
+   {
+    "w": 80,
+    "h": 34,
+    "min": 44,
+    "tag": "INPUT",
+    "text": "",
+    "cls": "w-20 rounded-md border bg-background/50 px-2 py-1.5 font-mono te"
+   },
+   {
+    "w": 28,
+    "h": 28,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "",
+    "cls": "rounded-md p-1.5 text-foreground/60 transition-colors hover:bg-r"
+   },
+   {
+    "w": 80,
+    "h": 34,
+    "min": 44,
+    "tag": "INPUT",
+    "text": "",
+    "cls": "w-20 rounded-md border bg-background/50 px-2 py-1.5 font-mono te"
+   },
+   {
+    "w": 28,
+    "h": 28,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "",
+    "cls": "rounded-md p-1.5 text-foreground/60 transition-colors hover:bg-r"
+   },
+   {
+    "w": 80,
+    "h": 34,
+    "min": 44,
+    "tag": "INPUT",
+    "text": "",
+    "cls": "w-20 rounded-md border bg-background/50 px-2 py-1.5 font-mono te"
+   },
+   {
+    "w": 28,
+    "h": 28,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "",
+    "cls": "rounded-md p-1.5 text-foreground/60 transition-colors hover:bg-r"
+   },
+   {
+    "w": 80,
+    "h": 34,
+    "min": 44,
+    "tag": "INPUT",
+    "text": "",
+    "cls": "w-20 rounded-md border bg-background/50 px-2 py-1.5 font-mono te"
+   },
+   {
+    "w": 28,
+    "h": 28,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "",
+    "cls": "rounded-md p-1.5 text-foreground/60 transition-colors hover:bg-r"
+   },
+   {
+    "w": 80,
+    "h": 34,
+    "min": 44,
+    "tag": "INPUT",
+    "text": "",
+    "cls": "w-20 rounded-md border bg-background/50 px-2 py-1.5 font-mono te"
+   },
+   {
+    "w": 28,
+    "h": 28,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "",
+    "cls": "rounded-md p-1.5 text-foreground/60 transition-colors hover:bg-r"
+   },
+   {
+    "w": 122,
+    "h": 21,
+    "min": 44,
+    "tag": "SELECT",
+    "text": "עוד לא שייכתינספר לפילוס",
+    "cls": "rounded-md border border-border bg-card px-1.5 py-0.5 text-[11px"
+   },
+   {
+    "w": 80,
+    "h": 34,
+    "min": 44,
+    "tag": "INPUT",
+    "text": "",
+    "cls": "w-20 rounded-md border bg-background/50 px-2 py-1.5 font-mono te"
+   },
+   {
+    "w": 28,
+    "h": 28,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "",
+    "cls": "rounded-md p-1.5 text-foreground/60 transition-colors hover:bg-r"
+   },
+   {
+    "w": 80,
+    "h": 34,
+    "min": 44,
+    "tag": "INPUT",
+    "text": "",
+    "cls": "w-20 rounded-md border bg-background/50 px-2 py-1.5 font-mono te"
+   },
+   {
+    "w": 28,
+    "h": 28,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "",
+    "cls": "rounded-md p-1.5 text-foreground/60 transition-colors hover:bg-r"
+   },
+   {
+    "w": 80,
+    "h": 34,
+    "min": 44,
+    "tag": "INPUT",
+    "text": "",
+    "cls": "w-20 rounded-md border bg-background/50 px-2 py-1.5 font-mono te"
+   },
+   {
+    "w": 28,
+    "h": 28,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "",
+    "cls": "rounded-md p-1.5 text-foreground/60 transition-colors hover:bg-r"
+   },
+   {
+    "w": 80,
+    "h": 34,
+    "min": 44,
+    "tag": "INPUT",
+    "text": "",
+    "cls": "w-20 rounded-md border bg-background/50 px-2 py-1.5 font-mono te"
+   },
+   {
+    "w": 28,
+    "h": 28,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "",
+    "cls": "rounded-md p-1.5 text-foreground/60 transition-colors hover:bg-r"
+   },
+   {
+    "w": 80,
+    "h": 34,
+    "min": 44,
+    "tag": "INPUT",
+    "text": "",
+    "cls": "w-20 rounded-md border bg-background/50 px-2 py-1.5 font-mono te"
+   },
+   {
+    "w": 28,
+    "h": 28,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "",
+    "cls": "rounded-md p-1.5 text-foreground/60 transition-colors hover:bg-r"
+   },
+   {
+    "w": 122,
+    "h": 21,
+    "min": 44,
+    "tag": "SELECT",
+    "text": "עוד לא שייכתינספר לפילוס",
+    "cls": "rounded-md border border-border bg-card px-1.5 py-0.5 text-[11px"
+   },
+   {
+    "w": 80,
+    "h": 34,
+    "min": 44,
+    "tag": "INPUT",
+    "text": "",
+    "cls": "w-20 rounded-md border bg-background/50 px-2 py-1.5 font-mono te"
+   },
+   {
+    "w": 28,
+    "h": 28,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "",
+    "cls": "rounded-md p-1.5 text-foreground/60 transition-colors hover:bg-r"
+   },
+   {
+    "w": 80,
+    "h": 34,
+    "min": 44,
+    "tag": "INPUT",
+    "text": "",
+    "cls": "w-20 rounded-md border bg-background/50 px-2 py-1.5 font-mono te"
+   },
+   {
+    "w": 28,
+    "h": 28,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "",
+    "cls": "rounded-md p-1.5 text-foreground/60 transition-colors hover:bg-r"
+   },
+   {
+    "w": 80,
+    "h": 34,
+    "min": 44,
+    "tag": "INPUT",
+    "text": "",
+    "cls": "w-20 rounded-md border bg-background/50 px-2 py-1.5 font-mono te"
+   },
+   {
+    "w": 28,
+    "h": 28,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "",
+    "cls": "rounded-md p-1.5 text-foreground/60 transition-colors hover:bg-r"
+   },
+   {
+    "w": 80,
+    "h": 34,
+    "min": 44,
+    "tag": "INPUT",
+    "text": "",
+    "cls": "w-20 rounded-md border bg-background/50 px-2 py-1.5 font-mono te"
+   },
+   {
+    "w": 28,
+    "h": 28,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "",
+    "cls": "rounded-md p-1.5 text-foreground/60 transition-colors hover:bg-r"
+   },
+   {
+    "w": 80,
+    "h": 34,
+    "min": 44,
+    "tag": "INPUT",
+    "text": "",
+    "cls": "w-20 rounded-md border bg-background/50 px-2 py-1.5 font-mono te"
+   },
+   {
+    "w": 28,
+    "h": 28,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "",
+    "cls": "rounded-md p-1.5 text-foreground/60 transition-colors hover:bg-r"
+   },
+   {
+    "w": 86,
+    "h": 37,
+    "min": 44,
+    "tag": "SELECT",
+    "text": "שנה א׳שנה ב׳שנה ג׳",
+    "cls": "rounded-lg border border-border bg-card px-3 py-2 text-sm text-f"
+   },
+   {
+    "w": 104,
+    "h": 37,
+    "min": 44,
+    "tag": "SELECT",
+    "text": "סמסטר א׳",
+    "cls": "rounded-lg border border-border bg-card px-3 py-2 text-sm text-f"
+   },
+   {
+    "w": 277,
+    "h": 42,
+    "min": 44,
+    "tag": "INPUT",
+    "text": "",
+    "cls": "w-full rounded-lg border border-border bg-card py-2.5 ps-9 pe-3 "
+   }
+  ],
+  "size": [
+   {
+    "text": "מתוך 150 ש״ס לתואר",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "text-[11px] text-foreground/60"
+   },
+   {
+    "text": "לציון הגמר הרשמי (78% קורסים · 18% סמינר",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "inline-flex items-center gap-1 text-[11px] leading-snug text-for"
+   },
+   {
+    "text": "שאלו את המלך איך לשפר",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-1 flex items-center gap-1 text-[11px] font-medium text-accent"
+   },
+   {
+    "text": "מתוך 60 ש״ס נדרשים",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "text-[11px] text-foreground/60"
+   },
+   {
+    "text": "לאיזה תחום זה נספר?",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "text-[11px] text-foreground/60"
+   },
+   {
+    "text": "לאיזה תחום זה נספר?",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "text-[11px] text-foreground/60"
+   },
+   {
+    "text": "לא נכנס לממוצע התואר",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "inline-flex items-center rounded-full bg-foreground/5 px-1.5 py-"
+   }
+  ],
+  "focus": [],
+  "label": [],
+  "counts": {
+   "text": 121,
+   "interactive": 65
+  },
+  "overflow": null
+ },
+ {
+  "page": "מבחנים",
+  "contrast": [],
+  "graphic": [
+   {
+    "ratio": 1.91,
+    "cls": "size-5 shrink-0 text-crown-gold-bright",
+    "label": "פתחו את המלך הפילוסוף"
+   }
+  ],
+  "touch": [
+   {
+    "w": 32,
+    "h": 32,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "",
+    "cls": "rounded-lg p-2 text-muted-foreground transition-colors hover:bg-"
+   },
+   {
+    "w": 32,
+    "h": 32,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "",
+    "cls": "rounded-lg p-2 text-muted-foreground transition-colors hover:bg-"
+   },
+   {
+    "w": 129,
+    "h": 38,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "הורידו כאקסל",
+    "cls": "inline-flex items-center gap-1.5 rounded-lg border border-status"
+   },
+   {
+    "w": 141,
+    "h": 38,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "שיתוף / ייצוא",
+    "cls": "inline-flex items-center gap-1.5 rounded-lg border border-border"
+   },
+   {
+    "w": 34,
+    "h": 26,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "ג22",
+    "cls": "mt-1 flex h-[26px] w-full flex-col items-center justify-center b"
+   },
+   {
+    "w": 34,
+    "h": 26,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "ד23",
+    "cls": "mt-1 flex h-[26px] w-full flex-col items-center justify-center b"
+   },
+   {
+    "w": 34,
+    "h": 26,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "ה24",
+    "cls": "mt-1 flex h-[26px] w-full flex-col items-center justify-center b"
+   },
+   {
+    "w": 34,
+    "h": 26,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "ו25",
+    "cls": "mt-1 flex h-[26px] w-full flex-col items-center justify-center b"
+   },
+   {
+    "w": 34,
+    "h": 26,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "ש26",
+    "cls": "mt-1 flex h-[26px] w-full flex-col items-center justify-center b"
+   },
+   {
+    "w": 34,
+    "h": 26,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "א27",
+    "cls": "mt-1 flex h-[26px] w-full flex-col items-center justify-center b"
+   },
+   {
+    "w": 34,
+    "h": 26,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "ב28",
+    "cls": "mt-1 flex h-[26px] w-full flex-col items-center justify-center b"
+   },
+   {
+    "w": 34,
+    "h": 26,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "ג29",
+    "cls": "mt-1 flex h-[26px] w-full flex-col items-center justify-center b"
+   },
+   {
+    "w": 34,
+    "h": 26,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "ד30",
+    "cls": "mt-1 flex h-[26px] w-full flex-col items-center justify-center b"
+   },
+   {
+    "w": 34,
+    "h": 26,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "ה1",
+    "cls": "mt-1 flex h-[26px] w-full flex-col items-center justify-center b"
+   },
+   {
+    "w": 34,
+    "h": 26,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "ו2",
+    "cls": "mt-1 flex h-[26px] w-full flex-col items-center justify-center b"
+   },
+   {
+    "w": 34,
+    "h": 26,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "ש3",
+    "cls": "mt-1 flex h-[26px] w-full flex-col items-center justify-center b"
+   },
+   {
+    "w": 34,
+    "h": 26,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "א4",
+    "cls": "mt-1 flex h-[26px] w-full flex-col items-center justify-center b"
+   },
+   {
+    "w": 34,
+    "h": 26,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "ב5",
+    "cls": "mt-1 flex h-[26px] w-full flex-col items-center justify-center b"
+   },
+   {
+    "w": 34,
+    "h": 26,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "ג6",
+    "cls": "mt-1 flex h-[26px] w-full flex-col items-center justify-center b"
+   },
+   {
+    "w": 34,
+    "h": 26,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "ד7",
+    "cls": "mt-1 flex h-[26px] w-full flex-col items-center justify-center b"
+   },
+   {
+    "w": 34,
+    "h": 26,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "ה8",
+    "cls": "mt-1 flex h-[26px] w-full flex-col items-center justify-center b"
+   },
+   {
+    "w": 34,
+    "h": 26,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "ו9",
+    "cls": "mt-1 flex h-[26px] w-full flex-col items-center justify-center b"
+   },
+   {
+    "w": 34,
+    "h": 26,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "ש10",
+    "cls": "mt-1 flex h-[26px] w-full flex-col items-center justify-center b"
+   },
+   {
+    "w": 34,
+    "h": 26,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "א11",
+    "cls": "mt-1 flex h-[26px] w-full flex-col items-center justify-center b"
+   },
+   {
+    "w": 34,
+    "h": 26,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "ב12",
+    "cls": "mt-1 flex h-[26px] w-full flex-col items-center justify-center b"
+   },
+   {
+    "w": 146,
+    "h": 25,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "שאלו את המלך על הפיזור",
+    "cls": "order-last inline-flex items-center gap-1.5 rounded-md px-1.5 py"
+   },
+   {
+    "w": 281,
+    "h": 25,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "פילוסופיה של המוסר - שיע",
+    "cls": "flex items-center gap-1.5 rounded-md px-1.5 py-1 text-start tran"
+   },
+   {
+    "w": 300,
+    "h": 38,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "כלכלה פוליטית בינלאומית ",
+    "cls": "flex items-center gap-1.5 rounded-md px-1.5 py-1 text-start tran"
+   },
+   {
+    "w": 50,
+    "h": 24,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "+ לימוד",
+    "cls": "inline-flex min-h-6 items-center rounded-md px-2 py-0.5 text-[11"
+   },
+   {
+    "w": 47,
+    "h": 24,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "דחו יום",
+    "cls": "inline-flex min-h-6 items-center rounded-md px-2 py-0.5 text-[11"
+   },
+   {
+    "w": 20,
+    "h": 20,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "",
+    "cls": "flex size-5 shrink-0 items-center justify-center rounded-full bo"
+   },
+   {
+    "w": 21,
+    "h": 32,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "+1",
+    "cls": "shrink-0 rounded-md p-1 text-foreground/70 transition-colors hov"
+   },
+   {
+    "w": 22,
+    "h": 22,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "",
+    "cls": "shrink-0 rounded-md p-1 text-foreground/60 transition-colors hov"
+   },
+   {
+    "w": 50,
+    "h": 24,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "+ לימוד",
+    "cls": "inline-flex min-h-6 items-center rounded-md px-2 py-0.5 text-[11"
+   },
+   {
+    "w": 47,
+    "h": 24,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "דחו יום",
+    "cls": "inline-flex min-h-6 items-center rounded-md px-2 py-0.5 text-[11"
+   },
+   {
+    "w": 20,
+    "h": 20,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "",
+    "cls": "flex size-5 shrink-0 items-center justify-center rounded-full bo"
+   },
+   {
+    "w": 21,
+    "h": 32,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "+1",
+    "cls": "shrink-0 rounded-md p-1 text-foreground/70 transition-colors hov"
+   },
+   {
+    "w": 22,
+    "h": 22,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "",
+    "cls": "shrink-0 rounded-md p-1 text-foreground/60 transition-colors hov"
+   },
+   {
+    "w": 20,
+    "h": 20,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "",
+    "cls": "flex size-5 shrink-0 items-center justify-center rounded-full bo"
+   },
+   {
+    "w": 21,
+    "h": 32,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "+1",
+    "cls": "shrink-0 rounded-md p-1 text-foreground/70 transition-colors hov"
+   },
+   {
+    "w": 22,
+    "h": 22,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "",
+    "cls": "shrink-0 rounded-md p-1 text-foreground/60 transition-colors hov"
+   },
+   {
+    "w": 50,
+    "h": 24,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "+ לימוד",
+    "cls": "inline-flex min-h-6 items-center rounded-md px-2 py-0.5 text-[11"
+   },
+   {
+    "w": 47,
+    "h": 24,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "דחו יום",
+    "cls": "inline-flex min-h-6 items-center rounded-md px-2 py-0.5 text-[11"
+   },
+   {
+    "w": 20,
+    "h": 20,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "",
+    "cls": "flex size-5 shrink-0 items-center justify-center rounded-full bo"
+   },
+   {
+    "w": 21,
+    "h": 32,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "+1",
+    "cls": "shrink-0 rounded-md p-1 text-foreground/70 transition-colors hov"
+   },
+   {
+    "w": 22,
+    "h": 22,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "",
+    "cls": "shrink-0 rounded-md p-1 text-foreground/60 transition-colors hov"
+   },
+   {
+    "w": 20,
+    "h": 20,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "",
+    "cls": "flex size-5 shrink-0 items-center justify-center rounded-full bo"
+   },
+   {
+    "w": 21,
+    "h": 32,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "+1",
+    "cls": "shrink-0 rounded-md p-1 text-foreground/70 transition-colors hov"
+   },
+   {
+    "w": 22,
+    "h": 22,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "",
+    "cls": "shrink-0 rounded-md p-1 text-foreground/60 transition-colors hov"
+   },
+   {
+    "w": 327,
+    "h": 34,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "שאר התוכנית (15 ימים)",
+    "cls": "flex items-center justify-center gap-1.5 rounded-xl border borde"
+   },
+   {
+    "w": 131,
+    "h": 21,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "לחשוב על זה עם המלך",
+    "cls": "ms-auto inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 "
+   },
+   {
+    "w": 106,
+    "h": 28,
+    "min": 44,
+    "tag": "A",
+    "text": "לחיבור היומן",
+    "cls": "inline-flex items-center gap-1.5 rounded-lg bg-accent-brand px-3"
+   },
+   {
+    "w": 44,
+    "h": 16,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "לא, תודה",
+    "cls": "ms-auto text-xs text-foreground/60 transition-colors hover:text-"
+   },
+   {
+    "w": 327,
+    "h": 42,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "כוונון מחדש / הוסיפו תאר",
+    "cls": "flex w-full items-center gap-2 rounded-xl border border-border/5"
+   }
+  ],
+  "size": [
+   {
+    "text": "בעוד 302 ימים",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "shrink-0 rounded-full px-1.5 py-0.5 text-[11px] font-semibold bg"
+   },
+   {
+    "text": "19 – 21",
+    "px": 10,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-1 h-[26px] w-full border-t border-border/30 pt-0.5 text-cente"
+   },
+   {
+    "text": "שאלו את המלך על הפיזור",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "order-last inline-flex items-center gap-1.5 rounded-md px-1.5 py"
+   },
+   {
+    "text": "25  שע׳ · מועד א׳",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "text-[11px] text-foreground/60"
+   },
+   {
+    "text": "40  שע׳ · מועד א׳",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "text-[11px] text-foreground/60"
+   },
+   {
+    "text": "לחשוב על זה עם המלך",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "ms-auto inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 "
+   }
+  ],
+  "focus": [],
+  "label": [],
+  "counts": {
+   "text": 74,
+   "interactive": 61
+  },
+  "overflow": null
+ },
+ {
+  "page": "מכרז",
+  "contrast": [],
+  "graphic": [
+   {
+    "ratio": 1.91,
+    "cls": "size-5 shrink-0 text-crown-gold-bright",
+    "label": "פתחו את המלך הפילוסוף"
+   }
+  ],
+  "touch": [
+   {
+    "w": 32,
+    "h": 32,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "",
+    "cls": "rounded-lg p-2 text-muted-foreground transition-colors hover:bg-"
+   },
+   {
+    "w": 32,
+    "h": 32,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "",
+    "cls": "rounded-lg p-2 text-muted-foreground transition-colors hover:bg-"
+   },
+   {
+    "w": 92,
+    "h": 17,
+    "min": 44,
+    "tag": "A",
+    "text": "למערכת הבידינג",
+    "cls": "inline-flex items-center gap-1 text-[11px] font-medium text-acce"
+   },
+   {
+    "w": 85,
+    "h": 17,
+    "min": 44,
+    "tag": "A",
+    "text": "הדרכה מצולמת",
+    "cls": "inline-flex items-center gap-1 text-[11px] text-foreground/60 ho"
+   },
+   {
+    "w": 185,
+    "h": 38,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "העתקת שני הסמסטרים",
+    "cls": "inline-flex items-center gap-1.5 rounded-lg border border-border"
+   },
+   {
+    "w": 208,
+    "h": 20,
+    "min": 44,
+    "tag": "A",
+    "text": "לעריכת התכנון ולבחירת קב",
+    "cls": "inline-flex w-fit items-center gap-1.5 text-sm font-semibold tex"
+   },
+   {
+    "w": 256,
+    "h": 38,
+    "min": 44,
+    "tag": "A",
+    "text": "למערכת הבידינג של האוניב",
+    "cls": "inline-flex w-fit items-center gap-1.5 rounded-xl border border-"
+   }
+  ],
+  "size": [
+   {
+    "text": "שנה״ל נפתחת · ביטול רישום עד · שבוע שינו",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-3 text-[11px] leading-relaxed text-foreground/60"
+   },
+   {
+    "text": "5 קורסים · ש״ס מתוכם חובה",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-2 text-[11px] text-foreground/60"
+   },
+   {
+    "text": "2 קורסים · ש״ס מתוכם חובה",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-2 text-[11px] text-foreground/60"
+   },
+   {
+    "text": "פכמון לא מנחש כמה נקודות צריך לקורס. האו",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "rounded-xl border border-border/50 bg-foreground/[0.02] p-3 text"
+   }
+  ],
+  "focus": [],
+  "label": [],
+  "counts": {
+   "text": 69,
+   "interactive": 16
+  },
+  "overflow": null
+ },
+ {
+  "page": "השושלת",
+  "contrast": [],
+  "graphic": [
+   {
+    "ratio": 1.91,
+    "cls": "size-5 shrink-0 text-crown-gold-bright",
+    "label": "פתחו את המלך הפילוסוף"
+   }
+  ],
+  "touch": [
+   {
+    "w": 32,
+    "h": 32,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "",
+    "cls": "rounded-lg p-2 text-muted-foreground transition-colors hover:bg-"
+   },
+   {
+    "w": 32,
+    "h": 32,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "",
+    "cls": "rounded-lg p-2 text-muted-foreground transition-colors hover:bg-"
+   },
+   {
+    "w": 129,
+    "h": 36,
+    "min": 44,
+    "tag": "A",
+    "text": "לתיק המחזור",
+    "cls": "mt-auto inline-flex w-fit items-center gap-1.5 rounded-lg bg-for"
+   },
+   {
+    "w": 99,
+    "h": 36,
+    "min": 44,
+    "tag": "A",
+    "text": "לחונכות",
+    "cls": "mt-auto inline-flex w-fit items-center gap-1.5 rounded-lg bg-for"
+   },
+   {
+    "w": 76,
+    "h": 28,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "לדירוג",
+    "cls": "inline-flex shrink-0 items-center gap-1.5 rounded-lg bg-accent-b"
+   },
+   {
+    "w": 76,
+    "h": 28,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "לדירוג",
+    "cls": "inline-flex shrink-0 items-center gap-1.5 rounded-lg bg-accent-b"
+   },
+   {
+    "w": 76,
+    "h": 28,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "לדירוג",
+    "cls": "inline-flex shrink-0 items-center gap-1.5 rounded-lg bg-accent-b"
+   },
+   {
+    "w": 76,
+    "h": 28,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "לדירוג",
+    "cls": "inline-flex shrink-0 items-center gap-1.5 rounded-lg bg-accent-b"
+   },
+   {
+    "w": 198,
+    "h": 36,
+    "min": 44,
+    "tag": "A",
+    "text": "לקריאה במה שכבר נאסף",
+    "cls": "inline-flex items-center gap-1.5 rounded-lg bg-foreground/8 px-4"
+   }
+  ],
+  "size": [],
+  "focus": [],
+  "label": [],
+  "counts": {
+   "text": 77,
+   "interactive": 17
+  },
+  "overflow": null
+ },
+ {
+  "page": "המלך",
+  "contrast": [],
+  "graphic": [],
+  "touch": [
+   {
+    "w": 32,
+    "h": 32,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "",
+    "cls": "rounded-lg p-2 text-muted-foreground transition-colors hover:bg-"
+   },
+   {
+    "w": 32,
+    "h": 32,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "",
+    "cls": "rounded-lg p-2 text-muted-foreground transition-colors hover:bg-"
+   },
+   {
+    "w": 190,
+    "h": 26,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "מעדיפים את הרפרנט? החליפ",
+    "cls": "inline-flex items-center gap-1.5 rounded-full border border-bord"
+   },
+   {
+    "w": 139,
+    "h": 32,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "תשובות מהירות",
+    "cls": "inline-flex items-center gap-1.5 rounded-lg px-3.5 py-1.5 text-s"
+   },
+   {
+    "w": 137,
+    "h": 32,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "המלך הפילוסוף",
+    "cls": "inline-flex items-center gap-1.5 rounded-lg px-3.5 py-1.5 text-s"
+   },
+   {
+    "w": 123,
+    "h": 30,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "כמה ש״ס נשארו לי?",
+    "cls": "rounded-full border border-border/60 bg-foreground/[0.03] px-3 p"
+   },
+   {
+    "w": 117,
+    "h": 30,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "מה חסר לי לתואר?",
+    "cls": "rounded-full border border-border/60 bg-foreground/[0.03] px-3 p"
+   },
+   {
+    "w": 110,
+    "h": 30,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "מה הממוצע שלי?",
+    "cls": "rounded-full border border-border/60 bg-foreground/[0.03] px-3 p"
+   },
+   {
+    "w": 145,
+    "h": 30,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "איזה תחום מיקוד לבחור?",
+    "cls": "rounded-full border border-border/60 bg-foreground/[0.03] px-3 p"
+   },
+   {
+    "w": 122,
+    "h": 30,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "כמה סמינרים צריך?",
+    "cls": "rounded-full border border-border/60 bg-foreground/[0.03] px-3 p"
+   },
+   {
+    "w": 127,
+    "h": 30,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "מה תנאי מעבר שנה?",
+    "cls": "rounded-full border border-border/60 bg-foreground/[0.03] px-3 p"
+   },
+   {
+    "w": 133,
+    "h": 30,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "יש לי סיכוי להצטיינות?",
+    "cls": "rounded-full border border-border/60 bg-foreground/[0.03] px-3 p"
+   },
+   {
+    "w": 155,
+    "h": 30,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "מה הסטטוס שלי באנגלית?",
+    "cls": "rounded-full border border-border/60 bg-foreground/[0.03] px-3 p"
+   },
+   {
+    "w": 96,
+    "h": 30,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "מה זה בינארי?",
+    "cls": "rounded-full border border-border/60 bg-foreground/[0.03] px-3 p"
+   },
+   {
+    "w": 157,
+    "h": 30,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "מה ההטבות שלי במילואים?",
+    "cls": "rounded-full border border-border/60 bg-foreground/[0.03] px-3 p"
+   },
+   {
+    "w": 115,
+    "h": 30,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "איך עובד הבידינג?",
+    "cls": "rounded-full border border-border/60 bg-foreground/[0.03] px-3 p"
+   },
+   {
+    "w": 152,
+    "h": 30,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "מתי כדאי ללכת למועד ב׳?",
+    "cls": "rounded-full border border-border/60 bg-foreground/[0.03] px-3 p"
+   },
+   {
+    "w": 132,
+    "h": 30,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "איך מחשבים ציון גמר?",
+    "cls": "rounded-full border border-border/60 bg-foreground/[0.03] px-3 p"
+   },
+   {
+    "w": 279,
+    "h": 42,
+    "min": 44,
+    "tag": "INPUT",
+    "text": "",
+    "cls": "flex-1 rounded-xl border border-border/60 bg-card px-4 py-2.5 te"
+   },
+   {
+    "w": 40,
+    "h": 40,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "",
+    "cls": "flex size-10 shrink-0 items-center justify-center rounded-xl tra"
+   }
+  ],
+  "size": [],
+  "focus": [],
+  "label": [],
+  "counts": {
+   "text": 28,
+   "interactive": 25
+  },
+  "overflow": null
+ },
+ {
+  "page": "הגדרות",
+  "contrast": [],
+  "graphic": [
+   {
+    "ratio": 1.91,
+    "cls": "size-5 shrink-0 text-crown-gold-bright",
+    "label": "פתחו את המלך הפילוסוף"
+   }
+  ],
+  "touch": [
+   {
+    "w": 32,
+    "h": 32,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "",
+    "cls": "rounded-lg p-2 text-muted-foreground transition-colors hover:bg-"
+   },
+   {
+    "w": 32,
+    "h": 32,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "",
+    "cls": "rounded-lg p-2 text-muted-foreground transition-colors hover:bg-"
+   },
+   {
+    "w": 277,
+    "h": 36,
+    "min": 44,
+    "tag": "INPUT",
+    "text": "",
+    "cls": "file:text-foreground placeholder:text-muted-foreground selection"
+   },
+   {
+    "w": 135,
+    "h": 36,
+    "min": 44,
+    "tag": "INPUT",
+    "text": "",
+    "cls": "file:text-foreground placeholder:text-muted-foreground selection"
+   },
+   {
+    "w": 135,
+    "h": 36,
+    "min": 44,
+    "tag": "INPUT",
+    "text": "",
+    "cls": "file:text-foreground placeholder:text-muted-foreground selection"
+   },
+   {
+    "w": 87,
+    "h": 34,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "לשון נקבה",
+    "cls": "rounded-lg border px-3 py-2 text-xs font-medium transition-color"
+   },
+   {
+    "w": 87,
+    "h": 34,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "לשון זכר",
+    "cls": "rounded-lg border px-3 py-2 text-xs font-medium transition-color"
+   },
+   {
+    "w": 87,
+    "h": 34,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "ניטרלי",
+    "cls": "rounded-lg border px-3 py-2 text-xs font-medium transition-color"
+   },
+   {
+    "w": 277,
+    "h": 36,
+    "min": 44,
+    "tag": "INPUT",
+    "text": "",
+    "cls": "file:text-foreground placeholder:text-muted-foreground selection"
+   },
+   {
+    "w": 277,
+    "h": 36,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "לא יודעים — גזרו מהציון",
+    "cls": "border-input data-[placeholder]:text-muted-foreground [&_svg:not"
+   },
+   {
+    "w": 277,
+    "h": 36,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "כלכלה",
+    "cls": "border-input data-[placeholder]:text-muted-foreground [&_svg:not"
+   },
+   {
+    "w": 277,
+    "h": 36,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "תשפ״ה · 2024/25",
+    "cls": "border-input data-[placeholder]:text-muted-foreground [&_svg:not"
+   },
+   {
+    "w": 105,
+    "h": 36,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "שמרו פרופיל",
+    "cls": "inline-flex items-center justify-center gap-2 whitespace-nowrap "
+   },
+   {
+    "w": 277,
+    "h": 36,
+    "min": 44,
+    "tag": "A",
+    "text": "לעמוד המילואים",
+    "cls": "inline-flex items-center gap-1.5 rounded-lg bg-foreground/8 px-3"
+   },
+   {
+    "w": 169,
+    "h": 36,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "שתפו את הציונים שלי",
+    "cls": "inline-flex items-center justify-center whitespace-nowrap rounde"
+   },
+   {
+    "w": 199,
+    "h": 36,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "משכו את כל התרומות שלי",
+    "cls": "inline-flex items-center justify-center whitespace-nowrap rounde"
+   },
+   {
+    "w": 44,
+    "h": 24,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "",
+    "cls": "relative inline-flex h-6 w-11 shrink-0 items-center rounded-full"
+   },
+   {
+    "w": 267,
+    "h": 36,
+    "min": 44,
+    "tag": "A",
+    "text": "arieltzirin@mail.tau.ac.",
+    "cls": "inline-flex items-center gap-2 rounded-lg bg-foreground px-4 py-"
+   },
+   {
+    "w": 128,
+    "h": 34,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "העתקת הכתובת",
+    "cls": "inline-flex items-center gap-1.5 rounded-lg border border-border"
+   },
+   {
+    "w": 106,
+    "h": 36,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "התנתקות",
+    "cls": "inline-flex items-center justify-center gap-2 whitespace-nowrap "
+   },
+   {
+    "w": 243,
+    "h": 34,
+    "min": 44,
+    "tag": "INPUT",
+    "text": "",
+    "cls": "w-full rounded-md border border-border bg-card px-3 py-1.5 text-"
+   },
+   {
+    "w": 243,
+    "h": 34,
+    "min": 44,
+    "tag": "INPUT",
+    "text": "",
+    "cls": "w-full rounded-md border bg-card px-3 py-1.5 text-sm focus:outli"
+   },
+   {
+    "w": 79,
+    "h": 36,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "עדכון",
+    "cls": "inline-flex items-center justify-center gap-2 whitespace-nowrap "
+   },
+   {
+    "w": 243,
+    "h": 34,
+    "min": 44,
+    "tag": "INPUT",
+    "text": "",
+    "cls": "w-full max-w-xs rounded-md border border-border bg-card px-3 py-"
+   },
+   {
+    "w": 171,
+    "h": 36,
+    "min": 44,
+    "tag": "BUTTON",
+    "text": "מחקו את החשבון שלי",
+    "cls": "inline-flex items-center justify-center gap-2 whitespace-nowrap "
+   }
+  ],
+  "size": [
+   {
+    "text": "לפי מיפוי הרמות של יחידת האנגלית, נכון ל",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-1 text-[11px] text-foreground/60"
+   },
+   {
+    "text": "פכמון הוא כלי של סטודנט, לא שירות רשמי, ",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-1.5 text-[11px] leading-relaxed text-foreground/60"
+   }
+  ],
+  "focus": [],
+  "label": [],
+  "counts": {
+   "text": 89,
+   "interactive": 37
+  },
+  "overflow": null
+ }
+]

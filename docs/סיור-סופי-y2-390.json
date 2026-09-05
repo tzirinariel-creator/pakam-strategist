@@ -1,0 +1,304 @@
+{
+ "persona": "y2",
+ "width": 390,
+ "screens": {
+  "/he/dashboard": {
+   "label": "בית",
+   "actions": [
+    {
+     "name": "שתפו את הקורסים שסיימתי",
+     "ok": true,
+     "issues": [],
+     "js": []
+    },
+    {
+     "name": "לא עכשיו",
+     "ok": true,
+     "issues": [],
+     "js": []
+    },
+    {
+     "name": "הציגו פירוט לפי דיסציפלינה וקטגוריה",
+     "ok": true,
+     "issues": [],
+     "js": []
+    }
+   ],
+   "issues": [],
+   "at": "2026-09-05T03:51:54.538Z",
+   "shot": "001-P-y2-390-בית.png",
+   "chars": 2861,
+   "done": true
+  },
+  "/he/planner": {
+   "label": "תכנון התואר",
+   "actions": [
+    {
+     "name": "שתף",
+     "ok": true,
+     "issues": [],
+     "js": []
+    },
+    {
+     "name": "הוסיפו קורס",
+     "ok": true,
+     "issues": [],
+     "js": []
+    },
+    {
+     "name": "העתקת הרשימה עם הקודים",
+     "ok": true,
+     "issues": [],
+     "js": []
+    },
+    {
+     "name": "א׳",
+     "ok": true,
+     "issues": [],
+     "js": []
+    },
+    {
+     "name": "ב׳",
+     "ok": true,
+     "issues": [],
+     "js": []
+    }
+   ],
+   "issues": [],
+   "at": "2026-09-05T03:52:10.534Z",
+   "shot": "002-P-y2-390-תכנון התואר.png",
+   "chars": 4184,
+   "done": true
+  },
+  "/he/bidding": {
+   "label": "בידינג",
+   "actions": [
+    {
+     "name": "העתקת שני הסמסטרים",
+     "ok": true,
+     "issues": [],
+     "js": []
+    }
+   ],
+   "issues": [],
+   "at": "2026-09-05T03:52:32.827Z",
+   "shot": "003-P-y2-390-בידינג.png",
+   "chars": 1749,
+   "done": true
+  },
+  "/he/regulations": {
+   "label": "דרישות התואר",
+   "actions": [
+    {
+     "name": "רעננו",
+     "ok": true,
+     "issues": [],
+     "js": []
+    },
+    {
+     "name": "שאלו את המלך איך לסגור את זה",
+     "ok": true,
+     "issues": [],
+     "js": []
+    }
+   ],
+   "issues": [],
+   "at": "2026-09-05T03:52:43.625Z",
+   "shot": "004-P-y2-390-דרישות התואר.png",
+   "chars": 2231,
+   "done": true
+  },
+  "/he/record": {
+   "label": "התיק האקדמי",
+   "actions": [
+    {
+     "name": "שאלו את המלך איך לשפר",
+     "ok": true,
+     "issues": [],
+     "js": []
+    },
+    {
+     "name": "העלו וסרקו",
+     "ok": true,
+     "issues": [],
+     "js": []
+    }
+   ],
+   "issues": [],
+   "at": "2026-09-05T03:52:56.677Z",
+   "shot": "005-P-y2-390-התיק האקדמי.png",
+   "chars": 1605,
+   "done": true
+  },
+  "/he/graduation": {
+   "label": "מחשבון ציון גמר",
+   "actions": [
+    {
+     "name": "תואר שני בכלכלה",
+     "ok": true,
+     "issues": [],
+     "js": []
+    },
+    {
+     "name": "משפטים",
+     "ok": true,
+     "issues": [],
+     "js": []
+    },
+    {
+     "name": "מדיניות ציבורית",
+     "ok": true,
+     "issues": [],
+     "js": []
+    },
+    {
+     "name": "לימודים בחו״ל",
+     "ok": true,
+     "issues": [],
+     "js": []
+    },
+    {
+     "name": "מגזר ציבורי / משרדי ממשלה",
+     "ok": true,
+     "issues": [],
+     "js": []
+    },
+    {
+     "name": "עוד לא החלטתי",
+     "ok": true,
+     "issues": [],
+     "js": []
+    },
+    {
+     "name": "מה יקרה לממוצע אם…",
+     "ok": true,
+     "issues": [],
+     "js": []
+    }
+   ],
+   "issues": [],
+   "at": "2026-09-05T03:53:17.883Z",
+   "shot": "006-P-y2-390-מחשבון ציון גמר.png",
+   "chars": 2046,
+   "done": true
+  },
+  "/he/miluim": {
+   "label": "מילואים",
+   "actions": [
+    {
+     "name": "הוסיפו סמסטר",
+     "ok": true,
+     "issues": [],
+     "js": []
+    },
+    {
+     "name": "כן",
+     "ok": true,
+     "issues": [],
+     "js": []
+    },
+    {
+     "name": "לא",
+     "ok": true,
+     "issues": [],
+     "js": []
+    },
+    {
+     "name": "שמירת מילואים",
+     "ok": true,
+     "issues": [],
+     "js": []
+    },
+    {
+     "name": "העלו טופס 3010",
+     "ok": true,
+     "issues": [],
+     "js": []
+    },
+    {
+     "name": "לא משרתים במילואים",
+     "ok": true,
+     "issues": [],
+     "js": []
+    }
+   ],
+   "issues": [],
+   "at": "2026-09-05T03:53:44.592Z",
+   "shot": "007-P-y2-390-מילואים.png",
+   "chars": 2273,
+   "done": true
+  },
+  "/he/exam": {
+   "label": "לוח הבחינות",
+   "actions": [
+    {
+     "name": "לוח בחינות",
+     "ok": true,
+     "issues": [],
+     "js": []
+    },
+    {
+     "name": "ציר זמן",
+     "ok": true,
+     "issues": [],
+     "js": []
+    },
+    {
+     "name": "ייצוא",
+     "ok": true,
+     "issues": [],
+     "js": []
+    }
+   ],
+   "issues": [],
+   "at": "2026-09-05T03:54:06.866Z",
+   "shot": "008-P-y2-390-לוח הבחינות.png",
+   "chars": 1020,
+   "done": true
+  },
+  "/he/exam-planner": {
+   "label": "תכנון מבחנים",
+   "actions": [
+    {
+     "name": "הבנתי",
+     "ok": true,
+     "issues": [],
+     "js": []
+    },
+    {
+     "name": "עבודה במקום מבחן?",
+     "ok": true,
+     "issues": [],
+     "js": []
+    }
+   ],
+   "issues": [],
+   "at": "2026-09-05T03:54:24.018Z",
+   "shot": "009-P-y2-390-תכנון מבחנים.png",
+   "chars": 2500,
+   "done": true
+  },
+  "/he/calendar": {
+   "label": "יומן",
+   "actions": [
+    {
+     "name": "מערכת שעות",
+     "ok": true,
+     "issues": [],
+     "js": []
+    },
+    {
+     "name": "בחינות",
+     "ok": true,
+     "issues": [],
+     "js": []
+    }
+   ],
+   "issues": [],
+   "at": "2026-09-05T03:54:36.887Z",
+   "shot": "010-P-y2-390-יומן.png",
+   "chars": 2074,
+   "done": true
+  }
+ }
+}
