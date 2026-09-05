@@ -445,7 +445,11 @@ export function MiluimPageContent() {
               </ul>
               <p className="mt-1.5 text-[10px] leading-relaxed text-foreground/60">
                 {isHe
-                  ? `טופס 3010 מפרט את כל שירות המילואים שלכם, גם מלפני התואר. לפי ההגדרות התואר שלכם התחיל ב${startYear != null ? hebrewYearLabel(startYear) : ""}, וההטבות חלות רק על סמסטרים שלמדתם בהם — ולכן השורות האלה לא נספרות. אפשר למחוק אותן; ואם שנת הפתיחה שגויה, תקנו אותה בהגדרות.`
+                  // 6.9 — התניה על startYear, ולא הדבקה שלו אחרי "ב". כשהוא
+                  // null המשפט קרא "התואר שלכם התחיל ב, וההטבות חלות…" — ה״א
+                  // תחילית תלויה באוויר. (הבלוק הזה אמנם לא נפתח בלי שנת
+                  // פתיחה, אבל משפט שנשען על כך הוא משפט שממתין להישבר.)
+                  ? `טופס 3010 מפרט את כל שירות המילואים שלכם, גם מלפני התואר. ${startYear != null ? `לפי ההגדרות התואר שלכם התחיל ב${hebrewYearLabel(startYear)}, ו` : "ה"}הטבות חלות רק על סמסטרים שלמדתם בהם — ולכן השורות האלה לא נספרות. אפשר למחוק אותן; ואם שנת הפתיחה שגויה, תקנו אותה בהגדרות.`
                   : "A Form 3010 lists your entire reserve service, including service from before the degree. Benefits only apply to semesters you studied in, so these rows aren't counted. You can delete them — and if your degree start year is wrong, fix it in settings."}
               </p>
             </details>
