@@ -415,11 +415,13 @@ export function SyncDashboard() {
               שינויים שזוהו ({diff.updated.length})
             </h2>
             <div className="flex items-center gap-2">
+              {/* היה 44×16 — מתחת לרף 24 פיקסל, על הפקד שמסמן שינויים
+                  להחלה. מדוד ב-6.9. */}
               <button
                 onClick={selectAll}
-                className="text-xs text-foreground/60 hover:text-foreground/90 transition-colors"
+                className="inline-flex min-h-9 items-center rounded-lg px-2.5 py-1.5 text-xs text-foreground/60 transition-colors hover:bg-foreground/5 hover:text-foreground/90"
               >
-                בחר הכל
+                בחרו הכל
               </button>
               {selectedCourseIds.size > 0 && (
                 <button
