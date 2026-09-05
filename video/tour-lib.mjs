@@ -20,7 +20,7 @@ for (const f of [".env.local", ".env"]) {
   }
 }
 
-export const BASE = "https://pakam-strategist.vercel.app";
+export const BASE = process.env.PK_BASE ?? "https://pakam-strategist.vercel.app";
 export const SHOTS = fileURLToPath(new URL("./shots/", import.meta.url));
 
 export async function openApp({ width = 1440, height = 1000, mobile = false } = {}) {

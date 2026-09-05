@@ -12,7 +12,7 @@
 // dates as DD/MM/YYYY, days as decimals ("77.0"), plus a header service range.
 
 import { z } from "zod/v4";
-import { getAcademicNow } from "@/lib/academic-calendar";
+import { getAcademicNow, TAU_CALENDARS } from "@/lib/academic-calendar";
 
 const DATE_RE = /^\d{2}\/\d{2}\/\d{4}$/;
 
@@ -175,11 +175,35 @@ export function summarizeForm3010(
       continue;
     }
     const mid = new Date((start.getTime() + end.getTime()) / 2);
-    const now = getAcademicNow(mid);
+    let now = getAcademicNow(mid);
     if (now.isStale) {
-      // Outside the calendars we actually know — refuse to guess.
-      unmapped.push(p);
-      continue;
+      // =====================================================================
+      // 7.10.2023 — התקופה שנפלה בין הכיסאות (6.9)
+      // =====================================================================
+      // הלוח הראשון שאנחנו מכירים הוא תשפ״ד, וההוראה בו התחילה **31.12.2023**
+      // כי המלחמה דחתה את פתיחת השנה. משמעות הדבר: כל שירות מ-7 באוקטובר עד
+      // סוף דצמבר 2023 — הגיוס הגדול בתולדות המילואים, והבלוק הראשון בכמעט
+      // כל טופס 3010 שסטודנט יעלה — היה מוקדם מכל חלון-שיוך, ונחת ברשימת
+      // "לא הצלחנו לשייך".
+      //
+      // זו לא הייתה טעות בחישוב זכאות (השירות ההוא קדם לתואר של רוב מי
+      // שלומד היום, ולכן ממילא אינו מזכה) — אבל היא הציגה את השורה הכי
+      // מוכרת בטופס כאילו האפליקציה לא הצליחה לקרוא אותה.
+      //
+      // שנת לימודים מתחילה באוקטובר. תקופה שנופלת בין 1 באוקטובר של השנה
+      // הראשונה שאנחנו מכירים לבין תחילת ההוראה שלה שייכת לסמסטר א׳ שלה,
+      // ולא לשום מקום אחר. **רק** החלון הזה — כל תאריך מוקדם ממנו נשאר
+      // unmapped, כי לנחש שנה אקדמית מתאריך שאין לנו לוח עבורו זו בדיוק
+      // ההמצאה שהמודול הזה נכתב נגדה.
+      const first = TAU_CALENDARS[0]!;
+      const firstYearOpens = new Date(first.startYear, 9, 1, 0, 0, 0, 0); // 1.10
+      if (mid >= firstYearOpens && mid < first.FALL.teachingStart) {
+        now = { ...now, startYear: first.startYear, labelHe: first.labelHe, semester: "FALL", isStale: false };
+      } else {
+        // מחוץ ללוחות שאנחנו באמת מכירים — מסרבים לנחש.
+        unmapped.push(p);
+        continue;
+      }
     }
     const key = `${now.startYear}-${now.semester}`;
     const cur = byKey.get(key);
