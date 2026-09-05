@@ -306,6 +306,29 @@
     <p style="margin-bottom:0"><strong>ציון הגמר של כל סטודנט מחושב נכון.</strong> זה הדבר החשוב ביותר שהגיליון הוכיח.</p>
   </div>
 
+  <h2>ביקורת העיצוב — נמדדה בארבעת המצבים</h2>
+  <p>הכלי שנכתב במסוף מודד DOM חי מול הנחיות אפל: ניגודיות, יעדי מגע, גודל טקסט, טבעות פוקוס ושמות נגישים. הרצתי אותו <strong>מול פרודקשן</strong> בארבעת המצבים.</p>
+  <div class="scroll">
+    <table>
+      <thead><tr><th>מצב</th><th class="num">סה״כ</th><th class="num">גודל</th><th class="num">ניגודיות</th><th class="num">מגע</th></tr></thead>
+      <tbody>
+        <tr><td>1440 בהיר</td><td class="num">180</td><td class="num">75</td><td class="num">66</td><td class="num">39</td></tr>
+        <tr><td>1440 כהה</td><td class="num">126</td><td class="num">75</td><td class="num">0</td><td class="num">39</td></tr>
+        <tr><td>375 בהיר</td><td class="num">1003</td><td class="num">351</td><td class="num">66</td><td class="num">586</td></tr>
+        <tr><td>375 כהה</td><td class="num">949</td><td class="num">351</td><td class="num">0</td><td class="num">586</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p><strong>1003 נשמע כמו אסון. הפילוח אומר אחרת:</strong></p>
+  <div class="card good">
+    <ul style="margin:0">
+      <li><strong>הניגודיות אינה בעיית קריאוּת.</strong> כל 66 הממצאים הם ביחס <span style="font-variant-numeric:tabular-nums">4.49</span> מול דרישה של <span style="font-variant-numeric:tabular-nums">4.50</span> — מאית אחת, על טוקן אחד. במצב כהה: <strong>אפס</strong>.</li>
+      <li><strong>יעדי המגע מרוכזים.</strong> 315 מתוך 586 הם במסך הקטלוג לבדו — פקדי שורה שחוזרים על פני מאות שורות. ו-329 מהם הם 24 פיקסלים בדיוק, שהוא <em>הסף של WCAG</em>; מה שנכשל הוא ההמלצה המחמירה של אפל ל-44 באצבע.</li>
+      <li><strong>אפס</strong> כשלי טבעת-פוקוס ו<strong>אפס</strong> פקדים בלי שם נגיש — בכל ארבעת המצבים.</li>
+    </ul>
+  </div>
+  <p><strong>אין טקסט בלתי-קריא ואין פקד שאי-אפשר ללחוץ עליו.</strong> תיקון פקדי-השורה בקטלוג לבדו מוריד יותר ממחצית הרשימה — והמלצתי לעשות את זה אחרי מקצה 1.</p>
+
   <h2>מה מחכה להחלטה שלך</h2>
   <p><strong>אף אחד מהם אינו חוסם השקה.</strong> שני הדברים שהיו חוסמים — המסד וה-AI — נסגרו היום.</p>
   <div class="scroll">

@@ -393,6 +393,161 @@
    "shot": "013-P-y2-390-מדריך מתחיל.png",
    "chars": 3358,
    "done": true
+  },
+  "/he/settings": {
+   "label": "הגדרות",
+   "actions": [
+    {
+     "name": "לשון נקבה",
+     "ok": true,
+     "issues": [],
+     "js": []
+    },
+    {
+     "name": "לשון זכר",
+     "ok": true,
+     "issues": [],
+     "js": []
+    },
+    {
+     "name": "ניטרלי",
+     "ok": true,
+     "issues": [],
+     "js": []
+    },
+    {
+     "name": "מתקדמים ב׳",
+     "ok": true,
+     "issues": [],
+     "js": []
+    },
+    {
+     "name": "עוד לא החלטתי",
+     "ok": true,
+     "issues": [],
+     "js": []
+    },
+    {
+     "name": "תשפ״ו · 2025/26",
+     "ok": true,
+     "issues": [],
+     "js": []
+    },
+    {
+     "name": "שמרו פרופיל",
+     "ok": true,
+     "issues": [],
+     "js": []
+    },
+    {
+     "name": "שמרו מפתח",
+     "ok": true,
+     "why": "מושבת כצפוי"
+    },
+    {
+     "name": "שתפו את הציונים שלי",
+     "ok": true,
+     "issues": [],
+     "js": []
+    },
+    {
+     "name": "משכו את כל התרומות שלי",
+     "ok": true,
+     "issues": [],
+     "js": []
+    },
+    {
+     "name": "העתקת קישור",
+     "ok": true,
+     "issues": [],
+     "js": []
+    },
+    {
+     "name": "חברו ל-Google Calendar",
+     "ok": true,
+     "issues": [],
+     "js": []
+    },
+    {
+     "name": "אוטומטי",
+     "ok": true,
+     "issues": [],
+     "js": []
+    }
+   ],
+   "issues": [],
+   "at": "2026-09-05T03:56:02.444Z",
+   "shot": "014-P-y2-390-הגדרות.png",
+   "chars": 4922,
+   "done": true
+  },
+  "/he/cohort": {
+   "label": "המחזור",
+   "actions": [
+    {
+     "name": "לדירוג",
+     "ok": true,
+     "issues": [],
+     "js": []
+    },
+    {
+     "name": "הצגת כל 12 הקורסים",
+     "ok": true,
+     "issues": [],
+     "js": []
+    },
+    {
+     "name": "לשנה א׳",
+     "ok": true,
+     "issues": [],
+     "js": []
+    },
+    {
+     "name": "לפני בידינג",
+     "ok": true,
+     "issues": [],
+     "js": []
+    },
+    {
+     "name": "לפני מבחנים",
+     "ok": true,
+     "issues": [],
+     "js": []
+    },
+    {
+     "name": "בחירת מיקוד",
+     "ok": true,
+     "issues": [],
+     "js": []
+    },
+    {
+     "name": "כללי",
+     "ok": true,
+     "issues": [],
+     "js": []
+    },
+    {
+     "name": "שיתוף",
+     "ok": true,
+     "why": "מושבת כצפוי"
+    },
+    {
+     "name": "פרסום המסלול שלי",
+     "ok": true,
+     "why": "מושבת כצפוי"
+    },
+    {
+     "name": "הסרת המסלול שפרסמתי",
+     "ok": true,
+     "issues": [],
+     "js": []
+    }
+   ],
+   "issues": [],
+   "at": "2026-09-05T03:56:56.691Z",
+   "shot": "015-P-y2-390-המחזור.png",
+   "chars": 1296,
+   "done": true
   }
  }
 }
