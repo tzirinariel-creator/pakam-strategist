@@ -7,6 +7,8 @@
 // He was right, and the reason is worth writing down because it looks like a
 // data bug and is not one.
 //
+// Re-measured against the live catalog on 5.9: 139 of 345 courses carry no
+// discipline (the catalog grew from 304; the share held at ~40%).
 // Measured against the live catalog on 2.9: 123 of the 304 active courses
 // carry no discipline, and 61 of the 67 seminars are among them. That is
 // FAITHFUL to the ידיעון. The ידיעון lists seminars under headings like

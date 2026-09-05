@@ -1,0 +1,303 @@
+{
+ "persona": "y1",
+ "width": 390,
+ "screens": {
+  "/he/dashboard": {
+   "label": "בית",
+   "actions": [
+    {
+     "name": "שתפו את הקורסים שסיימתי",
+     "ok": true,
+     "issues": [],
+     "js": []
+    },
+    {
+     "name": "לא עכשיו",
+     "ok": true,
+     "issues": [],
+     "js": []
+    },
+    {
+     "name": "הסתירו פירוט",
+     "ok": true,
+     "issues": [],
+     "js": []
+    }
+   ],
+   "issues": [],
+   "at": "2026-09-05T03:35:50.838Z",
+   "shot": "001-P-y1-390-בית.png",
+   "chars": 3008,
+   "done": true
+  },
+  "/he/planner": {
+   "label": "תכנון התואר",
+   "actions": [
+    {
+     "name": "שתף",
+     "ok": true,
+     "issues": [],
+     "js": []
+    }
+   ],
+   "issues": [],
+   "at": "2026-09-05T03:36:07.006Z",
+   "shot": "002-P-y1-390-תכנון התואר.png",
+   "chars": 2468,
+   "done": true
+  },
+  "/he/bidding": {
+   "label": "בידינג",
+   "actions": [
+    {
+     "name": "העתקת שני הסמסטרים",
+     "ok": true,
+     "issues": [],
+     "js": []
+    }
+   ],
+   "issues": [],
+   "at": "2026-09-05T03:36:21.056Z",
+   "shot": "003-P-y1-390-בידינג.png",
+   "chars": 2068,
+   "done": true
+  },
+  "/he/regulations": {
+   "label": "דרישות התואר",
+   "actions": [
+    {
+     "name": "רעננו",
+     "ok": true,
+     "issues": [],
+     "js": []
+    },
+    {
+     "name": "שאל את המלך איך לסגור את זה",
+     "ok": true,
+     "issues": [],
+     "js": []
+    }
+   ],
+   "issues": [],
+   "at": "2026-09-05T03:36:32.359Z",
+   "shot": "004-P-y1-390-דרישות התואר.png",
+   "chars": 2043,
+   "done": true
+  },
+  "/he/record": {
+   "label": "התיק האקדמי",
+   "actions": [],
+   "issues": [
+    "חריגה: TimeoutError: page.goto: Timeout 30000ms exceeded.\nCall log:\n  - navigating to \"https://pakam-strategist.vercel.app/he/record\", waiting unti"
+   ],
+   "at": "2026-09-05T03:36:53.636Z"
+  },
+  "/he/graduation": {
+   "label": "מחשבון ציון גמר",
+   "actions": [],
+   "issues": [
+    "חריגה: TimeoutError: page.goto: Timeout 30000ms exceeded.\nCall log:\n  - navigating to \"https://pakam-strategist.vercel.app/he/graduation\", waiting "
+   ],
+   "at": "2026-09-05T03:37:23.655Z"
+  },
+  "/he/miluim": {
+   "label": "מילואים",
+   "actions": [
+    {
+     "name": "הוסיפו סמסטר",
+     "ok": true,
+     "issues": [],
+     "js": []
+    },
+    {
+     "name": "כן",
+     "ok": true,
+     "issues": [],
+     "js": []
+    },
+    {
+     "name": "לא",
+     "ok": true,
+     "issues": [],
+     "js": []
+    },
+    {
+     "name": "שמירת מילואים",
+     "ok": true,
+     "issues": [],
+     "js": []
+    },
+    {
+     "name": "העלו טופס 3010",
+     "ok": true,
+     "issues": [],
+     "js": []
+    },
+    {
+     "name": "לא משרתים במילואים",
+     "ok": true,
+     "issues": [],
+     "js": []
+    }
+   ],
+   "issues": [],
+   "at": "2026-09-05T03:37:53.664Z",
+   "shot": "005-P-y1-390-מילואים.png",
+   "chars": 2267,
+   "done": true
+  },
+  "/he/exam": {
+   "label": "לוח הבחינות",
+   "actions": [
+    {
+     "name": "לוח בחינות",
+     "ok": true,
+     "issues": [],
+     "js": []
+    },
+    {
+     "name": "ציר זמן",
+     "ok": true,
+     "issues": [],
+     "js": []
+    },
+    {
+     "name": "ייצוא",
+     "ok": true,
+     "issues": [],
+     "js": []
+    }
+   ],
+   "issues": [],
+   "at": "2026-09-05T03:38:28.040Z",
+   "shot": "006-P-y1-390-לוח הבחינות.png",
+   "chars": 1178,
+   "done": true
+  },
+  "/he/exam-planner": {
+   "label": "תכנון מבחנים",
+   "actions": [
+    {
+     "name": "הבנתי",
+     "ok": true,
+     "issues": [],
+     "js": []
+    },
+    {
+     "name": "עבודה במקום מבחן?",
+     "ok": true,
+     "issues": [],
+     "js": []
+    }
+   ],
+   "issues": [],
+   "at": "2026-09-05T03:38:44.679Z",
+   "shot": "007-P-y1-390-תכנון מבחנים.png",
+   "chars": 1989,
+   "done": true
+  },
+  "/he/calendar": {
+   "label": "יומן",
+   "actions": [
+    {
+     "name": "מערכת שעות",
+     "ok": true,
+     "issues": [],
+     "js": []
+    },
+    {
+     "name": "בחינות",
+     "ok": true,
+     "issues": [],
+     "js": []
+    }
+   ],
+   "issues": [],
+   "at": "2026-09-05T03:39:02.769Z",
+   "shot": "008-P-y1-390-יומן.png",
+   "chars": 2511,
+   "done": true
+  },
+  "/he/catalog": {
+   "label": "קטלוג קורסים",
+   "actions": [
+    {
+     "name": "כל התחומים",
+     "ok": true,
+     "issues": [],
+     "js": []
+    },
+    {
+     "name": "כל סוגי הקורסים",
+     "ok": true,
+     "issues": [],
+     "js": []
+    },
+    {
+     "name": "כל השנים",
+     "ok": true,
+     "issues": [],
+     "js": []
+    },
+    {
+     "name": "קוד",
+     "ok": true,
+     "why": "מוסתר במצב הזה"
+    },
+    {
+     "name": "שם הקורס",
+     "ok": true,
+     "issues": [],
+     "js": []
+    },
+    {
+     "name": "תחום",
+     "ok": true,
+     "issues": [],
+     "js": []
+    },
+    {
+     "name": "סוג",
+     "ok": true,
+     "issues": [],
+     "js": []
+    },
+    {
+     "name": "ש״ס",
+     "ok": true,
+     "issues": [],
+     "js": []
+    },
+    {
+     "name": "שנה",
+     "ok": true,
+     "issues": [],
+     "js": []
+    }
+   ],
+   "issues": [],
+   "at": "2026-09-05T03:39:21.383Z",
+   "shot": "009-P-y1-390-קטלוג קורסים.png",
+   "chars": 24407,
+   "done": true
+  },
+  "/he/lineage": {
+   "label": "השושלת",
+   "actions": [],
+   "issues": [],
+   "at": "2026-09-05T03:40:09.399Z",
+   "shot": "010-P-y1-390-השושלת.png",
+   "chars": 2982,
+   "done": true
+  },
+  "/he/guide": {
+   "label": "מדריך מתחיל",
+   "actions": [],
+   "issues": [],
+   "at": "2026-09-05T03:40:20.836Z",
+   "shot": "011-P-y1-390-מדריך מתחיל.png",
+   "chars": 3358,
+   "done": true
+  }
+ }
+}
