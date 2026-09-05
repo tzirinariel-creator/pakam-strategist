@@ -46,6 +46,7 @@ const NAV_ICONS = {
   cohort: Users2,
   mentors: Handshake,
   lineage: Users2,
+  adminOverview: LayoutDashboard,
   adminModeration: ShieldCheck,
   adminSync: RefreshCw,
 } as const;
@@ -53,6 +54,7 @@ const NAV_ICONS = {
 // OPS3 — rendered only when getProfile.role === "admin"; the routes themselves
 // are double-gated (admin layout redirect + adminProcedure 403).
 const ADMIN_GROUP = [
+  { key: "adminOverview", href: "/admin" },
   { key: "adminModeration", href: "/admin/moderation" },
   { key: "adminSync", href: "/admin/sync" },
 ] as const;

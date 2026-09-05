@@ -718,4 +718,203 @@ export const adminRouter = createTRPCRouter({
         year,
       };
     }),
+  // =======================================================================
+  // getOverview — התמונה שבעל האפליקציה צריך, במקום אחד
+  // =======================================================================
+  // אריאל, 6.9: *"דשבורד אחורי… שבו אוכל לראות כמה אנשים רשומים, כמה מידע
+  // הם העלו וכל המידע שאני צריך כמנהל אפליקציה… בכל רגע בצורה אמינה
+  // ומלאה."*
+  //
+  // שלושה כללים עיצוביים שקבעתי כאן, ושווה שיישארו:
+  //
+  // 1. **הכול נמדד, שום דבר לא מוערך.** כל מספר במסך הוא ספירה של שורות
+  //    במסד. אין הערכות, אין אקסטרפולציה, ואין "בערך". מסך ניהול שמנחש
+  //    גרוע ממסך ניהול שלא קיים.
+  //
+  // 2. **אין ציונים ברמת הפרט.** הדשבורד מראה *כמה* ציונים הוזנו, לא
+  //    *מה* הם. אריאל הוא בעל האפליקציה, לא המרצה — והסטודנטים העלו את
+  //    הגיליונות שלהם לכלי תכנון, לא לצפייה. הגבול הזה מכוון.
+  //
+  // 3. **שאילתה אחת, כל המסך.** 39 משתמשים היום, ומאות בהמשך — הכול
+  //    בספירות מצטברות (`count` / `groupBy`) ולא בטעינת שורות לזיכרון,
+  //    חוץ מ-25 הנרשמים האחרונים והקורסים המבוקשים.
+  getOverview: adminProcedure.query(async ({ ctx }) => {
+    const now = new Date();
+    const dayMs = 24 * 60 * 60 * 1000;
+    const since = (days: number) => new Date(now.getTime() - days * dayMs);
+
+    // ── מי נרשם ──
+    const [totalUsers, usersToday, users7, users30, adminCount] = await Promise.all([
+      ctx.db.user.count(),
+      ctx.db.user.count({ where: { createdAt: { gte: since(1) } } }),
+      ctx.db.user.count({ where: { createdAt: { gte: since(7) } } }),
+      ctx.db.user.count({ where: { createdAt: { gte: since(30) } } }),
+      ctx.db.user.count({ where: { role: "admin" } }),
+    ]);
+
+    // ── משפך ההפעלה ──
+    // כל שלב הוא עובדה על המסד, לא פרשנות: "הצהיר שנה" = startYear קיים,
+    // "בנה תוכנית" = יש לו לפחות שורת UserCourse אחת, וכן הלאה. השלב
+    // האחרון — "חזר" — הוא היחיד שדורש הסבר: updatedAt מתעדכן בכל שינוי
+    // פרופיל, אז פער של יממה ממועד ההרשמה אומר שהוא חזר ביום אחר.
+    const [declaredYear, withPlan, withGrades, returned, googleLinked, withMiluim] =
+      await Promise.all([
+        ctx.db.user.count({ where: { startYear: { not: null } } }),
+        ctx.db.user.count({ where: { courses: { some: {} } } }),
+        ctx.db.user.count({ where: { courses: { some: { grade: { not: null } } } } }),
+        ctx.db.$queryRaw<{ n: bigint }[]>`
+          SELECT COUNT(*)::bigint AS n FROM users
+          WHERE "updatedAt" > "createdAt" + INTERVAL '1 day'`,
+        ctx.db.user.count({ where: { encryptedGoogleToken: { not: null } } }),
+        ctx.db.user.count({ where: { miluimSemesters: { some: {} } } }),
+      ]);
+
+    // ── מה הם העלו ──
+    const [
+      userCourses, gradedRows, completedRows, plannedRows, miluimRows,
+      studyTasks, chatSessions, reviews, insights, sharedPlans, gradePoints,
+      mentorLinks, syllabi, notes, materials, calendarEvents,
+    ] = await Promise.all([
+      ctx.db.userCourse.count(),
+      ctx.db.userCourse.count({ where: { grade: { not: null } } }),
+      ctx.db.userCourse.count({ where: { status: "COMPLETED" } }),
+      ctx.db.userCourse.count({ where: { status: "PLANNED" } }),
+      ctx.db.miluimSemester.count(),
+      ctx.db.studyTask.count(),
+      ctx.db.chatSession.count(),
+      ctx.db.courseReview.count(),
+      ctx.db.cohortInsight.count(),
+      ctx.db.sharedPlanEntry.count(),
+      ctx.db.courseGradePoint.count(),
+      ctx.db.mentorLink.count(),
+      ctx.db.syllabus.count(),
+      ctx.db.synthesisNote.count(),
+      ctx.db.studyMaterial.count(),
+      ctx.db.calendarEvent.count(),
+    ]);
+
+    // ── מי הם ──
+    const [byFocus, byMiluim, byStartYear, byEnglish] = await Promise.all([
+      ctx.db.user.groupBy({ by: ["focusArea"], _count: { _all: true } }),
+      ctx.db.user.groupBy({ by: ["miluimGroup"], _count: { _all: true } }),
+      ctx.db.user.groupBy({ by: ["startYear"], _count: { _all: true } }),
+      ctx.db.user.groupBy({ by: ["englishLevel"], _count: { _all: true } }),
+    ]);
+
+    // ── הרשמות לפי יום, 30 יום אחורה ──
+    const signupRows = await ctx.db.$queryRaw<{ d: string; n: bigint }[]>`
+      SELECT to_char("createdAt" AT TIME ZONE 'Asia/Jerusalem', 'YYYY-MM-DD') AS d,
+             COUNT(*)::bigint AS n
+      FROM users
+      WHERE "createdAt" >= NOW() - INTERVAL '30 days'
+      GROUP BY 1 ORDER BY 1`;
+    const signupsByDay = new Map(signupRows.map((r) => [r.d, Number(r.n)]));
+    const days: { date: string; count: number }[] = [];
+    for (let i = 29; i >= 0; i--) {
+      const d = new Date(now.getTime() - i * dayMs).toISOString().slice(0, 10);
+      days.push({ date: d, count: signupsByDay.get(d) ?? 0 });
+    }
+
+    // ── הקטלוג ──
+    const [coursesTotal, coursesActive, sessions, coursesWithExam] = await Promise.all([
+      ctx.db.course.count(),
+      ctx.db.course.count({ where: { isActive: true } }),
+      ctx.db.scheduleSession.count(),
+      ctx.db.course.count({ where: { isActive: true, examDateA: { not: null } } }),
+    ]);
+    const coursesWithSchedule = (
+      await ctx.db.scheduleSession.groupBy({ by: ["courseCode"], _count: { _all: true } })
+    ).length;
+
+    // ── בריאות ──
+    const [lastSync, pendingReviews, pendingInsights, reportedReviews] = await Promise.all([
+      ctx.db.syncLog.findFirst({ orderBy: { startedAt: "desc" } }),
+      ctx.db.courseReview.count({ where: { status: "PENDING" } }),
+      ctx.db.cohortInsight.count({ where: { status: "PENDING" } }),
+      ctx.db.reviewReport.count(),
+    ]);
+
+    // ── הנרשמים האחרונים ──
+    // מייל ושם — כדי שאפשר יהיה לענות למי שכותב. **בלי ציונים.**
+    const recentUsers = await ctx.db.user.findMany({
+      select: {
+        email: true, firstName: true, displayName: true, createdAt: true,
+        updatedAt: true, startYear: true, focusArea: true, role: true,
+        encryptedGoogleToken: true,
+        _count: { select: { courses: true, chatSessions: true, studyTasks: true, miluimSemesters: true } },
+      },
+      orderBy: { createdAt: "desc" },
+      take: 25,
+    });
+
+    // ── מה הם מתכננים לקחת — הנתון הכי שימושי בשבוע הבידינג ──
+    const topPlannedRaw = await ctx.db.userCourse.groupBy({
+      by: ["courseId"],
+      where: { status: { in: ["PLANNED", "IN_PROGRESS"] } },
+      _count: { _all: true },
+      orderBy: { _count: { courseId: "desc" } },
+      take: 12,
+    });
+    const topCourseRows = await ctx.db.course.findMany({
+      where: { id: { in: topPlannedRaw.map((r) => r.courseId) } },
+      select: { id: true, code: true, nameHe: true, credits: true, courseType: true },
+    });
+    const topCourseById = new Map(topCourseRows.map((c) => [c.id, c]));
+    const topPlanned = topPlannedRaw
+      .map((r) => {
+        const c = topCourseById.get(r.courseId);
+        return c ? { code: c.code, nameHe: c.nameHe, credits: c.credits, courseType: c.courseType, count: r._count._all } : null;
+      })
+      .filter((x): x is NonNullable<typeof x> => x !== null);
+
+    return {
+      generatedAt: now.toISOString(),
+      users: { total: totalUsers, today: usersToday, last7: users7, last30: users30, admins: adminCount },
+      funnel: {
+        registered: totalUsers,
+        declaredYear,
+        withPlan,
+        withGrades,
+        returned: Number(returned[0]?.n ?? 0),
+        googleLinked,
+        withMiluim,
+      },
+      content: {
+        userCourses, gradedRows, completedRows, plannedRows, miluimRows,
+        studyTasks, chatSessions, reviews, insights, sharedPlans, gradePoints,
+        mentorLinks, syllabi, notes, materials, calendarEvents,
+      },
+      cohort: {
+        byFocus: byFocus.map((r) => ({ key: r.focusArea, n: r._count._all })),
+        byMiluim: byMiluim.map((r) => ({ key: r.miluimGroup, n: r._count._all })),
+        byStartYear: byStartYear.map((r) => ({ key: r.startYear, n: r._count._all })),
+        byEnglish: byEnglish.map((r) => ({ key: r.englishLevel, n: r._count._all })),
+      },
+      signupsByDay: days,
+      catalog: { total: coursesTotal, active: coursesActive, withSchedule: coursesWithSchedule, sessions, withExamDates: coursesWithExam },
+      health: {
+        lastSync: lastSync
+          ? { status: lastSync.status, startedAt: lastSync.startedAt.toISOString(), changesFound: lastSync.changesFound, changesApplied: lastSync.changesApplied }
+          : null,
+        pendingReviews,
+        pendingInsights,
+        reportedReviews,
+      },
+      recentUsers: recentUsers.map((u) => ({
+        email: u.email,
+        name: u.firstName ?? u.displayName ?? null,
+        createdAt: u.createdAt.toISOString(),
+        updatedAt: u.updatedAt.toISOString(),
+        startYear: u.startYear,
+        focusArea: u.focusArea,
+        isAdmin: u.role === "admin",
+        googleLinked: u.encryptedGoogleToken != null,
+        courses: u._count.courses,
+        chats: u._count.chatSessions,
+        tasks: u._count.studyTasks,
+        miluim: u._count.miluimSemesters,
+      })),
+      topPlanned,
+    };
+  }),
 });
