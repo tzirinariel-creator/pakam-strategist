@@ -4,7 +4,7 @@
    "id": "1f045a97-ec05-4876-98a3-5c76860f558b",
    "code": "1882-0301",
    "universityId": "86d3e784-fb1d-42d3-a907-0481fc1af7a4",
-   "nameHe": "צעדים ראשונים במדעי המחשב ופייתון",
+   "nameHe": "צעדים ראשונים במדעי המחשב ותכנות בפייתון",
    "nameEn": "First Steps in Computer Science and Python",
    "discipline": "GENERAL",
    "courseType": "ELECTIVE",
@@ -37,7 +37,7 @@
    "lastSyncedAt": "2026-06-27T06:32:41.810Z",
    "yedionUrl": null,
    "createdAt": "2026-02-25T12:35:35.474Z",
-   "updatedAt": "2026-08-21T17:17:14.871Z"
+   "updatedAt": "2026-09-05T08:43:46.058Z"
   },
   {
    "id": "5b53fffe-f749-4b65-8192-d48f5d69ff2c",
@@ -52,7 +52,6 @@
     2
    ],
    "semesterOffered": [
-    "FALL",
     "SPRING"
    ],
    "prerequisites": [],
@@ -75,7 +74,7 @@
    "lastSyncedAt": "2026-06-27T06:32:41.810Z",
    "yedionUrl": null,
    "createdAt": "2026-02-25T12:35:35.474Z",
-   "updatedAt": "2026-09-01T01:10:04.776Z"
+   "updatedAt": "2026-09-05T08:44:02.862Z"
   },
   {
    "id": "1032a81d-dc09-4ffd-8b61-792e1db94ec7",
@@ -110,17 +109,17 @@
    "difficultyLevel": "easy",
    "gradeDataSource": "arazim",
    "gradeDataYear": "2023a",
-   "isActive": false,
+   "isActive": true,
    "lastSyncedAt": "2026-06-27T06:32:41.810Z",
    "yedionUrl": "https://ims.tau.ac.il/tal/syllabus/Syllabus_L.aspx?lang=HE&course=1411910101&year=2025",
    "createdAt": "2026-02-25T12:35:35.474Z",
-   "updatedAt": "2026-08-12T21:53:12.039Z"
+   "updatedAt": "2026-09-05T08:44:03.860Z"
   },
   {
    "id": "c2153c5a-4257-496d-96a6-8df92bcfcce1",
    "code": "0651-3007",
    "universityId": null,
-   "nameHe": "סמינר פכ\"מ ב'",
+   "nameHe": "סמינר פכ\"מ: התמחות מעשית",
    "nameEn": "PPE Seminar B",
    "discipline": "PPE_CORE",
    "courseType": "SEMINAR",
@@ -154,13 +153,13 @@
    "lastSyncedAt": "2026-06-27T06:32:41.810Z",
    "yedionUrl": null,
    "createdAt": "2026-03-05T11:48:44.801Z",
-   "updatedAt": "2026-08-21T12:27:58.830Z"
+   "updatedAt": "2026-09-05T08:44:01.181Z"
   },
   {
    "id": "6f6bfc66-d017-4490-bd1d-d94265f00003",
    "code": "1031-3854",
    "universityId": "86d3e784-fb1d-42d3-a907-0481fc1af7a4",
-   "nameHe": "דילמות בלוחמה מודרנית",
+   "nameHe": "דילמות במלחמות מודרניות",
    "nameEn": "Dilemmas in Modern Warfare",
    "discipline": "POLITICAL_SCIENCE",
    "courseType": "SEMINAR",
@@ -192,13 +191,13 @@
    "lastSyncedAt": "2026-06-27T06:32:41.810Z",
    "yedionUrl": null,
    "createdAt": "2026-02-25T12:35:35.474Z",
-   "updatedAt": "2026-08-21T12:28:00.948Z"
+   "updatedAt": "2026-09-05T08:43:52.441Z"
   },
   {
    "id": "03fb2c2d-a4f2-4d9e-8ec4-00b11e4d264d",
    "code": "1031-3983",
    "universityId": "86d3e784-fb1d-42d3-a907-0481fc1af7a4",
-   "nameHe": "מומחים בפוליטיקה",
+   "nameHe": "מומחים לפוליטיקה",
    "nameEn": "Experts in Politics",
    "discipline": "POLITICAL_SCIENCE",
    "courseType": "SEMINAR",
@@ -230,13 +229,13 @@
    "lastSyncedAt": "2026-06-27T06:32:41.810Z",
    "yedionUrl": null,
    "createdAt": "2026-02-25T12:35:35.474Z",
-   "updatedAt": "2026-06-27T06:33:08.273Z"
+   "updatedAt": "2026-09-05T08:43:59.435Z"
   },
   {
    "id": "1efb722c-718b-4cc9-bd63-1069c27cc1d1",
    "code": "0910-1000",
    "universityId": "86d3e784-fb1d-42d3-a907-0481fc1af7a4",
-   "nameHe": "דיני איכות סביבה",
+   "nameHe": "דיני איכות הסביבה",
    "nameEn": "Environmental Quality Law",
    "discipline": "LAW",
    "courseType": "ELECTIVE",
@@ -268,13 +267,13 @@
    "lastSyncedAt": "2026-06-27T06:32:41.810Z",
    "yedionUrl": null,
    "createdAt": "2026-02-25T12:35:35.474Z",
-   "updatedAt": "2026-09-01T05:30:26.247Z"
+   "updatedAt": "2026-09-05T08:43:41.399Z"
   },
   {
    "id": "0d5dca70-ca15-4e87-aed1-bbbea324e689",
    "code": "1882-1002",
    "universityId": "86d3e784-fb1d-42d3-a907-0481fc1af7a4",
-   "nameHe": "פוליטיקה אנושית: מוות, חירות והחיפוש אחר משמעות",
+   "nameHe": "פוליטיקה אנושית: מוות, חופש וחיפוש משמעות",
    "nameEn": "Human Politics: Death, Freedom, and the Search for Meaning",
    "discipline": "GENERAL",
    "courseType": "ELECTIVE",
@@ -309,13 +308,13 @@
    "lastSyncedAt": "2026-06-27T06:32:41.810Z",
    "yedionUrl": null,
    "createdAt": "2026-02-25T12:35:35.474Z",
-   "updatedAt": "2026-09-01T05:30:26.376Z"
+   "updatedAt": "2026-09-05T08:43:48.522Z"
   },
   {
    "id": "3a47ab64-729b-4f8f-a5b4-45c08fff4710",
    "code": "0651-1010",
    "universityId": "86d3e784-fb1d-42d3-a907-0481fc1af7a4",
-   "nameHe": "כלכלה פוליטית בינלאומית (קורס אינטגרטיבי)",
+   "nameHe": "קורס אינטגרטיבי לפכ\"מ: כלכלה פוליטית בינלאומית",
    "nameEn": "International Political Economy (Integrative Course)",
    "discipline": "PPE_CORE",
    "courseType": "MANDATORY",
@@ -349,7 +348,7 @@
    "lastSyncedAt": "2026-06-27T06:32:41.810Z",
    "yedionUrl": null,
    "createdAt": "2026-02-25T12:35:35.474Z",
-   "updatedAt": "2026-08-21T17:17:49.568Z"
+   "updatedAt": "2026-09-05T08:44:01.966Z"
   },
   {
    "id": "0bdc909f-509b-4ef8-a5ee-13554cfe2fa5",
@@ -394,7 +393,7 @@
    "id": "fdfefd64-1170-4cb6-99fb-1a7505f55f90",
    "code": "0618-1059",
    "universityId": "86d3e784-fb1d-42d3-a907-0481fc1af7a4",
-   "nameHe": "מבוא לאסתטיקה ופילוסופיה של האמנות",
+   "nameHe": "מבוא לאסתטיקה ולפילוסופיה של האמנות",
    "nameEn": "Introduction to Aesthetics and Philosophy of Art",
    "discipline": "PHILOSOPHY",
    "courseType": "ELECTIVE",
@@ -426,13 +425,13 @@
    "lastSyncedAt": "2026-06-27T06:32:41.810Z",
    "yedionUrl": null,
    "createdAt": "2026-02-25T12:35:35.474Z",
-   "updatedAt": "2026-08-21T17:17:50.879Z"
+   "updatedAt": "2026-09-05T08:43:53.674Z"
   },
   {
    "id": "9d574e75-6bc3-4591-a9d7-d0c9bf5f3867",
    "code": "0618-2350",
    "universityId": "86d3e784-fb1d-42d3-a907-0481fc1af7a4",
-   "nameHe": "אפיסטמולוגיה ומטפיזיקה — שיעור המשך",
+   "nameHe": "תורת ההכרה ומטאפיזיקה - שיעור המשך",
    "nameEn": "Epistemology and Metaphysics — Advanced",
    "discipline": "PHILOSOPHY",
    "courseType": "ELECTIVE",
@@ -464,13 +463,13 @@
    "lastSyncedAt": "2026-06-27T06:32:41.810Z",
    "yedionUrl": null,
    "createdAt": "2026-02-25T12:35:35.474Z",
-   "updatedAt": "2026-08-21T17:17:53.004Z"
+   "updatedAt": "2026-09-05T08:43:54.724Z"
   },
   {
    "id": "5eb23240-9404-4039-96a6-e11017f9e6ef",
    "code": "0618-7175",
    "universityId": "86d3e784-fb1d-42d3-a907-0481fc1af7a4",
-   "nameHe": "מבוא עכשווי לפילוסופיה של התודעה",
+   "nameHe": "מבוא עכשווי לפילוסופיה של הנפש",
    "nameEn": "Contemporary Introduction to Philosophy of Mind",
    "discipline": "PHILOSOPHY",
    "courseType": "ELECTIVE",
@@ -502,7 +501,7 @@
    "lastSyncedAt": "2026-06-27T06:32:41.810Z",
    "yedionUrl": null,
    "createdAt": "2026-02-25T12:35:35.474Z",
-   "updatedAt": "2026-08-21T17:17:51.278Z"
+   "updatedAt": "2026-09-05T08:44:00.312Z"
   },
   {
    "id": "f103a9a0-fe7e-4f11-803c-40e0d96eb5a9",
@@ -547,7 +546,7 @@
    "id": "27b358a0-1cd5-4964-9d91-f1ff77f7042b",
    "code": "1031-3939",
    "universityId": "86d3e784-fb1d-42d3-a907-0481fc1af7a4",
-   "nameHe": "סוגיות בביטחון לאומי של ישראל",
+   "nameHe": "סוגיות בביטחון הלאומי של ישראל",
    "nameEn": "Issues in Israel's National Security",
    "discipline": "POLITICAL_SCIENCE",
    "courseType": "ELECTIVE",
@@ -579,13 +578,13 @@
    "lastSyncedAt": "2026-06-27T06:32:41.810Z",
    "yedionUrl": null,
    "createdAt": "2026-02-25T12:35:35.474Z",
-   "updatedAt": "2026-06-27T06:33:07.533Z"
+   "updatedAt": "2026-09-05T08:43:56.354Z"
   },
   {
    "id": "2b19a1f7-96b0-41ed-94b8-9ad9f86038e7",
    "code": "1031-3994",
    "universityId": "86d3e784-fb1d-42d3-a907-0481fc1af7a4",
-   "nameHe": "סוגיות מתקדמות בפוליטיקה ישראלית",
+   "nameHe": "סוגיות מתקדמות בפוליטיקה הישראלית",
    "nameEn": "Advanced Issues in Israeli Politics",
    "discipline": "POLITICAL_SCIENCE",
    "courseType": "ELECTIVE",
@@ -617,13 +616,13 @@
    "lastSyncedAt": "2026-06-27T06:32:41.810Z",
    "yedionUrl": null,
    "createdAt": "2026-02-25T12:35:35.474Z",
-   "updatedAt": "2026-08-21T12:28:07.106Z"
+   "updatedAt": "2026-09-05T08:43:57.525Z"
   },
   {
    "id": "3a037423-96cc-4128-9e52-069f44d41a55",
    "code": "0621-1974",
    "universityId": "86d3e784-fb1d-42d3-a907-0481fc1af7a4",
-   "nameHe": "וצדק לכולם? ארה\"ב במאות ה-19 וה-20",
+   "nameHe": "וצדק לכל? ארה\"ב במאות ה-19 וה-20",
    "nameEn": "And Justice for All? The USA in the 19th and 20th Centuries",
    "discipline": "GENERAL",
    "courseType": "ELECTIVE",
@@ -655,13 +654,13 @@
    "lastSyncedAt": "2026-06-27T06:32:41.810Z",
    "yedionUrl": null,
    "createdAt": "2026-02-25T12:35:35.474Z",
-   "updatedAt": "2026-08-21T17:18:01.025Z"
+   "updatedAt": "2026-09-05T08:43:43.628Z"
   },
   {
    "id": "678d53a9-b224-44f7-b31c-cb58596178ee",
    "code": "0622-1001",
    "universityId": null,
-   "nameHe": "מבוא לתולדות המזה\"ת בעת החדישה",
+   "nameHe": "מבוא לתולדות המזה\"ת בעת החדשה",
    "nameEn": null,
    "discipline": "GENERAL",
    "courseType": "ELECTIVE",
@@ -692,7 +691,7 @@
    "lastSyncedAt": "2026-08-12T21:33:50.032Z",
    "yedionUrl": null,
    "createdAt": "2026-08-12T21:33:50.033Z",
-   "updatedAt": "2026-08-12T21:33:50.033Z"
+   "updatedAt": "2026-09-05T08:43:58.573Z"
   },
   {
    "id": "653acffe-b062-4f54-826b-9d7758b9a54a",
@@ -734,6 +733,108 @@
   }
  ],
  "sessions": [
+  {
+   "id": "4ff2fb80-ce76-4198-94ae-6d283dcc7658",
+   "courseCode": "1031-1108",
+   "dayOfWeek": "TUESDAY",
+   "startTime": "10:00",
+   "endTime": "13:00",
+   "room": "101",
+   "building": "בנין ע\"ש פרץ נפתלי-הפקולטה למדעי החברה",
+   "sessionType": "lecture",
+   "semester": "SPRING",
+   "academicYear": 2026,
+   "groupCode": "10",
+   "lecturerName": "פרופ' אהוד זומר",
+   "lecturerEmail": null,
+   "createdAt": "2026-09-05T08:44:06.898Z",
+   "updatedAt": "2026-09-05T08:44:06.898Z"
+  },
+  {
+   "id": "ab807dc0-d913-4fdc-a608-aa16c06862a5",
+   "courseCode": "1411-9101",
+   "dayOfWeek": "SUNDAY",
+   "startTime": "10:00",
+   "endTime": "12:00",
+   "room": "105",
+   "building": "הפקולטה למשפטים - בנין טרובוביץ",
+   "sessionType": "lecture",
+   "semester": "FALL",
+   "academicYear": 2026,
+   "groupCode": "10",
+   "lecturerName": "ד\"ר יפעת רבקה נפתלי בן ציון",
+   "lecturerEmail": null,
+   "createdAt": "2026-09-05T08:44:09.906Z",
+   "updatedAt": "2026-09-05T08:44:09.906Z"
+  },
+  {
+   "id": "d9e58cfb-e8de-4b34-a440-50263944742d",
+   "courseCode": "1411-9101",
+   "dayOfWeek": "WEDNESDAY",
+   "startTime": "10:00",
+   "endTime": "12:00",
+   "room": "105",
+   "building": "הפקולטה למשפטים - בנין טרובוביץ",
+   "sessionType": "lecture",
+   "semester": "FALL",
+   "academicYear": 2026,
+   "groupCode": "10",
+   "lecturerName": "ד\"ר יפעת רבקה נפתלי בן ציון",
+   "lecturerEmail": null,
+   "createdAt": "2026-09-05T08:44:11.206Z",
+   "updatedAt": "2026-09-05T08:44:11.206Z"
+  },
+  {
+   "id": "7be45ed7-191a-4ef6-9d6d-f3c86f7bf48c",
+   "courseCode": "1411-9109",
+   "dayOfWeek": "WEDNESDAY",
+   "startTime": "10:00",
+   "endTime": "12:00",
+   "room": "035",
+   "building": "הפקולטה למשפטים - בנין טרובוביץ",
+   "sessionType": "lecture",
+   "semester": "FALL",
+   "academicYear": 2026,
+   "groupCode": "01",
+   "lecturerName": "פרופ' יואב ספיר",
+   "lecturerEmail": null,
+   "createdAt": "2026-09-05T08:44:13.043Z",
+   "updatedAt": "2026-09-05T08:44:13.043Z"
+  },
+  {
+   "id": "0799d4b0-61f9-4b85-81a1-f55dc4568efa",
+   "courseCode": "1411-9109",
+   "dayOfWeek": "SUNDAY",
+   "startTime": "10:00",
+   "endTime": "12:00",
+   "room": "035",
+   "building": "הפקולטה למשפטים - בנין טרובוביץ",
+   "sessionType": "lecture",
+   "semester": "FALL",
+   "academicYear": 2026,
+   "groupCode": "01",
+   "lecturerName": "פרופ' יואב ספיר",
+   "lecturerEmail": null,
+   "createdAt": "2026-09-05T08:44:14.656Z",
+   "updatedAt": "2026-09-05T08:44:14.656Z"
+  },
+  {
+   "id": "3a640992-e34a-4cf6-b6eb-171803f61d8d",
+   "courseCode": "1411-9240",
+   "dayOfWeek": "MONDAY",
+   "startTime": "10:00",
+   "endTime": "12:00",
+   "room": "102",
+   "building": "הפקולטה למשפטים - בנין טרובוביץ",
+   "sessionType": "lecture",
+   "semester": "FALL",
+   "academicYear": 2026,
+   "groupCode": "10",
+   "lecturerName": "פרופ' עמרי ידלין",
+   "lecturerEmail": null,
+   "createdAt": "2026-09-05T08:44:16.198Z",
+   "updatedAt": "2026-09-05T08:44:16.198Z"
+  },
   {
    "id": "31698be4-bffc-42de-bf40-ad98b7d47d05",
    "courseCode": "0910-1000",
@@ -815,40 +916,6 @@
    "academicYear": 2026,
    "groupCode": "31",
    "lecturerName": "דניאל מיקלצקי",
-   "lecturerEmail": null,
-   "createdAt": "2026-08-13T02:21:31.715Z",
-   "updatedAt": "2026-08-13T02:21:31.715Z"
-  },
-  {
-   "id": "2c97634f-c3f0-40a5-96db-78d9bbac9f2a",
-   "courseCode": "1031-1108",
-   "dayOfWeek": "SUNDAY",
-   "startTime": "10:00",
-   "endTime": "12:00",
-   "room": "105",
-   "building": "הפקולטה למשפטים - בנין טרובוביץ",
-   "sessionType": "lecture",
-   "semester": "FALL",
-   "academicYear": 2026,
-   "groupCode": "10",
-   "lecturerName": "ד\"ר יפעת רבקה נפתלי בן ציון",
-   "lecturerEmail": null,
-   "createdAt": "2026-08-13T02:21:31.715Z",
-   "updatedAt": "2026-08-13T02:21:31.715Z"
-  },
-  {
-   "id": "e8811bd1-01b5-4f3d-8ea5-1f08ae5ef16b",
-   "courseCode": "1031-1108",
-   "dayOfWeek": "WEDNESDAY",
-   "startTime": "10:00",
-   "endTime": "12:00",
-   "room": "105",
-   "building": "הפקולטה למשפטים - בנין טרובוביץ",
-   "sessionType": "lecture",
-   "semester": "FALL",
-   "academicYear": 2026,
-   "groupCode": "10",
-   "lecturerName": "ד\"ר יפעת רבקה נפתלי בן ציון",
    "lecturerEmail": null,
    "createdAt": "2026-08-13T02:21:31.715Z",
    "updatedAt": "2026-08-13T02:21:31.715Z"
@@ -942,7 +1009,7 @@
    "id": "a305da04-3e74-4e5c-bd09-96583328b311",
    "courseCode": "1221-3301",
    "dayOfWeek": "TUESDAY",
-   "startTime": "18:00",
+   "startTime": "18:30",
    "endTime": "20:00",
    "room": null,
    "building": null,
@@ -953,7 +1020,7 @@
    "lecturerName": "גב' ליהי כהן",
    "lecturerEmail": null,
    "createdAt": "2026-08-13T02:21:31.715Z",
-   "updatedAt": "2026-08-13T02:21:31.715Z"
+   "updatedAt": "2026-09-05T08:44:18.430Z"
   },
   {
    "id": "6b027fe4-a270-4486-ae8a-3647b96610be",
