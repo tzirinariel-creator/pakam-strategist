@@ -213,6 +213,29 @@ const CHECKS = [
       const t=await txt();
       return { ok:true, evidence:"נבדק בסקריפטים: verify-catalog-facts · audit-data-reliability · audit-catalog-vs-yedion" }; } },
 
+  { id:"M49", note:"זה לא מגיע ל-150 אפילו — אתה סגור על מה שכתוב כאן?", async run(){
+      await go("/he/regulations",9000);
+      const t=await txt();
+      const nums=(t.match(/\b(150|103|101|35|12)\b/g)||[]);
+      const sum=/103[^0-9]{0,40}12[^0-9]{0,40}35|150/.test(t);
+      return { ok:/150/.test(t)&&sum,
+        evidence:`המספרים על המסך: ${[...new Set(nums)].join(" · ")} · ${(t.match(/[^.]{0,60}150[^.]{0,60}/)||[""])[0].trim().slice(0,120)}` }; } },
+
+  { id:"W3", note:"'1 קורסים' — ריבוי שגוי בכפתור הסיום", async run(){
+      const t=await txt();
+      const bad=(t.match(/\b1 (קורסים|ש״ס|סמסטרים|מבחנים|שורות)\b/g)||[]);
+      return { ok:bad.length===0,
+        evidence:bad.length?`‼️ נמצא ריבוי שגוי: ${bad.join(" · ")}`:"אין '1 <רבים>' באף מסך שנסרק" }; } },
+
+  { id:"B6", note:"לא הבנתי כלום במסך מערכת השעות — למה שני מסכים?", async run(){
+      await go("/he/planner",10000);
+      const t=await txt();
+      const tabs=await p.evaluate(()=>[...document.querySelectorAll("main button")]
+        .map(e=>(e.innerText||"").trim()).filter(x=>/^סמסטר [אב]׳$|^שנה [א-ג]׳/.test(x)));
+      const door=/תכננו את שני הסמסטרים|לעריכת התכנון/.test(t);
+      return { ok:tabs.length>0&&door,
+        evidence:`לשוניות על המסך: ${[...new Set(tabs)].join(" · ")||"אין"} · דלת לעריכה: ${door?"יש":"אין"}` }; } },
+
   { id:"N9", note:"איפה רואים סטטוס בינארי ואפשר לשחק איתו", async run(){
       await go("/he/miluim",9000);
       const t=await txt();
