@@ -10,6 +10,7 @@ import { Bidi } from "@/lib/bidi";
 import { MILUIM_CONFIG, AMIRNET_CONFIG, ENGLISH_CONFIG, DISCIPLINE_CONFIG, FOCUS_DISCIPLINE_IDS } from "@/lib/constants";
 import { deriveGroupFromDays, type MiluimGroupKey } from "@/lib/miluim";
 import { Form3010Uploader } from "@/components/settings/form-3010-uploader";
+import { AddMiluimSemesterForm } from "@/components/miluim/add-semester-form";
 import { api } from "@/lib/trpc/react";
 import { describeAcademicNow, getAcademicNow, getPlanningAnchor, hebrewYearLabel } from "@/lib/academic-calendar";
 import { getCurrentAcademicYear } from "@/lib/miluim";
@@ -488,6 +489,80 @@ export function StepProfile({ data, onUpdate, sheetSeeded = false }: StepProfile
                   }
                 }}
               />
+
+              {/* ================================================================
+                  סמסטרים קודמים — הדלת שלא הייתה (אריאל, 5.9)
+                  ================================================================
+                  *"אם אני סטודנט שנה ג׳ ועשיתי מילואים בשנה א׳ ובשנה ב׳ — אין לי
+                  אפשרות להכניס ידנית את התאריכים. תסדר את זה."*
+
+                  הוא צדק. כל מה שהיה כאן זה "עשיתם מילואים **בסמסטר הזה**?"
+                  ועוד טופס 3010. מי שאין לו את הטופס ביד — ואצל סטודנט שנה ג׳
+                  זה שירות שהיה לפני שנתיים — לא יכול היה לספר לאפליקציה כלום.
+                  והקבוצה נקבעת **בכל סמסטר מחדש**, אז סמסטר שלא הוזן הוא
+                  קבוצה שלא חושבה וזכאות שלא נצברה.
+
+                  אותו פקד בדיוק שקיים ב-/miluim, כאן — כדי שהמידע ייכנס
+                  במקום שבו הסטודנט ממילא מספר על עצמו בפעם הראשונה. */}
+              <div className="rounded-xl border border-foreground/10 bg-foreground/3 p-3 space-y-2">
+                <p className="text-xs font-medium text-foreground/70">
+                  {isHe ? "שירתם גם בסמסטרים קודמים?" : "Did you serve in earlier semesters too?"}
+                </p>
+                <p className="text-[11px] leading-relaxed text-foreground/60">
+                  {isHe
+                    ? "הקבוצה נקבעת בכל סמסטר בנפרד, והזכאויות נצברות לכל התואר — אז שווה להזין כל סמסטר ששירתתם בו, גם משנה א׳ ו-ב׳."
+                    : "Your group is set per semester and the entitlements accrue across the degree — so add every semester you served in, including years 1 and 2."}
+                </p>
+                {(semesters3010.data ?? []).length > 0 && (
+                  <ul className="space-y-1">
+                    {[...(semesters3010.data ?? [])]
+                      .sort((a, b) =>
+                        a.academicYear === b.academicYear
+                          ? (a.semester === "FALL" ? 0 : 1) - (b.semester === "FALL" ? 0 : 1)
+                          : a.academicYear - b.academicYear,
+                      )
+                      .map((r) => (
+                        <li
+                          key={`${r.academicYear}-${r.semester}`}
+                          className="flex items-center justify-between gap-2 rounded-md bg-card px-2.5 py-1.5 text-[11px] text-foreground/70"
+                        >
+                          <span>
+                            {isHe
+                              ? `${hebrewYearLabel(r.academicYear)} · ${r.semester === "FALL" ? "סמסטר א׳" : "סמסטר ב׳"}`
+                              : `${r.academicYear}/${r.academicYear + 1} · ${r.semester === "FALL" ? "Fall" : "Spring"}`}
+                          </span>
+                          <span className="font-mono tabular-nums text-foreground/60">
+                            <bdi dir="ltr">{r.daysServed}</bdi> {isHe ? "ימים" : "days"}
+                          </span>
+                        </li>
+                      ))}
+                  </ul>
+                )}
+                <AddMiluimSemesterForm
+                  compact
+                  isHe={isHe}
+                  startYear={onboardingStartYear}
+                  pending={upsert3010.isPending}
+                  onAdd={(academicYear, semester, daysServed, combat) => {
+                    upsert3010.mutate({ academicYear, semester, daysServed, isCombat: combat });
+                    // Recording ANY semester means they serve — reflect it in
+                    // the answer below and in the profile group, exactly like
+                    // the 3010 path does, so the two doors agree.
+                    setServed(true);
+                    const addedGroup = deriveGroup(daysServed, combat);
+                    const rank = (g: string) =>
+                      ({ NONE: 0, GROUP_A: 1, GROUP_B: 2, GROUP_C: 3, GROUP_G: 3 })[g] ?? 0;
+                    if (rank(addedGroup) > rank(data.miluimGroup ?? "NONE")) {
+                      applyDerived(addedGroup);
+                    }
+                    if (academicYear === nowYear && semester === nowSem) {
+                      setDays(daysServed);
+                      setIsCombat(combat);
+                      onUpdate({ miluimDays: daysServed, miluimCombat: combat, miluimCareerService: false });
+                    }
+                  }}
+                />
+              </div>
 
               {/* ─── COMMON PATH: one short question block ─── */}
               <div className="rounded-xl border border-foreground/10 bg-foreground/3 p-3 space-y-3">

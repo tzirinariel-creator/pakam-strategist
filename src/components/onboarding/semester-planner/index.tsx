@@ -543,6 +543,44 @@ export function SemesterPlanner({
   // Total planned credits
   const totalCreditsPlanned = completedCredits + currentSemesterCredits;
 
+  // =========================================================================
+  // הפירוק שמונע ספירה כפולה בכרטיס "התקדמות בתואר" (אריאל, 5.9)
+  // =========================================================================
+  // ההערה: *"מרגיש לי שההתקדמות בתואר בחלון הזה של ה-123/150 לא מדויקת"*.
+  // היא לא הייתה מדויקת, והפער היה 46 ש״ס.
+  //
+  // `completedCredits` למעלה סופר את **כל** מה שכבר ידוע — ההיסטוריה שהוזנה
+  // ועוד כל סמסטר אחר בתוכנית — ו-`totalCreditsPlanned` מוסיף עליו את
+  // הסמסטר הנוכחי. כלומר totalCreditsPlanned הוא כבר הסך-הכול. אלא
+  // ש-InsightsBar קיבל **גם** את שורות התיק כ-`completedCredits` והציג
+  // `completedCredits + totalCreditsPlanned` — כך שכל ש״ס שכבר נצבר נספר
+  // פעמיים. אצל אריאל: 52 (תיק) + 71 (סך-הכול) = 123, במקום 77.
+  //
+  // הפירוק כאן נותן לכרטיס שני מספרים שמרכיבים את השלם בדיוק פעם אחת:
+  // מה שנצבר (מהתיק — הוא הסמכות, וכולל קורסים מחוץ לקטלוג) ומה שמתוכנן
+  // (כל השאר בתוכנית). שניהם נמדדים על אותה מפת-קורסים, ולכן הם תמיד
+  // מסתכמים לכותרת ולעולם לא סותרים אותה.
+
+  /** הש״ס שכבר נצברו, נמדדים על אותה מפת-קורסים כמו התוכנית. */
+  const earnedCreditsFromHistory = useMemo(() => {
+    const courseMap = new Map(mergedCourses.map((c) => [c.id, c]));
+    let total = 0;
+    for (const id of externalCompletedSet) total += courseMap.get(id)?.credits ?? 0;
+    return total;
+  }, [externalCompletedSet, mergedCourses]);
+
+  /** מה שנצבר לפי התיק — הסמכות. נופל בחזרה למדידה הפנימית כשאין שורות. */
+  const recordCompletedCredits = useMemo(() => {
+    if (!completedRows || completedRows.length === 0) return earnedCreditsFromHistory;
+    return completedRows.reduce((sum, r) => sum + (r.credits ?? 0), 0);
+  }, [completedRows, earnedCreditsFromHistory]);
+
+  /** כל מה שבתוכנית ועוד לא נצבר — הסמסטר הנוכחי וכל סמסטר עתידי. */
+  const plannedOnlyCredits = Math.max(0, totalCreditsPlanned - earnedCreditsFromHistory);
+
+  /** מה שהכרטיס והסיכום מציגים מול 150: נצבר + מתוכנן, כל אחד פעם אחת. */
+  const creditsAccountedFor = recordCompletedCredits + plannedOnlyCredits;
+
   // The semester's courses with sessions narrowed to what's ACTUALLY on the
   // grid: this semester only + the selected group per session type. This is
   // the single source for conflicts, the insights bar and the summary (P3′) —
@@ -1013,7 +1051,10 @@ export function SemesterPlanner({
           courses={groupFilteredCourses}
           unchosenGroupCount={unchosenGroupCount}
           semesterOver={declaredSemesterOver}
-          totalCredits={totalCreditsPlanned}
+          // ש״ס שתוכננו מול 150 — נצבר + מתוכנן, כל אחד פעם אחת (ראו
+          // הפירוק ליד creditsAccountedFor). היה totalCreditsPlanned, שסופר
+          // את מה שנצבר לפי מפת-הקטלוג בלבד ופספס קורסים מחוץ לקטלוג.
+          totalCredits={creditsAccountedFor}
           hasMoreSemesters={hasMoreSemesters}
           onPlanNext={handlePlanNext}
           onFinish={handleFinish}
@@ -1262,14 +1303,15 @@ export function SemesterPlanner({
       <div data-tour="planner-insights" className="animate-stagger-2 w-full max-w-7xl">
         <InsightsBar
           selectedCourses={groupFilteredCourses}
-          totalCreditsPlanned={totalCreditsPlanned}
+          totalCreditsPlanned={plannedOnlyCredits}
           conflicts={conflicts}
           unscheduledCount={unscheduledCount}
           canSwapGroups={multiGroupCourseCodes.size > 0}
           focusArea={data.focusArea}
           // Degree progress has to include what is already earned, or the
-          // label "התקדמות בתואר" is false for anyone mid-degree.
-          completedCredits={(completedRows ?? []).reduce((sum, r) => sum + (r.credits ?? 0), 0)}
+          // label "התקדמות בתואר" is false for anyone mid-degree — and it must
+          // include it exactly ONCE (see the breakdown above).
+          completedCredits={recordCompletedCredits}
           onFindCombination={handleFindCombination}
         />
       </div>

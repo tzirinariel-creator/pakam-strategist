@@ -43,7 +43,7 @@ export function GoogleCalendarBanner({
       <div className="flex items-center gap-2">
         {!isConnected && (
           <Link
-            href="/settings"
+            href="/settings#google-calendar"
             className="inline-flex items-center gap-1.5 rounded-lg bg-emerald-500/10 px-3 py-1.5 text-sm font-medium text-status-green transition-colors hover:bg-emerald-500/20"
           >
             {t("googleBannerConnect")}
@@ -51,7 +51,7 @@ export function GoogleCalendarBanner({
         )}
         {isConnected && (
           <Link
-            href="/settings"
+            href="/settings#google-calendar"
             className="inline-flex items-center gap-1.5 rounded-lg bg-foreground/5 px-3 py-1.5 text-sm font-medium text-foreground/70 transition-colors hover:bg-foreground/10"
           >
             <RefreshCw className="size-3.5" />

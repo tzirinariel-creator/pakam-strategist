@@ -12,17 +12,25 @@ export function SectionCard({
   description,
   children,
   danger,
+  id,
 }: {
   icon: React.ComponentType<{ className?: string }>;
   title: string;
   description: string;
   children: React.ReactNode;
   danger?: boolean;
+  /** Anchor target, so another screen can link straight to this section. */
+  id?: string;
 }) {
   return (
     <div
+      id={id}
       className={cn(
         "data-card flex flex-col gap-5 p-6",
+        // scroll-mt: the app has a sticky top bar + banner stack, so an
+        // anchored jump would otherwise land with the section title hidden
+        // underneath them.
+        id && "scroll-mt-32",
         danger && "border-destructive/30 hover:border-destructive/50"
       )}
     >

@@ -1,0 +1,11 @@
+import { openApp, login, shot, BASE } from "./tour-lib.mjs";
+const { b, p, errors } = await openApp({ width: 1440, height: 1000 });
+await login(p, process.env.NEXT_PUBLIC_TEST_USER_EMAIL, process.env.TEST_USER_PASSWORD);
+await p.goto(`${BASE}/he/planner`, { waitUntil: "domcontentloaded" });
+await p.waitForTimeout(12000);
+await shot(p, "D-planner", { full: true });
+const t = await p.evaluate(() => document.body.innerText);
+console.log("URL:", p.url());
+console.log(t.slice(0, 5000));
+console.log("\n=== errors ===", errors.slice(0,5).join("\n"));
+await b.close();

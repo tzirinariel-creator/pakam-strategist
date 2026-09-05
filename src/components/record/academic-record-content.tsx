@@ -10,7 +10,7 @@ import { api } from "@/lib/trpc/react";
 import { invalidatePlanData } from "@/lib/trpc/invalidate-plan";
 import { calculateGrades } from "@/lib/grade-calculator";
 import { deriveYearOfStudy } from "@/lib/academic-calendar";
-import { computeHonorsDistance } from "@/lib/honors";
+import { computeHonorsDistance, latestGradedStudyYear } from "@/lib/honors";
 import { prefersHigherGrade, type MiluimGroupKey } from "@/lib/miluim";
 import { isCurrentlyStudying } from "@/lib/semester-clock";
 import { ThemedLoader } from "@/components/ui/themed-loader";
@@ -277,13 +277,16 @@ export function AcademicRecordContent() {
     profile?.currentYear ?? 1,
   );
 
-  // Distance to honors for the CURRENT study year — a computed aid (same
-  // exclusions as the GPA), null when no graded course this year yet. Same
-  // function /graduation uses, so the two never diverge.
-  const honors = useMemo(
-    () => computeHonorsDistance(planQuery.data?.courses ?? [], currentYear, profile?.miluimGroup),
-    [planQuery.data?.courses, currentYear, profile?.miluimGroup],
-  );
+  // Distance to honors for the most recent study year that HAS grades — a
+  // computed aid (same exclusions as the GPA). It used to measure the current
+  // year, which for anyone opening the app before their year starts is empty by
+  // definition, so the figure never appeared (Ariel, 5.9). Same functions
+  // /graduation uses, so the two never diverge.
+  const honors = useMemo(() => {
+    const rows = planQuery.data?.courses ?? [];
+    const year = latestGradedStudyYear(rows, currentYear) ?? currentYear;
+    return computeHonorsDistance(rows, year, profile?.miluimGroup);
+  }, [planQuery.data?.courses, currentYear, profile?.miluimGroup]);
 
   // The PRESENT courses: PLANNED rows whose (year, semester) is the live
   // teaching/exams window right now. Derived, never stored.

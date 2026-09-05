@@ -53,6 +53,37 @@ export interface HonorsDistance {
 }
 
 /**
+ * The most recent study year that actually HAS counted grades, at or below
+ * `currentYear`. Returns null when the student has no counted grade anywhere.
+ *
+ * =========================================================================
+ * 5.9 — אריאל: *"נדפק שם משהו עם ההצטיינות, זה לא מראה על זה שום דבר וחבל"*
+ * =========================================================================
+ * הכרטיס מדד תמיד את **שנת הלימודים הנוכחית**, והצטיינות אכן נמדדת לפי שנה.
+ * אבל השנה הנוכחית של סטודנט בספטמבר עוד לא התחילה: אין בה ולו ציון אחד.
+ * כלומר בדיוק בחלון ההשקה — ולמעשה ברוב חייו של כל סטודנט — הכרטיס הראה
+ * "אין מספיק ציונים" למי שיש לו שנתיים של ציונים בתיק.
+ *
+ * הצטיינות היא פרס על שנה **שהסתיימה**, ולכן המספר שיש מה להגיד עליו הוא
+ * השנה האחרונה שיש בה ציונים. הכרטיס אומר במפורש איזו שנה הוא מציג, כדי
+ * שלא ייקרא כאילו הוא מדבר על השנה שרק מתחילה.
+ */
+export function latestGradedStudyYear(
+  courses: UserCourseWithCourse[],
+  currentYear: number,
+): number | null {
+  let best: number | null = null;
+  for (const uc of courses) {
+    if (uc.status !== "COMPLETED" || uc.grade === null) continue;
+    if (!countsTowardAverage(uc)) continue;
+    const y = uc.plannedYear;
+    if (typeof y !== "number" || y > currentYear) continue;
+    if (best === null || y > best) best = y;
+  }
+  return best;
+}
+
+/**
  * The student's current-year weighted average vs the honors bar. Pure —
  * feed it the plan rows and the study year.
  */

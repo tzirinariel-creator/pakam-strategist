@@ -25,23 +25,29 @@ function createPrismaClient() {
 
   const base = connectionString
     ? new PrismaClient({
-        // DATABASE_URL points at the Supabase pooler in SESSION mode (port
-        // 5432), where the whole project shares pool_size: 15 and a connection
-        // is held for as long as the client holds it. Every warm Vercel machine
-        // therefore owns `max` connections outright. At max: 5, three warm
-        // machines exhausted the pool and took production down (5.9, error
-        // EMAXCONNSESSION) — a redeploy recycled the machines and restored it.
-        // Vercel serves one request per machine at a time, so a small pool is
-        // enough; 2 leaves room for the parallel queries inside a single
-        // request while letting ~7 machines coexist instead of 3.
-        // The real fix is transaction mode (port 6543 + ?pgbouncer=true), which
-        // returns the connection after each transaction. That is an infra
-        // change Ariel asked to make while awake — see docs/משימות-בקרה.md.
+        // DATABASE_URL points at the Supabase pooler in TRANSACTION mode
+        // (port 6543 + ?pgbouncer=true), verified on prod 5.9. The connection
+        // returns to the pooler at the end of every transaction, so a warm
+        // Vercel machine no longer OWNS its connections the way it did in
+        // session mode (port 5432, where the whole project shared
+        // pool_size: 15 and max: 5 across three warm machines exhausted it and
+        // took production down — EMAXCONNSESSION).
+        //
+        // max: 2 was the emergency ceiling for that outage, and it outlived its
+        // reason. Vercel serves one request per machine, but ONE request here
+        // is the dashboard's batch of six tRPC procedures resolving
+        // concurrently: at max: 2 their queries queued two at a time against a
+        // database ~280ms away, and the batch measured 3.0s on prod while its
+        // slowest single procedure measured 1.9s. That 1.1s gap is pure
+        // queueing — and it is what pushed a cold first load past the
+        // dashboard's "loading is slow" screen Ariel kept hitting (5.9).
+        //
+        // 6 covers the widest fan-out a single request makes, with headroom.
         adapter: new PrismaPg({
           connectionString,
           connectionTimeoutMillis: 10_000,
           idleTimeoutMillis: 10_000,
-          max: 2,
+          max: 6,
         }),
         log: process.env.NODE_ENV === "development" ? ["query", "error", "warn"] : ["error"],
       })

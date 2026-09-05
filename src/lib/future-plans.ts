@@ -128,8 +128,11 @@ export const DIRECTIONS: Direction[] = [
     id: "abroad",
     he: "לימודים בחו״ל",
     en: "Studying abroad",
-    whyHe: "אנגלית היא הדבר היחיד כאן שאפשר להיתקע בו בלי לשים לב — ואותו אנחנו כן יודעים לעקוב אחריו.",
-    whyEn: "English is the one thing here you can get stuck on without noticing — and it is something we can actually track.",
+    // 5.9, אריאל, על המשפט הקודם: *"סתכל איזה פאדיחה של עברית"*. הוא צדק —
+    // "ואותו אנחנו כן יודעים לעקוב אחריו" נושא מושא כפול (אותו + אחריו),
+    // וקרא כמו תרגום מכונה באמצע מסך בעברית.
+    whyHe: "אנגלית היא מה שהכי קל לדחות בלי לשים לב, ובחו״ל היא תנאי סף — ואת רמת האנגלית שלכם אנחנו כן יודעים לעקוב מהנתונים.",
+    whyEn: "English is the easiest thing to put off without noticing, and abroad it is a hard requirement — and your English level is something we can actually track from your data.",
     signals: ["english", "average", "seminars"],
     suggestsFocus: null,
   },

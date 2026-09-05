@@ -4,6 +4,7 @@ import { createServerSupabase } from "@/lib/supabase/server";
 import { prisma } from "@/lib/db";
 import { encrypt } from "@/lib/crypto";
 import { isDemoEmail } from "@/server/trpc/demo";
+import { env } from "@/lib/env";
 
 /**
  * Google Calendar OAuth — Step 2: Exchange authorization code for tokens.
@@ -71,14 +72,15 @@ export async function GET(request: NextRequest) {
 
   try {
     // Build redirect URI: must match exactly what was used in auth route
+    // חייב להיות זהה בדיוק למה שנשלח במסלול auth — ולכן גם כאן env().
     const redirectUri =
-      process.env.GOOGLE_REDIRECT_URI ||
+      env("GOOGLE_REDIRECT_URI") ||
       `${origin}/api/google/callback`;
 
     // Exchange authorization code for tokens
     const oauth2Client = new google.auth.OAuth2(
-      process.env.GOOGLE_CLIENT_ID,
-      process.env.GOOGLE_CLIENT_SECRET,
+      env("GOOGLE_CLIENT_ID"),
+      env("GOOGLE_CLIENT_SECRET"),
       redirectUri,
     );
 

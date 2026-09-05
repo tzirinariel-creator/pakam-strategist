@@ -299,13 +299,51 @@ export function SemesterSummary({
             צדק פעמיים — היו כאן **שני** פקדים לאותה פעולה, ואחד מהם 17px.
 
             עכשיו: שמירה היא הראשי תמיד. סמסטר נוסף הוא משני. ולעריכה יש
-            פקד אחד. */}
+            פקד אחד.
+
+            ================================================================
+            5.9 — אריאל, ומה השתנה מאז
+            ================================================================
+            *"צריך להיות יותר מובן מאליו ש-׳הוספה ועריכה של קורסים׳ זה הכפתור
+            החשוב ושם עובדים. שבן לא יבוא ופתאום ישמור את הסמסטר כמו שהוא
+            ויתחיל בלגן."*
+
+            הסיכון שההערה למעלה נכתבה נגדו היה סטודנט שיוצא מהמסך **בלי
+            לשמור**. הסיכון שאריאל מצביע עליו הוא ההפוך: סטודנט ששומר בלי
+            לערוך — ואז ניגש לבידינג עם קבוצות ברירת-מחדל.
+
+            שניהם נפתרים בלי לבחור ביניהם, כי "הוספה ועריכה" **לא מוציאה
+            מהמסך** — היא פותחת את בריכת הקורסים באותו עמוד, שגם בה כפתור
+            השמירה נוכח. אז העריכה עולה למעלה ולובשת את סגנון-הראשי של
+            האפליקציה, והשמירה נשארת מיד מתחתיה כמשנית-חזקה (border-2,
+            bold) — לחיצה אחת, בלי להסתתר, ובלי להיות הדבר הראשון שהעין
+            נופלת עליו למי שעוד לא נגע בסמסטר.
+
+            "תכננו סמסטר נוסף" נשאר האחרון והחלש מכולם, כמו קודם. */}
         <div className="flex flex-col gap-2.5 pt-2">
+          {/* גיל, משתמשת אמיתית, 24.8: "נגיד איפה מוסיפים קורסים למערכת" ·
+              "זה לא נותן קורסים שזמינים להוסיף" · "חייב את זה כדי לסדר את
+              המערכת שעות, כי זה כאילו חובה".
+              זו הדלת היחידה לבריכת הקורסים מהמסך הזה — ולכן היא הראשית. */}
+          <button
+            onClick={onBack}
+            disabled={isSaving}
+            className="flex items-center justify-center gap-2 rounded-xl bg-foreground px-6 py-3 font-bold text-background shadow-sm transition-all hover:scale-[1.02] press-scale disabled:opacity-50"
+          >
+            <Plus className="h-4 w-4" />
+            {isHe ? "הוספה ועריכה של קורסים" : "Add or edit courses"}
+          </button>
+          <p className="-mt-1 text-center text-[11px] leading-relaxed text-foreground/55">
+            {isHe
+              ? "כאן בוחרים קורסים וקבוצות תרגול — זה המסך שעובדים בו."
+              : "This is where you pick courses and tutorial groups — the screen you work in."}
+          </p>
+
           <button
             onClick={onFinish}
             disabled={isSaving}
             aria-busy={isSaving}
-            className="flex items-center justify-center gap-2 rounded-xl bg-foreground px-6 py-3 font-bold text-background shadow-sm transition-all hover:scale-[1.02] press-scale disabled:cursor-wait disabled:opacity-80"
+            className="flex items-center justify-center gap-2 rounded-xl border-2 border-foreground/30 px-6 py-2.5 font-bold text-foreground/80 transition-colors hover:border-foreground/50 hover:text-foreground disabled:cursor-wait disabled:opacity-80"
           >
             {isSaving ? (
               <>
@@ -315,19 +353,6 @@ export function SemesterSummary({
             ) : (
               t("finishPlanning")
             )}
-          </button>
-
-          {/* גיל, משתמשת אמיתית, 24.8: "נגיד איפה מוסיפים קורסים למערכת" ·
-              "זה לא נותן קורסים שזמינים להוסיף" · "חייב את זה כדי לסדר את
-              המערכת שעות, כי זה כאילו חובה".
-              זו הדלת היחידה לבריכת הקורסים מהמסך הזה. */}
-          <button
-            onClick={onBack}
-            disabled={isSaving}
-            className="flex items-center justify-center gap-1.5 rounded-xl border border-border/70 px-6 py-2.5 text-sm font-semibold text-foreground/75 transition-colors hover:border-foreground/30 hover:text-foreground disabled:opacity-50"
-          >
-            <Plus className="h-3.5 w-3.5" />
-            {isHe ? "הוספה ועריכה של קורסים" : "Add or edit courses"}
           </button>
 
           {/* ================================================================

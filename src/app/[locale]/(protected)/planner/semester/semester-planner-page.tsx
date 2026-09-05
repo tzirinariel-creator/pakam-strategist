@@ -371,6 +371,17 @@ export function SemesterPlannerPage() {
         startInEditor
         onFinish={handleFinish}
         externalCompletedCourseIds={externalCompletedCourseIds}
+        // "התקדמות בתואר" needs the earned half from the RECORD, which is the
+        // authority (it carries off-catalog courses the course map can't).
+        // Onboarding always passed these; this route never did, so the card
+        // here silently showed a degree that started at the current semester.
+        completedRows={completedUserCourses.map((uc) => ({
+          nameHe: uc.course.nameHe,
+          courseCode: uc.course.code,
+          grade: uc.grade,
+          status: uc.status,
+          credits: uc.course.credits,
+        }))}
         initialPlannedSemesters={initialPlannedSemesters}
         initialSessionGroupSelections={initialSessionGroupSelections}
         initialDisciplineOverrides={initialDisciplineOverrides}

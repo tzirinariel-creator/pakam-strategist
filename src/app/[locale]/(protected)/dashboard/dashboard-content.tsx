@@ -468,14 +468,27 @@ export function DashboardContent() {
   // If user clicked "continue anyway" but no data — show empty dashboard not wizard
   const [forceDashboard, setForceDashboard] = useState(false);
 
-  // Loading timeout — never leave the user stuck on a spinner
+  // Loading timeout — never leave the user stuck on a spinner.
+  //
+  // 5.9, Ariel, with a screenshot: "יש גם בעיה בטעינה שבאתי להירשם עכשיו
+  // מחדש.. זה קרה כמה פעמים". The threshold was 8s, and a first load of the
+  // day genuinely took longer than that — not because anything was broken, but
+  // because six tRPC procedures were queueing two-at-a-time against a database
+  // in Sydney (see the pool comment in lib/db.ts) on top of a cold function.
+  // So the app announced a problem it did not have, on the very first screen a
+  // new student sees.
+  //
+  // The pool fix removed the queueing; this raises the alarm threshold so that
+  // only a load that is actually STUCK trips it. The skeleton stays on screen
+  // until then, and a skeleton shaped like the real dashboard is a loading
+  // state, not a warning.
   const [loadingTooLong, setLoadingTooLong] = useState(false);
   useEffect(() => {
     if (!planQuery.isLoading) {
       setLoadingTooLong(false);
       return;
     }
-    const timer = setTimeout(() => setLoadingTooLong(true), 8000);
+    const timer = setTimeout(() => setLoadingTooLong(true), 15000);
     return () => clearTimeout(timer);
   }, [planQuery.isLoading]);
 

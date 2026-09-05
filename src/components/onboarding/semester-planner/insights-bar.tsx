@@ -68,6 +68,16 @@ const LEVEL_COLORS: Record<HonestLoadLabel, string> = {
 
 interface InsightsBarProps {
   selectedCourses: CourseWithSchedule[];
+  /**
+   * Credits the student has PLANNED and not yet earned — this semester plus any
+   * other semester in the plan. Strictly disjoint from `completedCredits`.
+   *
+   * Ariel, 5.9: "מרגיש לי שההתקדמות בתואר בחלון הזה של ה-123/150 לא מדויקת".
+   * It wasn't: this used to arrive as the plan's GRAND TOTAL (earned + planned)
+   * and the card then added `completedCredits` on top, counting every earned
+   * credit twice — 123 where the truth was 77. The two props are now the two
+   * halves of one number, so the card can only ever show their honest sum.
+   */
   totalCreditsPlanned: number;
   /**
    * Credits the student has ALREADY completed, from their record.

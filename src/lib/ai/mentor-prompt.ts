@@ -78,6 +78,33 @@ export interface MentorContext {
   examPeriodBlock?: string | null;
   /** One calendar-truth line ("עכשיו: סמסטר ב׳ תשפ"ו, שלב: לימודים…"). */
   academicNowLine?: string | null;
+  /**
+   * The EXACT arithmetic of a binary (pass/fail) conversion — same engine the
+   * record screen's advisor card renders from (lib/binary-advisor).
+   *
+   * Ariel, 5.9, with a screenshot: the advisor card's own "what should I weigh?"
+   * button sends the King a sentence containing the app's computed figure
+   * ("converting X would raise your average to 96.8"), and the King replied that
+   * it would LOWER it "from 96.4 to 96.2, because a 90 is higher than your
+   * current average" — a sentence that contradicts itself, contradicts the
+   * screen, and contains three numbers nobody computed.
+   *
+   * The prompt already forbids recomputing. What it could not do is answer a
+   * HYPOTHETICAL that no authoritative fact covered, so the model filled the
+   * gap. These are those facts. Null = the student's group grants no binary
+   * benefit, or nothing qualifies — and then the King says it has no figure.
+   */
+  binaryImpact?: {
+    currentAverage: number;
+    quotaLeft: number;
+    candidates: {
+      nameHe: string;
+      grade: number;
+      credits: number;
+      newAverage: number;
+      delta: number;
+    }[];
+  } | null;
 }
 
 export interface CourseInfo {
@@ -149,6 +176,36 @@ function semesterNameHe(semester: string): string {
     default:
       return semester;
   }
+}
+
+/**
+ * The authoritative answer to "what would converting course X to pass/fail do
+ * to my average?" — see MentorContext.binaryImpact for why this exists.
+ *
+ * Every figure is computed by lib/binary-advisor, the same engine that draws
+ * the advisor card, so the King and the screen can only ever say one thing.
+ * The instruction under it is the point: this is a HYPOTHETICAL, which is the
+ * one question type the "don't recompute" rule could not previously answer, so
+ * the model answered it itself and got the direction backwards.
+ */
+function buildBinaryImpactBlock(context: MentorContext): string {
+  const bi = context.binaryImpact;
+  if (!bi) return "";
+  const head = `
+  המרה בינארית — הממוצע שיתקבל, מחושב ע״י המערכת (מכסה שנותרה: ${bi.quotaLeft}, ממוצע נוכחי: ${bi.currentAverage.toFixed(1)}):`;
+  if (bi.candidates.length === 0) {
+    return `${head}
+    אין כרגע ולו קורס אחד שהמרתו תעלה את הממוצע. **לכן: אם נשאלת "מה כדאי להמיר", התשובה היא שאין מועמד שמשפר — אל תציע קורס ואל תנקוב במספר.**`;
+  }
+  const rows = bi.candidates
+    .map(
+      (c) =>
+        `    · ${c.nameHe} (ציון ${c.grade}, ${c.credits} ש״ס) → הממוצע יהיה ${c.newAverage.toFixed(1)} (${c.delta >= 0 ? "+" : ""}${c.delta.toFixed(1)})`,
+    )
+    .join("\n");
+  return `${head}
+${rows}
+    **חוק-ברזל להמרה בינארית:** המספרים האלה הם התשובה. אל תחשב בעצמך מה יקרה לממוצע, אל תנקוב בממוצע חדש שלא מופיע בשורות האלה, ואל תסתור את כיוון השינוי שכתוב כאן. קורס שאינו ברשימה — המרתו לא מעלה את הממוצע, ואין לך מספר עבורו. (הזכר: המרה מסירה את הקורס מהממוצע; היא מעלה אותו כשהציון **נמוך** מהממוצע הנוכחי.) הערך המוסף שלך כאן הוא השיקולים — הצטיינות, קורסי-ליבה, אי-הפיכות — לא האריתמטיקה.`;
 }
 
 function formatRegulationIssues(issues: RegulationIssue[]): string {
@@ -448,6 +505,8 @@ ${personalAddress}
 
 ## עובדות מוסמכות על הסטודנט (מחושבות ע״י המערכת — אל תחשב מחדש ואל תסתור):
 > כל המספרים כאן (ש״ס, ממוצע, פערים, מצב רגולטורי) חושבו על-ידי מנוע-הבקרה של האפליקציה מהנתונים האמיתיים של הסטודנט. הם מקור-האמת. השתמש בהם כלשונם. לעולם אל תחשב מחדש נקודות/ממוצע/דרישות בעצמך, ואל תמציא מספר שלא מופיע כאן — אם חסר לך נתון מספרי, הפנה את הסטודנט ל"המצב שלי" בדשבורד במקום לנחש.
+> **האיסור חל גם על שאלות היפותטיות** — "מה יקרה לממוצע אם...", "כמה זה יעלה אותי", "אם אקבל 90 ב...". שאלה כזאת נראית כמו הזמנה לחשב, והיא בדיוק המקום שבו נולדה טעות אמיתית מול משתמש: המערכת אמרה "הממוצע יעלה ל-96.8" והתשובה טענה שהוא "יירד מ-96.4 ל-96.2" — שלושה מספרים שאיש לא חישב, ונימוק שסותר את עצמו. אם התרחיש מכוסה בעובדות שלמטה (למשל שורות ההמרה הבינארית) — צטט אותן כלשונן. אם אינו מכוסה — אמור בפירוש שאין לך את החישוב, והפנה למסך שכן עושה אותו ("מה באמת יזיז לכם את הממוצע" במחשבון ציון הגמר). **מספר שהסטודנט עצמו ציטט לך מתוך האפליקציה גובר על כל הערכה שלך — לעולם אל תתקן אותו כלפי מטה או מעלה.**
+> **ואם חישוב כן מתבקש בקול רם — הכיוון חייב להיות עקבי:** הסרת ציון מהממוצע מעלה אותו רק כשהציון נמוך מהממוצע. אל תכתוב לעולם משפט מהצורה "ציון X גבוה מהממוצע Y" כאשר X קטן מ-Y.
 
   תוכנית: ${program.nameHe} (${program.nameEn}) — ${disciplineNames}
   שנה נוכחית: שנה ${context.currentYear}, ${semesterLabel}${
@@ -490,7 +549,7 @@ ${personalAddress}
       ? `
   פירוק ש״ס שהושלמו: חובה ${context.creditDetail.mandatory} מתוך ${program.creditRequirements.mandatoryCredits ?? "?"} · בחירה ${context.creditDetail.elective} מתוך ${program.creditRequirements.electiveCredits ?? "?"} · סמינרים ${context.creditDetail.seminar} מתוך ${program.creditRequirements.seminarCredits ?? "?"} · מתוכננות ${context.creditDetail.planned} · קורסי אנגלית שהושלמו: ${context.creditDetail.englishCourseCount}`
       : ""
-  }
+  }${buildBinaryImpactBlock(context)}
 
 ## קורסים שהסטודנט סיים (עם ציונים):
 ${completedBlock}

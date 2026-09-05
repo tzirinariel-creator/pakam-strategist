@@ -221,6 +221,10 @@ export function GoogleCalendarSection() {
 
   return (
     <SectionCard
+      // /calendar links straight here (#google-calendar). Ariel, 5.9:
+      // "וגם זה לא נגיש כל כך" — the button used to drop the student at the
+      // top of a long settings page with no indication where to look.
+      id="google-calendar"
       icon={Calendar}
       title={t("googleCalendar")}
       description={t("googleCalendarDesc")}

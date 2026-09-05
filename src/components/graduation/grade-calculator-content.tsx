@@ -28,7 +28,7 @@ import { GradeStepper } from "@/components/ui/grade-stepper";
 import { Bidi } from "@/lib/bidi";
 import { GRADE_WEIGHTS } from "@/lib/constants";
 import { roundScore, countsTowardAverage, courseTypeCountsTowardAverage, canonicalAttempts } from "@/lib/grade-calculator";
-import { computeHonorsDistance, HONORS_YEARLY_BAR } from "@/lib/honors";
+import { computeHonorsDistance, latestGradedStudyYear, HONORS_YEARLY_BAR } from "@/lib/honors";
 import { prefersHigherGrade, type MiluimGroupKey } from "@/lib/miluim";
 import { deriveYearOfStudy } from "@/lib/academic-calendar";
 import type { UserCourseWithCourse, GradeBreakdown } from "@/types/degree";
@@ -227,37 +227,81 @@ function ScoreDashboard({
             <span className="text-lg text-foreground/60">/100</span>
           </div>
         ) : (
+          // =================================================================
+          // 5.9 — אריאל: *"אני עדיין לא מבין את שני הכרטיסיות שם"*
+          // =================================================================
+          // הכרטיס הזה פתח ב-"--.-" בגופן ענק. וזה לא מצב קצה: ציון הגמר
+          // נסגר רק כששלושת הסמינריונים והרפרט מוגשים, כלומר **רוב שנות
+          // התואר** הכרטיס הראשי במסך נראה כמו וידג׳ט שבור.
+          //
+          // המספר שכן קיים הוא ה-78%: ממוצע הקורסים הוא לא "עוד נתון" —
+          // הוא ארבע חמישיות מציון הגמר, והוא כבר נקבע. אז הוא הכותרת,
+          // עם המשפט שמסביר בדיוק מה עוד חסר ומי יקבע אותו. שום מספר
+          // מנובא, שום השלמה — רק מה שידוע ומה שלא, ובאיזה משקל.
           <div className="flex flex-col items-center gap-2">
-            <span className="font-mono text-4xl font-bold text-foreground/50">
-              --.-
-            </span>
-            <span className="max-w-[16rem] text-center text-xs text-foreground/60">
-              {isHe
-                ? "ציון הגמר יחושב כשיהיו לכם ציוני סמינריון ורפרט — לקראת סוף התואר"
-                : "Your final score is computed once seminar & referat grades are in — near the end of the degree"}
-            </span>
+            {courseAvg !== null ? (
+              <>
+                <div className="flex items-baseline gap-1" dir="ltr">
+                  <span
+                    className={cn(
+                      "font-display tabular text-5xl font-bold tabular-nums tracking-tight",
+                      getScoreColor(courseAvg),
+                    )}
+                  >
+                    {courseAvg.toFixed(1)}
+                  </span>
+                  <span className="text-lg text-foreground/60">/100</span>
+                </div>
+                <span className="text-xs font-semibold text-foreground/75">
+                  {isHe
+                    ? "זה ה-78% של ציון הגמר שכבר בידיים שלכם"
+                    : "This is the 78% of your final score that is already settled"}
+                </span>
+                <span className="max-w-[19rem] text-center text-xs leading-relaxed text-foreground/60">
+                  {isHe
+                    ? "את 22% הנותרים קובעות שלוש העבודות הסמינריוניות (18%) והרפרט (4%). עוד אין לכם בהן ציון, ולכן ציון הגמר עצמו עדיין לא מספר אחד — הוא ייסגר לקראת סוף התואר."
+                    : "The remaining 22% comes from your three seminar papers (18%) and the referat (4%). You have no grades there yet, so the final score is not one number — it settles near the end of the degree."}
+                </span>
+              </>
+            ) : (
+              <>
+                <span className="font-mono text-4xl font-bold text-foreground/50">--.-</span>
+                <span className="max-w-[17rem] text-center text-xs leading-relaxed text-foreground/60">
+                  {isHe
+                    ? "ציון הגמר הוא 78% ממוצע הקורסים, 18% שלוש עבודות סמינריוניות ו-4% רפרט. ברגע שיהיה לכם ציון אחד בתיק האקדמי, ה-78% יופיעו כאן."
+                    : "The final score is 78% course average, 18% three seminar papers and 4% the referat. As soon as you have one grade in your record, that 78% appears here."}
+                </span>
+              </>
+            )}
           </div>
         )}
       </div>
 
-      {/* GPAs */}
-      <div className="flex items-center justify-center gap-8 text-sm">
-        <div className="flex flex-col items-center gap-1">
-          <span className="text-xs text-foreground/60">{t("overallGpa")}</span>
-          <span className="font-display tabular text-xl font-semibold text-foreground/80">
-            {overallGpa !== null ? overallGpa.toFixed(1) : "--"}
-          </span>
+      {/* GPAs — שני המספרים האלה הם אותה אוכלוסייה בדיוק (#audit-r3 מקבע
+          שהם חייבים להסכים), ולכן כשהם שווים זו שורה שמציגה את אותו מספר
+          פעמיים תחת שני שמות. במצב שבו ציון הגמר עוד לא קיים הוא כבר
+          מופיע ככותרת למעלה — אז השורה הזאת רק מוסיפה בלבול (אריאל, 5.9).
+          מוצגת כשיש ציון גמר, או כששני המספרים באמת נבדלים. */}
+      {(score !== null ||
+        (overallGpa !== null && courseAvg !== null && Math.abs(overallGpa - courseAvg) >= 0.05)) && (
+        <div className="flex items-center justify-center gap-8 text-sm">
+          <div className="flex flex-col items-center gap-1">
+            <span className="text-xs text-foreground/60">{t("overallGpa")}</span>
+            <span className="font-display tabular text-xl font-semibold text-foreground/80">
+              {overallGpa !== null ? overallGpa.toFixed(1) : "--"}
+            </span>
+          </div>
+          <div className="h-8 w-px bg-border" />
+          <div className="flex flex-col items-center gap-1">
+            <span className="text-xs text-foreground/60">
+              {t("coursesWeight")}
+            </span>
+            <span className="font-display tabular text-xl font-semibold text-foreground/80">
+              {courseAvg !== null ? courseAvg.toFixed(1) : "--"}
+            </span>
+          </div>
         </div>
-        <div className="h-8 w-px bg-border" />
-        <div className="flex flex-col items-center gap-1">
-          <span className="text-xs text-foreground/60">
-            {t("coursesWeight")}
-          </span>
-          <span className="font-display tabular text-xl font-semibold text-foreground/80">
-            {courseAvg !== null ? courseAvg.toFixed(1) : "--"}
-          </span>
-        </div>
-      </div>
+      )}
 
       {/* Weight breakdown bar */}
       <div className="border-t border-border/30 pt-4">
@@ -486,6 +530,17 @@ function ReverseCalculator({
               </span>
             </div>
           </div>
+          {/* 5.9, אריאל: *"אני עדיין לא מבין את שני הכרטיסיות"*. שני מספרים
+              גדולים תחת תוויות "ממוצע נדרש" ו-"קורסים נותרים" לא אומרים מה
+              היחס ביניהם — אפשר לקרוא "88.0" גם כ"בממוצע" וגם כ"בכל קורס".
+              משפט אחד שמחבר את היעד, המספר והקורסים סוגר את זה. */}
+          {result.neededAvg !== null && (
+            <p className="mt-4 border-t border-foreground/10 pt-3 text-xs leading-relaxed text-foreground/70">
+              {isHe
+                ? `כדי לסיים עם ממוצע ${target}, צריך ממוצע של ${result.neededAvg.toFixed(1)} על פני ${result.remainingCount === 1 ? "הקורס האחד שנותר" : `${result.remainingCount} הקורסים שנותרו`} (${result.remainingCredits} ש״ס). לא בכל קורס בנפרד — ציון גבוה באחד מקזז נמוך באחר.`
+                : `To finish at ${target}, you need to average ${result.neededAvg.toFixed(1)} across the ${result.remainingCount} course${result.remainingCount === 1 ? "" : "s"} you have left (${result.remainingCredits} credits). Not in each one — a high grade in one offsets a lower one elsewhere.`}
+            </p>
+          )}
         </div>
       )}
     </div>
@@ -754,10 +809,17 @@ function HonorsDistanceCard({
 }) {
   const isHe = useLocale() === "he";
   const profileQuery = api.user.getProfile.useQuery();
-  const year = deriveYearOfStudy(
+  const currentYear = deriveYearOfStudy(
     profileQuery.data?.startYear,
     profileQuery.data?.currentYear ?? 1,
   );
+  // הצטיינות נמדדת על שנה שהסתיימה. השנה הנוכחית של סטודנט בספטמבר עוד לא
+  // התחילה, ולכן מדידה שלה החזירה תמיד "אין מספיק ציונים" — גם למי שיש לו
+  // שנתיים מלאות בתיק (אריאל, 5.9). מודדים את השנה האחרונה שיש בה ציונים,
+  // ואומרים בכותרת איזו שנה זו.
+  const gradedYear = latestGradedStudyYear(allCourses, currentYear);
+  const year = gradedYear ?? currentYear;
+  const isPastYear = gradedYear !== null && gradedYear < currentYear;
   const d = computeHonorsDistance(allCourses, year, profileQuery.data?.miluimGroup);
 
   return (
@@ -773,7 +835,9 @@ function HonorsDistanceCard({
       </div>
 
       {d.yearlyAverage === null ? (
-        <p className="text-sm text-foreground/60">{t("honorsNoData", { year: d.year })}</p>
+        <p className="text-sm text-foreground/60">
+          {t("honorsNoData", { year: studyYearLabel(d.year, isHe) })}
+        </p>
       ) : (
         <>
           <div className="flex items-baseline gap-3">
@@ -784,6 +848,13 @@ function HonorsDistanceCard({
               {t("honorsYearAvg", { year: studyYearLabel(d.year, isHe) })} · / {HONORS_YEARLY_BAR}
             </span>
           </div>
+          {isPastYear && (
+            <p className="text-xs leading-relaxed text-foreground/60">
+              {isHe
+                ? `הצטיינות נמדדת על שנה שהסתיימה, ולכן מוצגת כאן ${studyYearLabel(d.year, true)} — השנה האחרונה שיש לכם בה ציונים. ${studyYearLabel(currentYear, true)} תיכנס לכאן ברגע שייכנסו אליה ציונים.`
+                : `Honours is judged on a year that has ended, so this shows ${studyYearLabel(d.year, false)} — the last year you have grades in. ${studyYearLabel(currentYear, false)} appears here once it has grades.`}
+            </p>
+          )}
           <div className="h-2 w-full overflow-hidden rounded-full bg-foreground/10">
             <div
               className={cn(

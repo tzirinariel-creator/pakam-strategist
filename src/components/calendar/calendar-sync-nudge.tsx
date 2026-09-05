@@ -87,7 +87,7 @@ export function CalendarSyncNudge({
         </p>
         <div className="mt-3 flex flex-wrap items-center gap-2.5">
           <Link
-            href="/settings"
+            href="/settings#google-calendar"
             onClick={dismiss}
             className="inline-flex items-center gap-1.5 rounded-lg bg-accent-brand px-3 py-1.5 text-xs font-semibold text-accent-brand-fg transition-colors hover:bg-accent-brand-hover"
           >

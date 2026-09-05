@@ -6,14 +6,17 @@
 import { google, type calendar_v3 } from "googleapis";
 import { prisma } from "@/lib/db";
 import { encrypt, decrypt } from "@/lib/crypto";
+import { env } from "@/lib/env";
 
 // ─── Client Factory ─────────────────────────────────────────
 
 function createOAuth2Client() {
   return new google.auth.OAuth2(
-    process.env.GOOGLE_CLIENT_ID,
-    process.env.GOOGLE_CLIENT_SECRET,
-    process.env.GOOGLE_REDIRECT_URI,
+    // env() ולא process.env — ערך עם שורה חדשה בסוף הרג את כל הזרימה
+    // בפרודקשן (ראו lib/env.ts).
+    env("GOOGLE_CLIENT_ID"),
+    env("GOOGLE_CLIENT_SECRET"),
+    env("GOOGLE_REDIRECT_URI"),
   );
 }
 

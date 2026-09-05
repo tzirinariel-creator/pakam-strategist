@@ -1,0 +1,12 @@
+import { openApp, login, shot, BASE } from "./tour-lib.mjs";
+const { b, p, errors } = await openApp({ width: 1440, height: 1000 });
+await login(p, process.env.NEXT_PUBLIC_TEST_USER_EMAIL, process.env.TEST_USER_PASSWORD);
+await p.goto(`${BASE}/he/planner/semester`, { waitUntil: "domcontentloaded" });
+await p.waitForTimeout(14000);
+await shot(p, "D-semester-planner", { full: true });
+const t = await p.evaluate(() => document.body.innerText);
+console.log("URL:", p.url());
+const i = t.indexOf("התקדמות בתואר");
+console.log(i >= 0 ? t.slice(Math.max(0, i-900), i+500) : t.slice(0, 3500));
+console.log("\n=== errors ===", errors.slice(0,5).join("\n"));
+await b.close();

@@ -2,6 +2,7 @@ import { NextResponse, type NextRequest } from "next/server";
 import { google } from "googleapis";
 import { randomBytes } from "crypto";
 import { createServerSupabase } from "@/lib/supabase/server";
+import { env } from "@/lib/env";
 
 /**
  * Google Calendar OAuth — Step 1: Redirect user to Google consent screen.
@@ -32,8 +33,8 @@ export async function GET(request: NextRequest) {
 
   // Validate required env vars
   if (
-    !process.env.GOOGLE_CLIENT_ID ||
-    !process.env.GOOGLE_CLIENT_SECRET
+    !env("GOOGLE_CLIENT_ID") ||
+    !env("GOOGLE_CLIENT_SECRET")
   ) {
     console.error("[Google OAuth] Missing GOOGLE_CLIENT_ID or GOOGLE_CLIENT_SECRET");
     const locale = request.cookies.get("NEXT_LOCALE")?.value ?? "he";
@@ -43,13 +44,15 @@ export async function GET(request: NextRequest) {
   }
 
   // Build redirect URI: prefer env var, fallback to dynamic origin
+  // env() חותך רווחים וקצוות. הערך בפרודקשן נשמר עם "\n" בסוף, וגוגל
+  // דחתה כל בקשה עם invalid_request — ראו lib/env.ts.
   const redirectUri =
-    process.env.GOOGLE_REDIRECT_URI ||
+    env("GOOGLE_REDIRECT_URI") ||
     `${request.nextUrl.origin}/api/google/callback`;
 
   const oauth2Client = new google.auth.OAuth2(
-    process.env.GOOGLE_CLIENT_ID,
-    process.env.GOOGLE_CLIENT_SECRET,
+    env("GOOGLE_CLIENT_ID"),
+    env("GOOGLE_CLIENT_SECRET"),
     redirectUri,
   );
 

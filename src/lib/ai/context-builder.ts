@@ -17,7 +17,8 @@ import { calculateCredits } from "@/lib/credit-calculator";
 import { greetNameForLocale } from "@/lib/personal-address";
 import { calculateGrades } from "@/lib/grade-calculator";
 import { runRegulationEngine } from "@/lib/regulations/rule-engine";
-import { computeCreditExemption, deriveCurrentGroup, getCurrentAcademicYear, prefersHigherGrade, type MiluimGroupKey } from "@/lib/miluim";
+import { computeCreditExemption, deriveCurrentGroup, getCurrentAcademicYear, prefersHigherGrade, binaryBenefitOf, binaryCapRemaining, type MiluimGroupKey } from "@/lib/miluim";
+import { rankBinaryCandidates } from "@/lib/binary-advisor";
 import { arazimView } from "@/lib/arazim/visibility";
 import { buildExamPeriodBlock } from "@/lib/ai/exam-facts";
 import { getProgramById } from "@/lib/programs/registry";
@@ -401,6 +402,57 @@ export async function buildUserContext(
     },
     examPeriodBlock: buildExamPeriodBlock(studyTasks, israelCivilDate()),
     academicNowLine: buildAcademicNowLine(),
+    // =====================================================================
+    // המרה בינארית — המספרים, לא ההערכה של המודל (אריאל, 5.9)
+    // =====================================================================
+    // ההערה: *"יש פה טעות למלך בחישוב ממוצע — תסדר את זה ותוודא שלמלך אין
+    // הזיות בכלל כי זה פוגע באמון."* וזה בדיוק מה שקרה, מול צילום מסך.
+    //
+    // הכפתור "מה כדאי לשקול?" ב-BinaryAdvisor שולח למלך משפט עם המספר
+    // **הנכון** שהאפליקציה חישבה ("הממוצע יעלה ל-96.8"). המלך ענה שההמרה
+    // *תוריד* את הממוצע "מ-96.4 ל-96.2, משום שציון 90 גבוה מהממוצע
+    // הנוכחי" — משפט שסותר את עצמו (90 נמוך מ-96.4), סותר את המסך, ומכיל
+    // שלושה מספרים שאיש לא חישב.
+    //
+    // הסיבה: זו שאלה **היפותטית**. אף עובדה מוסמכת לא ענתה עליה, אז
+    // המודל חישב לבד — וזה בדיוק מה שהפרומפט אוסר עליו לעשות. התיקון
+    // הנכון אינו עוד אזהרה בפרומפט אלא לתת לו את התשובה: אותו
+    // rankBinaryCandidates שמצייר את הכרטיס, כך שהמלך והמסך קוראים
+    // מאותו מספר.
+    binaryImpact: buildBinaryImpact(userCourses, user, currentGroup),
+  };
+}
+
+/**
+ * The exact arithmetic behind "what happens to my average if I convert X to
+ * pass/fail" — the same engine the record screen's advisor card draws from.
+ * Null when the student's group grants no binary benefit or nothing qualifies,
+ * and the prompt then says the King has no figure rather than inventing one.
+ */
+function buildBinaryImpact(
+  userCourses: UserCourseWithCourse[],
+  user: { miluimGroup?: MiluimGroup | string | null; miluimBinaryUsed?: number | null },
+  currentGroup: MiluimGroup,
+): MentorContext["binaryImpact"] {
+  if (!binaryBenefitOf(currentGroup as MiluimGroupKey)) return null;
+  const quotaLeft = binaryCapRemaining(
+    user.miluimBinaryUsed ?? 0,
+    currentGroup as MiluimGroupKey,
+  );
+  const { current, candidates } = rankBinaryCandidates(userCourses, quotaLeft, {
+    preferHigherGrade: prefersHigherGrade((user.miluimGroup ?? "NONE") as MiluimGroupKey),
+  });
+  if (current == null) return null;
+  return {
+    currentAverage: current,
+    quotaLeft,
+    candidates: candidates.slice(0, 6).map((c) => ({
+      nameHe: c.course.nameHe,
+      grade: c.course.grade,
+      credits: c.course.credits,
+      newAverage: c.newAverage,
+      delta: c.delta,
+    })),
   };
 }
 

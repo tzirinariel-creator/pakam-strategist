@@ -514,7 +514,7 @@ export function CalendarContent() {
               </button>
             ) : (
               <Link
-                href="/settings"
+                href="/settings#google-calendar"
                 className="flex items-center gap-1.5 rounded-lg bg-emerald-500/10 px-3 py-1.5 text-sm font-medium text-status-green transition-colors hover:bg-emerald-500/20"
                 title={locale === "he" ? "חברו את יומן Google כדי לסנכרן את המערכת" : "Connect Google Calendar to sync your timetable"}
               >

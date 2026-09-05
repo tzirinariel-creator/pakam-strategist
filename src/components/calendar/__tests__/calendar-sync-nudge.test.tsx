@@ -43,7 +43,12 @@ describe("CalendarSyncNudge (#40)", () => {
   it("offers the sync once a plan exists and the account isn't connected", () => {
     render(<CalendarSyncNudge show />);
     expect(offer()).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: /לחיבור היומן/ })).toHaveAttribute("href", "/settings");
+    // האנקור חשוב: אריאל, 5.9 — "וגם זה לא נגיש כל כך". הקישור הוביל לראש
+    // עמוד הגדרות ארוך, בלי לרמוז איפה בכלל מחברים.
+    expect(screen.getByRole("link", { name: /לחיבור היומן/ })).toHaveAttribute(
+      "href",
+      "/settings#google-calendar",
+    );
   });
 
   it("stays silent when there is nothing to sync yet", () => {

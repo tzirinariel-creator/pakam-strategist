@@ -1,3 +1,4 @@
+import { env } from "@/lib/env";
 import { z } from "zod/v4";
 import { TRPCError } from "@trpc/server";
 import { createTRPCRouter, protectedProcedure, createRequestLoaders } from "../trpc/init";
@@ -287,7 +288,7 @@ export const scheduleRouter = createTRPCRouter({
     // Whether Google OAuth is configured on the server — the UI hides the
     // integration entirely when it isn't, so the button can't reach an error page.
     const configured = Boolean(
-      process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET
+      env("GOOGLE_CLIENT_ID") && env("GOOGLE_CLIENT_SECRET")
     );
     return {
       connected: tokens !== null,
