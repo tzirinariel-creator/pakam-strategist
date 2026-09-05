@@ -1,62 +1,127 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630" font-family="'Assistant','Heebo','Segoe UI',system-ui,-apple-system,sans-serif">
+  <!--
+    כרטיס הקישור של פכמון — מה שסטודנט רואה כשהקישור נשלח בוואטסאפ.
+
+    אריאל, 5.9: "תוכל לעשות רקע יפה יותר... משהו שיותר משקף את העיצוב
+    של האפליקציה ולא כזה מוזר?"
+
+    הגרסה הקודמת הייתה כרטיס SaaS גנרי: רקע כהה בזמן שהאפליקציה בהירה,
+    ריבוע עם האות P, ושלושה צ'יפים שאחד מהם — "חינם AI עוזר" — הוא בדיוק
+    העברית השבורה שאריאל נלחם בה, וגם סותר את הכלל שאוסר מיתוג AI גנרי.
+
+    כאן: הצבעים האמיתיים של האפליקציה (#FCFCFD רקע, #5B5BD6 מבטא,
+    וצבעי שלושת החוגים מ-tau-ppe-2025.ts), הכתר של המלך הפילוסוף במקום
+    האות, ומיניאטורה של גיליון הבידינג — כי זיהוי החפיפות הוא מה
+    שמבדיל אותנו, ואי-אפשר להראות אותו בצ'יפ.
+  -->
   <defs>
-    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" style="stop-color:#1a1830;stop-opacity:1" />
-      <stop offset="50%" style="stop-color:#211d3d;stop-opacity:1" />
-      <stop offset="100%" style="stop-color:#2a2550;stop-opacity:1" />
-    </linearGradient>
-    <linearGradient id="accent" x1="0%" y1="0%" x2="100%" y2="0%">
-      <stop offset="0%" style="stop-color:#5B5BD6;stop-opacity:1" />
-      <stop offset="100%" style="stop-color:#818cf8;stop-opacity:1" />
-    </linearGradient>
+    <radialGradient id="wash" cx="88%" cy="12%" r="70%">
+      <stop offset="0%" stop-color="#5B5BD6" stop-opacity="0.13"/>
+      <stop offset="55%" stop-color="#5B5BD6" stop-opacity="0.04"/>
+      <stop offset="100%" stop-color="#5B5BD6" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="wash2" cx="10%" cy="95%" r="55%">
+      <stop offset="0%" stop-color="#4A90D9" stop-opacity="0.09"/>
+      <stop offset="100%" stop-color="#4A90D9" stop-opacity="0"/>
+    </radialGradient>
+    <filter id="lift" x="-30%" y="-30%" width="160%" height="160%">
+      <feDropShadow dx="0" dy="10" stdDeviation="18" flood-color="#18181B" flood-opacity="0.10"/>
+    </filter>
+    <filter id="chip" x="-40%" y="-40%" width="180%" height="180%">
+      <feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#18181B" flood-opacity="0.07"/>
+    </filter>
   </defs>
 
-  <!-- Background -->
-  <rect width="1200" height="630" fill="url(#bg)" />
+  <rect width="1200" height="630" fill="#FCFCFD"/>
+  <rect width="1200" height="630" fill="url(#wash)"/>
+  <rect width="1200" height="630" fill="url(#wash2)"/>
 
-  <!-- Decorative indigo glows -->
-  <circle cx="100" cy="100" r="200" fill="#5B5BD6" opacity="0.06" />
-  <circle cx="1100" cy="530" r="250" fill="#5B5BD6" opacity="0.06" />
-  <circle cx="900" cy="80" r="150" fill="#818cf8" opacity="0.05" />
+  <!-- ── הצד הימני: המותג והמסר (RTL) ───────────────────────── -->
 
-  <!-- Subtle grid lines -->
-  <line x1="60" y1="520" x2="1140" y2="520" stroke="#ffffff" stroke-width="0.5" opacity="0.08" />
-  <line x1="60" y1="110" x2="1140" y2="110" stroke="#ffffff" stroke-width="0.5" opacity="0.08" />
+  <!-- תג הכתר — סמל המלך הפילוסוף, לא אות בריבוע -->
+  <rect x="1032" y="72" width="76" height="76" rx="22" fill="#5B5BD6"/>
+  <g transform="translate(1046,86) scale(2.0)">
+    <path d="M3.4 18.2 L4.7 9.6 L8.9 13.1 L12 6.9 L15.1 13.1 L19.3 9.6 L20.6 18.2 Z"
+          fill="#ffffff" fill-opacity="0.96"/>
+    <circle cx="12" cy="5.4" r="1.5" fill="#ffffff"/>
+    <circle cx="4.7" cy="8.2" r="1.05" fill="#ffffff" fill-opacity="0.85"/>
+    <circle cx="19.3" cy="8.2" r="1.05" fill="#ffffff" fill-opacity="0.85"/>
+  </g>
 
-  <!-- App icon / Logo area -->
-  <rect x="80" y="160" width="80" height="80" rx="16" fill="url(#accent)" />
-  <text x="120" y="215" font-family="system-ui, -apple-system, sans-serif" font-size="42" font-weight="700" fill="#ffffff" text-anchor="middle">P</text>
+  <text x="1006" y="126" text-anchor="end" font-size="44" font-weight="800" fill="#18181B">פכמון</text>
 
-  <!-- App Name -->
-  <text x="190" y="215" font-family="system-ui, -apple-system, sans-serif" font-size="56" font-weight="700" fill="#ffffff" text-anchor="start">Pakamon</text>
+  <!-- הכותרת — אותו משפט שעל דף הנחיתה -->
+  <text x="1108" y="248" text-anchor="end" font-size="76" font-weight="800" fill="#18181B" letter-spacing="-1.5">שלושה חוגים,</text>
+  <text x="1108" y="336" text-anchor="end" font-size="76" font-weight="800" fill="#18181B" letter-spacing="-1.5">לוח אחד.</text>
 
-  <!-- Hebrew Name -->
-  <text x="480" y="215" font-family="system-ui, -apple-system, sans-serif" font-size="36" font-weight="400" fill="#a5b4fc" text-anchor="start" opacity="0.95">&#x05E4;&#x05DB;&#x05DE;&#x05D5;&#x05DF;</text>
+  <text x="1108" y="402" text-anchor="end" font-size="29" font-weight="500" fill="#52525B">גיליון בידינג שמראה איפה יש חפיפה,</text>
+  <text x="1108" y="442" text-anchor="end" font-size="29" font-weight="500" fill="#52525B">לפני שאתם מגישים.</text>
 
-  <!-- Tagline (right-anchored so the RTL line stays on canvas) -->
-  <text x="1120" y="300" font-family="system-ui, -apple-system, sans-serif" font-size="28" font-weight="400" fill="#ffffff" opacity="0.85" text-anchor="end">
-    &#x05EA;&#x05DB;&#x05E0;&#x05D5;&#x05DF; &#x05D0;&#x05E7;&#x05D3;&#x05DE;&#x05D9; &#x05D7;&#x05DB;&#x05DD; &#x05DC;&#x05EA;&#x05D5;&#x05D0;&#x05E8; &#x05E4;&#x05D9;&#x05DC;&#x05D5;&#x05E1;&#x05D5;&#x05E4;&#x05D9;&#x05D4;, &#x05DB;&#x05DC;&#x05DB;&#x05DC;&#x05D4; &#x05D5;&#x05DE;&#x05D3;&#x05E2; &#x05D4;&#x05DE;&#x05D3;&#x05D9;&#x05E0;&#x05D4;
-  </text>
+  <!-- פס שלושת החוגים, בצבעים האמיתיים מהקטלוג -->
+  <g>
+    <rect x="1018" y="500" width="90" height="5" rx="2.5" fill="#4A90D9"/>
+    <text x="1108" y="536" text-anchor="end" font-size="20" font-weight="600" fill="#3F3F46">פילוסופיה</text>
+    <rect x="934" y="500" width="60" height="5" rx="2.5" fill="#2ECC71"/>
+    <text x="994" y="536" text-anchor="end" font-size="20" font-weight="600" fill="#3F3F46">כלכלה</text>
+    <rect x="795" y="500" width="115" height="5" rx="2.5" fill="#E74C3C"/>
+    <text x="910" y="536" text-anchor="end" font-size="20" font-weight="600" fill="#3F3F46">מדע המדינה</text>
+  </g>
 
-  <!-- Feature pills -->
-  <rect x="80" y="360" width="200" height="44" rx="22" fill="#ffffff" opacity="0.1" />
-  <text x="180" y="388" font-family="system-ui, -apple-system, sans-serif" font-size="16" fill="#ffffff" text-anchor="middle" opacity="0.9">&#x05EA;&#x05DB;&#x05E0;&#x05D5;&#x05DF; &#x05EA;&#x05D5;&#x05D0;&#x05E8;</text>
+  <text x="1108" y="586" text-anchor="end" font-size="19" font-weight="500" fill="#8A8A93">חינם · אוניברסיטת תל אביב</text>
 
-  <rect x="300" y="360" width="220" height="44" rx="22" fill="#ffffff" opacity="0.1" />
-  <text x="410" y="388" font-family="system-ui, -apple-system, sans-serif" font-size="16" fill="#ffffff" text-anchor="middle" opacity="0.9">&#x05DC;&#x05D5;&#x05D7; &#x05D6;&#x05DE;&#x05E0;&#x05D9;&#x05DD; &#x05D7;&#x05DB;&#x05DD;</text>
+  <!-- ── הצד השמאלי: המוצר עצמו ──────────────────────────────── -->
+  <g filter="url(#lift)">
+    <rect x="72" y="96" width="560" height="438" rx="24" fill="#FFFFFF" stroke="#E8E8EC" stroke-width="1"/>
+  </g>
 
-  <rect x="540" y="360" width="240" height="44" rx="22" fill="#ffffff" opacity="0.1" />
-  <text x="660" y="388" font-family="system-ui, -apple-system, sans-serif" font-size="16" fill="#ffffff" text-anchor="middle" opacity="0.9">&#x05E2;&#x05D5;&#x05D6;&#x05E8; AI &#x05D7;&#x05D9;&#x05E0;&#x05DD;&#x05D9;</text>
+  <!-- כותרת הכרטיס -->
+  <text x="600" y="146" text-anchor="end" font-size="23" font-weight="700" fill="#18181B">תכנון התואר</text>
+  <text x="600" y="176" text-anchor="end" font-size="17" font-weight="500" fill="#8A8A93">גררו קורסים בין סמסטרים</text>
+  <rect x="104" y="128" width="86" height="30" rx="15" fill="#5B5BD6" fill-opacity="0.10"/>
+  <text x="147" y="149" text-anchor="middle" font-size="16" font-weight="700" fill="#5B5BD6">14/27</text>
 
-  <!-- Discipline accents (on-brand indigo shades) -->
-  <rect x="80" y="450" width="160" height="4" rx="2" fill="#818cf8" opacity="0.85" />
-  <rect x="250" y="450" width="160" height="4" rx="2" fill="#5B5BD6" opacity="0.85" />
-  <rect x="420" y="450" width="160" height="4" rx="2" fill="#4F4FC9" opacity="0.85" />
+  <line x1="104" y1="200" x2="600" y2="200" stroke="#E8E8EC" stroke-width="1"/>
 
-  <text x="160" y="480" font-family="system-ui, -apple-system, sans-serif" font-size="13" fill="#a5b4fc" text-anchor="middle" opacity="0.85">&#x05E4;&#x05D9;&#x05DC;&#x05D5;&#x05E1;&#x05D5;&#x05E4;&#x05D9;&#x05D4;</text>
-  <text x="330" y="480" font-family="system-ui, -apple-system, sans-serif" font-size="13" fill="#a5b4fc" text-anchor="middle" opacity="0.85">&#x05DB;&#x05DC;&#x05DB;&#x05DC;&#x05D4;</text>
-  <text x="500" y="480" font-family="system-ui, -apple-system, sans-serif" font-size="13" fill="#a5b4fc" text-anchor="middle" opacity="0.85">&#x05DE;&#x05D3;&#x05E2; &#x05D4;&#x05DE;&#x05D3;&#x05D9;&#x05E0;&#x05D4;</text>
+  <!-- שתי עמודות הסמסטרים -->
+  <text x="600" y="234" text-anchor="end" font-size="18" font-weight="700" fill="#3F3F46">סמסטר א׳</text>
+  <text x="352" y="234" text-anchor="end" font-size="18" font-weight="700" fill="#3F3F46">סמסטר ב׳</text>
 
-  <!-- University badge -->
-  <text x="1120" y="580" font-family="system-ui, -apple-system, sans-serif" font-size="14" fill="#ffffff" text-anchor="end" opacity="0.4">Tel Aviv University | &#x05D0;&#x05D5;&#x05E0;&#x05D9;&#x05D1;&#x05E8;&#x05E1;&#x05D9;&#x05D8;&#x05EA; &#x05EA;&#x05DC; &#x05D0;&#x05D1;&#x05D9;&#x05D1;</text>
+  <!-- סמסטר א׳ -->
+  <g filter="url(#chip)">
+    <rect x="372" y="250" width="228" height="52" rx="11" fill="#FFFFFF" stroke="#E8E8EC"/>
+    <rect x="594" y="250" width="6" height="52" rx="3" fill="#2ECC71"/>
+    <rect x="372" y="312" width="228" height="52" rx="11" fill="#FFFFFF" stroke="#E8E8EC"/>
+    <rect x="594" y="312" width="6" height="52" rx="3" fill="#4A90D9"/>
+    <rect x="372" y="374" width="228" height="52" rx="11" fill="#FFFFFF" stroke="#E8E8EC"/>
+    <rect x="594" y="374" width="6" height="52" rx="3" fill="#E74C3C"/>
+  </g>
+  <text x="580" y="272" text-anchor="end" font-size="16" font-weight="600" fill="#27272A">מיקרו כלכלה א׳</text>
+  <text x="580" y="292" text-anchor="end" font-size="13" fill="#8A8A93">5 ש״ס · חובה</text>
+  <text x="580" y="334" text-anchor="end" font-size="16" font-weight="600" fill="#27272A">מבוא ללוגיקה</text>
+  <text x="580" y="354" text-anchor="end" font-size="13" fill="#8A8A93">4 ש״ס · חובה</text>
+  <text x="580" y="396" text-anchor="end" font-size="16" font-weight="600" fill="#27272A">פוליטיקה ומשטר</text>
+  <text x="580" y="416" text-anchor="end" font-size="13" fill="#8A8A93">4 ש״ס · חובה</text>
+
+  <!-- סמסטר ב׳ -->
+  <g filter="url(#chip)">
+    <rect x="124" y="250" width="228" height="52" rx="11" fill="#FFFFFF" stroke="#E8E8EC"/>
+    <rect x="346" y="250" width="6" height="52" rx="3" fill="#4A90D9"/>
+    <rect x="124" y="312" width="228" height="52" rx="11" fill="#FFFFFF" stroke="#E8E8EC"/>
+    <rect x="346" y="312" width="6" height="52" rx="3" fill="#2ECC71"/>
+  </g>
+  <text x="332" y="272" text-anchor="end" font-size="16" font-weight="600" fill="#27272A">פילוסופיה של המדע</text>
+  <text x="332" y="292" text-anchor="end" font-size="13" fill="#8A8A93">4 ש״ס</text>
+  <text x="332" y="334" text-anchor="end" font-size="16" font-weight="600" fill="#27272A">מאקרו כלכלה</text>
+  <text x="332" y="354" text-anchor="end" font-size="13" fill="#8A8A93">6 ש״ס</text>
+
+  <!-- שטח הגרירה הריק -->
+  <rect x="124" y="374" width="228" height="52" rx="11" fill="none" stroke="#E8E8EC" stroke-width="1.5" stroke-dasharray="6 5"/>
+  <text x="238" y="406" text-anchor="middle" font-size="14" fill="#A1A1AA">גררו לכאן</text>
+
+  <!-- ההתרעה על החפיפה — הדבר שמבדיל אותנו -->
+  <rect x="104" y="446" width="496" height="62" rx="13" fill="#E74C3C" fill-opacity="0.08" stroke="#E74C3C" stroke-opacity="0.16"/>
+  <circle cx="572" cy="477" r="13" fill="#E74C3C" fill-opacity="0.18"/>
+  <text x="572" y="483" text-anchor="middle" font-size="16" font-weight="800" fill="#C0392B">!</text>
+  <text x="544" y="471" text-anchor="end" font-size="16" font-weight="700" fill="#C0392B">חפיפה ביום ראשון</text>
+  <text x="544" y="495" text-anchor="end" font-size="14" fill="#9C3A2E" direction="ltr">10:00–12:00</text>
 </svg>
