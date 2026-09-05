@@ -1,0 +1,1109 @@
+[
+ {
+  "page": "נחיתה",
+  "contrast": [],
+  "graphic": [
+   {
+    "ratio": 1.91,
+    "cls": "size-5 shrink-0 text-crown-gold-bright",
+    "label": "פתחו את המלך הפילוסוף"
+   }
+  ],
+  "touch": [
+   {
+    "w": 92,
+    "h": 17,
+    "min": 24,
+    "tag": "A",
+    "text": "למערכת הבידינג",
+    "cls": "inline-flex items-center gap-1 text-[11px] font-medium text-acce"
+   },
+   {
+    "w": 85,
+    "h": 17,
+    "min": 24,
+    "tag": "A",
+    "text": "הדרכה מצולמת",
+    "cls": "inline-flex items-center gap-1 text-[11px] text-foreground/60 ho"
+   },
+   {
+    "w": 66,
+    "h": 16,
+    "min": 24,
+    "tag": "A",
+    "text": "לתיק המחזור",
+    "cls": "text-xs font-medium text-foreground/60 underline-offset-2 transi"
+   },
+   {
+    "w": 44,
+    "h": 16,
+    "min": 24,
+    "tag": "BUTTON",
+    "text": "לא עכשיו",
+    "cls": "ms-auto text-xs text-foreground/60 transition-colors hover:text-"
+   },
+   {
+    "w": 132,
+    "h": 16,
+    "min": 24,
+    "tag": "A",
+    "text": "פירוט מלא של הדרישות",
+    "cls": "inline-flex items-center gap-1 text-xs font-medium text-foregrou"
+   },
+   {
+    "w": 73,
+    "h": 16,
+    "min": 24,
+    "tag": "A",
+    "text": "כל הבחינות",
+    "cls": "inline-flex shrink-0 items-center gap-1 text-xs font-medium text"
+   }
+  ],
+  "size": [
+   {
+    "text": "שנה״ל נפתחת · ביטול רישום עד · שבוע שינו",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-3 text-[11px] leading-relaxed text-foreground/60"
+   }
+  ],
+  "focus": [],
+  "label": [],
+  "counts": {
+   "text": 114,
+   "interactive": 42
+  },
+  "overflow": null
+ },
+ {
+  "page": "מסך הבית",
+  "contrast": [],
+  "graphic": [
+   {
+    "ratio": 1.91,
+    "cls": "size-5 shrink-0 text-crown-gold-bright",
+    "label": "פתחו את המלך הפילוסוף"
+   }
+  ],
+  "touch": [
+   {
+    "w": 92,
+    "h": 17,
+    "min": 24,
+    "tag": "A",
+    "text": "למערכת הבידינג",
+    "cls": "inline-flex items-center gap-1 text-[11px] font-medium text-acce"
+   },
+   {
+    "w": 85,
+    "h": 17,
+    "min": 24,
+    "tag": "A",
+    "text": "הדרכה מצולמת",
+    "cls": "inline-flex items-center gap-1 text-[11px] text-foreground/60 ho"
+   },
+   {
+    "w": 66,
+    "h": 16,
+    "min": 24,
+    "tag": "A",
+    "text": "לתיק המחזור",
+    "cls": "text-xs font-medium text-foreground/60 underline-offset-2 transi"
+   },
+   {
+    "w": 44,
+    "h": 16,
+    "min": 24,
+    "tag": "BUTTON",
+    "text": "לא עכשיו",
+    "cls": "ms-auto text-xs text-foreground/60 transition-colors hover:text-"
+   },
+   {
+    "w": 132,
+    "h": 16,
+    "min": 24,
+    "tag": "A",
+    "text": "פירוט מלא של הדרישות",
+    "cls": "inline-flex items-center gap-1 text-xs font-medium text-foregrou"
+   },
+   {
+    "w": 73,
+    "h": 16,
+    "min": 24,
+    "tag": "A",
+    "text": "כל הבחינות",
+    "cls": "inline-flex shrink-0 items-center gap-1 text-xs font-medium text"
+   }
+  ],
+  "size": [
+   {
+    "text": "שנה״ל נפתחת · ביטול רישום עד · שבוע שינו",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-3 text-[11px] leading-relaxed text-foreground/60"
+   }
+  ],
+  "focus": [],
+  "label": [],
+  "counts": {
+   "text": 114,
+   "interactive": 42
+  },
+  "overflow": null
+ },
+ {
+  "page": "מתכנן",
+  "contrast": [],
+  "graphic": [
+   {
+    "ratio": 1.91,
+    "cls": "size-5 shrink-0 text-crown-gold-bright",
+    "label": "פתחו את המלך הפילוסוף"
+   }
+  ],
+  "touch": [
+   {
+    "w": 92,
+    "h": 17,
+    "min": 24,
+    "tag": "A",
+    "text": "למערכת הבידינג",
+    "cls": "inline-flex items-center gap-1 text-[11px] font-medium text-acce"
+   },
+   {
+    "w": 85,
+    "h": 17,
+    "min": 24,
+    "tag": "A",
+    "text": "הדרכה מצולמת",
+    "cls": "inline-flex items-center gap-1 text-[11px] text-foreground/60 ho"
+   },
+   {
+    "w": 44,
+    "h": 16,
+    "min": 24,
+    "tag": "BUTTON",
+    "text": "לא, תודה",
+    "cls": "ms-auto text-xs text-foreground/60 transition-colors hover:text-"
+   }
+  ],
+  "size": [
+   {
+    "text": "מהודעת מזכירות פכ״מ, אוגוסט 2026",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-1.5 text-[11px] text-foreground/60"
+   },
+   {
+    "text": "העבירו לסמסטר ב׳",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "inline-flex shrink-0 items-center gap-1.5 rounded-lg border bord"
+   },
+   {
+    "text": "שנה״ל נפתחת · ביטול רישום עד · שבוע שינו",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-3 text-[11px] leading-relaxed text-foreground/60"
+   },
+   {
+    "text": "מתוכם ש״ס חובה — לא נתונים לבחירה",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-0.5 text-[11px] text-foreground/60"
+   },
+   {
+    "text": "מתוכם ש״ס חובה — לא נתונים לבחירה",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-0.5 text-[11px] text-foreground/60"
+   },
+   {
+    "text": "שנה ג׳ · מתעדכן כשמזיזים קורסים בלוח",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "text-[11px] text-foreground/60"
+   },
+   {
+    "text": "1011-3310 · תרגול · קבוצה 01",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "truncate text-[11px] text-muted-foreground"
+   },
+   {
+    "text": "ד\"ר קרולינה אנדראה סילבה קסורלה",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-0.5 truncate text-[11px] text-muted-foreground"
+   },
+   {
+    "text": "ביה\"ס לכלכלה ע\"ש ברגלס, 012",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-0.5 flex items-center gap-1 truncate text-[11px] text-muted-f"
+   },
+   {
+    "text": "0651-3001 · סמינר · קבוצה 01",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "truncate text-[11px] text-muted-foreground"
+   },
+   {
+    "text": "ד\"ר יוסף מזור, ד\"ר עידית בן אור",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-0.5 truncate text-[11px] text-muted-foreground"
+   },
+   {
+    "text": "הפקולטה למדעי הרוח בנין יצחק ורוזה גילמן",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-0.5 flex items-center gap-1 truncate text-[11px] text-muted-f"
+   }
+  ],
+  "focus": [],
+  "label": [],
+  "counts": {
+   "text": 169,
+   "interactive": 42
+  },
+  "overflow": null
+ },
+ {
+  "page": "יומן",
+  "contrast": [],
+  "graphic": [
+   {
+    "ratio": 1.91,
+    "cls": "size-5 shrink-0 text-crown-gold-bright",
+    "label": "פתחו את המלך הפילוסוף"
+   }
+  ],
+  "touch": [],
+  "size": [
+   {
+    "text": "תרגול · קבוצה 01",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-0.5 truncate text-[11px] text-foreground/70"
+   },
+   {
+    "text": "ביה\"ס לכלכלה ע\"ש ברגלס, 012",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "flex items-center gap-1 truncate text-[11px] text-foreground/70"
+   },
+   {
+    "text": "סמינר · קבוצה 01",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-0.5 truncate text-[11px] text-foreground/70"
+   },
+   {
+    "text": "הפקולטה למדעי הרוח בנין יצחק ורוזה גילמן",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "flex items-center gap-1 truncate text-[11px] text-foreground/70"
+   }
+  ],
+  "focus": [],
+  "label": [],
+  "counts": {
+   "text": 55,
+   "interactive": 25
+  },
+  "overflow": null
+ },
+ {
+  "page": "קטלוג",
+  "contrast": [],
+  "graphic": [
+   {
+    "ratio": 1.91,
+    "cls": "size-5 shrink-0 text-crown-gold-bright",
+    "label": "פתחו את המלך הפילוסוף"
+   }
+  ],
+  "touch": [
+   {
+    "w": 14,
+    "h": 14,
+    "min": 24,
+    "tag": "INPUT",
+    "text": "",
+    "cls": "size-3.5"
+   }
+  ],
+  "size": [],
+  "focus": [],
+  "label": [],
+  "counts": {
+   "text": 2235,
+   "interactive": 334
+  },
+  "overflow": null
+ },
+ {
+  "page": "ציון גמר",
+  "contrast": [],
+  "graphic": [
+   {
+    "ratio": 1.91,
+    "cls": "size-5 shrink-0 text-crown-gold-bright",
+    "label": "פתחו את המלך הפילוסוף"
+   }
+  ],
+  "touch": [],
+  "size": [
+   {
+    "text": "מועד ב׳ · יום חמישי, 09:00 ·",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": ""
+   },
+   {
+    "text": "מועד ב׳ · יום ראשון, 09:00 ·",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": ""
+   },
+   {
+    "text": "מועד ב׳ · יום שלישי, 09:00 ·",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": ""
+   },
+   {
+    "text": "מועד ב׳ · יום שישי, 08:30 ·",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": ""
+   },
+   {
+    "text": "לפני שמחליטים משהו — לראות כמה ציון אחד ",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-0.5 block text-[11px] leading-relaxed text-foreground/60"
+   },
+   {
+    "text": "כשיש עוד מועד לקורס הזה, והשאלה היא אם ש",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-0.5 block text-[11px] leading-relaxed text-foreground/60"
+   },
+   {
+    "text": "עבודות סמינריוניות (18%) ורפרט (4%) — המ",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "text-[11px] leading-relaxed text-foreground/70"
+   },
+   {
+    "text": "הערכה, לא רף",
+    "px": 10,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "rounded-full bg-foreground/8 px-2 py-0.5 text-[10px] text-foregr"
+   }
+  ],
+  "focus": [],
+  "label": [],
+  "counts": {
+   "text": 103,
+   "interactive": 29
+  },
+  "overflow": null
+ },
+ {
+  "page": "תקנון",
+  "contrast": [],
+  "graphic": [
+   {
+    "ratio": 1.91,
+    "cls": "size-5 shrink-0 text-crown-gold-bright",
+    "label": "פתחו את המלך הפילוסוף"
+   }
+  ],
+  "touch": [],
+  "size": [],
+  "focus": [],
+  "label": [],
+  "counts": {
+   "text": 113,
+   "interactive": 37
+  },
+  "overflow": null
+ },
+ {
+  "page": "תיק אקדמי",
+  "contrast": [],
+  "graphic": [
+   {
+    "ratio": 1.91,
+    "cls": "size-5 shrink-0 text-crown-gold-bright",
+    "label": "פתחו את המלך הפילוסוף"
+   }
+  ],
+  "touch": [
+   {
+    "w": 132,
+    "h": 17,
+    "min": 24,
+    "tag": "BUTTON",
+    "text": "שאלו את המלך איך לשפר",
+    "cls": "mt-1 flex items-center gap-1 text-[11px] font-medium text-accent"
+   },
+   {
+    "w": 122,
+    "h": 21,
+    "min": 24,
+    "tag": "SELECT",
+    "text": "עוד לא שייכתינספר לפילוס",
+    "cls": "rounded-md border border-border bg-card px-1.5 py-0.5 text-[11px"
+   },
+   {
+    "w": 122,
+    "h": 21,
+    "min": 24,
+    "tag": "SELECT",
+    "text": "עוד לא שייכתינספר לפילוס",
+    "cls": "rounded-md border border-border bg-card px-1.5 py-0.5 text-[11px"
+   }
+  ],
+  "size": [
+   {
+    "text": "מתוך 150 ש״ס לתואר",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "text-[11px] text-foreground/60"
+   },
+   {
+    "text": "לציון הגמר הרשמי (78% קורסים · 18% סמינר",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "inline-flex items-center gap-1 text-[11px] leading-snug text-for"
+   },
+   {
+    "text": "שאלו את המלך איך לשפר",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-1 flex items-center gap-1 text-[11px] font-medium text-accent"
+   },
+   {
+    "text": "מתוך 60 ש״ס נדרשים",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "text-[11px] text-foreground/60"
+   },
+   {
+    "text": "לאיזה תחום זה נספר?",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "text-[11px] text-foreground/60"
+   },
+   {
+    "text": "לאיזה תחום זה נספר?",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "text-[11px] text-foreground/60"
+   },
+   {
+    "text": "לא נכנס לממוצע התואר",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "inline-flex items-center rounded-full bg-foreground/5 px-1.5 py-"
+   }
+  ],
+  "focus": [],
+  "label": [],
+  "counts": {
+   "text": 157,
+   "interactive": 73
+  },
+  "overflow": null
+ },
+ {
+  "page": "מבחנים",
+  "contrast": [],
+  "graphic": [
+   {
+    "ratio": 1.91,
+    "cls": "size-5 shrink-0 text-crown-gold-bright",
+    "label": "פתחו את המלך הפילוסוף"
+   }
+  ],
+  "touch": [
+   {
+    "w": 20,
+    "h": 20,
+    "min": 24,
+    "tag": "BUTTON",
+    "text": "",
+    "cls": "flex size-5 shrink-0 items-center justify-center rounded-full bo"
+   },
+   {
+    "w": 21,
+    "h": 32,
+    "min": 24,
+    "tag": "BUTTON",
+    "text": "+1",
+    "cls": "shrink-0 rounded-md p-1 text-foreground/70 transition-colors hov"
+   },
+   {
+    "w": 22,
+    "h": 22,
+    "min": 24,
+    "tag": "BUTTON",
+    "text": "",
+    "cls": "shrink-0 rounded-md p-1 text-foreground/60 transition-colors hov"
+   },
+   {
+    "w": 20,
+    "h": 20,
+    "min": 24,
+    "tag": "BUTTON",
+    "text": "",
+    "cls": "flex size-5 shrink-0 items-center justify-center rounded-full bo"
+   },
+   {
+    "w": 21,
+    "h": 32,
+    "min": 24,
+    "tag": "BUTTON",
+    "text": "+1",
+    "cls": "shrink-0 rounded-md p-1 text-foreground/70 transition-colors hov"
+   },
+   {
+    "w": 22,
+    "h": 22,
+    "min": 24,
+    "tag": "BUTTON",
+    "text": "",
+    "cls": "shrink-0 rounded-md p-1 text-foreground/60 transition-colors hov"
+   },
+   {
+    "w": 20,
+    "h": 20,
+    "min": 24,
+    "tag": "BUTTON",
+    "text": "",
+    "cls": "flex size-5 shrink-0 items-center justify-center rounded-full bo"
+   },
+   {
+    "w": 21,
+    "h": 32,
+    "min": 24,
+    "tag": "BUTTON",
+    "text": "+1",
+    "cls": "shrink-0 rounded-md p-1 text-foreground/70 transition-colors hov"
+   },
+   {
+    "w": 22,
+    "h": 22,
+    "min": 24,
+    "tag": "BUTTON",
+    "text": "",
+    "cls": "shrink-0 rounded-md p-1 text-foreground/60 transition-colors hov"
+   },
+   {
+    "w": 20,
+    "h": 20,
+    "min": 24,
+    "tag": "BUTTON",
+    "text": "",
+    "cls": "flex size-5 shrink-0 items-center justify-center rounded-full bo"
+   },
+   {
+    "w": 21,
+    "h": 32,
+    "min": 24,
+    "tag": "BUTTON",
+    "text": "+1",
+    "cls": "shrink-0 rounded-md p-1 text-foreground/70 transition-colors hov"
+   },
+   {
+    "w": 22,
+    "h": 22,
+    "min": 24,
+    "tag": "BUTTON",
+    "text": "",
+    "cls": "shrink-0 rounded-md p-1 text-foreground/60 transition-colors hov"
+   },
+   {
+    "w": 20,
+    "h": 20,
+    "min": 24,
+    "tag": "BUTTON",
+    "text": "",
+    "cls": "flex size-5 shrink-0 items-center justify-center rounded-full bo"
+   },
+   {
+    "w": 21,
+    "h": 32,
+    "min": 24,
+    "tag": "BUTTON",
+    "text": "+1",
+    "cls": "shrink-0 rounded-md p-1 text-foreground/70 transition-colors hov"
+   },
+   {
+    "w": 22,
+    "h": 22,
+    "min": 24,
+    "tag": "BUTTON",
+    "text": "",
+    "cls": "shrink-0 rounded-md p-1 text-foreground/60 transition-colors hov"
+   },
+   {
+    "w": 131,
+    "h": 21,
+    "min": 24,
+    "tag": "BUTTON",
+    "text": "לחשוב על זה עם המלך",
+    "cls": "ms-auto inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 "
+   },
+   {
+    "w": 44,
+    "h": 16,
+    "min": 24,
+    "tag": "BUTTON",
+    "text": "לא, תודה",
+    "cls": "ms-auto text-xs text-foreground/60 transition-colors hover:text-"
+   }
+  ],
+  "size": [
+   {
+    "text": "בעוד 302 ימים",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "shrink-0 rounded-full px-1.5 py-0.5 text-[11px] font-semibold bg"
+   },
+   {
+    "text": "19 – 21",
+    "px": 10,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-1 h-[26px] w-full border-t border-border/30 pt-0.5 text-cente"
+   },
+   {
+    "text": "שאלו את המלך על הפיזור",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "order-last inline-flex items-center gap-1.5 rounded-md px-1.5 py"
+   },
+   {
+    "text": "25  שע׳ · מועד א׳",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "text-[11px] text-foreground/60"
+   },
+   {
+    "text": "40  שע׳ · מועד א׳",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "text-[11px] text-foreground/60"
+   },
+   {
+    "text": "גררו בלוק ליום אחר · הוסיפו · מחקו",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "text-[11px] text-foreground/60"
+   },
+   {
+    "text": "כל תא הוא יום אחד. הצ׳יפ הוא קורס שמתוכנ",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mb-2 text-[11px] leading-relaxed text-foreground/60"
+   },
+   {
+    "text": "20 . 6",
+    "px": 10,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "text-[10px] font-semibold tabular-nums text-foreground/60"
+   },
+   {
+    "text": "21 . 6",
+    "px": 10,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "text-[10px] font-semibold tabular-nums text-foreground/60"
+   },
+   {
+    "text": "22 . 6",
+    "px": 10,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "text-[10px] font-semibold tabular-nums text-foreground/60"
+   },
+   {
+    "text": "23 . 6",
+    "px": 10,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "text-[10px] font-semibold tabular-nums text-foreground/60"
+   },
+   {
+    "text": "24 . 6",
+    "px": 10,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "text-[10px] font-semibold tabular-nums text-foreground/60"
+   },
+   {
+    "text": "25 . 6",
+    "px": 10,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "text-[10px] font-semibold tabular-nums text-foreground/60"
+   },
+   {
+    "text": "26 . 6",
+    "px": 10,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "text-[10px] font-semibold tabular-nums text-foreground/60"
+   },
+   {
+    "text": "27 . 6",
+    "px": 10,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "text-[10px] font-semibold tabular-nums text-foreground/60"
+   },
+   {
+    "text": "28 . 6",
+    "px": 10,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "text-[10px] font-semibold tabular-nums text-foreground/60"
+   },
+   {
+    "text": "29 . 6",
+    "px": 10,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "text-[10px] font-semibold tabular-nums text-foreground/60"
+   },
+   {
+    "text": "30 . 6",
+    "px": 10,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "text-[10px] font-semibold tabular-nums text-foreground/60"
+   },
+   {
+    "text": "1 . 7",
+    "px": 10,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "text-[10px] font-semibold tabular-nums text-foreground/60"
+   },
+   {
+    "text": "2 . 7",
+    "px": 10,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "text-[10px] font-semibold tabular-nums text-foreground/60"
+   },
+   {
+    "text": "3 . 7",
+    "px": 10,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "text-[10px] font-semibold tabular-nums text-foreground/60"
+   },
+   {
+    "text": "4 . 7",
+    "px": 10,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "text-[10px] font-semibold tabular-nums text-foreground/60"
+   },
+   {
+    "text": "5 . 7",
+    "px": 10,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "text-[10px] font-semibold tabular-nums text-foreground/60"
+   },
+   {
+    "text": "6 . 7",
+    "px": 10,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "text-[10px] font-semibold tabular-nums text-foreground/60"
+   },
+   {
+    "text": "7 . 7",
+    "px": 10,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "text-[10px] font-semibold tabular-nums text-foreground/60"
+   },
+   {
+    "text": "8 . 7",
+    "px": 10,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "text-[10px] font-semibold tabular-nums text-foreground/60"
+   },
+   {
+    "text": "9 . 7",
+    "px": 10,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "text-[10px] font-semibold tabular-nums text-foreground/60"
+   },
+   {
+    "text": "10 . 7",
+    "px": 10,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "text-[10px] font-semibold tabular-nums text-foreground/60"
+   },
+   {
+    "text": "11 . 7",
+    "px": 10,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "text-[10px] font-semibold tabular-nums text-foreground/60"
+   },
+   {
+    "text": "12 . 7",
+    "px": 10,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "text-[10px] font-semibold tabular-nums text-foreground/60"
+   },
+   {
+    "text": "13 . 7",
+    "px": 10,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "text-[10px] font-semibold tabular-nums text-foreground/60"
+   },
+   {
+    "text": "14 . 7",
+    "px": 10,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "text-[10px] font-semibold tabular-nums text-foreground/60"
+   },
+   {
+    "text": "15 . 7",
+    "px": 10,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "text-[10px] font-semibold tabular-nums text-foreground/60"
+   },
+   {
+    "text": "16 . 7",
+    "px": 10,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "text-[10px] font-semibold tabular-nums text-foreground/60"
+   },
+   {
+    "text": "17 . 7",
+    "px": 10,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "text-[10px] font-semibold tabular-nums text-foreground/60"
+   },
+   {
+    "text": "לחשוב על זה עם המלך",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "ms-auto inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 "
+   }
+  ],
+  "focus": [],
+  "label": [],
+  "counts": {
+   "text": 177,
+   "interactive": 149
+  },
+  "overflow": null
+ },
+ {
+  "page": "מכרז",
+  "contrast": [],
+  "graphic": [
+   {
+    "ratio": 1.91,
+    "cls": "size-5 shrink-0 text-crown-gold-bright",
+    "label": "פתחו את המלך הפילוסוף"
+   }
+  ],
+  "touch": [
+   {
+    "w": 92,
+    "h": 17,
+    "min": 24,
+    "tag": "A",
+    "text": "למערכת הבידינג",
+    "cls": "inline-flex items-center gap-1 text-[11px] font-medium text-acce"
+   },
+   {
+    "w": 85,
+    "h": 17,
+    "min": 24,
+    "tag": "A",
+    "text": "הדרכה מצולמת",
+    "cls": "inline-flex items-center gap-1 text-[11px] text-foreground/60 ho"
+   },
+   {
+    "w": 208,
+    "h": 20,
+    "min": 24,
+    "tag": "A",
+    "text": "לעריכת התכנון ולבחירת קב",
+    "cls": "inline-flex w-fit items-center gap-1.5 text-sm font-semibold tex"
+   }
+  ],
+  "size": [
+   {
+    "text": "שנה״ל נפתחת · ביטול רישום עד · שבוע שינו",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-3 text-[11px] leading-relaxed text-foreground/60"
+   },
+   {
+    "text": "5 קורסים · ש״ס מתוכם חובה",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-2 text-[11px] text-foreground/60"
+   },
+   {
+    "text": "2 קורסים · ש״ס מתוכם חובה",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-2 text-[11px] text-foreground/60"
+   },
+   {
+    "text": "פכמון לא מנחש כמה נקודות צריך לקורס. האו",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "rounded-xl border border-border/50 bg-foreground/[0.02] p-3 text"
+   }
+  ],
+  "focus": [],
+  "label": [],
+  "counts": {
+   "text": 78,
+   "interactive": 24
+  },
+  "overflow": null
+ },
+ {
+  "page": "השושלת",
+  "contrast": [],
+  "graphic": [
+   {
+    "ratio": 1.91,
+    "cls": "size-5 shrink-0 text-crown-gold-bright",
+    "label": "פתחו את המלך הפילוסוף"
+   }
+  ],
+  "touch": [],
+  "size": [],
+  "focus": [],
+  "label": [],
+  "counts": {
+   "text": 86,
+   "interactive": 25
+  },
+  "overflow": null
+ },
+ {
+  "page": "המלך",
+  "contrast": [],
+  "graphic": [],
+  "touch": [],
+  "size": [],
+  "focus": [],
+  "label": [],
+  "counts": {
+   "text": 37,
+   "interactive": 33
+  },
+  "overflow": null
+ },
+ {
+  "page": "הגדרות",
+  "contrast": [],
+  "graphic": [
+   {
+    "ratio": 1.91,
+    "cls": "size-5 shrink-0 text-crown-gold-bright",
+    "label": "פתחו את המלך הפילוסוף"
+   }
+  ],
+  "touch": [],
+  "size": [
+   {
+    "text": "לפי מיפוי הרמות של יחידת האנגלית, נכון ל",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-1 text-[11px] text-foreground/60"
+   },
+   {
+    "text": "פכמון הוא כלי של סטודנט, לא שירות רשמי, ",
+    "px": 11,
+    "floor": 12,
+    "isSentence": true,
+    "cls": "mt-1.5 text-[11px] leading-relaxed text-foreground/60"
+   }
+  ],
+  "focus": [],
+  "label": [],
+  "counts": {
+   "text": 98,
+   "interactive": 45
+  },
+  "overflow": null
+ }
+]
